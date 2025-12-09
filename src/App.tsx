@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// ✅ 1. Tus imports originales (Se mantienen IGUAL)
 import { MainLayout } from './components/layout/MainLayout';
 import { Login } from './pages/Auth/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -14,18 +16,21 @@ import { Configuracion } from './pages/Configuracion/Configuracion';
 import { useAuthStore } from './store/authStore';
 import { AuthService } from './services/auth.service';
 
-// Create React Query client
+// ✅ 2. ÚNICO CAMBIO: Importar el contenedor de notificaciones
+import ToastContainer from './components/common/ToastContainer';
+
+// Configuración de React Query (Tu configuración original)
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
     },
   },
 });
 
-// Protected Route Component
+// Componente de Ruta Protegida (Tu lógica original)
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const user = useAuthStore(state => state.user);
   const loading = useAuthStore(state => state.loading);
@@ -50,7 +55,6 @@ function App() {
   const setLoading = useAuthStore(state => state.setLoading);
 
   useEffect(() => {
-    // Listen to auth state changes
     const unsubscribe = AuthService.onAuthChange((user) => {
       setUser(user);
       setLoading(false);
@@ -63,10 +67,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          {/* Public Routes */}
+          {/* Rutas Públicas */}
           <Route path="/login" element={<Login />} />
 
-          {/* Protected Routes */}
+          {/* Rutas Protegidas */}
           <Route
             path="/"
             element={
@@ -86,9 +90,14 @@ function App() {
             <Route path="configuracion" element={<Configuracion />} />
           </Route>
 
-          {/* Catch all */}
+          {/* Ruta Catch-all */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
+
+        {/* ✅ 3. ÚNICO CAMBIO: El componente visual de notificaciones */}
+        {/* Se coloca aquí para que flote sobre todo, pero dentro del Router */}
+        <ToastContainer />
+        
       </BrowserRouter>
     </QueryClientProvider>
   );

@@ -4,27 +4,33 @@ import type { User } from 'firebase/auth';
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  loading: boolean;                // <--- NUEVO
+  loading: boolean;
+  error: string | null;
   setUser: (user: User | null) => void;
-  setLoading: (loading: boolean) => void; // <--- NUEVO
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
-  loading: true,                  // <--- NUEVO: Empieza cargando
+  loading: true,
+  error: null,
 
-  setUser: (user) => set({ 
-    user, 
-    isAuthenticated: !!user 
+  setUser: (user) => set({
+    user,
+    isAuthenticated: !!user,
+    error: null
   }),
 
-  // Esta es la función que te faltaba y causaba el error en App.tsx
   setLoading: (loading) => set({ loading }),
 
-  logout: () => set({ 
-    user: null, 
-    isAuthenticated: false 
+  setError: (error) => set({ error }),
+
+  logout: () => set({
+    user: null,
+    isAuthenticated: false,
+    error: null
   }),
 }));
