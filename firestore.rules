@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regla general: solo usuarios autenticados pueden leer/escribir
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Tipo de cambio: cualquier usuario autenticado puede leer
+    match /tiposCambio/{fecha} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Productos
+    match /productos/{productoId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Unidades
+    match /unidades/{unidadId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Órdenes de Compra
+    match /ordenesCompra/{ordenId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Ventas
+    match /ventas/{ventaId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Gastos
+    match /gastos/{gastoId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Almacenes
+    match /almacenes/{almacenId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Transferencias
+    match /transferencias/{transferenciaId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Historial CTRU
+    match /historialRecalculoCTRU/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}

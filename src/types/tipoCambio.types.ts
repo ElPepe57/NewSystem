@@ -1,66 +1,63 @@
-import type { Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
 
-export type FuenteTC = 
-  | 'manual'           // Ingresado manualmente por usuario
-  | 'api_sunat'        // Consultado de API SUNAT
-  | 'api_sbs'          // Consultado de API SBS
-  | 'api_net'          // Consultado de APIs.net.pe
-  | 'promedio';        // Promedio de varias fuentes
+/**
+ * Fuente del tipo de cambio
+ * - manual: Ingresado manualmente por el usuario
+ * - sunat: Obtenido de la API de SUNAT
+ * - bcrp: Obtenido del Banco Central de Reserva del Perú
+ */
+export type FuenteTipoCambio = 'manual' | 'sunat' | 'bcrp';
 
+/**
+ * Tipo de Cambio
+ * Representa el tipo de cambio USD/PEN para una fecha específica
+ */
 export interface TipoCambio {
   id: string;
-  fecha: Timestamp;           // Fecha del tipo de cambio
-  
-  // Valores principales
-  compra: number;             // TC de compra (venta de dólares)
-  venta: number;              // TC de venta (compra de dólares)
-  promedio: number;           // (compra + venta) / 2
-  
-  // Metadata
-  fuente: FuenteTC;
-  observaciones?: string;
-  
-  // Análisis
-  variacionCompra?: number;   // % variación vs día anterior
-  variacionVenta?: number;    // % variación vs día anterior
-  alertaVariacion?: boolean;  // true si variación > 3%
-  
-  // Auditoría
+  fecha: Timestamp;
+  compra: number;
+  venta: number;
+  promedio: number;           // Promedio de compra y venta: (compra + venta) / 2
+  fuente: FuenteTipoCambio;
   creadoPor: string;
   fechaCreacion: Timestamp;
-  ultimaEdicion?: Timestamp;
+  actualizadoPor?: string;
+  fechaActualizacion?: Timestamp;
 }
 
+/**
+ * Datos para crear o actualizar un Tipo de Cambio
+ */
 export interface TipoCambioFormData {
   fecha: Date;
   compra: number;
   venta: number;
-  fuente: FuenteTC;
-  observaciones?: string;
+  fuente: FuenteTipoCambio;
 }
 
-export interface TipoCambioStats {
-  tcActual: TipoCambio | null;
-  tcAnterior: TipoCambio | null;
-  variacionCompra: number;
-  variacionVenta: number;
-  promedioSemana: number;
-  promedioMes: number;
-  minimo30Dias: number;
-  maximo30Dias: number;
-}
-
-export interface TipoCambioHistorial {
+/**
+ * Respuesta de la API de SUNAT
+ */
+export interface SunatTCResponse {
   fecha: string;
   compra: number;
   venta: number;
-  promedio: number;
 }
 
-// Para respuesta de API
-export interface TipoCambioAPI {
+/**
+ * Filtros para consultar el historial de TC
+ */
+export interface TipoCambioFiltros {
+  fechaInicio?: Date;
+  fechaFin?: Date;
+  fuente?: FuenteTipoCambio;
+}
+
+/**
+ * Punto de datos para el gráfico de evolución
+ */
+export interface TipoCambioDataPoint {
+  fecha: string;
   compra: number;
   venta: number;
-  fecha: string;
-  fuente: string;
 }

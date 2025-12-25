@@ -1,26 +1,33 @@
 import React from 'react';
-import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp } from 'lucide-react';
+import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard } from 'lucide-react';
 import { Badge, Button } from '../../common';
-import type { OrdenCompra, EstadoOrden } from '../../../types/ordenCompra.types';
+import type { OrdenCompra, EstadoOrden, EstadoPago } from '../../../types/ordenCompra.types';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
   onCambiarEstado?: (nuevoEstado: EstadoOrden) => void;
+  onRegistrarPago?: () => void;
   onRecibirOrden?: () => void;
 }
 
 const estadoLabels: Record<EstadoOrden, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
   borrador: { label: 'Borrador', variant: 'default' },
   enviada: { label: 'Enviada', variant: 'info' },
-  pagada: { label: 'Pagada', variant: 'warning' },
   en_transito: { label: 'En Tránsito', variant: 'warning' },
   recibida: { label: 'Recibida', variant: 'success' },
   cancelada: { label: 'Cancelada', variant: 'danger' }
 };
 
+const estadoPagoLabels: Record<EstadoPago, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
+  pendiente: { label: 'Pendiente de Pago', variant: 'danger' },
+  pago_parcial: { label: 'Pago Parcial', variant: 'warning' },
+  pagada: { label: 'Pagada', variant: 'success' }
+};
+
 export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   orden,
   onCambiarEstado,
+  onRegistrarPago,
   onRecibirOrden
 }) => {
   const formatDate = (timestamp: any) => {
@@ -36,19 +43,18 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   };
 
   const estadoInfo = estadoLabels[orden.estado];
+  const estadoPagoInfo = estadoPagoLabels[orden.estadoPago || 'pendiente'];
 
-  // Determinar siguientes acciones posibles
+  // Determinar siguientes acciones posibles (solo estado logístico)
   const getAccionesDisponibles = () => {
     const acciones: Array<{ estado: EstadoOrden; label: string }> = [];
-    
+
     if (orden.estado === 'borrador') {
       acciones.push({ estado: 'enviada', label: 'Marcar como Enviada' });
     } else if (orden.estado === 'enviada') {
-      acciones.push({ estado: 'pagada', label: 'Marcar como Pagada' });
-    } else if (orden.estado === 'pagada') {
       acciones.push({ estado: 'en_transito', label: 'Poner en Tránsito' });
     }
-    
+
     return acciones;
   };
 
@@ -65,9 +71,15 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             </div>
           </div>
         </div>
-        <Badge variant={estadoInfo.variant} size="lg">
-          {estadoInfo.label}
-        </Badge>
+        <div className="flex flex-col items-end gap-2">
+          <Badge variant={estadoInfo.variant} size="lg">
+            {estadoInfo.label}
+          </Badge>
+          <Badge variant={estadoPagoInfo.variant}>
+            <CreditCard className="h-3 w-3 mr-1" />
+            {estadoPagoInfo.label}
+          </Badge>
+        </div>
       </div>
 
       {/* Información General */}
@@ -88,10 +100,10 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 <span className="text-gray-900">{formatDate(orden.fechaEnviada)}</span>
               </div>
             )}
-            {orden.fechaPagada && (
+            {orden.fechaPago && (
               <div className="flex justify-between">
                 <span className="text-gray-600">Pagada:</span>
-                <span className="text-gray-900">{formatDate(orden.fechaPagada)}</span>
+                <span className="text-gray-900">{formatDate(orden.fechaPago)}</span>
               </div>
             )}
             {orden.fechaRecibida && (
@@ -110,13 +122,25 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </div>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal:</span>
+              <span className="text-gray-600">Subtotal Productos:</span>
               <span className="font-semibold">${orden.subtotalUSD.toFixed(2)}</span>
             </div>
+            {orden.impuestoUSD && orden.impuestoUSD > 0 && (
+              <div className="flex justify-between text-sm text-amber-700">
+                <span>Tax / Impuesto ({((orden.impuestoUSD / orden.subtotalUSD) * 100).toFixed(2)}%):</span>
+                <span className="font-medium">${orden.impuestoUSD.toFixed(2)}</span>
+              </div>
+            )}
             {orden.gastosEnvioUSD && orden.gastosEnvioUSD > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Envío:</span>
+                <span className="text-gray-600">Gastos de Envío:</span>
                 <span>${orden.gastosEnvioUSD.toFixed(2)}</span>
+              </div>
+            )}
+            {orden.otrosGastosUSD && orden.otrosGastosUSD > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Otros Gastos:</span>
+                <span>${orden.otrosGastosUSD.toFixed(2)}</span>
               </div>
             )}
             <div className="border-t border-primary-200 pt-2">
@@ -221,7 +245,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       )}
 
       {/* Acciones */}
-      <div className="flex items-center space-x-3 pt-4 border-t">
+      <div className="flex items-center flex-wrap gap-3 pt-4 border-t">
+        {/* Acciones de estado logístico */}
         {getAccionesDisponibles().map(accion => (
           <Button
             key={accion.estado}
@@ -231,10 +256,22 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             {accion.label}
           </Button>
         ))}
-        
-        {orden.estado === 'en_transito' && !orden.inventarioGenerado && onRecibirOrden && (
+
+        {/* Botón de pago */}
+        {orden.estado !== 'cancelada' && orden.estadoPago !== 'pagada' && onRegistrarPago && (
           <Button
-            variant="success"
+            variant="secondary"
+            onClick={onRegistrarPago}
+          >
+            <CreditCard className="h-4 w-4 mr-2" />
+            {orden.estadoPago === 'pago_parcial' ? 'Registrar Pago Adicional' : 'Registrar Pago'}
+          </Button>
+        )}
+
+        {/* Botón de recibir orden */}
+        {(orden.estado === 'en_transito' || orden.estado === 'enviada') && !orden.inventarioGenerado && onRecibirOrden && (
+          <Button
+            variant="primary"
             onClick={onRecibirOrden}
           >
             <Box className="h-4 w-4 mr-2" />

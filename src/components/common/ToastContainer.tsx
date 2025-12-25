@@ -1,14 +1,12 @@
 import React from 'react';
-// CORRECCIÓN AQUÍ: Se agrega 'type' antes de NotificationType
-import { useNotificationStore, type NotificationType } from '../../store/notificationStore';
+import { useToastStore, type ToastType } from '../../store/toastStore';
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 
 const ToastContainer: React.FC = () => {
-  // Obtenemos el estado de forma segura
-  const notifications = useNotificationStore((state) => state.notifications);
-  const removeNotification = useNotificationStore((state) => state.removeNotification);
+  const toasts = useToastStore((state) => state.toasts);
+  const removeToast = useToastStore((state) => state.removeToast);
 
-  const getToastConfig = (type: NotificationType) => {
+  const getToastConfig = (type: ToastType) => {
     switch (type) {
       case 'success':
         return {
@@ -42,17 +40,16 @@ const ToastContainer: React.FC = () => {
     }
   };
 
-  // Si no hay notificaciones, no renderizamos nada (evita errores de layout)
-  if (!notifications || notifications.length === 0) return null;
+  if (!toasts || toasts.length === 0) return null;
 
   return (
     <div className="fixed top-5 right-5 z-50 flex flex-col gap-3 w-80 max-w-[90vw]">
-      {notifications.map((notif) => {
-        const style = getToastConfig(notif.type);
+      {toasts.map((toast) => {
+        const style = getToastConfig(toast.type);
 
         return (
           <div
-            key={notif.id}
+            key={toast.id}
             className={`${style.bg} border-l-4 ${style.border} shadow-md rounded-r p-4 flex items-start justify-between transition-all duration-300 transform translate-x-0`}
             role="alert"
           >
@@ -61,12 +58,12 @@ const ToastContainer: React.FC = () => {
                 {style.icon}
               </div>
               <p className={`text-sm font-medium ${style.text}`}>
-                {notif.message}
+                {toast.message}
               </p>
             </div>
 
             <button
-              onClick={() => removeNotification(notif.id)}
+              onClick={() => removeToast(toast.id)}
               className="ml-4 text-gray-500 hover:text-gray-700 focus:outline-none"
             >
               <X className="w-4 h-4" />

@@ -1,12 +1,14 @@
 import { create } from 'zustand';
-import type { 
-  OrdenCompra, 
-  OrdenCompraFormData, 
+import type {
+  OrdenCompra,
+  OrdenCompraFormData,
   EstadoOrden,
   OrdenCompraStats,
   Proveedor,
-  ProveedorFormData
+  ProveedorFormData,
+  PagoOrdenCompra
 } from '../types/ordenCompra.types';
+import type { MetodoTesoreria } from '../types/tesoreria.types';
 import { OrdenCompraService } from '../services/ordenCompra.service';
 
 interface OrdenCompraState {
@@ -30,7 +32,22 @@ interface OrdenCompraState {
   createOrden: (data: OrdenCompraFormData, userId: string) => Promise<void>;
   updateOrden: (id: string, data: Partial<OrdenCompraFormData>, userId: string) => Promise<void>;
   cambiarEstadoOrden: (id: string, nuevoEstado: EstadoOrden, userId: string, datos?: any) => Promise<void>;
-  recibirOrden: (id: string, userId: string) => Promise<string[]>;
+  registrarPago: (id: string, datos: {
+    fechaPago: Date;
+    monedaPago: 'USD' | 'PEN';
+    montoOriginal: number;
+    tipoCambio: number;
+    metodoPago: MetodoTesoreria;
+    cuentaOrigenId?: string;
+    referencia?: string;
+    notas?: string;
+  }, userId: string) => Promise<PagoOrdenCompra>;
+  recibirOrden: (id: string, userId: string) => Promise<{
+    unidadesGeneradas: string[];
+    unidadesReservadas: string[];
+    unidadesDisponibles: string[];
+    cotizacionVinculada?: string;
+  }>;
   deleteOrden: (id: string) => Promise<void>;
   fetchStats: () => Promise<void>;
   setSelectedOrden: (orden: OrdenCompra | null) => void;
@@ -167,28 +184,57 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
       await OrdenCompraService.cambiarEstado(id, nuevoEstado, userId, datos);
       await get().fetchOrdenes();
       await get().fetchStats();
-      
+
       // Si se seleccionó esta orden, recargarla
       if (get().selectedOrden?.id === id) {
         await get().fetchOrdenById(id);
       }
-      
+
       set({ loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
     }
   },
-  
+
+  registrarPago: async (id: string, datos: {
+    fechaPago: Date;
+    monedaPago: 'USD' | 'PEN';
+    montoOriginal: number;
+    tipoCambio: number;
+    metodoPago: MetodoTesoreria;
+    cuentaOrigenId?: string;
+    referencia?: string;
+    notas?: string;
+  }, userId: string) => {
+    set({ loading: true, error: null });
+    try {
+      const pago = await OrdenCompraService.registrarPago(id, datos, userId);
+      await get().fetchOrdenes();
+      await get().fetchStats();
+
+      // Si se seleccionó esta orden, recargarla
+      if (get().selectedOrden?.id === id) {
+        await get().fetchOrdenById(id);
+      }
+
+      set({ loading: false });
+      return pago;
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
   recibirOrden: async (id: string, userId: string) => {
     set({ loading: true, error: null });
     try {
-      const unidadesGeneradas = await OrdenCompraService.recibirOrden(id, userId);
+      const resultado = await OrdenCompraService.recibirOrden(id, userId);
       await get().fetchOrdenes();
       await get().fetchStats();
-      
+
       set({ loading: false });
-      return unidadesGeneradas;
+      return resultado;
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
@@ -217,7 +263,9 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
       const stats = await OrdenCompraService.getStats();
       set({ stats, loading: false });
     } catch (error: any) {
+      console.error('Error en fetchStats:', error);
       set({ error: error.message, loading: false });
+      throw error;
     }
   },
   

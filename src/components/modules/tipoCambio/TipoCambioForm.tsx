@@ -1,45 +1,38 @@
 import React, { useState } from 'react';
-import { Button, Input, Select } from '../../common';
-import type { TipoCambioFormData, FuenteTC } from '../../../types/tipoCambio.types';
+import { Download } from 'lucide-react';
+import { Button, Input } from '../../common';
+import type { TipoCambioFormData } from '../../../types/tipoCambio.types';
 
 interface TipoCambioFormProps {
   onSubmit: (data: TipoCambioFormData) => void;
   onCancel: () => void;
+  onObtenerSunat?: (fecha: Date) => void;
   loading?: boolean;
-  initialData?: Partial<TipoCambioFormData>;
 }
-
-const fuenteOptions: Array<{ value: FuenteTC; label: string }> = [
-  { value: 'manual', label: 'Manual' },
-  { value: 'api_sunat', label: 'SUNAT' },
-  { value: 'api_sbs', label: 'SBS' },
-  { value: 'api_net', label: 'APIs.net.pe' },
-  { value: 'promedio', label: 'Promedio' }
-];
 
 export const TipoCambioForm: React.FC<TipoCambioFormProps> = ({
   onSubmit,
   onCancel,
-  loading = false,
-  initialData
+  onObtenerSunat,
+  loading = false
 }) => {
   const [formData, setFormData] = useState<TipoCambioFormData>({
-    fecha: initialData?.fecha || new Date(),
-    compra: initialData?.compra || 0,
-    venta: initialData?.venta || 0,
-    fuente: initialData?.fuente || 'manual',
-    observaciones: initialData?.observaciones || ''
+    fecha: new Date(),
+    compra: 0,
+    venta: 0,
+    fuente: 'manual'
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? parseFloat(value) || 0 : 
-              type === 'date' ? new Date(value) :
-              value
-    }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+
+    if (name === 'fecha') {
+      setFormData(prev => ({ ...prev, [name]: new Date(value) }));
+    } else if (name === 'compra' || name === 'venta') {
+      setFormData(prev => ({ ...prev, [name]: parseFloat(value) || 0 }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,89 +40,85 @@ export const TipoCambioForm: React.FC<TipoCambioFormProps> = ({
     onSubmit(formData);
   };
 
-  const promedio = formData.compra > 0 && formData.venta > 0 
-    ? (formData.compra + formData.venta) / 2 
-    : 0;
+  const handleObtenerSunat = () => {
+    if (onObtenerSunat) {
+      onObtenerSunat(formData.fecha);
+    }
+  };
+
+  const fechaString = formData.fecha.toISOString().split('T')[0];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Fecha */}
-      <div>
+      <div className="space-y-4">
         <Input
           label="Fecha"
           name="fecha"
           type="date"
-          value={formData.fecha instanceof Date ? formData.fecha.toISOString().split('T')[0] : ''}
+          value={fechaString}
           onChange={handleChange}
           required
         />
-      </div>
 
-      {/* Tipos de Cambio */}
-      <div>
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Tipo de Cambio</h4>
+        {onObtenerSunat && (
+          <div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleObtenerSunat}
+              disabled={loading}
+              className="w-full"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Obtener TC de SUNAT
+            </Button>
+            <p className="text-xs text-gray-500 mt-1">
+              Obtiene automáticamente el tipo de cambio oficial de SUNAT para la fecha seleccionada
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
-            label="Compra"
+            label="Tipo de Cambio Compra"
             name="compra"
             type="number"
             step="0.001"
             value={formData.compra}
             onChange={handleChange}
             required
-            helperText="TC para vender dólares"
+            placeholder="ej: 3.750"
           />
-          
+
           <Input
-            label="Venta"
+            label="Tipo de Cambio Venta"
             name="venta"
             type="number"
             step="0.001"
             value={formData.venta}
             onChange={handleChange}
             required
-            helperText="TC para comprar dólares"
+            placeholder="ej: 3.780"
           />
         </div>
-        
-        {promedio > 0 && (
-          <div className="mt-4 p-4 bg-primary-50 rounded-lg">
-            <div className="text-sm text-gray-600">Promedio</div>
-            <div className="text-2xl font-bold text-primary-600">
-              {promedio.toFixed(3)}
-            </div>
-          </div>
-        )}
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Fuente
+          </label>
+          <select
+            name="fuente"
+            value={formData.fuente}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="manual">Manual</option>
+            <option value="sunat">SUNAT</option>
+            <option value="bcrp">BCRP</option>
+          </select>
+        </div>
       </div>
 
-      {/* Fuente */}
-      <div>
-        <Select
-          label="Fuente"
-          name="fuente"
-          value={formData.fuente}
-          onChange={handleChange}
-          options={fuenteOptions}
-          required
-        />
-      </div>
-
-      {/* Observaciones */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Observaciones
-        </label>
-        <textarea
-          name="observaciones"
-          value={formData.observaciones}
-          onChange={handleChange}
-          rows={3}
-          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
-          placeholder="Notas adicionales..."
-        />
-      </div>
-
-      {/* Botones */}
       <div className="flex items-center justify-end space-x-3 pt-6 border-t">
         <Button
           type="button"
@@ -142,9 +131,9 @@ export const TipoCambioForm: React.FC<TipoCambioFormProps> = ({
         <Button
           type="submit"
           variant="primary"
-          loading={loading}
+          disabled={loading || formData.compra <= 0 || formData.venta <= 0}
         >
-          {initialData ? 'Actualizar' : 'Registrar'} TC
+          {loading ? 'Guardando...' : 'Guardar Tipo de Cambio'}
         </Button>
       </div>
     </form>

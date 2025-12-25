@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Producto } from '../types/producto.types';
+import type { Producto, InvestigacionFormData, InvestigacionMercado } from '../types/producto.types';
 import { ProductoService } from '../services/producto.service';
 
 interface ProductoState {
@@ -7,7 +7,7 @@ interface ProductoState {
   loading: boolean;
   error: string | null;
   selectedProducto: Producto | null;
-  
+
   // Actions
   fetchProductos: () => Promise<void>;
   createProducto: (data: any, userId: string) => Promise<void>;
@@ -15,6 +15,12 @@ interface ProductoState {
   deleteProducto: (id: string) => Promise<void>;
   setSelectedProducto: (producto: Producto | null) => void;
   searchProductos: (term: string) => Promise<void>;
+
+  // Investigación de Mercado
+  guardarInvestigacion: (productoId: string, data: InvestigacionFormData, userId: string, tipoCambio?: number) => Promise<InvestigacionMercado>;
+  eliminarInvestigacion: (productoId: string) => Promise<void>;
+  getProductosSinInvestigacion: () => Promise<Producto[]>;
+  getProductosInvestigacionVencida: () => Promise<Producto[]>;
 }
 
 export const useProductoStore = create<ProductoState>((set) => ({
@@ -88,13 +94,79 @@ export const useProductoStore = create<ProductoState>((set) => ({
       set({ productos });
       return;
     }
-    
+
     set({ loading: true, error: null });
     try {
       const productos = await ProductoService.search(term);
       set({ productos, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
+    }
+  },
+
+  // ============================================
+  // INVESTIGACIÓN DE MERCADO
+  // ============================================
+
+  guardarInvestigacion: async (productoId, data, userId, tipoCambio = 3.70) => {
+    set({ loading: true, error: null });
+    try {
+      const investigacion = await ProductoService.guardarInvestigacion(productoId, data, userId, tipoCambio);
+
+      // Actualizar el producto en el estado local
+      set(state => ({
+        productos: state.productos.map(p =>
+          p.id === productoId ? { ...p, investigacion } : p
+        ),
+        selectedProducto: state.selectedProducto?.id === productoId
+          ? { ...state.selectedProducto, investigacion }
+          : state.selectedProducto,
+        loading: false
+      }));
+
+      return investigacion;
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  eliminarInvestigacion: async (productoId) => {
+    set({ loading: true, error: null });
+    try {
+      await ProductoService.eliminarInvestigacion(productoId);
+
+      // Actualizar el producto en el estado local
+      set(state => ({
+        productos: state.productos.map(p =>
+          p.id === productoId ? { ...p, investigacion: undefined } : p
+        ),
+        selectedProducto: state.selectedProducto?.id === productoId
+          ? { ...state.selectedProducto, investigacion: undefined }
+          : state.selectedProducto,
+        loading: false
+      }));
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  getProductosSinInvestigacion: async () => {
+    try {
+      return await ProductoService.getProductosSinInvestigacion();
+    } catch (error: any) {
+      console.error('Error al obtener productos sin investigación:', error);
+      return [];
+    }
+  },
+
+  getProductosInvestigacionVencida: async () => {
+    try {
+      return await ProductoService.getProductosInvestigacionVencida();
+    } catch (error: any) {
+      console.error('Error al obtener productos con investigación vencida:', error);
+      return [];
     }
   }
 }));

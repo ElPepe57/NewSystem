@@ -1,128 +1,149 @@
 import { create } from 'zustand';
-import type { Unidad, UnidadFormData, EstadoUnidad, Almacen, ResumenInventario } from '../types/producto.types';
-import { InventarioService } from '../services/inventario.service';
+import { inventarioService } from '../services/inventario.service';
+import type {
+  InventarioProducto,
+  InventarioPorPais,
+  InventarioResumen,
+  InventarioFiltros,
+  InventarioStats
+} from '../types/inventario.types';
+
+interface SincronizacionResultado {
+  estadosUnidades: {
+    unidadesRevisadas: number;
+    correccionesRealizadas: number;
+    reservasLiberadas: number;
+  };
+  stockProductos: {
+    productosRevisados: number;
+    productosActualizados: number;
+  };
+  ctruActualizados: number;
+  errores: number;
+}
 
 interface InventarioState {
-  unidades: Unidad[];
-  resumen: ResumenInventario | null;
+  inventario: InventarioProducto[];
+  resumen: InventarioResumen | null;
+  stats: InventarioStats | null;
   loading: boolean;
+  sincronizando: boolean;
   error: string | null;
-  selectedUnidad: Unidad | null;
-  
-  // Actions
-  fetchUnidadesByProducto: (productoId: string) => Promise<void>;
-  fetchUnidadesByAlmacen: (almacen: Almacen) => Promise<void>;
-  fetchUnidadesByEstado: (estado: EstadoUnidad) => Promise<void>;
-  crearUnidades: (data: UnidadFormData, sku: string, userId: string) => Promise<void>;
-  moverUnidad: (unidadId: string, almacenDestino: Almacen, motivo: string, userId: string, observaciones?: string) => Promise<void>;
-  cambiarEstado: (unidadId: string, nuevoEstado: EstadoUnidad, motivo: string, userId: string, observaciones?: string) => Promise<void>;
-  fetchResumen: (productoId: string) => Promise<void>;
-  setSelectedUnidad: (unidad: Unidad | null) => void;
-  clearUnidades: () => void;
+
+  // Acciones
+  fetchInventario: (filtros?: InventarioFiltros) => Promise<void>;
+  fetchInventarioPorPais: (pais: 'USA' | 'Peru') => Promise<InventarioPorPais>;
+  fetchResumen: () => Promise<void>;
+  fetchStats: () => Promise<void>;
+  buscarInventario: (termino: string) => Promise<void>;
+  getProductosStockCritico: () => Promise<void>;
+  getProductosAgotados: () => Promise<void>;
+  sincronizarCompleto: () => Promise<SincronizacionResultado>;
+  clearError: () => void;
 }
 
 export const useInventarioStore = create<InventarioState>((set, get) => ({
-  unidades: [],
+  inventario: [],
   resumen: null,
+  stats: null,
   loading: false,
+  sincronizando: false,
   error: null,
-  selectedUnidad: null,
-  
-  fetchUnidadesByProducto: async (productoId: string) => {
+
+  fetchInventario: async (filtros?: InventarioFiltros) => {
     set({ loading: true, error: null });
     try {
-      const unidades = await InventarioService.getByProducto(productoId);
-      set({ unidades, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-  
-  fetchUnidadesByAlmacen: async (almacen: Almacen) => {
-    set({ loading: true, error: null });
-    try {
-      const unidades = await InventarioService.getByAlmacen(almacen);
-      set({ unidades, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-  
-  fetchUnidadesByEstado: async (estado: EstadoUnidad) => {
-    set({ loading: true, error: null });
-    try {
-      const unidades = await InventarioService.getByEstado(estado);
-      set({ unidades, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-  
-  crearUnidades: async (data: UnidadFormData, sku: string, userId: string) => {
-    set({ loading: true, error: null });
-    try {
-      const nuevasUnidades = await InventarioService.crearUnidades(data, sku, userId);
-      set(state => ({ 
-        unidades: [...nuevasUnidades, ...state.unidades],
-        loading: false 
-      }));
+      const inventario = await inventarioService.getInventarioAgregado(filtros);
+      set({ inventario, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
     }
   },
-  
-  moverUnidad: async (unidadId: string, almacenDestino: Almacen, motivo: string, userId: string, observaciones?: string) => {
+
+  fetchInventarioPorPais: async (pais: 'USA' | 'Peru') => {
     set({ loading: true, error: null });
     try {
-      await InventarioService.moverUnidad(unidadId, almacenDestino, motivo, userId, observaciones);
-      
-      // Recargar las unidades del producto actual
-      const unidad = get().unidades.find(u => u.id === unidadId);
-      if (unidad) {
-        await get().fetchUnidadesByProducto(unidad.productoId);
-      }
-      
+      const data = await inventarioService.getInventarioPorPais(pais);
       set({ loading: false });
+      return data;
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
     }
   },
-  
-  cambiarEstado: async (unidadId: string, nuevoEstado: EstadoUnidad, motivo: string, userId: string, observaciones?: string) => {
+
+  fetchResumen: async () => {
     set({ loading: true, error: null });
     try {
-      await InventarioService.cambiarEstado(unidadId, nuevoEstado, motivo, userId, observaciones);
-      
-      // Recargar las unidades del producto actual
-      const unidad = get().unidades.find(u => u.id === unidadId);
-      if (unidad) {
-        await get().fetchUnidadesByProducto(unidad.productoId);
-      }
-      
-      set({ loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
-  
-  fetchResumen: async (productoId: string) => {
-    set({ loading: true, error: null });
-    try {
-      const resumen = await InventarioService.getResumenPorProducto(productoId);
+      const resumen = await inventarioService.getResumenGeneral();
       set({ resumen, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
+      throw error;
     }
   },
-  
-  setSelectedUnidad: (unidad) => {
-    set({ selectedUnidad: unidad });
+
+  fetchStats: async () => {
+    set({ loading: true, error: null });
+    try {
+      const stats = await inventarioService.getStats();
+      set({ stats, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
   },
-  
-  clearUnidades: () => {
-    set({ unidades: [], resumen: null, selectedUnidad: null });
-  }
+
+  buscarInventario: async (termino: string) => {
+    set({ loading: true, error: null });
+    try {
+      const inventario = await inventarioService.buscarInventario(termino);
+      set({ inventario, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  getProductosStockCritico: async () => {
+    set({ loading: true, error: null });
+    try {
+      const inventario = await inventarioService.getProductosStockCritico();
+      set({ inventario, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  getProductosAgotados: async () => {
+    set({ loading: true, error: null });
+    try {
+      const inventario = await inventarioService.getProductosAgotados();
+      set({ inventario, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  sincronizarCompleto: async () => {
+    set({ sincronizando: true, error: null });
+    try {
+      const resultado = await inventarioService.sincronizacionCompleta();
+
+      // Recargar inventario después de sincronizar
+      const inventario = await inventarioService.getInventarioAgregado();
+      const stats = await inventarioService.getStats();
+
+      set({ inventario, stats, sincronizando: false });
+      return resultado;
+    } catch (error: any) {
+      set({ error: error.message, sincronizando: false });
+      throw error;
+    }
+  },
+
+  clearError: () => set({ error: null })
 }));

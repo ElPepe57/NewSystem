@@ -1,342 +1,336 @@
 import {
   collection,
-  doc,
+  addDoc,
   getDocs,
   getDoc,
-  addDoc,
+  doc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
-  limit,
   Timestamp,
-  serverTimestamp
+  limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { 
-  TipoCambio, 
-  TipoCambioFormData, 
-  TipoCambioStats,
-  TipoCambioHistorial
-} from '../types/tipoCambio.types';
+import type { TipoCambio, TipoCambioFormData, TipoCambioFiltros, SunatTCResponse } from '../types/tipoCambio.types';
 
 const COLLECTION_NAME = 'tiposCambio';
 
-export class TipoCambioService {
+/**
+ * Servicio para gestionar Tipos de Cambio
+ */
+export const tipoCambioService = {
   /**
    * Obtener todos los tipos de cambio
    */
-  static async getAll(): Promise<TipoCambio[]> {
-    try {
-      const q = query(
-        collection(db, COLLECTION_NAME),
-        orderBy('fecha', 'desc')
-      );
-      
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs.map(doc => ({
+  async getAll(): Promise<TipoCambio[]> {
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      orderBy('fecha', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
         id: doc.id,
-        ...doc.data()
-      } as TipoCambio));
-    } catch (error: any) {
-      console.error('Error al obtener tipos de cambio:', error);
-      throw new Error('Error al cargar tipos de cambio');
-    }
-  }
+        ...data,
+        promedio: data.promedio ?? (data.compra + data.venta) / 2
+      } as TipoCambio;
+    });
+  },
 
   /**
-   * Obtener tipos de cambio por rango de fechas
+   * Obtener tipo de cambio por ID
    */
-  static async getByDateRange(fechaInicio: Date, fechaFin: Date): Promise<TipoCambio[]> {
-    try {
-      const q = query(
-        collection(db, COLLECTION_NAME),
-        where('fecha', '>=', Timestamp.fromDate(fechaInicio)),
-        where('fecha', '<=', Timestamp.fromDate(fechaFin)),
-        orderBy('fecha', 'desc')
-      );
-      
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as TipoCambio));
-    } catch (error: any) {
-      console.error('Error al obtener tipos de cambio por rango:', error);
-      throw new Error('Error al cargar tipos de cambio');
+  async getById(id: string): Promise<TipoCambio | null> {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      return null;
     }
-  }
+
+    const data = docSnap.data();
+    return {
+      id: docSnap.id,
+      ...data,
+      promedio: data.promedio ?? (data.compra + data.venta) / 2
+    } as TipoCambio;
+  },
 
   /**
    * Obtener tipo de cambio por fecha específica
    */
-  static async getByFecha(fecha: Date): Promise<TipoCambio | null> {
-    try {
-      // Crear rango de la fecha (inicio y fin del día)
-      const inicioDelDia = new Date(fecha);
-      inicioDelDia.setHours(0, 0, 0, 0);
-      
-      const finDelDia = new Date(fecha);
-      finDelDia.setHours(23, 59, 59, 999);
-      
-      const q = query(
-        collection(db, COLLECTION_NAME),
-        where('fecha', '>=', Timestamp.fromDate(inicioDelDia)),
-        where('fecha', '<=', Timestamp.fromDate(finDelDia)),
-        limit(1)
-      );
-      
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        return null;
-      }
-      
-      return {
-        id: snapshot.docs[0].id,
-        ...snapshot.docs[0].data()
-      } as TipoCambio;
-    } catch (error: any) {
-      console.error('Error al obtener tipo de cambio por fecha:', error);
-      throw new Error('Error al cargar tipo de cambio');
+  async getByFecha(fecha: Date): Promise<TipoCambio | null> {
+    const inicioDia = new Date(fecha);
+    inicioDia.setHours(0, 0, 0, 0);
+    
+    const finDia = new Date(fecha);
+    finDia.setHours(23, 59, 59, 999);
+
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where('fecha', '>=', Timestamp.fromDate(inicioDia)),
+      where('fecha', '<=', Timestamp.fromDate(finDia)),
+      limit(1)
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      return null;
     }
-  }
+
+    const docSnap = snapshot.docs[0];
+    const data = docSnap.data();
+    return {
+      id: docSnap.id,
+      ...data,
+      promedio: data.promedio ?? (data.compra + data.venta) / 2
+    } as TipoCambio;
+  },
 
   /**
-   * Obtener el tipo de cambio más reciente
+   * Obtener historial de tipos de cambio con filtros
    */
-  static async getLatest(): Promise<TipoCambio | null> {
+  async getHistorial(filtros?: TipoCambioFiltros): Promise<TipoCambio[]> {
+    let q = query(
+      collection(db, COLLECTION_NAME),
+      orderBy('fecha', 'desc')
+    );
+
+    // Aplicar filtros si existen
+    if (filtros?.fechaInicio) {
+      const inicio = new Date(filtros.fechaInicio);
+      inicio.setHours(0, 0, 0, 0);
+      q = query(q, where('fecha', '>=', Timestamp.fromDate(inicio)));
+    }
+
+    if (filtros?.fechaFin) {
+      const fin = new Date(filtros.fechaFin);
+      fin.setHours(23, 59, 59, 999);
+      q = query(q, where('fecha', '<=', Timestamp.fromDate(fin)));
+    }
+
+    if (filtros?.fuente) {
+      q = query(q, where('fuente', '==', filtros.fuente));
+    }
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        promedio: data.promedio ?? (data.compra + data.venta) / 2
+      } as TipoCambio;
+    });
+  },
+
+  /**
+   * Obtener TC del día actual
+   * Si no hay TC para hoy, busca el más reciente
+   */
+  async getTCDelDia(): Promise<TipoCambio | null> {
+    const hoy = new Date();
+    const tcHoy = await this.getByFecha(hoy);
+
+    if (tcHoy) {
+      return tcHoy;
+    }
+
+    // Si no hay TC para hoy, buscar el más reciente
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
         orderBy('fecha', 'desc'),
         limit(1)
       );
-      
       const snapshot = await getDocs(q);
-      
+
       if (snapshot.empty) {
         return null;
       }
-      
-      return {
-        id: snapshot.docs[0].id,
-        ...snapshot.docs[0].data()
-      } as TipoCambio;
-    } catch (error: any) {
-      console.error('Error al obtener último tipo de cambio:', error);
-      throw new Error('Error al cargar tipo de cambio');
-    }
-  }
 
-  /**
-   * Crear nuevo tipo de cambio
-   */
-  static async create(data: TipoCambioFormData, userId: string): Promise<TipoCambio> {
-    try {
-      // Verificar si ya existe un TC para esta fecha
-      const existente = await this.getByFecha(data.fecha);
-      if (existente) {
-        throw new Error('Ya existe un tipo de cambio registrado para esta fecha');
-      }
-      
-      // Obtener TC del día anterior para calcular variación
-      const fechaAnterior = new Date(data.fecha);
-      fechaAnterior.setDate(fechaAnterior.getDate() - 1);
-      const tcAnterior = await this.getByFecha(fechaAnterior);
-      
-      // Calcular promedio
-      const promedio = (data.compra + data.venta) / 2;
-      
-      // Calcular variaciones
-      let variacionCompra = 0;
-      let variacionVenta = 0;
-      let alertaVariacion = false;
-      
-      if (tcAnterior) {
-        variacionCompra = ((data.compra - tcAnterior.compra) / tcAnterior.compra) * 100;
-        variacionVenta = ((data.venta - tcAnterior.venta) / tcAnterior.venta) * 100;
-        
-        // Alerta si variación es mayor a 3%
-        if (Math.abs(variacionCompra) > 3 || Math.abs(variacionVenta) > 3) {
-          alertaVariacion = true;
-        }
-      }
-      
-      const nuevoTC: any = {
-        fecha: Timestamp.fromDate(data.fecha),
+      const doc = snapshot.docs[0];
+      const data = doc.data();
+      return {
+        id: doc.id,
+        fecha: data.fecha,
         compra: data.compra,
         venta: data.venta,
-        promedio,
         fuente: data.fuente,
-        creadoPor: userId,
-        fechaCreacion: serverTimestamp()
-      };
-      
-      // Agregar campos opcionales solo si existen
-      if (data.observaciones) {
-        nuevoTC.observaciones = data.observaciones;
-      }
-      
-      if (tcAnterior) {
-        nuevoTC.variacionCompra = variacionCompra;
-        nuevoTC.variacionVenta = variacionVenta;
-        nuevoTC.alertaVariacion = alertaVariacion;
-      }
-      
-      const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevoTC);
-      
-      return {
-        id: docRef.id,
-        ...nuevoTC,
-        fechaCreacion: Timestamp.now()
+        creadoPor: data.creadoPor,
+        fechaCreacion: data.fechaCreacion,
+        promedio: data.promedio ?? (data.compra + data.venta) / 2
       } as TipoCambio;
-    } catch (error: any) {
-      console.error('Error al crear tipo de cambio:', error);
-      throw new Error(error.message || 'Error al crear tipo de cambio');
+    } catch (error) {
+      console.error('Error buscando TC más reciente:', error);
+      return null;
     }
-  }
+  },
 
   /**
-   * Actualizar tipo de cambio
+   * Crear un nuevo tipo de cambio
    */
-  static async update(id: string, data: Partial<TipoCambioFormData>): Promise<void> {
+  async create(data: TipoCambioFormData, userId: string): Promise<string> {
+    // Verificar que no exista ya un TC para esta fecha
+    const existente = await this.getByFecha(data.fecha);
+    if (existente) {
+      throw new Error('Ya existe un tipo de cambio registrado para esta fecha');
+    }
+
+    const now = Timestamp.now();
+    const newTC = {
+      fecha: Timestamp.fromDate(data.fecha),
+      compra: data.compra,
+      venta: data.venta,
+      promedio: (data.compra + data.venta) / 2,
+      fuente: data.fuente,
+      creadoPor: userId,
+      fechaCreacion: now
+    };
+
+    const docRef = await addDoc(collection(db, COLLECTION_NAME), newTC);
+    return docRef.id;
+  },
+
+  /**
+   * Actualizar un tipo de cambio
+   */
+  async update(id: string, data: Partial<TipoCambioFormData>, userId: string): Promise<void> {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    const updateData: any = {
+      actualizadoPor: userId,
+      fechaActualizacion: Timestamp.now()
+    };
+
+    if (data.compra !== undefined) updateData.compra = data.compra;
+    if (data.venta !== undefined) updateData.venta = data.venta;
+    if (data.fuente !== undefined) updateData.fuente = data.fuente;
+    if (data.fecha !== undefined) updateData.fecha = Timestamp.fromDate(data.fecha);
+
+    // Recalcular promedio si se actualiza compra o venta
+    if (data.compra !== undefined || data.venta !== undefined) {
+      const current = await this.getById(id);
+      const compra = data.compra ?? current?.compra ?? 0;
+      const venta = data.venta ?? current?.venta ?? 0;
+      updateData.promedio = (compra + venta) / 2;
+    }
+
+    await updateDoc(docRef, updateData);
+  },
+
+  /**
+   * Obtener TC desde la API de SUNAT
+   * Usa un proxy CORS para evitar problemas de bloqueo del navegador
+   */
+  async obtenerDeSunat(fecha?: Date): Promise<SunatTCResponse> {
     try {
-      const docRef = doc(db, COLLECTION_NAME, id);
-      
-      const updates: any = {
-        ultimaEdicion: serverTimestamp()
-      };
-      
-      if (data.compra !== undefined) updates.compra = data.compra;
-      if (data.venta !== undefined) updates.venta = data.venta;
-      if (data.fuente !== undefined) updates.fuente = data.fuente;
-      if (data.observaciones !== undefined) updates.observaciones = data.observaciones;
-      
-      // Recalcular promedio si se actualizaron compra o venta
-      if (data.compra !== undefined || data.venta !== undefined) {
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const tc = docSnap.data() as TipoCambio;
-          const compra = data.compra !== undefined ? data.compra : tc.compra;
-          const venta = data.venta !== undefined ? data.venta : tc.venta;
-          updates.promedio = (compra + venta) / 2;
+      const fechaStr = fecha
+        ? fecha.toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      // Usar proxy CORS público para evitar bloqueo del navegador
+      const corsProxy = 'https://corsproxy.io/?';
+      const apiUrl = `https://api.apis.net.pe/v1/tipo-cambio-sunat?fecha=${fechaStr}`;
+      const url = corsProxy + encodeURIComponent(apiUrl);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
         }
-      }
-      
-      await updateDoc(docRef, updates);
-    } catch (error: any) {
-      console.error('Error al actualizar tipo de cambio:', error);
-      throw new Error('Error al actualizar tipo de cambio');
-    }
-  }
+      });
 
-  /**
-   * Eliminar tipo de cambio
-   */
-  static async delete(id: string): Promise<void> {
-    try {
-      await deleteDoc(doc(db, COLLECTION_NAME, id));
-    } catch (error: any) {
-      console.error('Error al eliminar tipo de cambio:', error);
-      throw new Error('Error al eliminar tipo de cambio');
-    }
-  }
-
-  /**
-   * Obtener estadísticas
-   */
-  static async getStats(): Promise<TipoCambioStats> {
-    try {
-      const tcActual = await this.getLatest();
-      
-      if (!tcActual) {
-        return {
-          tcActual: null,
-          tcAnterior: null,
-          variacionCompra: 0,
-          variacionVenta: 0,
-          promedioSemana: 0,
-          promedioMes: 0,
-          minimo30Dias: 0,
-          maximo30Dias: 0
-        };
+      if (!response.ok) {
+        throw new Error('No se pudo obtener el tipo de cambio de SUNAT');
       }
-      
-      // Obtener TC del día anterior
-      const fechaAnterior = new Date(tcActual.fecha.toDate());
-      fechaAnterior.setDate(fechaAnterior.getDate() - 1);
-      const tcAnterior = await this.getByFecha(fechaAnterior);
-      
-      // Obtener últimos 30 días
-      const hace30Dias = new Date();
-      hace30Dias.setDate(hace30Dias.getDate() - 30);
-      const ultimos30Dias = await this.getByDateRange(hace30Dias, new Date());
-      
-      // Calcular estadísticas
-      const variacionCompra = tcAnterior 
-        ? ((tcActual.compra - tcAnterior.compra) / tcAnterior.compra) * 100 
-        : 0;
-        
-      const variacionVenta = tcAnterior 
-        ? ((tcActual.venta - tcAnterior.venta) / tcAnterior.venta) * 100 
-        : 0;
-      
-      const ultimos7Dias = ultimos30Dias.slice(0, 7);
-      const promedioSemana = ultimos7Dias.length > 0
-        ? ultimos7Dias.reduce((sum, tc) => sum + tc.promedio, 0) / ultimos7Dias.length
-        : 0;
-      
-      const promedioMes = ultimos30Dias.length > 0
-        ? ultimos30Dias.reduce((sum, tc) => sum + tc.promedio, 0) / ultimos30Dias.length
-        : 0;
-      
-      const minimo30Dias = ultimos30Dias.length > 0
-        ? Math.min(...ultimos30Dias.map(tc => tc.compra))
-        : 0;
-      
-      const maximo30Dias = ultimos30Dias.length > 0
-        ? Math.max(...ultimos30Dias.map(tc => tc.venta))
-        : 0;
-      
+
+      const data = await response.json();
+
       return {
-        tcActual,
-        tcAnterior,
-        variacionCompra,
-        variacionVenta,
-        promedioSemana,
-        promedioMes,
-        minimo30Dias,
-        maximo30Dias
+        fecha: fechaStr,
+        compra: parseFloat(data.compra || data.precioCompra || 0),
+        venta: parseFloat(data.venta || data.precioVenta || 0)
       };
-    } catch (error: any) {
-      console.error('Error al obtener estadísticas:', error);
-      throw new Error('Error al generar estadísticas');
+    } catch (error) {
+      console.error('Error al obtener TC de SUNAT:', error);
+      throw new Error('No se pudo conectar con el servicio de SUNAT. Intente con ingreso manual.');
     }
-  }
+  },
 
   /**
-   * Obtener historial para gráfico
+   * Registrar TC automáticamente desde SUNAT
    */
-  static async getHistorial(dias: number = 30): Promise<TipoCambioHistorial[]> {
-    try {
-      const fechaInicio = new Date();
-      fechaInicio.setDate(fechaInicio.getDate() - dias);
-      
-      const tipos = await this.getByDateRange(fechaInicio, new Date());
-      
-      return tipos.map(tc => ({
-        fecha: tc.fecha.toDate().toLocaleDateString('es-PE'),
-        compra: tc.compra,
-        venta: tc.venta,
-        promedio: tc.promedio
-      })).reverse();
-    } catch (error: any) {
-      console.error('Error al obtener historial:', error);
-      throw new Error('Error al cargar historial');
+  async registrarDesdeSunat(fecha: Date, userId: string): Promise<string> {
+    // Verificar que no exista ya un TC para esta fecha
+    const existente = await this.getByFecha(fecha);
+    if (existente) {
+      throw new Error('Ya existe un tipo de cambio registrado para esta fecha');
     }
+
+    // Obtener TC de SUNAT
+    const tcSunat = await this.obtenerDeSunat(fecha);
+
+    // Crear registro
+    return this.create({
+      fecha,
+      compra: tcSunat.compra,
+      venta: tcSunat.venta,
+      fuente: 'sunat'
+    }, userId);
+  },
+
+  /**
+   * Obtener promedio del tipo de cambio para un mes específico
+   */
+  async getPromedioMensual(mes?: number, anio?: number): Promise<number> {
+    const ahora = new Date();
+    const mesTarget = mes ?? ahora.getMonth();
+    const anioTarget = anio ?? ahora.getFullYear();
+
+    const inicioMes = new Date(anioTarget, mesTarget, 1);
+    const finMes = new Date(anioTarget, mesTarget + 1, 0, 23, 59, 59, 999);
+
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where('fecha', '>=', Timestamp.fromDate(inicioMes)),
+      where('fecha', '<=', Timestamp.fromDate(finMes))
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      return 0;
+    }
+
+    const registros = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return (data.compra + data.venta) / 2;
+    });
+
+    return registros.reduce((sum, val) => sum + val, 0) / registros.length;
+  },
+
+  /**
+   * Obtener últimos N días de TC para gráficos
+   */
+  async getUltimosDias(dias: number = 30): Promise<TipoCambio[]> {
+    const fechaInicio = new Date();
+    fechaInicio.setDate(fechaInicio.getDate() - dias);
+    fechaInicio.setHours(0, 0, 0, 0);
+
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where('fecha', '>=', Timestamp.fromDate(fechaInicio)),
+      orderBy('fecha', 'asc')
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as TipoCambio));
   }
-}
+};

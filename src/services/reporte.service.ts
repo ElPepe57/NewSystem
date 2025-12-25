@@ -9,10 +9,11 @@ import type {
   RangoFechas
 } from '../types/reporte.types';
 import { ProductoService } from './producto.service';
-import { InventarioService } from './inventario.service';
+import { inventarioService } from './inventario.service';
 import { VentaService } from './venta.service';
 import { OrdenCompraService } from './ordenCompra.service';
-import { TipoCambioService } from './tipoCambio.service';
+import { tipoCambioService } from './tipoCambio.service';
+import { transferenciaService } from './transferencia.service';
 
 export class ReporteService {
   /**
@@ -24,14 +25,18 @@ export class ReporteService {
         ventasStats,
         productos,
         ordenesStats,
-        tcStats,
         productosMasVendidos
       ] = await Promise.all([
         VentaService.getStats(),
         ProductoService.getAll(),
         OrdenCompraService.getStats(),
-        TipoCambioService.getStats(),
         this.getProductosRentabilidad({ inicio: new Date(0), fin: new Date() })
+      ]);
+
+      // Obtener TC actual y promedio mensual
+      const [tcActual, tcPromedioMensual] = await Promise.all([
+        tipoCambioService.getTCDelDia(),
+        tipoCambioService.getPromedioMensual()
       ]);
 
       // Calcular ventas por período
@@ -53,34 +58,47 @@ export class ReporteService {
       const unidadesTotales = inventarioValorizado.reduce((sum, item) => sum + item.unidadesTotal, 0);
       const unidadesDisponibles = inventarioValorizado.reduce((sum, item) => sum + item.unidadesDisponibles, 0);
 
+      // Calcular costo total de flete de transferencias USA→Perú
+      const transferencias = await transferenciaService.getAll();
+      const costoFleteTotal = transferencias
+        .filter(t => t.tipo === 'usa_peru' && t.costoFleteTotal)
+        .reduce((sum, t) => sum + (t.costoFleteTotal || 0), 0);
+
+      // Calcular costo de envío asumido por la empresa (incluyeEnvio = true)
+      const ventas = await VentaService.getAll();
+      const costoEnvioAsumidoPEN = ventas
+        .filter(v => v.estado !== 'cancelada' && v.estado !== 'cotizacion' && v.incluyeEnvio && v.costoEnvio)
+        .reduce((sum, v) => sum + (v.costoEnvio || 0), 0);
+
       return {
         // Ventas
         ventasTotalesPEN: ventasStats.ventasTotalPEN,
         ventasMes: ventasMes.totalPEN,
         ventasSemana: ventasSemana.totalPEN,
         ventasHoy: ventasHoy.totalPEN,
-        
+
         // Rentabilidad
         utilidadTotalPEN: ventasStats.utilidadTotalPEN,
         margenPromedio: ventasStats.margenPromedio,
-        
+        costoEnvioAsumidoPEN,
+
         // Inventario
         valorInventarioPEN,
         unidadesTotales,
         unidadesDisponibles,
-        
-        // Órdenes
+
+        // Órdenes (inversión = mercancía + flete)
         ordenesActivas: ordenesStats.enviadas + ordenesStats.pagadas + ordenesStats.enTransito,
         ordenesRecibidas: ordenesStats.recibidas,
-        inversionTotalUSD: ordenesStats.valorTotalUSD,
+        inversionTotalUSD: ordenesStats.valorTotalUSD + costoFleteTotal,
         
         // Productos
         productosActivos: productos.filter(p => p.estado === 'activo').length,
         productosMasVendidos: productosMasVendidos.slice(0, 5),
         
         // TC
-        tcActual: tcStats.tcActual?.promedio || 0,
-        tcPromedio: tcStats.promedioMes
+        tcActual: tcActual ? (tcActual.compra + tcActual.venta) / 2 : 0,
+        tcPromedio: tcPromedioMensual || (tcActual ? (tcActual.compra + tcActual.venta) / 2 : 0)
       };
     } catch (error: any) {
       console.error('Error al obtener resumen ejecutivo:', error);
@@ -91,42 +109,39 @@ export class ReporteService {
   /**
    * Obtener productos ordenados por rentabilidad
    * VERSIÓN ROBUSTA - Calcula el descuento desde los datos reales
+   * y detecta/convierte costos en USD a PEN
    */
   static async getProductosRentabilidad(rango: RangoFechas): Promise<ProductoRentabilidad[]> {
     try {
       const ventas = await VentaService.getAll();
-      const ventasEntregadas = ventas.filter(v => 
+      const ventasEntregadas = ventas.filter(v =>
         v.estado === 'entregada' &&
         v.fechaEntrega &&
         v.fechaEntrega.toDate() >= rango.inicio &&
         v.fechaEntrega.toDate() <= rango.fin
       );
 
-      console.log('🔍 VENTAS ENTREGADAS:', ventasEntregadas.length);
+      // Obtener tipo de cambio para conversión de costos legacy en USD
+      let tipoCambioVenta = 3.70;
+      try {
+        const tcDelDia = await tipoCambioService.getTCDelDia();
+        if (tcDelDia) {
+          tipoCambioVenta = tcDelDia.venta;
+        }
+      } catch (e) {
+        console.warn('No se pudo obtener TC del día para reportes');
+      }
 
       const productosMap = new Map<string, ProductoRentabilidad>();
 
       for (const venta of ventasEntregadas) {
         // CALCULAR descuento de manera robusta desde los datos reales
-        // En lugar de confiar en venta.descuentoPEN (que puede no existir),
-        // calculamos: descuento = suma(subtotales) - total
         const subtotalProductos = venta.productos.reduce((sum, p) => sum + p.subtotal, 0);
-        const descuentoReal = subtotalProductos - venta.totalPEN;
-        
-        console.log('📦 PROCESANDO VENTA:', {
-          numero: venta.numeroVenta,
-          subtotalProductos: subtotalProductos,
-          totalPEN: venta.totalPEN,
-          descuentoCalculado: descuentoReal
-        });
 
         // Calcular factor de descuento: totalReal / subtotal
-        // Ejemplo: 170 / 220 = 0.7727 (77.27% del precio original)
-        const factorDescuento = subtotalProductos > 0 
+        const factorDescuento = subtotalProductos > 0
           ? (venta.totalPEN / subtotalProductos)
           : 1;
-
-        console.log('📊 FACTOR DE DESCUENTO:', factorDescuento);
 
         for (const producto of venta.productos) {
           if (!productosMap.has(producto.productoId)) {
@@ -146,51 +161,46 @@ export class ReporteService {
           }
 
           const item = productosMap.get(producto.productoId)!;
-          
+
           // Aplicar el factor de descuento proporcional al subtotal del producto
-          // Ejemplo: 220 * 0.7727 = 170
           const ventaRealProducto = producto.subtotal * factorDescuento;
-          
-          console.log('💰 PRODUCTO:', {
-            nombre: producto.nombreComercial,
-            subtotalOriginal: producto.subtotal,
-            factorDescuento: factorDescuento,
-            ventaReal: ventaRealProducto,
-            costo: producto.costoTotalUnidades
-          });
-          
+
+          // Detectar si el costo está en USD (datos legacy)
+          // Heurística: si el costo por unidad es < 30% del precio de venta,
+          // probablemente está en USD y necesita conversión
+          let costoProducto = producto.costoTotalUnidades || 0;
+          if (costoProducto > 0 && producto.cantidad > 0) {
+            const costoPorUnidad = costoProducto / producto.cantidad;
+            const precioPorUnidad = producto.subtotal / producto.cantidad;
+            const ratioCosteVenta = costoPorUnidad / precioPorUnidad;
+
+            // Si el ratio es menor a 0.15 (15%), el costo probablemente está en USD
+            // Un margen del 85%+ es imposible en este negocio
+            if (ratioCosteVenta < 0.15) {
+              costoProducto = costoProducto * tipoCambioVenta;
+            }
+          }
+
           item.unidadesVendidas += producto.cantidad;
-          item.ventasTotalPEN += ventaRealProducto; // Venta con descuento aplicado
-          item.costoTotalPEN += producto.costoTotalUnidades || 0;
+          item.ventasTotalPEN += ventaRealProducto;
+          item.costoTotalPEN += costoProducto;
         }
       }
 
       // Calcular promedios y utilidad
-      const productos = Array.from(productosMap.values()).map(p => {
-        const resultado = {
-          ...p,
-          utilidadPEN: p.ventasTotalPEN - p.costoTotalPEN,
-          margenPromedio: p.ventasTotalPEN > 0 
-            ? ((p.ventasTotalPEN - p.costoTotalPEN) / p.ventasTotalPEN) * 100 
-            : 0,
-          precioPromedioVenta: p.unidadesVendidas > 0 
-            ? p.ventasTotalPEN / p.unidadesVendidas 
-            : 0,
-          costoPromedioUnidad: p.unidadesVendidas > 0 
-            ? p.costoTotalPEN / p.unidadesVendidas 
-            : 0
-        };
-
-        console.log('✅ RESULTADO FINAL:', {
-          producto: resultado.nombreComercial,
-          ventasTotalPEN: resultado.ventasTotalPEN,
-          costoTotalPEN: resultado.costoTotalPEN,
-          utilidadPEN: resultado.utilidadPEN,
-          margenPromedio: resultado.margenPromedio
-        });
-
-        return resultado;
-      });
+      const productos = Array.from(productosMap.values()).map(p => ({
+        ...p,
+        utilidadPEN: p.ventasTotalPEN - p.costoTotalPEN,
+        margenPromedio: p.ventasTotalPEN > 0
+          ? ((p.ventasTotalPEN - p.costoTotalPEN) / p.ventasTotalPEN) * 100
+          : 0,
+        precioPromedioVenta: p.unidadesVendidas > 0
+          ? p.ventasTotalPEN / p.unidadesVendidas
+          : 0,
+        costoPromedioUnidad: p.unidadesVendidas > 0
+          ? p.costoTotalPEN / p.unidadesVendidas
+          : 0
+      }));
 
       // Ordenar por ventas totales
       return productos.sort((a, b) => b.ventasTotalPEN - a.ventasTotalPEN);
@@ -208,37 +218,56 @@ export class ReporteService {
       const productos = await ProductoService.getAll();
       const inventarioValorizado: InventarioValorizado[] = [];
 
+      // Obtener tipo de cambio del día para conversión USD → PEN
+      let tipoCambioVenta = 3.70; // Valor por defecto
+      try {
+        const tcDelDia = await tipoCambioService.getTCDelDia();
+        if (tcDelDia) {
+          tipoCambioVenta = tcDelDia.venta;
+        }
+      } catch (e) {
+        console.warn('No se pudo obtener TC del día para inventario, usando valor por defecto');
+      }
+
       for (const producto of productos) {
         if (producto.estado !== 'activo') continue;
 
-        const unidades = await InventarioService.getByProducto(producto.id);
-        
-        const disponibles = unidades.filter(u => u.estado === 'disponible_peru');
-        const asignadas = unidades.filter(u => u.estado === 'asignada_pedido');
-        
-        const unidadesMiami = unidades.filter(u => u.almacenActual.startsWith('miami')).length;
-        const unidadesUtah = unidades.filter(u => u.almacenActual === 'utah').length;
-        const unidadesPeru = unidades.filter(u => u.almacenActual.startsWith('peru')).length;
-        
-        const valorTotal = unidades.reduce((sum, u) => sum + u.ctruDinamico, 0);
-        const costoPromedio = unidades.length > 0 ? valorTotal / unidades.length : 0;
+        const inventario = await inventarioService.getInventarioProducto(producto.id);
 
-        if (unidades.length > 0) {
-          inventarioValorizado.push({
-            productoId: producto.id,
-            sku: producto.sku,
-            marca: producto.marca,
-            nombreComercial: producto.nombreComercial,
-            unidadesDisponibles: disponibles.length,
-            unidadesAsignadas: asignadas.length,
-            unidadesTotal: unidades.length,
-            valorTotalPEN: valorTotal,
-            costoPromedioUnidad: costoPromedio,
-            unidadesMiami,
-            unidadesUtah,
-            unidadesPeru
-          });
-        }
+        if (inventario.length === 0) continue;
+
+        // Agregar datos por país
+        const inventarioUSA = inventario.filter(i => i.pais === 'USA');
+        const inventarioPeru = inventario.filter(i => i.pais === 'Peru');
+
+        const unidadesDisponibles = inventario.reduce((sum, i) => sum + i.disponibles, 0);
+        const unidadesAsignadas = inventario.reduce((sum, i) => sum + i.reservadas, 0);
+        const unidadesTotal = inventario.reduce((sum, i) => sum + i.totalUnidades, 0);
+
+        const unidadesMiami = inventarioUSA.reduce((sum, i) => sum + i.totalUnidades, 0);
+        const unidadesUtah = 0; // Por ahora no diferenciamos almacenes USA
+        const unidadesPeru = inventarioPeru.reduce((sum, i) => sum + i.totalUnidades, 0);
+
+        const valorTotalUSD = inventario.reduce((sum, i) => sum + i.valorTotalUSD, 0);
+        // Convertir de USD a PEN usando el tipo de cambio del día
+        const valorTotalPEN = valorTotalUSD * tipoCambioVenta;
+        const costoPromedioUSD = unidadesTotal > 0 ? valorTotalUSD / unidadesTotal : 0;
+        const costoPromedioPEN = costoPromedioUSD * tipoCambioVenta;
+
+        inventarioValorizado.push({
+          productoId: producto.id,
+          sku: producto.sku,
+          marca: producto.marca,
+          nombreComercial: producto.nombreComercial,
+          unidadesDisponibles,
+          unidadesAsignadas,
+          unidadesTotal,
+          valorTotalPEN,
+          costoPromedioUnidad: costoPromedioPEN,
+          unidadesMiami,
+          unidadesUtah,
+          unidadesPeru
+        });
       }
 
       return inventarioValorizado.sort((a, b) => b.valorTotalPEN - a.valorTotalPEN);
@@ -347,66 +376,56 @@ export class ReporteService {
       for (const producto of productos) {
         if (producto.estado !== 'activo') continue;
 
-        const unidades = await InventarioService.getByProducto(producto.id);
-        const disponibles = unidades.filter(u => u.estado === 'disponible_peru');
+        const inventario = await inventarioService.getInventarioProducto(producto.id);
 
-        // Stock bajo
-        if (producto.stockMinimo && disponibles.length < producto.stockMinimo) {
+        if (inventario.length === 0) continue;
+
+        // Sumar disponibles de todos los almacenes
+        const totalDisponibles = inventario.reduce((sum, i) => sum + i.disponibles, 0);
+
+        // Stock bajo o crítico
+        if (producto.stockMinimo && totalDisponibles < producto.stockMinimo) {
           alertas.push({
-            tipo: disponibles.length === 0 ? 'stock_critico' : 'stock_bajo',
+            tipo: totalDisponibles === 0 ? 'stock_critico' : 'stock_bajo',
             productoId: producto.id,
             sku: producto.sku,
             marca: producto.marca,
             nombreComercial: producto.nombreComercial,
-            mensaje: `Stock ${disponibles.length === 0 ? 'agotado' : 'bajo'}: ${disponibles.length} unidades (mínimo: ${producto.stockMinimo})`,
-            prioridad: disponibles.length === 0 ? 'alta' : 'media',
-            cantidad: disponibles.length
+            mensaje: `Stock ${totalDisponibles === 0 ? 'agotado' : 'bajo'}: ${totalDisponibles} unidades (mínimo: ${producto.stockMinimo})`,
+            prioridad: totalDisponibles === 0 ? 'alta' : 'media',
+            cantidad: totalDisponibles
           });
         }
 
-        // Próximos a vencer
-        const proximosVencer = unidades.filter(u => 
-          u.estado === 'disponible_peru' &&
-          u.fechaVencimiento &&
-          u.fechaVencimiento.toDate() > ahora &&
-          u.fechaVencimiento.toDate() <= en30Dias
-        );
+        // Próximos a vencer (sumar de todos los almacenes)
+        const totalProximosVencer30 = inventario.reduce((sum, i) => sum + i.proximasAVencer30Dias, 0);
 
-        if (proximosVencer.length > 0) {
-          const masProximo = proximosVencer.sort((a, b) => 
-            a.fechaVencimiento!.toMillis() - b.fechaVencimiento!.toMillis()
-          )[0];
-
+        if (totalProximosVencer30 > 0) {
           alertas.push({
             tipo: 'proximo_vencer',
             productoId: producto.id,
             sku: producto.sku,
             marca: producto.marca,
             nombreComercial: producto.nombreComercial,
-            mensaje: `${proximosVencer.length} unidades vencen pronto (${masProximo.fechaVencimiento!.toDate().toLocaleDateString('es-PE')})`,
+            mensaje: `${totalProximosVencer30} unidades vencen en los próximos 30 días`,
             prioridad: 'media',
-            cantidad: proximosVencer.length,
-            fechaVencimiento: masProximo.fechaVencimiento
+            cantidad: totalProximosVencer30
           });
         }
 
-        // Vencidos
-        const vencidos = unidades.filter(u =>
-          u.estado === 'disponible_peru' &&
-          u.fechaVencimiento &&
-          u.fechaVencimiento.toDate() <= ahora
-        );
+        // Vencidos (sumar de todos los almacenes)
+        const totalVencidas = inventario.reduce((sum, i) => sum + i.vencidas, 0);
 
-        if (vencidos.length > 0) {
+        if (totalVencidas > 0) {
           alertas.push({
             tipo: 'vencido',
             productoId: producto.id,
             sku: producto.sku,
             marca: producto.marca,
             nombreComercial: producto.nombreComercial,
-            mensaje: `${vencidos.length} unidades VENCIDAS`,
+            mensaje: `${totalVencidas} unidades VENCIDAS`,
             prioridad: 'alta',
-            cantidad: vencidos.length
+            cantidad: totalVencidas
           });
         }
       }

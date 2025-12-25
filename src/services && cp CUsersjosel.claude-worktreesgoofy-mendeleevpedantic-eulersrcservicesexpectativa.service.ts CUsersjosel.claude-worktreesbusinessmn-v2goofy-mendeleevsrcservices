@@ -1,0 +1,590 @@
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  query,
+  where,
+  orderBy,
+  Timestamp,
+  runTransaction
+} from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import type {
+  MovimientoTesoreria,
+  ConversionCambiaria,
+  CuentaCaja,
+  RegistroTCTransaccion,
+  TesoreriaStats,
+  FlujoCajaMensual,
+  MovimientoFormData,
+  ConversionFormData,
+  CuentaFormData,
+  MovimientoFiltros
+} from '../types/tesoreria.types';
+import { TipoCambioService } from './tipoCambio.service';
+
+const MOVIMIENTOS_COLLECTION = 'movimientos_tesoreria';
+const CONVERSIONES_COLLECTION = 'conversiones_cambiarias';
+const CUENTAS_COLLECTION = 'cuentas_caja';
+const TC_TRANSACCIONES_COLLECTION = 'tc_transacciones';
+
+export class TesoreriaService {
+  // ===============================================
+  // CUENTAS DE CAJA
+  // ===============================================
+
+  static async getCuentas(): Promise<CuentaCaja[]> {
+    try {
+      const q = query(
+        collection(db, CUENTAS_COLLECTION),
+        where('activo', '==', true),
+        orderBy('nombre')
+      );
+
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as CuentaCaja));
+    } catch (error) {
+      console.error('Error al obtener cuentas:', error);
+      throw new Error('Error al cargar cuentas de caja');
+    }
+  }
+
+  static async crearCuenta(data: CuentaFormData, userId: string): Promise<CuentaCaja> {
+    try {
+      const newCuenta = {
+        nombre: data.nombre,
+        moneda: data.moneda,
+        saldo: data.saldoInicial || 0,
+        tipo: data.tipo,
+        banco: data.banco || null,
+        numeroCuenta: data.numeroCuenta || null,
+        activo: true,
+        creadoPor: userId,
+        fechaCreacion: Timestamp.now()
+      };
+
+      const docRef = await addDoc(collection(db, CUENTAS_COLLECTION), newCuenta);
+
+      return {
+        id: docRef.id,
+        ...newCuenta
+      } as CuentaCaja;
+    } catch (error) {
+      console.error('Error al crear cuenta:', error);
+      throw new Error('Error al crear cuenta de caja');
+    }
+  }
+
+  static async actualizarSaldoCuenta(
+    cuentaId: string,
+    nuevoSaldo: number
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, CUENTAS_COLLECTION, cuentaId);
+      await updateDoc(docRef, { saldo: nuevoSaldo });
+    } catch (error) {
+      console.error('Error al actualizar saldo:', error);
+      throw new Error('Error al actualizar saldo de cuenta');
+    }
+  }
+
+  // ===============================================
+  // MOVIMIENTOS
+  // ===============================================
+
+  static async getMovimientos(filtros?: MovimientoFiltros): Promise<MovimientoTesoreria[]> {
+    try {
+      let q = query(
+        collection(db, MOVIMIENTOS_COLLECTION),
+        orderBy('fecha', 'desc')
+      );
+
+      // Aplicar filtros si existen
+      if (filtros?.tipo) {
+        q = query(q, where('tipo', '==', filtros.tipo));
+      }
+      if (filtros?.cuentaId) {
+        q = query(q, where('cuentaId', '==', filtros.cuentaId));
+      }
+      if (filtros?.moneda) {
+        q = query(q, where('moneda', '==', filtros.moneda));
+      }
+
+      const snapshot = await getDocs(q);
+      let movimientos = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as MovimientoTesoreria));
+
+      // Filtros que no se pueden hacer en Firestore
+      if (filtros?.fechaInicio) {
+        const inicio = Timestamp.fromDate(filtros.fechaInicio);
+        movimientos = movimientos.filter(m => m.fecha >= inicio);
+      }
+      if (filtros?.fechaFin) {
+        const fin = Timestamp.fromDate(filtros.fechaFin);
+        movimientos = movimientos.filter(m => m.fecha <= fin);
+      }
+
+      return movimientos;
+    } catch (error) {
+      console.error('Error al obtener movimientos:', error);
+      throw new Error('Error al cargar movimientos');
+    }
+  }
+
+  static async registrarMovimiento(
+    data: MovimientoFormData,
+    userId: string
+  ): Promise<MovimientoTesoreria> {
+    try {
+      // Obtener TC actual
+      const tcActual = await TipoCambioService.getCurrentTC();
+      const tipoCambio = tcActual?.promedio || 3.75;
+
+      // Obtener datos de la cuenta
+      const cuentaRef = doc(db, CUENTAS_COLLECTION, data.cuentaId);
+      const cuentaSnap = await getDoc(cuentaRef);
+
+      if (!cuentaSnap.exists()) {
+        throw new Error('Cuenta no encontrada');
+      }
+
+      const cuenta = cuentaSnap.data() as CuentaCaja;
+
+      // Crear movimiento
+      const nuevoMovimiento = {
+        tipo: data.tipo,
+        categoria: data.categoria,
+        monto: data.monto,
+        moneda: data.moneda,
+        cuentaId: data.cuentaId,
+        cuentaNombre: cuenta.nombre,
+        tipoCambio,
+        montoEquivalente: data.moneda === 'USD' ? data.monto * tipoCambio : data.monto / tipoCambio,
+        concepto: data.concepto,
+        notas: data.notas || null,
+        fecha: data.fecha ? Timestamp.fromDate(data.fecha) : Timestamp.now(),
+        registradoPor: userId,
+        fechaRegistro: Timestamp.now()
+      };
+
+      // Ejecutar transacción para actualizar saldo
+      const docRef = await runTransaction(db, async (transaction) => {
+        const cuentaDoc = await transaction.get(cuentaRef);
+        if (!cuentaDoc.exists()) {
+          throw new Error('Cuenta no encontrada');
+        }
+
+        const saldoActual = cuentaDoc.data().saldo || 0;
+        let nuevoSaldo: number;
+
+        if (data.tipo === 'ingreso') {
+          nuevoSaldo = saldoActual + data.monto;
+        } else if (data.tipo === 'egreso') {
+          nuevoSaldo = saldoActual - data.monto;
+        } else {
+          nuevoSaldo = saldoActual; // Transferencia se maneja diferente
+        }
+
+        // Actualizar saldo de cuenta
+        transaction.update(cuentaRef, { saldo: nuevoSaldo });
+
+        // Crear movimiento
+        const movRef = doc(collection(db, MOVIMIENTOS_COLLECTION));
+        transaction.set(movRef, nuevoMovimiento);
+
+        return movRef;
+      });
+
+      return {
+        id: docRef.id,
+        ...nuevoMovimiento
+      } as MovimientoTesoreria;
+    } catch (error) {
+      console.error('Error al registrar movimiento:', error);
+      throw new Error('Error al registrar movimiento');
+    }
+  }
+
+  // ===============================================
+  // CONVERSIONES
+  // ===============================================
+
+  static async getConversiones(
+    fechaInicio?: Date,
+    fechaFin?: Date
+  ): Promise<ConversionCambiaria[]> {
+    try {
+      const q = query(
+        collection(db, CONVERSIONES_COLLECTION),
+        orderBy('fecha', 'desc')
+      );
+
+      const snapshot = await getDocs(q);
+      let conversiones = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as ConversionCambiaria));
+
+      // Filtrar por fechas
+      if (fechaInicio) {
+        const inicio = Timestamp.fromDate(fechaInicio);
+        conversiones = conversiones.filter(c => c.fecha >= inicio);
+      }
+      if (fechaFin) {
+        const fin = Timestamp.fromDate(fechaFin);
+        conversiones = conversiones.filter(c => c.fecha <= fin);
+      }
+
+      return conversiones;
+    } catch (error) {
+      console.error('Error al obtener conversiones:', error);
+      throw new Error('Error al cargar conversiones');
+    }
+  }
+
+  static async registrarConversion(
+    data: ConversionFormData,
+    userId: string
+  ): Promise<ConversionCambiaria> {
+    try {
+      // Obtener TC de referencia (SUNAT/SBS)
+      const tcActual = await TipoCambioService.getCurrentTC();
+      const tcReferencia = tcActual?.promedio || 3.75;
+
+      // Obtener cuentas
+      const cuentaOrigenRef = doc(db, CUENTAS_COLLECTION, data.cuentaOrigenId);
+      const cuentaDestinoRef = doc(db, CUENTAS_COLLECTION, data.cuentaDestinoId);
+
+      const [origenSnap, destinoSnap] = await Promise.all([
+        getDoc(cuentaOrigenRef),
+        getDoc(cuentaDestinoRef)
+      ]);
+
+      if (!origenSnap.exists() || !destinoSnap.exists()) {
+        throw new Error('Cuenta origen o destino no encontrada');
+      }
+
+      const cuentaOrigen = origenSnap.data() as CuentaCaja;
+      const cuentaDestino = destinoSnap.data() as CuentaCaja;
+
+      // Calcular spread
+      const spread = ((data.tipoCambioUsado - tcReferencia) / tcReferencia) * 100;
+
+      // Calcular diferencia con referencia
+      const montoReferencialPEN = cuentaOrigen.moneda === 'USD'
+        ? data.montoOrigen * tcReferencia
+        : data.montoOrigen / tcReferencia;
+
+      const diferenciaConReferencia = cuentaDestino.moneda === 'PEN'
+        ? data.montoDestino - montoReferencialPEN
+        : (data.montoDestino * tcReferencia) - montoReferencialPEN;
+
+      const nuevaConversion = {
+        cuentaOrigenId: data.cuentaOrigenId,
+        cuentaOrigenNombre: cuentaOrigen.nombre,
+        monedaOrigen: cuentaOrigen.moneda,
+        montoOrigen: data.montoOrigen,
+
+        cuentaDestinoId: data.cuentaDestinoId,
+        cuentaDestinoNombre: cuentaDestino.nombre,
+        monedaDestino: cuentaDestino.moneda,
+        montoDestino: data.montoDestino,
+
+        tipoCambioUsado: data.tipoCambioUsado,
+        tipoCambioReferencia: tcReferencia,
+        spread,
+
+        casaCambio: data.casaCambio || null,
+
+        montoReferencialPEN,
+        diferenciaConReferencia,
+
+        fecha: data.fecha ? Timestamp.fromDate(data.fecha) : Timestamp.now(),
+        registradoPor: userId,
+        fechaRegistro: Timestamp.now()
+      };
+
+      // Ejecutar transacción
+      const docRef = await runTransaction(db, async (transaction) => {
+        const origenDoc = await transaction.get(cuentaOrigenRef);
+        const destinoDoc = await transaction.get(cuentaDestinoRef);
+
+        if (!origenDoc.exists() || !destinoDoc.exists()) {
+          throw new Error('Cuenta no encontrada');
+        }
+
+        const saldoOrigen = origenDoc.data().saldo || 0;
+        const saldoDestino = destinoDoc.data().saldo || 0;
+
+        if (saldoOrigen < data.montoOrigen) {
+          throw new Error('Saldo insuficiente en cuenta origen');
+        }
+
+        // Actualizar saldos
+        transaction.update(cuentaOrigenRef, { saldo: saldoOrigen - data.montoOrigen });
+        transaction.update(cuentaDestinoRef, { saldo: saldoDestino + data.montoDestino });
+
+        // Crear conversión
+        const convRef = doc(collection(db, CONVERSIONES_COLLECTION));
+        transaction.set(convRef, nuevaConversion);
+
+        return convRef;
+      });
+
+      return {
+        id: docRef.id,
+        ...nuevaConversion
+      } as ConversionCambiaria;
+    } catch (error) {
+      console.error('Error al registrar conversión:', error);
+      throw new Error('Error al registrar conversión de moneda');
+    }
+  }
+
+  // ===============================================
+  // REGISTRO DE TC POR TRANSACCIÓN
+  // ===============================================
+
+  static async registrarTCTransaccion(
+    documentoTipo: 'venta' | 'orden_compra' | 'pago_venta' | 'pago_oc',
+    documentoId: string,
+    documentoNumero: string,
+    momento: 'cotizacion' | 'investigacion' | 'creacion' | 'pago' | 'cobro',
+    tipoCambio: number,
+    userId: string,
+    montoUSD?: number,
+    montoPEN?: number
+  ): Promise<RegistroTCTransaccion> {
+    try {
+      const registro = {
+        documentoTipo,
+        documentoId,
+        documentoNumero,
+        momento,
+        tipoCambio,
+        fuenteTC: 'promedio' as const,
+        montoUSD: montoUSD || null,
+        montoPEN: montoPEN || null,
+        fecha: Timestamp.now(),
+        registradoPor: userId
+      };
+
+      const docRef = await addDoc(collection(db, TC_TRANSACCIONES_COLLECTION), registro);
+
+      return {
+        id: docRef.id,
+        ...registro
+      } as RegistroTCTransaccion;
+    } catch (error) {
+      console.error('Error al registrar TC de transacción:', error);
+      throw new Error('Error al registrar tipo de cambio');
+    }
+  }
+
+  static async getHistorialTCDocumento(
+    documentoId: string
+  ): Promise<RegistroTCTransaccion[]> {
+    try {
+      const q = query(
+        collection(db, TC_TRANSACCIONES_COLLECTION),
+        where('documentoId', '==', documentoId),
+        orderBy('fecha', 'asc')
+      );
+
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as RegistroTCTransaccion));
+    } catch (error) {
+      console.error('Error al obtener historial TC:', error);
+      throw new Error('Error al cargar historial de tipo de cambio');
+    }
+  }
+
+  // ===============================================
+  // ESTADÍSTICAS
+  // ===============================================
+
+  static async getStats(): Promise<TesoreriaStats> {
+    try {
+      // Obtener todas las cuentas
+      const cuentas = await this.getCuentas();
+
+      // Calcular saldos
+      let saldoTotalPEN = 0;
+      let saldoTotalUSD = 0;
+      let efectivoPEN = 0;
+      let efectivoUSD = 0;
+      let bancoPEN = 0;
+      let bancoUSD = 0;
+      let digitalPEN = 0;
+
+      for (const cuenta of cuentas) {
+        if (cuenta.moneda === 'PEN') {
+          saldoTotalPEN += cuenta.saldo;
+          if (cuenta.tipo === 'efectivo') efectivoPEN += cuenta.saldo;
+          if (cuenta.tipo === 'banco') bancoPEN += cuenta.saldo;
+          if (cuenta.tipo === 'digital') digitalPEN += cuenta.saldo;
+        } else {
+          saldoTotalUSD += cuenta.saldo;
+          if (cuenta.tipo === 'efectivo') efectivoUSD += cuenta.saldo;
+          if (cuenta.tipo === 'banco') bancoUSD += cuenta.saldo;
+        }
+      }
+
+      // Obtener TC actual para equivalente
+      const tcActual = await TipoCambioService.getCurrentTC();
+      const tc = tcActual?.promedio || 3.75;
+      const saldoEquivalentePEN = saldoTotalPEN + (saldoTotalUSD * tc);
+
+      // Obtener movimientos del mes actual
+      const inicioMes = new Date();
+      inicioMes.setDate(1);
+      inicioMes.setHours(0, 0, 0, 0);
+
+      const movimientos = await this.getMovimientos({
+        fechaInicio: inicioMes
+      });
+
+      let ingresosPEN = 0;
+      let ingresosUSD = 0;
+      let egresosPEN = 0;
+      let egresosUSD = 0;
+
+      for (const mov of movimientos) {
+        if (mov.tipo === 'ingreso') {
+          if (mov.moneda === 'PEN') ingresosPEN += mov.monto;
+          else ingresosUSD += mov.monto;
+        } else if (mov.tipo === 'egreso') {
+          if (mov.moneda === 'PEN') egresosPEN += mov.monto;
+          else egresosUSD += mov.monto;
+        }
+      }
+
+      // Obtener conversiones del mes
+      const conversiones = await this.getConversiones(inicioMes);
+      const spreadPromedio = conversiones.length > 0
+        ? conversiones.reduce((sum, c) => sum + c.spread, 0) / conversiones.length
+        : 0;
+
+      // Calcular diferencia cambiaria acumulada
+      const diferenciaCambiariaAcumulada = conversiones.reduce(
+        (sum, c) => sum + c.diferenciaConReferencia,
+        0
+      );
+
+      return {
+        saldoTotalPEN,
+        saldoTotalUSD,
+        saldoEquivalentePEN,
+        efectivoPEN,
+        efectivoUSD,
+        bancoPEN,
+        bancoUSD,
+        digitalPEN,
+        ingresosPEN,
+        ingresosUSD,
+        egresosPEN,
+        egresosUSD,
+        conversionesTotales: conversiones.length,
+        spreadPromedio,
+        diferenciaCambiariaAcumulada
+      };
+    } catch (error) {
+      console.error('Error al obtener estadísticas:', error);
+      throw new Error('Error al cargar estadísticas de tesorería');
+    }
+  }
+
+  static async getFlujoCajaMensual(mes: number, anio: number): Promise<FlujoCajaMensual> {
+    try {
+      // Rango de fechas del mes
+      const fechaInicio = new Date(anio, mes - 1, 1);
+      const fechaFin = new Date(anio, mes, 0, 23, 59, 59);
+
+      // Obtener movimientos del mes
+      const movimientos = await this.getMovimientos({
+        fechaInicio,
+        fechaFin
+      });
+
+      // Inicializar acumuladores
+      const ingresos = {
+        ventas: 0,
+        adelantos: 0,
+        otros: 0,
+        total: 0
+      };
+
+      const egresos = {
+        compras: 0,
+        envios: 0,
+        impuestos: 0,
+        operativos: 0,
+        comisiones: 0,
+        otros: 0,
+        total: 0
+      };
+
+      // Clasificar movimientos
+      for (const mov of movimientos) {
+        const monto = mov.moneda === 'USD' ? mov.monto * mov.tipoCambio : mov.monto;
+
+        if (mov.tipo === 'ingreso') {
+          if (mov.categoria === 'venta') ingresos.ventas += monto;
+          else if (mov.categoria === 'adelanto') ingresos.adelantos += monto;
+          else ingresos.otros += monto;
+          ingresos.total += monto;
+        } else if (mov.tipo === 'egreso') {
+          if (mov.categoria === 'compra') egresos.compras += monto;
+          else if (mov.categoria === 'envio') egresos.envios += monto;
+          else if (mov.categoria === 'impuesto') egresos.impuestos += monto;
+          else if (mov.categoria === 'operativo') egresos.operativos += monto;
+          else if (mov.categoria === 'comision') egresos.comisiones += monto;
+          else egresos.otros += monto;
+          egresos.total += monto;
+        }
+      }
+
+      // Obtener saldos actuales
+      const cuentas = await this.getCuentas();
+      let saldoCierrePEN = 0;
+      let saldoCierreUSD = 0;
+
+      for (const cuenta of cuentas) {
+        if (cuenta.moneda === 'PEN') saldoCierrePEN += cuenta.saldo;
+        else saldoCierreUSD += cuenta.saldo;
+      }
+
+      // Obtener conversiones para diferencia cambiaria
+      const conversiones = await this.getConversiones(fechaInicio, fechaFin);
+      const diferenciaCambiaria = conversiones.reduce(
+        (sum, c) => sum + c.diferenciaConReferencia,
+        0
+      );
+
+      return {
+        mes,
+        anio,
+        ingresos,
+        egresos,
+        flujoNeto: ingresos.total - egresos.total,
+        saldoCierrePEN,
+        saldoCierreUSD,
+        diferenciaCambiaria
+      };
+    } catch (error) {
+      console.error('Error al obtener flujo de caja:', error);
+      throw new Error('Error al calcular flujo de caja mensual');
+    }
+  }
+}

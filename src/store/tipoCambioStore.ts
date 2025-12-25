@@ -1,140 +1,109 @@
 import { create } from 'zustand';
-import type { TipoCambio, TipoCambioFormData, TipoCambioStats, TipoCambioHistorial } from '../types/tipoCambio.types';
-import { TipoCambioService } from '../services/tipoCambio.service';
+import { tipoCambioService } from '../services/tipoCambio.service';
+import type { TipoCambio, TipoCambioFormData, TipoCambioFiltros } from '../types/tipoCambio.types';
 
 interface TipoCambioState {
   tiposCambio: TipoCambio[];
-  stats: TipoCambioStats | null;
-  historial: TipoCambioHistorial[];
   loading: boolean;
   error: string | null;
-  selectedTC: TipoCambio | null;
   
-  // Actions
+  // Acciones
   fetchTiposCambio: () => Promise<void>;
-  fetchByDateRange: (fechaInicio: Date, fechaFin: Date) => Promise<void>;
-  fetchLatest: () => Promise<void>;
+  fetchHistorial: (filtros?: TipoCambioFiltros) => Promise<void>;
+  getTCDelDia: () => Promise<TipoCambio | null>;
   createTipoCambio: (data: TipoCambioFormData, userId: string) => Promise<void>;
-  updateTipoCambio: (id: string, data: Partial<TipoCambioFormData>) => Promise<void>;
-  deleteTipoCambio: (id: string) => Promise<void>;
-  fetchStats: () => Promise<void>;
-  fetchHistorial: (dias?: number) => Promise<void>;
-  setSelectedTC: (tc: TipoCambio | null) => void;
+  updateTipoCambio: (id: string, data: Partial<TipoCambioFormData>, userId: string) => Promise<void>;
+  registrarDesdeSunat: (fecha: Date, userId: string) => Promise<void>;
+  getUltimosDias: (dias?: number) => Promise<TipoCambio[]>;
+  clearError: () => void;
 }
 
 export const useTipoCambioStore = create<TipoCambioState>((set, get) => ({
   tiposCambio: [],
-  stats: null,
-  historial: [],
   loading: false,
   error: null,
-  selectedTC: null,
-  
+
   fetchTiposCambio: async () => {
     set({ loading: true, error: null });
     try {
-      const tiposCambio = await TipoCambioService.getAll();
+      const tiposCambio = await tipoCambioService.getAll();
       set({ tiposCambio, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-  
-  fetchByDateRange: async (fechaInicio: Date, fechaFin: Date) => {
-    set({ loading: true, error: null });
-    try {
-      const tiposCambio = await TipoCambioService.getByDateRange(fechaInicio, fechaFin);
-      set({ tiposCambio, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-  
-  fetchLatest: async () => {
-    set({ loading: true, error: null });
-    try {
-      const latest = await TipoCambioService.getLatest();
-      if (latest) {
-        set({ selectedTC: latest, loading: false });
-      } else {
-        set({ loading: false });
-      }
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-  
-  createTipoCambio: async (data: TipoCambioFormData, userId: string) => {
-    set({ loading: true, error: null });
-    try {
-      const nuevoTC = await TipoCambioService.create(data, userId);
-      set(state => ({ 
-        tiposCambio: [nuevoTC, ...state.tiposCambio],
-        loading: false 
-      }));
-      
-      // Recargar stats después de crear
-      await get().fetchStats();
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
     }
   },
-  
-  updateTipoCambio: async (id: string, data: Partial<TipoCambioFormData>) => {
+
+  fetchHistorial: async (filtros?: TipoCambioFiltros) => {
     set({ loading: true, error: null });
     try {
-      await TipoCambioService.update(id, data);
-      
-      // Recargar lista
+      const tiposCambio = await tipoCambioService.getHistorial(filtros);
+      set({ tiposCambio, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  getTCDelDia: async () => {
+    set({ loading: true, error: null });
+    try {
+      const tc = await tipoCambioService.getTCDelDia();
+      set({ loading: false });
+      return tc;
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  createTipoCambio: async (data: TipoCambioFormData, userId: string) => {
+    set({ loading: true, error: null });
+    try {
+      await tipoCambioService.create(data, userId);
       await get().fetchTiposCambio();
-      await get().fetchStats();
-      
       set({ loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
     }
   },
-  
-  deleteTipoCambio: async (id: string) => {
+
+  updateTipoCambio: async (id: string, data: Partial<TipoCambioFormData>, userId: string) => {
     set({ loading: true, error: null });
     try {
-      await TipoCambioService.delete(id);
-      set(state => ({
-        tiposCambio: state.tiposCambio.filter(tc => tc.id !== id),
-        loading: false
-      }));
-      
-      // Recargar stats después de eliminar
-      await get().fetchStats();
+      await tipoCambioService.update(id, data, userId);
+      await get().fetchTiposCambio();
+      set({ loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
     }
   },
-  
-  fetchStats: async () => {
+
+  registrarDesdeSunat: async (fecha: Date, userId: string) => {
     set({ loading: true, error: null });
     try {
-      const stats = await TipoCambioService.getStats();
-      set({ stats, loading: false });
+      await tipoCambioService.registrarDesdeSunat(fecha, userId);
+      await get().fetchTiposCambio();
+      set({ loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
+      throw error;
     }
   },
-  
-  fetchHistorial: async (dias: number = 30) => {
+
+  getUltimosDias: async (dias: number = 30) => {
     set({ loading: true, error: null });
     try {
-      const historial = await TipoCambioService.getHistorial(dias);
-      set({ historial, loading: false });
+      const tiposCambio = await tipoCambioService.getUltimosDias(dias);
+      set({ loading: false });
+      return tiposCambio;
     } catch (error: any) {
       set({ error: error.message, loading: false });
+      throw error;
     }
   },
-  
-  setSelectedTC: (tc) => {
-    set({ selectedTC: tc });
-  }
+
+  clearError: () => set({ error: null })
 }));

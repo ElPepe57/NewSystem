@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, Clock, AlertTriangle } from 'lucide-react';
 import { Badge } from '../../common';
 import type { Venta, EstadoVenta, CanalVenta } from '../../../types/venta.types';
 
@@ -7,16 +7,24 @@ interface VentaTableProps {
   ventas: Venta[];
   onView: (venta: Venta) => void;
   onDelete?: (venta: Venta) => void;
+  onRegistrarAdelanto?: (venta: Venta) => void;
   loading?: boolean;
+  /** Carga operativa por unidad del mes (gastos operativos / unidades vendidas) */
+  cargaOperativaPorUnidad?: number;
 }
 
 const estadoLabels: Record<EstadoVenta, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
   cotizacion: { label: 'Cotización', variant: 'default' },
+  reservada: { label: 'Reservada', variant: 'info' },
   confirmada: { label: 'Confirmada', variant: 'info' },
+  parcial: { label: 'Parcial', variant: 'warning' },
   asignada: { label: 'Asignada', variant: 'warning' },
   en_entrega: { label: 'En Entrega', variant: 'warning' },
+  entrega_parcial: { label: 'Entrega Parcial', variant: 'warning' },
   entregada: { label: 'Entregada', variant: 'success' },
-  cancelada: { label: 'Cancelada', variant: 'danger' }
+  cancelada: { label: 'Cancelada', variant: 'danger' },
+  devuelta: { label: 'Devuelta', variant: 'danger' },
+  devolucion_parcial: { label: 'Dev. Parcial', variant: 'warning' }
 };
 
 const canalLabels: Record<CanalVenta, string> = {
@@ -29,7 +37,9 @@ export const VentaTable: React.FC<VentaTableProps> = ({
   ventas,
   onView,
   onDelete,
-  loading = false
+  onRegistrarAdelanto,
+  loading = false,
+  cargaOperativaPorUnidad = 0
 }) => {
   if (loading) {
     return (
@@ -80,7 +90,13 @@ export const VentaTable: React.FC<VentaTableProps> = ({
               Total
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Margen
+              Margen Bruto
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div className="flex items-center">
+                <Calculator className="h-3 w-3 mr-1" />
+                Margen Neto
+              </div>
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Estado
@@ -96,8 +112,15 @@ export const VentaTable: React.FC<VentaTableProps> = ({
         <tbody className="bg-white divide-y divide-gray-200">
           {ventas.map((venta) => {
             const estadoInfo = estadoLabels[venta.estado];
-            const margenPositivo = venta.margenPromedio !== undefined && venta.margenPromedio > 0;
-            
+            const margenBrutoPositivo = venta.margenPromedio !== undefined && venta.margenPromedio > 0;
+
+            // Calcular rentabilidad neta
+            const cantidadUnidades = venta.productos.reduce((sum, p) => sum + p.cantidad, 0);
+            const cargaOperativaVenta = cargaOperativaPorUnidad * cantidadUnidades;
+            const utilidadNeta = (venta.utilidadBrutaPEN || 0) - cargaOperativaVenta;
+            const margenNeto = venta.totalPEN > 0 ? (utilidadNeta / venta.totalPEN) * 100 : 0;
+            const margenNetoPositivo = margenNeto > 0;
+
             return (
               <tr key={venta.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -146,13 +169,13 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 <td className="px-6 py-4 whitespace-nowrap">
                   {venta.margenPromedio !== undefined ? (
                     <div className="flex items-center">
-                      {margenPositivo ? (
+                      {margenBrutoPositivo ? (
                         <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
                       ) : (
                         <TrendingDown className="h-4 w-4 text-danger-500 mr-1" />
                       )}
                       <span className={`text-sm font-medium ${
-                        margenPositivo ? 'text-success-600' : 'text-danger-600'
+                        margenBrutoPositivo ? 'text-success-600' : 'text-danger-600'
                       }`}>
                         {venta.margenPromedio.toFixed(1)}%
                       </span>
@@ -161,11 +184,54 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                     <span className="text-sm text-gray-400">-</span>
                   )}
                 </td>
-                
+
+                {/* Margen Neto (descontando carga operativa) */}
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge variant={estadoInfo.variant}>
-                    {estadoInfo.label}
-                  </Badge>
+                  {cargaOperativaPorUnidad > 0 ? (
+                    <div>
+                      <div className="flex items-center">
+                        {margenNetoPositivo ? (
+                          <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
+                        ) : (
+                          <TrendingDown className="h-4 w-4 text-danger-500 mr-1" />
+                        )}
+                        <span className={`text-sm font-medium ${
+                          margenNetoPositivo ? 'text-success-600' : 'text-danger-600'
+                        }`}>
+                          {margenNeto.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className={`text-xs ${utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                        Neto: S/ {utilidadNeta.toFixed(2)}
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-400" title="Sin datos de carga operativa">-</span>
+                  )}
+                </td>
+
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex flex-col gap-1">
+                    <Badge variant={estadoInfo.variant}>
+                      {estadoInfo.label}
+                    </Badge>
+                    {/* Indicador de reserva */}
+                    {venta.estado === 'reservada' && venta.stockReservado && (
+                      <Badge
+                        variant={venta.stockReservado.tipoReserva === 'fisica' ? 'success' : 'warning'}
+                        size="sm"
+                      >
+                        {venta.stockReservado.tipoReserva === 'fisica' ? '✓ Física' : '⏳ Virtual'}
+                      </Badge>
+                    )}
+                    {/* Indicador de stock faltante en cotizaciones */}
+                    {venta.estado === 'cotizacion' && venta.requiereStock && (
+                      <span className="inline-flex items-center text-xs text-amber-600">
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        Sin stock
+                      </span>
+                    )}
+                  </div>
                 </td>
                 
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -183,7 +249,18 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                     >
                       <Eye className="h-4 w-4" />
                     </button>
-                    
+
+                    {/* Botón de registrar adelanto - solo cotizaciones */}
+                    {venta.estado === 'cotizacion' && onRegistrarAdelanto && (
+                      <button
+                        onClick={() => onRegistrarAdelanto(venta)}
+                        className="text-purple-600 hover:text-purple-900"
+                        title="Registrar Adelanto y Reservar Stock"
+                      >
+                        <Lock className="h-4 w-4" />
+                      </button>
+                    )}
+
                     {venta.estado === 'cotizacion' && onDelete && (
                       <button
                         onClick={() => onDelete(venta)}

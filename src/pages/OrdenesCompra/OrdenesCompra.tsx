@@ -1,81 +1,156 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Users } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink } from 'lucide-react';
 import { Button, Card, Modal, Input } from '../../components/common';
-import { ProveedorForm } from '../../components/modules/ordenCompra/ProveedorForm';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
 import { OrdenCompraTable } from '../../components/modules/ordenCompra/OrdenCompraTable';
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
+import { PagoForm } from '../../components/modules/ordenCompra/PagoForm';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
+import { useProveedorStore } from '../../store/proveedorStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
-import type { OrdenCompra, OrdenCompraFormData, ProveedorFormData, EstadoOrden } from '../../types/ordenCompra.types';
+import { exportService } from '../../services/export.service';
+import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
+
+// Interface para datos de requerimiento que viene del navigation state
+interface RequerimientoData {
+  id: string;
+  numeroRequerimiento: string;
+  productos: Array<{
+    productoId: string;
+    sku: string;
+    marca: string;
+    nombreComercial: string;
+    cantidad: number;
+    precioUnitarioUSD: number;
+    proveedorSugerido?: string;
+    urlReferencia?: string;
+  }>;
+  tcInvestigacion: number;
+  prioridad: 'alta' | 'media' | 'baja';
+}
 
 export const OrdenesCompra: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
   const { productos, fetchProductos } = useProductoStore();
-  const { stats: tcStats, fetchStats: fetchTCStats } = useTipoCambioStore();
-  const { 
+  const { getTCDelDia } = useTipoCambioStore();
+  const [tcSugerido, setTcSugerido] = useState<number>(0);
+
+  // Proveedores desde el store centralizado
+  const { proveedoresActivos, fetchProveedoresActivos } = useProveedorStore();
+
+  // Datos del requerimiento si viene de Requerimientos
+  const fromRequerimiento = (location.state as { fromRequerimiento?: RequerimientoData })?.fromRequerimiento;
+  const {
     ordenes,
-    proveedores,
     stats,
     loading,
     fetchOrdenes,
-    fetchProveedores,
-    createProveedor,
     createOrden,
     cambiarEstadoOrden,
+    registrarPago,
     recibirOrden,
     deleteOrden,
     fetchStats,
     setSelectedOrden
   } = useOrdenCompraStore();
-  
-  const [isProveedorModalOpen, setIsProveedorModalOpen] = useState(false);
+
   const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
   const [selectedOrden, setSelectedOrdenLocal] = useState<OrdenCompra | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Datos iniciales para el formulario (cuando viene de un requerimiento)
+  const [initialFormData, setInitialFormData] = useState<{
+    requerimientoId?: string;
+    requerimientoNumero?: string;
+    productos?: Array<{
+      productoId: string;
+      cantidad: number;
+      precioUnitarioUSD: number;
+    }>;
+    tcSugerido?: number;
+  } | null>(null);
+
   // Cargar datos al montar
   useEffect(() => {
-    fetchOrdenes();
-    fetchProveedores();
-    fetchProductos();
-    fetchStats();
-    fetchTCStats();
-  }, [fetchOrdenes, fetchProveedores, fetchProductos, fetchStats, fetchTCStats]);
+    const loadData = async () => {
+      try {
+        await fetchOrdenes();
+        await fetchProveedoresActivos();
+        await fetchProductos();
+        if (fetchStats && typeof fetchStats === 'function') {
+          await fetchStats();
+        }
 
-  // Crear proveedor
-  const handleCreateProveedor = async (data: ProveedorFormData) => {
-    if (!user) return;
-    
-    setIsSubmitting(true);
-    try {
-      await createProveedor(data, user.uid);
-      setIsProveedorModalOpen(false);
-    } catch (error: any) {
-      console.error('Error al crear proveedor:', error);
-      alert(error.message);
-    } finally {
-      setIsSubmitting(false);
+        // Cargar tipo de cambio sugerido
+        const tc = await getTCDelDia();
+        if (tc) {
+          setTcSugerido(tc.compra);
+        }
+      } catch (error) {
+        console.error('Error cargando datos:', error);
+      }
+    };
+
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Si viene de Requerimientos, abrir modal con datos pre-cargados
+  useEffect(() => {
+    if (fromRequerimiento && proveedoresActivos.length > 0) {
+      // Preparar datos iniciales
+      setInitialFormData({
+        requerimientoId: fromRequerimiento.id,
+        requerimientoNumero: fromRequerimiento.numeroRequerimiento,
+        productos: fromRequerimiento.productos.map(p => ({
+          productoId: p.productoId,
+          cantidad: p.cantidad,
+          precioUnitarioUSD: p.precioUnitarioUSD
+        })),
+        tcSugerido: fromRequerimiento.tcInvestigacion
+      });
+
+      // Abrir modal de nueva orden
+      setIsOrdenModalOpen(true);
+
+      // Limpiar el state de location para evitar re-abrir al navegar
+      window.history.replaceState({}, document.title);
     }
-  };
+  }, [fromRequerimiento, proveedoresActivos]);
 
   // Crear orden
   const handleCreateOrden = async (data: OrdenCompraFormData) => {
     if (!user) return;
-    
+
     setIsSubmitting(true);
     try {
-      await createOrden(data, user.uid);
+      // Si viene de un requerimiento, incluir el ID para vinculación
+      const ordenData = initialFormData?.requerimientoId
+        ? { ...data, requerimientoId: initialFormData.requerimientoId }
+        : data;
+
+      await createOrden(ordenData, user.uid);
       setIsOrdenModalOpen(false);
+      setInitialFormData(null); // Limpiar datos iniciales
     } catch (error: any) {
       console.error('Error al crear orden:', error);
       alert(error.message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Cerrar modal y limpiar datos iniciales
+  const handleCloseOrdenModal = () => {
+    setIsOrdenModalOpen(false);
+    setInitialFormData(null);
   };
 
   // Ver detalles
@@ -87,29 +162,9 @@ export const OrdenesCompra: React.FC = () => {
   // Cambiar estado
   const handleCambiarEstado = async (nuevoEstado: EstadoOrden) => {
     if (!user || !selectedOrden) return;
-    
-    // Si cambia a "pagada", pedir TC de pago
-    if (nuevoEstado === 'pagada') {
-      const tcPagoStr = window.prompt('Ingresa el TC de pago:', tcStats?.tcActual?.promedio.toFixed(3) || '');
-      if (!tcPagoStr) return;
-      
-      const tcPago = parseFloat(tcPagoStr);
-      if (isNaN(tcPago) || tcPago <= 0) {
-        alert('TC de pago inválido');
-        return;
-      }
-      
-      try {
-        await cambiarEstadoOrden(selectedOrden.id, nuevoEstado, user.uid, { tcPago });
-        // Recargar orden actualizada
-        const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
-        if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
-      } catch (error: any) {
-        alert(error.message);
-      }
-    }
+
     // Si cambia a "en_transito", pedir tracking
-    else if (nuevoEstado === 'en_transito') {
+    if (nuevoEstado === 'en_transito') {
       const numeroTracking = window.prompt('Ingresa el número de tracking (opcional):');
       const courier = window.prompt('Ingresa el courier (opcional):');
       
@@ -133,18 +188,78 @@ export const OrdenesCompra: React.FC = () => {
     }
   };
 
+  // Registrar pago
+  const handleRegistrarPago = () => {
+    if (!selectedOrden) return;
+    setIsPagoModalOpen(true);
+  };
+
+  const handleSubmitPago = async (datos: {
+    fechaPago: Date;
+    monedaPago: 'USD' | 'PEN';
+    montoOriginal: number;
+    tipoCambio: number;
+    metodoPago: any;
+    cuentaOrigenId?: string;
+    referencia?: string;
+    notas?: string;
+  }) => {
+    if (!user || !selectedOrden) return;
+
+    try {
+      setIsSubmitting(true);
+      await registrarPago(selectedOrden.id, {
+        fechaPago: datos.fechaPago,
+        monedaPago: datos.monedaPago,
+        montoOriginal: datos.montoOriginal,
+        tipoCambio: datos.tipoCambio,
+        metodoPago: datos.metodoPago,
+        cuentaOrigenId: datos.cuentaOrigenId,
+        referencia: datos.referencia,
+        notas: datos.notas
+      }, user.uid);
+
+      const simbolo = datos.monedaPago === 'USD' ? '$' : 'S/';
+      alert(`✅ Pago de ${simbolo} ${datos.montoOriginal.toFixed(2)} registrado exitosamente`);
+      setIsPagoModalOpen(false);
+
+      // Recargar órdenes para ver actualización
+      await fetchOrdenes();
+      const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
+      if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+    } catch (error: any) {
+      alert(`❌ Error al registrar pago: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Recibir orden
   const handleRecibirOrden = async () => {
     if (!user || !selectedOrden) return;
-    
+
     if (!window.confirm(`¿Recibir la orden ${selectedOrden.numeroOrden} y generar inventario automáticamente?`)) {
       return;
     }
-    
+
     try {
-      const unidadesGeneradas = await recibirOrden(selectedOrden.id, user.uid);
-      alert(`¡Orden recibida! Se generaron ${unidadesGeneradas.length} unidades de inventario.`);
-      
+      const resultado = await recibirOrden(selectedOrden.id, user.uid);
+
+      // Mostrar mensaje según si hay reservas o no
+      let mensaje = `¡Orden recibida! Se generaron ${resultado.unidadesGeneradas.length} unidades de inventario.`;
+
+      if (resultado.unidadesReservadas.length > 0) {
+        mensaje += `\n\n📦 ${resultado.unidadesReservadas.length} unidades RESERVADAS para el cliente`;
+        if (resultado.cotizacionVinculada) {
+          mensaje += ` (Cotización vinculada)`;
+        }
+      }
+      if (resultado.unidadesDisponibles.length > 0 && resultado.unidadesReservadas.length > 0) {
+        mensaje += `\n📦 ${resultado.unidadesDisponibles.length} unidades como STOCK LIBRE`;
+      }
+
+      alert(mensaje);
+
       // Recargar orden
       const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
       if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
@@ -176,16 +291,17 @@ export const OrdenesCompra: React.FC = () => {
         </div>
         <div className="flex items-center space-x-3">
           <Button
-            variant="ghost"
-            onClick={() => setIsProveedorModalOpen(true)}
+            variant="outline"
+            onClick={() => exportService.exportOrdenesCompra(ordenes)}
+            disabled={ordenes.length === 0}
           >
-            <Users className="h-5 w-5 mr-2" />
-            Nuevo Proveedor
+            <Download className="h-5 w-5 mr-2" />
+            Exportar Excel
           </Button>
           <Button
             variant="primary"
             onClick={() => setIsOrdenModalOpen(true)}
-            disabled={proveedores.length === 0}
+            disabled={proveedoresActivos.length === 0}
           >
             <Plus className="h-5 w-5 mr-2" />
             Nueva Orden
@@ -194,14 +310,24 @@ export const OrdenesCompra: React.FC = () => {
       </div>
 
       {/* Alerta si no hay proveedores */}
-      {proveedores.length === 0 && (
+      {proveedoresActivos.length === 0 && (
         <Card padding="md">
-          <div className="flex items-center">
-            <AlertCircle className="h-5 w-5 text-warning-600 mr-3" />
-            <div>
-              <p className="text-sm font-medium text-gray-900">No hay proveedores registrados</p>
-              <p className="text-sm text-gray-600">Crea al menos un proveedor antes de hacer órdenes de compra.</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <AlertCircle className="h-5 w-5 text-warning-600 mr-3" />
+              <div>
+                <p className="text-sm font-medium text-gray-900">No hay proveedores registrados</p>
+                <p className="text-sm text-gray-600">Crea proveedores desde el Gestor de Maestros antes de hacer órdenes de compra.</p>
+              </div>
             </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => navigate('/maestros')}
+            >
+              <ExternalLink className="h-4 w-4 mr-1" />
+              Ir a Maestros
+            </Button>
           </div>
         </Card>
       )}
@@ -282,34 +408,26 @@ export const OrdenesCompra: React.FC = () => {
         />
       </Card>
 
-      {/* Modal Nuevo Proveedor */}
-      <Modal
-        isOpen={isProveedorModalOpen}
-        onClose={() => setIsProveedorModalOpen(false)}
-        title="Nuevo Proveedor"
-        size="lg"
-      >
-        <ProveedorForm
-          onSubmit={handleCreateProveedor}
-          onCancel={() => setIsProveedorModalOpen(false)}
-          loading={isSubmitting}
-        />
-      </Modal>
-
       {/* Modal Nueva Orden */}
       <Modal
         isOpen={isOrdenModalOpen}
-        onClose={() => setIsOrdenModalOpen(false)}
-        title="Nueva Orden de Compra"
+        onClose={handleCloseOrdenModal}
+        title={initialFormData?.requerimientoNumero
+          ? `Nueva OC desde ${initialFormData.requerimientoNumero}`
+          : "Nueva Orden de Compra"
+        }
         size="xl"
       >
         <OrdenCompraForm
-          proveedores={proveedores}
+          proveedores={proveedoresActivos}
           productos={productos}
           onSubmit={handleCreateOrden}
-          onCancel={() => setIsOrdenModalOpen(false)}
+          onCancel={handleCloseOrdenModal}
           loading={isSubmitting}
-          tcSugerido={tcStats?.tcActual?.promedio}
+          tcSugerido={initialFormData?.tcSugerido || tcSugerido}
+          initialProductos={initialFormData?.productos}
+          requerimientoId={initialFormData?.requerimientoId}
+          requerimientoNumero={initialFormData?.requerimientoNumero}
         />
       </Modal>
 
@@ -324,10 +442,21 @@ export const OrdenesCompra: React.FC = () => {
           <OrdenCompraCard
             orden={selectedOrden}
             onCambiarEstado={handleCambiarEstado}
+            onRegistrarPago={handleRegistrarPago}
             onRecibirOrden={handleRecibirOrden}
           />
         )}
       </Modal>
+
+      {/* Modal Registrar Pago */}
+      {isPagoModalOpen && selectedOrden && (
+        <PagoForm
+          orden={selectedOrden}
+          onSubmit={handleSubmitPago}
+          onCancel={() => setIsPagoModalOpen(false)}
+          loading={isSubmitting}
+        />
+      )}
     </div>
   );
 };

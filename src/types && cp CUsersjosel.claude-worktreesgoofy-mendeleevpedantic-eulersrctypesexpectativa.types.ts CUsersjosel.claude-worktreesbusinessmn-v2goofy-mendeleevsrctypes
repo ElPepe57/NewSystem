@@ -1,0 +1,332 @@
+import type { Timestamp } from 'firebase/firestore';
+
+/**
+ * ===============================================
+ * MÓDULO DE TESORERÍA
+ * ===============================================
+ *
+ * Gestión de caja, movimientos de dinero y conversiones de moneda.
+ * Trackea el tipo de cambio en cada transacción para análisis
+ * de diferencia cambiaria.
+ */
+
+// ===============================================
+// TIPOS DE MOVIMIENTO
+// ===============================================
+
+export type TipoMovimiento =
+  | 'ingreso'           // Entrada de dinero (ventas, cobros)
+  | 'egreso'            // Salida de dinero (pagos, compras)
+  | 'transferencia'     // Entre cuentas propias
+  | 'conversion';       // Cambio de moneda
+
+export type CategoriaMovimiento =
+  // Ingresos
+  | 'venta'             // Cobro de venta
+  | 'adelanto'          // Adelanto de cliente
+  | 'devolucion_proveedor'  // Devolución de proveedor
+  | 'otro_ingreso'
+  // Egresos
+  | 'compra'            // Pago a proveedor
+  | 'envio'             // Flete, courier
+  | 'impuesto'          // Impuestos, aranceles
+  | 'operativo'         // Gastos operativos
+  | 'comision'          // Comisiones (ML, banco, etc.)
+  | 'otro_egreso';
+
+export type Moneda = 'PEN' | 'USD';
+
+// ===============================================
+// CUENTAS DE CAJA
+// ===============================================
+
+export interface CuentaCaja {
+  id: string;
+  nombre: string;           // "Caja PEN", "Cuenta USD BCP", etc.
+  moneda: Moneda;
+  saldo: number;
+  tipo: 'efectivo' | 'banco' | 'digital';  // Efectivo, banco, yape/plin
+  banco?: string;           // Nombre del banco si aplica
+  numeroCuenta?: string;    // Número de cuenta
+  activo: boolean;
+
+  // Auditoría
+  creadoPor: string;
+  fechaCreacion: Timestamp;
+}
+
+// ===============================================
+// MOVIMIENTOS
+// ===============================================
+
+export interface MovimientoTesoreria {
+  id: string;
+
+  // Tipo y categoría
+  tipo: TipoMovimiento;
+  categoria: CategoriaMovimiento;
+
+  // Montos
+  monto: number;
+  moneda: Moneda;
+
+  // Cuenta afectada
+  cuentaId: string;
+  cuentaNombre: string;
+
+  // Para transferencias
+  cuentaDestinoId?: string;
+  cuentaDestinoNombre?: string;
+
+  // Tipo de cambio al momento del movimiento
+  tipoCambio: number;        // TC referencial del día
+  montoEquivalente?: number; // Si es USD: monto × TC = PEN equiv.
+
+  // Referencia a documento origen
+  documentoTipo?: 'venta' | 'orden_compra' | 'conversion' | 'otro';
+  documentoId?: string;
+  documentoNumero?: string;
+
+  // Descripción
+  concepto: string;
+  notas?: string;
+
+  // Comprobante
+  tieneComprobante?: boolean;
+  comprobanteUrl?: string;
+
+  // Fecha
+  fecha: Timestamp;
+
+  // Auditoría
+  registradoPor: string;
+  fechaRegistro: Timestamp;
+}
+
+// ===============================================
+// CONVERSIÓN DE MONEDA
+// ===============================================
+
+export interface ConversionCambiaria {
+  id: string;
+
+  // Origen
+  cuentaOrigenId: string;
+  cuentaOrigenNombre: string;
+  monedaOrigen: Moneda;
+  montoOrigen: number;
+
+  // Destino
+  cuentaDestinoId: string;
+  cuentaDestinoNombre: string;
+  monedaDestino: Moneda;
+  montoDestino: number;
+
+  // Tipo de cambio
+  tipoCambioUsado: number;       // TC que usó la casa de cambio
+  tipoCambioReferencia: number;  // TC SUNAT/SBS del día
+  spread: number;                // Diferencia con TC referencia (%)
+
+  // Casa de cambio
+  casaCambio?: string;           // Nombre de la casa de cambio
+
+  // Cálculo de ganancia/pérdida
+  montoReferencialPEN: number;   // montoOrigen × tcReferencia
+  diferenciaConReferencia: number; // montoDestino - montoReferencial
+
+  // Fecha
+  fecha: Timestamp;
+
+  // Auditoría
+  registradoPor: string;
+  fechaRegistro: Timestamp;
+}
+
+// ===============================================
+// REGISTRO DE TC POR TRANSACCIÓN
+// ===============================================
+
+/**
+ * Registro histórico de TC usado en cada transacción
+ * Para análisis de diferencia cambiaria
+ */
+export interface RegistroTCTransaccion {
+  id: string;
+
+  // Documento relacionado
+  documentoTipo: 'venta' | 'orden_compra' | 'pago_venta' | 'pago_oc';
+  documentoId: string;
+  documentoNumero: string;
+
+  // Momento del TC
+  momento: 'cotizacion' | 'investigacion' | 'creacion' | 'pago' | 'cobro';
+
+  // Tipo de cambio
+  tipoCambio: number;
+  fuenteTC: 'sunat' | 'sbs' | 'manual' | 'promedio';
+
+  // Monto afectado
+  montoUSD?: number;
+  montoPEN?: number;
+
+  // Fecha
+  fecha: Timestamp;
+  registradoPor: string;
+}
+
+// ===============================================
+// DIFERENCIA CAMBIARIA
+// ===============================================
+
+export interface DiferenciaCambiariaPeriodo {
+  // Período
+  fechaInicio: Date;
+  fechaFin: Date;
+
+  // Por tipo de operación
+  ventas: {
+    cantidad: number;
+    diferenciaTotal: number;    // Ganancia (+) o pérdida (-)
+    impactoMargenPromedio: number;
+  };
+
+  compras: {
+    cantidad: number;
+    diferenciaTotal: number;
+    impactoEnCostos: number;
+  };
+
+  conversiones: {
+    cantidad: number;
+    spreadPromedio: number;
+    diferenciaVsReferencia: number;
+  };
+
+  // Totales
+  diferenciaNetaPEN: number;
+
+  // TC del período
+  tcPromedio: number;
+  tcMinimo: number;
+  tcMaximo: number;
+  volatilidad: number;          // Desviación estándar
+}
+
+// ===============================================
+// ESTADÍSTICAS
+// ===============================================
+
+export interface TesoreriaStats {
+  // Saldos actuales
+  saldoTotalPEN: number;
+  saldoTotalUSD: number;
+  saldoEquivalentePEN: number;  // Todo convertido a PEN
+
+  // Por tipo de cuenta
+  efectivoPEN: number;
+  efectivoUSD: number;
+  bancoPEN: number;
+  bancoUSD: number;
+  digitalPEN: number;
+
+  // Movimientos del período
+  ingresosPEN: number;
+  ingresosUSD: number;
+  egresosPEN: number;
+  egresosUSD: number;
+
+  // Conversiones
+  conversionesTotales: number;
+  spreadPromedio: number;
+
+  // Diferencia cambiaria acumulada
+  diferenciaCambiariaAcumulada: number;
+}
+
+// ===============================================
+// FLUJO DE CAJA
+// ===============================================
+
+export interface FlujoCajaMensual {
+  mes: number;
+  anio: number;
+
+  // Ingresos por categoría
+  ingresos: {
+    ventas: number;
+    adelantos: number;
+    otros: number;
+    total: number;
+  };
+
+  // Egresos por categoría
+  egresos: {
+    compras: number;
+    envios: number;
+    impuestos: number;
+    operativos: number;
+    comisiones: number;
+    otros: number;
+    total: number;
+  };
+
+  // Flujo neto
+  flujoNeto: number;
+
+  // Saldo al cierre
+  saldoCierrePEN: number;
+  saldoCierreUSD: number;
+
+  // Diferencia cambiaria del mes
+  diferenciaCambiaria: number;
+}
+
+// ===============================================
+// FORM DATA
+// ===============================================
+
+export interface MovimientoFormData {
+  tipo: TipoMovimiento;
+  categoria: CategoriaMovimiento;
+  monto: number;
+  moneda: Moneda;
+  cuentaId: string;
+  cuentaDestinoId?: string;  // Para transferencias
+  concepto: string;
+  notas?: string;
+  fecha?: Date;
+}
+
+export interface ConversionFormData {
+  cuentaOrigenId: string;
+  montoOrigen: number;
+  cuentaDestinoId: string;
+  montoDestino: number;
+  tipoCambioUsado: number;
+  casaCambio?: string;
+  fecha?: Date;
+}
+
+export interface CuentaFormData {
+  nombre: string;
+  moneda: Moneda;
+  tipo: 'efectivo' | 'banco' | 'digital';
+  banco?: string;
+  numeroCuenta?: string;
+  saldoInicial?: number;
+}
+
+// ===============================================
+// FILTROS
+// ===============================================
+
+export interface MovimientoFiltros {
+  tipo?: TipoMovimiento;
+  categoria?: CategoriaMovimiento;
+  moneda?: Moneda;
+  cuentaId?: string;
+  fechaInicio?: Date;
+  fechaFin?: Date;
+  montoMinimo?: number;
+  montoMaximo?: number;
+}

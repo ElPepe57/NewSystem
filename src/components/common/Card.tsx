@@ -7,6 +7,7 @@ interface CardProps {
   subtitle?: string;
   actions?: React.ReactNode;
   padding?: 'none' | 'sm' | 'md' | 'lg';
+  onClick?: () => void;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -15,7 +16,8 @@ export const Card: React.FC<CardProps> = ({
   title,
   subtitle,
   actions,
-  padding = 'md'
+  padding = 'md',
+  onClick
 }) => {
   const paddingStyles = {
     none: '',
@@ -25,7 +27,12 @@ export const Card: React.FC<CardProps> = ({
   };
   
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
+    <div
+      className={`bg-white rounded-lg shadow-sm border border-gray-200 ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       {(title || subtitle || actions) && (
         <div className={`${paddingStyles[padding]} border-b border-gray-200 flex items-start justify-between`}>
           <div>

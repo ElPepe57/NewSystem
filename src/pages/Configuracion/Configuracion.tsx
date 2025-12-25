@@ -5,27 +5,37 @@ import { EmpresaForm } from '../../components/modules/configuracion/EmpresaForm'
 import { ConfiguracionForm } from '../../components/modules/configuracion/ConfiguracionForm';
 import { AlmacenForm } from '../../components/modules/configuracion/AlmacenForm';
 import { useConfiguracionStore } from '../../store/configuracionStore';
+import { useAlmacenStore } from '../../store/almacenStore';
 import { useAuthStore } from '../../store/authStore';
-import type { EmpresaFormData, ConfiguracionFormData, AlmacenFormData, Almacen } from '../../types/configuracion.types';
+import type { EmpresaFormData, ConfiguracionFormData } from '../../types/configuracion.types';
+import type { AlmacenFormData, Almacen } from '../../types/almacen.types';
 
 type TabType = 'empresa' | 'general' | 'almacenes' | 'perfil';
 
 export const Configuracion: React.FC = () => {
   const user = useAuthStore(state => state.user);
+
+  // Store de Configuración (Empresa y General)
   const {
     empresa,
     configuracion,
-    almacenes,
-    loading,
+    loading: configLoading,
     fetchEmpresa,
     saveEmpresa,
     fetchConfiguracion,
-    saveConfiguracion,
+    saveConfiguracion
+  } = useConfiguracionStore();
+
+  // Store de Almacenes
+  const {
+    almacenes,
+    loading: almacenesLoading,
     fetchAlmacenes,
     createAlmacen,
-    updateAlmacen,
-    deleteAlmacen
-  } = useConfiguracionStore();
+    updateAlmacen
+  } = useAlmacenStore();
+
+  const loading = configLoading || almacenesLoading;
 
   const [activeTab, setActiveTab] = useState<TabType>('empresa');
   const [isAlmacenModalOpen, setIsAlmacenModalOpen] = useState(false);
@@ -72,11 +82,11 @@ export const Configuracion: React.FC = () => {
   // Crear/actualizar almacén
   const handleSaveAlmacen = async (data: AlmacenFormData) => {
     if (!user) return;
-    
+
     setIsSubmitting(true);
     try {
       if (selectedAlmacen) {
-        await updateAlmacen(selectedAlmacen.id, data);
+        await updateAlmacen(selectedAlmacen.id, data, user.uid);
         alert('✅ Almacén actualizado correctamente');
       } else {
         await createAlmacen(data, user.uid);
@@ -88,20 +98,6 @@ export const Configuracion: React.FC = () => {
       alert(error.message);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  // Eliminar almacén
-  const handleDeleteAlmacen = async (almacen: Almacen) => {
-    if (!window.confirm(`¿Eliminar el almacén ${almacen.nombre}?`)) {
-      return;
-    }
-    
-    try {
-      await deleteAlmacen(almacen.id);
-      alert('✅ Almacén eliminado correctamente');
-    } catch (error: any) {
-      alert(error.message);
     }
   };
 
@@ -235,13 +231,16 @@ export const Configuracion: React.FC = () => {
                           Nombre
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          País
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                           Tipo
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                           Dirección
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Responsable
+                          Contacto
                         </th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                           Acciones
@@ -260,19 +259,27 @@ export const Configuracion: React.FC = () => {
                             <div className="text-sm text-gray-900">{almacen.nombre}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="text-sm">
+                              {almacen.pais === 'USA' ? '🇺🇸 USA' : '🇵🇪 Perú'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 text-xs rounded-full ${
-                              almacen.tipo === 'miami' ? 'bg-blue-100 text-blue-800' :
-                              almacen.tipo === 'utah' ? 'bg-purple-100 text-purple-800' :
-                              'bg-green-100 text-green-800'
+                              almacen.tipo === 'viajero' ? 'bg-blue-100 text-blue-800' :
+                              almacen.tipo === 'almacen_usa' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-purple-100 text-purple-800'
                             }`}>
-                              {almacen.tipo.toUpperCase()}
+                              {almacen.tipo === 'viajero' ? 'Viajero' :
+                               almacen.tipo === 'almacen_usa' ? 'Almacén USA' : 'Almacén Perú'}
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="text-sm text-gray-600">{almacen.direccion || '-'}</div>
+                            <div className="text-sm text-gray-600">
+                              {almacen.direccion ? `${almacen.direccion}, ${almacen.ciudad || ''}` : '-'}
+                            </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-600">{almacen.responsable || '-'}</div>
+                            <div className="text-sm text-gray-600">{almacen.contacto || '-'}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex items-center justify-end space-x-2">
@@ -283,15 +290,6 @@ export const Configuracion: React.FC = () => {
                               >
                                 <Pencil className="h-4 w-4" />
                               </button>
-                              {almacen.activo && (
-                                <button
-                                  onClick={() => handleDeleteAlmacen(almacen)}
-                                  className="text-danger-600 hover:text-danger-900"
-                                  title="Eliminar"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              )}
                             </div>
                           </td>
                         </tr>
@@ -376,7 +374,10 @@ export const Configuracion: React.FC = () => {
         size="lg"
       >
         <AlmacenForm
-          initialData={selectedAlmacen || undefined}
+          initialData={selectedAlmacen ? {
+            ...selectedAlmacen,
+            proximoViaje: selectedAlmacen.proximoViaje?.toDate()
+          } : undefined}
           onSubmit={handleSaveAlmacen}
           onCancel={() => {
             setIsAlmacenModalOpen(false);

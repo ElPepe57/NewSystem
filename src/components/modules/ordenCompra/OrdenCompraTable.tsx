@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Eye, Pencil, Trash2, TrendingUp, AlertCircle } from 'lucide-react';
+import { Package, Eye, Pencil, Trash2, TrendingUp } from 'lucide-react';
 import { Badge } from '../../common';
 import type { OrdenCompra, EstadoOrden } from '../../../types/ordenCompra.types';
 
@@ -14,7 +14,6 @@ interface OrdenCompraTableProps {
 const estadoLabels: Record<EstadoOrden, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
   borrador: { label: 'Borrador', variant: 'default' },
   enviada: { label: 'Enviada', variant: 'info' },
-  pagada: { label: 'Pagada', variant: 'warning' },
   en_transito: { label: 'En Tránsito', variant: 'warning' },
   recibida: { label: 'Recibida', variant: 'success' },
   cancelada: { label: 'Cancelada', variant: 'danger' }
