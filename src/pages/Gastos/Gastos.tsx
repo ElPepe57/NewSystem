@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart } from 'lucide-react';
-import { Card, Badge, Button, Select } from '../../components/common';
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet } from 'lucide-react';
+import { Card, Badge, Button, Select, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton } from '../../components/common';
+import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
 import { ctruService } from '../../services/ctru.service';
 import { GastoForm } from './GastoForm';
+import { PagoGastoForm } from './PagoGastoForm';
 import { exportService } from '../../services/export.service';
 import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type EstadoGasto, type ClaseGasto } from '../../types/gasto.types';
 
@@ -13,6 +15,8 @@ export const Gastos: React.FC = () => {
   const { gastos, stats, loading, fetchGastosMesActual, fetchStats } = useGastoStore();
 
   const [showModal, setShowModal] = useState(false);
+  const [showPagoModal, setShowPagoModal] = useState(false);
+  const [gastoParaPago, setGastoParaPago] = useState<Gasto | null>(null);
   const [filtros, setFiltros] = useState({
     claseGasto: '' as ClaseGasto | '',
     tipo: '' as TipoGasto | '',
@@ -20,6 +24,10 @@ export const Gastos: React.FC = () => {
     estado: '' as EstadoGasto | '',
     esProrrateable: '' as 'true' | 'false' | ''
   });
+
+  // Hook para dialogo de confirmacion
+  const { dialogProps, confirm } = useConfirmDialog();
+  const toast = useToastStore();
 
   useEffect(() => {
     fetchGastosMesActual();
@@ -127,23 +135,26 @@ export const Gastos: React.FC = () => {
   };
 
   const handleRecalcularCTRU = async () => {
-    if (!window.confirm('¿Desea recalcular el CTRU dinámico con los gastos pendientes? Esto actualizará el costo de todas las unidades disponibles.')) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Recalcular CTRU Dinamico',
+      message: '¿Desea recalcular el CTRU dinamico con los gastos pendientes? Esto actualizara el costo de todas las unidades disponibles.',
+      confirmText: 'Recalcular',
+      variant: 'warning'
+    });
+    if (!confirmed) return;
 
     try {
       const resultado = await ctruService.recalcularCTRUDinamico();
-      alert(`✅ CTRU recalculado exitosamente!\n\n` +
-        `• ${resultado.unidadesActualizadas} unidades actualizadas\n` +
-        `• ${resultado.gastosAplicados} gastos aplicados\n` +
-        `• Impacto por unidad: ${formatCurrency(resultado.impactoPorUnidad)}`
+      toast.success(
+        `${resultado.unidadesActualizadas} unidades actualizadas, ${resultado.gastosAplicados} gastos aplicados. Impacto: ${formatCurrency(resultado.impactoPorUnidad)}/unidad`,
+        'CTRU Recalculado'
       );
 
       // Recargar datos
       await fetchGastosMesActual();
       await fetchStats();
     } catch (error: any) {
-      alert(`❌ Error al recalcular CTRU: ${error.message}`);
+      toast.error(error.message, 'Error al recalcular CTRU');
     }
   };
 
@@ -168,6 +179,11 @@ export const Gastos: React.FC = () => {
     }
     return { label: 'GAO', color: 'bg-blue-100 text-blue-700' };
   };
+
+  // Mostrar skeleton durante carga inicial
+  if (loading && gastos.length === 0) {
+    return <GastosSkeleton />;
+  }
 
   return (
     <div className="space-y-6">
@@ -307,7 +323,7 @@ export const Gastos: React.FC = () => {
                   <div
                     key={item.tipo}
                     className="bg-gray-50 rounded-lg p-3 border border-gray-100 hover:border-primary-200 transition-colors cursor-pointer"
-                    onClick={() => setFiltros({ ...filtros, tipo: item.tipo })}
+                    onClick={() => setFiltros({ ...filtros, tipo: item.tipo as TipoGasto })}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-gray-900 truncate" title={item.tipo}>
@@ -420,23 +436,36 @@ export const Gastos: React.FC = () => {
       {/* Tabla de Gastos */}
       <Card padding="md">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <TableRowSkeleton columns={6} rows={8} />
+              </tbody>
+            </table>
           </div>
         ) : gastosFiltrados.length === 0 ? (
-          <div className="text-center py-12">
-            <DollarSign className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No hay gastos</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Comienza registrando un nuevo gasto
-            </p>
-            <div className="mt-6">
-              <Button onClick={() => setShowModal(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Nuevo Gasto
-              </Button>
-            </div>
-          </div>
+          <EmptyStateAction
+            title={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado
+              ? 'No se encontraron gastos'
+              : 'No hay gastos registrados'}
+            description={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado
+              ? 'Prueba con otros filtros o limpia los filtros actuales'
+              : 'Comienza registrando un nuevo gasto operativo'}
+            variant={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado ? 'no-results' : 'no-data'}
+            icon={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado ? 'search' : 'file'}
+            actionLabel={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado ? 'Limpiar Filtros' : 'Nuevo Gasto'}
+            onAction={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado ? limpiarFiltros : () => setShowModal(true)}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -463,6 +492,9 @@ export const Gastos: React.FC = () => {
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                     CTRU
                   </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -482,9 +514,9 @@ export const Gastos: React.FC = () => {
                             {gasto.numeroGasto}
                           </span>
                         </div>
-                        {gasto.ventaNumero && (
+                        {gasto.ventaId && (
                           <div className="text-xs text-purple-600 mt-0.5">
-                            → {gasto.ventaNumero}
+                            → Venta vinculada
                           </div>
                         )}
                       </td>
@@ -534,6 +566,26 @@ export const Gastos: React.FC = () => {
                           <span className="text-xs text-gray-400">N/A</span>
                         )}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        {gasto.estado === 'pendiente' && (
+                          <button
+                            onClick={() => {
+                              setGastoParaPago(gasto);
+                              setShowPagoModal(true);
+                            }}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
+                            title="Registrar pago"
+                          >
+                            <CreditCard className="h-4 w-4" />
+                            Pagar
+                          </button>
+                        )}
+                        {gasto.estado === 'pagado' && (
+                          <span className="text-xs text-gray-400">
+                            {gasto.metodoPago || '-'}
+                          </span>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -543,16 +595,52 @@ export const Gastos: React.FC = () => {
         )}
 
         {!loading && gastosFiltrados.length > 0 && (
-          <div className="px-6 py-3 border-t border-gray-200">
-            <div className="text-sm text-gray-700">
-              Mostrando <span className="font-medium">{gastosFiltrados.length}</span> gastos
-            </div>
+          <div className="px-4 py-3 border-t border-gray-200">
+            <ListSummary
+              filteredCount={gastosFiltrados.length}
+              totalCount={gastos.length}
+              itemLabel="gastos"
+              summaryItems={[
+                {
+                  label: 'Total',
+                  value: formatCurrency(resumenPorTipo.totalGeneral),
+                  icon: 'money',
+                  variant: 'default'
+                },
+                {
+                  label: 'Pendientes',
+                  value: gastosFiltrados.filter(g => g.estado === 'pendiente').length,
+                  icon: 'file',
+                  variant: 'warning'
+                }
+              ]}
+            />
           </div>
         )}
       </Card>
 
-      {/* Modal Formulario */}
+      {/* Modal Formulario Nuevo Gasto */}
       {showModal && <GastoForm onClose={() => setShowModal(false)} />}
+
+      {/* Modal Formulario Pago de Gasto */}
+      {showPagoModal && gastoParaPago && (
+        <PagoGastoForm
+          gasto={gastoParaPago}
+          onClose={() => {
+            setShowPagoModal(false);
+            setGastoParaPago(null);
+          }}
+          onSuccess={() => {
+            setShowPagoModal(false);
+            setGastoParaPago(null);
+            fetchGastosMesActual();
+            fetchStats();
+          }}
+        />
+      )}
+
+      {/* Dialogo de Confirmacion */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 };

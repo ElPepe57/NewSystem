@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { X, CreditCard, AlertCircle, Wallet, Calendar, DollarSign, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button, Input, Card, Select, Badge } from '../../common';
 import { useTipoCambioStore } from '../../../store/tipoCambioStore';
+import { useToastStore } from '../../../store/toastStore';
 import { tesoreriaService } from '../../../services/tesoreria.service';
 import type { OrdenCompra, PagoOrdenCompra } from '../../../types/ordenCompra.types';
 import type { MetodoTesoreria, CuentaCaja, MonedaTesoreria } from '../../../types/tesoreria.types';
@@ -31,6 +32,7 @@ export const PagoForm: React.FC<PagoFormProps> = ({
   loading = false
 }) => {
   const { getTCDelDia } = useTipoCambioStore();
+  const toast = useToastStore();
 
   // ========== Estado del formulario ==========
   const [fechaPago, setFechaPago] = useState<string>(
@@ -146,17 +148,17 @@ export const PagoForm: React.FC<PagoFormProps> = ({
     e.preventDefault();
 
     if (tipoCambio <= 0) {
-      alert('El tipo de cambio debe ser mayor a 0');
+      toast.warning('El tipo de cambio debe ser mayor a 0');
       return;
     }
 
     if (montoOriginal <= 0) {
-      alert('El monto debe ser mayor a 0');
+      toast.warning('El monto debe ser mayor a 0');
       return;
     }
 
     if (montoUSD > pendienteUSD + 0.01) {
-      alert(`El monto no puede ser mayor al pendiente ($${pendienteUSD.toFixed(2)} USD)`);
+      toast.warning(`El monto no puede ser mayor al pendiente ($${pendienteUSD.toFixed(2)} USD)`);
       return;
     }
 

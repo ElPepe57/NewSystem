@@ -14,13 +14,10 @@ interface ProductoState {
   updateProducto: (id: string, data: any) => Promise<void>;
   deleteProducto: (id: string) => Promise<void>;
   setSelectedProducto: (producto: Producto | null) => void;
-  searchProductos: (term: string) => Promise<void>;
 
   // Investigación de Mercado
   guardarInvestigacion: (productoId: string, data: InvestigacionFormData, userId: string, tipoCambio?: number) => Promise<InvestigacionMercado>;
   eliminarInvestigacion: (productoId: string) => Promise<void>;
-  getProductosSinInvestigacion: () => Promise<Producto[]>;
-  getProductosInvestigacionVencida: () => Promise<Producto[]>;
 }
 
 export const useProductoStore = create<ProductoState>((set) => ({
@@ -86,23 +83,6 @@ export const useProductoStore = create<ProductoState>((set) => ({
   setSelectedProducto: (producto) => {
     set({ selectedProducto: producto });
   },
-  
-  searchProductos: async (term) => {
-    if (!term.trim()) {
-      // Si no hay término, cargar todos
-      const productos = await ProductoService.getAll();
-      set({ productos });
-      return;
-    }
-
-    set({ loading: true, error: null });
-    try {
-      const productos = await ProductoService.search(term);
-      set({ productos, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
 
   // ============================================
   // INVESTIGACIÓN DE MERCADO
@@ -149,24 +129,6 @@ export const useProductoStore = create<ProductoState>((set) => ({
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
-    }
-  },
-
-  getProductosSinInvestigacion: async () => {
-    try {
-      return await ProductoService.getProductosSinInvestigacion();
-    } catch (error: any) {
-      console.error('Error al obtener productos sin investigación:', error);
-      return [];
-    }
-  },
-
-  getProductosInvestigacionVencida: async () => {
-    try {
-      return await ProductoService.getProductosInvestigacionVencida();
-    } catch (error: any) {
-      console.error('Error al obtener productos con investigación vencida:', error);
-      return [];
     }
   }
 }));

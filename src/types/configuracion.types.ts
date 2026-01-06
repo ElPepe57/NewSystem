@@ -10,12 +10,17 @@ export interface EmpresaInfo {
   email?: string;
   sitioWeb?: string;
   logo?: string;
-  
+
   // Configuración
   monedaPrincipal: 'PEN' | 'USD';
   decimalesPrecio: number;
   decimalesCantidad: number;
-  
+
+  // QR de Pagos (Yape/Plin)
+  qrPagoUrl?: string;        // URL o data para el QR (puede ser imagen base64 o link de pago)
+  qrPagoTelefono?: string;   // Número de teléfono para Yape/Plin
+  qrPagoBanco?: string;      // Nombre del banco/app (ej: "Yape", "Plin", "Yape/Plin")
+
   // Auditoría
   creadoPor: string;
   fechaCreacion: Timestamp;
@@ -98,6 +103,10 @@ export interface EmpresaFormData {
   email?: string;
   sitioWeb?: string;
   monedaPrincipal: 'PEN' | 'USD';
+  // QR de Pagos
+  qrPagoUrl?: string;
+  qrPagoTelefono?: string;
+  qrPagoBanco?: string;
 }
 
 export interface ConfiguracionFormData {

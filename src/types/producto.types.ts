@@ -1,4 +1,7 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { TipoProductoSnapshot } from './tipoProducto.types';
+import type { CategoriaSnapshot } from './categoria.types';
+import type { EtiquetaSnapshot } from './etiqueta.types';
 
 // ============================================
 // TIPOS DE PRODUCTO (Ya existentes)
@@ -260,12 +263,44 @@ export interface Producto {
   id: string;
   sku: string;
   marca: string;
+  marcaId?: string;    // Referencia a la entidad Marca en el Gestor Maestro
   nombreComercial: string;
   presentacion: Presentacion;
   dosaje: string;
   contenido: string;
+
+  // ======== CLASIFICACION LEGACY (mantener para compatibilidad) ========
+  /** @deprecated Usar categorias[] en su lugar. Se mantiene para compatibilidad */
   grupo: string;
+  /** @deprecated Usar tipoProducto en su lugar. Se mantiene para compatibilidad */
   subgrupo: string;
+
+  // ======== NUEVA CLASIFICACION ========
+  /**
+   * Tipo de Producto (composicion/principio activo)
+   * Agrupa productos que son "lo mismo" de diferentes marcas
+   * Ej: "Aceite de Oregano", "Omega 3 EPA/DHA", "Sulfato de Zinc"
+   */
+  tipoProductoId?: string;
+  tipoProducto?: TipoProductoSnapshot;
+
+  /**
+   * Categorias (areas de salud/beneficio)
+   * Un producto puede tener MULTIPLES categorias (max 5)
+   * Ej: ["Sistema Inmune", "Digestivo", "Antibacteriano"]
+   */
+  categoriaIds?: string[];
+  categorias?: CategoriaSnapshot[];
+  /** Categoria principal para display destacado */
+  categoriaPrincipalId?: string;
+
+  /**
+   * Etiquetas (tags flexibles)
+   * Para atributos, marketing y origen
+   * Ej: ["vegano", "organico", "importado-usa", "best-seller"]
+   */
+  etiquetaIds?: string[];
+  etiquetasData?: EtiquetaSnapshot[];
 
   enlaceProveedor: string;
   codigoUPC: string;
@@ -304,6 +339,26 @@ export interface Producto {
 
   esPadre: boolean;
 
+  // === SABOR ===
+  /**
+   * Sabor del producto (ej: "Limón", "Fresa", "Natural", "Sin sabor")
+   */
+  sabor?: string;
+
+  // === CICLO DE RECOMPRA ===
+  /**
+   * Frecuencia de consumo diario recomendada (ej: 1, 2, 3 veces al día)
+   * El total de porciones se toma del campo "contenido"
+   */
+  servingsPerDay?: number;
+
+  /**
+   * Días estimados para que un cliente necesite recomprar este producto.
+   * Se calcula automáticamente: (número en contenido) / servingsPerDay
+   * Ej: "60 softgels" / 2 al día = 30 días
+   */
+  cicloRecompraDias?: number;
+
   // === INVESTIGACIÓN DE MERCADO ===
   investigacion?: InvestigacionMercado;
 
@@ -314,12 +369,29 @@ export interface Producto {
 
 export interface ProductoFormData {
   marca: string;
+  marcaId?: string;    // Referencia a la entidad Marca en el Gestor Maestro
   nombreComercial: string;
   presentacion: Presentacion;
   dosaje: string;
   contenido: string;
+  sabor?: string;      // Sabor del producto (ej: "Limón", "Fresa", "Natural")
+
+  // ======== CLASIFICACION LEGACY (mantener para compatibilidad) ========
+  /** @deprecated Usar categoriaIds en su lugar */
   grupo: string;
+  /** @deprecated Usar tipoProductoId en su lugar */
   subgrupo: string;
+
+  // ======== NUEVA CLASIFICACION ========
+  /** Tipo de Producto (composicion/principio activo) */
+  tipoProductoId?: string;
+  /** IDs de categorias seleccionadas (max 5) */
+  categoriaIds?: string[];
+  /** Categoria principal para display destacado */
+  categoriaPrincipalId?: string;
+  /** IDs de etiquetas seleccionadas */
+  etiquetaIds?: string[];
+
   enlaceProveedor: string;
   codigoUPC: string;
   precioSugerido: number;
@@ -333,6 +405,18 @@ export interface ProductoFormData {
    * Costo FIJO de flete USA → Perú por unidad (USD)
    */
   costoFleteUSAPeru: number;
+
+  // === CICLO DE RECOMPRA ===
+  /**
+   * Frecuencia de consumo diario (el total de porciones se toma del campo "contenido")
+   */
+  servingsPerDay?: number;
+
+  /**
+   * Días estimados para que un cliente necesite recomprar este producto.
+   * Se calcula automáticamente: (número en contenido) / servingsPerDay
+   */
+  cicloRecompraDias?: number;
 }
 
 // ============================================

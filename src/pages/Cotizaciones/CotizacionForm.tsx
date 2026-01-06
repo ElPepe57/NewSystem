@@ -3,10 +3,12 @@ import { X, Plus, Trash2, Search, AlertTriangle, Package, TrendingUp, Info, Plus
 import { Modal, Input, Select, Button, Badge } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
+import { CanalAutocomplete } from '../../components/modules/canalVenta/CanalAutocomplete';
 import { useCotizacionStore } from '../../store/cotizacionStore';
 import { useConfiguracionStore } from '../../store/configuracionStore';
 import { useVentaStore } from '../../store/ventaStore';
 import { useProductoStore } from '../../store/productoStore';
+import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useAuthStore } from '../../store/authStore';
 import { inventarioService } from '../../services/inventario.service';
 import { clienteService } from '../../services/cliente.service';
@@ -23,6 +25,9 @@ interface ProductoLinea {
   sku: string;
   marca: string;
   nombre: string;
+  presentacion: string;
+  contenido?: string;        // Ej: "180 cápsulas"
+  dosaje?: string;           // Ej: "150mg"
   cantidad: number;
   precioUnitario: number;
   subtotal: number;
@@ -58,6 +63,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
   const modoDuplicacion = !!cotizacionEditar && !cotizacionEditar.id;
   const { fetchProductosDisponibles, productosDisponibles } = useVentaStore();
   const { productos, fetchProductos, createProducto } = useProductoStore();
+  const { canales, canalesActivos, fetchCanales, fetchCanalesActivos } = useCanalVentaStore();
 
   // Estado para mostrar modal de éxito con opción de PDF
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -185,7 +191,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
     fetchProductos();
     fetchProductosDisponibles();
     fetchEmpresa();
-  }, [fetchProductos, fetchProductosDisponibles, fetchEmpresa]);
+    fetchCanalesActivos();
+  }, [fetchProductos, fetchProductosDisponibles, fetchEmpresa, fetchCanalesActivos]);
 
   // Cargar datos de cotización a editar
   useEffect(() => {
@@ -210,6 +217,9 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         sku: p.sku,
         marca: p.marca,
         nombre: p.nombreComercial,
+        presentacion: p.presentacion,
+        contenido: p.contenido,
+        dosaje: p.dosaje,
         cantidad: p.cantidad,
         precioUnitario: p.precioUnitario,
         subtotal: p.subtotal,
@@ -232,11 +242,14 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
 
   useEffect(() => {
     if (busquedaProducto.length >= 2) {
-      const filtrados = productos.filter(p =>
-        p.sku.toLowerCase().includes(busquedaProducto.toLowerCase()) ||
-        p.nombreComercial.toLowerCase().includes(busquedaProducto.toLowerCase()) ||
-        p.marca.toLowerCase().includes(busquedaProducto.toLowerCase())
-      );
+      const term = busquedaProducto.toLowerCase();
+      const productosArr = Array.isArray(productos) ? productos : [];
+      const filtrados = productosArr.filter(p => {
+        const sku = (p.sku ?? '').toLowerCase();
+        const nombreComercial = (p.nombreComercial ?? '').toLowerCase();
+        const marca = (p.marca ?? '').toLowerCase();
+        return sku.includes(term) || nombreComercial.includes(term) || marca.includes(term);
+      });
       setProductosFiltrados(filtrados);
       setShowProductoSelector(true);
     } else {
@@ -306,6 +319,9 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
       sku: producto.sku,
       marca: producto.marca,
       nombre: producto.nombreComercial,
+      presentacion: producto.presentacion,
+      contenido: producto.contenido,
+      dosaje: producto.dosaje,
       cantidad: 1,
       precioUnitario: producto.precioSugerido || 0,
       subtotal: producto.precioSugerido || 0,
@@ -624,15 +640,11 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               placeholder="12345678"
             />
 
-            <Select
+            <CanalAutocomplete
               label="Canal"
               value={formData.canal}
-              onChange={(e) => setFormData({ ...formData, canal: e.target.value as CanalVenta })}
-              options={[
-                { value: 'directo', label: 'Venta Directa' },
-                { value: 'mercado_libre', label: 'Mercado Libre' },
-                { value: 'otro', label: 'Otro' }
-              ]}
+              onChange={(canalId) => setFormData({ ...formData, canal: canalId as CanalVenta })}
+              placeholder="Buscar o crear canal..."
             />
 
             <Input

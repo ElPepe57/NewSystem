@@ -93,6 +93,11 @@ export interface MovimientoTesoreria {
   ventaNumero?: string;
   gastoId?: string;
   gastoNumero?: string;
+  cotizacionId?: string;          // Para adelantos de cotización
+  cotizacionNumero?: string;
+  transferenciaId?: string;       // Para pagos de viajero
+  transferenciaNumero?: string;
+  conversionId?: string;          // Para movimientos de conversión
 
   // Caja/Cuenta
   cuentaOrigen?: string;        // ID de la cuenta de origen
@@ -309,6 +314,10 @@ export interface MovimientoTesoreriaFormData {
   ventaNumero?: string;
   gastoId?: string;
   gastoNumero?: string;
+  cotizacionId?: string;
+  cotizacionNumero?: string;
+  transferenciaId?: string;
+  transferenciaNumero?: string;
 
   // Cuentas
   cuentaOrigen?: string;
@@ -323,6 +332,9 @@ export interface ConversionCambiariaFormData {
   motivo?: string;
   notas?: string;
   fecha: Date;
+  // Cuentas para afectar saldos
+  cuentaOrigenId?: string;        // Cuenta de donde sale el dinero
+  cuentaDestinoId?: string;       // Cuenta a donde llega el dinero convertido
 }
 
 export interface CuentaCajaFormData {
@@ -394,6 +406,7 @@ export interface TesoreriaStats {
   conversionesMes: number;
   montoConvertidoMes: number;
   spreadPromedioMes: number;
+  tcPromedioMes: number;          // TC promedio usado en el mes
 
   // Diferencia cambiaria
   diferenciaNetaMes: number;
@@ -614,4 +627,82 @@ export interface DashboardCuentasPendientes {
     pendienteId: string;
     prioridad: 'alta' | 'media' | 'baja';
   }[];
+}
+
+// ===============================================
+// ESTADÍSTICAS AGREGADAS (MATERIALIZED)
+// ===============================================
+
+/**
+ * Estadísticas agregadas por mes
+ * Se actualizan incrementalmente con cada operación
+ */
+export interface EstadisticasMensuales {
+  mes: number;
+  anio: number;
+
+  // Ingresos
+  ingresosUSD: number;
+  ingresosPEN: number;
+  cantidadIngresos: number;
+
+  // Egresos
+  egresosUSD: number;
+  egresosPEN: number;
+  cantidadEgresos: number;
+
+  // Conversiones
+  conversionesUSDaPEN: number;
+  conversionesPENaUSD: number;
+  cantidadConversiones: number;
+  spreadAcumulado: number;
+
+  // Diferencia cambiaria
+  diferenciaOrdenesCompra: number;
+  diferenciaVentas: number;
+  diferenciaConversiones: number;
+  diferenciaNetaMes: number;
+
+  // TC promedio
+  sumaTipoCambio: number;
+  cantidadOperacionesTC: number;
+}
+
+/**
+ * Documento principal de estadísticas agregadas
+ * Almacenado en: estadisticas/tesoreria
+ */
+export interface EstadisticasTesoreriaAgregadas {
+  // Saldos totales actuales (calculados de cuentas)
+  saldoTotalUSD: number;
+  saldoTotalPEN: number;
+  saldoTotalEquivalentePEN: number;
+  tipoCambioActual: number;
+
+  // Mes actual (para acceso rápido)
+  mesActual: EstadisticasMensuales;
+
+  // Histórico por mes (últimos 12 meses)
+  // Clave: "2024-01", "2024-02", etc.
+  historicoPorMes: Record<string, EstadisticasMensuales>;
+
+  // Acumulado del año actual
+  acumuladoAnio: {
+    anio: number;
+    ingresosUSD: number;
+    ingresosPEN: number;
+    egresosUSD: number;
+    egresosPEN: number;
+    diferenciaNetaAnio: number;
+    cantidadOperaciones: number;
+  };
+
+  // Contadores globales (para números de documento)
+  ultimoNumeroMovimiento: number;
+  ultimoNumeroConversion: number;
+
+  // Metadata
+  ultimaActualizacion: Timestamp;
+  actualizadoPor: string;
+  version: number;
 }

@@ -11,73 +11,58 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { logger } from '../lib/logger';
-import { tesoreriaService } from './tesoreria.service';
-import { ctruService } from './ctru.service';
 import type {
   Gasto,
   GastoFormData,
   GastoFiltros,
   ResumenGastosMes,
   GastoStats,
-  ClaseGasto
+  CategoriaGasto
 } from '../types/gasto.types';
+import { getClaseGasto } from '../types/gasto.types';
+import { ctruService } from './ctru.service';
+import { tesoreriaService } from './tesoreria.service';
+import type { MetodoTesoreria, MonedaTesoreria } from '../types/tesoreria.types';
 
 const GASTOS_COLLECTION = 'gastos';
 
 export const gastoService = {
   /**
    * Crear un nuevo gasto
-   * GVD: Gastos de Venta y Distribución (categorías GV y GD, asociados a ventas)
-   * GAO: Gastos Administrativos y Operativos (categorías GA y GO)
    */
   async create(data: GastoFormData, userId: string): Promise<string> {
     try {
-      // Determinar clase de gasto basado en:
-      // 1. Si se especifica claseGasto explícitamente, usarla
-      // 2. Si tiene ventaId/ventaNumero o categoría GV/GD → GVD
-      // 3. Categoría GA/GO → GAO
-      let claseGasto: ClaseGasto;
-      if (data.claseGasto) {
-        claseGasto = data.claseGasto;
-      } else if (data.ventaId || data.ventaNumero || data.categoria === 'GV' || data.categoria === 'GD') {
-        claseGasto = 'GVD';
-      } else {
-        claseGasto = 'GAO';
-      }
-
-      // Generar número de gasto según la clase
-      const numeroGasto = await this.generateNumeroGasto(claseGasto);
+      // Generar número de gasto
+      const numeroGasto = await this.generateNumeroGasto();
 
       // Convertir a PEN si es necesario
-      // Soporta: montoPEN directo, moneda PEN + montoOriginal, o moneda USD + montoOriginal + tipoCambio
-      let montoPEN = data.montoPEN;
-      if (montoPEN === undefined) {
-        montoPEN = data.montoOriginal || 0;
-        if (data.moneda === 'USD') {
-          if (!data.tipoCambio) {
-            throw new Error('Debe proporcionar el tipo de cambio para gastos en USD');
-          }
-          montoPEN = (data.montoOriginal || 0) * data.tipoCambio;
+      let montoPEN = data.montoOriginal;
+      if (data.moneda === 'USD') {
+        if (!data.tipoCambio) {
+          throw new Error('Debe proporcionar el tipo de cambio para gastos en USD');
         }
+        montoPEN = data.montoOriginal * data.tipoCambio;
       }
+
+      // Determinar clase de gasto a partir de la categoría
+      const claseGasto = getClaseGasto(data.categoria);
 
       // Crear objeto gasto - solo incluir campos con valor definido
       // Firestore no acepta valores undefined
       const gasto: Record<string, unknown> = {
         numeroGasto,
-        claseGasto,
         tipo: data.tipo,
         categoria: data.categoria,
+        claseGasto,
         descripcion: data.descripcion,
-        moneda: data.moneda || 'PEN',
-        montoOriginal: data.montoOriginal || montoPEN,
+        moneda: data.moneda,
+        montoOriginal: data.montoOriginal,
         montoPEN,
         esProrrateable: data.esProrrateable,
         mes: data.fecha.getMonth() + 1,
         anio: data.fecha.getFullYear(),
         fecha: Timestamp.fromDate(data.fecha),
-        esRecurrente: data.frecuencia ? data.frecuencia !== 'unico' : false,
+        esRecurrente: data.frecuencia !== 'unico',
         estado: data.estado,
         impactaCTRU: data.impactaCTRU,
         ctruRecalculado: false,
@@ -90,7 +75,6 @@ export const gastoService = {
       if (data.prorrateoTipo) gasto.prorrateoTipo = data.prorrateoTipo;
       if (data.ordenCompraId) gasto.ordenCompraId = data.ordenCompraId;
       if (data.ventaId) gasto.ventaId = data.ventaId;
-      if (data.ventaNumero) gasto.ventaNumero = data.ventaNumero;
       if (data.frecuencia) gasto.frecuencia = data.frecuencia;
       if (data.proveedor) gasto.proveedor = data.proveedor;
       if (data.responsable) gasto.responsable = data.responsable;
@@ -98,50 +82,15 @@ export const gastoService = {
       if (data.estado === 'pagado') gasto.fechaPago = Timestamp.now();
       if (data.numeroComprobante) gasto.numeroComprobante = data.numeroComprobante;
       if (data.notas) gasto.notas = data.notas;
-      if (data.cuentaOrigenId) gasto.cuentaOrigenId = data.cuentaOrigenId;
 
       const docRef = await addDoc(collection(db, GASTOS_COLLECTION), gasto);
 
-      // Si el gasto está marcado como pagado, registrar movimiento en tesorería
-      if (data.estado === 'pagado') {
-        // Usar valores por defecto si se proporcionó montoPEN directamente
-        const monedaMovimiento = data.moneda || 'PEN';
-        const montoMovimiento = data.montoOriginal ?? montoPEN;
-
-        const movimientoData: any = {
-          tipo: 'gasto',
-          moneda: monedaMovimiento,
-          monto: montoMovimiento,
-          tipoCambio: data.tipoCambio || 1,
-          metodo: data.metodoPago || 'efectivo',
-          concepto: `${data.tipo}: ${data.descripcion}`,
-          gastoId: docRef.id,
-          notas: data.notas,
-          fecha: data.fecha
-        };
-
-        // Agregar cuenta origen si se especificó
-        if (data.cuentaOrigenId) {
-          movimientoData.cuentaOrigen = data.cuentaOrigenId;
-        }
-
-        await tesoreriaService.registrarMovimiento(movimientoData, userId);
-      }
-
-      // Si el gasto es prorrateable e impacta CTRU, recalcular automáticamente
-      if (data.esProrrateable && data.impactaCTRU) {
-        try {
-          const resultado = await ctruService.recalcularCTRUDinamico();
-          if (resultado.unidadesActualizadas > 0) {
-            logger.success(
-              `CTRU recalculado: ${resultado.unidadesActualizadas} unidades actualizadas, ` +
-              `impacto S/ ${resultado.impactoPorUnidad.toFixed(2)} por unidad`
-            );
-          }
-        } catch (ctruError) {
-          // No bloquear la creación del gasto si falla el recálculo
-          console.error('Error al recalcular CTRU automáticamente:', ctruError);
-        }
+      // NOTA: El recálculo automático de CTRU se deshabilitó porque es muy costoso
+      // (actualiza todas las unidades y productos). El usuario puede recalcular
+      // manualmente desde el botón "Recalcular CTRU" cuando lo necesite.
+      // El gasto queda marcado con ctruRecalculado: false para procesarse después.
+      if (data.esProrrateable && (data.categoria === 'GA' || data.categoria === 'GO')) {
+        console.log('[CTRU] Gasto GA/GO prorrateable creado. Recálculo pendiente (usar botón "Recalcular CTRU").');
       }
 
       return docRef.id;
@@ -152,37 +101,32 @@ export const gastoService = {
   },
 
   /**
-   * Generar número de gasto correlativo según la clase
-   * GVD-0001, GVD-0002... para Gastos de Venta y Distribución
-   * GAO-0001, GAO-0002... para Gastos Administrativos y Operativos
+   * Generar número de gasto correlativo (busca el máximo para evitar duplicados)
    */
-  async generateNumeroGasto(claseGasto: ClaseGasto = 'GAO'): Promise<string> {
+  async generateNumeroGasto(): Promise<string> {
     const snapshot = await getDocs(collection(db, GASTOS_COLLECTION));
 
     if (snapshot.empty) {
-      return `${claseGasto}-0001`;
+      return 'GAS-0001';
     }
 
-    // Buscar el número máximo existente para esta clase
+    // Buscar el número máximo existente
     let maxNumber = 0;
-    const prefijo = claseGasto;
-
     snapshot.docs.forEach(docSnap => {
       const data = docSnap.data() as Gasto;
       const numero = data.numeroGasto;
 
-      // Extraer el número del formato XXX-NNNN (donde XXX es GVD o GAO)
-      // También soporta el formato antiguo GAS-NNNN para compatibilidad
-      const matchNuevo = numero?.match(new RegExp(`^${prefijo}-(\\d+)$`));
-      if (matchNuevo) {
-        const num = parseInt(matchNuevo[1], 10);
+      // Extraer el número del formato GAS-NNNN
+      const match = numero?.match(/GAS-(\d+)/);
+      if (match) {
+        const num = parseInt(match[1], 10);
         if (num > maxNumber) {
           maxNumber = num;
         }
       }
     });
 
-    return `${claseGasto}-${(maxNumber + 1).toString().padStart(4, '0')}`;
+    return `GAS-${(maxNumber + 1).toString().padStart(4, '0')}`;
   },
 
   /**
@@ -281,6 +225,9 @@ export const gastoService = {
       }
 
       await updateDoc(docRef, updateData);
+
+      // NOTA: El recálculo automático de CTRU se deshabilitó porque es muy costoso.
+      // El usuario puede recalcular manualmente desde el botón "Recalcular CTRU".
     } catch (error: any) {
       console.error('Error al actualizar gasto:', error);
       throw new Error(`Error al actualizar gasto: ${error.message}`);
@@ -295,9 +242,6 @@ export const gastoService = {
       let q = query(collection(db, GASTOS_COLLECTION));
 
       // Aplicar filtros
-      if (filtros.claseGasto) {
-        q = query(q, where('claseGasto', '==', filtros.claseGasto));
-      }
       if (filtros.tipo) {
         q = query(q, where('tipo', '==', filtros.tipo));
       }
@@ -503,12 +447,10 @@ export const gastoService = {
   },
 
   /**
-   * Obtener gastos GVD asociados a una venta específica
-   * Filtra por ventaId y categorías GV/GD (sin requerir índice compuesto)
+   * Obtener gastos directos asociados a una venta específica
    */
   async getGastosVenta(ventaId: string): Promise<Gasto[]> {
     try {
-      // Usar solo ventaId para evitar índice compuesto, filtrar en memoria
       const q = query(
         collection(db, GASTOS_COLLECTION),
         where('ventaId', '==', ventaId)
@@ -516,16 +458,86 @@ export const gastoService = {
 
       const snapshot = await getDocs(q);
 
-      // Filtrar en memoria por categoría GV o GD
-      return snapshot.docs
-        .map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as Gasto))
-        .filter(g => g.categoria === 'GV' || g.categoria === 'GD');
+      const gastos = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Gasto));
+
+      // Ordenar por fecha descendente
+      return gastos.sort((a, b) => {
+        const fechaA = a.fecha?.toMillis?.() || 0;
+        const fechaB = b.fecha?.toMillis?.() || 0;
+        return fechaB - fechaA;
+      });
     } catch (error: any) {
       console.error('Error al obtener gastos de venta:', error);
       throw new Error(`Error al obtener gastos de venta: ${error.message}`);
+    }
+  },
+
+  /**
+   * Crear múltiples gastos asociados a una venta
+   */
+  async createGastosVenta(
+    ventaId: string,
+    gastos: Array<{
+      tipo: string;
+      categoria: string;
+      descripcion: string;
+      monto: number;
+      ventaNumero?: string;
+    }>,
+    userId: string
+  ): Promise<string[]> {
+    try {
+      const batch = writeBatch(db);
+      const ids: string[] = [];
+      const ahora = new Date();
+
+      // Obtener número base para los gastos
+      let numeroBase = await this.generateNumeroGasto();
+      let baseNum = parseInt(numeroBase.replace('GAS-', ''), 10);
+
+      for (const gasto of gastos) {
+        const docRef = doc(collection(db, GASTOS_COLLECTION));
+        ids.push(docRef.id);
+
+        const numeroGasto = `GAS-${baseNum.toString().padStart(4, '0')}`;
+        baseNum++;
+
+        // Determinar clase de gasto a partir de la categoría
+        const claseGasto = getClaseGasto(gasto.categoria as CategoriaGasto);
+
+        batch.set(docRef, {
+          numeroGasto,
+          tipo: gasto.tipo,
+          categoria: gasto.categoria,
+          claseGasto,
+          descripcion: gasto.descripcion,
+          moneda: 'PEN',
+          montoOriginal: gasto.monto,
+          montoPEN: gasto.monto,
+          esProrrateable: false,
+          ventaId,
+          ventaNumero: gasto.ventaNumero,
+          mes: ahora.getMonth() + 1,
+          anio: ahora.getFullYear(),
+          fecha: Timestamp.fromDate(ahora),
+          frecuencia: 'unico',
+          esRecurrente: false,
+          estado: 'pendiente',  // Pendiente para ser pagado desde Gastos con trazabilidad completa
+          impactaCTRU: false,
+          ctruRecalculado: false,
+          creadoPor: userId,
+          fechaCreacion: Timestamp.now()
+        });
+      }
+
+      await batch.commit();
+      return ids;
+    } catch (error: any) {
+      console.error('Error al crear gastos de venta:', error);
+      throw new Error(`Error al crear gastos de venta: ${error.message}`);
     }
   },
 
@@ -553,6 +565,153 @@ export const gastoService = {
     } catch (error: any) {
       console.error('Error al obtener gastos pendientes de recálculo:', error);
       throw new Error(`Error al obtener gastos pendientes de recálculo: ${error.message}`);
+    }
+  },
+
+  /**
+   * Registrar pago de un gasto pendiente
+   * Crea un movimiento de tesorería y actualiza el estado del gasto
+   */
+  async registrarPago(
+    gastoId: string,
+    data: {
+      fechaPago: Date;
+      monedaPago: MonedaTesoreria;
+      montoPago: number;
+      tipoCambio: number;
+      metodoPago: MetodoTesoreria;
+      cuentaOrigenId: string;
+      referenciaPago?: string;
+      notas?: string;
+    },
+    userId: string
+  ): Promise<void> {
+    try {
+      // Obtener el gasto
+      const gasto = await this.getById(gastoId);
+      if (!gasto) {
+        throw new Error('Gasto no encontrado');
+      }
+
+      if (gasto.estado === 'pagado') {
+        throw new Error('Este gasto ya está pagado');
+      }
+
+      // Registrar movimiento de tesorería (egreso)
+      await tesoreriaService.registrarMovimiento({
+        tipo: 'gasto_operativo',
+        moneda: data.monedaPago,
+        monto: data.montoPago,
+        tipoCambio: data.tipoCambio,
+        metodo: data.metodoPago,
+        concepto: `Pago ${gasto.numeroGasto}: ${gasto.descripcion}`,
+        fecha: data.fechaPago,
+        cuentaOrigen: data.cuentaOrigenId,
+        gastoId: gastoId,
+        gastoNumero: gasto.numeroGasto,
+        referencia: data.referenciaPago,
+        notas: data.notas
+      }, userId);
+
+      // Actualizar el gasto a estado pagado
+      const docRef = doc(db, GASTOS_COLLECTION, gastoId);
+      const updateData: Record<string, any> = {
+        estado: 'pagado',
+        fechaPago: Timestamp.fromDate(data.fechaPago),
+        metodoPago: data.metodoPago,
+        cuentaOrigenId: data.cuentaOrigenId,
+        monedaPago: data.monedaPago,
+        montoPagado: data.montoPago,
+        tipoCambioPago: data.tipoCambio,
+        ultimaEdicion: Timestamp.now(),
+        editadoPor: userId
+      };
+
+      // Solo agregar campos opcionales si tienen valor (Firebase no acepta undefined)
+      if (data.referenciaPago) updateData.referenciaPago = data.referenciaPago;
+      if (data.notas) updateData.notasPago = data.notas;
+
+      await updateDoc(docRef, updateData);
+
+      // Registrar TC de la transacción si el gasto original era en USD
+      if (gasto.moneda === 'USD') {
+        await tesoreriaService.registrarTCTransaccion(
+          'gasto',
+          gastoId,
+          gasto.numeroGasto,
+          'pago',
+          gasto.montoOriginal,
+          data.tipoCambio,
+          userId
+        );
+      }
+    } catch (error: any) {
+      console.error('Error al registrar pago de gasto:', error);
+      throw new Error(`Error al registrar pago: ${error.message}`);
+    }
+  },
+
+  /**
+   * Crear gasto GD (Gasto de Distribución) automático desde una entrega
+   * Se crea cuando una entrega es exitosa
+   */
+  async crearGastoDistribucion(data: {
+    entregaId: string;
+    entregaCodigo: string;
+    ventaId: string;
+    ventaNumero: string;
+    transportistaId: string;
+    transportistaNombre: string;
+    costoEntrega: number;
+    distrito?: string;
+  }, userId: string): Promise<string> {
+    try {
+      const numeroGasto = await this.generateNumeroGasto();
+      const ahora = new Date();
+
+      // GD = Gasto de Distribución (delivery)
+      const claseGasto = getClaseGasto('GD');
+
+      const gasto: Record<string, unknown> = {
+        numeroGasto,
+        tipo: 'delivery',
+        categoria: 'GD',
+        claseGasto,
+        descripcion: `Entrega ${data.entregaCodigo} - ${data.transportistaNombre}${data.distrito ? ` (${data.distrito})` : ''}`,
+        moneda: 'PEN',
+        montoOriginal: data.costoEntrega,
+        montoPEN: data.costoEntrega,
+        esProrrateable: false,
+        ventaId: data.ventaId,
+        ventaNumero: data.ventaNumero,
+        entregaId: data.entregaId,
+        entregaCodigo: data.entregaCodigo,
+        transportistaId: data.transportistaId,
+        transportistaNombre: data.transportistaNombre,
+        mes: ahora.getMonth() + 1,
+        anio: ahora.getFullYear(),
+        fecha: Timestamp.fromDate(ahora),
+        frecuencia: 'unico',
+        esRecurrente: false,
+        // Pendiente de pago al transportista
+        estado: 'pendiente',
+        // GD no impacta CTRU (es gasto directo de venta)
+        impactaCTRU: false,
+        ctruRecalculado: false,
+        proveedor: data.transportistaNombre,
+        notas: `Gasto de distribución generado automáticamente por entrega ${data.entregaCodigo}`,
+        creadoPor: userId,
+        fechaCreacion: Timestamp.now()
+      };
+
+      const docRef = await addDoc(collection(db, GASTOS_COLLECTION), gasto);
+
+      console.log(`[Gasto GD] Creado ${numeroGasto} por S/${data.costoEntrega.toFixed(2)} - Entrega ${data.entregaCodigo} - VentaId: ${data.ventaId}`);
+
+      return docRef.id;
+    } catch (error: any) {
+      console.error('Error al crear gasto de distribución:', error);
+      throw new Error(`Error al crear gasto de distribución: ${error.message}`);
     }
   }
 };

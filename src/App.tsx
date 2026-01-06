@@ -1,42 +1,44 @@
-import React, { useEffect, Suspense, lazy } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Layouts - carga inmediata
+// Layouts y Auth
 import { MainLayout } from './components/layout/MainLayout';
-import { PageLoader } from './components/common';
-
-// Auth - carga inmediata (necesario para el flujo inicial)
 import { Login } from './pages/Auth/Login';
+
+// Páginas principales
+import { Dashboard } from './pages/Dashboard';
+import { Productos } from './pages/Productos/Productos';
+import { Inventario } from './pages/Inventario/Inventario';
+import { Almacenes } from './pages/Almacenes/Almacenes';
+import { Transferencias } from './pages/Transferencias/Transferencias';
+import { Unidades } from './pages/Unidades/Unidades';
+import { TipoCambio } from './pages/TipoCambio/TipoCambio';
+import { OrdenesCompra } from './pages/OrdenesCompra/OrdenesCompra';
+import { Ventas } from './pages/Ventas/Ventas';
+import { Gastos } from './pages/Gastos/Gastos';
+import { Reportes } from './pages/Reportes/Reportes';
+import { CTRUDashboard } from './pages/CTRU/CTRUDashboard';
+import { Configuracion } from './pages/Configuracion/Configuracion';
+
+// Páginas adicionales
+import { Cotizaciones } from './pages/Cotizaciones/Cotizaciones';
+import { Requerimientos } from './pages/Requerimientos/Requerimientos';
+import { Tesoreria } from './pages/Tesoreria/Tesoreria';
+import { Expectativas } from './pages/Expectativas/Expectativas';
+import { Maestros } from './pages/Maestros/Maestros';
+import { Usuarios } from './pages/Usuarios/Usuarios';
+import { Auditoria } from './pages/Auditoria/Auditoria';
+
+// Utilidades
+import { MigracionProductos } from './pages/Migracion/MigracionProductos';
+
+// Stores y servicios
 import { useAuthStore } from './store/authStore';
 import { AuthService } from './services/auth.service';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import { PERMISOS } from './types/auth.types';
 
 // Notificaciones
 import ToastContainer from './components/common/ToastContainer';
-
-// Lazy loading de páginas
-const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
-const Productos = lazy(() => import('./pages/Productos/Productos').then(m => ({ default: m.Productos })));
-const Inventario = lazy(() => import('./pages/Inventario/Inventario').then(m => ({ default: m.Inventario })));
-// Almacenes ahora se gestiona desde Maestros - redirigimos /almacenes a /maestros?tab=almacenes
-const Transferencias = lazy(() => import('./pages/Transferencias/Transferencias').then(m => ({ default: m.Transferencias })));
-const Unidades = lazy(() => import('./pages/Unidades/Unidades').then(m => ({ default: m.Unidades })));
-const TipoCambio = lazy(() => import('./pages/TipoCambio/TipoCambio').then(m => ({ default: m.TipoCambio })));
-const OrdenesCompra = lazy(() => import('./pages/OrdenesCompra/OrdenesCompra').then(m => ({ default: m.OrdenesCompra })));
-const Ventas = lazy(() => import('./pages/Ventas/Ventas').then(m => ({ default: m.Ventas })));
-const Cotizaciones = lazy(() => import('./pages/Cotizaciones/Cotizaciones').then(m => ({ default: m.Cotizaciones })));
-const Gastos = lazy(() => import('./pages/Gastos/Gastos').then(m => ({ default: m.Gastos })));
-const Reportes = lazy(() => import('./pages/Reportes/Reportes').then(m => ({ default: m.Reportes })));
-const CTRUDashboard = lazy(() => import('./pages/CTRU/CTRUDashboard').then(m => ({ default: m.CTRUDashboard })));
-const Configuracion = lazy(() => import('./pages/Configuracion/Configuracion').then(m => ({ default: m.Configuracion })));
-const Usuarios = lazy(() => import('./pages/Usuarios/Usuarios').then(m => ({ default: m.Usuarios })));
-const Auditoria = lazy(() => import('./pages/Auditoria/Auditoria').then(m => ({ default: m.Auditoria })));
-const Tesoreria = lazy(() => import('./pages/Tesoreria/Tesoreria').then(m => ({ default: m.Tesoreria })));
-const Requerimientos = lazy(() => import('./pages/Requerimientos/Requerimientos').then(m => ({ default: m.Requerimientos })));
-const Expectativas = lazy(() => import('./pages/Expectativas/Expectativas').then(m => ({ default: m.Expectativas })));
-const Maestros = lazy(() => import('./pages/Maestros/Maestros').then(m => ({ default: m.Maestros })));
 
 // Configuración de React Query
 const queryClient = new QueryClient({
@@ -49,26 +51,24 @@ const queryClient = new QueryClient({
   },
 });
 
-// Componente wrapper para Suspense con permisos
-const LazyRoute: React.FC<{
-  component: React.LazyExoticComponent<React.FC>;
-  requiredPermiso?: string;
-}> = ({ component: Component, requiredPermiso }) => {
-  const content = (
-    <Suspense fallback={<PageLoader />}>
-      <Component />
-    </Suspense>
-  );
+// Componente de Ruta Protegida
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const user = useAuthStore(state => state.user);
+  const loading = useAuthStore(state => state.loading);
 
-  if (requiredPermiso) {
+  if (loading) {
     return (
-      <ProtectedRoute requiredPermiso={requiredPermiso}>
-        {content}
-      </ProtectedRoute>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
     );
   }
 
-  return content;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 function App() {
@@ -105,77 +105,37 @@ function App() {
             }
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
 
-            {/* Dashboard - Todos los usuarios activos */}
-            <Route path="dashboard" element={
-              <LazyRoute component={Dashboard} />
-            } />
+            {/* Inventario */}
+            <Route path="productos" element={<Productos />} />
+            <Route path="inventario" element={<Inventario />} />
+            <Route path="almacenes" element={<Almacenes />} />
+            <Route path="transferencias" element={<Transferencias />} />
+            <Route path="unidades" element={<Unidades />} />
 
-            {/* Inventario - Requiere ver_inventario */}
-            <Route path="productos" element={
-              <LazyRoute component={Productos} requiredPermiso={PERMISOS.VER_INVENTARIO} />
-            } />
-            <Route path="inventario" element={
-              <LazyRoute component={Inventario} requiredPermiso={PERMISOS.VER_INVENTARIO} />
-            } />
-            {/* Almacenes redirige a Maestros con tab activa */}
-            <Route path="almacenes" element={<Navigate to="/maestros?tab=almacenes" replace />} />
+            {/* Comercial */}
+            <Route path="compras" element={<OrdenesCompra />} />
+            <Route path="ventas" element={<Ventas />} />
+            <Route path="cotizaciones" element={<Cotizaciones />} />
+            <Route path="requerimientos" element={<Requerimientos />} />
 
-            {/* Gestión de inventario - Requiere gestionar_inventario */}
-            <Route path="transferencias" element={
-              <LazyRoute component={Transferencias} requiredPermiso={PERMISOS.GESTIONAR_INVENTARIO} />
-            } />
-            <Route path="unidades" element={
-              <LazyRoute component={Unidades} requiredPermiso={PERMISOS.GESTIONAR_INVENTARIO} />
-            } />
-            <Route path="compras" element={
-              <LazyRoute component={OrdenesCompra} requiredPermiso={PERMISOS.GESTIONAR_INVENTARIO} />
-            } />
+            {/* Finanzas */}
+            <Route path="gastos" element={<Gastos />} />
+            <Route path="tesoreria" element={<Tesoreria />} />
+            <Route path="tipo-cambio" element={<TipoCambio />} />
+            <Route path="ctru" element={<CTRUDashboard />} />
+            <Route path="expectativas" element={<Expectativas />} />
+            <Route path="reportes" element={<Reportes />} />
 
-            {/* Ventas - Requiere ver_ventas */}
-            <Route path="ventas" element={
-              <LazyRoute component={Ventas} requiredPermiso={PERMISOS.VER_VENTAS} />
-            } />
-            <Route path="cotizaciones" element={
-              <LazyRoute component={Cotizaciones} requiredPermiso={PERMISOS.VER_VENTAS} />
-            } />
+            {/* Administración */}
+            <Route path="maestros" element={<Maestros />} />
+            <Route path="usuarios" element={<Usuarios />} />
+            <Route path="auditoria" element={<Auditoria />} />
+            <Route path="configuracion" element={<Configuracion />} />
 
-            {/* Finanzas - Requiere ver_finanzas */}
-            <Route path="gastos" element={
-              <LazyRoute component={Gastos} requiredPermiso={PERMISOS.VER_FINANZAS} />
-            } />
-            <Route path="tipo-cambio" element={
-              <LazyRoute component={TipoCambio} requiredPermiso={PERMISOS.VER_FINANZAS} />
-            } />
-            <Route path="ctru" element={
-              <LazyRoute component={CTRUDashboard} requiredPermiso={PERMISOS.VER_FINANZAS} />
-            } />
-            <Route path="reportes" element={
-              <LazyRoute component={Reportes} requiredPermiso={PERMISOS.VER_FINANZAS} />
-            } />
-            <Route path="tesoreria" element={
-              <LazyRoute component={Tesoreria} requiredPermiso={PERMISOS.VER_FINANZAS} />
-            } />
-            <Route path="requerimientos" element={
-              <LazyRoute component={Requerimientos} requiredPermiso={PERMISOS.GESTIONAR_INVENTARIO} />
-            } />
-            <Route path="expectativas" element={
-              <LazyRoute component={Expectativas} requiredPermiso={PERMISOS.VER_FINANZAS} />
-            } />
-
-            {/* Administración - Solo admin */}
-            <Route path="usuarios" element={
-              <LazyRoute component={Usuarios} requiredPermiso={PERMISOS.ADMIN_TOTAL} />
-            } />
-            <Route path="configuracion" element={
-              <LazyRoute component={Configuracion} requiredPermiso={PERMISOS.ADMIN_TOTAL} />
-            } />
-            <Route path="auditoria" element={
-              <LazyRoute component={Auditoria} requiredPermiso={PERMISOS.ADMIN_TOTAL} />
-            } />
-            <Route path="maestros" element={
-              <LazyRoute component={Maestros} requiredPermiso={PERMISOS.ADMIN_TOTAL} />
-            } />
+            {/* Utilidades */}
+            <Route path="migracion" element={<MigracionProductos />} />
           </Route>
 
           {/* Ruta Catch-all */}

@@ -13,9 +13,12 @@ import {
   Zap,
   History,
   Bell,
-  Calculator
+  Calculator,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
-import { Button, Badge } from '../../common';
+import { Button, Badge, Tabs, TabsProvider, TabPanel, useTabs } from '../../common';
+import type { Tab } from '../../common';
 import { ProveedorUSAList } from './ProveedorUSAList';
 import { CompetidorPeruList } from './CompetidorPeruList';
 import { HistorialPreciosChart } from './HistorialPreciosChart';
@@ -37,6 +40,14 @@ interface InvestigacionModalProps {
   onClose: () => void;
   loading?: boolean;
 }
+
+// Definición de tabs para el modal
+const INVESTIGACION_TABS: Tab[] = [
+  { id: 'proveedores', label: 'Proveedores', icon: <DollarSign className="h-4 w-4" /> },
+  { id: 'competencia', label: 'Competencia', icon: <Users className="h-4 w-4" /> },
+  { id: 'mercado', label: 'Mercado', icon: <TrendingUp className="h-4 w-4" /> },
+  { id: 'decision', label: 'Decision', icon: <Target className="h-4 w-4" /> }
+];
 
 export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
   producto,
@@ -276,6 +287,27 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
     return { diasRestantes, estaVigente, vigenciaHasta };
   }, [inv]);
 
+  // Hook para manejar tabs
+  const { activeTab, setActiveTab } = useTabs('proveedores');
+
+  // Navegación entre tabs
+  const tabIds = INVESTIGACION_TABS.map(t => t.id);
+  const currentTabIndex = tabIds.indexOf(activeTab);
+  const isFirstTab = currentTabIndex === 0;
+  const isLastTab = currentTabIndex === tabIds.length - 1;
+
+  const goToPrevTab = () => {
+    if (!isFirstTab) {
+      setActiveTab(tabIds[currentTabIndex - 1]);
+    }
+  };
+
+  const goToNextTab = () => {
+    if (!isLastTab) {
+      setActiveTab(tabIds[currentTabIndex + 1]);
+    }
+  };
+
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -360,209 +392,274 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
         )}
       </div>
 
-      {/* Sección de Proveedores USA */}
-      <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
-        <ProveedorUSAList
-          proveedores={proveedoresUSA}
-          onChange={setProveedoresUSA}
-          disabled={loading}
-          sugerenciasProveedores={sugerenciasProveedores}
-        />
-      </div>
+      {/* Tabs de navegación */}
+      <Tabs
+        tabs={INVESTIGACION_TABS}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        variant="pills"
+        size="md"
+        fullWidth
+      />
 
-      {/* Sección de Competidores Perú */}
-      <div className="bg-orange-50/50 p-4 rounded-lg border border-orange-100">
-        <CompetidorPeruList
-          competidores={competidoresPeru}
-          onChange={setCompetidoresPeru}
-          disabled={loading}
-          sugerenciasCompetidores={sugerenciasCompetidores}
-        />
-      </div>
+      {/* Contenido de los tabs */}
+      <TabsProvider activeTab={activeTab}>
+        {/* Tab 1: Proveedores */}
+        <TabPanel tabId="proveedores">
+          <div className="space-y-4">
+            {/* Sección de Proveedores USA */}
+            <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+              <ProveedorUSAList
+                proveedores={proveedoresUSA}
+                onChange={setProveedoresUSA}
+                disabled={loading}
+                sugerenciasProveedores={sugerenciasProveedores}
+              />
+            </div>
 
-      {/* Grid de Análisis */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Logística */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-            <DollarSign className="h-4 w-4 mr-2 text-gray-600" />
-            Logística Estimada
-          </h4>
-          <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <label className="block text-xs text-gray-600 mb-1">Costo flete USD/unidad</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.logisticaEstimada || ''}
-                onChange={(e) => handleChange('logisticaEstimada', parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 border rounded-md text-sm"
-                placeholder="5.00"
+            {/* Logística */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                <DollarSign className="h-4 w-4 mr-2 text-gray-600" />
+                Logística Estimada
+              </h4>
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <label className="block text-xs text-gray-600 mb-1">Costo flete USD/unidad</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.logisticaEstimada || ''}
+                    onChange={(e) => handleChange('logisticaEstimada', parseFloat(e.target.value) || 0)}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                    placeholder="5.00"
+                    disabled={loading}
+                  />
+                </div>
+                {producto.costoFleteUSAPeru > 0 && (
+                  <div className="text-xs text-gray-500 mt-4">
+                    Producto: ${producto.costoFleteUSAPeru}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </TabPanel>
+
+        {/* Tab 2: Competencia */}
+        <TabPanel tabId="competencia">
+          <div className="space-y-4">
+            {/* Sección de Competidores Perú */}
+            <div className="bg-orange-50/50 p-4 rounded-lg border border-orange-100">
+              <CompetidorPeruList
+                competidores={competidoresPeru}
+                onChange={setCompetidoresPeru}
                 disabled={loading}
               />
             </div>
-            {producto.costoFleteUSAPeru > 0 && (
-              <div className="text-xs text-gray-500 mt-4">
-                Producto: ${producto.costoFleteUSAPeru}
+
+            {/* Nivel de Competencia */}
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                <Users className="h-4 w-4 mr-2 text-purple-600" />
+                Análisis de Competencia
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Nivel de competencia</label>
+                  <select
+                    value={formData.nivelCompetencia}
+                    onChange={(e) => handleChange('nivelCompetencia', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                    disabled={loading}
+                  >
+                    <option value="baja">Baja (pocos competidores)</option>
+                    <option value="media">Media (competencia normal)</option>
+                    <option value="alta">Alta (muchos competidores)</option>
+                    <option value="saturada">Saturada (muy difícil entrar)</option>
+                  </select>
+                </div>
+                {hayCompetenciaML && (
+                  <div className="flex items-center gap-2 text-sm text-yellow-700 bg-yellow-100 p-2 rounded">
+                    <AlertTriangle className="h-4 w-4" />
+                    Hay {competidoresPeru.filter(c => c.plataforma === 'mercado_libre').length} competidores en ML
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Nivel de Competencia */}
-        <div className="bg-purple-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-            <Users className="h-4 w-4 mr-2 text-purple-600" />
-            Análisis de Competencia
-          </h4>
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Nivel de competencia</label>
-              <select
-                value={formData.nivelCompetencia}
-                onChange={(e) => handleChange('nivelCompetencia', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md text-sm"
-                disabled={loading}
-              >
-                <option value="baja">Baja (pocos competidores)</option>
-                <option value="media">Media (competencia normal)</option>
-                <option value="alta">Alta (muchos competidores)</option>
-                <option value="saturada">Saturada (muy difícil entrar)</option>
-              </select>
             </div>
-            {hayCompetenciaML && (
-              <div className="flex items-center gap-2 text-sm text-yellow-700 bg-yellow-100 p-2 rounded">
-                <AlertTriangle className="h-4 w-4" />
-                Hay {competidoresPeru.filter(c => c.plataforma === 'mercado_libre').length} competidores en ML
+
+            {/* Ventajas Competitivas */}
+            <div className="bg-indigo-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                <Zap className="h-4 w-4 mr-2 text-indigo-600" />
+                Ventajas Competitivas
+              </h4>
+              <textarea
+                value={formData.ventajasCompetitivas || ''}
+                onChange={(e) => handleChange('ventajasCompetitivas', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md text-sm"
+                rows={3}
+                placeholder="¿Qué ventajas tendríamos? (precio, calidad, servicio, etc.)"
+                disabled={loading}
+              />
+            </div>
+          </div>
+        </TabPanel>
+
+        {/* Tab 3: Mercado */}
+        <TabPanel tabId="mercado">
+          <div className="space-y-4">
+            {/* Demanda y Tendencia */}
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                <TrendingUp className="h-4 w-4 mr-2 text-green-600" />
+                Demanda y Tendencia
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Demanda estimada</label>
+                  <select
+                    value={formData.demandaEstimada}
+                    onChange={(e) => handleChange('demandaEstimada', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                    disabled={loading}
+                  >
+                    <option value="baja">Baja</option>
+                    <option value="media">Media</option>
+                    <option value="alta">Alta</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Tendencia</label>
+                  <select
+                    value={formData.tendencia}
+                    onChange={(e) => handleChange('tendencia', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                    disabled={loading}
+                  >
+                    <option value="subiendo">Subiendo</option>
+                    <option value="estable">Estable</option>
+                    <option value="bajando">Bajando</option>
+                  </select>
+                </div>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Demanda y Tendencia */}
-        <div className="bg-green-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-            <TrendingUp className="h-4 w-4 mr-2 text-green-600" />
-            Demanda y Tendencia
-          </h4>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Demanda estimada</label>
-              <select
-                value={formData.demandaEstimada}
-                onChange={(e) => handleChange('demandaEstimada', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md text-sm"
-                disabled={loading}
-              >
-                <option value="baja">Baja</option>
-                <option value="media">Media</option>
-                <option value="alta">Alta</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Tendencia</label>
-              <select
-                value={formData.tendencia}
-                onChange={(e) => handleChange('tendencia', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md text-sm"
-                disabled={loading}
-              >
-                <option value="subiendo">Subiendo</option>
-                <option value="estable">Estable</option>
-                <option value="bajando">Bajando</option>
-              </select>
+              <div className="mt-3">
+                <label className="block text-xs text-gray-600 mb-1">Volumen de mercado (unid/mes)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.volumenMercadoEstimado || ''}
+                  onChange={(e) => handleChange('volumenMercadoEstimado', parseInt(e.target.value) || 0)}
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                  placeholder="ej: 100"
+                  disabled={loading}
+                />
+              </div>
             </div>
           </div>
-          <div className="mt-3">
-            <label className="block text-xs text-gray-600 mb-1">Volumen de mercado (unid/mes)</label>
-            <input
-              type="number"
-              min="0"
-              value={formData.volumenMercadoEstimado || ''}
-              onChange={(e) => handleChange('volumenMercadoEstimado', parseInt(e.target.value) || 0)}
-              className="w-full px-3 py-2 border rounded-md text-sm"
-              placeholder="ej: 100"
-              disabled={loading}
-            />
-          </div>
-        </div>
+        </TabPanel>
 
-        {/* Ventajas Competitivas */}
-        <div className="bg-indigo-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-            <Zap className="h-4 w-4 mr-2 text-indigo-600" />
-            Ventajas Competitivas
-          </h4>
-          <textarea
-            value={formData.ventajasCompetitivas || ''}
-            onChange={(e) => handleChange('ventajasCompetitivas', e.target.value)}
-            className="w-full px-3 py-2 border rounded-md text-sm"
-            rows={3}
-            placeholder="¿Qué ventajas tendríamos? (precio, calidad, servicio, etc.)"
-            disabled={loading}
-          />
-        </div>
-      </div>
+        {/* Tab 4: Decisión */}
+        <TabPanel tabId="decision">
+          <div className="space-y-4">
+            {/* Recomendación */}
+            <div className="bg-gray-100 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                <Target className="h-4 w-4 mr-2" />
+                Recomendación
+              </h4>
 
-      {/* Recomendación */}
-      <div className="bg-gray-100 p-4 rounded-lg">
-        <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-          <Target className="h-4 w-4 mr-2" />
-          Recomendación
-        </h4>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  {(['importar', 'investigar_mas', 'descartar'] as const).map((rec) => (
+                    <button
+                      key={rec}
+                      type="button"
+                      onClick={() => handleChange('recomendacion', rec)}
+                      disabled={loading}
+                      className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                        formData.recomendacion === rec
+                          ? rec === 'importar'
+                            ? 'bg-green-600 text-white'
+                            : rec === 'descartar'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-yellow-500 text-white'
+                          : 'bg-white border hover:bg-gray-50'
+                      }`}
+                    >
+                      {rec === 'importar' && <CheckCircle className="h-4 w-4 inline mr-1" />}
+                      {rec === 'investigar_mas' && <RefreshCw className="h-4 w-4 inline mr-1" />}
+                      {rec === 'descartar' && <XCircle className="h-4 w-4 inline mr-1" />}
+                      {rec === 'importar' ? 'Importar' : rec === 'investigar_mas' ? 'Investigar más' : 'Descartar'}
+                    </button>
+                  ))}
+                </div>
 
-        <div className="space-y-3">
-          <div className="flex gap-2">
-            {(['importar', 'investigar_mas', 'descartar'] as const).map((rec) => (
-              <button
-                key={rec}
-                type="button"
-                onClick={() => handleChange('recomendacion', rec)}
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Razonamiento</label>
+                  <textarea
+                    value={formData.razonamiento || ''}
+                    onChange={(e) => handleChange('razonamiento', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                    rows={3}
+                    placeholder="¿Por qué esta recomendación?"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Notas adicionales */}
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Notas adicionales</label>
+              <textarea
+                value={formData.notas || ''}
+                onChange={(e) => handleChange('notas', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md text-sm"
+                rows={3}
+                placeholder="Observaciones generales..."
                 disabled={loading}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                  formData.recomendacion === rec
-                    ? rec === 'importar'
-                      ? 'bg-green-600 text-white'
-                      : rec === 'descartar'
-                      ? 'bg-red-600 text-white'
-                      : 'bg-yellow-500 text-white'
-                    : 'bg-white border hover:bg-gray-50'
-                }`}
-              >
-                {rec === 'importar' && <CheckCircle className="h-4 w-4 inline mr-1" />}
-                {rec === 'investigar_mas' && <RefreshCw className="h-4 w-4 inline mr-1" />}
-                {rec === 'descartar' && <XCircle className="h-4 w-4 inline mr-1" />}
-                {rec === 'importar' ? 'Importar' : rec === 'investigar_mas' ? 'Investigar más' : 'Descartar'}
-              </button>
-            ))}
+              />
+            </div>
           </div>
+        </TabPanel>
+      </TabsProvider>
 
-          <div>
-            <label className="block text-xs text-gray-600 mb-1">Razonamiento</label>
-            <textarea
-              value={formData.razonamiento || ''}
-              onChange={(e) => handleChange('razonamiento', e.target.value)}
-              className="w-full px-3 py-2 border rounded-md text-sm"
-              rows={2}
-              placeholder="¿Por qué esta recomendación?"
-              disabled={loading}
+      {/* Navegación entre tabs */}
+      <div className="flex justify-between items-center border-t pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={goToPrevTab}
+          disabled={isFirstTab}
+          className={isFirstTab ? 'invisible' : ''}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Anterior
+        </Button>
+
+        <div className="flex gap-1">
+          {INVESTIGACION_TABS.map((tab, index) => (
+            <div
+              key={tab.id}
+              className={`h-2 w-2 rounded-full transition-colors ${
+                index === currentTabIndex ? 'bg-primary-600' : 'bg-gray-300'
+              }`}
             />
-          </div>
+          ))}
         </div>
-      </div>
 
-      {/* Notas adicionales */}
-      <div>
-        <label className="block text-xs text-gray-600 mb-1">Notas adicionales</label>
-        <textarea
-          value={formData.notas || ''}
-          onChange={(e) => handleChange('notas', e.target.value)}
-          className="w-full px-3 py-2 border rounded-md text-sm"
-          rows={2}
-          placeholder="Observaciones generales..."
-          disabled={loading}
-        />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={goToNextTab}
+          disabled={isLastTab}
+          className={isLastTab ? 'invisible' : ''}
+        >
+          Siguiente
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
       </div>
 
       {/* Panel de Análisis Automático */}

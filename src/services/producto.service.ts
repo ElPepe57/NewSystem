@@ -5,8 +5,6 @@ import {
   getDoc,
   addDoc,
   updateDoc,
-  query,
-  orderBy,
   Timestamp,
   serverTimestamp,
   increment
@@ -22,28 +20,44 @@ import type {
   AlertaInvestigacion,
   PuntoEquilibrio
 } from '../types/producto.types';
-import * as competidorService from './competidor.service';
+import type { TipoProductoSnapshot } from '../types/tipoProducto.types';
+import type { CategoriaSnapshot } from '../types/categoria.types';
+import type { EtiquetaSnapshot } from '../types/etiqueta.types';
+import { competidorService } from './competidor.service';
 import { proveedorService } from './proveedor.service';
+import { metricasService } from './metricas.service';
+import { tipoProductoService } from './tipoProducto.service';
+import { categoriaService } from './categoria.service';
+import { etiquetaService } from './etiqueta.service';
 
 const COLLECTION_NAME = 'productos';
 
 export class ProductoService {
   /**
-   * Obtener todos los productos
+   * Obtener todos los productos activos
+   * @param incluirInactivos - Si es true, incluye productos con estado 'inactivo'
    */
-  static async getAll(): Promise<Producto[]> {
+  static async getAll(incluirInactivos: boolean = false): Promise<Producto[]> {
     try {
-      const q = query(
-        collection(db, COLLECTION_NAME),
-        orderBy('fechaCreacion', 'desc')
-      );
-      
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs.map(doc => ({
+      // Obtener todos los productos sin ordenar (evitar requerimiento de índice)
+      const snapshot = await getDocs(collection(db, COLLECTION_NAME));
+
+      const productos = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as Producto));
+
+      // Por defecto, excluir productos inactivos (eliminados con soft delete)
+      const filtrados = incluirInactivos
+        ? productos
+        : productos.filter(p => p.estado !== 'inactivo');
+
+      // Ordenar por fecha de creación (creadoEn o fechaCreacion para compatibilidad)
+      return filtrados.sort((a, b) => {
+        const fechaA = (a as any).creadoEn?.toDate?.() || (a as any).fechaCreacion?.toDate?.() || new Date(0);
+        const fechaB = (b as any).creadoEn?.toDate?.() || (b as any).fechaCreacion?.toDate?.() || new Date(0);
+        return fechaB.getTime() - fechaA.getTime();
+      });
     } catch (error: any) {
       console.error('Error al obtener productos:', error);
       throw new Error('Error al cargar productos');
@@ -79,25 +93,55 @@ export class ProductoService {
     try {
       // Generar SKU automático
       const sku = await this.generateSKU();
-      
-      const newProducto = {
+
+      // Obtener snapshots de clasificacion si se proporcionaron IDs
+      let tipoProducto: TipoProductoSnapshot | undefined;
+      let categorias: CategoriaSnapshot[] = [];
+      let etiquetasData: EtiquetaSnapshot[] = [];
+
+      if (data.tipoProductoId) {
+        tipoProducto = await tipoProductoService.getSnapshot(data.tipoProductoId) || undefined;
+      }
+
+      if (data.categoriaIds && data.categoriaIds.length > 0) {
+        categorias = await categoriaService.getSnapshots(data.categoriaIds);
+      }
+
+      if (data.etiquetaIds && data.etiquetaIds.length > 0) {
+        etiquetasData = await etiquetaService.getSnapshots(data.etiquetaIds);
+      }
+
+      const newProducto: Record<string, any> = {
         sku,
         marca: data.marca,
+        ...(data.marcaId && { marcaId: data.marcaId }),
         nombreComercial: data.nombreComercial,
         presentacion: data.presentacion,
         dosaje: data.dosaje,
         contenido: data.contenido,
+
+        // Clasificacion legacy (mantener para compatibilidad)
         grupo: data.grupo,
         subgrupo: data.subgrupo,
+
+        // Nueva clasificacion
+        ...(data.tipoProductoId && { tipoProductoId: data.tipoProductoId }),
+        ...(tipoProducto && { tipoProducto }),
+        ...(data.categoriaIds && data.categoriaIds.length > 0 && { categoriaIds: data.categoriaIds }),
+        ...(categorias.length > 0 && { categorias }),
+        ...(data.categoriaPrincipalId && { categoriaPrincipalId: data.categoriaPrincipalId }),
+        ...(data.etiquetaIds && data.etiquetaIds.length > 0 && { etiquetaIds: data.etiquetaIds }),
+        ...(etiquetasData.length > 0 && { etiquetasData }),
+
         enlaceProveedor: data.enlaceProveedor,
         codigoUPC: data.codigoUPC || '',
-        
+
         estado: 'activo' as const,
-        etiquetas: [],
-        
+        etiquetas: [], // Campo legacy para etiquetas de texto
+
         habilitadoML: data.habilitadoML,
         restriccionML: data.restriccionML || '',
-        
+
         ctruPromedio: 0,
         precioSugerido: data.precioSugerido,
         margenMinimo: data.margenMinimo,
@@ -109,21 +153,55 @@ export class ProductoService {
         stockTransito: 0,
         stockReservado: 0,
         stockDisponible: 0,
-        
+
         stockMinimo: data.stockMinimo,
         stockMaximo: data.stockMaximo,
-        
+
         rotacionPromedio: 0,
         diasParaQuiebre: 0,
-        
+
         esPadre: false,
-        
+
+        // Sabor y ciclo de recompra
+        ...(data.sabor && { sabor: data.sabor }),
+        ...(data.servingsPerDay && { servingsPerDay: data.servingsPerDay }),
+        ...(data.cicloRecompraDias && { cicloRecompraDias: data.cicloRecompraDias }),
+
         creadoPor: userId,
         fechaCreacion: serverTimestamp(),
       };
-      
+
       const docRef = await addDoc(collection(db, COLLECTION_NAME), newProducto);
-      
+
+      // Incrementar contador de productos activos en la marca (Gestor Maestro)
+      if (data.marcaId) {
+        try {
+          await metricasService.incrementarProductosMarca(data.marcaId);
+        } catch (metricasError) {
+          console.warn('Error al actualizar métricas de marca:', metricasError);
+        }
+      }
+
+      // Actualizar metricas de tipo de producto
+      if (data.tipoProductoId) {
+        try {
+          await tipoProductoService.actualizarMetricas(data.tipoProductoId, { productosActivos: 1 });
+        } catch (metricasError) {
+          console.warn('Error al actualizar métricas de tipo:', metricasError);
+        }
+      }
+
+      // Actualizar metricas de categorias
+      if (data.categoriaIds && data.categoriaIds.length > 0) {
+        for (const catId of data.categoriaIds) {
+          try {
+            await categoriaService.actualizarMetricas(catId, 1);
+          } catch (metricasError) {
+            console.warn('Error al actualizar métricas de categoria:', metricasError);
+          }
+        }
+      }
+
       return {
         id: docRef.id,
         ...newProducto,
@@ -141,14 +219,62 @@ export class ProductoService {
   static async update(id: string, data: Partial<ProductoFormData>): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
-      
-      await updateDoc(docRef, {
-        ...data,
+
+      // Preparar datos de actualizacion - limpiar valores undefined
+      const cleanData = this.removeUndefined(data);
+      const updateData: Record<string, any> = {
+        ...cleanData,
         ultimaEdicion: serverTimestamp()
-      });
+      };
+
+      // Si se actualiza el tipo de producto, obtener snapshot
+      if (data.tipoProductoId !== undefined) {
+        if (data.tipoProductoId) {
+          const tipoProducto = await tipoProductoService.getSnapshot(data.tipoProductoId);
+          if (tipoProducto) {
+            updateData.tipoProducto = tipoProducto;
+          }
+        } else {
+          // Si se elimina el tipo, limpiar el snapshot
+          updateData.tipoProducto = null;
+          updateData.tipoProductoId = null;
+        }
+      }
+
+      // Si se actualizan las categorias, obtener snapshots
+      if (data.categoriaIds !== undefined) {
+        if (data.categoriaIds && data.categoriaIds.length > 0) {
+          const categorias = await categoriaService.getSnapshots(data.categoriaIds);
+          updateData.categorias = categorias;
+        } else {
+          updateData.categorias = [];
+          updateData.categoriaIds = [];
+        }
+      }
+
+      // Si se actualiza la categoria principal
+      if (data.categoriaPrincipalId !== undefined) {
+        updateData.categoriaPrincipalId = data.categoriaPrincipalId || null;
+      }
+
+      // Si se actualizan las etiquetas, obtener snapshots
+      if (data.etiquetaIds !== undefined) {
+        if (data.etiquetaIds && data.etiquetaIds.length > 0) {
+          const etiquetasData = await etiquetaService.getSnapshots(data.etiquetaIds);
+          updateData.etiquetasData = etiquetasData;
+        } else {
+          updateData.etiquetasData = [];
+          updateData.etiquetaIds = [];
+        }
+      }
+
+      // Limpiar el objeto final de valores undefined (por si quedaron de los snapshots)
+      const finalUpdateData = this.removeUndefined(updateData);
+
+      await updateDoc(docRef, finalUpdateData);
     } catch (error: any) {
       console.error('Error al actualizar producto:', error);
-      throw new Error('Error al actualizar producto');
+      throw new Error(`Error al actualizar producto: ${error.message || 'Error desconocido'}`);
     }
   }
 
@@ -157,12 +283,24 @@ export class ProductoService {
    */
   static async delete(id: string): Promise<void> {
     try {
+      // Obtener el producto para saber su marcaId
+      const producto = await this.getById(id);
+
       const docRef = doc(db, COLLECTION_NAME, id);
-      
+
       await updateDoc(docRef, {
         estado: 'inactivo',
         ultimaEdicion: serverTimestamp()
       });
+
+      // Decrementar contador de productos activos en la marca (Gestor Maestro)
+      if (producto?.marcaId) {
+        try {
+          await metricasService.decrementarProductosMarca(producto.marcaId);
+        } catch (metricasError) {
+          console.warn('Error al actualizar métricas de marca:', metricasError);
+        }
+      }
     } catch (error: any) {
       console.error('Error al eliminar producto:', error);
       throw new Error('Error al eliminar producto');
@@ -276,17 +414,45 @@ export class ProductoService {
   // ============================================
 
   /**
-   * Elimina propiedades con valor undefined de un objeto
+   * Elimina propiedades con valor undefined de un objeto (recursivo)
    * Firestore no acepta valores undefined
    */
   private static removeUndefined<T extends Record<string, any>>(obj: T): T {
     const cleaned = {} as T;
     for (const key of Object.keys(obj)) {
-      if (obj[key] !== undefined) {
-        cleaned[key as keyof T] = obj[key];
+      const value = obj[key];
+      if (value === undefined) {
+        // Saltar valores undefined
+        continue;
+      } else if (value === null) {
+        // Mantener null (Firestore lo acepta)
+        cleaned[key as keyof T] = value;
+      } else if (Array.isArray(value)) {
+        // Limpiar arrays recursivamente
+        cleaned[key as keyof T] = value.map(item => {
+          if (item && typeof item === 'object' && !this.isTimestamp(item)) {
+            return this.removeUndefined(item);
+          }
+          return item;
+        }) as any;
+      } else if (typeof value === 'object' && !this.isTimestamp(value)) {
+        // Limpiar objetos recursivamente (pero no Timestamps de Firestore)
+        cleaned[key as keyof T] = this.removeUndefined(value);
+      } else {
+        cleaned[key as keyof T] = value;
       }
     }
     return cleaned;
+  }
+
+  /**
+   * Verifica si un objeto es un Timestamp de Firestore
+   */
+  private static isTimestamp(obj: any): boolean {
+    return obj && (
+      obj instanceof Timestamp ||
+      (typeof obj.toDate === 'function' && typeof obj.seconds === 'number')
+    );
   }
 
   /**
@@ -332,16 +498,28 @@ export class ProductoService {
         fechaConsulta: Timestamp.now()
       }));
 
-      // Calcular precios desde proveedores
-      const preciosUSA = proveedoresUSA.map(p => p.precio).filter(p => p > 0);
-      const precioUSAMin = preciosUSA.length > 0 ? Math.min(...preciosUSA) : (data.precioUSAMin || 0);
-      const precioUSAMax = preciosUSA.length > 0 ? Math.max(...preciosUSA) : (data.precioUSAMax || 0);
-      const precioUSAPromedio = preciosUSA.length > 0
-        ? preciosUSA.reduce((a, b) => a + b, 0) / preciosUSA.length
+      // Calcular precios desde proveedores INCLUYENDO IMPUESTO
+      const preciosUSAConImpuesto = proveedoresUSA.map(p => {
+        const impuestoDecimal = (p.impuesto || 0) / 100;
+        return p.precio * (1 + impuestoDecimal);
+      }).filter(p => p > 0);
+
+      const precioUSAMin = preciosUSAConImpuesto.length > 0
+        ? Math.min(...preciosUSAConImpuesto)
+        : (data.precioUSAMin || 0);
+      const precioUSAMax = preciosUSAConImpuesto.length > 0
+        ? Math.max(...preciosUSAConImpuesto)
+        : (data.precioUSAMax || 0);
+      const precioUSAPromedio = preciosUSAConImpuesto.length > 0
+        ? preciosUSAConImpuesto.reduce((a, b) => a + b, 0) / preciosUSAConImpuesto.length
         : (data.precioUSAPromedio || 0);
 
-      // Encontrar mejor proveedor
-      const mejorProveedor = proveedoresUSA.find(p => p.precio === precioUSAMin && p.precio > 0);
+      // Encontrar mejor proveedor (el que tiene menor precio CON impuesto)
+      const mejorProveedor = proveedoresUSA.find(p => {
+        const impuestoDecimal = (p.impuesto || 0) / 100;
+        const precioConImpuesto = p.precio * (1 + impuestoDecimal);
+        return precioConImpuesto === precioUSAMin && precioConImpuesto > 0;
+      });
 
       // Calcular precios desde competidores
       const preciosPeru = competidoresPeru.map(c => c.precio).filter(p => p > 0);
@@ -572,14 +750,17 @@ export class ProductoService {
             const competidorActual = await competidorService.getById(competidorId);
             const productosActuales = competidorActual?.metricas?.productosAnalizados || 0;
 
-            await competidorService.actualizarMetricas(competidorId, {
-              productosAnalizados: productosActuales + 1,
-              precioPromedio
+            // Actualizar métricas del competidor
+            await updateDoc(doc(db, 'competidores', competidorId), {
+              'metricas.productosAnalizados': productosActuales + 1,
+              'metricas.precioPromedio': precioPromedio,
+              'metricas.ultimaInvestigacion': serverTimestamp()
             });
           } else {
             // Solo actualizar precio promedio, sin incrementar contador
-            await competidorService.actualizarMetricas(competidorId, {
-              precioPromedio
+            await updateDoc(doc(db, 'competidores', competidorId), {
+              'metricas.precioPromedio': precioPromedio,
+              'metricas.ultimaInvestigacion': serverTimestamp()
             });
           }
         } catch (error) {
@@ -599,15 +780,16 @@ export class ProductoService {
       const metricasPorProveedor = new Map<string, { precios: number[]; esNuevo: boolean }>();
 
       for (const prov of proveedoresUSA) {
-        if (prov.proveedorId) {
-          const existing = metricasPorProveedor.get(prov.proveedorId) || {
+        const provExtended = prov as any;
+        if (provExtended.proveedorId) {
+          const existing = metricasPorProveedor.get(provExtended.proveedorId) || {
             precios: [],
-            esNuevo: !proveedorIdsAnteriores.has(prov.proveedorId)
+            esNuevo: !proveedorIdsAnteriores.has(provExtended.proveedorId)
           };
           if (prov.precio > 0) {
             existing.precios.push(prov.precio);
           }
-          metricasPorProveedor.set(prov.proveedorId, existing);
+          metricasPorProveedor.set(provExtended.proveedorId, existing);
         }
       }
 

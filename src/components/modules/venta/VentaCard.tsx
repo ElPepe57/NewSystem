@@ -1,30 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { ShoppingCart, User, Calendar, DollarSign, TrendingUp, Package, Truck, CreditCard, Trash2, Calculator, Clock, AlertTriangle, CheckCircle, Lock, FileText, ExternalLink } from 'lucide-react';
-import { Badge, Button } from '../../common';
-import type { Venta, EstadoVenta, EstadoPago, TipoReserva } from '../../../types/venta.types';
+import React, { useEffect, useState, useMemo } from 'react';
+import { ShoppingCart, User, Calendar, DollarSign, TrendingUp, Package, Truck, CreditCard, Trash2, Calculator, Receipt, FileText, Link2, ClipboardList, PieChart, MapPin } from 'lucide-react';
+import { Badge, Button, StatusTimeline } from '../../common';
+import type { TimelineStep, NextAction } from '../../common';
+import type { Venta, EstadoVenta, EstadoPago } from '../../../types/venta.types';
+import type { Requerimiento } from '../../../types/requerimiento.types';
+import type { OrdenCompra } from '../../../types/ordenCompra.types';
 import { gastoService } from '../../../services/gasto.service';
-import { VentaService } from '../../../services/venta.service';
+import { requerimientoService } from '../../../services/requerimiento.service';
+import { OrdenCompraService } from '../../../services/ordenCompra.service';
+import { useRentabilidadVentas, type RentabilidadVenta } from '../../../hooks/useRentabilidadVentas';
+import { EntregasVenta } from './EntregasVenta';
 
 interface VentaCardProps {
   venta: Venta;
+  /** Datos de rentabilidad pre-calculados desde el padre (evita llamadas duplicadas al hook) */
+  rentabilidadData?: RentabilidadVenta | null;
   onConfirmar?: () => void;
   onAsignarInventario?: () => void;
-  onMarcarEnEntrega?: () => void;
   onMarcarEntregada?: () => void;
   onCancelar?: () => void;
   onRegistrarPago?: () => void;
   onEliminarPago?: (pagoId: string) => void;
-  onRegistrarAdelanto?: () => void;  // Nueva acción para reservar stock
-}
-
-interface DatosRentabilidadNeta {
-  gastosOperativosMes: number;
-  unidadesVendidasMes: number;
-  cargaOperativaPorUnidad: number;
-  cantidadUnidadesVenta: number;
-  cargaOperativaVenta: number;
-  utilidadNeta: number;
-  margenNeto: number;
+  onAgregarGastos?: () => void;
+  /** Handler para programar entrega - reemplaza el antiguo onMarcarEnEntrega */
+  onProgramarEntrega?: () => void;
+  /** Callback cuando cambian los datos de entregas/gastos - para refrescar rentabilidad */
+  onEntregaCompletada?: () => void;
 }
 
 const estadoLabels: Record<EstadoVenta, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
@@ -39,11 +40,6 @@ const estadoLabels: Record<EstadoVenta, { label: string; variant: 'success' | 'w
   cancelada: { label: 'Cancelada', variant: 'danger' },
   devuelta: { label: 'Devuelta', variant: 'danger' },
   devolucion_parcial: { label: 'Devolución Parcial', variant: 'warning' }
-};
-
-const tipoReservaLabels: Record<TipoReserva, { label: string; variant: 'success' | 'warning'; icon: string }> = {
-  fisica: { label: 'Reserva Física', variant: 'success', icon: '✓' },
-  virtual: { label: 'Reserva Virtual', variant: 'warning', icon: '⏳' }
 };
 
 const estadoPagoLabels: Record<EstadoPago, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
@@ -91,16 +87,68 @@ const convertirCostoSiEsUSD = (
 
 export const VentaCard: React.FC<VentaCardProps> = ({
   venta,
+  rentabilidadData,
   onConfirmar,
   onAsignarInventario,
-  onMarcarEnEntrega,
   onMarcarEntregada,
   onCancelar,
   onRegistrarPago,
   onEliminarPago,
-  onRegistrarAdelanto
+  onAgregarGastos,
+  onProgramarEntrega,
+  onEntregaCompletada
 }) => {
-  const [rentabilidadNeta, setRentabilidadNeta] = useState<DatosRentabilidadNeta | null>(null);
+  const [documentosRelacionados, setDocumentosRelacionados] = useState<{
+    requerimientos: Requerimiento[];
+    ordenesCompra: OrdenCompra[];
+    loading: boolean;
+  }>({ requerimientos: [], ordenesCompra: [], loading: true });
+  const [gastosDirectosVenta, setGastosDirectosVenta] = useState<number>(0);
+
+  // Siempre ejecutar el hook para tener acceso a datos globales (GA/GO totales)
+  const ventasArray = useMemo(() => [venta], [venta]);
+  const { datos: datosRentabilidad, getRentabilidadVenta, loading: loadingRentabilidad } = useRentabilidadVentas(ventasArray);
+
+  // Usar datos del padre si están disponibles, sino usar los calculados internamente
+  const rentabilidadProporcional = rentabilidadData !== undefined
+    ? rentabilidadData
+    : getRentabilidadVenta(venta.id);
+
+  // Cargar documentos relacionados (requerimientos y OCs)
+  useEffect(() => {
+    const cargarDocumentosRelacionados = async () => {
+      try {
+        setDocumentosRelacionados(prev => ({ ...prev, loading: true }));
+
+        // Buscar requerimientos asociados a esta venta
+        const todosRequerimientos = await requerimientoService.getAll();
+        const requerimientosVenta = todosRequerimientos.filter(
+          r => r.ventaId === venta.id || r.cotizacionId === venta.cotizacionOrigenId
+        );
+
+        // Buscar órdenes de compra asociadas a los requerimientos
+        let ordenesCompraVenta: OrdenCompra[] = [];
+        if (requerimientosVenta.length > 0) {
+          const todasOCs = await OrdenCompraService.getAll();
+          const requerimientoIds = requerimientosVenta.map(r => r.id);
+          ordenesCompraVenta = todasOCs.filter(
+            oc => oc.requerimientoId && requerimientoIds.includes(oc.requerimientoId)
+          );
+        }
+
+        setDocumentosRelacionados({
+          requerimientos: requerimientosVenta,
+          ordenesCompra: ordenesCompraVenta,
+          loading: false
+        });
+      } catch (error) {
+        console.error('Error cargando documentos relacionados:', error);
+        setDocumentosRelacionados(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    cargarDocumentosRelacionados();
+  }, [venta.id, venta.cotizacionOrigenId]);
 
   const formatDate = (timestamp: any) => {
     if (!timestamp) return '-';
@@ -129,66 +177,107 @@ export const VentaCard: React.FC<VentaCardProps> = ({
     ? (utilidadCorregida / venta.totalPEN) * 100
     : 0;
 
-  // Calcular rentabilidad neta (con carga operativa)
+  // Cargar gastos directos de esta venta
   useEffect(() => {
-    const calcularRentabilidadNeta = async () => {
-      // Solo calcular si la venta tiene unidades asignadas
-      if (venta.estado === 'cotizacion' || venta.estado === 'confirmada' || !venta.utilidadBrutaPEN) {
-        return;
-      }
-
+    const cargarGastosDirectos = async () => {
+      if (venta.estado === 'cotizacion' || venta.estado === 'cancelada') return;
       try {
-        // Obtener gastos prorrateables del mes
-        const todosLosGastos = await gastoService.getAll();
-        const gastosProrrateables = todosLosGastos.filter(g => g.esProrrateable);
-        const gastosOperativosMes = gastosProrrateables.reduce((sum, g) => sum + g.montoPEN, 0);
-
-        // Obtener unidades vendidas del mes
-        const ventas = await VentaService.getAll();
-        const ahora = new Date();
-        const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
-
-        const ventasMes = ventas.filter(v => {
-          if (v.estado === 'cancelada' || v.estado === 'cotizacion') return false;
-          const fechaVenta = v.fechaCreacion?.toDate?.() ?? new Date();
-          return fechaVenta >= inicioMes;
-        });
-
-        const unidadesVendidasMes = ventasMes.reduce((sum, v) => {
-          return sum + v.productos.reduce((s, p) => s + p.cantidad, 0);
-        }, 0);
-
-        // Calcular carga operativa
-        const cargaOperativaPorUnidad = unidadesVendidasMes > 0
-          ? gastosOperativosMes / unidadesVendidasMes
-          : 0;
-
-        // Cantidad de unidades en esta venta
-        const cantidadUnidadesVenta = venta.productos.reduce((sum, p) => sum + p.cantidad, 0);
-        const cargaOperativaVenta = cargaOperativaPorUnidad * cantidadUnidadesVenta;
-
-        // Utilidad y margen neto
-        const utilidadNeta = utilidadCorregida - cargaOperativaVenta;
-        const margenNeto = venta.totalPEN > 0 ? (utilidadNeta / venta.totalPEN) * 100 : 0;
-
-        setRentabilidadNeta({
-          gastosOperativosMes,
-          unidadesVendidasMes,
-          cargaOperativaPorUnidad,
-          cantidadUnidadesVenta,
-          cargaOperativaVenta,
-          utilidadNeta,
-          margenNeto
-        });
+        const gastosDirectos = await gastoService.getGastosVenta(venta.id);
+        const total = gastosDirectos.reduce((sum, g) => sum + g.montoPEN, 0);
+        setGastosDirectosVenta(total);
       } catch (error) {
-        console.error('Error calculando rentabilidad neta:', error);
+        console.error('Error cargando gastos directos:', error);
+      }
+    };
+    cargarGastosDirectos();
+  }, [venta.id, venta.estado]);
+
+  const estadoInfo = estadoLabels[venta.estado];
+
+  // Generar pasos del timeline
+  const timelineSteps: TimelineStep[] = useMemo(() => {
+    const estadoIndex: Record<string, number> = {
+      'cotizacion': 0,
+      'confirmada': 1,
+      'asignada': 2,
+      'en_entrega': 3,
+      'entregada': 4,
+      'cancelada': -1
+    };
+
+    const currentIndex = estadoIndex[venta.estado] ?? 0;
+    const isCancelled = venta.estado === 'cancelada';
+
+    return [
+      {
+        id: 'cotizacion',
+        label: 'Cotización',
+        date: venta.fechaCreacion,
+        status: isCancelled ? 'skipped' : currentIndex >= 0 ? 'completed' : 'pending'
+      },
+      {
+        id: 'confirmada',
+        label: 'Confirmada',
+        date: venta.fechaConfirmacion,
+        status: isCancelled ? 'skipped' : currentIndex > 1 ? 'completed' : currentIndex === 1 ? 'current' : 'pending'
+      },
+      {
+        id: 'asignada',
+        label: 'Asignada',
+        date: venta.fechaAsignacion,
+        status: isCancelled ? 'skipped' : currentIndex > 2 ? 'completed' : currentIndex === 2 ? 'current' : 'pending'
+      },
+      {
+        id: 'en_entrega',
+        label: 'En Entrega',
+        status: isCancelled ? 'skipped' : currentIndex > 3 ? 'completed' : currentIndex === 3 ? 'current' : 'pending'
+      },
+      {
+        id: 'entregada',
+        label: 'Entregada',
+        date: venta.fechaEntrega,
+        status: isCancelled ? 'skipped' : currentIndex === 4 ? 'completed' : 'pending'
+      }
+    ];
+  }, [venta]);
+
+  // Determinar la siguiente acción basada en el estado
+  const nextAction: NextAction | undefined = useMemo(() => {
+    if (venta.estado === 'cancelada' || venta.estado === 'entregada') return undefined;
+
+    const actions: Record<string, NextAction> = {
+      cotizacion: {
+        label: 'Confirmar Venta',
+        description: 'Confirma la cotización para continuar con el proceso',
+        buttonText: onConfirmar ? 'Confirmar' : undefined,
+        onClick: onConfirmar,
+        variant: 'primary'
+      },
+      confirmada: {
+        label: 'Asignar Inventario',
+        description: 'Asigna unidades del inventario usando FEFO',
+        buttonText: onAsignarInventario ? 'Asignar' : undefined,
+        onClick: onAsignarInventario,
+        variant: 'primary'
+      },
+      asignada: {
+        label: 'Programar Entrega',
+        description: 'Programa la entrega con transportista y fecha',
+        buttonText: onProgramarEntrega ? 'Programar' : undefined,
+        onClick: onProgramarEntrega,
+        variant: 'warning'
+      },
+      en_entrega: {
+        label: 'Confirmar Entrega',
+        description: 'Confirma que el cliente recibió el pedido',
+        buttonText: onMarcarEntregada ? 'Entregado' : undefined,
+        onClick: onMarcarEntregada,
+        variant: 'success'
       }
     };
 
-    calcularRentabilidadNeta();
-  }, [venta, utilidadCorregida]);
-
-  const estadoInfo = estadoLabels[venta.estado];
+    return actions[venta.estado];
+  }, [venta.estado, onConfirmar, onAsignarInventario, onProgramarEntrega, onMarcarEntregada]);
 
   return (
     <div className="space-y-6">
@@ -200,30 +289,10 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             <div>
               <h2 className="text-2xl font-bold text-gray-900">{venta.numeroVenta}</h2>
               <p className="text-sm text-gray-600">{venta.nombreCliente}</p>
-              {venta.numeroCotizacionOrigen && (
-                <a
-                  href={`/cotizaciones?id=${venta.cotizacionOrigenId}`}
-                  className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 mt-1"
-                >
-                  <FileText className="h-3 w-3" />
-                  Desde {venta.numeroCotizacionOrigen}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              )}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Badge de tipo de reserva */}
-          {venta.estado === 'reservada' && venta.stockReservado && (
-            <Badge
-              variant={tipoReservaLabels[venta.stockReservado.tipoReserva].variant}
-              size="lg"
-            >
-              {tipoReservaLabels[venta.stockReservado.tipoReserva].icon}{' '}
-              {tipoReservaLabels[venta.stockReservado.tipoReserva].label}
-            </Badge>
-          )}
           {venta.estado !== 'cotizacion' && venta.estado !== 'cancelada' && venta.estadoPago && (
             <Badge variant={estadoPagoLabels[venta.estadoPago].variant} size="lg">
               {estadoPagoLabels[venta.estadoPago].label}
@@ -235,111 +304,74 @@ export const VentaCard: React.FC<VentaCardProps> = ({
         </div>
       </div>
 
-      {/* Información de Reserva - Solo si hay reserva activa */}
-      {venta.estado === 'reservada' && venta.stockReservado && (
-        <div className={`p-4 rounded-lg border-2 ${
-          venta.stockReservado.tipoReserva === 'fisica'
-            ? 'bg-green-50 border-green-300'
-            : 'bg-orange-50 border-orange-300'
-        }`}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center">
-              {venta.stockReservado.tipoReserva === 'fisica' ? (
-                <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-              ) : (
-                <AlertTriangle className="h-5 w-5 text-orange-600 mr-2" />
-              )}
-              <h4 className="font-semibold text-gray-900">
-                {venta.stockReservado.tipoReserva === 'fisica'
-                  ? 'Stock Reservado Físicamente'
-                  : 'Reserva Virtual - Requiere Stock'}
-              </h4>
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <Clock className="h-4 w-4 mr-1" />
-              <span>
-                Vigente hasta:{' '}
-                {venta.stockReservado.vigenciaHasta?.toDate?.()?.toLocaleString('es-PE', {
-                  day: '2-digit',
-                  month: 'short',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                }) || '-'}
-              </span>
-            </div>
-          </div>
+      {/* Timeline de Estado */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <StatusTimeline
+          steps={timelineSteps}
+          nextAction={nextAction}
+          orientation="horizontal"
+          showDates={true}
+          compact={false}
+        />
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Productos Reservados */}
-            <div className="bg-white p-3 rounded-lg">
-              <h5 className="text-sm font-medium text-gray-700 mb-2">Productos Reservados</h5>
-              <div className="space-y-1">
-                {venta.stockReservado.productosReservados.map((prod, idx) => (
-                  <div key={idx} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{prod.sku}</span>
-                    <span className={`font-medium ${
-                      prod.unidadesReservadas.length > 0 ? 'text-green-600' : 'text-orange-600'
-                    }`}>
-                      {prod.unidadesReservadas.length > 0
-                        ? `${prod.unidadesReservadas.length} uds físicas`
-                        : `${prod.cantidad} uds virtuales`
-                      }
-                    </span>
+      {/* Trazabilidad - Documentos Relacionados */}
+      {(venta.numeroCotizacionOrigen || documentosRelacionados.requerimientos.length > 0 || documentosRelacionados.ordenesCompra.length > 0) && (
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg border border-indigo-200">
+          <div className="flex items-center mb-3">
+            <Link2 className="h-5 w-5 text-indigo-600 mr-2" />
+            <h4 className="font-semibold text-gray-900">Trazabilidad</h4>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {/* Cotización Origen */}
+            {venta.numeroCotizacionOrigen && (
+              <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-indigo-200 shadow-sm">
+                <FileText className="h-4 w-4 text-indigo-500" />
+                <div>
+                  <span className="text-xs text-gray-500 block">Origen</span>
+                  <span className="text-sm font-medium text-indigo-700">{venta.numeroCotizacionOrigen}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Requerimientos */}
+            {documentosRelacionados.loading ? (
+              <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200">
+                <span className="text-xs text-gray-500">Cargando...</span>
+              </div>
+            ) : (
+              <>
+                {documentosRelacionados.requerimientos.map(req => (
+                  <div key={req.id} className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-amber-200 shadow-sm">
+                    <ClipboardList className="h-4 w-4 text-amber-500" />
+                    <div>
+                      <span className="text-xs text-gray-500 block">Requerimiento</span>
+                      <span className="text-sm font-medium text-amber-700">{req.numeroRequerimiento}</span>
+                    </div>
                   </div>
                 ))}
-              </div>
-            </div>
 
-            {/* Información del Adelanto */}
-            <div className="bg-white p-3 rounded-lg">
-              <h5 className="text-sm font-medium text-gray-700 mb-2">Adelanto Recibido</h5>
-              <div className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Monto:</span>
-                  <span className="font-bold text-green-600">
-                    S/ {venta.stockReservado.montoAdelanto.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Vigencia Original:</span>
-                  <span className="font-medium">
-                    {venta.stockReservado.horasVigenciaOriginal}h
-                  </span>
-                </div>
-                {venta.stockReservado.extensiones && venta.stockReservado.extensiones.length > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Extensiones:</span>
-                    <span className="font-medium text-blue-600">
-                      {venta.stockReservado.extensiones.length} de 3
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Productos con Faltante - Solo para reserva virtual */}
-          {venta.stockReservado.tipoReserva === 'virtual' && venta.productosConFaltante && (
-            <div className="mt-3 p-3 bg-orange-100 rounded-lg">
-              <h5 className="text-sm font-medium text-orange-800 mb-2 flex items-center">
-                <AlertTriangle className="h-4 w-4 mr-1" />
-                Productos Pendientes de Stock
-              </h5>
-              <div className="space-y-1">
-                {venta.productosConFaltante.map((prod, idx) => (
-                  <div key={idx} className="flex justify-between text-sm">
-                    <span className="text-orange-700">{prod.nombre}</span>
-                    <span className="font-medium text-orange-800">
-                      Disponibles: {prod.disponibles} / Solicitados: {prod.solicitados}
-                    </span>
+                {/* Órdenes de Compra */}
+                {documentosRelacionados.ordenesCompra.map(oc => (
+                  <div key={oc.id} className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-emerald-200 shadow-sm">
+                    <Package className="h-4 w-4 text-emerald-500" />
+                    <div>
+                      <span className="text-xs text-gray-500 block">Orden Compra</span>
+                      <span className="text-sm font-medium text-emerald-700">{oc.numeroOrden}</span>
+                    </div>
                   </div>
                 ))}
-              </div>
-              <p className="mt-2 text-xs text-orange-600">
-                Recibirás una notificación cuando llegue el stock necesario.
-              </p>
-            </div>
-          )}
+              </>
+            )}
+
+            {/* Mensaje si no hay documentos relacionados */}
+            {!documentosRelacionados.loading &&
+             !venta.numeroCotizacionOrigen &&
+             documentosRelacionados.requerimientos.length === 0 &&
+             documentosRelacionados.ordenesCompra.length === 0 && (
+              <span className="text-sm text-gray-500 italic">Sin documentos relacionados</span>
+            )}
+          </div>
         </div>
       )}
 
@@ -453,67 +485,236 @@ export const VentaCard: React.FC<VentaCardProps> = ({
         </div>
       </div>
 
-      {/* Rentabilidad Neta - Solo si hay datos calculados */}
-      {rentabilidadNeta && (
+      {/* Rentabilidad Neta con Distribución Proporcional - Solo si hay datos calculados */}
+      {rentabilidadProporcional && venta.estado !== 'cotizacion' && venta.estado !== 'cancelada' && (
         <div className="bg-orange-50 p-4 rounded-lg">
-          <div className="flex items-center mb-3">
-            <Calculator className="h-5 w-5 text-orange-600 mr-2" />
-            <h4 className="font-semibold text-gray-900">Rentabilidad Neta</h4>
-            <span className="ml-2 text-xs text-gray-500">(incluye gastos operativos)</span>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <Calculator className="h-5 w-5 text-orange-600 mr-2" />
+              <h4 className="font-semibold text-gray-900">Rentabilidad Neta</h4>
+              <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
+                Distribución Proporcional
+              </span>
+            </div>
+            {onAgregarGastos && (
+              <Button size="sm" variant="outline" onClick={onAgregarGastos}>
+                <Receipt className="h-4 w-4 mr-1" />
+                Agregar Gastos
+              </Button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Columna izquierda: Desglose */}
+            {/* Columna izquierda: Flujo de Cálculo */}
             <div className="space-y-2">
+              {/* Paso 1: Precio de Venta */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Utilidad Bruta:</span>
-                <span className={`font-medium ${utilidadCorregida >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                  S/ {utilidadCorregida.toFixed(2)}
+                <span className="text-gray-600 font-medium">1. Precio de Venta:</span>
+                <span className="font-semibold text-gray-900">
+                  S/ {venta.totalPEN.toFixed(2)}
                 </span>
               </div>
+
+              {/* Paso 2: Costo Base */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Carga Operativa ({rentabilidadNeta.cantidadUnidadesVenta} uds):</span>
-                <span className="font-medium text-orange-600">
-                  - S/ {rentabilidadNeta.cargaOperativaVenta.toFixed(2)}
+                <span className="text-gray-600">2. (-) Costo Base:</span>
+                <span className="font-medium text-gray-700">
+                  - S/ {rentabilidadProporcional.costoBase.toFixed(2)}
                 </span>
               </div>
-              <div className="border-t border-orange-200 pt-2">
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-900">Utilidad Neta:</span>
-                  <span className={`text-lg font-bold ${rentabilidadNeta.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    S/ {rentabilidadNeta.utilidadNeta.toFixed(2)}
+
+              {/* Paso 3: GV (Gastos de Venta) */}
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">
+                  3. (-) GV:
+                  <span className="text-xs text-purple-500 ml-1">(comisiones, pasarelas)</span>
+                </span>
+                <span className="font-medium text-purple-600">
+                  - S/ {rentabilidadProporcional.gastosGV.toFixed(2)}
+                </span>
+              </div>
+
+              {/* Paso 4: GD (Gastos de Distribución) */}
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">
+                  4. (-) GD:
+                  <span className="text-xs text-blue-500 ml-1">(delivery - Transportistas)</span>
+                </span>
+                <span className="font-medium text-blue-600">
+                  - S/ {rentabilidadProporcional.gastosGD.toFixed(2)}
+                </span>
+              </div>
+
+              {/* Resultado: Utilidad Bruta */}
+              <div className="flex justify-between text-sm bg-blue-50 p-2 rounded border border-blue-200">
+                <span className="text-blue-800 font-medium">= Utilidad Bruta:</span>
+                <span className={`font-semibold ${rentabilidadProporcional.utilidadBruta >= 0 ? 'text-blue-700' : 'text-danger-600'}`}>
+                  S/ {rentabilidadProporcional.utilidadBruta.toFixed(2)}
+                  <span className="text-xs ml-1">({rentabilidadProporcional.margenBruto.toFixed(1)}%)</span>
+                </span>
+              </div>
+
+              {/* Paso 5: GA/GO */}
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">
+                  5. (-) GA/GO:
+                  <span className="text-xs text-orange-500 ml-1">
+                    ({((rentabilidadProporcional.costoBase / (datosRentabilidad?.baseCostoTotal || 1)) * 100).toFixed(1)}% prorrateo)
                   </span>
-                </div>
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-gray-600">Margen Neto:</span>
-                  <span className={`text-lg font-bold ${rentabilidadNeta.margenNeto >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {rentabilidadNeta.margenNeto.toFixed(1)}%
+                </span>
+                <span className="font-medium text-orange-600">
+                  - S/ {rentabilidadProporcional.costoGAGO.toFixed(2)}
+                </span>
+              </div>
+
+              {/* Resultado Final: Utilidad Neta */}
+              <div className="border-t border-orange-300 pt-2 mt-2">
+                <div className="flex justify-between bg-gradient-to-r from-green-50 to-emerald-50 p-2 rounded border border-green-200">
+                  <span className="font-semibold text-gray-900">= Utilidad Neta:</span>
+                  <span className={`text-lg font-bold ${rentabilidadProporcional.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                    S/ {rentabilidadProporcional.utilidadNeta.toFixed(2)}
+                    <span className="text-sm ml-1">({rentabilidadProporcional.margenNeto.toFixed(1)}%)</span>
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Columna derecha: Info del período */}
-            <div className="bg-white p-3 rounded-lg border border-orange-200">
-              <h5 className="text-xs font-medium text-gray-500 mb-2">Datos del Mes</h5>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Gastos Operativos:</span>
-                  <span className="font-medium">S/ {rentabilidadNeta.gastosOperativosMes.toFixed(2)}</span>
+            {/* Columna derecha: Resumen de Costos */}
+            <div className="space-y-3">
+              {/* Costo Total */}
+              <div className="bg-white p-3 rounded-lg border border-gray-200">
+                <h5 className="text-xs font-medium text-gray-500 mb-2">Costo Total (CTRU)</h5>
+                <div className="text-xl font-bold text-gray-900">
+                  S/ {rentabilidadProporcional.costoTotal.toFixed(2)}
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Unidades Vendidas:</span>
-                  <span className="font-medium">{rentabilidadNeta.unidadesVendidasMes}</span>
+                <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                  <div>Base: S/ {rentabilidadProporcional.costoBase.toFixed(2)}</div>
+                  <div className="flex gap-2">
+                    <span className="text-purple-600">GV: S/ {rentabilidadProporcional.gastosGV.toFixed(2)}</span>
+                    <span className="text-blue-600">GD: S/ {rentabilidadProporcional.gastosGD.toFixed(2)}</span>
+                  </div>
+                  <div className="text-orange-600">GA/GO: S/ {rentabilidadProporcional.costoGAGO.toFixed(2)}</div>
                 </div>
-                <div className="flex justify-between border-t border-gray-100 pt-1">
-                  <span className="text-gray-600">Carga por Unidad:</span>
-                  <span className="font-medium text-orange-600">
-                    S/ {rentabilidadNeta.cargaOperativaPorUnidad.toFixed(2)}
-                  </span>
+              </div>
+
+              {/* Info global de GA/GO */}
+              <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                <h5 className="text-xs font-medium text-orange-700 mb-2">GA/GO Global</h5>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total GA/GO:</span>
+                    <span className="font-medium">S/ {datosRentabilidad?.totalGastosGAGO.toFixed(2) || '0.00'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Base Costo Total:</span>
+                    <span className="font-medium">S/ {datosRentabilidad?.baseCostoTotal.toFixed(2) || '0.00'}</span>
+                  </div>
                 </div>
+                <p className="text-xs text-gray-500 mt-2 italic">
+                  Prorrateado por % de costo base
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Desglose por Producto */}
+          {rentabilidadProporcional.desgloseProductos && rentabilidadProporcional.desgloseProductos.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-orange-200">
+              <div className="flex items-center mb-3">
+                <PieChart className="h-4 w-4 text-orange-600 mr-2" />
+                <h5 className="text-sm font-medium text-gray-900">Desglose de Costos por Producto</h5>
+              </div>
+              <div className="bg-white rounded-lg border border-orange-200 overflow-hidden">
+                <table className="min-w-full divide-y divide-orange-100">
+                  <thead className="bg-orange-100">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">Producto</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">Venta</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">Costo Base</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">
+                        <span className="text-purple-600">GV</span>+<span className="text-blue-600">GD</span>
+                      </th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-orange-600">GA/GO</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">Costo Total</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">U. Neta</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">Margen</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-orange-50">
+                    {rentabilidadProporcional.desgloseProductos.map((prod, idx) => (
+                      <tr key={idx}>
+                        <td className="px-3 py-2">
+                          <div className="text-sm font-medium text-gray-900">{prod.nombre}</div>
+                          <div className="text-xs text-gray-500">{prod.cantidad} unidad(es)</div>
+                        </td>
+                        <td className="px-3 py-2 text-right text-sm text-gray-900">
+                          S/ {prod.precioVenta.toFixed(2)}
+                        </td>
+                        <td className="px-3 py-2 text-right text-sm text-gray-900">
+                          S/ {prod.costoBase.toFixed(2)}
+                        </td>
+                        <td className="px-3 py-2 text-right text-sm text-indigo-600">
+                          S/ {prod.costoGVGD.toFixed(2)}
+                          <div className="text-xs text-gray-400">({prod.proporcionVenta.toFixed(1)}%)</div>
+                        </td>
+                        <td className="px-3 py-2 text-right text-sm text-orange-600">
+                          S/ {prod.costoGAGO.toFixed(2)}
+                          <div className="text-xs text-gray-400">({prod.proporcionCosto.toFixed(1)}%)</div>
+                        </td>
+                        <td className="px-3 py-2 text-right text-sm font-medium text-gray-900">
+                          S/ {prod.costoTotal.toFixed(2)}
+                        </td>
+                        <td className={`px-3 py-2 text-right text-sm font-medium ${prod.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                          S/ {prod.utilidadNeta.toFixed(2)}
+                        </td>
+                        <td className={`px-3 py-2 text-right text-sm font-medium ${prod.margenNeto >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                          {prod.margenNeto.toFixed(1)}%
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Gastos Directos - Para ventas confirmadas sin rentabilidad calculada aún */}
+      {!rentabilidadProporcional && onAgregarGastos && venta.estado !== 'cotizacion' && venta.estado !== 'cancelada' && (
+        <div className="bg-purple-50 p-4 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Receipt className="h-5 w-5 text-purple-600 mr-2" />
+              <div>
+                <h4 className="font-semibold text-gray-900">Gastos de Venta</h4>
+                <p className="text-xs text-gray-500">Registra comisiones, delivery y otros gastos directos</p>
+              </div>
+            </div>
+            <Button size="sm" variant="primary" onClick={onAgregarGastos}>
+              <Receipt className="h-4 w-4 mr-1" />
+              Agregar Gastos
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Entregas - Solo para ventas asignadas o posteriores */}
+      {(venta.estado === 'asignada' || venta.estado === 'en_entrega' || venta.estado === 'entregada' || venta.estado === 'entrega_parcial') && (
+        <div className="bg-indigo-50 p-4 rounded-lg">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <Truck className="h-5 w-5 text-indigo-600 mr-2" />
+              <h4 className="font-semibold text-gray-900">Entregas</h4>
+            </div>
+            {onProgramarEntrega && venta.estado !== 'entregada' && (
+              <Button size="sm" variant="primary" onClick={onProgramarEntrega}>
+                <MapPin className="h-4 w-4 mr-1" />
+                Programar Entrega
+              </Button>
+            )}
+          </div>
+          <EntregasVenta ventaId={venta.id} venta={venta} onEntregaCompletada={onEntregaCompletada} />
         </div>
       )}
 
@@ -683,51 +884,33 @@ export const VentaCard: React.FC<VentaCardProps> = ({
       {venta.estado !== 'entregada' && venta.estado !== 'cancelada' && (
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="flex items-center space-x-3">
-            {venta.estado === 'cotizacion' && onRegistrarAdelanto && (
-              <Button
-                variant="ghost"
-                onClick={onRegistrarAdelanto}
-                className="bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200"
-              >
-                <Lock className="h-4 w-4 mr-2" />
-                Registrar Adelanto
-              </Button>
-            )}
-
             {venta.estado === 'cotizacion' && onConfirmar && (
               <Button variant="primary" onClick={onConfirmar}>
                 Confirmar Venta
               </Button>
             )}
-
+            
             {venta.estado === 'confirmada' && onAsignarInventario && (
               <Button variant="primary" onClick={onAsignarInventario}>
                 <Package className="h-4 w-4 mr-2" />
                 Asignar Inventario (FEFO)
               </Button>
             )}
-
-            {venta.estado === 'reservada' && onAsignarInventario && (
-              <Button variant="primary" onClick={onAsignarInventario}>
-                <Package className="h-4 w-4 mr-2" />
-                Asignar Stock Reservado
-              </Button>
-            )}
-
-            {venta.estado === 'asignada' && onMarcarEnEntrega && (
-              <Button variant="primary" onClick={onMarcarEnEntrega}>
+            
+            {venta.estado === 'asignada' && onProgramarEntrega && (
+              <Button variant="primary" onClick={onProgramarEntrega}>
                 <Truck className="h-4 w-4 mr-2" />
-                Marcar en Entrega
+                Programar Entrega
               </Button>
             )}
-
+            
             {venta.estado === 'en_entrega' && onMarcarEntregada && (
               <Button variant="success" onClick={onMarcarEntregada}>
                 Marcar como Entregada
               </Button>
             )}
           </div>
-
+          
           {onCancelar && (
             <Button variant="danger" onClick={onCancelar}>
               Cancelar Venta

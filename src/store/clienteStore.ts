@@ -4,8 +4,35 @@ import type {
   Cliente,
   ClienteFormData,
   ClienteStats,
-  DuplicadoEncontrado
+  DuplicadoEncontrado,
+  ClasificacionABC,
+  SegmentoCliente
 } from '../types/entidadesMaestras.types';
+
+// Tipo para estadísticas CRM
+interface StatsCRM {
+  distribucionABC: { clase: ClasificacionABC; cantidad: number; porcentaje: number; valorTotal: number }[];
+  valorPorClase: Record<ClasificacionABC, number>;
+  distribucionSegmentos: { segmento: SegmentoCliente; cantidad: number; porcentaje: number }[];
+  clientesEnRiesgo: Cliente[];
+  clientesPerdidos: Cliente[];
+  clientesSinContacto30Dias: Cliente[];
+  clientesVIPInactivos: Cliente[];
+  clientesNuevosUltimos7Dias: number;
+  clientesNuevosUltimos30Dias: number;
+  tasaRetencion: number;
+  topVIP: Cliente[];
+  topPremium: Cliente[];
+  clientesMayorCrecimiento: Cliente[];
+}
+
+interface AlertasCRM {
+  enRiesgo: number;
+  perdidos: number;
+  vipInactivos: number;
+  sinContacto: number;
+  total: number;
+}
 
 interface ClienteState {
   // Estado
@@ -14,9 +41,16 @@ interface ClienteState {
   resultadosBusqueda: Cliente[];
   duplicadosDetectados: DuplicadoEncontrado<Cliente>[];
   stats: ClienteStats | null;
+  statsCRM: StatsCRM | null;
+  alertasCRM: AlertasCRM | null;
   loading: boolean;
   buscando: boolean;
   error: string | null;
+
+  // Filtros activos
+  filtroClasificacion: ClasificacionABC | 'todos';
+  filtroSegmento: SegmentoCliente | 'todos';
+  filtroEstado: 'activo' | 'inactivo' | 'potencial' | 'todos';
 
   // Caché para búsqueda rápida
   cacheActualizado: boolean;
@@ -25,6 +59,8 @@ interface ClienteState {
   // Acciones de carga
   fetchClientes: () => Promise<void>;
   fetchStats: () => Promise<void>;
+  fetchStatsCRM: () => Promise<void>;
+  fetchAlertasCRM: () => Promise<void>;
   cargarCacheInicial: () => Promise<void>;
 
   // Acciones de búsqueda inteligente (optimizada con caché local)
@@ -46,6 +82,20 @@ interface ClienteState {
   getOrCreate: (data: ClienteFormData, userId: string) => Promise<{ cliente: Cliente; esNuevo: boolean }>;
   agregarDireccion: (clienteId: string, direccion: any, userId: string) => Promise<void>;
   actualizarMetricas: (clienteId: string, montoVenta: number, productoIds?: string[]) => Promise<void>;
+
+  // CRM Avanzado
+  calcularClasificacionABC: () => Promise<void>;
+  recalcularSegmentos: () => Promise<void>;
+  recalcularMetricasDesdeVentas: (userId: string) => Promise<{ actualizados: number; errores: number }>;
+  agregarNota: (clienteId: string, nota: string, userId: string) => Promise<void>;
+  agregarEtiqueta: (clienteId: string, etiqueta: string, userId: string) => Promise<void>;
+  quitarEtiqueta: (clienteId: string, etiqueta: string, userId: string) => Promise<void>;
+
+  // Filtros
+  setFiltroClasificacion: (filtro: ClasificacionABC | 'todos') => void;
+  setFiltroSegmento: (filtro: SegmentoCliente | 'todos') => void;
+  setFiltroEstado: (filtro: 'activo' | 'inactivo' | 'potencial' | 'todos') => void;
+  getClientesFiltrados: () => Cliente[];
 
   // Selección
   setClienteSeleccionado: (cliente: Cliente | null) => void;
@@ -70,9 +120,14 @@ export const useClienteStore = create<ClienteState>((set, get) => ({
   resultadosBusqueda: [],
   duplicadosDetectados: [],
   stats: null,
+  statsCRM: null,
+  alertasCRM: null,
   loading: false,
   buscando: false,
   error: null,
+  filtroClasificacion: 'todos',
+  filtroSegmento: 'todos',
+  filtroEstado: 'todos',
   cacheActualizado: false,
   ultimaActualizacionCache: 0,
 
@@ -122,6 +177,24 @@ export const useClienteStore = create<ClienteState>((set, get) => ({
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
+    }
+  },
+
+  fetchStatsCRM: async () => {
+    try {
+      const statsCRM = await clienteService.getStatsCRM();
+      set({ statsCRM });
+    } catch (error: any) {
+      console.error('Error al cargar stats CRM:', error);
+    }
+  },
+
+  fetchAlertasCRM: async () => {
+    try {
+      const alertasCRM = await clienteService.getAlertasCRM();
+      set({ alertasCRM });
+    } catch (error: any) {
+      console.error('Error al cargar alertas CRM:', error);
     }
   },
 
@@ -401,6 +474,114 @@ export const useClienteStore = create<ClienteState>((set, get) => ({
     } catch (error: any) {
       console.error('Error actualizando métricas:', error);
     }
+  },
+
+  // ============ CRM AVANZADO ============
+
+  calcularClasificacionABC: async () => {
+    set({ loading: true, error: null });
+    try {
+      await clienteService.calcularClasificacionABC();
+      await get().fetchClientes();
+      await get().fetchStatsCRM();
+      set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  recalcularSegmentos: async () => {
+    set({ loading: true, error: null });
+    try {
+      await clienteService.recalcularSegmentos();
+      await get().fetchClientes();
+      await get().fetchStatsCRM();
+      set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  recalcularMetricasDesdeVentas: async (userId: string) => {
+    set({ loading: true, error: null });
+    try {
+      const resultado = await clienteService.recalcularMetricasDesdeVentas(userId);
+      await get().fetchClientes();
+      await get().fetchStats();
+      await get().fetchStatsCRM();
+      set({ loading: false });
+      return resultado;
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  agregarNota: async (clienteId: string, nota: string, userId: string) => {
+    try {
+      await clienteService.agregarNota(clienteId, nota, userId);
+      const { clienteSeleccionado } = get();
+      if (clienteSeleccionado?.id === clienteId) {
+        const actualizado = await clienteService.getById(clienteId);
+        set({ clienteSeleccionado: actualizado });
+      }
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    }
+  },
+
+  agregarEtiqueta: async (clienteId: string, etiqueta: string, userId: string) => {
+    try {
+      await clienteService.agregarEtiqueta(clienteId, etiqueta, userId);
+      await get().fetchClientes();
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    }
+  },
+
+  quitarEtiqueta: async (clienteId: string, etiqueta: string, userId: string) => {
+    try {
+      await clienteService.quitarEtiqueta(clienteId, etiqueta, userId);
+      await get().fetchClientes();
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    }
+  },
+
+  // ============ FILTROS ============
+
+  setFiltroClasificacion: (filtro) => set({ filtroClasificacion: filtro }),
+  setFiltroSegmento: (filtro) => set({ filtroSegmento: filtro }),
+  setFiltroEstado: (filtro) => set({ filtroEstado: filtro }),
+
+  getClientesFiltrados: () => {
+    const { clientes, filtroClasificacion, filtroSegmento, filtroEstado } = get();
+
+    return clientes.filter(c => {
+      // Filtro por clasificación ABC
+      if (filtroClasificacion !== 'todos') {
+        const clasificacion = c.clasificacionABC || 'nuevo';
+        if (clasificacion !== filtroClasificacion) return false;
+      }
+
+      // Filtro por segmento
+      if (filtroSegmento !== 'todos') {
+        const segmento = c.segmento || 'nuevo';
+        if (segmento !== filtroSegmento) return false;
+      }
+
+      // Filtro por estado
+      if (filtroEstado !== 'todos') {
+        if (c.estado !== filtroEstado) return false;
+      }
+
+      return true;
+    });
   },
 
   // ============ SELECCIÓN ============

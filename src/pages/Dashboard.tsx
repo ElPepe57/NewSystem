@@ -21,7 +21,7 @@ import {
   Users,
   Truck
 } from 'lucide-react';
-import { Card, Badge } from '../components/common';
+import { Card, Badge, DashboardSkeleton } from '../components/common';
 import {
   UsuariosActivosWidget,
   VencimientosWidget,
@@ -413,11 +413,7 @@ export const Dashboard: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (

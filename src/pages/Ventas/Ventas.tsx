@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, ShoppingCart, DollarSign, TrendingUp, TrendingDown, Package, CheckCircle, CreditCard, Calculator, Download, RefreshCw } from 'lucide-react';
-import { Button, Card, Modal } from '../../components/common';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle } from 'lucide-react';
+import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
+// Nota: ActionModal aún se usa para cancelar ventas
+import type { PipelineStage } from '../../components/common';
+import { useToastStore } from '../../store/toastStore';
 import { VentaForm } from '../../components/modules/venta/VentaForm';
-import type { AdelantoData } from '../../types/venta.types';
 import { VentaTable } from '../../components/modules/venta/VentaTable';
 import { VentaCard } from '../../components/modules/venta/VentaCard';
 import { PagoVentaForm } from '../../components/modules/venta/PagoVentaForm';
 import { GastosVentaForm } from '../../components/modules/venta/GastosVentaForm';
+import { ProgramarEntregaModal } from '../../components/modules/venta/ProgramarEntregaModal';
 import { useVentaStore } from '../../store/ventaStore';
 import { useAuthStore } from '../../store/authStore';
-import { gastoService } from '../../services/gasto.service';
-import { VentaService } from '../../services/venta.service';
 import { useRentabilidadVentas } from '../../hooks/useRentabilidadVentas';
+import { gastoService } from '../../services/gasto.service';
+import { useEntregaStore } from '../../store/entregaStore';
 import type { Venta, VentaFormData, MetodoPago } from '../../types/venta.types';
-import { exportService } from '../../services/export.service';
+import type { ProgramarEntregaData } from '../../types/entrega.types';
 
 export const Ventas: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -29,11 +32,7 @@ export const Ventas: React.FC = () => {
     createVenta,
     confirmarCotizacion,
     asignarInventario,
-    completarAsignacionProducto,
-    actualizarFechaEstimadaProducto,
-    marcarEnEntrega,
     marcarEntregada,
-    registrarEntregaParcial,
     cancelarVenta,
     deleteVenta,
     fetchStats,
@@ -45,13 +44,49 @@ export const Ventas: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
-  const [isGastosVentaModalOpen, setIsGastosVentaModalOpen] = useState(false);
+  const [isGastosModalOpen, setIsGastosModalOpen] = useState(false);
+  const [isEntregaModalOpen, setIsEntregaModalOpen] = useState(false);
   const [selectedVenta, setSelectedVenta] = useState<Venta | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
 
-  // Hook centralizado para cálculos de rentabilidad
-  const { datos: rentabilidad, getRentabilidadVenta } = useRentabilidadVentas(ventas);
+  // Hook de rentabilidad con distribución proporcional de GA/GO
+  const { datos: rentabilidad, getRentabilidadVenta, loading: loadingRentabilidad, refetch: refetchRentabilidad } = useRentabilidadVentas(ventas);
+
+  // Store de entregas
+  const { programarEntrega } = useEntregaStore();
+
+  // Hook para dialogo de confirmacion
+  const { dialogProps, confirm } = useConfirmDialog();
+  const { modalProps: actionModalProps, open: openActionModal } = useActionModal();
+  const toast = useToastStore();
+
+  // Pipeline stages para filtrado visual
+  const pipelineStages: PipelineStage[] = useMemo(() => {
+    const counts = {
+      cotizacion: ventas.filter(v => v.estado === 'cotizacion').length,
+      confirmada: ventas.filter(v => v.estado === 'confirmada').length,
+      asignada: ventas.filter(v => v.estado === 'asignada').length,
+      en_entrega: ventas.filter(v => v.estado === 'en_entrega').length,
+      entregada: ventas.filter(v => v.estado === 'entregada').length,
+      cancelada: ventas.filter(v => v.estado === 'cancelada').length
+    };
+
+    return [
+      { id: 'cotizacion', label: 'Cotización', count: counts.cotizacion, color: 'gray', icon: <FileText className="h-4 w-4" /> },
+      { id: 'confirmada', label: 'Confirmada', count: counts.confirmada, color: 'blue', icon: <CheckCircle className="h-4 w-4" /> },
+      { id: 'asignada', label: 'Asignada', count: counts.asignada, color: 'purple', icon: <Package className="h-4 w-4" /> },
+      { id: 'en_entrega', label: 'En Entrega', count: counts.en_entrega, color: 'yellow', icon: <Truck className="h-4 w-4" /> },
+      { id: 'entregada', label: 'Entregada', count: counts.entregada, color: 'green', icon: <CheckCircle className="h-4 w-4" /> },
+      { id: 'cancelada', label: 'Cancelada', count: counts.cancelada, color: 'red', icon: <XCircle className="h-4 w-4" /> }
+    ];
+  }, [ventas]);
+
+  // Ventas filtradas
+  const ventasFiltradas = useMemo(() => {
+    if (!filtroEstado) return ventas;
+    return ventas.filter(v => v.estado === filtroEstado);
+  }, [ventas, filtroEstado]);
 
   // Cargar datos al montar
   useEffect(() => {
@@ -61,45 +96,22 @@ export const Ventas: React.FC = () => {
     fetchResumenPagos();
   }, [fetchVentas, fetchProductosDisponibles, fetchStats, fetchResumenPagos]);
 
-  // Crear venta/cotización con adelanto opcional
-  const handleCreateVenta = async (data: VentaFormData, esVentaDirecta: boolean, adelanto?: AdelantoData) => {
+  // Crear venta/cotización
+  const handleCreateVenta = async (data: VentaFormData, esVentaDirecta: boolean) => {
     if (!user) return;
-
+    
     setIsSubmitting(true);
     try {
-      let ventaId: string;
-
       if (esVentaDirecta) {
-        ventaId = await createVenta(data, user.uid);
+        await createVenta(data, user.uid);
       } else {
-        ventaId = await createCotizacion(data, user.uid);
+        await createCotizacion(data, user.uid);
       }
-
-      // Si hay adelanto, registrarlo después de crear la venta/cotización
-      if (adelanto && adelanto.monto > 0 && ventaId) {
-        try {
-          await VentaService.registrarAdelanto(
-            ventaId,
-            {
-              monto: adelanto.monto,
-              metodoPago: adelanto.metodoPago,
-              referencia: adelanto.referencia,
-              cuentaDestinoId: adelanto.cuentaDestinoId
-            },
-            user.uid
-          );
-        } catch (errorAdelanto: any) {
-          console.error('Error al registrar adelanto:', errorAdelanto);
-          alert(`Venta creada, pero hubo un error al registrar el adelanto: ${errorAdelanto.message}`);
-        }
-      }
-
       setIsModalOpen(false);
       await fetchProductosDisponibles();
-      await fetchVentas(); // Recargar para ver el adelanto
     } catch (error: any) {
       console.error('Error al crear venta:', error);
-      alert(error.message);
+      toast.error(error.message, 'Error al crear venta');
     } finally {
       setIsSubmitting(false);
     }
@@ -120,125 +132,38 @@ export const Ventas: React.FC = () => {
       const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
       if (ventaActualizada) setSelectedVenta(ventaActualizada);
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
   // Asignar inventario con FEFO
-  const handleAsignarInventario = async (permitirParcial: boolean = false) => {
+  const handleAsignarInventario = async () => {
     if (!user || !selectedVenta) return;
 
-    const mensajeConfirmacion = permitirParcial
-      ? '¿Asignar inventario parcialmente? Se asignarán solo los productos con stock disponible.'
-      : '¿Asignar todo el inventario usando FEFO? Si falta stock, la operación fallará.';
-
-    if (!window.confirm(mensajeConfirmacion)) {
-      return;
-    }
-
-    try {
-      const resultados = await asignarInventario(selectedVenta.id, user.uid, permitirParcial);
-
-      // Analizar resultados
-      const totalAsignados = resultados.reduce((sum, r) => sum + r.cantidadAsignada, 0);
-      const totalPendientes = resultados.reduce((sum, r) => sum + r.unidadesFaltantes, 0);
-
-      let mensaje = '';
-      if (totalPendientes === 0) {
-        mensaje = `✅ Inventario asignado completamente!\n\n${totalAsignados} unidades asignadas.`;
-      } else {
-        mensaje = `⚠️ Asignación parcial completada.\n\n` +
-          `✓ ${totalAsignados} unidades asignadas\n` +
-          `✗ ${totalPendientes} unidades pendientes de stock\n\n` +
-          `Los productos pendientes se pueden asignar cuando llegue nuevo stock.`;
-      }
-
-      alert(mensaje);
-
-      await fetchVentas();
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
-
-      await fetchProductosDisponibles();
-    } catch (error: any) {
-      alert(error.message);
-    }
-  };
-
-  // Completar asignación de un producto específico
-  const handleCompletarAsignacion = async (productoId: string) => {
-    if (!user || !selectedVenta) return;
+    const confirmed = await confirm({
+      title: 'Asignar Inventario FEFO',
+      message: 'Se asignara inventario automaticamente usando el metodo FEFO (primero lo que vence primero). Las unidades seran reservadas para esta venta.',
+      confirmText: 'Asignar',
+      variant: 'info'
+    });
+    if (!confirmed) return;
 
     try {
-      const resultado = await completarAsignacionProducto(selectedVenta.id, productoId, user.uid);
+      const resultados = await asignarInventario(selectedVenta.id, user.uid);
+      
+      // Mostrar resultado
+      const mensaje = resultados.map(r =>
+        `${r.cantidadAsignada} unidades asignadas para producto`
+      ).join(', ');
 
-      if (resultado.unidadesFaltantes === 0) {
-        alert(`✅ Producto asignado completamente! ${resultado.cantidadAsignada} unidades asignadas.`);
-      } else {
-        alert(`⚠️ Asignación parcial: ${resultado.cantidadAsignada} unidades asignadas, ${resultado.unidadesFaltantes} aún pendientes.`);
-      }
-
-      await fetchVentas();
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
-
-      await fetchProductosDisponibles();
-    } catch (error: any) {
-      alert(error.message);
-    }
-  };
-
-  // Actualizar fecha estimada de un producto
-  const handleActualizarFechaEstimada = async (productoId: string) => {
-    if (!user || !selectedVenta) return;
-
-    const producto = selectedVenta.productos.find(p => p.productoId === productoId);
-    if (!producto) return;
-
-    const fechaStr = window.prompt(
-      `Fecha estimada de llegada de stock para ${producto.marca} ${producto.nombreComercial}\n(formato: YYYY-MM-DD)`,
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    );
-
-    if (!fechaStr) return;
-
-    const fecha = new Date(fechaStr);
-    if (isNaN(fecha.getTime())) {
-      alert('Fecha inválida. Use el formato YYYY-MM-DD');
-      return;
-    }
-
-    const notas = window.prompt('Notas adicionales (opcional):') || '';
-
-    try {
-      await actualizarFechaEstimadaProducto(selectedVenta.id, productoId, fecha, notas, user.uid);
-      alert('✅ Fecha estimada actualizada');
-
-      await fetchVentas();
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
-    } catch (error: any) {
-      alert(error.message);
-    }
-  };
-
-  // Marcar en entrega
-  const handleMarcarEnEntrega = async () => {
-    if (!user || !selectedVenta) return;
-    
-    const direccion = window.prompt('Dirección de entrega (opcional):', selectedVenta.direccionEntrega || '');
-    const notas = window.prompt('Notas de entrega (opcional):');
-    
-    try {
-      await marcarEnEntrega(selectedVenta.id, user.uid, { 
-        direccionEntrega: direccion || undefined,
-        notasEntrega: notas || undefined
-      });
+      toast.success(`Inventario asignado: ${mensaje}`, 'Inventario Asignado');
       
       const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
       if (ventaActualizada) setSelectedVenta(ventaActualizada);
+      
+      await fetchProductosDisponibles();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
@@ -246,103 +171,80 @@ export const Ventas: React.FC = () => {
   const handleMarcarEntregada = async () => {
     if (!user || !selectedVenta) return;
 
-    const hayPendientes = selectedVenta.productos.some(p =>
-      (p.cantidadAsignada || 0) < p.cantidad || (p.cantidadPendiente || 0) > 0
-    );
-
-    const mensaje = hayPendientes
-      ? `¿Entregar los productos asignados de ${selectedVenta.numeroVenta}? La venta quedará en "Entrega Parcial" porque hay productos pendientes.`
-      : `¿Marcar la venta ${selectedVenta.numeroVenta} como entregada completamente?`;
-
-    if (!window.confirm(mensaje)) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Marcar como Entregada',
+      message: `¿Confirmar que la venta ${selectedVenta.numeroVenta} fue entregada al cliente? Las unidades pasaran a estado "entregada".`,
+      confirmText: 'Confirmar Entrega',
+      variant: 'success'
+    });
+    if (!confirmed) return;
 
     try {
       await marcarEntregada(selectedVenta.id, user.uid);
+      toast.success('Venta entregada. Las unidades ahora están en estado "entregada".', 'Venta Entregada');
 
-      if (hayPendientes) {
-        alert('✅ Entrega registrada. La venta queda en "Entrega Parcial" - puedes continuar asignando y entregando los productos pendientes.');
-      } else {
-        alert('✅ Venta completada. Todas las unidades han sido entregadas.');
-      }
-
-      await fetchVentas();
       const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
       if (ventaActualizada) setSelectedVenta(ventaActualizada);
     } catch (error: any) {
-      alert(error.message);
-    }
-  };
-
-  // Registrar entrega parcial (para ventas en estado entrega_parcial)
-  const handleRegistrarEntregaParcial = async () => {
-    if (!user || !selectedVenta) return;
-
-    // Verificar que haya algo para entregar
-    const productosParaEntregar = selectedVenta.productos.filter(p =>
-      (p.cantidadAsignada || 0) > (p.cantidadEntregada || 0)
-    );
-
-    if (productosParaEntregar.length === 0) {
-      alert('No hay productos asignados pendientes de entrega. Asigna inventario primero.');
-      return;
-    }
-
-    const direccion = window.prompt('Dirección de entrega (opcional):', selectedVenta.direccionEntrega || '');
-    const notas = window.prompt('Notas de entrega (opcional):');
-
-    if (!window.confirm('¿Registrar entrega de los productos asignados pendientes?')) {
-      return;
-    }
-
-    try {
-      const entrega = await registrarEntregaParcial(selectedVenta.id, user.uid, {
-        direccionEntrega: direccion || undefined,
-        notasEntrega: notas || undefined
-      });
-
-      const cantidadEntregada = entrega.productosEntregados.reduce((sum, p) => sum + p.cantidad, 0);
-      alert(`✅ Entrega registrada!\n\n${cantidadEntregada} unidades entregadas en ${entrega.productosEntregados.length} producto(s).`);
-
-      await fetchVentas();
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
-    } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
   // Cancelar venta
   const handleCancelar = async () => {
     if (!user || !selectedVenta) return;
-    
-    const motivo = window.prompt('Motivo de cancelación:');
-    if (!motivo) return;
-    
+
+    const result = await openActionModal({
+      title: 'Cancelar Venta',
+      description: 'Esta acción liberará el inventario asignado y marcará la venta como cancelada.',
+      variant: 'danger',
+      confirmText: 'Cancelar Venta',
+      contextInfo: [
+        { label: 'Venta', value: selectedVenta.numeroVenta },
+        { label: 'Cliente', value: selectedVenta.nombreCliente },
+        { label: 'Estado actual', value: selectedVenta.estado }
+      ],
+      fields: [
+        {
+          id: 'motivo',
+          label: 'Motivo de cancelación',
+          type: 'textarea',
+          placeholder: 'Ingresa el motivo de la cancelación...',
+          required: true
+        }
+      ]
+    });
+
+    if (!result || !result.motivo) return;
+
     try {
-      await cancelarVenta(selectedVenta.id, user.uid, motivo);
-      alert('✅ Venta cancelada. El inventario asignado ha sido liberado.');
-      
+      await cancelarVenta(selectedVenta.id, user.uid, result.motivo as string);
+      toast.success('Venta cancelada. El inventario asignado ha sido liberado.', 'Venta Cancelada');
+
       const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
       if (ventaActualizada) setSelectedVenta(ventaActualizada);
-      
+
       await fetchProductosDisponibles();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
   // Eliminar cotización
   const handleDelete = async (venta: Venta) => {
-    if (!window.confirm(`¿Eliminar la cotización ${venta.numeroVenta}?`)) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Eliminar Cotizacion',
+      message: `¿Eliminar la cotizacion ${venta.numeroVenta}? Esta accion no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
 
     try {
       await deleteVenta(venta.id);
+      toast.success('Cotización eliminada');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
@@ -372,8 +274,9 @@ export const Ventas: React.FC = () => {
       // Recargar datos
       await fetchVentas();
       await fetchResumenPagos();
+      toast.success('Pago registrado correctamente');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error al registrar pago');
     } finally {
       setIsSubmitting(false);
     }
@@ -383,9 +286,13 @@ export const Ventas: React.FC = () => {
   const handleEliminarPago = async (pagoId: string) => {
     if (!user || !selectedVenta) return;
 
-    if (!window.confirm('¿Eliminar este pago? Esta acción no se puede deshacer.')) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Eliminar Pago',
+      message: 'Esta a punto de eliminar este pago. Esta accion no se puede deshacer y afectara el saldo de la venta.',
+      confirmText: 'Eliminar Pago',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
 
     try {
       await eliminarPago(selectedVenta.id, pagoId, user.uid);
@@ -395,144 +302,74 @@ export const Ventas: React.FC = () => {
       if (ventaActualizada) setSelectedVenta(ventaActualizada);
 
       await fetchResumenPagos();
+      toast.success('Pago eliminado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
-  // Recalcular estado de la venta
-  const handleRecalcularEstado = async () => {
+  // Abrir modal de gastos
+  const handleOpenGastosModal = () => {
+    setIsGastosModalOpen(true);
+  };
+
+  // Abrir modal de entrega
+  const handleOpenEntregaModal = () => {
+    setIsEntregaModalOpen(true);
+  };
+
+  // Programar entrega
+  const handleProgramarEntrega = async (data: ProgramarEntregaData) => {
     if (!user || !selectedVenta) return;
 
+    setIsSubmitting(true);
     try {
-      await VentaService.recalcularEstado(selectedVenta.id, user.uid);
+      await programarEntrega(data, selectedVenta, user.uid);
+      setIsEntregaModalOpen(false);
+      toast.success('Entrega programada correctamente');
 
-      // Recargar ventas y actualizar la seleccionada
+      // Recargar ventas
       await fetchVentas();
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) {
-        setSelectedVenta(ventaActualizada);
-      } else {
-        // Si no la encuentra, cerrar el modal para ver la lista actualizada
-        setSelectedVenta(null);
-      }
-
-      alert('Estado recalculado correctamente');
     } catch (error: any) {
-      alert(error.message);
-    }
-  };
-
-  // Sincronizar adelantos pendientes desde cotizaciones
-  const handleSincronizarAdelantos = async () => {
-    if (!user) return;
-
-    if (!window.confirm('¿Sincronizar adelantos de cotizaciones a ventas? Esto corregirá ventas que fueron convertidas sin transferir el adelanto correctamente.')) {
-      return;
-    }
-
-    setIsSyncing(true);
-    try {
-      const resultado = await VentaService.sincronizarTodosLosAdelantosPendientes(user.uid);
-
-      if (resultado.sincronizadas > 0) {
-        alert(`✅ Sincronización completada!\n\n${resultado.sincronizadas} de ${resultado.totalRevisadas} ventas sincronizadas.`);
-        await fetchVentas();
-        await fetchResumenPagos();
-      } else if (resultado.totalRevisadas > 0) {
-        alert(`ℹ️ No hay adelantos pendientes de sincronizar.\n\n${resultado.totalRevisadas} ventas revisadas, todas ya están al día.`);
-      } else {
-        alert('ℹ️ No hay ventas con cotización de origen para revisar.');
-      }
-    } catch (error: any) {
-      alert(`Error al sincronizar: ${error.message}`);
+      toast.error(error.message, 'Error al programar entrega');
     } finally {
-      setIsSyncing(false);
+      setIsSubmitting(false);
     }
-  };
-
-  // Sincronizar adelanto de venta específica
-  const handleSincronizarAdelantoVenta = async () => {
-    if (!user || !selectedVenta) return;
-
-    setIsSyncing(true);
-    try {
-      const resultado = await VentaService.sincronizarAdelantoDesdeCotizacion(selectedVenta.id, user.uid);
-
-      if (resultado.sincronizado) {
-        alert(`✅ ${resultado.mensaje}`);
-        await fetchVentas();
-        await fetchResumenPagos();
-
-        // Actualizar venta seleccionada
-        const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-        if (ventaActualizada) setSelectedVenta(ventaActualizada);
-      } else {
-        alert(`ℹ️ ${resultado.mensaje}`);
-      }
-    } catch (error: any) {
-      alert(`Error: ${error.message}`);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  // Abrir modal de gastos de venta
-  const handleOpenGastosVentaModal = () => {
-    setIsGastosVentaModalOpen(true);
   };
 
   // Registrar gastos de venta
-  // Handler para registrar gastos de venta (nuevo diseño dinámico)
-  const handleRegistrarGastosVenta = async (nuevosGastos: {
+  const handleRegistrarGastos = async (gastos: Array<{
     id: string;
     tipo: string;
     categoria: string;
     descripcion: string;
     monto: number;
-  }[]) => {
+  }>) => {
     if (!user || !selectedVenta) return;
 
     setIsSubmitting(true);
     try {
-      // Crear cada gasto GVD individualmente
-      for (const gasto of nuevosGastos) {
-        await gastoService.create({
-          tipo: gasto.tipo as any,
-          categoria: gasto.categoria as any,
-          descripcion: gasto.descripcion,
-          montoPEN: gasto.monto,
-          fecha: new Date(),
-          estado: 'pagado',
-          metodoPago: 'efectivo',
-          esProrrateable: false,
-          impactaCTRU: false,
-          ventaId: selectedVenta.id,
+      await gastoService.createGastosVenta(
+        selectedVenta.id,
+        gastos.map(g => ({
+          tipo: g.tipo,
+          categoria: g.categoria,
+          descripcion: g.descripcion,
+          monto: g.monto,
           ventaNumero: selectedVenta.numeroVenta
-        }, user.uid);
-      }
+        })),
+        user.uid
+      );
 
-      // Calcular totales para actualizar en la venta
-      const totalGastos = nuevosGastos.reduce((sum, g) => sum + g.monto, 0);
+      setIsGastosModalOpen(false);
+      toast.success(`${gastos.length} gasto(s) registrado(s). Vaya a Gastos para registrar el pago.`, 'Gastos Registrados');
 
-      // Actualizar totales de gastos en la venta
-      const gastosExistentes = await gastoService.getGastosVenta(selectedVenta.id);
-      const totalGastosVenta = gastosExistentes.reduce((sum, g) => sum + g.montoPEN, 0);
-
-      await VentaService.actualizarGastosVenta(selectedVenta.id, {
-        otrosGastosVenta: totalGastosVenta // Guardamos el total acumulado
-      }, user.uid);
-
-      setIsGastosVentaModalOpen(false);
-
-      // Recargar datos
+      // Recargar datos incluyendo rentabilidad
       await fetchVentas();
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
-
-      alert(`✅ ${nuevosGastos.length} gasto(s) registrados correctamente`);
+      await fetchStats();
+      await refetchRentabilidad();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error al registrar gastos');
     } finally {
       setIsSubmitting(false);
     }
@@ -546,43 +383,25 @@ export const Ventas: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">Ventas</h1>
           <p className="text-gray-600 mt-1">Gestión de ventas y cotizaciones con FEFO automático</p>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={handleSincronizarAdelantos}
-            disabled={isSyncing || ventas.length === 0}
-            title="Sincronizar adelantos de cotizaciones a ventas"
-          >
-            <RefreshCw className={`h-5 w-5 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
-            {isSyncing ? 'Sincronizando...' : 'Sync Adelantos'}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => exportService.exportVentas(ventas)}
-            disabled={ventas.length === 0}
-          >
-            <Download className="h-5 w-5 mr-2" />
-            Exportar Excel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => setIsModalOpen(true)}
-            disabled={productosDisponibles.length === 0}
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Nueva Venta
-          </Button>
-        </div>
+        <Button
+          variant="primary"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Nueva Venta
+        </Button>
       </div>
 
-      {/* Alerta si no hay productos disponibles */}
+      {/* Alerta si no hay stock disponible */}
       {productosDisponibles.length === 0 && (
         <Card padding="md">
           <div className="flex items-center">
             <Package className="h-5 w-5 text-warning-600 mr-3" />
             <div>
-              <p className="text-sm font-medium text-gray-900">No hay productos disponibles para venta</p>
-              <p className="text-sm text-gray-600">Recibe inventario en Perú para poder vender.</p>
+              <p className="text-sm font-medium text-gray-900">No hay stock disponible en Perú</p>
+              <p className="text-sm text-gray-600">
+                Puedes crear cotizaciones que generarán requerimientos de compra automáticamente.
+              </p>
             </div>
           </div>
         </Card>
@@ -647,42 +466,54 @@ export const Ventas: React.FC = () => {
             </Card>
           </div>
 
-          {/* KPIs Rentabilidad - Usando cálculo centralizado */}
-          {rentabilidad && rentabilidad.totalUtilidadNeta !== 0 && (
+          {/* KPIs Rentabilidad - Utilidad Bruta vs Neta */}
+          {(stats.utilidadTotalPEN > 0 || (rentabilidad && rentabilidad.totalUtilidadNeta !== 0)) && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Utilidad Bruta */}
               <Card padding="md">
                 <div className="text-sm text-gray-600">Utilidad Bruta</div>
-                <div className="text-xs text-gray-400">(con CTRU + GA/GO)</div>
-                <div className={`text-2xl font-bold mt-1 ${rentabilidad.totalUtilidadBruta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                  S/ {rentabilidad.totalUtilidadBruta.toFixed(2)}
+                <div className="text-2xl font-bold text-success-600 mt-1">
+                  S/ {stats.utilidadTotalPEN.toFixed(2)}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Ventas - Costo producto
                 </div>
               </Card>
 
-              <Card padding="md">
-                <div className="text-sm text-gray-600">Utilidad Neta</div>
-                <div className="text-xs text-gray-400">(- gastos GV/GD)</div>
-                <div className={`text-2xl font-bold mt-1 ${rentabilidad.totalUtilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                  S/ {rentabilidad.totalUtilidadNeta.toFixed(2)}
-                </div>
-              </Card>
+              {/* Gastos Operativos (GA/GO + GV/GD) */}
+              {rentabilidad && (
+                <Card padding="md">
+                  <div className="text-sm text-gray-600">Gastos Operativos</div>
+                  <div className="text-2xl font-bold text-orange-600 mt-1">
+                    - S/ {(rentabilidad.totalGastosGAGO + rentabilidad.totalGastosGVGD).toFixed(2)}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                    <div className="flex justify-between">
+                      <span>GA/GO:</span>
+                      <span>S/ {rentabilidad.totalGastosGAGO.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>GV/GD:</span>
+                      <span>S/ {rentabilidad.totalGastosGVGD.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </Card>
+              )}
 
-              <Card padding="md">
-                <div className="text-sm text-gray-600">Margen Bruto</div>
-                <div className="flex items-center mt-1">
-                  {rentabilidad.margenBrutoPromedio >= 0 ? (
-                    <TrendingUp className="h-6 w-6 text-success-500 mr-2" />
-                  ) : (
-                    <TrendingDown className="h-6 w-6 text-danger-500 mr-2" />
-                  )}
-                  <span className={`text-2xl font-bold ${rentabilidad.margenBrutoPromedio >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {rentabilidad.margenBrutoPromedio.toFixed(1)}%
-                  </span>
-                </div>
-                <div className="text-xs text-gray-400 mt-1">
-                  Neto: {rentabilidad.margenNetoPromedio.toFixed(1)}%
-                </div>
-              </Card>
+              {/* Utilidad Neta */}
+              {rentabilidad && (
+                <Card padding="md" className={rentabilidad.totalUtilidadNeta >= 0 ? 'bg-green-50' : 'bg-red-50'}>
+                  <div className="text-sm text-gray-600">Utilidad Neta</div>
+                  <div className={`text-2xl font-bold mt-1 ${rentabilidad.totalUtilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    S/ {rentabilidad.totalUtilidadNeta.toFixed(2)}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Margen Neto: {rentabilidad.margenNetoPromedio.toFixed(1)}%
+                  </div>
+                </Card>
+              )}
 
+              {/* Ventas por Canal */}
               <Card padding="md">
                 <div className="text-sm text-gray-600 mb-2">Ventas por Canal</div>
                 <div className="space-y-1 text-sm">
@@ -698,6 +529,92 @@ export const Ventas: React.FC = () => {
                     <span className="text-gray-600">Otro:</span>
                     <span className="font-semibold">{stats.ventasOtro}</span>
                   </div>
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {/* KPIs de Eficiencia de Inversión */}
+          {rentabilidad && rentabilidad.totalVentas > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Multiplicador de Ventas - igual que Dashboard */}
+              <Card padding="md" className="bg-gradient-to-br from-blue-50 to-indigo-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">Multiplicador</div>
+                    <div className={`text-2xl font-bold mt-1 ${
+                      rentabilidad.totalCostoBase > 0 && (rentabilidad.totalVentas / rentabilidad.totalCostoBase) >= 2
+                        ? 'text-emerald-600'
+                        : rentabilidad.totalCostoBase > 0 && (rentabilidad.totalVentas / rentabilidad.totalCostoBase) >= 1.5
+                          ? 'text-yellow-600'
+                          : 'text-red-600'
+                    }`}>
+                      {rentabilidad.totalCostoBase > 0
+                        ? `${(rentabilidad.totalVentas / rentabilidad.totalCostoBase).toFixed(2)}x`
+                        : '0x'}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Por cada S/ 1 en producto
+                    </div>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-blue-400" />
+                </div>
+              </Card>
+
+              {/* Carga GA/GO por Unidad */}
+              <Card padding="md" className="bg-gradient-to-br from-purple-50 to-purple-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">Carga GA/GO</div>
+                    <div className="text-2xl font-bold text-purple-600 mt-1">
+                      S/ {rentabilidad.impactoPorUnidad.toFixed(2)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      por unidad vendida
+                    </div>
+                  </div>
+                  <PieChart className="h-8 w-8 text-purple-400" />
+                </div>
+              </Card>
+
+              {/* ROI Neto - por cada sol invertido, cuánto ganas */}
+              <Card padding="md" className="bg-gradient-to-br from-green-50 to-emerald-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">ROI Neto</div>
+                    <div className={`text-2xl font-bold mt-1 ${
+                      rentabilidad.totalUtilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'
+                    }`}>
+                      {(() => {
+                        const inversionTotal = rentabilidad.totalCostoBase + rentabilidad.totalGastosGAGO + rentabilidad.totalGastosGVGD;
+                        if (inversionTotal <= 0) return 'S/ 0.00';
+                        const roiPorSol = rentabilidad.totalUtilidadNeta / inversionTotal;
+                        return `S/ ${roiPorSol.toFixed(2)}`;
+                      })()}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      ganancia por S/ 1 invertido
+                    </div>
+                  </div>
+                  <DollarSign className="h-8 w-8 text-emerald-400" />
+                </div>
+              </Card>
+
+              {/* Costo Total por Unidad (CTRU promedio vendido) */}
+              <Card padding="md" className="bg-gradient-to-br from-amber-50 to-orange-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">CTRU Promedio</div>
+                    <div className="text-2xl font-bold text-amber-600 mt-1">
+                      S/ {rentabilidad.baseUnidades > 0
+                        ? ((rentabilidad.totalCostoBase + rentabilidad.totalCostoGAGO) / rentabilidad.baseUnidades).toFixed(2)
+                        : '0.00'}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      costo real por unidad
+                    </div>
+                  </div>
+                  <Calculator className="h-8 w-8 text-amber-400" />
                 </div>
               </Card>
             </div>
@@ -756,65 +673,66 @@ export const Ventas: React.FC = () => {
         </>
       )}
 
+      {/* Pipeline de Estados */}
+      <PipelineHeader
+        stages={pipelineStages}
+        activeStage={filtroEstado}
+        onStageClick={setFiltroEstado}
+        title="Pipeline de Ventas"
+      />
+
       {/* Tabla de Ventas */}
       <Card padding="none">
         <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <h3 className="text-lg font-semibold text-gray-900">
-              Ventas y Cotizaciones ({ventas.length})
+              {filtroEstado
+                ? `${pipelineStages.find(s => s.id === filtroEstado)?.label || 'Ventas'} (${ventasFiltradas.length})`
+                : `Ventas y Cotizaciones (${ventas.length})`
+              }
             </h3>
-            {rentabilidad && (rentabilidad.totalGastosGAGO > 0 || rentabilidad.totalGastosGVGD > 0) && (
-              <div className="flex items-center gap-3 text-sm flex-wrap">
-                {/* GA/GO (Prorrateables) */}
-                {rentabilidad.totalGastosGAGO > 0 && (
-                  <div className="flex items-center text-gray-600 bg-orange-50 px-2 py-1 rounded-lg">
-                    <Calculator className="h-4 w-4 text-orange-500 mr-1" />
-                    <span className="text-xs">GA/GO:</span>
-                    <span className="font-semibold text-orange-600 ml-1">
-                      S/ {rentabilidad.totalGastosGAGO.toFixed(0)}
-                    </span>
-                    <span className="text-xs text-gray-500 ml-1">
-                      ({rentabilidad.totalCostoBase > 0
-                        ? ((rentabilidad.totalCostoGAGO / rentabilidad.totalCostoBase) * 100).toFixed(1)
-                        : 0}%)
-                    </span>
-                  </div>
-                )}
-                {/* GV/GD (Por venta) */}
-                {rentabilidad.totalGastosGVGD > 0 && (
-                  <div className="flex items-center text-gray-600 bg-purple-50 px-2 py-1 rounded-lg">
-                    <Package className="h-4 w-4 text-purple-500 mr-1" />
-                    <span className="text-xs">GV/GD:</span>
-                    <span className="font-semibold text-purple-600 ml-1">
-                      S/ {rentabilidad.totalGastosGVGD.toFixed(0)}
-                    </span>
-                    <span className="text-xs text-gray-500 ml-1">
-                      ({rentabilidad.totalVentas > 0
-                        ? ((rentabilidad.totalGastosGVGD / rentabilidad.totalVentas) * 100).toFixed(1)
-                        : 0}% ventas)
-                    </span>
-                  </div>
-                )}
-                {/* Ratio Eficiencia */}
-                {rentabilidad.totalUtilidadNeta > 0 && (rentabilidad.totalGastosGAGO + rentabilidad.totalGastosGVGD) > 0 && (
-                  <div className="flex items-center text-gray-600 bg-emerald-50 px-2 py-1 rounded-lg">
-                    <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
-                    <span className="text-xs">Eficiencia:</span>
-                    <span className="font-semibold text-emerald-600 ml-1">
-                      {(rentabilidad.totalUtilidadNeta / (rentabilidad.totalGastosGAGO + rentabilidad.totalGastosGVGD)).toFixed(1)}x
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Indicadores de rentabilidad con distribución proporcional */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {rentabilidad && rentabilidad.totalGastosGAGO > 0 && (
+                <div className="flex items-center text-sm text-gray-600 bg-orange-50 px-2 py-1 rounded-lg" title="Gastos Administrativos/Operativos distribuidos proporcionalmente">
+                  <PieChart className="h-4 w-4 text-orange-500 mr-1" />
+                  <span className="text-xs">GA/GO:</span>
+                  <span className="font-semibold text-orange-600 ml-1">
+                    S/ {rentabilidad.totalGastosGAGO.toFixed(0)}
+                  </span>
+                  <span className="text-xs text-gray-500 ml-1">
+                    ({rentabilidad.totalCostoBase > 0
+                      ? ((rentabilidad.totalCostoGAGO / rentabilidad.totalCostoBase) * 100).toFixed(1)
+                      : 0}%)
+                  </span>
+                </div>
+              )}
+              {rentabilidad && rentabilidad.totalGastosGVGD > 0 && (
+                <div className="flex items-center text-sm text-gray-600 bg-blue-50 px-2 py-1 rounded-lg" title="Gastos de Venta/Distribución directos">
+                  <Calculator className="h-4 w-4 text-blue-500 mr-1" />
+                  <span className="text-xs">GV/GD:</span>
+                  <span className="font-semibold text-blue-600 ml-1">
+                    S/ {rentabilidad.totalGastosGVGD.toFixed(0)}
+                  </span>
+                </div>
+              )}
+              {rentabilidad && (
+                <div className="flex items-center text-sm bg-green-50 px-2 py-1 rounded-lg" title="Margen Neto promedio después de GA/GO y GV/GD">
+                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                  <span className="text-xs">Margen Neto:</span>
+                  <span className={`font-semibold ml-1 ${rentabilidad.margenNetoPromedio >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {rentabilidad.margenNetoPromedio.toFixed(1)}%
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <VentaTable
-          ventas={ventas}
+          ventas={ventasFiltradas}
           onView={handleViewDetails}
           onDelete={handleDelete}
           loading={loading}
-          rentabilidadData={rentabilidad}
         />
       </Card>
 
@@ -830,7 +748,6 @@ export const Ventas: React.FC = () => {
           onSubmit={handleCreateVenta}
           onCancel={() => setIsModalOpen(false)}
           loading={isSubmitting}
-          onProductoCreated={() => fetchProductosDisponibles()}
         />
       </Modal>
 
@@ -846,40 +763,10 @@ export const Ventas: React.FC = () => {
             venta={selectedVenta}
             rentabilidadData={getRentabilidadVenta(selectedVenta.id)}
             onConfirmar={selectedVenta.estado === 'cotizacion' ? handleConfirmar : undefined}
-            onAsignarInventario={
-              selectedVenta.estado === 'confirmada' ||
-              selectedVenta.estado === 'parcial' ||
-              selectedVenta.estado === 'entrega_parcial'
-                ? handleAsignarInventario
-                : undefined
-            }
-            onCompletarAsignacion={
-              selectedVenta.estado === 'parcial' || selectedVenta.estado === 'entrega_parcial'
-                ? handleCompletarAsignacion
-                : undefined
-            }
-            onActualizarFechaEstimada={
-              selectedVenta.estado === 'parcial' || selectedVenta.estado === 'entrega_parcial'
-                ? handleActualizarFechaEstimada
-                : undefined
-            }
-            onMarcarEnEntrega={
-              selectedVenta.estado === 'asignada' || selectedVenta.estado === 'parcial'
-                ? handleMarcarEnEntrega
-                : undefined
-            }
-            onMarcarEntregada={
-              selectedVenta.estado === 'en_entrega' || selectedVenta.estado === 'entrega_parcial'
-                ? handleMarcarEntregada
-                : undefined
-            }
-            onRegistrarEntregaParcial={
-              selectedVenta.estado === 'entrega_parcial' ? handleRegistrarEntregaParcial : undefined
-            }
+            onAsignarInventario={selectedVenta.estado === 'confirmada' ? handleAsignarInventario : undefined}
+            onMarcarEntregada={selectedVenta.estado === 'en_entrega' ? handleMarcarEntregada : undefined}
             onCancelar={
-              selectedVenta.estado !== 'entregada' &&
-              selectedVenta.estado !== 'cancelada' &&
-              selectedVenta.estado !== 'entrega_parcial'
+              selectedVenta.estado !== 'entregada' && selectedVenta.estado !== 'cancelada'
                 ? handleCancelar
                 : undefined
             }
@@ -895,16 +782,27 @@ export const Ventas: React.FC = () => {
                 ? handleEliminarPago
                 : undefined
             }
-            onRecalcularEstado={
-              selectedVenta.estado === 'entrega_parcial' || selectedVenta.estado === 'parcial'
-                ? handleRecalcularEstado
+            onAgregarGastos={
+              selectedVenta.estado !== 'cotizacion' &&
+              selectedVenta.estado !== 'cancelada'
+                ? handleOpenGastosModal
                 : undefined
             }
-            onRegistrarGastosVenta={
-              selectedVenta.estado !== 'cotizacion' && selectedVenta.estado !== 'cancelada'
-                ? handleOpenGastosVentaModal
+            onProgramarEntrega={
+              (selectedVenta.estado === 'asignada' ||
+               selectedVenta.estado === 'en_entrega' ||
+               selectedVenta.estado === 'entrega_parcial')
+                ? handleOpenEntregaModal
                 : undefined
             }
+            onEntregaCompletada={async () => {
+              // Refrescar la venta seleccionada para ver el nuevo estado
+              await fetchVentaById(selectedVenta.id);
+              // Refrescar la lista de ventas
+              await fetchVentas();
+              // Refrescar la rentabilidad (invalida cache y recalcula)
+              refetchRentabilidad();
+            }}
           />
         )}
       </Modal>
@@ -919,22 +817,39 @@ export const Ventas: React.FC = () => {
         />
       )}
 
-      {/* Modal Gastos de Venta */}
+      {/* Modal Registrar Gastos de Venta */}
       <Modal
-        isOpen={isGastosVentaModalOpen}
-        onClose={() => setIsGastosVentaModalOpen(false)}
+        isOpen={isGastosModalOpen}
+        onClose={() => setIsGastosModalOpen(false)}
         title="Gastos de Venta"
         size="lg"
       >
         {selectedVenta && (
           <GastosVentaForm
             venta={selectedVenta}
-            onSubmit={handleRegistrarGastosVenta}
-            onCancel={() => setIsGastosVentaModalOpen(false)}
+            onSubmit={handleRegistrarGastos}
+            onCancel={() => setIsGastosModalOpen(false)}
             loading={isSubmitting}
           />
         )}
       </Modal>
+
+      {/* Modal Programar Entrega */}
+      {selectedVenta && isEntregaModalOpen && (
+        <ProgramarEntregaModal
+          isOpen={isEntregaModalOpen}
+          onClose={() => setIsEntregaModalOpen(false)}
+          onSubmit={handleProgramarEntrega}
+          venta={selectedVenta}
+          loading={isSubmitting}
+        />
+      )}
+
+      {/* Dialogo de Confirmacion */}
+      <ConfirmDialog {...dialogProps} />
+
+      {/* Modal de Acciones con campos */}
+      <ActionModal {...actionModalProps} />
     </div>
   );
 };

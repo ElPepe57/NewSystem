@@ -450,6 +450,68 @@ export const almacenService = {
   },
 
   /**
+   * Recalcula el inventario de TODOS los almacenes basándose en las unidades reales
+   * Actualiza unidadesActuales y valorInventarioUSD en cada documento de almacén
+   */
+  async recalcularTodosLosAlmacenes(): Promise<{ almacenesActualizados: number; errores: string[] }> {
+    const errores: string[] = [];
+    let almacenesActualizados = 0;
+
+    try {
+      // Obtener todos los almacenes
+      const almacenesSnapshot = await getDocs(collection(db, COLLECTION_NAME));
+      const almacenes = almacenesSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // Obtener todas las unidades de una sola vez (más eficiente)
+      const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
+
+      // Agrupar unidades por almacenId
+      const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru'];
+      const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
+
+      unidadesSnapshot.docs.forEach(docSnap => {
+        const data = docSnap.data();
+        const almacenId = data.almacenId;
+        if (!almacenId) return;
+
+        // Solo contar unidades disponibles
+        if (!estadosExcluidos.includes(data.estado)) {
+          if (!unidadesPorAlmacen[almacenId]) {
+            unidadesPorAlmacen[almacenId] = { cantidad: 0, valor: 0 };
+          }
+          unidadesPorAlmacen[almacenId].cantidad++;
+          unidadesPorAlmacen[almacenId].valor += data.costoUnitarioUSD || 0;
+        }
+      });
+
+      // Actualizar cada almacén
+      for (const almacen of almacenes) {
+        try {
+          const datos = unidadesPorAlmacen[almacen.id] || { cantidad: 0, valor: 0 };
+          const docRef = doc(db, COLLECTION_NAME, almacen.id);
+
+          await updateDoc(docRef, {
+            unidadesActuales: datos.cantidad,
+            valorInventarioUSD: datos.valor,
+            fechaActualizacion: Timestamp.now()
+          });
+
+          almacenesActualizados++;
+        } catch (error: any) {
+          errores.push(`Almacén ${almacen.id}: ${error.message}`);
+        }
+      }
+
+      console.log(`[recalcularTodosLosAlmacenes] ${almacenesActualizados} almacenes actualizados`);
+    } catch (error: any) {
+      errores.push(`Error general: ${error.message}`);
+      console.error('Error recalculando almacenes:', error);
+    }
+
+    return { almacenesActualizados, errores };
+  },
+
+  /**
    * Obtiene resumen de todos los almacenes USA
    * Calcula el inventario directamente desde las unidades para mayor precisión
    */

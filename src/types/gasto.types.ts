@@ -1,16 +1,70 @@
 import { Timestamp } from 'firebase/firestore';
 
 /**
- * Categorías principales de gasto (fijas)
- * GV: Gastos de Venta - comisiones, pasarelas de pago, fees de plataformas
- * GD: Gastos de Distribución - envíos, motorizado, agencias de carga
- * GA: Gastos Administrativos - servicios, planilla, mantenimiento
- * GO: Gastos Operativos - movilidad, suministros de oficina
+ * Tipos de gasto según su naturaleza
+ */
+export type TipoGasto =
+  | 'flete_usa_peru'           // Logística internacional
+  | 'almacenaje'                // Almacenamiento USA o Perú
+  | 'administrativo'            // Gastos administrativos
+  | 'operativo'                 // Gastos operativos
+  | 'marketing'                 // Marketing y publicidad
+  | 'empaque'                   // Material de empaque
+  | 'delivery'                  // Delivery local
+  | 'comision_ml'               // Comisión Mercado Libre
+  | 'otros';                    // Otros gastos
+
+/**
+ * Categorías de gasto para clasificación
+ * - GV: Gastos de Venta (comisiones, fees, marketing)
+ * - GD: Gastos de Distribución (delivery, empaque, flete local)
+ * - GA: Gastos Administrativos (planilla, servicios, contador)
+ * - GO: Gastos Operativos (movilidad, suministros, mantenimiento)
  */
 export type CategoriaGasto = 'GV' | 'GD' | 'GA' | 'GO';
 
 /**
- * Información de cada categoría de gasto
+ * Clase de gasto - agrupación de categorías
+ * - GVD: Gastos de Venta y Distribución (GV + GD) - afectan margen directo, NO CTRU
+ * - GAO: Gastos Administrativos y Operativos (GA + GO) - prorrateables, SÍ afectan CTRU
+ */
+export type ClaseGasto = 'GVD' | 'GAO';
+
+/**
+ * Obtener la clase de gasto a partir de la categoría
+ */
+export const getClaseGasto = (categoria: CategoriaGasto): ClaseGasto => {
+  return categoria === 'GV' || categoria === 'GD' ? 'GVD' : 'GAO';
+};
+
+/**
+ * Información de cada clase de gasto
+ */
+export const CLASES_GASTO: Record<ClaseGasto, {
+  codigo: ClaseGasto;
+  nombre: string;
+  descripcion: string;
+  categorias: CategoriaGasto[];
+  impactaCTRU: boolean;
+}> = {
+  GVD: {
+    codigo: 'GVD',
+    nombre: 'Gastos de Venta y Distribución',
+    descripcion: 'Gastos directos asociados a ventas específicas',
+    categorias: ['GV', 'GD'],
+    impactaCTRU: false
+  },
+  GAO: {
+    codigo: 'GAO',
+    nombre: 'Gastos Administrativos y Operativos',
+    descripcion: 'Gastos generales prorrateables entre unidades',
+    categorias: ['GA', 'GO'],
+    impactaCTRU: true
+  }
+};
+
+/**
+ * Información de cada categoría de gasto para la UI
  */
 export const CATEGORIAS_GASTO: Record<CategoriaGasto, {
   codigo: CategoriaGasto;
@@ -18,47 +72,66 @@ export const CATEGORIAS_GASTO: Record<CategoriaGasto, {
   descripcion: string;
   color: string;
   ejemplos: string[];
-  impactaCTRU: boolean;  // Si por defecto impacta CTRU
+  impactaCTRU: boolean;
 }> = {
   GV: {
     codigo: 'GV',
     nombre: 'Gasto de Venta',
-    descripcion: 'Gastos directamente relacionados con la venta',
+    descripcion: 'Comisiones, pasarelas de pago, fees de plataformas',
     color: 'purple',
-    ejemplos: ['Comisión pasarela de pagos', 'Comisión MercadoLibre', 'Fee página web', 'Comisión vendedor'],
-    impactaCTRU: false  // Se descuenta de utilidad de venta, no de CTRU
+    ejemplos: ['Comisión ML', 'Comisión pasarela', 'Fee plataforma', 'Marketing'],
+    impactaCTRU: false
   },
   GD: {
     codigo: 'GD',
     nombre: 'Gasto de Distribución',
-    descripcion: 'Gastos de envío y entrega de productos',
+    descripcion: 'Delivery, empaque, flete local',
     color: 'blue',
-    ejemplos: ['Envío motorizado', 'Agencia de carga', 'Movilidad independiente', 'Courier express'],
-    impactaCTRU: false  // Se descuenta de utilidad de venta, no de CTRU
+    ejemplos: ['Delivery', 'Empaque', 'Flete local', 'Courier'],
+    impactaCTRU: false
   },
   GA: {
     codigo: 'GA',
     nombre: 'Gasto Administrativo',
-    descripcion: 'Gastos de administración del negocio',
+    descripcion: 'Planilla, servicios, contador, alquiler',
     color: 'amber',
-    ejemplos: ['Servicios (luz, agua, internet)', 'Planilla', 'Contador', 'Software/suscripciones'],
-    impactaCTRU: true   // Se prorratea entre unidades disponibles
+    ejemplos: ['Planilla', 'Luz', 'Agua', 'Internet', 'Contador', 'Alquiler'],
+    impactaCTRU: true
   },
   GO: {
     codigo: 'GO',
     nombre: 'Gasto Operativo',
-    descripcion: 'Gastos operacionales del día a día',
+    descripcion: 'Movilidad, suministros, mantenimiento',
     color: 'green',
-    ejemplos: ['Movilidad de personal', 'Útiles de oficina', 'Mantenimiento equipos', 'Almacenaje'],
-    impactaCTRU: true   // Se prorratea entre unidades disponibles
+    ejemplos: ['Movilidad', 'Suministros', 'Mantenimiento', 'Herramientas'],
+    impactaCTRU: true
   }
 };
 
+// Alias para compatibilidad con GastosVentaForm
+export const CATEGORIAS_GASTO_INFO = CATEGORIAS_GASTO;
+
 /**
- * Tipo de gasto - string libre creado por el usuario
- * Ejemplos: "Comisión MercadoLibre", "Envío Olva Courier", "Luz oficina"
+ * Categorías aplicables a gastos directos de venta
+ * Solo GV (Gasto de Venta) - comisiones, pasarelas, fees, etc.
+ * NOTA: GD (Gasto de Distribución) ahora se gestiona en el módulo de Transportistas
  */
-export type TipoGasto = string;
+export const CATEGORIAS_GASTO_VENTA: CategoriaGasto[] = ['GV'];
+
+/**
+ * Labels para mostrar tipos de gasto en la UI
+ */
+export const TIPOS_GASTO_LABELS: Record<TipoGasto, string> = {
+  flete_usa_peru: 'Flete USA-Perú',
+  almacenaje: 'Almacenaje',
+  administrativo: 'Administrativo',
+  operativo: 'Operativo',
+  marketing: 'Marketing',
+  empaque: 'Empaque',
+  delivery: 'Delivery',
+  comision_ml: 'Comisión ML',
+  otros: 'Otros'
+};
 
 /**
  * Moneda del gasto
@@ -83,13 +156,6 @@ export type EstadoGasto =
   | 'cancelado';
 
 /**
- * Clase de gasto según su origen
- * GVD: Gastos de Venta y Distribución (asociados a ventas específicas)
- * GAO: Gastos Administrativos y Operativos (resto de gastos)
- */
-export type ClaseGasto = 'GVD' | 'GAO';
-
-/**
  * Gasto del negocio
  * Puede ser directo (asociado a una OC) o indirecto (prorrateado)
  */
@@ -97,12 +163,12 @@ export interface Gasto {
   id: string;
 
   // Identificación
-  numeroGasto: string;            // GVD-0001 o GAO-0001
-  claseGasto: ClaseGasto;         // GVD o GAO
+  numeroGasto: string;            // GAS-0001, GAS-0002, etc.
 
   // Clasificación
   tipo: TipoGasto;
   categoria: CategoriaGasto;
+  claseGasto: ClaseGasto;         // GVD o GAO (derivado de categoría)
   descripcion: string;
 
   // Monto
@@ -118,7 +184,6 @@ export interface Gasto {
   // Asociación directa
   ordenCompraId?: string;          // Si es gasto directo de una OC
   ventaId?: string;                // Si es gasto directo de una venta
-  ventaNumero?: string;            // Número de venta para referencia
 
   // Período
   mes: number;                     // 1-12
@@ -159,37 +224,28 @@ export interface Gasto {
  * Datos para crear un nuevo gasto
  */
 export interface GastoFormData {
-  // Clase de gasto (determina el prefijo del número)
-  claseGasto?: ClaseGasto;         // GVD o GAO (default: GAO)
-
   tipo: TipoGasto;
   categoria: CategoriaGasto;
   descripcion: string;
-
-  // Monto - puede ser moneda+montoOriginal o montoPEN directo
-  moneda?: MonedaGasto;
-  montoOriginal?: number;
-  montoPEN?: number;               // Alternativa: monto directo en PEN
+  moneda: MonedaGasto;
+  montoOriginal: number;
   tipoCambio?: number;
-
   esProrrateable: boolean;
   prorrateoTipo?: 'unidad' | 'oc' | 'manual';
-
-  // Asociación directa
   ordenCompraId?: string;
   ventaId?: string;
-  ventaNumero?: string;            // Número de venta para referencia
-
   fecha: Date;
-  frecuencia?: FrecuenciaGasto;
+  frecuencia: FrecuenciaGasto;
   proveedor?: string;
   responsable?: string;
   estado: EstadoGasto;
+  // Información de pago
   metodoPago?: string;
+  cuentaOrigenId?: string;       // Cuenta de donde sale el dinero
+  referenciaPago?: string;       // Nº operación, voucher, etc.
   numeroComprobante?: string;
   impactaCTRU: boolean;
   notas?: string;
-  cuentaOrigenId?: string;
 }
 
 /**
@@ -227,7 +283,6 @@ export interface ResumenGastosMes {
  * Filtros para búsqueda de gastos
  */
 export interface GastoFiltros {
-  claseGasto?: ClaseGasto;
   tipo?: TipoGasto;
   categoria?: CategoriaGasto;
   mes?: number;

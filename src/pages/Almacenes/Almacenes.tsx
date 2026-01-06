@@ -10,11 +10,23 @@ import {
   Calendar,
   DollarSign,
   TrendingUp,
-  ChevronRight,
+  Phone,
   RefreshCw,
   Calculator
 } from "lucide-react";
-import { Button, Card, Badge, Modal } from "../../components/common";
+import {
+  Button,
+  Modal,
+  GradientHeader,
+  StatCard,
+  EntityCard,
+  TabNavigation,
+  SectionHeader,
+  EmptyState,
+  HighlightBox,
+  useConfirmDialog,
+  ConfirmDialog
+} from "../../components/common";
 import { useAlmacenStore } from "../../store/almacenStore";
 import { useAuthStore } from "../../store/authStore";
 import type { Almacen, AlmacenFormData } from "../../types/almacen.types";
@@ -46,6 +58,9 @@ export const Almacenes: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isRecalculatingFlete, setIsRecalculatingFlete] = useState(false);
 
+  // Hook para dialogo de confirmacion
+  const { dialogProps, confirm } = useConfirmDialog();
+
   const refreshData = async () => {
     setIsRefreshing(true);
     try {
@@ -68,9 +83,13 @@ export const Almacenes: React.FC = () => {
   const handleSeedAlmacenes = async () => {
     if (!user) return;
 
-    if (!confirm("¿Deseas crear los almacenes por defecto (Viajero USA y Almacén Perú)?")) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Crear Almacenes por Defecto',
+      message: '¿Deseas crear los almacenes por defecto (Viajero USA y Almacen Peru)?',
+      confirmText: 'Crear',
+      variant: 'info'
+    });
+    if (!confirmed) return;
 
     try {
       await seedDefaultAlmacenes(user.uid);
@@ -82,14 +101,18 @@ export const Almacenes: React.FC = () => {
   };
 
   const handleRecalcularCostosFlete = async () => {
-    if (!window.confirm(
-      "¿Recalcular costos de flete?\n\n" +
-      "Esto buscará unidades en Perú que no tengan costo de flete registrado " +
-      "y lo recuperará desde las transferencias USA→Perú correspondientes.\n\n" +
-      "Es útil para corregir discrepancias en costos de ventas."
-    )) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Recalcular Costos de Flete',
+      message: (
+        <div className="space-y-2">
+          <p>Esto buscara unidades en Peru que no tengan costo de flete registrado y lo recuperara desde las transferencias USA→Peru correspondientes.</p>
+          <p className="text-sm text-gray-500">Es util para corregir discrepancias en costos de ventas.</p>
+        </div>
+      ),
+      confirmText: 'Recalcular',
+      variant: 'warning'
+    });
+    if (!confirmed) return;
 
     setIsRecalculatingFlete(true);
     try {
@@ -153,294 +176,182 @@ export const Almacenes: React.FC = () => {
     setShowFormModal(true);
   };
 
-  // Componente para mostrar una tarjeta de viajero
-  const ViajeroCard = ({ viajero }: { viajero: Almacen }) => {
+  // Componente para mostrar una tarjeta de viajero profesional
+  const ViajeroCardPro = ({ viajero }: { viajero: Almacen }) => {
     const proximoViaje = viajero.proximoViaje?.toDate();
     const diasParaViaje = proximoViaje
       ? Math.ceil((proximoViaje.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
       : null;
 
+    const tags = [
+      { label: viajero.estadoAlmacen === "activo" ? "Activo" : "Inactivo", variant: viajero.estadoAlmacen === "activo" ? "success" as const : "default" as const },
+      { label: "Viajero", variant: "info" as const }
+    ];
+
+    const stats = [
+      { label: "Unidades", value: viajero.unidadesActuales || 0, icon: Package },
+      { label: "Valor USD", value: `$${(viajero.valorInventarioUSD || 0).toLocaleString()}`, icon: DollarSign }
+    ];
+
+    const details = [
+      { icon: MapPin, text: `${viajero.ciudad}, ${viajero.estado}` },
+      ...(viajero.frecuenciaViaje ? [{ icon: Calendar, text: `Viajes: ${viajero.frecuenciaViaje}` }] : []),
+      ...(viajero.whatsapp ? [{ icon: Phone, text: viajero.whatsapp, highlight: true }] : [])
+    ];
+
+    const highlightContent = proximoViaje ? (
+      <HighlightBox
+        icon={Plane}
+        label="Próximo viaje"
+        value={proximoViaje.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
+        subValue={diasParaViaje !== null ? (diasParaViaje === 0 ? 'Hoy' : diasParaViaje === 1 ? 'Mañana' : `En ${diasParaViaje} días`) : undefined}
+        variant={diasParaViaje !== null && diasParaViaje <= 7 ? 'warning' : 'info'}
+      />
+    ) : undefined;
+
     return (
-      <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openEditModal(viajero)}>
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Users className="h-6 w-6 text-purple-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">{viajero.nombre}</h3>
-              <p className="text-sm text-gray-500">{viajero.codigo}</p>
-            </div>
-          </div>
-          <div className="flex flex-col items-end space-y-1">
-            <Badge variant={viajero.estadoAlmacen === "activo" ? "success" : "default"}>
-              {viajero.estadoAlmacen === "activo" ? "Activo" : "Inactivo"}
-            </Badge>
-            <Badge variant="info">Viajero</Badge>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center text-gray-500 text-xs mb-1">
-              <Package className="h-3 w-3 mr-1" />
-              Unidades
-            </div>
-            <div className="text-xl font-bold text-gray-900">
-              {viajero.unidadesActuales || 0}
-            </div>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center text-gray-500 text-xs mb-1">
-              <DollarSign className="h-3 w-3 mr-1" />
-              Valor USD
-            </div>
-            <div className="text-xl font-bold text-green-600">
-              ${(viajero.valorInventarioUSD || 0).toFixed(0)}
-            </div>
-          </div>
-        </div>
-
-        {proximoViaje && (
-          <div className={`flex items-center justify-between p-3 rounded-lg ${diasParaViaje && diasParaViaje <= 7 ? 'bg-amber-50' : 'bg-blue-50'}`}>
-            <div className="flex items-center space-x-2">
-              <Plane className={`h-4 w-4 ${diasParaViaje && diasParaViaje <= 7 ? 'text-amber-600' : 'text-blue-600'}`} />
-              <span className="text-sm font-medium">Próximo viaje</span>
-            </div>
-            <div className="text-right">
-              <div className="text-sm font-bold">
-                {proximoViaje.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
-              </div>
-              {diasParaViaje !== null && (
-                <div className={`text-xs ${diasParaViaje <= 7 ? 'text-amber-600' : 'text-blue-600'}`}>
-                  {diasParaViaje === 0 ? 'Hoy' : diasParaViaje === 1 ? 'Mañana' : `En ${diasParaViaje} días`}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-4 pt-4 border-t space-y-2">
-          <div className="flex items-center text-sm text-gray-600">
-            <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-            {viajero.ciudad}, {viajero.estado}
-          </div>
-          {viajero.frecuenciaViaje && (
-            <div className="flex items-center text-sm text-gray-600">
-              <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-              Viajes: {viajero.frecuenciaViaje}
-            </div>
-          )}
-          {viajero.whatsapp && (
-            <div className="flex items-center text-sm text-green-600">
-              <span className="mr-2">📱</span>
-              {viajero.whatsapp}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-4 flex justify-end">
-          <ChevronRight className="h-5 w-5 text-gray-400" />
-        </div>
-      </Card>
+      <EntityCard
+        name={viajero.nombre}
+        code={viajero.codigo}
+        variant="viajero"
+        status={viajero.estadoAlmacen === "activo" ? "active" : "inactive"}
+        stats={stats}
+        tags={tags}
+        details={details}
+        onClick={() => openEditModal(viajero)}
+        highlight={highlightContent}
+      />
     );
   };
 
-  // Componente para almacén regular (no viajero)
-  const AlmacenCard = ({ almacen }: { almacen: Almacen }) => (
-    <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openEditModal(almacen)}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-            almacen.pais === 'USA' ? 'bg-blue-100' : 'bg-red-100'
-          }`}>
-            <Warehouse className={`h-6 w-6 ${
-              almacen.pais === 'USA' ? 'text-blue-600' : 'text-red-600'
-            }`} />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">{almacen.nombre}</h3>
-            <p className="text-sm text-gray-500">{almacen.codigo}</p>
-          </div>
-        </div>
-        <Badge variant={almacen.estadoAlmacen === "activo" ? "success" : "default"}>
-          {almacen.estadoAlmacen === "activo" ? "Activo" : "Inactivo"}
-        </Badge>
-      </div>
+  // Componente para almacén regular profesional
+  const AlmacenCardPro = ({ almacen }: { almacen: Almacen }) => {
+    const variant = almacen.pais === 'USA' ? 'almacen-usa' : 'almacen-peru';
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center text-gray-500 text-xs mb-1">
-            <Package className="h-3 w-3 mr-1" />
-            Unidades
-          </div>
-          <div className="text-xl font-bold text-gray-900">
-            {almacen.unidadesActuales || 0}
-          </div>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center text-gray-500 text-xs mb-1">
-            <TrendingUp className="h-3 w-3 mr-1" />
-            Capacidad
-          </div>
-          <div className="text-xl font-bold text-gray-900">
-            {almacen.capacidadUnidades || '-'}
-          </div>
-        </div>
-      </div>
+    const tags = [
+      { label: almacen.estadoAlmacen === "activo" ? "Activo" : "Inactivo", variant: almacen.estadoAlmacen === "activo" ? "success" as const : "default" as const },
+      { label: almacen.pais === 'USA' ? 'USA' : 'Perú', variant: almacen.pais === 'USA' ? "info" as const : "warning" as const }
+    ];
 
-      <div className="space-y-2">
-        <div className="flex items-start space-x-2">
-          <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-gray-600">
-            <div>{almacen.direccion}</div>
-            <div>{almacen.ciudad}, {almacen.estado}</div>
-          </div>
-        </div>
+    const stats = [
+      { label: "Unidades", value: almacen.unidadesActuales || 0, icon: Package },
+      { label: "Capacidad", value: almacen.capacidadUnidades || '-', icon: TrendingUp }
+    ];
 
-        {almacen.contacto && (
-          <div className="pt-3 border-t">
-            <div className="text-xs text-gray-500 mb-1">Contacto</div>
-            <div className="text-sm font-medium text-gray-900">{almacen.contacto}</div>
-            {almacen.telefono && (
-              <div className="text-sm text-gray-600">{almacen.telefono}</div>
-            )}
-          </div>
-        )}
-      </div>
+    const details = [
+      { icon: MapPin, text: `${almacen.direccion || ''} ${almacen.ciudad}, ${almacen.estado}` },
+      ...(almacen.contacto ? [{ icon: Users, text: almacen.contacto }] : []),
+      ...(almacen.telefono ? [{ icon: Phone, text: almacen.telefono }] : [])
+    ];
 
-      <div className="mt-4 flex justify-end">
-        <ChevronRight className="h-5 w-5 text-gray-400" />
-      </div>
-    </Card>
-  );
+    return (
+      <EntityCard
+        name={almacen.nombre}
+        code={almacen.codigo}
+        variant={variant}
+        status={almacen.estadoAlmacen === "activo" ? "active" : "inactive"}
+        stats={stats}
+        tags={tags}
+        details={details}
+        onClick={() => openEditModal(almacen)}
+      />
+    );
+  };
+
+  // Tabs configuration
+  const tabs = [
+    { id: 'usa', label: 'USA', emoji: '🇺🇸', count: almacenesUSA.length },
+    { id: 'peru', label: 'Perú', emoji: '🇵🇪', count: almacenesPeru.length }
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Almacenes y Viajeros</h1>
-          <p className="text-gray-600 mt-1">
-            Gestiona viajeros en USA y almacenes de inventario
-          </p>
-        </div>
-        <div className="flex space-x-3">
-          <Button
-            variant="ghost"
-            onClick={handleRecalcularCostosFlete}
-            disabled={isRecalculatingFlete || loading}
-            title="Recalcular costos de flete faltantes en unidades"
-          >
-            <Calculator className={`h-5 w-5 ${isRecalculatingFlete ? 'animate-pulse' : ''}`} />
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={refreshData}
-            disabled={isRefreshing || loading}
-            title="Actualizar datos"
-          >
-            <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-          </Button>
-          {almacenes.length === 0 && !loading && (
-            <Button variant="secondary" onClick={handleSeedAlmacenes}>
-              <Download className="h-5 w-5 mr-2" />
-              Crear por Defecto
+      {/* Header Profesional con Gradiente */}
+      <GradientHeader
+        title="Almacenes y Viajeros"
+        subtitle="Gestiona viajeros en USA y almacenes de inventario"
+        icon={Warehouse}
+        variant="dark"
+        actions={
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              onClick={handleRecalcularCostosFlete}
+              disabled={isRecalculatingFlete || loading}
+              title="Recalcular costos de flete faltantes"
+              className="text-white/70 hover:text-white hover:bg-white/10"
+            >
+              <Calculator className={`h-5 w-5 ${isRecalculatingFlete ? 'animate-pulse' : ''}`} />
             </Button>
-          )}
-          <Button variant="primary" onClick={openCreateModal}>
-            <Plus className="h-5 w-5 mr-2" />
-            Nuevo Viajero/Almacén
-          </Button>
-        </div>
-      </div>
+            <Button
+              variant="ghost"
+              onClick={refreshData}
+              disabled={isRefreshing || loading}
+              title="Actualizar datos"
+              className="text-white/70 hover:text-white hover:bg-white/10"
+            >
+              <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
+            {almacenes.length === 0 && !loading && (
+              <Button variant="secondary" onClick={handleSeedAlmacenes} className="bg-white/10 hover:bg-white/20 text-white border-white/20">
+                <Download className="h-5 w-5 mr-2" />
+                Crear por Defecto
+              </Button>
+            )}
+            <Button variant="primary" onClick={openCreateModal} className="bg-white text-slate-800 hover:bg-gray-100">
+              <Plus className="h-5 w-5 mr-2" />
+              Nuevo
+            </Button>
+          </div>
+        }
+        stats={[
+          { label: 'Viajeros Activos', value: viajeros.length },
+          { label: 'Unidades USA', value: resumenUSA?.totalUnidadesUSA || 0 },
+          { label: 'Valor USA', value: `$${(resumenUSA?.valorTotalUSA_USD || 0).toLocaleString()}` },
+          { label: 'Almacenes Perú', value: almacenesPeru.length }
+        ]}
+      />
 
-      {/* KPIs */}
+      {/* KPIs Navegables */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Viajeros Activos</div>
-              <div className="text-2xl font-bold text-purple-600 mt-1">
-                {viajeros.length}
-              </div>
-            </div>
-            <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <Users className="h-6 w-6 text-purple-600" />
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Unidades en USA</div>
-              <div className="text-2xl font-bold text-blue-600 mt-1">
-                {resumenUSA?.totalUnidadesUSA || 0}
-              </div>
-            </div>
-            <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Package className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Valor USA</div>
-              <div className="text-2xl font-bold text-green-600 mt-1">
-                ${(resumenUSA?.valorTotalUSA_USD || 0).toLocaleString()}
-              </div>
-            </div>
-            <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-              <DollarSign className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Almacenes Perú</div>
-              <div className="text-2xl font-bold text-red-600 mt-1">
-                {almacenesPeru.length}
-              </div>
-            </div>
-            <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
-              <Warehouse className="h-6 w-6 text-red-600" />
-            </div>
-          </div>
-        </Card>
+        <StatCard
+          label="Viajeros Activos"
+          value={viajeros.length}
+          icon={Users}
+          variant="purple"
+          onClick={() => setActiveTab('usa')}
+          active={activeTab === 'usa'}
+        />
+        <StatCard
+          label="Unidades en USA"
+          value={resumenUSA?.totalUnidadesUSA || 0}
+          icon={Package}
+          variant="blue"
+          onClick={() => setActiveTab('usa')}
+        />
+        <StatCard
+          label="Valor Inventario USA"
+          value={`$${(resumenUSA?.valorTotalUSA_USD || 0).toLocaleString()}`}
+          icon={DollarSign}
+          variant="green"
+        />
+        <StatCard
+          label="Almacenes Perú"
+          value={almacenesPeru.length}
+          icon={Warehouse}
+          variant="red"
+          onClick={() => setActiveTab('peru')}
+          active={activeTab === 'peru'}
+        />
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          <button
-            onClick={() => setActiveTab('usa')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'usa'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <span className="mr-2">🇺🇸</span>
-            USA ({almacenesUSA.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('peru')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'peru'
-                ? 'border-red-500 text-red-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <span className="mr-2">🇵🇪</span>
-            Perú ({almacenesPeru.length})
-          </button>
-        </nav>
-      </div>
+      {/* Tabs Profesionales */}
+      <TabNavigation
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as 'usa' | 'peru')}
+        variant="pills"
+      />
 
       {/* Content */}
       {loading ? (
@@ -448,15 +359,11 @@ export const Almacenes: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
         </div>
       ) : almacenes.length === 0 ? (
-        <Card padding="lg">
-          <div className="text-center py-12">
-            <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No hay viajeros ni almacenes registrados
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Crea un viajero para empezar a gestionar tu inventario en USA
-            </p>
+        <EmptyState
+          icon={Users}
+          title="No hay viajeros ni almacenes registrados"
+          description="Crea un viajero para empezar a gestionar tu inventario en USA"
+          action={
             <div className="flex justify-center space-x-4">
               <Button variant="secondary" onClick={handleSeedAlmacenes}>
                 <Download className="h-5 w-5 mr-2" />
@@ -467,22 +374,24 @@ export const Almacenes: React.FC = () => {
                 Crear Viajero
               </Button>
             </div>
-          </div>
-        </Card>
+          }
+        />
       ) : (
         <>
           {activeTab === 'usa' && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* Viajeros */}
               {viajeros.length > 0 && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-purple-600" />
-                    Viajeros
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <SectionHeader
+                    title="Viajeros"
+                    icon={Users}
+                    iconColor="text-purple-600"
+                    count={viajeros.length}
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {viajeros.map(viajero => (
-                      <ViajeroCard key={viajero.id} viajero={viajero} />
+                      <ViajeroCardPro key={viajero.id} viajero={viajero} />
                     ))}
                   </div>
                 </div>
@@ -491,56 +400,62 @@ export const Almacenes: React.FC = () => {
               {/* Otros almacenes USA (no viajeros) */}
               {almacenesUSA.filter(a => !a.esViajero).length > 0 && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                    <Warehouse className="h-5 w-5 mr-2 text-blue-600" />
-                    Almacenes USA
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <SectionHeader
+                    title="Almacenes USA"
+                    icon={Warehouse}
+                    iconColor="text-blue-600"
+                    count={almacenesUSA.filter(a => !a.esViajero).length}
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {almacenesUSA.filter(a => !a.esViajero).map(almacen => (
-                      <AlmacenCard key={almacen.id} almacen={almacen} />
+                      <AlmacenCardPro key={almacen.id} almacen={almacen} />
                     ))}
                   </div>
                 </div>
               )}
 
               {almacenesUSA.length === 0 && (
-                <Card padding="lg">
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600">No hay viajeros ni almacenes en USA</p>
-                    <Button variant="primary" onClick={openCreateModal} className="mt-4">
+                <EmptyState
+                  icon={Users}
+                  title="No hay viajeros ni almacenes en USA"
+                  description="Crea tu primer viajero para empezar"
+                  action={
+                    <Button variant="primary" onClick={openCreateModal}>
                       <Plus className="h-4 w-4 mr-2" />
                       Crear Viajero
                     </Button>
-                  </div>
-                </Card>
+                  }
+                />
               )}
             </div>
           )}
 
           {activeTab === 'peru' && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                <Warehouse className="h-5 w-5 mr-2 text-red-600" />
-                Almacenes Perú
-              </h2>
+              <SectionHeader
+                title="Almacenes Perú"
+                icon={Warehouse}
+                iconColor="text-red-600"
+                count={almacenesPeru.length}
+              />
               {almacenesPeru.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {almacenesPeru.map(almacen => (
-                    <AlmacenCard key={almacen.id} almacen={almacen} />
+                    <AlmacenCardPro key={almacen.id} almacen={almacen} />
                   ))}
                 </div>
               ) : (
-                <Card padding="lg">
-                  <div className="text-center py-8">
-                    <Warehouse className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600">No hay almacenes en Perú</p>
-                    <Button variant="primary" onClick={openCreateModal} className="mt-4">
+                <EmptyState
+                  icon={Warehouse}
+                  title="No hay almacenes en Perú"
+                  description="Crea tu primer almacén para comenzar"
+                  action={
+                    <Button variant="primary" onClick={openCreateModal}>
                       <Plus className="h-4 w-4 mr-2" />
                       Crear Almacén
                     </Button>
-                  </div>
-                </Card>
+                  }
+                />
               )}
             </div>
           )}
@@ -567,6 +482,9 @@ export const Almacenes: React.FC = () => {
           loading={loading}
         />
       </Modal>
+
+      {/* Dialogo de Confirmacion */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 };

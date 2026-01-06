@@ -1,6 +1,6 @@
 import React from 'react';
 import { Package, Eye, Pencil, Trash2, TrendingUp } from 'lucide-react';
-import { Badge } from '../../common';
+import { Badge, Pagination, usePagination } from '../../common';
 import type { OrdenCompra, EstadoOrden } from '../../../types/ordenCompra.types';
 
 interface OrdenCompraTableProps {
@@ -26,6 +26,19 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
   onDelete,
   loading = false
 }) => {
+  // Paginación
+  const {
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    setPage,
+    setItemsPerPage,
+    paginatedItems: ordenesPaginadas
+  } = usePagination({
+    items: ordenes,
+    initialItemsPerPage: 15
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -47,137 +60,150 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
   const formatDate = (timestamp: any) => {
     if (!timestamp) return '-';
     const date = timestamp.toDate();
-    return date.toLocaleDateString('es-PE', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('es-PE', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Número Orden
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Proveedor
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Productos
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Total
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Estado
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Fecha Creación
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Acciones
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {ordenes.map((orden) => {
-            const estadoInfo = estadoLabels[orden.estado];
-            
-            return (
-              <tr key={orden.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <Package className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm font-mono font-medium text-gray-900">
-                      {orden.numeroOrden}
-                    </span>
-                  </div>
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{orden.nombreProveedor}</div>
-                </td>
-                
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">
-                    {orden.productos.length} {orden.productos.length === 1 ? 'producto' : 'productos'}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {orden.productos.slice(0, 2).map(p => p.marca).join(', ')}
-                    {orden.productos.length > 2 && '...'}
-                  </div>
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-semibold text-gray-900">
-                    ${orden.totalUSD.toFixed(2)}
-                  </div>
-                  {orden.totalPEN && (
-                    <div className="text-xs text-gray-500">
-                      S/ {orden.totalPEN.toFixed(2)}
-                    </div>
-                  )}
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge variant={estadoInfo.variant}>
-                    {estadoInfo.label}
-                  </Badge>
-                  {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
-                    <div className="flex items-center mt-1">
-                      <TrendingUp className="h-3 w-3 text-warning-500 mr-1" />
-                      <span className="text-xs text-warning-600">
-                        Dif. FX
+    <div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Número Orden
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Proveedor
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Productos
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Total
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Estado
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Fecha Creación
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {ordenesPaginadas.map((orden) => {
+              const estadoInfo = estadoLabels[orden.estado];
+
+              return (
+                <tr key={orden.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <Package className="h-4 w-4 text-gray-400 mr-2" />
+                      <span className="text-sm font-mono font-medium text-gray-900">
+                        {orden.numeroOrden}
                       </span>
                     </div>
-                  )}
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {formatDate(orden.fechaCreacion)}
-                  </div>
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex items-center justify-end space-x-2">
-                    <button
-                      onClick={() => onView(orden)}
-                      className="text-primary-600 hover:text-primary-900"
-                      title="Ver detalles"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    
-                    {orden.estado === 'borrador' && onEdit && (
-                      <button
-                        onClick={() => onEdit(orden)}
-                        className="text-gray-600 hover:text-gray-900"
-                        title="Editar"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{orden.nombreProveedor}</div>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-900">
+                      {orden.productos.length} {orden.productos.length === 1 ? 'producto' : 'productos'}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {orden.productos.slice(0, 2).map(p => p.marca).join(', ')}
+                      {orden.productos.length > 2 && '...'}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-semibold text-gray-900">
+                      ${orden.totalUSD.toFixed(2)}
+                    </div>
+                    {orden.totalPEN && (
+                      <div className="text-xs text-gray-500">
+                        S/ {orden.totalPEN.toFixed(2)}
+                      </div>
                     )}
-                    
-                    {orden.estado === 'borrador' && onDelete && (
-                      <button
-                        onClick={() => onDelete(orden)}
-                        className="text-danger-600 hover:text-danger-900"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Badge variant={estadoInfo.variant}>
+                      {estadoInfo.label}
+                    </Badge>
+                    {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
+                      <div className="flex items-center mt-1">
+                        <TrendingUp className="h-3 w-3 text-warning-500 mr-1" />
+                        <span className="text-xs text-warning-600">
+                          Dif. FX
+                        </span>
+                      </div>
                     )}
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {formatDate(orden.fechaCreacion)}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex items-center justify-end space-x-2">
+                      <button
+                        onClick={() => onView(orden)}
+                        className="text-primary-600 hover:text-primary-900"
+                        title="Ver detalles"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+
+                      {orden.estado === 'borrador' && onEdit && (
+                        <button
+                          onClick={() => onEdit(orden)}
+                          className="text-gray-600 hover:text-gray-900"
+                          title="Editar"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                      )}
+
+                      {orden.estado === 'borrador' && onDelete && (
+                        <button
+                          onClick={() => onDelete(orden)}
+                          className="text-danger-600 hover:text-danger-900"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Paginación */}
+      {ordenes.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalItems={ordenes.length}
+          pageSize={itemsPerPage}
+          onPageChange={setPage}
+          onPageSizeChange={setItemsPerPage}
+        />
+      )}
     </div>
   );
 };

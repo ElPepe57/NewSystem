@@ -5,8 +5,10 @@ import type {
   TransferenciaFormData,
   RecepcionFormData,
   TransferenciaFiltros,
-  ResumenTransferencias
+  ResumenTransferencias,
+  PagoViajero
 } from '../types/transferencia.types';
+import type { MetodoTesoreria } from '../types/tesoreria.types';
 
 interface TransferenciaState {
   // Estado
@@ -32,6 +34,20 @@ interface TransferenciaState {
   enviarTransferencia: (id: string, datos: { numeroTracking?: string; fechaSalida?: Date }, userId: string) => Promise<void>;
   registrarRecepcion: (data: RecepcionFormData, userId: string) => Promise<void>;
   cancelarTransferencia: (id: string, motivo: string, userId: string) => Promise<void>;
+  registrarPagoViajero: (
+    transferenciaId: string,
+    datos: {
+      fechaPago: Date;
+      monedaPago: 'USD' | 'PEN';
+      montoOriginal: number;
+      tipoCambio: number;
+      metodoPago: MetodoTesoreria;
+      cuentaOrigenId?: string;
+      referencia?: string;
+      notas?: string;
+    },
+    userId: string
+  ) => Promise<PagoViajero>;
 
   // Utilidades
   setSelectedTransferencia: (transferencia: Transferencia | null) => void;
@@ -200,6 +216,33 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
       await get().fetchTransferencias();
       await get().fetchResumen();
       set({ loading: false });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      set({ error: message, loading: false });
+      throw error;
+    }
+  },
+
+  registrarPagoViajero: async (
+    transferenciaId: string,
+    datos: {
+      fechaPago: Date;
+      monedaPago: 'USD' | 'PEN';
+      montoOriginal: number;
+      tipoCambio: number;
+      metodoPago: MetodoTesoreria;
+      cuentaOrigenId?: string;
+      referencia?: string;
+      notas?: string;
+    },
+    userId: string
+  ) => {
+    set({ loading: true, error: null });
+    try {
+      const pago = await transferenciaService.registrarPagoViajero(transferenciaId, datos, userId);
+      await get().fetchTransferencias();
+      set({ loading: false });
+      return pago;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });

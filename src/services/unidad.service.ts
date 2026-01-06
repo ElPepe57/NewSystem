@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { auditoriaService } from './auditoria.service';
+import { inventarioService } from './inventario.service';
 import type {
   Unidad,
   UnidadFormData,
@@ -285,16 +286,12 @@ export const unidadService = {
     await batch.commit();
 
     // Registrar en auditoría
-    const accionAuditoria = esReservaAutomatica
-      ? `ingreso_inventario (reservado para ${data.reservadoPara})`
-      : 'ingreso_inventario';
-
     await auditoriaService.logInventario(
       data.productoId,
       productoInfo.nombre,
-      accionAuditoria,
+      'ingreso_inventario',
       data.cantidad,
-      almacenInfo.nombre
+      esReservaAutomatica ? `${almacenInfo.nombre} (reservado para ${data.reservadoPara})` : almacenInfo.nombre
     );
 
     return ids;
@@ -302,6 +299,7 @@ export const unidadService = {
 
   /**
    * Actualizar estado de una unidad
+   * Sincroniza automáticamente el stock del producto
    */
   async actualizarEstado(
     id: string,
@@ -309,12 +307,21 @@ export const unidadService = {
     userId: string,
     observaciones?: string
   ): Promise<void> {
+    // Obtener la unidad para conocer el productoId
+    const unidad = await this.getById(id);
+    if (!unidad) {
+      throw new Error('Unidad no encontrada');
+    }
+
     const docRef = doc(db, COLLECTION_NAME, id);
     await updateDoc(docRef, {
       estado: nuevoEstado,
       actualizadoPor: userId,
       fechaActualizacion: Timestamp.now()
     });
+
+    // Sincronizar stock del producto automáticamente
+    await inventarioService.sincronizarStockProducto(unidad.productoId);
   },
 
   /**
@@ -407,6 +414,9 @@ export const unidadService = {
       1,
       unidad.almacenNombre
     );
+
+    // Sincronizar stock del producto automáticamente
+    await inventarioService.sincronizarStockProducto(unidad.productoId);
   },
 
   /**
@@ -783,6 +793,102 @@ export const unidadService = {
       console.error('Error en sincronización de unidades huérfanas:', error);
       throw new Error(`Error sincronizando unidades: ${error.message}`);
     }
+  },
+
+  /**
+   * Confirmar venta de múltiples unidades (cuando la entrega es exitosa)
+   * Cambia estado de reservada → vendida
+   */
+  async confirmarVentaUnidades(
+    unidadIds: string[],
+    ventaId: string,
+    ventaNumero: string,
+    precioVentaPEN: number,
+    userId: string
+  ): Promise<{ exitos: number; errores: number }> {
+    let exitos = 0;
+    let errores = 0;
+
+    for (const unidadId of unidadIds) {
+      try {
+        await this.marcarComoVendida(
+          unidadId,
+          ventaId,
+          ventaNumero,
+          precioVentaPEN / unidadIds.length, // Prorratear precio
+          userId
+        );
+        exitos++;
+      } catch (error) {
+        console.error(`Error confirmando venta unidad ${unidadId}:`, error);
+        errores++;
+      }
+    }
+
+    return { exitos, errores };
+  },
+
+  /**
+   * Liberar unidades (cuando una entrega falla y no se reprograma)
+   * Cambia estado de reservada → disponible_peru
+   * Sincroniza automáticamente el stock del producto
+   */
+  async liberarUnidades(
+    unidadIds: string[],
+    motivo: string,
+    userId: string
+  ): Promise<{ exitos: number; errores: number }> {
+    let exitos = 0;
+    let errores = 0;
+    const productosAfectados = new Set<string>();
+
+    for (const unidadId of unidadIds) {
+      try {
+        const unidad = await this.getById(unidadId);
+        if (!unidad) {
+          errores++;
+          continue;
+        }
+
+        // Solo liberar si está reservada o en un estado que permita liberación
+        if (unidad.estado !== 'reservada' && unidad.estado !== 'disponible_peru') {
+          console.warn(`Unidad ${unidadId} tiene estado ${unidad.estado}, no se puede liberar`);
+          errores++;
+          continue;
+        }
+
+        const docRef = doc(db, COLLECTION_NAME, unidadId);
+        const movimientoLiberacion: MovimientoUnidad = {
+          id: crypto.randomUUID(),
+          tipo: 'ajuste',
+          fecha: Timestamp.now(),
+          usuarioId: userId,
+          observaciones: `Unidad liberada: ${motivo}`
+        };
+
+        await updateDoc(docRef, {
+          estado: 'disponible_peru',
+          // Limpiar datos de reserva/venta
+          reservadaPara: deleteField(),
+          fechaReserva: deleteField(),
+          reservaVigenciaHasta: deleteField(),
+          movimientos: [...unidad.movimientos, movimientoLiberacion],
+          actualizadoPor: userId,
+          fechaActualizacion: Timestamp.now()
+        });
+
+        productosAfectados.add(unidad.productoId);
+        exitos++;
+      } catch (error) {
+        console.error(`Error liberando unidad ${unidadId}:`, error);
+        errores++;
+      }
+    }
+
+    // Sincronizar stock de todos los productos afectados
+    await inventarioService.sincronizarStockProductos_batch([...productosAfectados]);
+
+    return { exitos, errores };
   },
 
   /**

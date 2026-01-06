@@ -974,6 +974,458 @@ export const clienteService = {
       console.error('Error al obtener clientes en riesgo:', error);
       return [];
     }
+  },
+
+  // ========== CRM AVANZADO - ESTADÍSTICAS Y ALERTAS ==========
+
+  /**
+   * Obtiene estadísticas CRM completas para el dashboard
+   */
+  async getStatsCRM(): Promise<{
+    // Clasificación ABC
+    distribucionABC: { clase: ClasificacionABC; cantidad: number; porcentaje: number; valorTotal: number }[];
+    valorPorClase: Record<ClasificacionABC, number>;
+
+    // Segmentación
+    distribucionSegmentos: { segmento: SegmentoCliente; cantidad: number; porcentaje: number }[];
+
+    // Alertas
+    clientesEnRiesgo: Cliente[];
+    clientesPerdidos: Cliente[];
+    clientesSinContacto30Dias: Cliente[];
+    clientesVIPInactivos: Cliente[];
+
+    // Tendencias
+    clientesNuevosUltimos7Dias: number;
+    clientesNuevosUltimos30Dias: number;
+    tasaRetencion: number;
+
+    // Top performers
+    topVIP: Cliente[];
+    topPremium: Cliente[];
+    clientesMayorCrecimiento: Cliente[];
+  }> {
+    try {
+      const clientes = await this.getAll();
+      const ahora = new Date();
+      const hace30Dias = new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const hace7Dias = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const hace90Dias = new Date(ahora.getTime() - 90 * 24 * 60 * 60 * 1000);
+
+      // Distribución ABC
+      const clientesPorABC: Record<ClasificacionABC, Cliente[]> = {
+        A: [], B: [], C: [], nuevo: []
+      };
+      const valorPorClase: Record<ClasificacionABC, number> = {
+        A: 0, B: 0, C: 0, nuevo: 0
+      };
+
+      for (const c of clientes) {
+        const clase = c.clasificacionABC || 'nuevo';
+        clientesPorABC[clase].push(c);
+        valorPorClase[clase] += c.metricas.montoTotalPEN || 0;
+      }
+
+      const totalClientes = clientes.length;
+      const valorTotal = Object.values(valorPorClase).reduce((a, b) => a + b, 0);
+
+      const distribucionABC = (['A', 'B', 'C', 'nuevo'] as ClasificacionABC[]).map(clase => ({
+        clase,
+        cantidad: clientesPorABC[clase].length,
+        porcentaje: totalClientes > 0 ? (clientesPorABC[clase].length / totalClientes) * 100 : 0,
+        valorTotal: valorPorClase[clase]
+      }));
+
+      // Distribución por segmentos
+      const clientesPorSegmento: Record<SegmentoCliente, number> = {
+        vip: 0, premium: 0, frecuente: 0, regular: 0,
+        ocasional: 0, nuevo: 0, inactivo: 0, en_riesgo: 0, perdido: 0
+      };
+
+      for (const c of clientes) {
+        const segmento = c.segmento || 'nuevo';
+        clientesPorSegmento[segmento]++;
+      }
+
+      const distribucionSegmentos = Object.entries(clientesPorSegmento)
+        .filter(([, cantidad]) => cantidad > 0)
+        .map(([segmento, cantidad]) => ({
+          segmento: segmento as SegmentoCliente,
+          cantidad,
+          porcentaje: totalClientes > 0 ? (cantidad / totalClientes) * 100 : 0
+        }))
+        .sort((a, b) => b.cantidad - a.cantidad);
+
+      // Alertas: Clientes en riesgo
+      const clientesEnRiesgo = clientes.filter(c => c.segmento === 'en_riesgo')
+        .sort((a, b) => b.metricas.montoTotalPEN - a.metricas.montoTotalPEN)
+        .slice(0, 10);
+
+      // Alertas: Clientes perdidos (> 180 días sin comprar, pero con historial significativo)
+      const clientesPerdidos = clientes.filter(c => {
+        if (c.segmento !== 'perdido') return false;
+        return c.metricas.totalCompras >= 2; // Al menos 2 compras históricas
+      }).sort((a, b) => b.metricas.montoTotalPEN - a.metricas.montoTotalPEN)
+        .slice(0, 10);
+
+      // Alertas: Clientes sin contacto en 30 días (pero activos)
+      const clientesSinContacto30Dias = clientes.filter(c => {
+        if (c.estado !== 'activo') return false;
+        if (!c.metricas.ultimaCompra) return false;
+        const ultimaCompra = c.metricas.ultimaCompra.toDate?.() || new Date(c.metricas.ultimaCompra as unknown as string);
+        const dias = Math.floor((ahora.getTime() - ultimaCompra.getTime()) / (1000 * 60 * 60 * 24));
+        return dias >= 30 && dias < 90 && c.metricas.totalCompras >= 2;
+      }).sort((a, b) => b.metricas.montoTotalPEN - a.metricas.montoTotalPEN)
+        .slice(0, 10);
+
+      // Alertas: VIPs que no han comprado en 15+ días
+      const clientesVIPInactivos = clientes.filter(c => {
+        if (c.clasificacionABC !== 'A') return false;
+        if (!c.metricas.ultimaCompra) return false;
+        const ultimaCompra = c.metricas.ultimaCompra.toDate?.() || new Date(c.metricas.ultimaCompra as unknown as string);
+        const dias = Math.floor((ahora.getTime() - ultimaCompra.getTime()) / (1000 * 60 * 60 * 24));
+        return dias >= 15;
+      }).sort((a, b) => b.metricas.montoTotalPEN - a.metricas.montoTotalPEN)
+        .slice(0, 5);
+
+      // Tendencias: Nuevos últimos 7 días
+      const clientesNuevosUltimos7Dias = clientes.filter(c => {
+        const fecha = c.fechaCreacion?.toDate?.() || new Date(0);
+        return fecha >= hace7Dias;
+      }).length;
+
+      // Tendencias: Nuevos últimos 30 días
+      const clientesNuevosUltimos30Dias = clientes.filter(c => {
+        const fecha = c.fechaCreacion?.toDate?.() || new Date(0);
+        return fecha >= hace30Dias;
+      }).length;
+
+      // Tasa de retención (clientes que compraron en últimos 90 días / clientes con al menos 1 compra)
+      const clientesConCompras = clientes.filter(c => c.metricas.totalCompras > 0);
+      const clientesRecientes = clientes.filter(c => {
+        if (!c.metricas.ultimaCompra) return false;
+        const ultimaCompra = c.metricas.ultimaCompra.toDate?.() || new Date(c.metricas.ultimaCompra as unknown as string);
+        return ultimaCompra >= hace90Dias;
+      });
+      const tasaRetencion = clientesConCompras.length > 0
+        ? (clientesRecientes.length / clientesConCompras.length) * 100
+        : 0;
+
+      // Top Clase A (mejores clientes por valor - clasificación ABC)
+      const topVIP = clientes
+        .filter(c => c.clasificacionABC === 'A')
+        .sort((a, b) => b.metricas.montoTotalPEN - a.metricas.montoTotalPEN)
+        .slice(0, 5);
+
+      // Top Premium (clientes frecuentes Clase B con buen valor)
+      const topPremium = clientes
+        .filter(c => c.clasificacionABC === 'B' || c.segmento === 'frecuente')
+        .sort((a, b) => b.metricas.montoTotalPEN - a.metricas.montoTotalPEN)
+        .slice(0, 5);
+
+      // Clientes con mayor crecimiento (más compras en últimos 30 días)
+      const clientesMayorCrecimiento = clientes
+        .filter(c => (c.metricas.comprasUltimos30Dias || 0) >= 2)
+        .sort((a, b) =>
+          (b.metricas.comprasUltimos30Dias || 0) - (a.metricas.comprasUltimos30Dias || 0)
+        )
+        .slice(0, 5);
+
+      return {
+        distribucionABC,
+        valorPorClase,
+        distribucionSegmentos,
+        clientesEnRiesgo,
+        clientesPerdidos,
+        clientesSinContacto30Dias,
+        clientesVIPInactivos,
+        clientesNuevosUltimos7Dias,
+        clientesNuevosUltimos30Dias,
+        tasaRetencion,
+        topVIP,
+        topPremium,
+        clientesMayorCrecimiento
+      };
+    } catch (error: any) {
+      console.error('Error al obtener stats CRM:', error);
+      throw new Error('Error al obtener estadísticas CRM');
+    }
+  },
+
+  /**
+   * Obtiene el conteo de alertas activas para badge
+   */
+  async getAlertasCRM(): Promise<{
+    enRiesgo: number;
+    perdidos: number;
+    vipInactivos: number;
+    sinContacto: number;
+    total: number;
+  }> {
+    try {
+      const stats = await this.getStatsCRM();
+      return {
+        enRiesgo: stats.clientesEnRiesgo.length,
+        perdidos: stats.clientesPerdidos.length,
+        vipInactivos: stats.clientesVIPInactivos.length,
+        sinContacto: stats.clientesSinContacto30Dias.length,
+        total: stats.clientesEnRiesgo.length + stats.clientesPerdidos.length +
+               stats.clientesVIPInactivos.length
+      };
+    } catch (error: any) {
+      console.error('Error al obtener alertas CRM:', error);
+      return { enRiesgo: 0, perdidos: 0, vipInactivos: 0, sinContacto: 0, total: 0 };
+    }
+  },
+
+  /**
+   * Recalcula segmentos de todos los clientes basado en comportamiento actual
+   */
+  async recalcularSegmentos(): Promise<{ actualizados: number }> {
+    try {
+      const clientes = await this.getAll();
+      const ahora = new Date();
+      const batch = writeBatch(db);
+      let actualizados = 0;
+
+      for (const cliente of clientes) {
+        // Calcular días desde última compra
+        let diasDesdeUltimaCompra = 999;
+        if (cliente.metricas.ultimaCompra) {
+          const ultimaCompra = cliente.metricas.ultimaCompra.toDate?.() ||
+            new Date(cliente.metricas.ultimaCompra as unknown as string);
+          diasDesdeUltimaCompra = Math.floor(
+            (ahora.getTime() - ultimaCompra.getTime()) / (1000 * 60 * 60 * 24)
+          );
+        }
+
+        // Estimar frecuencia anual
+        const frecuenciaAnual = cliente.metricas.comprasUltimos365Dias ||
+          Math.min(cliente.metricas.totalCompras, 12);
+
+        // Determinar nuevo segmento
+        const clasificacion = cliente.clasificacionABC || 'nuevo';
+        const nuevoSegmento = this.determinarSegmento(
+          clasificacion,
+          diasDesdeUltimaCompra,
+          frecuenciaAnual
+        );
+
+        // Solo actualizar si cambió
+        if (cliente.segmento !== nuevoSegmento) {
+          const clienteRef = doc(db, COLLECTION_NAME, cliente.id);
+          batch.update(clienteRef, {
+            segmento: nuevoSegmento,
+            fechaActualizacion: serverTimestamp()
+          });
+          actualizados++;
+        }
+      }
+
+      if (actualizados > 0) {
+        await batch.commit();
+      }
+
+      return { actualizados };
+    } catch (error: any) {
+      console.error('Error al recalcular segmentos:', error);
+      throw new Error('Error al recalcular segmentos');
+    }
+  },
+
+  /**
+   * Agregar nota/seguimiento a un cliente
+   */
+  async agregarNota(
+    clienteId: string,
+    nota: string,
+    userId: string
+  ): Promise<void> {
+    try {
+      const cliente = await this.getById(clienteId);
+      if (!cliente) throw new Error('Cliente no encontrado');
+
+      const notaActual = cliente.notas || '';
+      const fechaHora = new Date().toLocaleString('es-PE');
+      const nuevaNota = `[${fechaHora}] ${nota}\n\n${notaActual}`.trim();
+
+      await updateDoc(doc(db, COLLECTION_NAME, clienteId), {
+        notas: nuevaNota,
+        actualizadoPor: userId,
+        fechaActualizacion: serverTimestamp()
+      });
+    } catch (error: any) {
+      console.error('Error al agregar nota:', error);
+      throw new Error('Error al agregar nota');
+    }
+  },
+
+  /**
+   * Agregar etiqueta a un cliente
+   */
+  async agregarEtiqueta(
+    clienteId: string,
+    etiqueta: string,
+    userId: string
+  ): Promise<void> {
+    try {
+      const cliente = await this.getById(clienteId);
+      if (!cliente) throw new Error('Cliente no encontrado');
+
+      const etiquetas = cliente.etiquetas || [];
+      if (!etiquetas.includes(etiqueta)) {
+        etiquetas.push(etiqueta);
+        await updateDoc(doc(db, COLLECTION_NAME, clienteId), {
+          etiquetas,
+          actualizadoPor: userId,
+          fechaActualizacion: serverTimestamp()
+        });
+      }
+    } catch (error: any) {
+      console.error('Error al agregar etiqueta:', error);
+      throw new Error('Error al agregar etiqueta');
+    }
+  },
+
+  /**
+   * Quitar etiqueta de un cliente
+   */
+  async quitarEtiqueta(
+    clienteId: string,
+    etiqueta: string,
+    userId: string
+  ): Promise<void> {
+    try {
+      const cliente = await this.getById(clienteId);
+      if (!cliente) throw new Error('Cliente no encontrado');
+
+      const etiquetas = (cliente.etiquetas || []).filter(e => e !== etiqueta);
+      await updateDoc(doc(db, COLLECTION_NAME, clienteId), {
+        etiquetas,
+        actualizadoPor: userId,
+        fechaActualizacion: serverTimestamp()
+      });
+    } catch (error: any) {
+      console.error('Error al quitar etiqueta:', error);
+      throw new Error('Error al quitar etiqueta');
+    }
+  },
+
+  /**
+   * Recalcular métricas de todos los clientes basándose en las ventas actuales
+   * Útil cuando se borran ventas manualmente de Firebase
+   */
+  async recalcularMetricasDesdeVentas(userId: string): Promise<{ actualizados: number; errores: number }> {
+    try {
+      // Importar dinámicamente para evitar dependencia circular
+      const { VentaService } = await import('./venta.service');
+
+      // Obtener todas las ventas (excluyendo canceladas y cotizaciones)
+      const todasLasVentas = await VentaService.getAll();
+      const ventasValidas = todasLasVentas.filter(v =>
+        v.estado !== 'cancelada' && v.estado !== 'cotizacion'
+      );
+
+      // Obtener todos los clientes
+      const clientes = await this.getAll();
+
+      // Crear mapa de métricas por cliente
+      const metricasPorCliente: Map<string, {
+        totalCompras: number;
+        montoTotalPEN: number;
+        ultimaCompra: Date | null;
+        productoIds: string[];
+      }> = new Map();
+
+      // Inicializar todos los clientes con métricas en cero
+      for (const cliente of clientes) {
+        metricasPorCliente.set(cliente.id, {
+          totalCompras: 0,
+          montoTotalPEN: 0,
+          ultimaCompra: null,
+          productoIds: []
+        });
+      }
+
+      // Calcular métricas desde las ventas
+      for (const venta of ventasValidas) {
+        if (!venta.clienteId) continue;
+
+        const metricas = metricasPorCliente.get(venta.clienteId);
+        if (!metricas) continue; // Cliente no existe
+
+        metricas.totalCompras += 1;
+        metricas.montoTotalPEN += venta.totalPEN || 0;
+
+        // Actualizar última compra
+        const fechaVenta = venta.fechaCreacion?.toDate?.() || null;
+        if (fechaVenta && (!metricas.ultimaCompra || fechaVenta > metricas.ultimaCompra)) {
+          metricas.ultimaCompra = fechaVenta;
+        }
+
+        // Agregar productos
+        for (const producto of venta.productos || []) {
+          if (producto.productoId && !metricas.productoIds.includes(producto.productoId)) {
+            metricas.productoIds.push(producto.productoId);
+          }
+        }
+      }
+
+      // Actualizar clientes en batch
+      let batch = writeBatch(db);
+      let actualizados = 0;
+      let errores = 0;
+      let operacionesEnBatch = 0;
+
+      for (const cliente of clientes) {
+        try {
+          const metricas = metricasPorCliente.get(cliente.id);
+          if (!metricas) continue;
+
+          const ticketPromedio = metricas.totalCompras > 0
+            ? metricas.montoTotalPEN / metricas.totalCompras
+            : 0;
+
+          // Obtener los 5 productos más frecuentes como favoritos
+          const productosFavoritos = metricas.productoIds.slice(0, 5);
+
+          const clienteRef = doc(db, COLLECTION_NAME, cliente.id);
+          batch.update(clienteRef, {
+            'metricas.totalCompras': metricas.totalCompras,
+            'metricas.montoTotalPEN': metricas.montoTotalPEN,
+            'metricas.ticketPromedio': ticketPromedio,
+            'metricas.ultimaCompra': metricas.ultimaCompra ? Timestamp.fromDate(metricas.ultimaCompra) : null,
+            'metricas.productosFavoritos': productosFavoritos,
+            actualizadoPor: userId,
+            fechaActualizacion: serverTimestamp()
+          });
+
+          actualizados++;
+          operacionesEnBatch++;
+
+          // Firebase tiene límite de 500 operaciones por batch
+          if (operacionesEnBatch >= 450) {
+            await batch.commit();
+            batch = writeBatch(db); // Crear nuevo batch
+            operacionesEnBatch = 0;
+          }
+        } catch (err) {
+          console.error(`Error actualizando cliente ${cliente.id}:`, err);
+          errores++;
+        }
+      }
+
+      // Commit final si quedan operaciones pendientes
+      if (operacionesEnBatch > 0) {
+        await batch.commit();
+      }
+
+      logger.info('Métricas de clientes recalculadas', { actualizados, errores });
+      return { actualizados, errores };
+    } catch (error: any) {
+      console.error('Error al recalcular métricas desde ventas:', error);
+      throw new Error('Error al recalcular métricas de clientes');
+    }
   }
 };
 

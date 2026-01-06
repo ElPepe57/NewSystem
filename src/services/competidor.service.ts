@@ -268,27 +268,27 @@ export const competidorService = {
   /**
    * Actualizar métricas del competidor
    * Se llama cuando se registra una investigación de mercado
+   *
+   * @param id - ID del competidor
+   * @param datosMetricas - Objeto con productosAnalizados y/o precioPromedio
    */
-  async actualizarMetricas(id: string, precio: number): Promise<void> {
+  async actualizarMetricas(
+    id: string,
+    datosMetricas: { productosAnalizados?: number; precioPromedio?: number }
+  ): Promise<void> {
     try {
-      const competidor = await this.getById(id);
-      if (!competidor) return;
+      const updateData: Record<string, any> = {
+        'metricas.ultimaActualizacion': serverTimestamp()
+      };
 
-      const metricas = competidor.metricas || { productosAnalizados: 0, precioPromedio: 0 };
-      const nuevoTotal = metricas.productosAnalizados + 1;
+      if (datosMetricas.productosAnalizados !== undefined) {
+        updateData['metricas.productosAnalizados'] = datosMetricas.productosAnalizados;
+      }
+      if (datosMetricas.precioPromedio !== undefined) {
+        updateData['metricas.precioPromedio'] = datosMetricas.precioPromedio;
+      }
 
-      // Calcular nuevo promedio
-      const nuevoPrecioPromedio = metricas.productosAnalizados === 0
-        ? precio
-        : ((metricas.precioPromedio * metricas.productosAnalizados) + precio) / nuevoTotal;
-
-      await updateDoc(doc(db, COLLECTION_NAME, id), {
-        metricas: {
-          productosAnalizados: nuevoTotal,
-          precioPromedio: nuevoPrecioPromedio,
-          ultimaActualizacion: serverTimestamp()
-        }
-      });
+      await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
     } catch (error: any) {
       console.error('Error actualizando métricas:', error);
     }

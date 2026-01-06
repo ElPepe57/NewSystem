@@ -84,15 +84,17 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Filtrar productos al escribir
+  // Filtrar productos al escribir (con validación segura)
   useEffect(() => {
     if (inputValue.length >= 1) {
       const searchLower = inputValue.toLowerCase();
-      const filtered = productos.filter(p =>
-        p.sku.toLowerCase().includes(searchLower) ||
-        p.marca.toLowerCase().includes(searchLower) ||
-        p.nombreComercial.toLowerCase().includes(searchLower)
-      );
+      const productosArr = Array.isArray(productos) ? productos : [];
+      const filtered = productosArr.filter(p => {
+        const sku = (p.sku ?? '').toLowerCase();
+        const marca = (p.marca ?? '').toLowerCase();
+        const nombreComercial = (p.nombreComercial ?? '').toLowerCase();
+        return sku.includes(searchLower) || marca.includes(searchLower) || nombreComercial.includes(searchLower);
+      });
       setFilteredProductos(filtered.slice(0, 20)); // Limitar a 20 resultados
     } else {
       setFilteredProductos([]);

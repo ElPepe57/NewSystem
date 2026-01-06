@@ -79,7 +79,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
 
   const diasDesdeUltimaCompra = () => {
     if (!cliente.metricas?.ultimaCompra) return null;
-    const ultima = cliente.metricas.ultimaCompra.toDate?.() || new Date(cliente.metricas.ultimaCompra);
+    const ultima = cliente.metricas.ultimaCompra.toDate?.() || new Date(cliente.metricas.ultimaCompra as unknown as string);
     return Math.floor((Date.now() - ultima.getTime()) / (1000 * 60 * 60 * 24));
   };
 

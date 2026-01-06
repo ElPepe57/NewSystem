@@ -88,14 +88,15 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
       filtered = filtered.filter(a => a.esViajero);
     }
 
-    // Filtrar por búsqueda
+    // Filtrar por búsqueda (con validación segura)
     if (inputValue.length >= 1) {
       const searchLower = inputValue.toLowerCase();
-      filtered = filtered.filter(a =>
-        a.nombre.toLowerCase().includes(searchLower) ||
-        a.ciudad?.toLowerCase().includes(searchLower) ||
-        a.estado?.toLowerCase().includes(searchLower)
-      );
+      filtered = filtered.filter(a => {
+        const nombre = (a.nombre ?? '').toLowerCase();
+        const ciudad = (a.ciudad ?? '').toLowerCase();
+        const estado = (a.estado ?? '').toLowerCase();
+        return nombre.includes(searchLower) || ciudad.includes(searchLower) || estado.includes(searchLower);
+      });
     }
 
     setFilteredAlmacenes(filtered);

@@ -8,6 +8,17 @@ import type {
   GastoStats
 } from '../types/gasto.types';
 
+interface PagoGastoData {
+  fechaPago: Date;
+  monedaPago: 'USD' | 'PEN';
+  montoPago: number;
+  tipoCambio: number;
+  metodoPago: string;
+  cuentaOrigenId: string;
+  referenciaPago?: string;
+  notas?: string;
+}
+
 interface GastoState {
   gastos: Gasto[];
   resumenMes: ResumenGastosMes | null;
@@ -24,6 +35,7 @@ interface GastoState {
   buscarGastos: (filtros: GastoFiltros) => Promise<void>;
   crearGasto: (data: GastoFormData, userId: string) => Promise<string>;
   actualizarGasto: (id: string, data: Partial<GastoFormData>, userId: string) => Promise<void>;
+  registrarPagoGasto: (gastoId: string, datoPago: PagoGastoData, userId: string) => Promise<void>;
   getGastosPendientesRecalculo: () => Promise<Gasto[]>;
   clearError: () => void;
 }
@@ -135,6 +147,29 @@ export const useGastoStore = create<GastoState>((set, get) => ({
       return await gastoService.getGastosPendientesRecalculoCTRU();
     } catch (error: any) {
       set({ error: error.message });
+      throw error;
+    }
+  },
+
+  registrarPagoGasto: async (gastoId: string, datoPago: PagoGastoData, userId: string) => {
+    set({ loading: true, error: null });
+    try {
+      await gastoService.registrarPago(gastoId, {
+        fechaPago: datoPago.fechaPago,
+        monedaPago: datoPago.monedaPago,
+        montoPago: datoPago.montoPago,
+        tipoCambio: datoPago.tipoCambio,
+        metodoPago: datoPago.metodoPago as any,
+        cuentaOrigenId: datoPago.cuentaOrigenId,
+        referenciaPago: datoPago.referenciaPago,
+        notas: datoPago.notas
+      }, userId);
+      // Recargar gastos y stats
+      await get().fetchGastosMesActual();
+      await get().fetchStats();
+      set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
       throw error;
     }
   },

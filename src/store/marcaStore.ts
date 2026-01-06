@@ -46,6 +46,9 @@ interface MarcaState {
   // Migración
   migrarDesdeProductos: (userId: string) => Promise<{ migradas: number; errores: string[] }>;
 
+  // Recálculo de métricas
+  recalcularMetricasDesdeVentas: () => Promise<{ marcasActualizadas: number; errores: string[] }>;
+
   // Selección
   setMarcaSeleccionada: (marca: Marca | null) => void;
   clearError: () => void;
@@ -282,6 +285,23 @@ export const useMarcaStore = create<MarcaState>((set, get) => ({
       const resultado = await marcaService.migrarDesdeProductos(userId);
       await get().fetchMarcas();
       await get().fetchMarcasActivas();
+      set({ loading: false });
+      return resultado;
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  // ============ RECÁLCULO DE MÉTRICAS ============
+
+  recalcularMetricasDesdeVentas: async () => {
+    set({ loading: true, error: null });
+    try {
+      const resultado = await marcaService.recalcularMetricasDesdeVentas();
+      await get().fetchMarcas();
+      await get().fetchMarcasActivas();
+      await get().fetchStats();
       set({ loading: false });
       return resultado;
     } catch (error: any) {

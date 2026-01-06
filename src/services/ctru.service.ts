@@ -30,7 +30,7 @@ export const ctruService = {
   async calcularCTRUInicial(unidad: Unidad): Promise<number> {
     try {
       // 1. Costo USA convertido a PEN
-      const tcAplicable = unidad.tcPago || unidad.tcCompra || 3.8;
+      const tcAplicable = unidad.tcPago ?? unidad.tcCompra ?? 3.8;
       const costoBasePEN = unidad.costoUnitarioUSD * tcAplicable;
 
       // 2. Obtener costos de flete de la OC (si existe)
@@ -95,6 +95,11 @@ export const ctruService = {
    *
    * CTRU Dinámico = CTRU Inicial + Gastos Prorrateados (solo GA/GO)
    *
+   * DISTRIBUCIÓN PROPORCIONAL:
+   * Los gastos GA/GO se distribuyen proporcionalmente al costo base de cada unidad.
+   * Formula: costoGAGO_unidad = totalGastosGAGO × (costoBase_unidad / costoBase_total)
+   * Esto es más justo: unidades más costosas absorben más gastos operativos.
+   *
    * Nota: Solo los gastos GA (Administrativos) y GO (Operativos) impactan CTRU.
    * Los gastos GV (Venta) y GD (Distribución) NO impactan CTRU - se descuentan
    * de la utilidad de cada venta específica.
@@ -145,31 +150,50 @@ export const ctruService = {
         0
       );
 
-      // 4. Calcular impacto por unidad
-      const impactoPorUnidad = totalGastosProrrateables / unidadesActivas.length;
+      // 4. DISTRIBUCIÓN PROPORCIONAL: Calcular costo base total de todas las unidades
+      // Cada unidad absorbe GA/GO en proporción a su costo base
+      let costoBaseTotalUnidades = 0;
+      const unidadesConCostoBase = unidadesActivas.map(unidad => {
+        const tc = unidad.tcPago || unidad.tcCompra || 3.70;
+        const costoTotalUSD = unidad.costoUnitarioUSD + (unidad.costoFleteUSD || 0);
+        const costoBase = unidad.ctruInicial || (costoTotalUSD * tc);
+        costoBaseTotalUnidades += costoBase;
+        return { unidad, costoBase };
+      });
 
-      // 5. Actualizar CTRU dinámico de cada unidad
+      // Evitar división por cero
+      if (costoBaseTotalUnidades === 0) {
+        costoBaseTotalUnidades = 1;
+      }
+
+      // 5. Calcular impacto promedio por referencia (para display)
+      const impactoPorUnidadPromedio = totalGastosProrrateables / unidadesActivas.length;
+
+      // 6. Actualizar CTRU dinámico de cada unidad con distribución proporcional
       const batch = writeBatch(db);
       let actualizadas = 0;
 
-      for (const unidad of unidadesActivas) {
-        // Si no tiene ctruInicial, calcular el costo base
-        // CTRU Base = (CostoUSD + FleteUSD) * TC
-        const tc = unidad.tcPago || unidad.tcCompra || 3.70;
-        const costoTotalUSD = unidad.costoUnitarioUSD + (unidad.costoFleteUSD || 0);
-        const ctruBase = unidad.ctruInicial || (costoTotalUSD * tc);
-        const nuevoCtruDinamico = ctruBase + impactoPorUnidad;
+      for (const { unidad, costoBase } of unidadesConCostoBase) {
+        // Proporción de esta unidad respecto al costo base total
+        const proporcion = costoBase / costoBaseTotalUnidades;
+        // GA/GO asignado proporcionalmente a esta unidad
+        const costoGAGOUnidad = totalGastosProrrateables * proporcion;
+        // Nuevo CTRU dinámico = costo base + GA/GO proporcional
+        const nuevoCtruDinamico = costoBase + costoGAGOUnidad;
 
         const unidadRef = doc(db, 'unidades', unidad.id);
         batch.update(unidadRef, {
-          ctruInicial: ctruBase,
-          ctruDinamico: nuevoCtruDinamico
+          ctruInicial: costoBase,
+          ctruDinamico: nuevoCtruDinamico,
+          // Guardar desglose para transparencia
+          costoGAGOAsignado: costoGAGOUnidad,
+          proporcionGAGO: proporcion
         });
 
         actualizadas++;
       }
 
-      // 6. Marcar gastos como recalculados
+      // 7. Marcar gastos como recalculados
       for (const gasto of gastosProrrateables) {
         const gastoRef = doc(db, 'gastos', gasto.id);
         batch.update(gastoRef, {
@@ -180,13 +204,13 @@ export const ctruService = {
 
       await batch.commit();
 
-      // 7. Actualizar CTRU promedio de productos
+      // 8. Actualizar CTRU promedio de productos
       await this.actualizarCTRUPromedioProductos();
 
       return {
         unidadesActualizadas: actualizadas,
         gastosAplicados: gastosProrrateables.length,
-        impactoPorUnidad
+        impactoPorUnidad: impactoPorUnidadPromedio
       };
     } catch (error: any) {
       console.error('Error al recalcular CTRU dinámico:', error);

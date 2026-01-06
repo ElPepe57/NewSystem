@@ -252,6 +252,8 @@ export class CotizacionService {
           marca: producto.marca,
           nombreComercial: producto.nombreComercial,
           presentacion: producto.presentacion,
+          contenido: producto.contenido,
+          dosaje: producto.dosaje,
           cantidad: prod.cantidad,
           precioUnitario: prod.precioUnitario,
           subtotal,
@@ -571,12 +573,129 @@ export class CotizacionService {
         estado: 'pendiente_adelanto' as EstadoCotizacion,
         fechaCompromisoAdelanto: serverTimestamp(),
         adelantoComprometido,
+        // Establecer días de compromiso de entrega por defecto (15 días hábiles)
+        // El usuario puede editarlo desde el UI antes de descargar el PDF
+        diasCompromisoEntrega: cotizacion.diasCompromisoEntrega || 15,
         ultimaEdicion: serverTimestamp(),
         editadoPor: userId
       });
     } catch (error: any) {
       console.error('Error al comprometer adelanto:', error);
       throw new Error(error.message || 'Error al comprometer adelanto');
+    }
+  }
+
+  /**
+   * Actualizar días de validez de la cotización
+   * Permite ajustar la vigencia de la cotización según acuerdo con el cliente
+   */
+  static async actualizarDiasValidez(
+    id: string,
+    diasValidez: number,
+    userId: string
+  ): Promise<void> {
+    try {
+      const cotizacion = await this.getById(id);
+      if (!cotizacion) {
+        throw new Error('Cotización no encontrada');
+      }
+
+      // Permitir actualizar en estados antes de confirmación/rechazo
+      const estadosPermitidos: EstadoCotizacion[] = ['nueva', 'validada', 'pendiente_adelanto'];
+      if (!estadosPermitidos.includes(cotizacion.estado)) {
+        throw new Error('No se puede modificar la validez en este estado');
+      }
+
+      if (diasValidez < 1 || diasValidez > 90) {
+        throw new Error('Los días de validez deben ser entre 1 y 90');
+      }
+
+      // Calcular nueva fecha de vencimiento desde la fecha de creación
+      const fechaCreacion = cotizacion.fechaCreacion.toDate();
+      const nuevaFechaVencimiento = new Date(fechaCreacion);
+      nuevaFechaVencimiento.setDate(nuevaFechaVencimiento.getDate() + diasValidez);
+
+      await updateDoc(doc(db, COLLECTION_NAME, id), {
+        diasVigencia: diasValidez,
+        fechaVencimiento: Timestamp.fromDate(nuevaFechaVencimiento),
+        ultimaEdicion: serverTimestamp(),
+        editadoPor: userId
+      });
+    } catch (error: any) {
+      console.error('Error al actualizar días de validez:', error);
+      throw new Error(error.message || 'Error al actualizar días de validez');
+    }
+  }
+
+  /**
+   * Actualizar días de compromiso de entrega
+   * Permite definir en cuántos días hábiles se entregará después del pago del adelanto
+   */
+  static async actualizarDiasCompromisoEntrega(
+    id: string,
+    diasCompromisoEntrega: number,
+    userId: string
+  ): Promise<void> {
+    try {
+      const cotizacion = await this.getById(id);
+      if (!cotizacion) {
+        throw new Error('Cotización no encontrada');
+      }
+
+      // Permitir actualizar en cualquier estado antes de confirmación
+      const estadosPermitidos: EstadoCotizacion[] = ['nueva', 'validada', 'pendiente_adelanto', 'adelanto_pagado'];
+      if (!estadosPermitidos.includes(cotizacion.estado)) {
+        throw new Error('No se puede modificar el compromiso de entrega en este estado');
+      }
+
+      if (diasCompromisoEntrega < 1) {
+        throw new Error('Los días de compromiso deben ser al menos 1');
+      }
+
+      await updateDoc(doc(db, COLLECTION_NAME, id), {
+        diasCompromisoEntrega,
+        ultimaEdicion: serverTimestamp(),
+        editadoPor: userId
+      });
+    } catch (error: any) {
+      console.error('Error al actualizar días de compromiso:', error);
+      throw new Error(error.message || 'Error al actualizar días de compromiso');
+    }
+  }
+
+  /**
+   * Actualizar tiempo estimado de importación
+   * Para cotizaciones con productos sin stock, define el tiempo estimado de llegada
+   */
+  static async actualizarTiempoEstimadoImportacion(
+    id: string,
+    tiempoEstimadoImportacion: number,
+    userId: string
+  ): Promise<void> {
+    try {
+      const cotizacion = await this.getById(id);
+      if (!cotizacion) {
+        throw new Error('Cotización no encontrada');
+      }
+
+      // Permitir actualizar en cualquier estado antes de confirmación
+      const estadosPermitidos: EstadoCotizacion[] = ['nueva', 'validada', 'pendiente_adelanto', 'adelanto_pagado'];
+      if (!estadosPermitidos.includes(cotizacion.estado)) {
+        throw new Error('No se puede modificar el tiempo estimado en este estado');
+      }
+
+      if (tiempoEstimadoImportacion < 1) {
+        throw new Error('El tiempo estimado debe ser al menos 1 día');
+      }
+
+      await updateDoc(doc(db, COLLECTION_NAME, id), {
+        tiempoEstimadoImportacion,
+        ultimaEdicion: serverTimestamp(),
+        editadoPor: userId
+      });
+    } catch (error: any) {
+      console.error('Error al actualizar tiempo estimado:', error);
+      throw new Error(error.message || 'Error al actualizar tiempo estimado');
     }
   }
 
@@ -905,7 +1024,8 @@ export class CotizacionService {
             concepto: conceptoMovimiento,
             fecha: new Date(),
             cuentaDestino: data.cuentaDestinoId,
-            // No asociamos a venta porque aún no existe
+            cotizacionId: id,
+            cotizacionNumero: cotizacion.numeroCotizacion,
             notas: monedaPago === 'USD'
               ? `Pago en USD. Equivalente PEN: S/ ${data.montoEquivalentePEN?.toFixed(2) || 'N/A'}`
               : undefined
@@ -1037,22 +1157,30 @@ export class CotizacionService {
           nuevoMontoPagado > 0 ? 'parcial' : 'pendiente';
 
         // Actualizar venta con el pago y referencia al adelanto
+        // Construir objeto adelantoComprometido evitando valores undefined
+        const adelantoComprometidoData: Record<string, any> = {
+          monto: cotizacion.adelanto.monto,
+          metodoPago: cotizacion.adelanto.metodoPago,
+          fechaCompromiso: cotizacion.adelanto.fecha || Timestamp.now(),
+          desdeCotizacion: cotizacion.numeroCotizacion,
+          montoEquivalentePEN: montoAdelantoPEN,
+          transferidoComoPago: true
+        };
+
+        // Solo agregar campos opcionales si tienen valor
+        if (cotizacion.adelanto.moneda) {
+          adelantoComprometidoData.moneda = cotizacion.adelanto.moneda;
+        }
+        if (cotizacion.adelanto.tipoCambio) {
+          adelantoComprometidoData.tipoCambio = cotizacion.adelanto.tipoCambio;
+        }
+
         await updateDoc(doc(db, 'ventas', venta.id), {
           pagos: [pagoAdelanto],
           montoPagado: nuevoMontoPagado,
           montoPendiente: Math.max(0, nuevoMontoPendiente),
           estadoPago: nuevoEstadoPago,
-          // También guardar referencia al adelanto original
-          adelantoComprometido: {
-            monto: cotizacion.adelanto.monto,
-            metodoPago: cotizacion.adelanto.metodoPago,
-            fechaCompromiso: cotizacion.adelanto.fecha,
-            desdeCotizacion: cotizacion.numeroCotizacion,
-            moneda: cotizacion.adelanto.moneda,
-            tipoCambio: cotizacion.adelanto.tipoCambio,
-            montoEquivalentePEN: montoAdelantoPEN,
-            transferidoComoPago: true
-          }
+          adelantoComprometido: adelantoComprometidoData
         });
 
         console.log(`[Cotización→Venta] Adelanto de S/${montoAdelantoPEN.toFixed(2)} transferido a venta ${venta.numeroVenta}`);

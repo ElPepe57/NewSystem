@@ -1,43 +1,84 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { gastoService } from '../services/gasto.service';
-import { unidadService } from '../services/unidad.service';
 import type { Venta } from '../types/venta.types';
+import type { Gasto } from '../types/gasto.types';
+
+// Cache global de gastos para evitar múltiples consultas
+let gastosCache: { data: Gasto[] | null; timestamp: number } = { data: null, timestamp: 0 };
+const CACHE_TTL = 30000; // 30 segundos
 
 /**
- * Desglose de GA/GO por producto individual
+ * Desglose de costos y gastos por producto individual
+ *
+ * Modelo de costos:
+ * - Costo Base: Compra + Flete (costoTotalUnidades)
+ * - GV/GD: Gastos de Venta/Distribución → se prorratean entre productos de ESTA venta (por % subtotal)
+ * - GA/GO: Gastos Administrativos/Operativos → se prorratean entre TODAS las ventas (por % costo base)
  */
-export interface GAGOProducto {
+export interface DesgloseProducto {
   productoId: string;
   sku: string;
   nombre: string;
   cantidad: number;
-  costoBase: number;           // Costo base del producto (costoTotalUnidades)
-  proporcion: number;          // % del costo base respecto al total de la venta
-  costoGAGO: number;           // GA/GO asignado a este producto
-  costoTotal: number;          // costoBase + costoGAGO
-  precioVenta: number;         // Subtotal de venta del producto
-  utilidadBruta: number;       // precioVenta - costoTotal
-  margenBruto: number;         // %
+
+  // Precio de venta
+  precioVenta: number;           // Subtotal de venta del producto
+  proporcionVenta: number;       // % del subtotal respecto al total de la venta (para GV/GD)
+
+  // Costos directos
+  costoBase: number;             // Costo base del producto (costoTotalUnidades = compra + flete)
+  proporcionCosto: number;       // % del costo base respecto al total de la venta (para GA/GO)
+
+  // Gastos prorrateados
+  costoGVGD: number;             // GV/GD asignado a este producto (proporcional al subtotal)
+  costoGAGO: number;             // GA/GO asignado a este producto (proporcional al costo base)
+
+  // Totales
+  costoTotal: number;            // costoBase + costoGVGD + costoGAGO
+
+  // Utilidades
+  utilidadBruta: number;         // precioVenta - costoBase - costoGVGD
+  utilidadNeta: number;          // precioVenta - costoTotal (incluye GA/GO)
+  margenBruto: number;           // % sobre precio venta
+  margenNeto: number;            // % sobre precio venta
 }
+
+// Alias para compatibilidad
+export type GAGOProducto = DesgloseProducto;
 
 /**
  * Datos de rentabilidad calculados para una venta individual
+ *
+ * Flujo de cálculo:
+ * 1. Precio Venta (totalPEN)
+ * 2. (-) Costo Base (compra + flete)
+ * 3. (-) GV (gastos de venta: comisiones, pasarelas)
+ * 4. (-) GD (gastos de distribución: delivery - desde Transportistas)
+ * 5. (=) Utilidad Bruta
+ * 6. (-) GA/GO (gastos admin/operativos prorrateados)
+ * 7. (=) Utilidad Neta
  */
 export interface RentabilidadVenta {
   ventaId: string;
-  // Costos
-  costoBase: number;           // Compra + Flete (guardado en venta)
-  costoGAGO: number;           // GA/GO prorrateado
-  costoTotal: number;          // costoBase + costoGAGO (CTRU real)
+
+  // Costos y Gastos
+  costoBase: number;           // Compra + Flete (costoTotalPEN de la venta)
+  gastosGV: number;            // Gastos de Venta (comisiones, pasarelas, marketing)
+  gastosGD: number;            // Gastos de Distribución (delivery desde Transportistas)
+  gastosGVGD: number;          // Total GV + GD (para compatibilidad)
+  costoGAGO: number;           // GA/GO prorrateado (proporcional al costo base)
+  costoTotal: number;          // costoBase + gastosGVGD + costoGAGO
+
   // Utilidades
-  utilidadBruta: number;       // totalVenta - costoTotal
-  gastosGVGD: number;          // Gastos de venta/distribución asociados
-  utilidadNeta: number;        // utilidadBruta - gastosGVGD
+  utilidadBruta: number;       // totalVenta - costoBase - gastosGVGD
+  utilidadNeta: number;        // utilidadBruta - costoGAGO
+
   // Márgenes
-  margenBruto: number;         // %
-  margenNeto: number;          // %
-  // Desglose por producto (solo si hay más de 1 producto o si se solicita)
-  desgloseProductos?: GAGOProducto[];
+  margenBruto: number;         // % (utilidadBruta / totalVenta)
+  margenNeto: number;          // % (utilidadNeta / totalVenta)
+
+  // Desglose por producto
+  desgloseProductos?: DesgloseProducto[];
 }
 
 /**
@@ -54,7 +95,9 @@ export interface DatosRentabilidadGlobal {
   totalCostoBase: number;
   totalCostoGAGO: number;
   totalUtilidadBruta: number;
-  totalGastosGVGD: number;
+  totalGastosGV: number;            // Total gastos de venta (comisiones, pasarelas)
+  totalGastosGD: number;            // Total gastos de distribución (delivery)
+  totalGastosGVGD: number;          // Total GV + GD (para compatibilidad)
   totalUtilidadNeta: number;
   margenBrutoPromedio: number;
   margenNetoPromedio: number;
@@ -63,17 +106,57 @@ export interface DatosRentabilidadGlobal {
 }
 
 /**
+ * Obtener gastos con cache
+ */
+async function getGastosConCache(): Promise<Gasto[]> {
+  const now = Date.now();
+  if (gastosCache.data && (now - gastosCache.timestamp) < CACHE_TTL) {
+    return gastosCache.data;
+  }
+
+  const gastos = await gastoService.getAll();
+  gastosCache = { data: gastos, timestamp: now };
+  return gastos;
+}
+
+/**
+ * Invalidar cache de gastos (llamar después de crear/editar gastos)
+ */
+export function invalidarCacheGastos() {
+  gastosCache = { data: null, timestamp: 0 };
+}
+
+/**
  * Hook centralizado para calcular rentabilidad de ventas
  * Usa la misma lógica que CTRU Dashboard para consistencia
+ *
+ * OPTIMIZADO:
+ * - Cache de gastos con TTL de 30s
+ * - Debounce de 300ms para evitar cálculos excesivos
+ * - Cálculo diferido (no bloquea el renderizado inicial)
  */
 export function useRentabilidadVentas(ventas: Venta[]) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [datos, setDatos] = useState<DatosRentabilidadGlobal | null>(null);
 
-  const calcularRentabilidad = useCallback(async () => {
+  // Ref para debounce
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  // Ref para evitar cálculos duplicados
+  const lastVentasHashRef = useRef<string>('');
+
+  const calcularRentabilidad = useCallback(async (forceRefresh = false) => {
+    // Crear hash simple de ventas para detectar cambios reales
+    const ventasHash = ventas.map(v => `${v.id}-${v.estado}`).join('|');
+
+    // Si no hay cambios y no es refresh forzado, no recalcular
+    if (!forceRefresh && ventasHash === lastVentasHashRef.current && datos) {
+      return;
+    }
+
     if (ventas.length === 0) {
       setDatos(null);
+      lastVentasHashRef.current = '';
       return;
     }
 
@@ -81,21 +164,19 @@ export function useRentabilidadVentas(ventas: Venta[]) {
     setError(null);
 
     try {
-      // 1. Obtener gastos GA/GO prorrateables
-      const todosLosGastos = await gastoService.getAll();
+      // 1. Obtener gastos con cache
+      const todosLosGastos = await getGastosConCache();
+
       const gastosGAGO = todosLosGastos.filter(
         g => g.esProrrateable && (g.categoria === 'GA' || g.categoria === 'GO')
       );
       const totalGastosGAGO = gastosGAGO.reduce((sum, g) => sum + g.montoPEN, 0);
 
       // 2. Primera pasada: Calcular costo base total para prorrateo proporcional
-      // Los gastos GA/GO se distribuyen proporcionalmente al costo base de cada venta
-      // Esto es más justo: productos más costosos absorben más gastos operativos
       let totalCostoBaseParaProrrateo = 0;
       let totalUnidadesVendidas = 0;
 
       for (const venta of ventas) {
-        // Solo contar ventas con estado válido (no cotizaciones ni canceladas)
         if (venta.estado !== 'cotizacion' && venta.estado !== 'cancelada') {
           const costoBase = venta.costoTotalPEN || 0;
           if (costoBase > 0) {
@@ -106,38 +187,46 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         }
       }
 
-      // Base = costo base total vendido (mínimo 1 para evitar división por cero)
       const baseUnidades = totalUnidadesVendidas > 0 ? totalUnidadesVendidas : 1;
       const baseCostoTotal = totalCostoBaseParaProrrateo > 0 ? totalCostoBaseParaProrrateo : 1;
-
-      // 3. Calcular impacto por unidad (para referencia/display)
-      // Nota: El prorrateo real es proporcional al costo base, no por unidad
       const impactoPorUnidad = totalGastosGAGO / baseUnidades;
 
-      // 4. Obtener gastos GV/GD por venta
-      const gastosGVGDPorVenta = new Map<string, number>();
-      const gastosGVGD = todosLosGastos.filter(
-        g => (g.categoria === 'GV' || g.categoria === 'GD') && g.ventaId
-      );
-      for (const gasto of gastosGVGD) {
-        if (gasto.ventaId) {
-          const actual = gastosGVGDPorVenta.get(gasto.ventaId) || 0;
-          gastosGVGDPorVenta.set(gasto.ventaId, actual + gasto.montoPEN);
+      // 3. Agrupar gastos GV y GD por ventaId (una sola pasada)
+      const gastosGVPorVenta = new Map<string, number>();
+      const gastosGDPorVenta = new Map<string, number>();
+
+      // Debug: contar gastos GD encontrados
+      const gastosGDEncontrados = todosLosGastos.filter(g => g.categoria === 'GD');
+      if (gastosGDEncontrados.length > 0) {
+        console.log(`[Rentabilidad] Gastos GD encontrados: ${gastosGDEncontrados.length}`);
+        gastosGDEncontrados.forEach(g => {
+          console.log(`  - ${g.numeroGasto}: ventaId=${g.ventaId}, monto=${g.montoPEN}`);
+        });
+      }
+
+      for (const gasto of todosLosGastos) {
+        if (!gasto.ventaId) continue;
+
+        if (gasto.categoria === 'GV') {
+          const actual = gastosGVPorVenta.get(gasto.ventaId) || 0;
+          gastosGVPorVenta.set(gasto.ventaId, actual + gasto.montoPEN);
+        } else if (gasto.categoria === 'GD') {
+          const actual = gastosGDPorVenta.get(gasto.ventaId) || 0;
+          gastosGDPorVenta.set(gasto.ventaId, actual + gasto.montoPEN);
         }
       }
 
-      // 5. Calcular rentabilidad por venta
+      // 4. Calcular rentabilidad por venta
       const rentabilidadPorVenta = new Map<string, RentabilidadVenta>();
       let totalVentas = 0;
       let totalCostoBase = 0;
       let totalCostoGAGO = 0;
       let totalUtilidadBruta = 0;
-      let totalGastosGVGDSum = 0;
+      let totalGastosGVSum = 0;
+      let totalGastosGDSum = 0;
       let totalUtilidadNeta = 0;
-      let ventasConCosto = 0;
 
       for (const venta of ventas) {
-        // Solo calcular para ventas con estado válido y con costos
         if (venta.estado === 'cotizacion' || venta.estado === 'cancelada') {
           continue;
         }
@@ -145,35 +234,58 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         const costoBase = venta.costoTotalPEN || 0;
         if (costoBase === 0) continue;
 
-        // Prorrateo proporcional: productos más costosos absorben más GA/GO
-        // Formula: costoGAGO = totalGastosGAGO × (costoBase_venta / costoBase_total)
-        const proporcionCosto = costoBase / baseCostoTotal;
-        const costoGAGO = totalGastosGAGO * proporcionCosto;
-        const costoTotal = costoBase + costoGAGO;
+        // GV: Gastos de Venta
+        const gastosVentaCampos = (venta.gastosVentaPEN || 0) ||
+          ((venta.comisionML || 0) +
+           (venta.costoEnvioNegocio || 0) +
+           (venta.costoEnvioML || 0) +
+           (venta.otrosGastosVenta || 0));
+        const gastosGVTablaVenta = gastosGVPorVenta.get(venta.id) || 0;
+        const gastosGV = gastosVentaCampos + gastosGVTablaVenta;
 
-        const utilidadBruta = venta.totalPEN - costoTotal;
-        const gastosGVGD = gastosGVGDPorVenta.get(venta.id) || 0;
-        const utilidadNeta = utilidadBruta - gastosGVGD;
+        // GD: Gastos de Distribución
+        const gastosGD = gastosGDPorVenta.get(venta.id) || 0;
+
+        // Total GV + GD
+        const gastosGVGD = gastosGV + gastosGD;
+
+        // GA/GO prorrateado
+        const proporcionCostoVenta = costoBase / baseCostoTotal;
+        const costoGAGO = totalGastosGAGO * proporcionCostoVenta;
+
+        // Costo total
+        const costoTotal = costoBase + gastosGVGD + costoGAGO;
+
+        // Utilidades
+        const utilidadBruta = venta.totalPEN - costoBase - gastosGVGD;
+        const utilidadNeta = utilidadBruta - costoGAGO;
 
         const margenBruto = venta.totalPEN > 0 ? (utilidadBruta / venta.totalPEN) * 100 : 0;
         const margenNeto = venta.totalPEN > 0 ? (utilidadNeta / venta.totalPEN) * 100 : 0;
 
-        // Calcular desglose por producto (siempre incluirlo para transparencia)
-        const desgloseProductos: GAGOProducto[] = [];
+        // Desglose por producto
+        const desgloseProductos: DesgloseProducto[] = [];
 
         for (const producto of venta.productos) {
-          // Costo base del producto (suma de CTRU de sus unidades)
           const costoBaseProducto = producto.costoTotalUnidades || 0;
+          const subtotalProducto = producto.subtotal || 0;
 
-          if (costoBaseProducto > 0 && costoBase > 0) {
-            // Proporción de este producto respecto al total de la venta
-            const proporcionProducto = costoBaseProducto / costoBase;
-            // GA/GO asignado proporcionalmente
-            const costoGAGOProducto = costoGAGO * proporcionProducto;
-            const costoTotalProducto = costoBaseProducto + costoGAGOProducto;
-            const utilidadBrutaProducto = producto.subtotal - costoTotalProducto;
-            const margenBrutoProducto = producto.subtotal > 0
-              ? (utilidadBrutaProducto / producto.subtotal) * 100
+          if (subtotalProducto > 0) {
+            const proporcionVenta = subtotalProducto / venta.totalPEN;
+            const proporcionCosto = costoBase > 0 ? costoBaseProducto / costoBase : 0;
+
+            const costoGVGDProducto = gastosGVGD * proporcionVenta;
+            const costoGAGOProducto = costoGAGO * proporcionCosto;
+            const costoTotalProducto = costoBaseProducto + costoGVGDProducto + costoGAGOProducto;
+
+            const utilidadBrutaProducto = subtotalProducto - costoBaseProducto - costoGVGDProducto;
+            const utilidadNetaProducto = subtotalProducto - costoTotalProducto;
+
+            const margenBrutoProducto = subtotalProducto > 0
+              ? (utilidadBrutaProducto / subtotalProducto) * 100
+              : 0;
+            const margenNetoProducto = subtotalProducto > 0
+              ? (utilidadNetaProducto / subtotalProducto) * 100
               : 0;
 
             desgloseProductos.push({
@@ -181,13 +293,17 @@ export function useRentabilidadVentas(ventas: Venta[]) {
               sku: producto.sku,
               nombre: `${producto.marca} ${producto.nombreComercial} ${producto.presentacion}`,
               cantidad: producto.cantidad,
+              precioVenta: subtotalProducto,
+              proporcionVenta: proporcionVenta * 100,
               costoBase: costoBaseProducto,
-              proporcion: proporcionProducto * 100, // Como porcentaje
+              proporcionCosto: proporcionCosto * 100,
+              costoGVGD: costoGVGDProducto,
               costoGAGO: costoGAGOProducto,
               costoTotal: costoTotalProducto,
-              precioVenta: producto.subtotal,
               utilidadBruta: utilidadBrutaProducto,
-              margenBruto: margenBrutoProducto
+              utilidadNeta: utilidadNetaProducto,
+              margenBruto: margenBrutoProducto,
+              margenNeto: margenNetoProducto
             });
           }
         }
@@ -195,10 +311,12 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         rentabilidadPorVenta.set(venta.id, {
           ventaId: venta.id,
           costoBase,
+          gastosGV,
+          gastosGD,
+          gastosGVGD,
           costoGAGO,
           costoTotal,
           utilidadBruta,
-          gastosGVGD,
           utilidadNeta,
           margenBruto,
           margenNeto,
@@ -210,18 +328,20 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         totalCostoBase += costoBase;
         totalCostoGAGO += costoGAGO;
         totalUtilidadBruta += utilidadBruta;
-        totalGastosGVGDSum += gastosGVGD;
+        totalGastosGVSum += gastosGV;
+        totalGastosGDSum += gastosGD;
         totalUtilidadNeta += utilidadNeta;
-        ventasConCosto++;
       }
 
-      // 6. Calcular promedios
+      // 5. Calcular promedios
       const margenBrutoPromedio = totalVentas > 0
         ? (totalUtilidadBruta / totalVentas) * 100
         : 0;
       const margenNetoPromedio = totalVentas > 0
         ? (totalUtilidadNeta / totalVentas) * 100
         : 0;
+
+      lastVentasHashRef.current = ventasHash;
 
       setDatos({
         totalGastosGAGO,
@@ -232,7 +352,9 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         totalCostoBase,
         totalCostoGAGO,
         totalUtilidadBruta,
-        totalGastosGVGD: totalGastosGVGDSum,
+        totalGastosGV: totalGastosGVSum,
+        totalGastosGD: totalGastosGDSum,
+        totalGastosGVGD: totalGastosGVSum + totalGastosGDSum,
         totalUtilidadNeta,
         margenBrutoPromedio,
         margenNetoPromedio,
@@ -244,11 +366,32 @@ export function useRentabilidadVentas(ventas: Venta[]) {
     } finally {
       setLoading(false);
     }
-  }, [ventas]);
+  }, [ventas, datos]);
 
+  // Efecto con debounce para evitar cálculos excesivos
   useEffect(() => {
-    calcularRentabilidad();
-  }, [calcularRentabilidad]);
+    // Cancelar debounce anterior
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    // Si no hay ventas, limpiar inmediatamente
+    if (ventas.length === 0) {
+      setDatos(null);
+      return;
+    }
+
+    // Debounce de 300ms
+    debounceRef.current = setTimeout(() => {
+      calcularRentabilidad();
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [ventas]); // Solo depender de ventas, no de calcularRentabilidad
 
   // Helper para obtener rentabilidad de una venta específica
   const getRentabilidadVenta = useCallback((ventaId: string): RentabilidadVenta | null => {
@@ -260,6 +403,9 @@ export function useRentabilidadVentas(ventas: Venta[]) {
     error,
     datos,
     getRentabilidadVenta,
-    refetch: calcularRentabilidad
+    refetch: () => {
+      invalidarCacheGastos();
+      calcularRentabilidad(true);
+    }
   };
 }

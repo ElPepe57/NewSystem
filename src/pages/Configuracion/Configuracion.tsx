@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Building2, Settings, Warehouse, User, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Building2, Settings, Warehouse, User, Plus, Pencil, Trash2, RefreshCw, Database, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button, Card, Modal } from '../../components/common';
 import { EmpresaForm } from '../../components/modules/configuracion/EmpresaForm';
 import { ConfiguracionForm } from '../../components/modules/configuracion/ConfiguracionForm';
@@ -7,13 +7,26 @@ import { AlmacenForm } from '../../components/modules/configuracion/AlmacenForm'
 import { useConfiguracionStore } from '../../store/configuracionStore';
 import { useAlmacenStore } from '../../store/almacenStore';
 import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../store/toastStore';
+import { useProductoStore } from '../../store/productoStore';
+import { useProveedorStore } from '../../store/proveedorStore';
+import { useClienteStore } from '../../store/clienteStore';
+import { useOrdenCompraStore } from '../../store/ordenCompraStore';
+import { useVentaStore } from '../../store/ventaStore';
+import { useUnidadStore } from '../../store/unidadStore';
+import { useMarcaStore } from '../../store/marcaStore';
+import { useTipoProductoStore } from '../../store/tipoProductoStore';
+import { useCategoriaStore } from '../../store/categoriaStore';
+import { useCompetidorStore } from '../../store/competidorStore';
+import { sincronizacionService, type SincronizacionGlobalResult } from '../../services/sincronizacion.service';
 import type { EmpresaFormData, ConfiguracionFormData } from '../../types/configuracion.types';
 import type { AlmacenFormData, Almacen } from '../../types/almacen.types';
 
-type TabType = 'empresa' | 'general' | 'almacenes' | 'perfil';
+type TabType = 'empresa' | 'general' | 'almacenes' | 'perfil' | 'sistema';
 
 export const Configuracion: React.FC = () => {
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
 
   // Store de Configuración (Empresa y General)
   const {
@@ -35,12 +48,31 @@ export const Configuracion: React.FC = () => {
     updateAlmacen
   } = useAlmacenStore();
 
+  // Stores adicionales para sincronización
+  const fetchProductos = useProductoStore(state => state.fetchProductos);
+  const fetchProveedores = useProveedorStore(state => state.fetchProveedores);
+  const fetchProveedorStats = useProveedorStore(state => state.fetchStats);
+  const fetchClientes = useClienteStore(state => state.fetchClientes);
+  const fetchOrdenes = useOrdenCompraStore(state => state.fetchOrdenes);
+  const fetchVentas = useVentaStore(state => state.fetchVentas);
+  const fetchUnidades = useUnidadStore(state => state.fetchUnidades);
+  const fetchMarcas = useMarcaStore(state => state.fetchMarcas);
+  const fetchTiposActivos = useTipoProductoStore(state => state.fetchTiposActivos);
+  const fetchCategoriasActivas = useCategoriaStore(state => state.fetchCategoriasActivas);
+  const fetchCompetidores = useCompetidorStore(state => state.fetchCompetidores);
+
   const loading = configLoading || almacenesLoading;
 
   const [activeTab, setActiveTab] = useState<TabType>('empresa');
   const [isAlmacenModalOpen, setIsAlmacenModalOpen] = useState(false);
   const [selectedAlmacen, setSelectedAlmacen] = useState<Almacen | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Estado para sincronización
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState(0);
+  const [syncMessage, setSyncMessage] = useState('');
+  const [syncResult, setSyncResult] = useState<SincronizacionGlobalResult | null>(null);
 
   // Cargar datos al montar
   useEffect(() => {
@@ -52,13 +84,13 @@ export const Configuracion: React.FC = () => {
   // Guardar empresa
   const handleSaveEmpresa = async (data: EmpresaFormData) => {
     if (!user) return;
-    
+
     setIsSubmitting(true);
     try {
       await saveEmpresa(data, user.uid);
-      alert('✅ Información de la empresa guardada correctamente');
+      toast.success('Información de la empresa guardada correctamente');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     } finally {
       setIsSubmitting(false);
     }
@@ -67,13 +99,13 @@ export const Configuracion: React.FC = () => {
   // Guardar configuración
   const handleSaveConfiguracion = async (data: ConfiguracionFormData) => {
     if (!user) return;
-    
+
     setIsSubmitting(true);
     try {
       await saveConfiguracion(data, user.uid);
-      alert('✅ Configuración guardada correctamente');
+      toast.success('Configuración guardada correctamente');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     } finally {
       setIsSubmitting(false);
     }
@@ -87,15 +119,15 @@ export const Configuracion: React.FC = () => {
     try {
       if (selectedAlmacen) {
         await updateAlmacen(selectedAlmacen.id, data, user.uid);
-        alert('✅ Almacén actualizado correctamente');
+        toast.success('Almacén actualizado correctamente');
       } else {
         await createAlmacen(data, user.uid);
-        alert('✅ Almacén creado correctamente');
+        toast.success('Almacén creado correctamente');
       }
       setIsAlmacenModalOpen(false);
       setSelectedAlmacen(null);
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     } finally {
       setIsSubmitting(false);
     }
@@ -113,11 +145,64 @@ export const Configuracion: React.FC = () => {
     setIsAlmacenModalOpen(true);
   };
 
+  // Ejecutar sincronización
+  const handleSincronizar = async () => {
+    setIsSyncing(true);
+    setSyncProgress(0);
+    setSyncMessage('Iniciando sincronización...');
+    setSyncResult(null);
+
+    try {
+      const result = await sincronizacionService.sincronizarTodo((mensaje, progreso) => {
+        setSyncMessage(mensaje);
+        setSyncProgress(progreso);
+      });
+
+      setSyncResult(result);
+
+      if (result.exito) {
+        toast.success(
+          `Sincronización completada: ${result.resumen.totalActualizados} actualizados, ${result.resumen.totalReferenciasLimpiadas} referencias limpiadas`
+        );
+      } else {
+        toast.warning(
+          `Sincronización completada con ${result.resumen.totalErrores} errores`
+        );
+      }
+
+      // Recargar TODOS los stores para reflejar cambios
+      setSyncMessage('Recargando datos...');
+      await Promise.all([
+        fetchEmpresa(),
+        fetchConfiguracion(),
+        fetchAlmacenes(),
+        fetchProductos(),
+        fetchProveedores(),
+        fetchProveedorStats(),
+        fetchClientes(),
+        fetchOrdenes(),
+        fetchVentas(),
+        fetchUnidades(),
+        fetchMarcas(),
+        fetchTiposActivos(),
+        fetchCategoriasActivas(),
+        fetchCompetidores()
+      ]);
+    } catch (error: any) {
+      toast.error(error.message, 'Error de sincronización');
+    } finally {
+      setIsSyncing(false);
+      setSyncProgress(100);
+      setSyncMessage('');
+    }
+  };
+
   const tabs = [
     { id: 'empresa' as TabType, label: 'Empresa', icon: Building2 },
     { id: 'general' as TabType, label: 'General', icon: Settings },
     { id: 'almacenes' as TabType, label: 'Almacenes', icon: Warehouse },
-    { id: 'perfil' as TabType, label: 'Mi Perfil', icon: User }
+    { id: 'perfil' as TabType, label: 'Mi Perfil', icon: User },
+    { id: 'sistema' as TabType, label: 'Sistema', icon: Database }
   ];
 
   return (
@@ -266,11 +351,11 @@ export const Configuracion: React.FC = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 text-xs rounded-full ${
                               almacen.tipo === 'viajero' ? 'bg-blue-100 text-blue-800' :
-                              almacen.tipo === 'almacen_usa' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-purple-100 text-purple-800'
+                              almacen.tipo === 'almacen_peru' ? 'bg-purple-100 text-purple-800' :
+                              'bg-gray-100 text-gray-800'
                             }`}>
                               {almacen.tipo === 'viajero' ? 'Viajero' :
-                               almacen.tipo === 'almacen_usa' ? 'Almacén USA' : 'Almacén Perú'}
+                               almacen.tipo === 'almacen_peru' ? 'Almacén Perú' : almacen.tipo}
                             </span>
                           </td>
                           <td className="px-6 py-4">
@@ -354,12 +439,170 @@ export const Configuracion: React.FC = () => {
 
               <div className="pt-4 border-t">
                 <p className="text-sm text-gray-600">
-                  Para cambiar tu contraseña o actualizar información de la cuenta, 
+                  Para cambiar tu contraseña o actualizar información de la cuenta,
                   contacta al administrador del sistema.
                 </p>
               </div>
             </div>
           </Card>
+        )}
+
+        {/* Tab: Sistema */}
+        {activeTab === 'sistema' && (
+          <div className="space-y-6">
+            {/* Sincronización */}
+            <Card padding="lg">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <RefreshCw className="h-6 w-6" />
+                  Sincronización de Datos
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Sincroniza todos los módulos con Firebase para limpiar referencias huérfanas
+                  y actualizar contadores cuando se han eliminado datos directamente desde la consola.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {/* Botón de sincronización */}
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="primary"
+                    onClick={handleSincronizar}
+                    disabled={isSyncing}
+                    className="min-w-[200px]"
+                  >
+                    {isSyncing ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Sincronizando...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="h-5 w-5 mr-2" />
+                        Sincronizar Todo
+                      </>
+                    )}
+                  </Button>
+
+                  {syncMessage && (
+                    <span className="text-sm text-gray-600">{syncMessage}</span>
+                  )}
+                </div>
+
+                {/* Barra de progreso */}
+                {isSyncing && (
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${syncProgress}%` }}
+                    />
+                  </div>
+                )}
+
+                {/* Resultado de sincronización */}
+                {syncResult && (
+                  <div className="mt-4 border rounded-lg overflow-hidden">
+                    {/* Resumen */}
+                    <div className={`p-4 ${syncResult.exito ? 'bg-green-50' : 'bg-amber-50'}`}>
+                      <div className="flex items-center gap-2">
+                        {syncResult.exito ? (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <AlertCircle className="h-5 w-5 text-amber-600" />
+                        )}
+                        <span className="font-medium">
+                          {syncResult.exito ? 'Sincronización exitosa' : 'Sincronización con advertencias'}
+                        </span>
+                      </div>
+                      <div className="mt-2 grid grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">Actualizados:</span>
+                          <span className="ml-2 font-medium text-blue-600">{syncResult.resumen.totalActualizados}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Eliminados:</span>
+                          <span className="ml-2 font-medium text-red-600">{syncResult.resumen.totalEliminados}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Refs. limpiadas:</span>
+                          <span className="ml-2 font-medium text-purple-600">{syncResult.resumen.totalReferenciasLimpiadas}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Errores:</span>
+                          <span className="ml-2 font-medium text-amber-600">{syncResult.resumen.totalErrores}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Detalle por módulo */}
+                    <div className="divide-y">
+                      {syncResult.resultados.map((resultado, idx) => (
+                        <div key={idx} className="px-4 py-3 flex items-center justify-between hover:bg-gray-50">
+                          <div className="flex items-center gap-2">
+                            {resultado.errores.length === 0 ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <AlertCircle className="h-4 w-4 text-amber-500" />
+                            )}
+                            <span className="font-medium text-gray-900">{resultado.modulo}</span>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            {resultado.registrosActualizados > 0 && (
+                              <span className="text-blue-600">{resultado.registrosActualizados} act.</span>
+                            )}
+                            {resultado.registrosEliminados > 0 && (
+                              <span className="text-red-600">{resultado.registrosEliminados} elim.</span>
+                            )}
+                            {resultado.referenciasLimpiadas > 0 && (
+                              <span className="text-purple-600">{resultado.referenciasLimpiadas} refs.</span>
+                            )}
+                            {resultado.errores.length > 0 && (
+                              <span className="text-amber-600">{resultado.errores.length} err.</span>
+                            )}
+                            {resultado.registrosActualizados === 0 &&
+                             resultado.registrosEliminados === 0 &&
+                             resultado.referenciasLimpiadas === 0 &&
+                             resultado.errores.length === 0 && (
+                              <span className="text-gray-400">Sin cambios</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Información */}
+                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+                  <strong>¿Cuándo usar esta función?</strong>
+                  <ul className="mt-2 list-disc list-inside space-y-1">
+                    <li>Cuando has eliminado registros directamente desde Firebase Console</li>
+                    <li>Cuando los contadores de stock no coinciden con las unidades reales</li>
+                    <li>Cuando hay proveedores/productos/clientes que aparecen pero ya no existen</li>
+                    <li>Después de una migración o importación de datos</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            {/* Información del sistema */}
+            <Card padding="lg">
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Información del Sistema</h2>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">Versión:</span>
+                  <span className="ml-2 font-mono">2.0.0</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Entorno:</span>
+                  <span className="ml-2 font-mono">{import.meta.env.MODE}</span>
+                </div>
+              </div>
+            </Card>
+          </div>
         )}
       </div>
 

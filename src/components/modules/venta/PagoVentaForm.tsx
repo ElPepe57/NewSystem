@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, CreditCard, Banknote, Smartphone, Building2, Wallet } from 'lucide-react';
-import { Button, Input, Card } from '../../common';
+import { Button, Input, Card, useConfirmDialog, ConfirmDialog } from '../../common';
 import { tesoreriaService } from '../../../services/tesoreria.service';
 import type { Venta, MetodoPago } from '../../../types/venta.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../../types/tesoreria.types';
@@ -27,6 +27,8 @@ const mapMetodoPagoToTesoreria = (metodo: MetodoPago): MetodoTesoreria => {
     'plin': 'plin',
     'tarjeta': 'tarjeta',
     'mercado_pago': 'mercado_pago',
+    'paypal': 'paypal',
+    'zelle': 'zelle',
     'otro': 'otro'
   };
   return mapping[metodo];
@@ -53,6 +55,9 @@ export const PagoVentaForm: React.FC<PagoVentaFormProps> = ({
   const [referencia, setReferencia] = useState('');
   const [notas, setNotas] = useState('');
   const [esPagoCompleto, setEsPagoCompleto] = useState(true);
+
+  // Hook para dialogo de confirmacion
+  const { dialogProps, confirm } = useConfirmDialog();
 
   // Estado para cuentas de tesorería
   const [cuentas, setCuentas] = useState<CuentaCaja[]>([]);
@@ -110,7 +115,7 @@ export const PagoVentaForm: React.FC<PagoVentaFormProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (monto <= 0) {
@@ -121,11 +126,22 @@ export const PagoVentaForm: React.FC<PagoVentaFormProps> = ({
     // Permitir sobrepagos con confirmación
     if (monto > venta.montoPendiente) {
       const excedente = monto - venta.montoPendiente;
-      const confirmar = window.confirm(
-        `El monto ingresado (S/ ${monto.toFixed(2)}) excede el saldo pendiente por S/ ${excedente.toFixed(2)}.\n\n` +
-        `¿Deseas registrar este pago de todas formas?\n\n` +
-        `El excedente quedará como saldo a favor del cliente.`
-      );
+      const confirmar = await confirm({
+        title: 'Sobrepago Detectado',
+        message: (
+          <div className="space-y-2">
+            <p>El monto ingresado excede el saldo pendiente:</p>
+            <div className="bg-amber-50 p-3 rounded-lg text-sm">
+              <div className="flex justify-between"><span>Monto ingresado:</span><span>S/ {monto.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span>Saldo pendiente:</span><span>S/ {venta.montoPendiente.toFixed(2)}</span></div>
+              <div className="flex justify-between font-medium text-amber-700"><span>Excedente:</span><span>S/ {excedente.toFixed(2)}</span></div>
+            </div>
+            <p className="text-sm text-gray-500">El excedente quedara como saldo a favor del cliente.</p>
+          </div>
+        ),
+        confirmText: 'Registrar de Todas Formas',
+        variant: 'warning'
+      });
       if (!confirmar) return;
     }
 
@@ -370,6 +386,9 @@ export const PagoVentaForm: React.FC<PagoVentaFormProps> = ({
             </Button>
           </div>
         </form>
+
+        {/* Dialogo de Confirmacion */}
+        <ConfirmDialog {...dialogProps} />
       </div>
     </div>
   );

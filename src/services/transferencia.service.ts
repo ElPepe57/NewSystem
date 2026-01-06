@@ -28,6 +28,7 @@ import type { Unidad, MovimientoUnidad, EstadoUnidad } from '../types/unidad.typ
 import { almacenService } from './almacen.service';
 import { ProductoService } from './producto.service';
 import { tesoreriaService } from './tesoreria.service';
+import { inventarioService } from './inventario.service';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 
 const COLLECTION_NAME = 'transferencias';
@@ -499,24 +500,11 @@ export const transferenciaService = {
       transferencia.totalUnidades
     );
 
-    // Para transferencias USA→Perú: mover stock de USA a tránsito
+    // Para transferencias USA→Perú: sincronizar stock de productos afectados
     if (transferencia.tipo === 'usa_peru') {
-      // Agrupar unidades por producto
-      const unidadesPorProducto = new Map<string, number>();
-      for (const unidad of transferencia.unidades) {
-        const count = unidadesPorProducto.get(unidad.productoId) || 0;
-        unidadesPorProducto.set(unidad.productoId, count + 1);
-      }
-
-      // Actualizar stock de cada producto
-      for (const [productoId, cantidad] of unidadesPorProducto) {
-        try {
-          await ProductoService.decrementarStock(productoId, cantidad, 'USA');
-          await ProductoService.incrementarStock(productoId, cantidad, 'transito');
-        } catch (e) {
-          console.error(`Error actualizando stock en tránsito de producto ${productoId}:`, e);
-        }
-      }
+      // Obtener productos únicos afectados
+      const productosAfectados = [...new Set(transferencia.unidades.map(u => u.productoId))];
+      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
     }
 
     await batch.commit();
@@ -710,36 +698,13 @@ export const transferenciaService = {
       unidadesRecibidas
     );
 
-    // Actualizar contadores de stock en productos
-    // Agrupar unidades recibidas por producto
-    const unidadesPorProducto = new Map<string, number>();
-    for (const unidadRecepcion of data.unidadesRecibidas) {
-      if (!unidadRecepcion.recibida || unidadRecepcion.danada) continue;
-
-      const unidadTransf = transferencia.unidades.find(u => u.unidadId === unidadRecepcion.unidadId);
-      if (unidadTransf) {
-        const count = unidadesPorProducto.get(unidadTransf.productoId) || 0;
-        unidadesPorProducto.set(unidadTransf.productoId, count + 1);
-      }
-    }
-
-    // Actualizar stock de cada producto
-    for (const [productoId, cantidad] of unidadesPorProducto) {
-      try {
-        if (transferencia.tipo === 'usa_peru') {
-          // Decrementar tránsito e incrementar Perú
-          // (el stock USA ya se decrementó al enviar)
-          await ProductoService.decrementarStock(productoId, cantidad, 'transito');
-          await ProductoService.incrementarStock(productoId, cantidad, 'Peru');
-        } else {
-          // Transferencia interna USA: no cambia los totales por país
-        }
-      } catch (e) {
-        console.error(`Error actualizando stock de producto ${productoId}:`, e);
-      }
-    }
+    // Sincronizar stock de productos afectados desde unidades (fuente de verdad)
+    const productosAfectados = [...new Set(transferencia.unidades.map(u => u.productoId))];
 
     await batch.commit();
+
+    // Sincronizar después del commit para reflejar cambios reales
+    await inventarioService.sincronizarStockProductos_batch(productosAfectados);
   },
 
   // ============================================
@@ -1015,7 +980,7 @@ export const transferenciaService = {
       }
     }
 
-    // Crear registro de pago
+    // Crear registro de pago (sin campos undefined para Firestore)
     const pagoId = `PAG-VIA-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
     const nuevoPago: PagoViajero = {
       id: pagoId,
@@ -1026,13 +991,14 @@ export const transferenciaService = {
       montoPEN,
       tipoCambio,
       metodoPago,
-      cuentaOrigenId,
-      cuentaOrigenNombre,
-      referencia,
-      notas,
       registradoPor: userId,
       fechaRegistro: Timestamp.now()
     };
+    // Agregar campos opcionales solo si tienen valor
+    if (cuentaOrigenId) nuevoPago.cuentaOrigenId = cuentaOrigenId;
+    if (cuentaOrigenNombre) nuevoPago.cuentaOrigenNombre = cuentaOrigenNombre;
+    if (referencia) nuevoPago.referencia = referencia;
+    if (notas) nuevoPago.notas = notas;
 
     // Actualizar la transferencia
     const docRef = doc(db, COLLECTION_NAME, transferenciaId);
@@ -1051,16 +1017,16 @@ export const transferenciaService = {
         monto: montoOriginal,
         tipoCambio,
         metodo: metodoPago,
-        referencia,
         concepto: `Pago flete ${transferencia.numeroTransferencia} - Viajero: ${transferencia.viajeroNombre || 'Sin nombre'}`,
         notas: notas || `Transferencia ${transferencia.numeroTransferencia}. ${monedaPago === 'USD' ? `≈ S/ ${montoPEN.toFixed(2)}` : `≈ $${montoUSD.toFixed(2)} USD`}`,
-        fecha: fechaPago
+        fecha: fechaPago,
+        transferenciaId: transferenciaId,
+        transferenciaNumero: transferencia.numeroTransferencia
       };
 
-      // Agregar cuenta origen (de donde sale el dinero)
-      if (cuentaOrigenId) {
-        movimientoData.cuentaOrigen = cuentaOrigenId;
-      }
+      // Agregar campos opcionales solo si tienen valor
+      if (referencia) movimientoData.referencia = referencia;
+      if (cuentaOrigenId) movimientoData.cuentaOrigen = cuentaOrigenId;
 
       const movimientoId = await tesoreriaService.registrarMovimiento(movimientoData, userId);
       nuevoPago.movimientoTesoreriaId = movimientoId;

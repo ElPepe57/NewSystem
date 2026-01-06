@@ -658,6 +658,113 @@ export const marcaService = {
    */
   async getProximoCodigo(): Promise<string> {
     return generarCodigoMarca();
+  },
+
+  /**
+   * Recalcular métricas de todas las marcas desde ventas actuales
+   * Útil cuando se eliminan ventas manualmente de Firebase
+   */
+  async recalcularMetricasDesdeVentas(): Promise<{ marcasActualizadas: number; errores: string[] }> {
+    try {
+      const errores: string[] = [];
+      let marcasActualizadas = 0;
+
+      // 1. Obtener todas las marcas
+      const marcas = await this.getAll();
+
+      // 2. Obtener todos los productos para mapear marcaId -> productos
+      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosMap = new Map<string, string[]>(); // marcaId -> [productoIds]
+      const productoToMarca = new Map<string, string>(); // productoId -> marcaId
+
+      productosSnapshot.docs.forEach(doc => {
+        const producto = doc.data();
+        const marcaId = producto.marcaId;
+        const marcaNombre = producto.marca;
+
+        // Buscar la marca por ID o nombre
+        const marca = marcas.find(m =>
+          m.id === marcaId ||
+          m.nombre.toLowerCase() === marcaNombre?.toLowerCase()
+        );
+
+        if (marca) {
+          if (!productosMap.has(marca.id)) {
+            productosMap.set(marca.id, []);
+          }
+          productosMap.get(marca.id)!.push(doc.id);
+          productoToMarca.set(doc.id, marca.id);
+        }
+      });
+
+      // 3. Obtener todas las ventas no canceladas
+      const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+      const ventas = ventasSnapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter((v: any) => v.estado !== 'cancelada');
+
+      // 4. Calcular métricas por marca
+      const metricasPorMarca = new Map<string, {
+        unidadesVendidas: number;
+        ventasTotalPEN: number;
+        margenTotal: number;
+        productosActivos: number;
+      }>();
+
+      // Inicializar métricas en 0 para todas las marcas
+      marcas.forEach(marca => {
+        metricasPorMarca.set(marca.id, {
+          unidadesVendidas: 0,
+          ventasTotalPEN: 0,
+          margenTotal: 0,
+          productosActivos: productosMap.get(marca.id)?.length || 0
+        });
+      });
+
+      // Acumular métricas desde ventas
+      ventas.forEach((venta: any) => {
+        venta.productos?.forEach((prod: any) => {
+          const marcaId = productoToMarca.get(prod.productoId);
+          if (marcaId && metricasPorMarca.has(marcaId)) {
+            const metricas = metricasPorMarca.get(marcaId)!;
+            metricas.unidadesVendidas += prod.cantidad || 0;
+            metricas.ventasTotalPEN += prod.subtotal || (prod.cantidad * prod.precioUnitario) || 0;
+
+            if (prod.costoTotalUnidades && prod.subtotal) {
+              metricas.margenTotal += prod.subtotal - prod.costoTotalUnidades;
+            }
+          }
+        });
+      });
+
+      // 5. Actualizar cada marca en Firestore
+      for (const marca of marcas) {
+        try {
+          const metricas = metricasPorMarca.get(marca.id)!;
+          const margenPromedio = metricas.ventasTotalPEN > 0
+            ? (metricas.margenTotal / metricas.ventasTotalPEN) * 100
+            : 0;
+
+          await updateDoc(doc(db, COLLECTION_NAME, marca.id), {
+            metricas: {
+              productosActivos: metricas.productosActivos,
+              unidadesVendidas: metricas.unidadesVendidas,
+              ventasTotalPEN: metricas.ventasTotalPEN,
+              margenPromedio: margenPromedio
+            }
+          });
+
+          marcasActualizadas++;
+        } catch (error: any) {
+          errores.push(`Error actualizando "${marca.nombre}": ${error.message}`);
+        }
+      }
+
+      return { marcasActualizadas, errores };
+    } catch (error: any) {
+      console.error('Error recalculando métricas:', error);
+      throw new Error('Error al recalcular métricas de marcas');
+    }
   }
 };
 

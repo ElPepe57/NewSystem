@@ -99,13 +99,14 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
       filtered = filtered.filter(p => p.pais === filterPais);
     }
 
-    // Filtrar por búsqueda
+    // Filtrar por búsqueda (con validación segura)
     if (inputValue.length >= 1) {
       const searchLower = inputValue.toLowerCase();
-      filtered = filtered.filter(p =>
-        p.nombre.toLowerCase().includes(searchLower) ||
-        p.pais?.toLowerCase().includes(searchLower)
-      );
+      filtered = filtered.filter(p => {
+        const nombre = (p.nombre ?? '').toLowerCase();
+        const pais = (p.pais ?? '').toLowerCase();
+        return nombre.includes(searchLower) || pais.includes(searchLower);
+      });
     }
 
     setFilteredProveedores(filtered);

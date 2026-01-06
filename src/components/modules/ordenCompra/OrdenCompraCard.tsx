@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard } from 'lucide-react';
-import { Badge, Button } from '../../common';
+import { Badge, Button, StatusTimeline } from '../../common';
+import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPago } from '../../../types/ordenCompra.types';
 
 interface OrdenCompraCardProps {
@@ -45,6 +46,78 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   const estadoInfo = estadoLabels[orden.estado];
   const estadoPagoInfo = estadoPagoLabels[orden.estadoPago || 'pendiente'];
 
+  // Generar pasos del timeline
+  const timelineSteps: TimelineStep[] = useMemo(() => {
+    const estadoIndex: Record<string, number> = {
+      'borrador': 0,
+      'enviada': 1,
+      'en_transito': 2,
+      'recibida': 3,
+      'cancelada': -1
+    };
+
+    const currentIndex = estadoIndex[orden.estado] ?? 0;
+    const isCancelled = orden.estado === 'cancelada';
+
+    return [
+      {
+        id: 'borrador',
+        label: 'Borrador',
+        date: orden.fechaCreacion,
+        status: isCancelled ? 'skipped' : currentIndex >= 0 ? 'completed' : 'pending'
+      },
+      {
+        id: 'enviada',
+        label: 'Enviada',
+        date: orden.fechaEnviada,
+        status: isCancelled ? 'skipped' : currentIndex > 1 ? 'completed' : currentIndex === 1 ? 'current' : 'pending'
+      },
+      {
+        id: 'en_transito',
+        label: 'En Tránsito',
+        date: orden.fechaEnTransito,
+        status: isCancelled ? 'skipped' : currentIndex > 2 ? 'completed' : currentIndex === 2 ? 'current' : 'pending'
+      },
+      {
+        id: 'recibida',
+        label: 'Recibida',
+        date: orden.fechaRecibida,
+        status: isCancelled ? 'skipped' : currentIndex === 3 ? 'completed' : 'pending'
+      }
+    ];
+  }, [orden]);
+
+  // Determinar la siguiente acción basada en el estado
+  const nextAction: NextAction | undefined = useMemo(() => {
+    if (orden.estado === 'cancelada' || orden.estado === 'recibida') return undefined;
+
+    const actions: Record<string, NextAction> = {
+      borrador: {
+        label: 'Marcar como Enviada',
+        description: 'Indica que la orden fue enviada al proveedor',
+        buttonText: onCambiarEstado ? 'Enviar' : undefined,
+        onClick: onCambiarEstado ? () => onCambiarEstado('enviada') : undefined,
+        variant: 'primary'
+      },
+      enviada: {
+        label: 'Poner en Tránsito',
+        description: 'Registra el tracking y marca la orden en camino',
+        buttonText: onCambiarEstado ? 'En Tránsito' : undefined,
+        onClick: onCambiarEstado ? () => onCambiarEstado('en_transito') : undefined,
+        variant: 'warning'
+      },
+      en_transito: {
+        label: 'Recibir Orden',
+        description: 'Confirma la recepción y genera inventario',
+        buttonText: onRecibirOrden ? 'Recibir' : undefined,
+        onClick: onRecibirOrden,
+        variant: 'success'
+      }
+    };
+
+    return actions[orden.estado];
+  }, [orden.estado, onCambiarEstado, onRecibirOrden]);
+
   // Determinar siguientes acciones posibles (solo estado logístico)
   const getAccionesDisponibles = () => {
     const acciones: Array<{ estado: EstadoOrden; label: string }> = [];
@@ -80,6 +153,17 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             {estadoPagoInfo.label}
           </Badge>
         </div>
+      </div>
+
+      {/* Timeline de Estado */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <StatusTimeline
+          steps={timelineSteps}
+          nextAction={nextAction}
+          orientation="horizontal"
+          showDates={true}
+          compact={false}
+        />
       </div>
 
       {/* Información General */}

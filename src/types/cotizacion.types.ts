@@ -68,6 +68,8 @@ export interface ProductoCotizacion {
   marca: string;
   nombreComercial: string;
   presentacion: string;
+  contenido?: string;      // Ej: "180 cápsulas", "500g"
+  dosaje?: string;         // Ej: "150mg", "1000 UI"
 
   cantidad: number;
   precioUnitario: number;    // Precio cotizado en PEN
@@ -215,6 +217,12 @@ export interface Cotizacion {
 
   // Vigencia según tipo
   diasVigencia: number;            // 7 días sin adelanto, 90 días con adelanto
+
+  // Compromiso de entrega (días hábiles después del adelanto)
+  diasCompromisoEntrega?: number;  // Ej: 15 días hábiles
+
+  // Tiempo estimado de importación para productos sin stock (días base)
+  tiempoEstimadoImportacion?: number;  // Ej: 10 → se muestra como "10-15 días hábiles"
 
   // Adelanto comprometido (antes del pago)
   adelantoComprometido?: AdelantoComprometido;

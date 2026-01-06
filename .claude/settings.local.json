@@ -8,7 +8,22 @@
       "Bash(npm install)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(node scripts/dist/migrar-productos.js:*)",
+      "Bash(git checkout:*)",
+      "Bash(cat:*)",
+      "Bash(npm run build:check:*)",
+      "Bash(npm install:*)",
+      "Bash(ls -la \"C:\\Users\\josel\\.claude-worktrees\\businessmn-v2\\goofy-mendeleev\\scripts\\data\"\" 2>/dev/null || dir \"C:Usersjosel.claude-worktreesbusinessmn-v2goofy-mendeleevscriptsdata \")",
+      "Bash(node scripts/dist/migrar-clasificacion.js:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(npx:*)",
+      "Bash(node scripts/dist/limpiar-datos.js:*)",
+      "Bash(dir \"C:\\Users\\josel\\.claude-worktrees\\businessmn-v2\\goofy-mendeleev\\Sistema Antiguo - Archivos\")",
+      "Bash(dir:*)",
+      "Bash(npx tsc --noEmit)"
     ],
     "deny": [],
     "ask": []

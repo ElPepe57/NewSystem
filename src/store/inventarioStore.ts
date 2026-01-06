@@ -35,9 +35,6 @@ interface InventarioState {
   fetchInventarioPorPais: (pais: 'USA' | 'Peru') => Promise<InventarioPorPais>;
   fetchResumen: () => Promise<void>;
   fetchStats: () => Promise<void>;
-  buscarInventario: (termino: string) => Promise<void>;
-  getProductosStockCritico: () => Promise<void>;
-  getProductosAgotados: () => Promise<void>;
   sincronizarCompleto: () => Promise<SincronizacionResultado>;
   clearError: () => void;
 }
@@ -89,39 +86,6 @@ export const useInventarioStore = create<InventarioState>((set, get) => ({
     try {
       const stats = await inventarioService.getStats();
       set({ stats, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
-
-  buscarInventario: async (termino: string) => {
-    set({ loading: true, error: null });
-    try {
-      const inventario = await inventarioService.buscarInventario(termino);
-      set({ inventario, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
-
-  getProductosStockCritico: async () => {
-    set({ loading: true, error: null });
-    try {
-      const inventario = await inventarioService.getProductosStockCritico();
-      set({ inventario, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
-
-  getProductosAgotados: async () => {
-    set({ loading: true, error: null });
-    try {
-      const inventario = await inventarioService.getProductosAgotados();
-      set({ inventario, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;

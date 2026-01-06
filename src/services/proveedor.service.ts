@@ -270,7 +270,8 @@ class ProveedorService {
       const id = await this.create({
         nombre,
         pais,
-        tipo
+        tipo,
+        url: ''
       }, userId);
 
       const nuevoProveedor = await this.getById(id);
@@ -386,7 +387,7 @@ class ProveedorService {
 
       // Top proveedores por compras
       stats.topProveedoresPorCompras = proveedores
-        .filter(p => p.metricas?.ordenesCompra > 0)
+        .filter(p => p.metricas && p.metricas.ordenesCompra > 0)
         .sort((a, b) => (b.metricas?.montoTotalUSD || 0) - (a.metricas?.montoTotalUSD || 0))
         .slice(0, 5)
         .map(p => ({

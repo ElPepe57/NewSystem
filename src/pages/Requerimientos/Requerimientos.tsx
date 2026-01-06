@@ -33,7 +33,7 @@ import {
   Truck,
   UserCheck
 } from 'lucide-react';
-import { Button, Card, Modal, Badge } from '../../components/common';
+import { Button, Card, Modal, Badge, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
 import { useProductoStore } from '../../store/productoStore';
@@ -157,6 +157,9 @@ export const Requerimientos: React.FC = () => {
     cotizaciones: true
   });
 
+  // Hook para dialogo de confirmacion
+  const { dialogProps, confirm } = useConfirmDialog();
+
   useEffect(() => {
     loadData();
     loadTCDelDia();
@@ -204,12 +207,11 @@ export const Requerimientos: React.FC = () => {
     try {
       const sugerencias: SugerenciaStock[] = [];
 
-      // Obtener inventario agregado y demanda histórica
-      const [inventarioAgregado, demandaHistorica] = await Promise.all([
-        inventarioService.getInventarioAgregado(),
-        VentaService.getDemandaPromedioPorProducto(30) // Últimos 30 días
-      ]);
-      const inventarioMap = new Map(inventarioAgregado.map(inv => [inv.productoId, inv]));
+      // Obtener inventario agregado
+      const inventarioAgregado = await inventarioService.getInventarioAgregado();
+      const inventarioMap = new Map(inventarioAgregado.map((inv: { productoId: string; disponibles: number }) => [inv.productoId, inv]));
+      // TODO: Implementar getDemandaPromedioPorProducto en VentaService
+      const demandaHistorica: Map<string, number> = new Map();
 
       for (const producto of prods) {
         // Verificar si está activo
@@ -217,7 +219,7 @@ export const Requerimientos: React.FC = () => {
 
         // Obtener stock actual del producto desde inventario agregado
         const inventario = inventarioMap.get(producto.id);
-        const stockActual = inventario?.disponibles || 0;
+        const stockActual = (inventario as { disponibles?: number })?.disponibles || 0;
         const stockMinimo = producto.stockMinimo || 5;
 
         if (stockActual <= stockMinimo) {
@@ -509,6 +511,75 @@ export const Requerimientos: React.FC = () => {
           productos: productosParaOC,
           tcInvestigacion: req.expectativa.tcInvestigacion,
           prioridad: req.prioridad
+        }
+      }
+    });
+  };
+
+  // Generar OCs separadas por cada viajero asignado
+  const handleGenerarOCsPorViajero = async (req: Requerimiento) => {
+    if (!user) return;
+
+    const asignaciones = (req as any).asignaciones as AsignacionResponsable[] | undefined;
+    if (!asignaciones || asignaciones.length === 0) {
+      alert('No hay viajeros asignados para generar OCs');
+      return;
+    }
+
+    // Filtrar solo asignaciones pendientes sin OC
+    const asignacionesSinOC = asignaciones.filter(
+      a => a.estado === 'pendiente' && !a.ordenCompraId
+    );
+
+    if (asignacionesSinOC.length === 0) {
+      alert('Todas las asignaciones ya tienen OC generada');
+      return;
+    }
+
+    const confirmar = await confirm({
+      title: 'Generar Ordenes de Compra',
+      message: (
+        <div className="space-y-2">
+          <p>Se generaran {asignacionesSinOC.length} Orden(es) de Compra:</p>
+          <ul className="list-disc pl-4 text-sm text-gray-600">
+            {asignacionesSinOC.map(a => (
+              <li key={a.id}>{a.responsableNombre}: {a.productos.reduce((s, p) => s + p.cantidadAsignada, 0)} unidades</li>
+            ))}
+          </ul>
+        </div>
+      ),
+      confirmText: 'Generar OCs',
+      variant: 'info'
+    });
+    if (!confirmar) return;
+
+    // Navegar a /compras con todas las asignaciones para crear OCs múltiples
+    navigate('/compras', {
+      state: {
+        fromRequerimientoMultiViajero: {
+          id: req.id,
+          numeroRequerimiento: req.numeroRequerimiento,
+          tcInvestigacion: req.expectativa?.tcInvestigacion,
+          prioridad: req.prioridad,
+          asignaciones: asignacionesSinOC.map(asig => ({
+            asignacionId: asig.id,
+            viajeroId: asig.responsableId,
+            viajeroNombre: asig.responsableNombre,
+            viajeroCodigo: asig.responsableCodigo,
+            productos: asig.productos.map(prod => {
+              // Buscar precio estimado del producto en el requerimiento original
+              const prodReq = req.productos.find(p => p.productoId === prod.productoId);
+              return {
+                productoId: prod.productoId,
+                sku: prod.sku,
+                marca: prod.marca,
+                nombreComercial: prod.nombreComercial,
+                cantidad: prod.cantidadAsignada,
+                precioUnitarioUSD: prod.precioCompraUSD || prodReq?.precioEstimadoUSD || 0
+              };
+            }),
+            costoEstimadoUSD: asig.costoEstimadoUSD
+          }))
         }
       }
     });
@@ -1911,6 +1982,20 @@ export const Requerimientos: React.FC = () => {
                 </Button>
               )}
 
+              {/* Botón para generar OCs por viajero (cuando hay asignaciones sin OC) */}
+              {(selectedRequerimiento.estado === 'aprobado' || selectedRequerimiento.estado === 'en_proceso') &&
+               (selectedRequerimiento as any).asignaciones?.some((a: AsignacionResponsable) =>
+                 a.estado === 'pendiente' && !a.ordenCompraId
+               ) && (
+                <Button
+                  variant="primary"
+                  onClick={() => handleGenerarOCsPorViajero(selectedRequerimiento)}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Generar OCs por Viajero
+                </Button>
+              )}
+
               {selectedRequerimiento.estado === 'pendiente' && (
                 <Button variant="primary" onClick={() => {
                   handleAprobar(selectedRequerimiento);
@@ -1960,6 +2045,9 @@ export const Requerimientos: React.FC = () => {
           userId={user.uid}
         />
       )}
+
+      {/* Dialogo de Confirmacion */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 };

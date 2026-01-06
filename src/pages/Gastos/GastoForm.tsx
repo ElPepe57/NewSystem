@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Wallet, Info, Search, Link } from 'lucide-react';
+import { X, Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote } from 'lucide-react';
 import { Button, Input, Select, AutocompleteInput } from '../../components/common';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
+import { useToastStore } from '../../store/toastStore';
 import { tesoreriaService } from '../../services/tesoreria.service';
 import { VentaService } from '../../services/venta.service';
 import { CATEGORIAS_GASTO, type GastoFormData, type CategoriaGasto, type MonedaGasto, type EstadoGasto } from '../../types/gasto.types';
-import type { CuentaCaja } from '../../types/tesoreria.types';
+import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
 import type { Venta } from '../../types/venta.types';
 
 interface GastoFormProps {
@@ -18,10 +19,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
   const { user } = useAuthStore();
   const { crearGasto, gastos } = useGastoStore();
   const { getTCDelDia } = useTipoCambioStore();
+  const toast = useToastStore();
   const [tipoCambio, setTipoCambio] = React.useState<number>(0);
 
   const [formData, setFormData] = useState<GastoFormData>({
-    tipo: '',
+    tipo: 'otros',
     categoria: 'GO',
     descripcion: '',
     moneda: 'PEN',
@@ -53,6 +55,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
   const [cuentas, setCuentas] = useState<CuentaCaja[]>([]);
   const [cuentaOrigenId, setCuentaOrigenId] = useState<string>('');
   const [loadingCuentas, setLoadingCuentas] = useState(true);
+  const [metodoPago, setMetodoPago] = useState<MetodoTesoreria>('efectivo');
+  const [referenciaPago, setReferenciaPago] = useState<string>('');
 
   // Estado para ventas (para asociar gastos GV/GD)
   const [ventas, setVentas] = useState<Venta[]>([]);
@@ -84,15 +88,17 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     cargarVentas();
   }, [formData.categoria]);
 
-  // Filtrar ventas por búsqueda
+  // Filtrar ventas por búsqueda (con validación segura)
   const ventasFiltradas = useMemo(() => {
-    if (!busquedaVenta.trim()) return ventas.slice(0, 10);
+    const ventasArr = Array.isArray(ventas) ? ventas : [];
+    if (!busquedaVenta.trim()) return ventasArr.slice(0, 10);
     const termino = busquedaVenta.toLowerCase();
-    return ventas
-      .filter(v =>
-        v.numeroVenta.toLowerCase().includes(termino) ||
-        v.clienteNombre?.toLowerCase().includes(termino)
-      )
+    return ventasArr
+      .filter(v => {
+        const numeroVenta = (v.numeroVenta ?? '').toLowerCase();
+        const nombreCliente = (v.nombreCliente ?? '').toLowerCase();
+        return numeroVenta.includes(termino) || nombreCliente.includes(termino);
+      })
       .slice(0, 10);
   }, [ventas, busquedaVenta]);
 
@@ -181,33 +187,33 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     e.preventDefault();
 
     if (!user) {
-      alert('Debe iniciar sesión');
+      toast.warning('Debe iniciar sesión');
       return;
     }
 
     if (!formData.tipo.trim()) {
-      alert('Debe ingresar un tipo de gasto');
+      toast.warning('Debe ingresar un tipo de gasto');
       return;
     }
 
     if (!formData.descripcion.trim()) {
-      alert('Debe ingresar una descripción');
+      toast.warning('Debe ingresar una descripción');
       return;
     }
 
     if (formData.montoOriginal <= 0) {
-      alert('El monto debe ser mayor a 0');
+      toast.warning('El monto debe ser mayor a 0');
       return;
     }
 
     if (formData.moneda === 'USD' && !formData.tipoCambio) {
-      alert('Debe especificar el tipo de cambio para gastos en USD');
+      toast.warning('Debe especificar el tipo de cambio para gastos en USD');
       return;
     }
 
     // Validar que GV y GD tengan venta asociada
     if ((formData.categoria === 'GV' || formData.categoria === 'GD') && !ventaSeleccionada) {
-      alert('Los gastos de Venta y Distribución deben asociarse a una venta');
+      toast.warning('Los gastos de Venta y Distribución deben asociarse a una venta');
       return;
     }
 
@@ -216,14 +222,16 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     try {
       const gastoData = {
         ...formData,
-        cuentaOrigenId: cuentaOrigenId || undefined
+        cuentaOrigenId: formData.estado === 'pagado' ? (cuentaOrigenId || undefined) : undefined,
+        metodoPago: formData.estado === 'pagado' ? metodoPago : undefined,
+        referenciaPago: formData.estado === 'pagado' ? (referenciaPago || undefined) : undefined
       };
 
       await crearGasto(gastoData, user.uid);
-      alert('✅ Gasto registrado exitosamente');
+      toast.success('Gasto registrado exitosamente');
       onClose();
     } catch (error: any) {
-      alert(`❌ Error al crear gasto: ${error.message}`);
+      toast.error(error.message, 'Error al crear gasto');
     } finally {
       setLoading(false);
     }
@@ -243,7 +251,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
         categoria: value,
         esProrrateable: catInfo.impactaCTRU,
         impactaCTRU: catInfo.impactaCTRU,
-        tipo: '' // Limpiar tipo al cambiar categoría
+        tipo: 'otros' // Resetear tipo al cambiar categoría
       }));
     }
 
@@ -346,7 +354,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
                         {ventaSeleccionada.numeroVenta}
                       </div>
                       <div className="text-sm text-purple-700">
-                        {ventaSeleccionada.clienteNombre || 'Sin cliente'}
+                        {ventaSeleccionada.nombreCliente || 'Sin cliente'}
                       </div>
                       <div className="text-xs text-purple-600 mt-1">
                         Total: S/ {ventaSeleccionada.totalPEN?.toFixed(2) || '0.00'}
@@ -359,7 +367,6 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
                       onClick={() => {
                         setVentaSeleccionada(null);
                         handleChange('ventaId', undefined);
-                        handleChange('ventaNumero', undefined);
                       }}
                     >
                       Cambiar
@@ -396,7 +403,6 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
                           onClick={() => {
                             setVentaSeleccionada(venta);
                             handleChange('ventaId', venta.id);
-                            handleChange('ventaNumero', venta.numeroVenta);
                             setBusquedaVenta('');
                           }}
                           className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center justify-between"
@@ -404,7 +410,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
                           <div>
                             <div className="font-medium text-gray-900">{venta.numeroVenta}</div>
                             <div className="text-sm text-gray-500">
-                              {venta.clienteNombre || 'Sin cliente'}
+                              {venta.nombreCliente || 'Sin cliente'}
                             </div>
                           </div>
                           <div className="text-right">
@@ -456,52 +462,100 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
             </div>
           </div>
 
-          {/* Sección 3: Monto */}
+          {/* Sección 3: Monto y Moneda */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Monto</h3>
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              Monto del Gasto
+            </h3>
 
-            <div className="grid grid-cols-3 gap-4">
-              <Select
-                label="Moneda"
-                required
-                value={formData.moneda}
-                onChange={(e) => handleChange('moneda', e.target.value as MonedaGasto)}
-                options={[
-                  { value: 'PEN', label: 'Soles (PEN)' },
-                  { value: 'USD', label: 'Dólares (USD)' }
-                ]}
-              />
+            {/* Selector de Moneda Visual */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Moneda *</label>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleChange('moneda', 'PEN')}
+                  className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                    formData.moneda === 'PEN'
+                      ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
+                      : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Banknote className="h-5 w-5" />
+                  S/ Soles (PEN)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleChange('moneda', 'USD')}
+                  className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                    formData.moneda === 'USD'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-200'
+                      : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <DollarSign className="h-5 w-5" />
+                  $ Dólares (USD)
+                </button>
+              </div>
+            </div>
 
-              <Input
-                label="Monto"
-                type="number"
-                required
-                min="0"
-                step="0.01"
-                value={formData.montoOriginal}
-                onChange={(e) => handleChange('montoOriginal', parseFloat(e.target.value) || 0)}
-              />
-
-              {formData.moneda === 'USD' && (
-                <Input
-                  label="Tipo de Cambio"
+            {/* Monto y Tipo de Cambio */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Monto {formData.moneda === 'USD' ? '($)' : '(S/)'} *
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={formData.montoOriginal || ''}
+                  onChange={(e) => handleChange('montoOriginal', parseFloat(e.target.value) || 0)}
+                  placeholder="0.00"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-lg font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tipo de Cambio *
+                </label>
+                <input
                   type="number"
                   required
                   min="0"
                   step="0.001"
                   value={formData.tipoCambio || ''}
                   onChange={(e) => handleChange('tipoCambio', parseFloat(e.target.value) || 0)}
-                  placeholder="TC para conversión"
+                  placeholder="3.700"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
                 />
-              )}
+                <p className="text-xs text-gray-500 mt-1">TC del día para equivalencias</p>
+              </div>
             </div>
 
-            {formData.moneda === 'USD' && formData.tipoCambio && formData.montoOriginal > 0 && (
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <div className="text-sm text-blue-900">
-                  Equivalente en PEN: <span className="font-semibold">
-                    S/ {(formData.montoOriginal * formData.tipoCambio).toFixed(2)}
-                  </span>
+            {/* Preview de equivalencias */}
+            {formData.montoOriginal > 0 && (formData.tipoCambio ?? 0) > 0 && (
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-gray-200">
+                <div className="text-sm font-medium text-gray-700 mb-2">Equivalencias:</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className={`p-3 rounded-lg ${formData.moneda === 'PEN' ? 'bg-green-100 ring-2 ring-green-300' : 'bg-white'}`}>
+                    <div className="text-xs text-gray-500">En Soles</div>
+                    <div className="text-lg font-bold text-green-700">
+                      S/ {formData.moneda === 'PEN'
+                        ? formData.montoOriginal.toFixed(2)
+                        : (formData.montoOriginal * (formData.tipoCambio ?? 1)).toFixed(2)}
+                    </div>
+                  </div>
+                  <div className={`p-3 rounded-lg ${formData.moneda === 'USD' ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white'}`}>
+                    <div className="text-xs text-gray-500">En Dólares</div>
+                    <div className="text-lg font-bold text-blue-700">
+                      $ {formData.moneda === 'USD'
+                        ? formData.montoOriginal.toFixed(2)
+                        : (formData.montoOriginal / (formData.tipoCambio ?? 1)).toFixed(2)}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -559,80 +613,181 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
             </div>
           )}
 
-          {/* Sección 5: Detalles Adicionales */}
+          {/* Sección 5: Estado y Fecha */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Detalles Adicionales</h3>
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Estado y Fecha
+            </h3>
 
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Fecha del Gasto"
-                type="date"
-                required
-                value={formData.fecha.toISOString().split('T')[0]}
-                onChange={(e) => handleChange('fecha', new Date(e.target.value))}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha del Gasto *</label>
+                <input
+                  type="date"
+                  required
+                  value={formData.fecha.toISOString().split('T')[0]}
+                  onChange={(e) => handleChange('fecha', new Date(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
 
-              <Select
-                label="Estado"
-                required
-                value={formData.estado}
-                onChange={(e) => handleChange('estado', e.target.value as EstadoGasto)}
-                options={[
-                  { value: 'pendiente', label: 'Pendiente de Pago' },
-                  { value: 'pagado', label: 'Pagado' },
-                  { value: 'cancelado', label: 'Cancelado' }
-                ]}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleChange('estado', 'pendiente')}
+                    className={`flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                      formData.estado === 'pendiente'
+                        ? 'border-amber-500 bg-amber-50 text-amber-700'
+                        : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    Pendiente
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('estado', 'pagado')}
+                    className={`flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                      formData.estado === 'pagado'
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    Pagado
+                  </button>
+                </div>
+              </div>
             </div>
+          </div>
 
-            {/* Cuenta Origen - Solo mostrar si el gasto está pagado */}
-            {formData.estado === 'pagado' && (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
+          {/* Sección 6: Información de Pago - Solo si está pagado */}
+          {formData.estado === 'pagado' && (
+            <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
+              <h3 className="text-lg font-semibold text-green-800 flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Información del Pago
+              </h3>
+
+              {/* Método de Pago */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'efectivo', label: 'Efectivo', icon: '💵' },
+                    { value: 'transferencia_bancaria', label: 'Transferencia', icon: '🏦' },
+                    { value: 'yape', label: 'Yape', icon: '📱' },
+                    { value: 'plin', label: 'Plin', icon: '📲' },
+                    { value: 'tarjeta_credito', label: 'T. Crédito', icon: '💳' },
+                    { value: 'otro', label: 'Otro', icon: '📋' }
+                  ].map((metodo) => (
+                    <button
+                      key={metodo.value}
+                      type="button"
+                      onClick={() => setMetodoPago(metodo.value as MetodoTesoreria)}
+                      className={`py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                        metodoPago === metodo.value
+                          ? 'border-green-500 bg-white text-green-700'
+                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      <span className="mr-1">{metodo.icon}</span>
+                      {metodo.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cuenta de Origen */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4" />
-                    Cuenta de Origen (de dónde salió el dinero)
+                    Cuenta de Origen *
                   </div>
                 </label>
                 {loadingCuentas ? (
-                  <div className="text-sm text-gray-500">Cargando cuentas...</div>
+                  <div className="text-sm text-gray-500 py-2">Cargando cuentas...</div>
                 ) : cuentas.length === 0 ? (
-                  <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-                    No hay cuentas configuradas. El gasto se registrará sin asociar a una cuenta.
+                  <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                    No hay cuentas configuradas. Configure cuentas en Tesorería.
                   </div>
                 ) : (
-                  <select
-                    value={cuentaOrigenId}
-                    onChange={(e) => setCuentaOrigenId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-                  >
-                    <option value="">Sin cuenta específica</option>
-                    {cuentas
-                      .filter(c => c.esBiMoneda || c.moneda === formData.moneda)
-                      .map((cuenta) => {
-                        const saldoMostrar = cuenta.esBiMoneda
-                          ? (formData.moneda === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0))
-                          : cuenta.saldoActual;
-                        const simbolo = formData.moneda === 'USD' ? '$' : 'S/';
-                        const etiquetaBiMoneda = cuenta.esBiMoneda ? ' [BI-MONEDA]' : '';
-                        return (
-                          <option key={cuenta.id} value={cuenta.id}>
-                            {cuenta.nombre}{etiquetaBiMoneda} {cuenta.banco ? `(${cuenta.banco})` : ''} - Saldo {formData.moneda}: {simbolo} {saldoMostrar.toFixed(2)}
-                          </option>
-                        );
-                      })}
-                  </select>
-                )}
-                {cuentaSeleccionada && (
-                  <div className="text-xs text-gray-500">
-                    Se descontará de "{cuentaSeleccionada.nombre}"
-                    {cuentaSeleccionada.esBiMoneda
-                      ? ` [BI-MONEDA - saldo ${formData.moneda}]`
-                      : ` (${cuentaSeleccionada.moneda})`}
-                  </div>
+                  <>
+                    <select
+                      value={cuentaOrigenId}
+                      onChange={(e) => setCuentaOrigenId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="">Seleccionar cuenta...</option>
+                      {cuentas
+                        .filter(c => c.esBiMoneda || c.moneda === formData.moneda)
+                        .map((cuenta) => {
+                          const saldoMostrar = cuenta.esBiMoneda
+                            ? (formData.moneda === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0))
+                            : cuenta.saldoActual;
+                          const simbolo = formData.moneda === 'USD' ? '$' : 'S/';
+                          const etiquetaBiMoneda = cuenta.esBiMoneda ? ' [BI-MONEDA]' : '';
+                          return (
+                            <option key={cuenta.id} value={cuenta.id}>
+                              {cuenta.nombre}{etiquetaBiMoneda} - Saldo: {simbolo} {saldoMostrar.toFixed(2)}
+                            </option>
+                          );
+                        })}
+                    </select>
+                    {cuentaSeleccionada && formData.montoOriginal > 0 && (
+                      <div className="mt-2 p-2 bg-white rounded border border-green-200">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Saldo actual:</span>
+                          <span className="font-medium">
+                            {formData.moneda === 'USD' ? '$' : 'S/'} {(cuentaSeleccionada.esBiMoneda
+                              ? (formData.moneda === 'USD' ? cuentaSeleccionada.saldoUSD : cuentaSeleccionada.saldoPEN) || 0
+                              : cuentaSeleccionada.saldoActual
+                            ).toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm text-red-600">
+                          <span>Egreso:</span>
+                          <span className="font-medium">
+                            - {formData.moneda === 'USD' ? '$' : 'S/'} {formData.montoOriginal.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm font-bold mt-1 pt-1 border-t border-green-200">
+                          <span>Nuevo saldo:</span>
+                          <span className={(((cuentaSeleccionada.esBiMoneda
+                              ? (formData.moneda === 'USD' ? cuentaSeleccionada.saldoUSD : cuentaSeleccionada.saldoPEN) || 0
+                              : cuentaSeleccionada.saldoActual) - formData.montoOriginal) < 0) ? 'text-red-600' : 'text-green-600'}>
+                            {formData.moneda === 'USD' ? '$' : 'S/'} {((cuentaSeleccionada.esBiMoneda
+                              ? (formData.moneda === 'USD' ? cuentaSeleccionada.saldoUSD : cuentaSeleccionada.saldoPEN) || 0
+                              : cuentaSeleccionada.saldoActual) - formData.montoOriginal).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
-            )}
+
+              {/* Referencia de Pago */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Referencia / Nº Operación (Opcional)
+                </label>
+                <input
+                  type="text"
+                  value={referenciaPago}
+                  onChange={(e) => setReferenciaPago(e.target.value)}
+                  placeholder="Ej: OP-123456, Voucher, etc."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Sección 7: Información Adicional */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Información Adicional</h3>
 
             <div className="grid grid-cols-2 gap-4">
               <Input
@@ -659,7 +814,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
               <textarea
                 value={formData.notas || ''}
                 onChange={(e) => handleChange('notas', e.target.value)}
-                rows={3}
+                rows={2}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Observaciones adicionales..."
               />

@@ -46,6 +46,15 @@ interface HistorialViajero {
   pagados: Transferencia[];
 }
 
+// Interfaz para métricas calculadas en tiempo real
+interface MetricasViajeroCalculadas {
+  unidadesActuales: number;
+  valorInventarioUSD: number;
+  totalUnidadesEnviadas: number;
+  tiempoPromedioAlmacenamiento: number;
+  loading: boolean;
+}
+
 export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
   viajero,
   onClose,
@@ -54,6 +63,137 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
   const [tabActiva, setTabActiva] = useState<TabActiva>('info');
   const [historial, setHistorial] = useState<HistorialViajero | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Estado para métricas calculadas en tiempo real
+  const [metricas, setMetricas] = useState<MetricasViajeroCalculadas>({
+    unidadesActuales: 0,
+    valorInventarioUSD: 0,
+    totalUnidadesEnviadas: 0,
+    tiempoPromedioAlmacenamiento: 0,
+    loading: true
+  });
+
+  // Calcular métricas reales desde Firebase
+  useEffect(() => {
+    const calcularMetricasReales = async () => {
+      setMetricas(prev => ({ ...prev, loading: true }));
+
+      try {
+        const { collection, getDocs, query, where } = await import('firebase/firestore');
+        const { db } = await import('../../../lib/firebase');
+
+        // Obtener todas las unidades de este viajero/almacén
+        const unidadesQuery = query(
+          collection(db, 'unidades'),
+          where('almacenId', '==', viajero.id)
+        );
+        const unidadesSnapshot = await getDocs(unidadesQuery);
+
+        // Filtrar unidades disponibles (excluir estados terminales)
+        const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru'];
+        let unidadesDisponibles = 0;
+        let valorTotal = 0;
+        let sumaDiasAlmacenamiento = 0;
+        let unidadesConFecha = 0;
+        const ahora = Date.now();
+
+        unidadesSnapshot.docs.forEach(docSnap => {
+          const data = docSnap.data();
+          if (!estadosExcluidos.includes(data.estado)) {
+            unidadesDisponibles++;
+            valorTotal += data.costoUnitarioUSD || 0;
+
+            // Calcular días de almacenamiento basado en fecha de recepción
+            // Prioridad: fechaRecepcion > fechaCreacion
+            const fechaCampo = data.fechaRecepcion || data.fechaCreacion;
+            if (fechaCampo) {
+              const fechaIngreso = fechaCampo.toDate?.()
+                ? fechaCampo.toDate().getTime()
+                : new Date(fechaCampo).getTime();
+              const diasEnAlmacen = Math.floor((ahora - fechaIngreso) / (1000 * 60 * 60 * 24));
+              if (diasEnAlmacen >= 0) {
+                sumaDiasAlmacenamiento += diasEnAlmacen;
+                unidadesConFecha++;
+              }
+            }
+          }
+        });
+
+        const tiempoPromedio = unidadesConFecha > 0
+          ? Math.round(sumaDiasAlmacenamiento / unidadesConFecha)
+          : 0;
+
+        // Obtener transferencias enviadas por este viajero
+        // Un viajero puede enviar de dos formas:
+        // 1. Como almacenOrigenId (envía desde su almacén)
+        // 2. Como viajeroId (transporta productos usa_peru)
+
+        let totalEnviadas = 0;
+        const transferenciasContadas = new Set<string>();
+
+        // Opción 1: Transferencias donde es el almacén origen
+        const transferenciasOrigenQuery = query(
+          collection(db, 'transferencias'),
+          where('almacenOrigenId', '==', viajero.id)
+        );
+        const transferenciasOrigen = await getDocs(transferenciasOrigenQuery);
+
+        transferenciasOrigen.docs.forEach(docSnap => {
+          const data = docSnap.data();
+          if (data.estado === 'completada' || data.estado === 'en_transito' || data.estado === 'recibida' || data.estado === 'recibida_completa') {
+            totalEnviadas += data.totalUnidades || data.cantidadUnidades || data.unidadesIds?.length || 0;
+            transferenciasContadas.add(docSnap.id);
+          }
+        });
+
+        // Opción 2: Transferencias donde es el viajero que transporta (usa_peru)
+        const transferenciasViajeroQuery = query(
+          collection(db, 'transferencias'),
+          where('viajeroId', '==', viajero.id)
+        );
+        const transferenciasViajero = await getDocs(transferenciasViajeroQuery);
+
+        transferenciasViajero.docs.forEach(docSnap => {
+          const data = docSnap.data();
+          // Solo contar si no fue contada ya
+          if (!transferenciasContadas.has(docSnap.id)) {
+            if (data.estado === 'completada' || data.estado === 'en_transito' || data.estado === 'recibida' || data.estado === 'recibida_completa') {
+              totalEnviadas += data.totalUnidades || data.cantidadUnidades || data.unidadesIds?.length || 0;
+            }
+          }
+        });
+
+        console.log(`[ViajeroDetalle] Métricas calculadas para ${viajero.nombre}:`, {
+          unidadesDisponibles,
+          valorTotal,
+          totalEnviadas,
+          tiempoPromedio,
+          transferenciasOrigen: transferenciasOrigen.docs.length,
+          transferenciasViajero: transferenciasViajero.docs.length
+        });
+
+        setMetricas({
+          unidadesActuales: unidadesDisponibles,
+          valorInventarioUSD: valorTotal,
+          totalUnidadesEnviadas: totalEnviadas,
+          tiempoPromedioAlmacenamiento: tiempoPromedio,
+          loading: false
+        });
+      } catch (error) {
+        console.error('Error calculando métricas del viajero:', error);
+        // Fallback a datos del documento
+        setMetricas({
+          unidadesActuales: viajero.unidadesActuales || 0,
+          valorInventarioUSD: viajero.valorInventarioUSD || 0,
+          totalUnidadesEnviadas: viajero.totalUnidadesEnviadas || 0,
+          tiempoPromedioAlmacenamiento: viajero.tiempoPromedioAlmacenamiento || 0,
+          loading: false
+        });
+      }
+    };
+
+    calcularMetricasReales();
+  }, [viajero.id, viajero.unidadesActuales, viajero.valorInventarioUSD, viajero.totalUnidadesEnviadas, viajero.tiempoPromedioAlmacenamiento]);
 
   useEffect(() => {
     const cargarHistorial = async () => {
@@ -187,14 +327,14 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
               {/* Tab: Informacion */}
               {tabActiva === 'info' && (
                 <div className="space-y-6">
-                  {/* KPIs rapidos */}
+                  {/* KPIs rapidos - Calculados en tiempo real */}
                   <div className="grid grid-cols-4 gap-4">
                     <Card padding="md" className="bg-purple-50">
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-xs text-purple-600 font-medium">Unidades Actuales</div>
                           <div className="text-2xl font-bold text-purple-700">
-                            {viajero.unidadesActuales || 0}
+                            {metricas.loading ? '...' : metricas.unidadesActuales}
                           </div>
                         </div>
                         <Package className="h-8 w-8 text-purple-400" />
@@ -206,7 +346,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                         <div>
                           <div className="text-xs text-green-600 font-medium">Valor Inventario</div>
                           <div className="text-2xl font-bold text-green-700">
-                            ${(viajero.valorInventarioUSD || 0).toFixed(0)}
+                            {metricas.loading ? '...' : `$${metricas.valorInventarioUSD.toFixed(0)}`}
                           </div>
                         </div>
                         <DollarSign className="h-8 w-8 text-green-400" />
@@ -218,7 +358,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                         <div>
                           <div className="text-xs text-blue-600 font-medium">Total Enviadas</div>
                           <div className="text-2xl font-bold text-blue-700">
-                            {viajero.totalUnidadesEnviadas || 0}
+                            {metricas.loading ? '...' : metricas.totalUnidadesEnviadas}
                           </div>
                         </div>
                         <TrendingUp className="h-8 w-8 text-blue-400" />
@@ -230,7 +370,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                         <div>
                           <div className="text-xs text-amber-600 font-medium">Dias Promedio</div>
                           <div className="text-2xl font-bold text-amber-700">
-                            {viajero.tiempoPromedioAlmacenamiento || 0}
+                            {metricas.loading ? '...' : metricas.tiempoPromedioAlmacenamiento}
                           </div>
                         </div>
                         <Clock className="h-8 w-8 text-amber-400" />
@@ -515,8 +655,8 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                               <div>
                                 <div className="font-medium text-gray-900">{t.numeroTransferencia}</div>
                                 <div className="text-sm text-gray-500">
-                                  {t.fechaPagoViajero
-                                    ? `Pagado: ${t.fechaPagoViajero.toDate().toLocaleDateString('es-PE')}`
+                                  {t.pagoViajero?.fecha
+                                    ? `Pagado: ${t.pagoViajero.fecha.toDate().toLocaleDateString('es-PE')}`
                                     : t.fechaCreacion.toDate().toLocaleDateString('es-PE')
                                   }
                                 </div>

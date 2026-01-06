@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, AlertCircle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star } from 'lucide-react';
-import { Button, Input, Select, Modal } from '../../common';
+import { Plus, Trash2, AlertCircle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button, Input, Select, Modal, Stepper, useStepper, StepContent } from '../../common';
+import type { Step } from '../../common/Stepper';
 import { ProductoForm } from '../productos/ProductoForm';
 import { ClienteAutocomplete } from '../entidades/ClienteAutocomplete';
+import { CanalAutocomplete } from '../canalVenta/CanalAutocomplete';
 import { tesoreriaService } from '../../../services/tesoreria.service';
 import { clienteService } from '../../../services/cliente.service';
 import { useProductoStore } from '../../../store/productoStore';
 import { useAuthStore } from '../../../store/authStore';
 import { useClienteStore } from '../../../store/clienteStore';
+import { useToastStore } from '../../../store/toastStore';
 import type { VentaFormData, CanalVenta, MetodoPago, AdelantoData } from '../../../types/venta.types';
 import type { ProductoDisponible } from '../../../types/venta.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../../types/tesoreria.types';
@@ -31,6 +34,8 @@ const mapMetodoPagoToTesoreria = (metodo: MetodoPago): MetodoTesoreria => {
     'plin': 'plin',
     'tarjeta': 'tarjeta',
     'mercado_pago': 'mercado_pago',
+    'paypal': 'paypal',
+    'zelle': 'zelle',
     'otro': 'otro'
   };
   return mapping[metodo];
@@ -51,10 +56,14 @@ interface ProductoVentaItem {
   precioUnitario: number;
 }
 
-const canalOptions: Array<{ value: CanalVenta; label: string }> = [
-  { value: 'mercado_libre', label: 'Mercado Libre' },
-  { value: 'directo', label: 'Venta Directa' },
-  { value: 'otro', label: 'Otro' }
+// canalOptions legacy - ahora usamos CanalAutocomplete dinámico
+
+// Definición de pasos del flujo de venta
+const VENTA_STEPS: Step[] = [
+  { id: 'productos', label: 'Productos', description: 'Selecciona productos', icon: <Package className="h-4 w-4" /> },
+  { id: 'cliente', label: 'Cliente', description: 'Datos del cliente', icon: <User className="h-4 w-4" /> },
+  { id: 'pago', label: 'Pago', description: 'Método de pago', icon: <CreditCard className="h-4 w-4" /> },
+  { id: 'confirmacion', label: 'Confirmar', description: 'Revisar y confirmar', icon: <CheckCircle className="h-4 w-4" /> }
 ];
 
 export const VentaForm: React.FC<VentaFormProps> = ({
@@ -66,6 +75,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 }) => {
   const { user } = useAuthStore();
   const { productos: productosStore, createProducto } = useProductoStore();
+  const toast = useToastStore();
 
   // Modal de crear producto
   const [showProductoModal, setShowProductoModal] = useState(false);
@@ -86,7 +96,8 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   } | null>(null);
   const [loadingHistorial, setLoadingHistorial] = useState(false);
 
-  const [canal, setCanal] = useState<CanalVenta>('directo');
+  const [canal, setCanal] = useState<CanalVenta>('');
+  const [canalNombre, setCanalNombre] = useState('');
   const [mercadoLibreId, setMercadoLibreId] = useState('');
   const [productos, setProductos] = useState<ProductoVentaItem[]>([
     { productoId: '', cantidad: 1, precioUnitario: 0 }
@@ -106,6 +117,16 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   const [cuentas, setCuentas] = useState<CuentaCaja[]>([]);
   const [cuentaDestinoId, setCuentaDestinoId] = useState<string>('');
   const [loadingCuentas, setLoadingCuentas] = useState(true);
+
+  // Stepper para el flujo de venta
+  const {
+    currentStep,
+    isFirstStep,
+    isLastStep,
+    goToStep,
+    nextStep,
+    prevStep
+  } = useStepper({ steps: VENTA_STEPS });
 
   // Cargar cuentas al montar
   useEffect(() => {
@@ -215,7 +236,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
       handleClienteChange(nuevoCliente);
     } catch (error: any) {
       console.error('Error al crear cliente:', error);
-      alert(`Error al crear cliente: ${error.message}`);
+      toast.error(error.message, 'Error al crear cliente');
     }
   };
 
@@ -278,9 +299,9 @@ export const VentaForm: React.FC<VentaFormProps> = ({
       setShowProductoModal(false);
       // Notificar al padre para que refresque los productos disponibles
       onProductoCreated?.();
-      alert('✅ Producto creado correctamente. Ya puedes seleccionarlo en la lista.');
+      toast.success('Producto creado correctamente. Ya puedes seleccionarlo en la lista.');
     } catch (error: any) {
-      alert(`❌ Error al crear producto: ${error.message}`);
+      toast.error(error.message, 'Error al crear producto');
     } finally {
       setIsCreatingProducto(false);
     }
@@ -305,18 +326,18 @@ export const VentaForm: React.FC<VentaFormProps> = ({
     );
 
     if (productosValidos.length === 0) {
-      alert('Debes agregar al menos un producto con cantidad y precio válidos');
+      toast.warning('Debes agregar al menos un producto con cantidad y precio válidos');
       return;
     }
 
     // Validar adelanto si está activo
     if (registrarAdelanto) {
       if (montoAdelanto <= 0) {
-        alert('El monto del adelanto debe ser mayor a 0');
+        toast.warning('El monto del adelanto debe ser mayor a 0');
         return;
       }
       if (montoAdelanto > totalPEN) {
-        alert('El adelanto no puede ser mayor al total de la venta');
+        toast.warning('El adelanto no puede ser mayor al total de la venta');
         return;
       }
     }
@@ -340,7 +361,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
     if (descuento > 0) data.descuento = descuento;
     if (costoEnvio > 0) data.costoEnvio = costoEnvio;
     data.incluyeEnvio = incluyeEnvio;
-    if (canal === 'mercado_libre' && mercadoLibreId) data.mercadoLibreId = mercadoLibreId;
+    if ((canalNombre.toLowerCase().includes('mercado libre') || canal === 'mercado_libre') && mercadoLibreId) data.mercadoLibreId = mercadoLibreId;
 
     // Preparar datos del adelanto si corresponde
     let adelantoData: AdelantoData | undefined;
@@ -367,629 +388,807 @@ export const VentaForm: React.FC<VentaFormProps> = ({
     return producto ? `${producto.marca} ${producto.nombreComercial}` : '';
   };
 
+  // Validaciones por paso
+  const validateStep = (step: number): boolean => {
+    switch (step) {
+      case 0: // Productos
+        const productosValidos = productos.filter(p =>
+          p.productoId && p.cantidad > 0 && p.precioUnitario > 0
+        );
+        if (productosValidos.length === 0) {
+          toast.warning('Debes agregar al menos un producto con cantidad y precio válidos');
+          return false;
+        }
+        return true;
+      case 1: // Cliente
+        if (!nombreCliente.trim()) {
+          toast.warning('El nombre del cliente es requerido');
+          return false;
+        }
+        return true;
+      case 2: // Pago
+        if (registrarAdelanto && montoAdelanto <= 0) {
+          toast.warning('El monto del adelanto debe ser mayor a 0');
+          return false;
+        }
+        if (registrarAdelanto && montoAdelanto > totalPEN) {
+          toast.warning('El adelanto no puede ser mayor al total de la venta');
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  const handleNextStep = () => {
+    if (validateStep(currentStep)) {
+      nextStep();
+    }
+  };
+
+  const handlePrevStep = () => {
+    prevStep();
+  };
+
   return (
     <form className="space-y-6">
-      {/* Cliente Inteligente */}
-      <div>
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Datos del Cliente</h4>
+      {/* Stepper Header */}
+      <div className="mb-8">
+        <Stepper
+          steps={VENTA_STEPS}
+          currentStep={currentStep}
+          onStepClick={goToStep}
+          size="md"
+          allowClickCompleted={true}
+        />
+      </div>
 
-        {/* Autocomplete de Cliente */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Buscar o crear cliente
-          </label>
-          <ClienteAutocomplete
-            value={clienteSeleccionado}
-            onChange={handleClienteChange}
-            onCreateNew={handleCreateClienteInline}
-            placeholder="Buscar por nombre, teléfono o DNI..."
-            allowCreate={true}
-          />
+      {/* Contenido por Paso */}
+      <StepContent currentStep={currentStep}>
+        {/* PASO 1: PRODUCTOS */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-semibold text-gray-900">Selecciona los productos</h4>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowProductoModal(true)}
+                className="text-primary-600"
+              >
+                <PlusCircle className="h-4 w-4 mr-1" />
+                Crear Producto
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleAddProducto}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Agregar Línea
+              </Button>
+            </div>
+          </div>
+
+          {/* Alerta si no hay productos */}
+          {productosDisponibles.length === 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+              <div className="flex items-start">
+                <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-amber-800">No hay productos registrados</p>
+                  <p className="text-sm text-amber-700 mt-1">
+                    Primero debes crear productos en el sistema. Usa el botón "Crear Producto" arriba.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            {productos.map((item, index) => {
+              const stockDisponible = getStockDisponible(item.productoId);
+              const stockInsuficiente = item.productoId && item.cantidad > stockDisponible;
+              const productoSeleccionado = productosDisponibles.find(p => p.productoId === item.productoId);
+              const tieneInvestigacion = productoSeleccionado?.investigacion;
+
+              return (
+                <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
+                      <div className="md:col-span-2">
+                        <Select
+                          label="Producto"
+                          value={item.productoId}
+                          onChange={(e) => handleProductoChange(index, 'productoId', e.target.value)}
+                          options={productosDisponibles.map(p => ({
+                            value: p.productoId,
+                            label: `${p.sku} - ${p.marca} ${p.nombreComercial} (Stock: ${p.unidadesDisponibles})`
+                          }))}
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Input
+                          label="Cantidad"
+                          type="number"
+                          min="1"
+                          value={item.cantidad}
+                          onChange={(e) => handleProductoChange(index, 'cantidad', e.target.value)}
+                          required
+                        />
+                        {stockInsuficiente && (
+                          <div className="flex items-center mt-1 text-xs text-danger-600">
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Stock: {stockDisponible}
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <Input
+                          label="Precio (PEN)"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={item.precioUnitario}
+                          onChange={(e) => handleProductoChange(index, 'precioUnitario', e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-end space-x-2">
+                      <div className="text-right">
+                        <div className="text-xs text-gray-600 mb-1">Subtotal</div>
+                        <div className="text-lg font-semibold text-gray-900">
+                          S/ {(item.cantidad * item.precioUnitario).toFixed(2)}
+                        </div>
+                      </div>
+
+                      {productos.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveProducto(index)}
+                          className="text-danger-600 hover:text-danger-900"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Sugerencia de precio basado en investigación */}
+                  {tieneInvestigacion && (
+                    <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-start gap-2">
+                        <TrendingUp className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-blue-800">Rango de precios sugerido</p>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-xs">
+                            <div>
+                              <span className="text-blue-600">Entrada competitiva:</span>
+                              <span className="ml-1 font-semibold text-blue-800">
+                                S/{tieneInvestigacion.precioEntrada.toFixed(2)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-blue-600">Mín. mercado:</span>
+                              <span className="ml-1 font-semibold text-blue-800">
+                                S/{tieneInvestigacion.precioPERUMin.toFixed(2)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-blue-600">Promedio:</span>
+                              <span className="ml-1 font-semibold text-blue-800">
+                                S/{tieneInvestigacion.precioPERUPromedio.toFixed(2)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-blue-600">Máx. mercado:</span>
+                              <span className="ml-1 font-semibold text-blue-800">
+                                S/{tieneInvestigacion.precioPERUMax.toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                          {/* Botones rápidos para aplicar precio */}
+                          <div className="flex gap-2 mt-2">
+                            <button
+                              type="button"
+                              onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioEntrada.toFixed(2))}
+                              className={`px-2 py-1 text-xs rounded-full transition-colors ${
+                                Math.abs(item.precioUnitario - tieneInvestigacion.precioEntrada) < 1
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                              }`}
+                            >
+                              Entrada
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUMin.toFixed(2))}
+                              className={`px-2 py-1 text-xs rounded-full transition-colors ${
+                                Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUMin) < 1
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                              }`}
+                            >
+                              Mínimo
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUPromedio.toFixed(2))}
+                              className={`px-2 py-1 text-xs rounded-full transition-colors ${
+                                Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUPromedio) < 1
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                              }`}
+                            >
+                              Promedio
+                            </button>
+                          </div>
+                          {/* Margen estimado */}
+                          {tieneInvestigacion.ctruEstimado > 0 && item.precioUnitario > 0 && (
+                            <div className="mt-2 flex items-center gap-2">
+                              <Info className="h-3 w-3 text-blue-500" />
+                              <span className="text-xs text-blue-600">
+                                Margen estimado:{' '}
+                                <span className={`font-semibold ${
+                                  ((item.precioUnitario - tieneInvestigacion.ctruEstimado) / item.precioUnitario * 100) >= 20
+                                    ? 'text-green-600'
+                                    : ((item.precioUnitario - tieneInvestigacion.ctruEstimado) / item.precioUnitario * 100) >= 10
+                                      ? 'text-yellow-600'
+                                      : 'text-red-600'
+                                }`}>
+                                  {((item.precioUnitario - tieneInvestigacion.ctruEstimado) / item.precioUnitario * 100).toFixed(1)}%
+                                </span>
+                                {' '}(CTRU: S/{tieneInvestigacion.ctruEstimado.toFixed(2)})
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Descuento y Envío */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+            <Input
+              label="Descuento (PEN)"
+              type="number"
+              step="0.01"
+              min="0"
+              value={descuento}
+              onChange={(e) => setDescuento(parseFloat(e.target.value) || 0)}
+            />
+
+            <Input
+              label="Costo de Envío (PEN)"
+              type="number"
+              step="0.01"
+              min="0"
+              value={costoEnvio}
+              onChange={(e) => setCostoEnvio(parseFloat(e.target.value) || 0)}
+            />
+          </div>
+
+          {/* Tipo de envío */}
+          {costoEnvio > 0 && (
+            <div className="flex items-center space-x-4 bg-gray-50 p-3 rounded-lg">
+              <span className="text-sm font-medium text-gray-700">Tipo de envío:</span>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="tipoEnvio"
+                  checked={incluyeEnvio}
+                  onChange={() => setIncluyeEnvio(true)}
+                  className="mr-2"
+                />
+                <span className="text-sm text-gray-600">Envío gratis (asumido por la empresa)</span>
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="tipoEnvio"
+                  checked={!incluyeEnvio}
+                  onChange={() => setIncluyeEnvio(false)}
+                  className="mr-2"
+                />
+                <span className="text-sm text-gray-600">Cliente paga envío</span>
+              </label>
+            </div>
+          )}
+
+          {/* Subtotal del paso */}
+          <div className="bg-gray-100 p-4 rounded-lg">
+            <div className="flex justify-between items-center">
+              <span className="font-medium text-gray-700">Subtotal de productos:</span>
+              <span className="text-xl font-bold text-primary-600">S/ {subtotalPEN.toFixed(2)}</span>
+            </div>
+          </div>
         </div>
 
-        {/* Historial del Cliente (si está seleccionado y tiene historial) */}
-        {clienteSeleccionado && historialCliente && historialCliente.totalCompras > 0 && (
-          <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-2 mb-3">
-              <History className="h-5 w-5 text-blue-600" />
-              <span className="font-medium text-blue-800">Historial del Cliente</span>
-              {historialCliente.totalCompras >= 5 && (
-                <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
-                  <Star className="h-3 w-3" />
-                  Cliente frecuente
-                </span>
+        {/* PASO 2: CLIENTE */}
+        <div className="space-y-6">
+          <h4 className="text-lg font-semibold text-gray-900">Datos del Cliente</h4>
+
+          {/* Autocomplete de Cliente */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Buscar o crear cliente
+            </label>
+            <ClienteAutocomplete
+              value={clienteSeleccionado}
+              onChange={handleClienteChange}
+              onCreateNew={handleCreateClienteInline}
+              placeholder="Buscar por nombre, teléfono o DNI..."
+              allowCreate={true}
+            />
+          </div>
+
+          {/* Historial del Cliente (si está seleccionado y tiene historial) */}
+          {clienteSeleccionado && historialCliente && historialCliente.totalCompras > 0 && (
+            <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <History className="h-5 w-5 text-blue-600" />
+                <span className="font-medium text-blue-800">Historial del Cliente</span>
+                {historialCliente.totalCompras >= 5 && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
+                    <Star className="h-3 w-3" />
+                    Cliente frecuente
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 text-2xl font-bold text-blue-700">
+                    <ShoppingBag className="h-5 w-5" />
+                    {historialCliente.totalCompras}
+                  </div>
+                  <p className="text-xs text-gray-600">Compras</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    S/{historialCliente.montoTotal.toFixed(0)}
+                  </div>
+                  <p className="text-xs text-gray-600">Total gastado</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    S/{(historialCliente.montoTotal / historialCliente.totalCompras).toFixed(0)}
+                  </div>
+                  <p className="text-xs text-gray-600">Ticket promedio</p>
+                </div>
+              </div>
+              {historialCliente.ultimaCompra && (
+                <p className="mt-2 text-xs text-gray-500 text-center">
+                  Última compra: {historialCliente.ultimaCompra.toLocaleDateString('es-PE')}
+                </p>
+              )}
+              {historialCliente.productosFavoritos.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-blue-200">
+                  <p className="text-xs text-gray-600 mb-1">Productos frecuentes:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {historialCliente.productosFavoritos.slice(0, 3).map((prod, idx) => (
+                      <span key={idx} className="px-2 py-0.5 bg-white text-xs text-gray-700 rounded border">
+                        {prod}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1 text-2xl font-bold text-blue-700">
-                  <ShoppingBag className="h-5 w-5" />
-                  {historialCliente.totalCompras}
-                </div>
-                <p className="text-xs text-gray-600">Compras</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  S/{historialCliente.montoTotal.toFixed(0)}
-                </div>
-                <p className="text-xs text-gray-600">Total gastado</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">
-                  S/{(historialCliente.montoTotal / historialCliente.totalCompras).toFixed(0)}
-                </div>
-                <p className="text-xs text-gray-600">Ticket promedio</p>
-              </div>
+          )}
+
+          {loadingHistorial && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg text-center text-sm text-gray-500">
+              Cargando historial del cliente...
             </div>
-            {historialCliente.ultimaCompra && (
-              <p className="mt-2 text-xs text-gray-500 text-center">
-                Última compra: {historialCliente.ultimaCompra.toLocaleDateString('es-PE')}
-              </p>
-            )}
-            {historialCliente.productosFavoritos.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-blue-200">
-                <p className="text-xs text-gray-600 mb-1">Productos frecuentes:</p>
-                <div className="flex flex-wrap gap-1">
-                  {historialCliente.productosFavoritos.slice(0, 3).map((prod, idx) => (
-                    <span key={idx} className="px-2 py-0.5 bg-white text-xs text-gray-700 rounded border">
-                      {prod}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+          )}
+
+          {/* Campos editables del cliente */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Nombre del Cliente"
+              value={nombreCliente}
+              onChange={(e) => setNombreCliente(e.target.value)}
+              required
+              disabled={!!clienteSeleccionado}
+            />
+
+            <Input
+              label="DNI / RUC"
+              value={dniRuc}
+              onChange={(e) => setDniRuc(e.target.value)}
+            />
+
+            <Input
+              label="Email"
+              type="email"
+              value={emailCliente}
+              onChange={(e) => setEmailCliente(e.target.value)}
+            />
+
+            <Input
+              label="Teléfono"
+              value={telefonoCliente}
+              onChange={(e) => setTelefonoCliente(e.target.value)}
+            />
           </div>
-        )}
 
-        {loadingHistorial && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg text-center text-sm text-gray-500">
-            Cargando historial del cliente...
-          </div>
-        )}
-
-        {/* Campos editables del cliente */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            label="Nombre del Cliente"
-            value={nombreCliente}
-            onChange={(e) => setNombreCliente(e.target.value)}
-            required
-            disabled={!!clienteSeleccionado}
-          />
-
-          <Input
-            label="DNI / RUC"
-            value={dniRuc}
-            onChange={(e) => setDniRuc(e.target.value)}
-          />
-
-          <Input
-            label="Email"
-            type="email"
-            value={emailCliente}
-            onChange={(e) => setEmailCliente(e.target.value)}
-          />
-
-          <Input
-            label="Teléfono"
-            value={telefonoCliente}
-            onChange={(e) => setTelefonoCliente(e.target.value)}
-          />
-        </div>
-
-        <div className="mt-4">
           <Input
             label="Dirección de Entrega"
             value={direccionEntrega}
             onChange={(e) => setDireccionEntrega(e.target.value)}
           />
-        </div>
-      </div>
 
-      {/* Canal */}
-      <div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select
-            label="Canal de Venta"
-            value={canal}
-            onChange={(e) => setCanal(e.target.value as CanalVenta)}
-            options={canalOptions}
-            required
-          />
-          
-          {canal === 'mercado_libre' && (
-            <Input
-              label="ID de Mercado Libre"
-              value={mercadoLibreId}
-              onChange={(e) => setMercadoLibreId(e.target.value)}
-              placeholder="ej: MLB123456789"
+          {/* Canal */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+            <CanalAutocomplete
+              label="Canal de Venta"
+              value={canal}
+              onChange={(canalId, canalObj) => {
+                setCanal(canalId);
+                setCanalNombre(canalObj?.nombre || canalId);
+              }}
+              placeholder="Buscar o crear canal..."
+              required
             />
-          )}
-        </div>
-      </div>
 
-      {/* Productos */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-lg font-semibold text-gray-900">Productos</h4>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowProductoModal(true)}
-              className="text-primary-600"
-            >
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Crear Producto
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleAddProducto}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Agregar Línea
-            </Button>
+            {(canalNombre.toLowerCase().includes('mercado libre') || canal === 'mercado_libre') && (
+              <Input
+                label="ID de Mercado Libre"
+                value={mercadoLibreId}
+                onChange={(e) => setMercadoLibreId(e.target.value)}
+                placeholder="ej: MLB123456789"
+              />
+            )}
           </div>
         </div>
 
-        <div className="space-y-3">
-          {productos.map((item, index) => {
-            const stockDisponible = getStockDisponible(item.productoId);
-            const stockInsuficiente = item.productoId && item.cantidad > stockDisponible;
-            const productoSeleccionado = productosDisponibles.find(p => p.productoId === item.productoId);
-            const tieneInvestigacion = productoSeleccionado?.investigacion;
+        {/* PASO 3: PAGO */}
+        <div className="space-y-6">
+          <h4 className="text-lg font-semibold text-gray-900">Método de Pago</h4>
 
-            return (
-              <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div className="md:col-span-2">
-                      <Select
-                        label="Producto"
-                        value={item.productoId}
-                        onChange={(e) => handleProductoChange(index, 'productoId', e.target.value)}
-                        options={productosDisponibles.map(p => ({
-                          value: p.productoId,
-                          label: `${p.sku} - ${p.marca} ${p.nombreComercial} (Stock: ${p.unidadesDisponibles})`
-                        }))}
-                        required
-                      />
-                    </div>
+          {/* Sección de Adelanto */}
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <div
+              className={`p-4 cursor-pointer transition-colors ${
+                registrarAdelanto ? 'bg-success-50 border-b border-success-200' : 'bg-gray-50 hover:bg-gray-100'
+              }`}
+              onClick={() => setRegistrarAdelanto(!registrarAdelanto)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${registrarAdelanto ? 'bg-success-100' : 'bg-gray-200'}`}>
+                    <CreditCard className={`h-5 w-5 ${registrarAdelanto ? 'text-success-600' : 'text-gray-500'}`} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Registrar Adelanto</h4>
+                    <p className="text-sm text-gray-500">
+                      {registrarAdelanto
+                        ? 'El cliente realizará un pago anticipado'
+                        : 'Haz clic para registrar un adelanto del cliente'}
+                    </p>
+                  </div>
+                </div>
+                <div className={`w-12 h-6 rounded-full transition-colors ${
+                  registrarAdelanto ? 'bg-success-500' : 'bg-gray-300'
+                }`}>
+                  <div className={`w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform mt-0.5 ${
+                    registrarAdelanto ? 'translate-x-6' : 'translate-x-0.5'
+                  }`} />
+                </div>
+              </div>
+            </div>
 
-                    <div>
-                      <Input
-                        label="Cantidad"
-                        type="number"
-                        min="1"
-                        value={item.cantidad}
-                        onChange={(e) => handleProductoChange(index, 'cantidad', e.target.value)}
-                        required
-                      />
-                      {stockInsuficiente && (
-                        <div className="flex items-center mt-1 text-xs text-danger-600">
-                          <AlertCircle className="h-3 w-3 mr-1" />
-                          Stock: {stockDisponible}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <Input
-                        label="Precio (PEN)"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={item.precioUnitario}
-                        onChange={(e) => handleProductoChange(index, 'precioUnitario', e.target.value)}
-                        required
-                      />
+            {registrarAdelanto && (
+              <div className="p-4 space-y-4 bg-white">
+                {/* Monto del adelanto */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Input
+                      label="Monto del Adelanto (PEN)"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max={totalPEN}
+                      value={montoAdelanto}
+                      onChange={(e) => setMontoAdelanto(parseFloat(e.target.value) || 0)}
+                      helperText={`Máximo: S/ ${totalPEN.toFixed(2)}`}
+                    />
+                    {/* Botones de porcentaje rápido */}
+                    <div className="flex gap-2 mt-2">
+                      {[25, 50, 75, 100].map((pct) => (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => setMontoAdelanto(Math.round((totalPEN * pct / 100) * 100) / 100)}
+                          className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                            Math.abs(montoAdelanto - (totalPEN * pct / 100)) < 0.01
+                              ? 'bg-primary-500 text-white'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          {pct}%
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="flex items-end space-x-2">
-                    <div className="text-right">
-                      <div className="text-xs text-gray-600 mb-1">Subtotal</div>
-                      <div className="text-lg font-semibold text-gray-900">
-                        S/ {(item.cantidad * item.precioUnitario).toFixed(2)}
-                      </div>
-                    </div>
+                  <Input
+                    label="Referencia / N° Operación"
+                    type="text"
+                    value={referenciaAdelanto}
+                    onChange={(e) => setReferenciaAdelanto(e.target.value)}
+                    placeholder="Ej: Transferencia #123"
+                  />
+                </div>
 
-                    {productos.length > 1 && (
-                      <Button
+                {/* Método de pago */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Método de Pago
+                  </label>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    {METODOS_PAGO.map((metodo) => (
+                      <button
+                        key={metodo.value}
                         type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveProducto(index)}
-                        className="text-danger-600 hover:text-danger-900"
+                        onClick={() => setMetodoPagoAdelanto(metodo.value)}
+                        className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-colors ${
+                          metodoPagoAdelanto === metodo.value
+                            ? 'border-primary-500 bg-primary-50 text-primary-700 ring-2 ring-primary-200'
+                            : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                        }`}
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
+                        {metodo.icon}
+                        <span className="text-xs font-medium mt-1">{metodo.label}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Sugerencia de precio basado en investigación */}
-                {tieneInvestigacion && (
-                  <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="flex items-start gap-2">
-                      <TrendingUp className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-blue-800">Rango de precios sugerido</p>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-xs">
-                          <div>
-                            <span className="text-blue-600">Entrada competitiva:</span>
-                            <span className="ml-1 font-semibold text-blue-800">
-                              S/{tieneInvestigacion.precioEntrada.toFixed(2)}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-blue-600">Mín. mercado:</span>
-                            <span className="ml-1 font-semibold text-blue-800">
-                              S/{tieneInvestigacion.precioPERUMin.toFixed(2)}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-blue-600">Promedio:</span>
-                            <span className="ml-1 font-semibold text-blue-800">
-                              S/{tieneInvestigacion.precioPERUPromedio.toFixed(2)}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-blue-600">Máx. mercado:</span>
-                            <span className="ml-1 font-semibold text-blue-800">
-                              S/{tieneInvestigacion.precioPERUMax.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                        {/* Botones rápidos para aplicar precio */}
-                        <div className="flex gap-2 mt-2">
-                          <button
-                            type="button"
-                            onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioEntrada.toFixed(2))}
-                            className={`px-2 py-1 text-xs rounded-full transition-colors ${
-                              Math.abs(item.precioUnitario - tieneInvestigacion.precioEntrada) < 1
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                            }`}
-                          >
-                            Entrada
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUMin.toFixed(2))}
-                            className={`px-2 py-1 text-xs rounded-full transition-colors ${
-                              Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUMin) < 1
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                            }`}
-                          >
-                            Mínimo
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUPromedio.toFixed(2))}
-                            className={`px-2 py-1 text-xs rounded-full transition-colors ${
-                              Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUPromedio) < 1
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                            }`}
-                          >
-                            Promedio
-                          </button>
-                        </div>
-                        {/* Margen estimado */}
-                        {tieneInvestigacion.ctruEstimado > 0 && item.precioUnitario > 0 && (
-                          <div className="mt-2 flex items-center gap-2">
-                            <Info className="h-3 w-3 text-blue-500" />
-                            <span className="text-xs text-blue-600">
-                              Margen estimado:{' '}
-                              <span className={`font-semibold ${
-                                ((item.precioUnitario - tieneInvestigacion.ctruEstimado) / item.precioUnitario * 100) >= 20
-                                  ? 'text-green-600'
-                                  : ((item.precioUnitario - tieneInvestigacion.ctruEstimado) / item.precioUnitario * 100) >= 10
-                                    ? 'text-yellow-600'
-                                    : 'text-red-600'
-                              }`}>
-                                {((item.precioUnitario - tieneInvestigacion.ctruEstimado) / item.precioUnitario * 100).toFixed(1)}%
-                              </span>
-                              {' '}(CTRU: S/{tieneInvestigacion.ctruEstimado.toFixed(2)})
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                {/* Cuenta destino */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="h-4 w-4" />
+                      Cuenta Destino
                     </div>
+                  </label>
+                  {loadingCuentas ? (
+                    <div className="text-sm text-gray-500">Cargando cuentas...</div>
+                  ) : cuentas.length === 0 ? (
+                    <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+                      No hay cuentas configuradas. El adelanto se registrará sin asociar a una cuenta.
+                    </div>
+                  ) : (
+                    <select
+                      value={cuentaDestinoId}
+                      onChange={(e) => setCuentaDestinoId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
+                    >
+                      <option value="">Sin cuenta específica</option>
+                      {cuentas.map((cuenta) => {
+                        const saldoPEN = cuenta.esBiMoneda ? (cuenta.saldoPEN || 0) : cuenta.saldoActual;
+                        return (
+                          <option key={cuenta.id} value={cuenta.id}>
+                            {cuenta.nombre} {cuenta.banco ? `(${cuenta.banco})` : ''} - Saldo: S/ {saldoPEN.toFixed(2)}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  )}
+                  {cuentaSeleccionada && (
+                    <div className="text-xs text-success-600">
+                      El adelanto se sumará al saldo de "{cuentaSeleccionada.nombre}"
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Observaciones */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Observaciones
+            </label>
+            <textarea
+              value={observaciones}
+              onChange={(e) => setObservaciones(e.target.value)}
+              rows={3}
+              className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="Notas sobre la venta..."
+            />
+          </div>
+        </div>
+
+        {/* PASO 4: CONFIRMACIÓN */}
+        <div className="space-y-6">
+          <h4 className="text-lg font-semibold text-gray-900">Revisa y confirma tu venta</h4>
+
+          {/* Resumen de productos */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              Productos ({productos.filter(p => p.productoId).length})
+            </h5>
+            <div className="space-y-2">
+              {productos.filter(p => p.productoId).map((item, index) => (
+                <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-0">
+                  <div>
+                    <span className="font-medium">{getProductoNombre(item.productoId)}</span>
+                    <span className="text-gray-500 text-sm ml-2">x{item.cantidad}</span>
                   </div>
-                )}
+                  <span className="font-semibold">S/ {(item.cantidad * item.precioUnitario).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Resumen del cliente */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Cliente
+            </h5>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <span className="text-gray-500">Nombre:</span>
+                <span className="ml-2 font-medium">{nombreCliente || '-'}</span>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Descuento y Envío */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          label="Descuento (PEN)"
-          type="number"
-          step="0.01"
-          min="0"
-          value={descuento}
-          onChange={(e) => setDescuento(parseFloat(e.target.value) || 0)}
-        />
-
-        <Input
-          label="Costo de Envío (PEN)"
-          type="number"
-          step="0.01"
-          min="0"
-          value={costoEnvio}
-          onChange={(e) => setCostoEnvio(parseFloat(e.target.value) || 0)}
-        />
-      </div>
-
-      {/* Tipo de envío */}
-      {costoEnvio > 0 && (
-        <div className="flex items-center space-x-4 bg-gray-50 p-3 rounded-lg">
-          <span className="text-sm font-medium text-gray-700">Tipo de envío:</span>
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="radio"
-              name="tipoEnvio"
-              checked={incluyeEnvio}
-              onChange={() => setIncluyeEnvio(true)}
-              className="mr-2"
-            />
-            <span className="text-sm text-gray-600">Envío gratis (asumido por la empresa)</span>
-          </label>
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="radio"
-              name="tipoEnvio"
-              checked={!incluyeEnvio}
-              onChange={() => setIncluyeEnvio(false)}
-              className="mr-2"
-            />
-            <span className="text-sm text-gray-600">Cliente paga envío</span>
-          </label>
-        </div>
-      )}
-
-      {/* Totales */}
-      <div className="bg-primary-50 p-6 rounded-lg">
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Resumen</h4>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Subtotal:</span>
-            <span className="font-semibold">S/ {subtotalPEN.toFixed(2)}</span>
-          </div>
-
-          {descuento > 0 && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Descuento:</span>
-              <span className="font-semibold text-danger-600">- S/ {descuento.toFixed(2)}</span>
-            </div>
-          )}
-
-          {costoEnvio > 0 && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">
-                Envío {incluyeEnvio ? '(gratis)' : '(cobrado al cliente)'}:
-              </span>
-              <span className={`font-semibold ${incluyeEnvio ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
-                {incluyeEnvio ? '' : '+ '}S/ {costoEnvio.toFixed(2)}
-              </span>
-            </div>
-          )}
-
-          <div className="border-t border-primary-200 pt-2 mt-2">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-semibold text-gray-900">Total:</span>
-              <span className="text-2xl font-bold text-primary-600">S/ {totalPEN.toFixed(2)}</span>
+              <div>
+                <span className="text-gray-500">DNI/RUC:</span>
+                <span className="ml-2 font-medium">{dniRuc || '-'}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Email:</span>
+                <span className="ml-2 font-medium">{emailCliente || '-'}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Teléfono:</span>
+                <span className="ml-2 font-medium">{telefonoCliente || '-'}</span>
+              </div>
+              {direccionEntrega && (
+                <div className="col-span-2">
+                  <span className="text-gray-500">Dirección:</span>
+                  <span className="ml-2 font-medium">{direccionEntrega}</span>
+                </div>
+              )}
+              <div>
+                <span className="text-gray-500">Canal:</span>
+                <span className="ml-2 font-medium">{canalNombre || canal || '-'}</span>
+              </div>
             </div>
           </div>
 
-          {/* Mostrar adelanto en resumen si está activo */}
-          {registrarAdelanto && montoAdelanto > 0 && (
-            <>
+          {/* Totales */}
+          <div className="bg-primary-50 p-6 rounded-lg">
+            <h5 className="font-medium text-gray-900 mb-4">Resumen de la Venta</h5>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Subtotal:</span>
+                <span className="font-semibold">S/ {subtotalPEN.toFixed(2)}</span>
+              </div>
+
+              {descuento > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Descuento:</span>
+                  <span className="font-semibold text-danger-600">- S/ {descuento.toFixed(2)}</span>
+                </div>
+              )}
+
+              {costoEnvio > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">
+                    Envío {incluyeEnvio ? '(gratis)' : '(cobrado al cliente)'}:
+                  </span>
+                  <span className={`font-semibold ${incluyeEnvio ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                    {incluyeEnvio ? '' : '+ '}S/ {costoEnvio.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
               <div className="border-t border-primary-200 pt-2 mt-2">
-                <div className="flex justify-between text-success-600">
-                  <span className="font-medium">Adelanto a registrar:</span>
-                  <span className="font-semibold">- S/ {montoAdelanto.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-amber-600 mt-1">
-                  <span className="font-medium">Saldo pendiente:</span>
-                  <span className="font-semibold">S/ {(totalPEN - montoAdelanto).toFixed(2)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold text-gray-900">Total:</span>
+                  <span className="text-2xl font-bold text-primary-600">S/ {totalPEN.toFixed(2)}</span>
                 </div>
               </div>
+
+              {registrarAdelanto && montoAdelanto > 0 && (
+                <div className="border-t border-primary-200 pt-2 mt-2">
+                  <div className="flex justify-between text-success-600">
+                    <span className="font-medium">Adelanto a registrar:</span>
+                    <span className="font-semibold">- S/ {montoAdelanto.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-amber-600 mt-1">
+                    <span className="font-medium">Saldo pendiente:</span>
+                    <span className="font-semibold">S/ {(totalPEN - montoAdelanto).toFixed(2)}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {observaciones && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h5 className="font-medium text-gray-900 mb-2">Observaciones</h5>
+              <p className="text-sm text-gray-600">{observaciones}</p>
+            </div>
+          )}
+        </div>
+      </StepContent>
+
+      {/* Navegación entre pasos */}
+      <div className="flex items-center justify-between pt-6 border-t">
+        <div>
+          {!isFirstStep && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handlePrevStep}
+              disabled={loading}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Anterior
+            </Button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onCancel}
+            disabled={loading}
+          >
+            Cancelar
+          </Button>
+
+          {!isLastStep ? (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={handleNextStep}
+            >
+              Siguiente
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSubmitCotizacion}
+                loading={loading}
+              >
+                Guardar como Cotización
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleSubmitVenta}
+                loading={loading}
+              >
+                <CheckCircle className="h-4 w-4 mr-1" />
+                Confirmar Venta
+              </Button>
             </>
           )}
         </div>
-      </div>
-
-      {/* Sección de Adelanto */}
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
-        <div
-          className={`p-4 cursor-pointer transition-colors ${
-            registrarAdelanto ? 'bg-success-50 border-b border-success-200' : 'bg-gray-50 hover:bg-gray-100'
-          }`}
-          onClick={() => setRegistrarAdelanto(!registrarAdelanto)}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${registrarAdelanto ? 'bg-success-100' : 'bg-gray-200'}`}>
-                <CreditCard className={`h-5 w-5 ${registrarAdelanto ? 'text-success-600' : 'text-gray-500'}`} />
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900">Registrar Adelanto</h4>
-                <p className="text-sm text-gray-500">
-                  {registrarAdelanto
-                    ? 'El cliente realizará un pago anticipado'
-                    : 'Haz clic para registrar un adelanto del cliente'}
-                </p>
-              </div>
-            </div>
-            <div className={`w-12 h-6 rounded-full transition-colors ${
-              registrarAdelanto ? 'bg-success-500' : 'bg-gray-300'
-            }`}>
-              <div className={`w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform mt-0.5 ${
-                registrarAdelanto ? 'translate-x-6' : 'translate-x-0.5'
-              }`} />
-            </div>
-          </div>
-        </div>
-
-        {registrarAdelanto && (
-          <div className="p-4 space-y-4 bg-white">
-            {/* Monto del adelanto */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Input
-                  label="Monto del Adelanto (PEN)"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max={totalPEN}
-                  value={montoAdelanto}
-                  onChange={(e) => setMontoAdelanto(parseFloat(e.target.value) || 0)}
-                  helperText={`Máximo: S/ ${totalPEN.toFixed(2)}`}
-                />
-                {/* Botones de porcentaje rápido */}
-                <div className="flex gap-2 mt-2">
-                  {[25, 50, 75, 100].map((pct) => (
-                    <button
-                      key={pct}
-                      type="button"
-                      onClick={() => setMontoAdelanto(Math.round((totalPEN * pct / 100) * 100) / 100)}
-                      className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                        Math.abs(montoAdelanto - (totalPEN * pct / 100)) < 0.01
-                          ? 'bg-primary-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      {pct}%
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <Input
-                label="Referencia / N° Operación"
-                type="text"
-                value={referenciaAdelanto}
-                onChange={(e) => setReferenciaAdelanto(e.target.value)}
-                placeholder="Ej: Transferencia #123"
-              />
-            </div>
-
-            {/* Método de pago */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Método de Pago
-              </label>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                {METODOS_PAGO.map((metodo) => (
-                  <button
-                    key={metodo.value}
-                    type="button"
-                    onClick={() => setMetodoPagoAdelanto(metodo.value)}
-                    className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-colors ${
-                      metodoPagoAdelanto === metodo.value
-                        ? 'border-primary-500 bg-primary-50 text-primary-700 ring-2 ring-primary-200'
-                        : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                    }`}
-                  >
-                    {metodo.icon}
-                    <span className="text-xs font-medium mt-1">{metodo.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Cuenta destino */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                <div className="flex items-center gap-2">
-                  <Wallet className="h-4 w-4" />
-                  Cuenta Destino
-                </div>
-              </label>
-              {loadingCuentas ? (
-                <div className="text-sm text-gray-500">Cargando cuentas...</div>
-              ) : cuentas.length === 0 ? (
-                <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-                  No hay cuentas configuradas. El adelanto se registrará sin asociar a una cuenta.
-                </div>
-              ) : (
-                <select
-                  value={cuentaDestinoId}
-                  onChange={(e) => setCuentaDestinoId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-                >
-                  <option value="">Sin cuenta específica</option>
-                  {cuentas.map((cuenta) => {
-                    // Para cuentas bi-moneda, mostrar saldoPEN; para mono-moneda, saldoActual
-                    const saldoPEN = cuenta.esBiMoneda ? (cuenta.saldoPEN || 0) : cuenta.saldoActual;
-                    return (
-                      <option key={cuenta.id} value={cuenta.id}>
-                        {cuenta.nombre} {cuenta.banco ? `(${cuenta.banco})` : ''} - Saldo: S/ {saldoPEN.toFixed(2)}
-                      </option>
-                    );
-                  })}
-                </select>
-              )}
-              {cuentaSeleccionada && (
-                <div className="text-xs text-success-600">
-                  El adelanto se sumará al saldo de "{cuentaSeleccionada.nombre}"
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Observaciones */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Observaciones
-        </label>
-        <textarea
-          value={observaciones}
-          onChange={(e) => setObservaciones(e.target.value)}
-          rows={3}
-          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
-          placeholder="Notas sobre la venta..."
-        />
-      </div>
-
-      {/* Botones */}
-      <div className="flex items-center justify-end space-x-3 pt-6 border-t">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onCancel}
-          disabled={loading}
-        >
-          Cancelar
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleSubmitCotizacion}
-          loading={loading}
-        >
-          Guardar como Cotización
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          onClick={handleSubmitVenta}
-          loading={loading}
-        >
-          Confirmar Venta
-        </Button>
       </div>
 
       {/* Modal de Crear Producto */}

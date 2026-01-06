@@ -81,6 +81,11 @@ interface CotizacionState {
   rechazarCotizacion: (id: string, data: RechazarCotizacionData, userId: string) => Promise<void>;
   marcarVencida: (id: string, userId: string) => Promise<void>;
 
+  // Actions - Compromiso de entrega, validez y tiempo de importación
+  actualizarDiasCompromisoEntrega: (id: string, diasCompromisoEntrega: number, userId: string) => Promise<void>;
+  actualizarDiasValidez: (id: string, diasValidez: number, userId: string) => Promise<void>;
+  actualizarTiempoEstimadoImportacion: (id: string, tiempoEstimado: number, userId: string) => Promise<void>;
+
   // Actions - Estadísticas
   fetchStats: () => Promise<void>;
   fetchAnalisisDemanda: () => Promise<void>;
@@ -334,6 +339,81 @@ export const useCotizacionStore = create<CotizacionState>((set, get) => ({
       set({ loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  actualizarDiasCompromisoEntrega: async (id: string, diasCompromisoEntrega: number, userId: string) => {
+    try {
+      await CotizacionService.actualizarDiasCompromisoEntrega(id, diasCompromisoEntrega, userId);
+
+      // Actualizar en la lista local
+      set(state => ({
+        cotizaciones: state.cotizaciones.map(c =>
+          c.id === id ? { ...c, diasCompromisoEntrega } : c
+        )
+      }));
+
+      // Actualizar cotización seleccionada si es la misma
+      if (get().selectedCotizacion?.id === id) {
+        set(state => ({
+          selectedCotizacion: state.selectedCotizacion
+            ? { ...state.selectedCotizacion, diasCompromisoEntrega }
+            : null
+        }));
+      }
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    }
+  },
+
+  actualizarDiasValidez: async (id: string, diasValidez: number, userId: string) => {
+    try {
+      await CotizacionService.actualizarDiasValidez(id, diasValidez, userId);
+
+      // Actualizar en la lista local
+      set(state => ({
+        cotizaciones: state.cotizaciones.map(c =>
+          c.id === id ? { ...c, diasVigencia: diasValidez } : c
+        )
+      }));
+
+      // Actualizar cotización seleccionada si es la misma
+      if (get().selectedCotizacion?.id === id) {
+        set(state => ({
+          selectedCotizacion: state.selectedCotizacion
+            ? { ...state.selectedCotizacion, diasVigencia: diasValidez }
+            : null
+        }));
+      }
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    }
+  },
+
+  actualizarTiempoEstimadoImportacion: async (id: string, tiempoEstimado: number, userId: string) => {
+    try {
+      await CotizacionService.actualizarTiempoEstimadoImportacion(id, tiempoEstimado, userId);
+
+      // Actualizar en la lista local
+      set(state => ({
+        cotizaciones: state.cotizaciones.map(c =>
+          c.id === id ? { ...c, tiempoEstimadoImportacion: tiempoEstimado } : c
+        )
+      }));
+
+      // Actualizar cotización seleccionada si es la misma
+      if (get().selectedCotizacion?.id === id) {
+        set(state => ({
+          selectedCotizacion: state.selectedCotizacion
+            ? { ...state.selectedCotizacion, tiempoEstimadoImportacion: tiempoEstimado }
+            : null
+        }));
+      }
+    } catch (error: any) {
+      set({ error: error.message });
       throw error;
     }
   },

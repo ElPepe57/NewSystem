@@ -604,7 +604,7 @@ export class OrdenCompraService {
       }
 
       // Si no hay TC de pago, usar TC de compra como fallback
-      const tcAplicable = orden.tcPago || orden.tcCompra;
+      const tcAplicable = orden.tcPago ?? orden.tcCompra;
       if (!tcAplicable) {
         throw new Error('Se requiere tipo de cambio para generar inventario');
       }
@@ -772,10 +772,9 @@ export class OrdenCompraService {
         valorTotalUSD
       );
 
-      // Actualizar stock de cada producto (almacén en USA)
-      for (const producto of orden.productos) {
-        await ProductoService.incrementarStock(producto.productoId, producto.cantidad, 'USA');
-      }
+      // Sincronizar stock de cada producto desde unidades (fuente de verdad)
+      const productosAfectados = orden.productos.map(p => p.productoId);
+      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
 
       // Actualizar orden con información de reservas
       await updateDoc(doc(db, ORDENES_COLLECTION, id), {

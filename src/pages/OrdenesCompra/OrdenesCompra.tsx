@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink } from 'lucide-react';
-import { Button, Card, Modal, Input } from '../../components/common';
+import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard } from 'lucide-react';
+import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
+import type { PipelineStage } from '../../components/common';
+import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
 import { OrdenCompraTable } from '../../components/modules/ordenCompra/OrdenCompraTable';
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
@@ -32,6 +34,29 @@ interface RequerimientoData {
   prioridad: 'alta' | 'media' | 'baja';
 }
 
+// Interface para datos de requerimiento multi-viajero
+interface RequerimientoMultiViajeroData {
+  id: string;
+  numeroRequerimiento: string;
+  tcInvestigacion?: number;
+  prioridad?: 'alta' | 'media' | 'baja';
+  asignaciones: Array<{
+    asignacionId: string;
+    viajeroId: string;
+    viajeroNombre: string;
+    viajeroCodigo: string;
+    productos: Array<{
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      cantidad: number;
+      precioUnitarioUSD: number;
+    }>;
+    costoEstimadoUSD?: number;
+  }>;
+}
+
 export const OrdenesCompra: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -45,6 +70,7 @@ export const OrdenesCompra: React.FC = () => {
 
   // Datos del requerimiento si viene de Requerimientos
   const fromRequerimiento = (location.state as { fromRequerimiento?: RequerimientoData })?.fromRequerimiento;
+  const fromRequerimientoMultiViajero = (location.state as { fromRequerimientoMultiViajero?: RequerimientoMultiViajeroData })?.fromRequerimientoMultiViajero;
   const {
     ordenes,
     stats,
@@ -55,8 +81,7 @@ export const OrdenesCompra: React.FC = () => {
     registrarPago,
     recibirOrden,
     deleteOrden,
-    fetchStats,
-    setSelectedOrden
+    fetchStats
   } = useOrdenCompraStore();
 
   const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
@@ -64,6 +89,7 @@ export const OrdenesCompra: React.FC = () => {
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
   const [selectedOrden, setSelectedOrdenLocal] = useState<OrdenCompra | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
 
   // Datos iniciales para el formulario (cuando viene de un requerimiento)
   const [initialFormData, setInitialFormData] = useState<{
@@ -75,7 +101,51 @@ export const OrdenesCompra: React.FC = () => {
       precioUnitarioUSD: number;
     }>;
     tcSugerido?: number;
+    // Viajero preseleccionado (flujo multi-viajero)
+    viajero?: {
+      id: string;
+      nombre: string;
+    };
   } | null>(null);
+
+  // Estado para creación multi-viajero
+  const [multiViajeroData, setMultiViajeroData] = useState<RequerimientoMultiViajeroData | null>(null);
+  const [currentViajeroIndex, setCurrentViajeroIndex] = useState(0);
+  const [creandoMultiOC, setCreandoMultiOC] = useState(false);
+  const [totalViajerosOriginal, setTotalViajerosOriginal] = useState(0);
+  const [viajerosCompletados, setViajerosCompletados] = useState(0);
+  // Flag para evitar re-abrir el modal después de completar el flujo multi-viajero
+  const [multiViajeroCompletado, setMultiViajeroCompletado] = useState(false);
+
+  // Hook para dialogo de confirmacion
+  const { dialogProps, confirm } = useConfirmDialog();
+  const { modalProps: actionModalProps, open: openActionModal } = useActionModal();
+  const toast = useToastStore();
+
+  // Pipeline stages para filtrado visual
+  const pipelineStages: PipelineStage[] = useMemo(() => {
+    const counts = {
+      borrador: ordenes.filter(o => o.estado === 'borrador').length,
+      enviada: ordenes.filter(o => o.estado === 'enviada').length,
+      en_transito: ordenes.filter(o => o.estado === 'en_transito').length,
+      recibida: ordenes.filter(o => o.estado === 'recibida').length,
+      cancelada: ordenes.filter(o => o.estado === 'cancelada').length
+    };
+
+    return [
+      { id: 'borrador', label: 'Borrador', count: counts.borrador, color: 'gray', icon: <FileText className="h-4 w-4" /> },
+      { id: 'enviada', label: 'Enviada', count: counts.enviada, color: 'blue', icon: <Send className="h-4 w-4" /> },
+      { id: 'en_transito', label: 'En Tránsito', count: counts.en_transito, color: 'yellow', icon: <Truck className="h-4 w-4" /> },
+      { id: 'recibida', label: 'Recibida', count: counts.recibida, color: 'green', icon: <CheckCircle className="h-4 w-4" /> },
+      { id: 'cancelada', label: 'Cancelada', count: counts.cancelada, color: 'red', icon: <XCircle className="h-4 w-4" /> }
+    ];
+  }, [ordenes]);
+
+  // Órdenes filtradas
+  const ordenesFiltradas = useMemo(() => {
+    if (!filtroEstado) return ordenes;
+    return ordenes.filter(o => o.estado === filtroEstado);
+  }, [ordenes, filtroEstado]);
 
   // Cargar datos al montar
   useEffect(() => {
@@ -125,6 +195,46 @@ export const OrdenesCompra: React.FC = () => {
     }
   }, [fromRequerimiento, proveedoresActivos]);
 
+  // Si viene de Requerimientos con multi-viajero, preparar creación secuencial
+  // IMPORTANTE: Solo ejecutar UNA VEZ cuando llega el dato, no cuando cambia creandoMultiOC
+  useEffect(() => {
+    // Si ya completamos el flujo multi-viajero, no volver a abrir
+    if (multiViajeroCompletado) return;
+
+    // Solo iniciar si tenemos datos Y no estamos ya en proceso
+    if (fromRequerimientoMultiViajero && proveedoresActivos.length > 0 && !creandoMultiOC && !multiViajeroData) {
+      setMultiViajeroData(fromRequerimientoMultiViajero);
+      setCurrentViajeroIndex(0);
+      setCreandoMultiOC(true);
+      setTotalViajerosOriginal(fromRequerimientoMultiViajero.asignaciones.length);
+      setViajerosCompletados(0);
+
+      // Preparar datos del primer viajero
+      const primeraAsignacion = fromRequerimientoMultiViajero.asignaciones[0];
+      if (primeraAsignacion) {
+        setInitialFormData({
+          requerimientoId: fromRequerimientoMultiViajero.id,
+          requerimientoNumero: fromRequerimientoMultiViajero.numeroRequerimiento,
+          productos: primeraAsignacion.productos.map(p => ({
+            productoId: p.productoId,
+            cantidad: p.cantidad,
+            precioUnitarioUSD: p.precioUnitarioUSD
+          })),
+          tcSugerido: fromRequerimientoMultiViajero.tcInvestigacion,
+          // Preseleccionar el viajero como almacén destino
+          viajero: {
+            id: primeraAsignacion.viajeroId,
+            nombre: primeraAsignacion.viajeroNombre
+          }
+        });
+        setIsOrdenModalOpen(true);
+      }
+
+      // Limpiar el state de location
+      window.history.replaceState({}, document.title);
+    }
+  }, [fromRequerimientoMultiViajero, proveedoresActivos, creandoMultiOC, multiViajeroData, multiViajeroCompletado]);
+
   // Crear orden
   const handleCreateOrden = async (data: OrdenCompraFormData) => {
     if (!user) return;
@@ -136,12 +246,102 @@ export const OrdenesCompra: React.FC = () => {
         ? { ...data, requerimientoId: initialFormData.requerimientoId }
         : data;
 
+      // Si estamos en modo multi-viajero, asignar los productos al viajero correspondiente
+      if (creandoMultiOC && multiViajeroData) {
+        const asignacionActual = multiViajeroData.asignaciones[currentViajeroIndex];
+        if (asignacionActual) {
+          // Agregar viajeroId y viajeroNombre a cada producto
+          ordenData.productos = ordenData.productos.map(prod => ({
+            ...prod,
+            viajeroId: asignacionActual.viajeroId,
+            viajeroNombre: asignacionActual.viajeroNombre
+          }));
+        }
+      }
+
       await createOrden(ordenData, user.uid);
-      setIsOrdenModalOpen(false);
-      setInitialFormData(null); // Limpiar datos iniciales
+
+      // Si estamos en modo multi-viajero, pasar al siguiente viajero
+      if (creandoMultiOC && multiViajeroData) {
+        const asignacionActualNombre = multiViajeroData.asignaciones[currentViajeroIndex]?.viajeroNombre;
+        const nuevosCompletados = viajerosCompletados + 1;
+        setViajerosCompletados(nuevosCompletados);
+
+        // Eliminar la asignación actual (ya procesada) del array
+        const asignacionesRestantes = multiViajeroData.asignaciones.filter((_, idx) => idx !== currentViajeroIndex);
+
+        if (asignacionesRestantes.length > 0) {
+          // Hay más viajeros, actualizar datos y preparar el siguiente
+          const siguienteAsignacion = asignacionesRestantes[0];
+
+          // Actualizar multiViajeroData sin la asignación procesada
+          setMultiViajeroData({
+            ...multiViajeroData,
+            asignaciones: asignacionesRestantes
+          });
+          setCurrentViajeroIndex(0); // Siempre será el primero del array restante
+
+          setInitialFormData({
+            requerimientoId: multiViajeroData.id,
+            requerimientoNumero: multiViajeroData.numeroRequerimiento,
+            productos: siguienteAsignacion.productos.map(p => ({
+              productoId: p.productoId,
+              cantidad: p.cantidad,
+              precioUnitarioUSD: p.precioUnitarioUSD
+            })),
+            tcSugerido: multiViajeroData.tcInvestigacion,
+            // Preseleccionar el viajero como almacén destino
+            viajero: {
+              id: siguienteAsignacion.viajeroId,
+              nombre: siguienteAsignacion.viajeroNombre
+            }
+          });
+
+          alert(
+            `✅ OC creada para ${asignacionActualNombre}\n\n` +
+            `Siguiente: ${siguienteAsignacion.viajeroNombre} (${nuevosCompletados + 1}/${totalViajerosOriginal})`
+          );
+          // El modal permanece abierto para el siguiente viajero
+        } else {
+          // Terminamos con todos los viajeros - guardar total antes de resetear
+          const totalCreadas = totalViajerosOriginal;
+
+          // MARCAR COMO COMPLETADO PRIMERO para evitar que el useEffect re-abra el modal
+          setMultiViajeroCompletado(true);
+
+          // Limpiar todos los estados
+          setIsOrdenModalOpen(false);
+          setInitialFormData(null);
+          setMultiViajeroData(null);
+          setCurrentViajeroIndex(0);
+          setCreandoMultiOC(false);
+          setTotalViajerosOriginal(0);
+          setViajerosCompletados(0);
+
+          // Mostrar mensaje DESPUÉS de limpiar estados
+          alert(
+            `✅ ¡Todas las OCs han sido creadas!\n\n` +
+            `Total: ${totalCreadas} órdenes de compra`
+          );
+        }
+      } else {
+        setIsOrdenModalOpen(false);
+        setInitialFormData(null);
+      }
     } catch (error: any) {
       console.error('Error al crear orden:', error);
       alert(error.message);
+      // En caso de error, marcar como completado y cerrar todo
+      if (creandoMultiOC) {
+        setMultiViajeroCompletado(true);
+        setMultiViajeroData(null);
+        setCurrentViajeroIndex(0);
+        setCreandoMultiOC(false);
+        setTotalViajerosOriginal(0);
+        setViajerosCompletados(0);
+      }
+      setIsOrdenModalOpen(false);
+      setInitialFormData(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -151,6 +351,16 @@ export const OrdenesCompra: React.FC = () => {
   const handleCloseOrdenModal = () => {
     setIsOrdenModalOpen(false);
     setInitialFormData(null);
+    // Limpiar datos de multi-viajero si estaba en ese modo
+    if (creandoMultiOC) {
+      // Marcar como completado para evitar que el useEffect re-abra el modal
+      setMultiViajeroCompletado(true);
+      setMultiViajeroData(null);
+      setCurrentViajeroIndex(0);
+      setCreandoMultiOC(false);
+      setTotalViajerosOriginal(0);
+      setViajerosCompletados(0);
+    }
   };
 
   // Ver detalles
@@ -165,15 +375,44 @@ export const OrdenesCompra: React.FC = () => {
 
     // Si cambia a "en_transito", pedir tracking
     if (nuevoEstado === 'en_transito') {
-      const numeroTracking = window.prompt('Ingresa el número de tracking (opcional):');
-      const courier = window.prompt('Ingresa el courier (opcional):');
-      
+      const result = await openActionModal({
+        title: 'Marcar en Tránsito',
+        description: 'Ingresa la información de seguimiento del envío.',
+        variant: 'info',
+        confirmText: 'Marcar en Tránsito',
+        contextInfo: [
+          { label: 'Orden', value: selectedOrden.numeroOrden },
+          { label: 'Proveedor', value: selectedOrden.nombreProveedor },
+          { label: 'Total', value: `$${selectedOrden.totalUSD.toFixed(2)}` }
+        ],
+        fields: [
+          {
+            id: 'numeroTracking',
+            label: 'Número de tracking',
+            type: 'text',
+            placeholder: 'Ej: 1Z999AA10123456784'
+          },
+          {
+            id: 'courier',
+            label: 'Courier / Transportista',
+            type: 'text',
+            placeholder: 'Ej: UPS, FedEx, DHL...'
+          }
+        ]
+      });
+
+      if (!result) return;
+
       try {
-        await cambiarEstadoOrden(selectedOrden.id, nuevoEstado, user.uid, { numeroTracking, courier });
+        await cambiarEstadoOrden(selectedOrden.id, nuevoEstado, user.uid, {
+          numeroTracking: result.numeroTracking as string || undefined,
+          courier: result.courier as string || undefined
+        });
         const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
         if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+        toast.success('Orden marcada en tránsito');
       } catch (error: any) {
-        alert(error.message);
+        toast.error(error.message, 'Error');
       }
     }
     // Otros estados
@@ -182,8 +421,9 @@ export const OrdenesCompra: React.FC = () => {
         await cambiarEstadoOrden(selectedOrden.id, nuevoEstado, user.uid);
         const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
         if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+        toast.success(`Estado actualizado a: ${nuevoEstado}`);
       } catch (error: any) {
-        alert(error.message);
+        toast.error(error.message, 'Error');
       }
     }
   };
@@ -238,9 +478,13 @@ export const OrdenesCompra: React.FC = () => {
   const handleRecibirOrden = async () => {
     if (!user || !selectedOrden) return;
 
-    if (!window.confirm(`¿Recibir la orden ${selectedOrden.numeroOrden} y generar inventario automáticamente?`)) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Recibir Orden de Compra',
+      message: `¿Recibir la orden ${selectedOrden.numeroOrden} y generar inventario automaticamente?`,
+      confirmText: 'Recibir',
+      variant: 'info'
+    });
+    if (!confirmed) return;
 
     try {
       const resultado = await recibirOrden(selectedOrden.id, user.uid);
@@ -270,10 +514,14 @@ export const OrdenesCompra: React.FC = () => {
 
   // Eliminar orden
   const handleDelete = async (orden: OrdenCompra) => {
-    if (!window.confirm(`¿Eliminar la orden ${orden.numeroOrden}?`)) {
-      return;
-    }
-    
+    const confirmed = await confirm({
+      title: 'Eliminar Orden',
+      message: `¿Eliminar la orden ${orden.numeroOrden}? Esta accion no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
+
     try {
       await deleteOrden(orden.id);
     } catch (error: any) {
@@ -393,15 +641,26 @@ export const OrdenesCompra: React.FC = () => {
         </div>
       )}
 
+      {/* Pipeline de Estados */}
+      <PipelineHeader
+        stages={pipelineStages}
+        activeStage={filtroEstado}
+        onStageClick={setFiltroEstado}
+        title="Pipeline de Compras"
+      />
+
       {/* Tabla de Órdenes */}
       <Card padding="none">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">
-            Órdenes de Compra ({ordenes.length})
+            {filtroEstado
+              ? `${pipelineStages.find(s => s.id === filtroEstado)?.label || 'Órdenes'} (${ordenesFiltradas.length})`
+              : `Órdenes de Compra (${ordenes.length})`
+            }
           </h3>
         </div>
         <OrdenCompraTable
-          ordenes={ordenes}
+          ordenes={ordenesFiltradas}
           onView={handleViewDetails}
           onDelete={handleDelete}
           loading={loading}
@@ -409,27 +668,83 @@ export const OrdenesCompra: React.FC = () => {
       </Card>
 
       {/* Modal Nueva Orden */}
-      <Modal
-        isOpen={isOrdenModalOpen}
-        onClose={handleCloseOrdenModal}
-        title={initialFormData?.requerimientoNumero
-          ? `Nueva OC desde ${initialFormData.requerimientoNumero}`
-          : "Nueva Orden de Compra"
-        }
-        size="xl"
-      >
-        <OrdenCompraForm
-          proveedores={proveedoresActivos}
-          productos={productos}
-          onSubmit={handleCreateOrden}
-          onCancel={handleCloseOrdenModal}
-          loading={isSubmitting}
-          tcSugerido={initialFormData?.tcSugerido || tcSugerido}
-          initialProductos={initialFormData?.productos}
-          requerimientoId={initialFormData?.requerimientoId}
-          requerimientoNumero={initialFormData?.requerimientoNumero}
-        />
-      </Modal>
+      {isOrdenModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          {/* Backdrop - click para cerrar */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+            onClick={handleCloseOrdenModal}
+          />
+
+          {/* Modal Container */}
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div
+              className="relative bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header con X para cerrar */}
+              <div className="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {creandoMultiOC && multiViajeroData
+                    ? `Nueva OC para ${multiViajeroData.asignaciones[currentViajeroIndex]?.viajeroNombre} (${viajerosCompletados + 1}/${totalViajerosOriginal})`
+                    : initialFormData?.requerimientoNumero
+                      ? `Nueva OC desde ${initialFormData.requerimientoNumero}`
+                      : "Nueva Orden de Compra"
+                  }
+                </h3>
+                <button
+                  type="button"
+                  onClick={handleCloseOrdenModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                {/* Banner de progreso multi-viajero */}
+                {creandoMultiOC && multiViajeroData && totalViajerosOriginal > 0 && (
+                  <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Package className="h-5 w-5 text-purple-600 mr-2" />
+                        <span className="font-medium text-purple-900">
+                          Creando OC {viajerosCompletados + 1} de {totalViajerosOriginal}
+                        </span>
+                      </div>
+                      <span className="text-sm text-purple-600">
+                        Viajero: {multiViajeroData.asignaciones[currentViajeroIndex]?.viajeroNombre}
+                      </span>
+                    </div>
+                    <div className="mt-2 w-full bg-purple-200 rounded-full h-2">
+                      <div
+                        className="bg-purple-600 h-2 rounded-full transition-all"
+                        style={{ width: `${((viajerosCompletados + 1) / totalViajerosOriginal) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                <OrdenCompraForm
+                  key={initialFormData?.viajero?.id || 'default'}
+                  proveedores={proveedoresActivos}
+                  productos={productos}
+                  onSubmit={handleCreateOrden}
+                  onCancel={handleCloseOrdenModal}
+                  loading={isSubmitting}
+                  tcSugerido={initialFormData?.tcSugerido || tcSugerido}
+                  initialProductos={initialFormData?.productos}
+                  requerimientoId={initialFormData?.requerimientoId}
+                  requerimientoNumero={initialFormData?.requerimientoNumero}
+                  initialViajero={initialFormData?.viajero}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Detalles de Orden */}
       <Modal
@@ -457,6 +772,12 @@ export const OrdenesCompra: React.FC = () => {
           loading={isSubmitting}
         />
       )}
+
+      {/* Dialogo de Confirmacion */}
+      <ConfirmDialog {...dialogProps} />
+
+      {/* Modal de Acciones con campos */}
+      <ActionModal {...actionModalProps} />
     </div>
   );
 };

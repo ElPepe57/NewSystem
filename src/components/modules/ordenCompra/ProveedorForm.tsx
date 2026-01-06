@@ -34,6 +34,7 @@ export const ProveedorForm: React.FC<ProveedorFormProps> = ({
   const [formData, setFormData] = useState<ProveedorFormData>({
     nombre: initialData?.nombre || '',
     tipo: initialData?.tipo || 'distribuidor',
+    url: initialData?.url || '',
     contacto: initialData?.contacto || '',
     email: initialData?.email || '',
     telefono: initialData?.telefono || '',

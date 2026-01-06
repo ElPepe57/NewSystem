@@ -6,12 +6,14 @@ import { TipoCambioTable } from "../../components/modules/tipoCambio/TipoCambioT
 import { TipoCambioChart } from "../../components/modules/tipoCambio/TipoCambioChart";
 import { useTipoCambioStore } from "../../store/tipoCambioStore";
 import { useAuthStore } from "../../store/authStore";
+import { useToastStore } from "../../store/toastStore";
 import { tipoCambioService } from "../../services/tipoCambio.service";
 import type { TipoCambioFormData } from "../../types/tipoCambio.types";
 
 export const TipoCambio: React.FC = () => {
   const user = useAuthStore(state => state.user);
   const { tiposCambio, loading, fetchTiposCambio, createTipoCambio, registrarDesdeSunat, getUltimosDias } = useTipoCambioStore();
+  const toast = useToastStore();
   
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,12 +54,12 @@ export const TipoCambio: React.FC = () => {
     setIsSubmitting(true);
     try {
       await createTipoCambio(data, user.uid);
-      alert("✅ Tipo de cambio registrado correctamente");
+      toast.success("Tipo de cambio registrado correctamente");
       setIsFormModalOpen(false);
       loadChartData();
       loadTCDelDia();
     } catch (error: any) {
-      alert("❌ Error: " + error.message);
+      toast.error(error.message, "Error");
     } finally {
       setIsSubmitting(false);
     }
@@ -69,12 +71,12 @@ export const TipoCambio: React.FC = () => {
     setIsSubmitting(true);
     try {
       await registrarDesdeSunat(fecha, user.uid);
-      alert("✅ Tipo de cambio obtenido de SUNAT y registrado correctamente");
+      toast.success("Tipo de cambio obtenido de SUNAT y registrado correctamente");
       setIsFormModalOpen(false);
       loadChartData();
       loadTCDelDia();
     } catch (error: any) {
-      alert("❌ Error: " + error.message);
+      toast.error(error.message, "Error");
     } finally {
       setIsSubmitting(false);
     }

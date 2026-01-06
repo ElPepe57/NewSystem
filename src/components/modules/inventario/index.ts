@@ -1,0 +1,12 @@
+export { ProductoInventarioTable } from './ProductoInventarioTable';
+export type { ProductoConUnidades } from './ProductoInventarioTable';
+export { UnidadesDesglose } from './UnidadesDesglose';
+export { UnidadDetailsModal } from './UnidadDetailsModal';
+export { AlertasPrioritarias } from './AlertasPrioritarias';
+export type { AlertaProducto } from './AlertasPrioritarias';
+export { StockProductoCard } from './StockProductoCard';
+export { UnidadCard } from './UnidadCard';
+export { InventarioAnalytics } from './InventarioAnalytics';
+export { AlertasInventario } from './AlertasInventario';
+export { PromocionModal } from './PromocionModal';
+export type { PromocionData } from './PromocionModal';

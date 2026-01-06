@@ -200,12 +200,14 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
                 disabled={disabled}
                 onUpdate={(updates) => handleUpdateProveedor(proveedor.id, updates)}
                 onClose={() => setExpandedId(null)}
-                onCreateProveedor={async (data) => {
-                  if (!user) return;
+onCreateProveedor={async (data) => {
+                  if (!user) return null;
                   try {
-                    await createProveedor(data, user.uid);
+                    const proveedorId = await createProveedor(data, user.uid);
+                    return proveedorId;
                   } catch (error) {
                     console.error('Error creando proveedor:', error);
+                    return null;
                   }
                 }}
               />
@@ -244,7 +246,7 @@ interface ProveedorExpandidoProps {
   disabled: boolean;
   onUpdate: (updates: Partial<ProveedorUSAFormData>) => void;
   onClose: () => void;
-  onCreateProveedor: (data: ProveedorFormData) => Promise<void>;
+  onCreateProveedor: (data: ProveedorFormData) => Promise<string | null>;
 }
 
 const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
@@ -318,9 +320,10 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
     if (!nuevoProveedor.nombre) return;
     setCreando(true);
     try {
-      await onCreateProveedor(nuevoProveedor as ProveedorFormData);
+      const proveedorId = await onCreateProveedor(nuevoProveedor as ProveedorFormData);
       setInputValue(nuevoProveedor.nombre);
-      onUpdate({ nombre: nuevoProveedor.nombre });
+      // Vincular el ID del proveedor recién creado
+      onUpdate({ nombre: nuevoProveedor.nombre, proveedorId: proveedorId || undefined });
       setShowCreateForm(false);
     } catch (error) {
       console.error('Error:', error);
@@ -406,9 +409,9 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                             </div>
                           )}
                         </div>
-                        {prov.metricas?.ordenesCompra > 0 && (
+                        {(prov.metricas?.ordenesCompra ?? 0) > 0 && (
                           <span className="text-xs text-gray-400">
-                            {prov.metricas.ordenesCompra} órdenes
+                            {prov.metricas?.ordenesCompra} órdenes
                           </span>
                         )}
                       </div>

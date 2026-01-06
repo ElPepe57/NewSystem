@@ -675,13 +675,13 @@ export const expectativaService = {
     let impactoTotalTCVentas = 0;
 
     for (const venta of ventasConvertidas) {
-      if (venta.expectativaCotizacion && venta.tipoCambio) {
+      if (venta.expectativaCotizacion && venta.tcVenta) {
         const tcCotizacion = venta.expectativaCotizacion.tcCotizacion || 0;
-        const tcReal = venta.tipoCambio;
+        const tcReal = venta.tcVenta;
         if (tcCotizacion > 0 && Math.abs(tcReal - tcCotizacion) > 0.01) {
           ventasAfectadasPorTC++;
           // Impacto = (TCreal - TCcotizacion) * costoUSD de productos
-          const costoUSD = venta.productos.reduce((sum, p) => sum + (p.costoUSD || 0) * p.cantidad, 0);
+          const costoUSD = venta.productos.reduce((sum, p) => sum + (p.costoTotalUnidades || 0), 0);
           impactoTotalTCVentas += (tcReal - tcCotizacion) * costoUSD;
         }
       }
@@ -692,7 +692,7 @@ export const expectativaService = {
     let impactoTotalTCCompras = 0;
 
     for (const req of reqCompletados) {
-      if (req.ordenCompraId && req.expectativa.tcEstimado) {
+      if (req.ordenCompraId && req.expectativa.tcInvestigacion) {
         const comparacion = await this.compararCompra(req.ordenCompraId);
         if (comparacion && Math.abs(comparacion.diferencias.diferenciaTC) > 0.01) {
           comprasAfectadasPorTC++;

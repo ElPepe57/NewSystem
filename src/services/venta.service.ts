@@ -31,7 +31,10 @@ import type {
   ProductoStockVirtual,
   AdelantoData,
   TipoReserva,
-  EstadoCotizacion
+  EstadoCotizacion,
+  EstadoAsignacionProducto,
+  EstadoEntregaProducto,
+  EntregaParcial
 } from '../types/venta.types';
 import type { Unidad } from '../types/unidad.types';
 import { ProductoService } from './producto.service';
@@ -40,6 +43,9 @@ import { unidadService } from './unidad.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { NotificationService } from './notification.service';
 import { tesoreriaService } from './tesoreria.service';
+import { metricasService } from './metricas.service';
+import { entregaService } from './entrega.service';
+import { gastoService } from './gasto.service';
 
 const COLLECTION_NAME = 'ventas';
 
@@ -63,6 +69,39 @@ export class VentaService {
     } catch (error: any) {
       console.error('Error al obtener ventas:', error);
       throw new Error('Error al cargar ventas');
+    }
+  }
+
+  /**
+   * Obtener ventas recientes (últimos N días)
+   */
+  static async getVentasRecientes(dias: number = 30): Promise<Venta[]> {
+    try {
+      const fechaLimite = new Date();
+      fechaLimite.setDate(fechaLimite.getDate() - dias);
+
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('fechaCreacion', '>=', Timestamp.fromDate(fechaLimite)),
+        orderBy('fechaCreacion', 'desc')
+      );
+
+      const snapshot = await getDocs(q);
+
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Venta));
+    } catch (error: any) {
+      console.error('Error al obtener ventas recientes:', error);
+      // Fallback: obtener todas y filtrar en memoria
+      const todasVentas = await this.getAll();
+      const fechaLimite = new Date();
+      fechaLimite.setDate(fechaLimite.getDate() - dias);
+      return todasVentas.filter(v => {
+        const fechaVenta = v.fechaCreacion?.toDate?.() || new Date(0);
+        return fechaVenta >= fechaLimite;
+      });
     }
   }
 
@@ -112,22 +151,31 @@ export class VentaService {
 
   /**
    * Obtener productos disponibles para venta
+   *
+   * OPTIMIZADO: Hace UNA sola consulta de inventario en lugar de N consultas
    */
   static async getProductosDisponibles(): Promise<ProductoDisponible[]> {
     try {
-      const productos = await ProductoService.getAll();
+      // Obtener productos e inventario en paralelo (2 consultas en lugar de N+1)
+      const [productos, inventarioCompleto] = await Promise.all([
+        ProductoService.getAll(),
+        inventarioService.getInventarioAgregado({ pais: 'Peru' })
+      ]);
+
+      // Crear mapa de disponibles por productoId para acceso O(1)
+      const disponiblesPorProducto = new Map<string, number>();
+      for (const inv of inventarioCompleto) {
+        const actual = disponiblesPorProducto.get(inv.productoId) || 0;
+        disponiblesPorProducto.set(inv.productoId, actual + inv.disponibles);
+      }
+
+      // Procesar productos
       const productosDisponibles: ProductoDisponible[] = [];
 
       for (const producto of productos) {
         if (producto.estado !== 'activo') continue;
 
-        // Obtener inventario agregado del producto en Perú
-        const inventarioProducto = await inventarioService.getInventarioProducto(producto.id);
-
-        // Filtrar solo almacenes en Perú y sumar disponibles
-        const disponiblesEnPeru = inventarioProducto
-          .filter(inv => inv.pais === 'Peru')
-          .reduce((sum, inv) => sum + inv.disponibles, 0);
+        const disponiblesEnPeru = disponiblesPorProducto.get(producto.id) || 0;
 
         // Incluir todos los productos activos (con o sin stock en Perú)
         // para permitir cotizaciones que generen requerimientos
@@ -253,6 +301,7 @@ export class VentaService {
       const nuevaVenta: any = {
         numeroVenta,
         nombreCliente: data.nombreCliente,
+        ...(data.clienteId && { clienteId: data.clienteId }),
         canal: data.canal,
         productos: productosVenta,
         subtotalPEN,
@@ -745,6 +794,274 @@ export class VentaService {
   }
 
   /**
+   * Completar asignación de un producto específico (asignación parcial tardía)
+   */
+  static async completarAsignacionProducto(
+    ventaId: string,
+    productoId: string,
+    userId: string
+  ): Promise<ResultadoAsignacion> {
+    try {
+      const venta = await this.getById(ventaId);
+      if (!venta) {
+        throw new Error('Venta no encontrada');
+      }
+
+      const producto = venta.productos.find(p => p.productoId === productoId);
+      if (!producto) {
+        throw new Error('Producto no encontrado en la venta');
+      }
+
+      if (producto.estadoAsignacion === 'asignado') {
+        throw new Error('El producto ya tiene asignación completa');
+      }
+
+      const cantidadPendiente = producto.cantidadPendiente || 0;
+      if (cantidadPendiente === 0) {
+        throw new Error('No hay unidades pendientes para asignar');
+      }
+
+      // Asignar unidades FEFO para la cantidad pendiente
+      const resultado = await this.asignarUnidadesFEFO(
+        productoId,
+        cantidadPendiente
+      );
+
+      const batch = writeBatch(db);
+
+      // Actualizar producto en la venta
+      const unidadesAsignadasActuales = producto.unidadesAsignadas || [];
+      const nuevasUnidades = resultado.unidadesAsignadas.map(u => u.unidadId);
+      const todasLasUnidades = [...unidadesAsignadasActuales, ...nuevasUnidades];
+
+      const cantidadAsignadaTotal = (producto.cantidadAsignada || 0) + resultado.cantidadAsignada;
+      const cantidadPendienteNueva = producto.cantidad - cantidadAsignadaTotal;
+      const estadoAsignacion: EstadoAsignacionProducto =
+        cantidadPendienteNueva === 0 ? 'asignado' : 'parcial';
+
+      // Actualizar el producto en el array de productos
+      const productosActualizados = venta.productos.map(p => {
+        if (p.productoId === productoId) {
+          return {
+            ...p,
+            unidadesAsignadas: todasLasUnidades,
+            cantidadAsignada: cantidadAsignadaTotal,
+            cantidadPendiente: cantidadPendienteNueva,
+            estadoAsignacion
+          };
+        }
+        return p;
+      });
+
+      // Verificar si todos los productos están completamente asignados
+      const todosCompletos = productosActualizados.every(
+        p => p.estadoAsignacion === 'asignado'
+      );
+
+      // Actualizar venta
+      const ventaRef = doc(db, COLLECTION_NAME, ventaId);
+      batch.update(ventaRef, {
+        productos: productosActualizados,
+        estado: todosCompletos ? 'asignada' : 'parcial',
+        ultimaEdicion: serverTimestamp(),
+        editadoPor: userId
+      });
+
+      await batch.commit();
+
+      return {
+        productoId,
+        cantidadSolicitada: cantidadPendiente,
+        cantidadAsignada: resultado.cantidadAsignada,
+        unidadesAsignadas: resultado.unidadesAsignadas,
+        unidadesFaltantes: cantidadPendiente - resultado.cantidadAsignada
+      };
+    } catch (error: any) {
+      console.error('Error completando asignación de producto:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualizar fecha estimada de llegada de stock para un producto con asignación parcial
+   */
+  static async actualizarFechaEstimadaProducto(
+    ventaId: string,
+    productoId: string,
+    fechaEstimada: Date,
+    notas?: string,
+    userId?: string
+  ): Promise<void> {
+    try {
+      const venta = await this.getById(ventaId);
+      if (!venta) {
+        throw new Error('Venta no encontrada');
+      }
+
+      const producto = venta.productos.find(p => p.productoId === productoId);
+      if (!producto) {
+        throw new Error('Producto no encontrado en la venta');
+      }
+
+      // Actualizar el producto en el array
+      const productosActualizados = venta.productos.map(p => {
+        if (p.productoId === productoId) {
+          return {
+            ...p,
+            fechaEstimadaStock: Timestamp.fromDate(fechaEstimada),
+            notasStock: notas || p.notasStock
+          };
+        }
+        return p;
+      });
+
+      // Actualizar venta
+      const ventaRef = doc(db, COLLECTION_NAME, ventaId);
+      await updateDoc(ventaRef, {
+        productos: productosActualizados,
+        ultimaEdicion: serverTimestamp(),
+        ...(userId && { editadoPor: userId })
+      });
+    } catch (error: any) {
+      console.error('Error actualizando fecha estimada:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Registrar entrega parcial de productos
+   */
+  static async registrarEntregaParcial(
+    id: string,
+    userId: string,
+    datos?: {
+      direccionEntrega?: string;
+      notasEntrega?: string;
+      productosAEntregar?: Array<{ productoId: string; cantidad: number }>;
+    }
+  ): Promise<EntregaParcial> {
+    try {
+      const venta = await this.getById(id);
+      if (!venta) {
+        throw new Error('Venta no encontrada');
+      }
+
+      if (venta.estado !== 'en_entrega' && venta.estado !== 'asignada') {
+        throw new Error('Solo se pueden registrar entregas parciales para ventas asignadas o en entrega');
+      }
+
+      const batch = writeBatch(db);
+      const productosEntregados: Array<{
+        productoId: string;
+        cantidad: number;
+        unidadesIds: string[];
+      }> = [];
+
+      // Si no se especifican productos, entregar todos los que tengan unidades asignadas
+      const productosAEntregar = datos?.productosAEntregar || venta.productos.map(p => ({
+        productoId: p.productoId,
+        cantidad: (p.unidadesAsignadas?.length || 0) - (p.cantidadEntregada || 0)
+      }));
+
+      // Procesar cada producto a entregar
+      for (const { productoId, cantidad } of productosAEntregar) {
+        const producto = venta.productos.find(p => p.productoId === productoId);
+        if (!producto || !producto.unidadesAsignadas) {
+          continue;
+        }
+
+        const cantidadYaEntregada = producto.cantidadEntregada || 0;
+        const cantidadDisponible = producto.unidadesAsignadas.length - cantidadYaEntregada;
+        const cantidadAEntregar = Math.min(cantidad, cantidadDisponible);
+
+        if (cantidadAEntregar <= 0) {
+          continue;
+        }
+
+        // Obtener las unidades a entregar
+        const unidadesAEntregar = producto.unidadesAsignadas.slice(
+          cantidadYaEntregada,
+          cantidadYaEntregada + cantidadAEntregar
+        );
+
+        // Actualizar estado de las unidades a "entregada"
+        for (const unidadId of unidadesAEntregar) {
+          const unidadRef = doc(db, 'unidades', unidadId);
+          batch.update(unidadRef, {
+            estado: 'entregada',
+            fechaEntrega: serverTimestamp()
+          });
+        }
+
+        productosEntregados.push({
+          productoId,
+          cantidad: cantidadAEntregar,
+          unidadesIds: unidadesAEntregar
+        });
+      }
+
+      // Crear registro de entrega parcial
+      const entregaParcial: EntregaParcial = {
+        id: doc(collection(db, 'entregas_parciales')).id,
+        fecha: Timestamp.now(),
+        productosEntregados,
+        direccionEntrega: datos?.direccionEntrega,
+        notasEntrega: datos?.notasEntrega,
+        registradoPor: userId
+      };
+
+      // Actualizar productos en la venta
+      const productosActualizados = venta.productos.map(p => {
+        const entregado = productosEntregados.find(pe => pe.productoId === p.productoId);
+        if (!entregado) {
+          return p;
+        }
+
+        const cantidadEntregadaTotal = (p.cantidadEntregada || 0) + entregado.cantidad;
+        const cantidadPorEntregar = (p.unidadesAsignadas?.length || 0) - cantidadEntregadaTotal;
+
+        let estadoEntrega: EstadoEntregaProducto = 'pendiente';
+        if (cantidadEntregadaTotal > 0 && cantidadPorEntregar > 0) {
+          estadoEntrega = 'parcial';
+        } else if (cantidadPorEntregar === 0) {
+          estadoEntrega = 'entregado';
+        }
+
+        return {
+          ...p,
+          cantidadEntregada: cantidadEntregadaTotal,
+          cantidadPorEntregar,
+          estadoEntrega
+        };
+      });
+
+      // Verificar si todos los productos están completamente entregados
+      const todosEntregados = productosActualizados.every(
+        p => p.estadoEntrega === 'entregado' || !p.unidadesAsignadas?.length
+      );
+
+      // Actualizar venta
+      const entregasParciales = (venta as any).entregasParciales || [];
+      const ventaRef = doc(db, COLLECTION_NAME, id);
+      batch.update(ventaRef, {
+        productos: productosActualizados,
+        entregasParciales: [...entregasParciales, entregaParcial],
+        estado: todosEntregados ? 'entregada' : 'en_entrega',
+        ...(todosEntregados && { fechaEntrega: serverTimestamp() }),
+        ultimaEdicion: serverTimestamp(),
+        editadoPor: userId
+      });
+
+      await batch.commit();
+
+      return entregaParcial;
+    } catch (error: any) {
+      console.error('Error registrando entrega parcial:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Marcar como en entrega
    */
   static async marcarEnEntrega(
@@ -780,6 +1097,13 @@ export class VentaService {
 
   /**
    * Marcar como entregada
+   * También completa las entregas pendientes y crea los gastos GD correspondientes
+   *
+   * FLUJO:
+   * 1. Completar entregas pendientes → esto crea GD y actualiza unidades a 'vendida'
+   * 2. Si no hay entregas, actualizar unidades directamente a 'vendida'
+   * 3. Actualizar estado de la venta
+   * 4. Actualizar métricas
    */
   static async marcarEntregada(id: string, userId: string): Promise<void> {
     try {
@@ -787,36 +1111,92 @@ export class VentaService {
       if (!venta) {
         throw new Error('Venta no encontrada');
       }
-      
+
       if (venta.estado !== 'en_entrega' && venta.estado !== 'asignada') {
         throw new Error('Estado inválido para marcar como entregada');
       }
-      
-      const batch = writeBatch(db);
-      
-      // Actualizar estado de las unidades a "entregada"
-      for (const producto of venta.productos) {
-        if (producto.unidadesAsignadas) {
-          for (const unidadId of producto.unidadesAsignadas) {
-            const unidadRef = doc(db, 'unidades', unidadId);
-            batch.update(unidadRef, {
-              estado: 'entregada',
-              fechaEntrega: serverTimestamp()
-            });
+
+      console.log(`[marcarEntregada] Iniciando para venta ${venta.numeroVenta}`);
+
+      // 1. Completar todas las entregas pendientes de esta venta
+      // entregaService.registrarResultado hace:
+      // - Actualiza estado de entrega a 'entregada'
+      // - Cambia unidades de 'reservada' a 'vendida' via confirmarVentaUnidades
+      // - Crea gasto GD automáticamente
+      let entregasCompletadas = 0;
+      let entregasPendientes: Awaited<ReturnType<typeof entregaService.getByVenta>> = [];
+
+      try {
+        const entregas = await entregaService.getByVenta(id);
+        entregasPendientes = entregas.filter(
+          e => e.estado === 'programada' || e.estado === 'en_camino' || e.estado === 'reprogramada'
+        );
+        console.log(`[marcarEntregada] Encontradas ${entregasPendientes.length} entregas pendientes`);
+
+        for (const entrega of entregasPendientes) {
+          try {
+            console.log(`[marcarEntregada] Completando entrega ${entrega.codigo}...`);
+            await entregaService.registrarResultado({
+              entregaId: entrega.id,
+              exitosa: true,
+              notasEntrega: 'Completada automáticamente al marcar venta como entregada'
+            }, userId);
+            entregasCompletadas++;
+            console.log(`[marcarEntregada] Entrega ${entrega.codigo} completada OK`);
+          } catch (entregaError) {
+            console.error(`[marcarEntregada] Error completando entrega ${entrega.codigo}:`, entregaError);
+            // Continuamos con las demás entregas
+          }
+        }
+      } catch (entregasError) {
+        console.error('[marcarEntregada] Error obteniendo entregas:', entregasError);
+      }
+
+      // 2. Si NO había entregas programadas, actualizar las unidades directamente
+      // Esto solo ocurre si la venta se asignó pero nunca se programaron entregas
+      if (entregasPendientes.length === 0) {
+        console.log('[marcarEntregada] No había entregas, actualizando unidades directamente');
+        for (const producto of venta.productos) {
+          if (producto.unidadesAsignadas && producto.unidadesAsignadas.length > 0) {
+            try {
+              await unidadService.confirmarVentaUnidades(
+                producto.unidadesAsignadas,
+                venta.id,
+                venta.numeroVenta,
+                producto.subtotalPEN || (producto.cantidad * producto.precioUnitario),
+                userId
+              );
+            } catch (error) {
+              console.error(`[marcarEntregada] Error confirmando unidades producto ${producto.sku}:`, error);
+            }
           }
         }
       }
-      
-      // Actualizar venta
+
+      // 3. Actualizar estado de la venta
       const ventaRef = doc(db, COLLECTION_NAME, id);
-      batch.update(ventaRef, {
+      await updateDoc(ventaRef, {
         estado: 'entregada',
         fechaEntrega: serverTimestamp(),
         ultimaEdicion: serverTimestamp(),
         editadoPor: userId
       });
-      
-      await batch.commit();
+
+      console.log(`[marcarEntregada] Venta ${venta.numeroVenta} marcada como entregada. Entregas completadas: ${entregasCompletadas}`);
+
+      // 4. Actualizar métricas del Gestor Maestro (cliente y marcas)
+      try {
+        const marcaIds = new Map<string, string>();
+        for (const producto of venta.productos) {
+          const productoCompleto = await ProductoService.getById(producto.productoId);
+          if (productoCompleto?.marcaId) {
+            marcaIds.set(producto.sku, productoCompleto.marcaId);
+          }
+        }
+        await metricasService.procesarVentaCompleta(venta, marcaIds);
+      } catch (metricasError) {
+        console.warn('Error al actualizar métricas del Gestor Maestro:', metricasError);
+      }
     } catch (error: any) {
       console.error('Error al marcar como entregada:', error);
       throw new Error(error.message || 'Error al actualizar estado');
@@ -1097,7 +1477,10 @@ export class VentaService {
             'efectivo': 'efectivo',
             'transferencia': 'transferencia_bancaria',
             'mercado_pago': 'mercado_pago',
-            'tarjeta': 'tarjeta'
+            'tarjeta': 'tarjeta',
+            'otro': 'otro',
+            'paypal': 'paypal',
+            'zelle': 'otro'
           };
 
           const metodoTesoreria = metodoTesoreriaMap[datosPago.metodoPago] || 'efectivo';
@@ -1930,23 +2313,32 @@ export class VentaService {
       const nuevoEstadoPago = nuevoMontoPendiente <= 0 ? 'pagado' :
         nuevoMontoPagado > 0 ? 'parcial' : 'pendiente';
 
+      // Construir objeto adelantoComprometido evitando valores undefined
+      const adelantoComprometidoData: Record<string, any> = {
+        monto: cotizacion.adelanto.monto,
+        metodoPago: cotizacion.adelanto.metodoPago,
+        fechaCompromiso: cotizacion.adelanto.fecha || Timestamp.now(),
+        desdeCotizacion: cotizacion.numeroCotizacion,
+        montoEquivalentePEN: montoAdelantoPEN,
+        transferidoComoPago: true,
+        sincronizadoEn: serverTimestamp()
+      };
+
+      // Solo agregar campos opcionales si tienen valor
+      if (cotizacion.adelanto.moneda) {
+        adelantoComprometidoData.moneda = cotizacion.adelanto.moneda;
+      }
+      if (cotizacion.adelanto.tipoCambio) {
+        adelantoComprometidoData.tipoCambio = cotizacion.adelanto.tipoCambio;
+      }
+
       // Actualizar la venta
       await updateDoc(doc(db, COLLECTION_NAME, ventaId), {
         pagos: nuevosPagos,
         montoPagado: nuevoMontoPagado,
         montoPendiente: Math.max(0, nuevoMontoPendiente),
         estadoPago: nuevoEstadoPago,
-        adelantoComprometido: {
-          monto: cotizacion.adelanto.monto,
-          metodoPago: cotizacion.adelanto.metodoPago,
-          fechaCompromiso: cotizacion.adelanto.fecha,
-          desdeCotizacion: cotizacion.numeroCotizacion,
-          moneda: cotizacion.adelanto.moneda,
-          tipoCambio: cotizacion.adelanto.tipoCambio,
-          montoEquivalentePEN: montoAdelantoPEN,
-          transferidoComoPago: true,
-          sincronizadoEn: serverTimestamp()
-        },
+        adelantoComprometido: adelantoComprometidoData,
         ultimaEdicion: serverTimestamp(),
         editadoPor: userId
       });
@@ -2007,6 +2399,177 @@ export class VentaService {
     } catch (error: any) {
       console.error('Error al sincronizar adelantos pendientes:', error);
       throw new Error(`Error al sincronizar adelantos: ${error.message}`);
+    }
+  }
+
+  /**
+   * Obtener historial financiero de un cliente
+   * Busca ventas por clienteId o por nombre del cliente
+   */
+  static async getHistorialFinancieroCliente(clienteId: string): Promise<{
+    ventas: Venta[];
+    resumen: {
+      totalVentas: number;
+      ventasCompletadas: number;
+      ventasPendientes: number;
+      ventasCanceladas: number;
+      totalVendidoPEN: number;
+      totalCobradoPEN: number;
+      totalPendientePEN: number;
+      ticketPromedio: number;
+      ultimaCompra?: Date;
+      primeraCompra?: Date;
+    };
+    porCobrar: Venta[];
+    cobradas: Venta[];
+  }> {
+    try {
+      // Obtener el cliente para saber sus datos
+      const { clienteService } = await import('./cliente.service');
+      const cliente = await clienteService.getById(clienteId);
+
+      if (!cliente) {
+        console.log(`[getHistorialFinancieroCliente] Cliente ${clienteId} no encontrado`);
+        throw new Error('Cliente no encontrado');
+      }
+
+      console.log(`[getHistorialFinancieroCliente] Buscando ventas para: ${cliente.nombre}`);
+      console.log(`[getHistorialFinancieroCliente] DNI/RUC: ${cliente.dniRuc}, Tel: ${cliente.telefono}`);
+
+      // Buscar ventas por múltiples criterios
+      const todasVentas = await this.getAll();
+      const nombreClienteNorm = cliente.nombre?.toLowerCase().trim();
+      const telefonoCliente = cliente.telefono?.replace(/\D/g, '');
+      const telefonoAlt = cliente.telefonoAlt?.replace(/\D/g, '');
+      const dniRucCliente = cliente.dniRuc?.trim();
+
+      console.log(`[getHistorialFinancieroCliente] Total ventas en sistema: ${todasVentas.length}`);
+
+      const ventas = todasVentas.filter(v => {
+        // 1. Por clienteId ya asignado
+        if (v.clienteId === clienteId) {
+          console.log(`[getHistorialFinancieroCliente] Match por clienteId: ${v.numeroVenta}`);
+          return true;
+        }
+
+        // 2. Por DNI/RUC exacto (más confiable)
+        if (dniRucCliente && v.dniRuc?.trim() === dniRucCliente) {
+          console.log(`[getHistorialFinancieroCliente] Match por DNI/RUC: ${v.numeroVenta}`);
+          return true;
+        }
+
+        // 3. Por teléfono (últimos 9 dígitos)
+        const telVenta = v.telefonoCliente?.replace(/\D/g, '');
+        if (telVenta && telefonoCliente) {
+          const ultimos9Venta = telVenta.slice(-9);
+          const ultimos9Cliente = telefonoCliente.slice(-9);
+          if (ultimos9Venta.length >= 7 && ultimos9Venta === ultimos9Cliente) {
+            console.log(`[getHistorialFinancieroCliente] Match por teléfono: ${v.numeroVenta} (${telVenta})`);
+            return true;
+          }
+        }
+        if (telVenta && telefonoAlt) {
+          const ultimos9Venta = telVenta.slice(-9);
+          const ultimos9Alt = telefonoAlt.slice(-9);
+          if (ultimos9Venta.length >= 7 && ultimos9Venta === ultimos9Alt) {
+            console.log(`[getHistorialFinancieroCliente] Match por teléfono alt: ${v.numeroVenta}`);
+            return true;
+          }
+        }
+
+        // 4. Por nombre exacto (normalizado)
+        const nombreVentaNorm = v.nombreCliente?.toLowerCase().trim();
+        if (nombreVentaNorm && nombreClienteNorm && nombreVentaNorm === nombreClienteNorm) {
+          console.log(`[getHistorialFinancieroCliente] Match por nombre: ${v.numeroVenta} (${v.nombreCliente})`);
+          return true;
+        }
+
+        return false;
+      });
+
+      console.log(`[getHistorialFinancieroCliente] Cliente ${cliente.nombre}: ${ventas.length} ventas encontradas`);
+
+      // Ordenar por fecha descendente
+      ventas.sort((a, b) => {
+        const fechaA = a.fechaCreacion?.toDate?.() || new Date(a.fechaCreacion as any);
+        const fechaB = b.fechaCreacion?.toDate?.() || new Date(b.fechaCreacion as any);
+        return fechaB.getTime() - fechaA.getTime();
+      });
+
+      // Calcular resumen
+      const ventasNoCancel = ventas.filter(v => v.estado !== 'cancelada');
+      const ventasCompletadas = ventas.filter(v => v.estado === 'entregada').length;
+      const ventasPendientes = ventas.filter(v => ['cotizacion', 'confirmada', 'asignada', 'en_entrega'].includes(v.estado)).length;
+      const ventasCanceladas = ventas.filter(v => v.estado === 'cancelada').length;
+
+      const totalVendidoPEN = ventasNoCancel.reduce((sum, v) => sum + (v.totalPEN || 0), 0);
+      const totalCobradoPEN = ventasNoCancel.reduce((sum, v) => sum + (v.montoPagado || 0), 0);
+      const totalPendientePEN = ventasNoCancel.reduce((sum, v) => sum + (v.montoPendiente || 0), 0);
+
+      const ticketPromedio = ventasNoCancel.length > 0 ? totalVendidoPEN / ventasNoCancel.length : 0;
+
+      // Obtener fechas
+      let ultimaCompra: Date | undefined;
+      let primeraCompra: Date | undefined;
+
+      if (ventas.length > 0) {
+        const fechas = ventas
+          .map(v => v.fechaCreacion?.toDate?.() || new Date(v.fechaCreacion as any))
+          .filter(f => f instanceof Date && !isNaN(f.getTime()))
+          .sort((a, b) => b.getTime() - a.getTime());
+
+        if (fechas.length > 0) {
+          ultimaCompra = fechas[0];
+          primeraCompra = fechas[fechas.length - 1];
+        }
+      }
+
+      // Separar por cobrar y cobradas
+      const porCobrar = ventas.filter(v =>
+        v.estado !== 'cancelada' &&
+        (v.estadoPago === 'pendiente' || v.estadoPago === 'parcial')
+      );
+
+      const cobradas = ventas.filter(v =>
+        v.estado !== 'cancelada' &&
+        v.estadoPago === 'pagado'
+      );
+
+      return {
+        ventas,
+        resumen: {
+          totalVentas: ventas.length,
+          ventasCompletadas,
+          ventasPendientes,
+          ventasCanceladas,
+          totalVendidoPEN,
+          totalCobradoPEN,
+          totalPendientePEN,
+          ticketPromedio,
+          ultimaCompra,
+          primeraCompra
+        },
+        porCobrar,
+        cobradas
+      };
+    } catch (error: any) {
+      console.error('Error al obtener historial financiero del cliente:', error);
+      // Retornar estructura vacía en caso de error
+      return {
+        ventas: [],
+        resumen: {
+          totalVentas: 0,
+          ventasCompletadas: 0,
+          ventasPendientes: 0,
+          ventasCanceladas: 0,
+          totalVendidoPEN: 0,
+          totalCobradoPEN: 0,
+          totalPendientePEN: 0,
+          ticketPromedio: 0
+        },
+        porCobrar: [],
+        cobradas: []
+      };
     }
   }
 }

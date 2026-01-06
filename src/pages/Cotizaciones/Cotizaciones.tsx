@@ -28,9 +28,10 @@ import {
   ExternalLink,
   Copy,
   Edit3,
-  ShoppingCart
+  ShoppingCart,
+  Truck
 } from 'lucide-react';
-import { Card, Badge, Button, Input, Select, Modal } from '../../components/common';
+import { Card, Badge, Button, Input, Select, Modal, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { CotizacionForm } from './CotizacionForm';
 import { CotizacionCard } from './CotizacionCard';
 import { RegistrarAdelantoModal } from '../../components/modules/venta/RegistrarAdelantoModal';
@@ -114,11 +115,17 @@ interface KanbanCardProps {
   onConfirmar?: () => void;
   onRevertir?: () => void;
   onRechazar?: () => void;
+  onActualizarDiasEntrega?: (dias: number) => void;
+  onActualizarDiasValidez?: (dias: number) => void;
+  onActualizarTiempoImportacion?: (dias: number) => void;
   showValidar?: boolean;
   showAdelanto?: boolean;
   showConfirmar?: boolean;
   showRevertir?: boolean;
   showRechazar?: boolean;
+  showDiasEntrega?: boolean;
+  showDiasValidez?: boolean;
+  showTiempoImportacion?: boolean;
 }
 
 const KanbanCard: React.FC<KanbanCardProps> = ({
@@ -131,12 +138,35 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
   onConfirmar,
   onRevertir,
   onRechazar,
+  onActualizarDiasEntrega,
+  onActualizarDiasValidez,
+  onActualizarTiempoImportacion,
   showValidar = false,
   showAdelanto = false,
   showConfirmar = false,
   showRevertir = false,
-  showRechazar = false
+  showRechazar = false,
+  showDiasEntrega = false,
+  showDiasValidez = false,
+  showTiempoImportacion = false
 }) => {
+  const [diasEntregaLocal, setDiasEntregaLocal] = useState(cotizacion.diasCompromisoEntrega || 15);
+  const [diasValidezLocal, setDiasValidezLocal] = useState(cotizacion.diasVigencia || 7);
+  const [tiempoImportacionLocal, setTiempoImportacionLocal] = useState(cotizacion.tiempoEstimadoImportacion || 10);
+
+  // Sincronizar estado local cuando cambia la cotización del store
+  useEffect(() => {
+    setDiasEntregaLocal(cotizacion.diasCompromisoEntrega || 15);
+  }, [cotizacion.diasCompromisoEntrega]);
+
+  useEffect(() => {
+    setDiasValidezLocal(cotizacion.diasVigencia || 7);
+  }, [cotizacion.diasVigencia]);
+
+  useEffect(() => {
+    setTiempoImportacionLocal(cotizacion.tiempoEstimadoImportacion || 10);
+  }, [cotizacion.tiempoEstimadoImportacion]);
+
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(amount);
 
@@ -183,6 +213,94 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
         <span className="text-lg font-bold text-gray-900">{formatCurrency(cotizacion.totalPEN)}</span>
         <span className="text-xs text-gray-500">{cotizacion.productos.length} prod.</span>
       </div>
+
+      {/* Input de días de compromiso de entrega (solo en Esperando Pago) */}
+      {showDiasEntrega && onActualizarDiasEntrega && (
+        <div className="mb-3 p-2 bg-amber-50 rounded-lg border border-amber-200">
+          <div className="flex items-center gap-2">
+            <Truck className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <span className="text-xs text-amber-700">Entrega en</span>
+            <input
+              type="number"
+              min="1"
+              max="90"
+              value={diasEntregaLocal}
+              onChange={(e) => setDiasEntregaLocal(Number(e.target.value))}
+              onBlur={() => {
+                if (diasEntregaLocal !== cotizacion.diasCompromisoEntrega) {
+                  onActualizarDiasEntrega(diasEntregaLocal);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+              className="w-12 px-1 py-0.5 text-center text-sm font-semibold border border-amber-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+            />
+            <span className="text-xs text-amber-700">días hábiles</span>
+          </div>
+          <p className="text-[10px] text-amber-600 mt-1 ml-6">tras pago del adelanto</p>
+        </div>
+      )}
+
+      {/* Input de días de validez (en Seguimiento) */}
+      {showDiasValidez && onActualizarDiasValidez && (
+        <div className="mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-blue-600 flex-shrink-0" />
+            <span className="text-xs text-blue-700">Validez:</span>
+            <input
+              type="number"
+              min="1"
+              max="90"
+              value={diasValidezLocal}
+              onChange={(e) => setDiasValidezLocal(Number(e.target.value))}
+              onBlur={() => {
+                if (diasValidezLocal !== cotizacion.diasVigencia) {
+                  onActualizarDiasValidez(diasValidezLocal);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+              className="w-12 px-1 py-0.5 text-center text-sm font-semibold border border-blue-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <span className="text-xs text-blue-700">días</span>
+          </div>
+        </div>
+      )}
+
+      {/* Input de tiempo estimado de importación (solo si tiene productos sin stock) */}
+      {showTiempoImportacion && onActualizarTiempoImportacion && requiereStock && (
+        <div className="mb-3 p-2 bg-orange-50 rounded-lg border border-orange-200">
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-orange-600 flex-shrink-0" />
+            <span className="text-xs text-orange-700">Importación:</span>
+            <input
+              type="number"
+              min="5"
+              max="60"
+              value={tiempoImportacionLocal}
+              onChange={(e) => setTiempoImportacionLocal(Number(e.target.value))}
+              onBlur={() => {
+                if (tiempoImportacionLocal !== cotizacion.tiempoEstimadoImportacion) {
+                  onActualizarTiempoImportacion(tiempoImportacionLocal);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+              className="w-12 px-1 py-0.5 text-center text-sm font-semibold border border-orange-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-orange-500"
+            />
+            <span className="text-xs text-orange-700">-{tiempoImportacionLocal + 5} días</span>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-1 pt-2 border-t">
         <button
@@ -295,7 +413,10 @@ export const Cotizaciones: React.FC = () => {
     registrarPagoAdelanto,
     confirmarCotizacion,
     rechazarCotizacion,
-    deleteCotizacion
+    deleteCotizacion,
+    actualizarDiasCompromisoEntrega,
+    actualizarDiasValidez,
+    actualizarTiempoEstimadoImportacion
   } = useCotizacionStore();
 
   const [showModal, setShowModal] = useState(false);
@@ -327,6 +448,9 @@ export const Cotizaciones: React.FC = () => {
   // Tipo de cambio para conversión USD → PEN
   const [tipoCambioAdelanto, setTipoCambioAdelanto] = useState<number>(3.7); // TC por defecto
 
+  // Hook para dialogo de confirmacion
+  const { dialogProps, confirm } = useConfirmDialog();
+
   useEffect(() => {
     fetchCotizaciones();
     fetchStats();
@@ -339,11 +463,14 @@ export const Cotizaciones: React.FC = () => {
 
     if (busqueda) {
       const termino = busqueda.toLowerCase();
-      filtradas = filtradas.filter(c =>
-        c.numeroCotizacion.toLowerCase().includes(termino) ||
-        c.nombreCliente.toLowerCase().includes(termino) ||
-        (c.telefonoCliente && c.telefonoCliente.includes(busqueda))
-      );
+      filtradas = filtradas.filter(c => {
+        const numeroCotizacion = (c.numeroCotizacion ?? '').toLowerCase();
+        const nombreCliente = (c.nombreCliente ?? '').toLowerCase();
+        const telefonoCliente = c.telefonoCliente ?? '';
+        return numeroCotizacion.includes(termino) ||
+               nombreCliente.includes(termino) ||
+               telefonoCliente.includes(busqueda);
+      });
     }
 
     if (filtroCanal) {
@@ -476,11 +603,15 @@ export const Cotizaciones: React.FC = () => {
     if (!user) return;
 
     const requiereStock = cotizacion.productos.some(p => p.requiereStock);
-    const mensaje = requiereStock
-      ? `⚠️ Esta cotización tiene productos SIN STOCK.\n\n¿Confirmar ${cotizacion.numeroCotizacion} como venta?`
-      : `¿Confirmar la cotización ${cotizacion.numeroCotizacion}?`;
-
-    if (!window.confirm(mensaje)) return;
+    const confirmed = await confirm({
+      title: 'Confirmar Cotizacion',
+      message: requiereStock
+        ? `Esta cotizacion tiene productos SIN STOCK. ¿Confirmar ${cotizacion.numeroCotizacion} como venta?`
+        : `¿Confirmar la cotizacion ${cotizacion.numeroCotizacion} como venta?`,
+      confirmText: 'Confirmar',
+      variant: requiereStock ? 'warning' : 'success'
+    });
+    if (!confirmed) return;
 
     try {
       const resultado = await confirmarCotizacion(cotizacion.id, user.uid);
@@ -520,7 +651,14 @@ export const Cotizaciones: React.FC = () => {
   };
 
   const handleEliminar = async (cotizacion: Cotizacion) => {
-    if (!window.confirm(`¿Eliminar ${cotizacion.numeroCotizacion}?`)) return;
+    const confirmed = await confirm({
+      title: 'Eliminar Cotizacion',
+      message: `¿Eliminar ${cotizacion.numeroCotizacion}? Esta accion no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
+
     try {
       await deleteCotizacion(cotizacion.id);
       setShowDetailsModal(false);
@@ -574,7 +712,13 @@ export const Cotizaciones: React.FC = () => {
   const handleValidar = async (cotizacion: Cotizacion) => {
     if (!user) return;
 
-    if (!window.confirm(`¿Confirmar que el cliente "${cotizacion.nombreCliente}" validó su interés en la cotización ${cotizacion.numeroCotizacion}?`)) return;
+    const confirmed = await confirm({
+      title: 'Validar Cotizacion',
+      message: `¿Confirmar que el cliente "${cotizacion.nombreCliente}" valido su interes en la cotizacion ${cotizacion.numeroCotizacion}?`,
+      confirmText: 'Validar',
+      variant: 'info'
+    });
+    if (!confirmed) return;
 
     try {
       await validarCotizacion(cotizacion.id, user.uid);
@@ -587,7 +731,13 @@ export const Cotizaciones: React.FC = () => {
   const handleRevertirValidacion = async (cotizacion: Cotizacion) => {
     if (!user) return;
 
-    if (!window.confirm(`¿Revertir la validación de ${cotizacion.numeroCotizacion}?`)) return;
+    const confirmed = await confirm({
+      title: 'Revertir Validacion',
+      message: `¿Revertir la validacion de ${cotizacion.numeroCotizacion}? Esto devolvera la cotizacion al estado "Nueva".`,
+      confirmText: 'Revertir',
+      variant: 'warning'
+    });
+    if (!confirmed) return;
 
     try {
       await revertirValidacion(cotizacion.id, user.uid);
@@ -1040,9 +1190,27 @@ export const Cotizaciones: React.FC = () => {
                     onValidar={() => handleValidar(c)}
                     onRegistrarAdelanto={() => handleComprometerAdelanto(c)}
                     onRechazar={() => handleRechazar(c)}
+                    onActualizarDiasValidez={async (dias) => {
+                      if (!user) return;
+                      try {
+                        await actualizarDiasValidez(c.id, dias, user.uid);
+                      } catch (error) {
+                        console.error('Error actualizando días de validez:', error);
+                      }
+                    }}
+                    onActualizarTiempoImportacion={async (dias) => {
+                      if (!user) return;
+                      try {
+                        await actualizarTiempoEstimadoImportacion(c.id, dias, user.uid);
+                      } catch (error) {
+                        console.error('Error actualizando tiempo de importación:', error);
+                      }
+                    }}
                     showValidar={true}
                     showAdelanto={true}
                     showRechazar={true}
+                    showDiasValidez={true}
+                    showTiempoImportacion={true}
                   />
                 ))
               )}
@@ -1070,8 +1238,17 @@ export const Cotizaciones: React.FC = () => {
                     onDownloadPdf={() => handleDescargarPdf(c)}
                     onRegistrarAdelanto={() => handleRegistrarPagoAdelanto(c)}
                     onRechazar={() => handleRechazar(c)}
+                    onActualizarDiasEntrega={async (dias) => {
+                      if (!user) return;
+                      try {
+                        await actualizarDiasCompromisoEntrega(c.id, dias, user.uid);
+                      } catch (error) {
+                        console.error('Error actualizando días de entrega:', error);
+                      }
+                    }}
                     showAdelanto={true}
                     showRechazar={true}
+                    showDiasEntrega={true}
                   />
                 ))
               )}
@@ -2328,6 +2505,9 @@ export const Cotizaciones: React.FC = () => {
           </div>
         </Modal>
       )}
+
+      {/* Dialogo de Confirmacion */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 };

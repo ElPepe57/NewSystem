@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, X, AlertCircle, Lightbulb, TrendingUp, Package, DollarSign, ClipboardList } from 'lucide-react';
+import { Plus, Trash2, AlertCircle, Lightbulb, TrendingUp, Package, DollarSign, ClipboardList, Users } from 'lucide-react';
 import { Button, Input, Card } from '../../common';
 import { ProveedorAutocomplete, type ProveedorSnapshot } from '../entidades/ProveedorAutocomplete';
 import { AlmacenAutocomplete, type AlmacenSnapshot } from '../entidades/AlmacenAutocomplete';
 import { ProductoAutocomplete, type ProductoSnapshot } from '../entidades/ProductoAutocomplete';
 import { OrdenCompraService } from '../../../services/ordenCompra.service';
 import { useAuthStore } from '../../../store/authStore';
+import { useToastStore } from '../../../store/toastStore';
 import type { OrdenCompraFormData, ProveedorFormData, Proveedor } from '../../../types/ordenCompra.types';
 import type { Producto } from '../../../types/producto.types';
 
@@ -24,6 +25,11 @@ interface OrdenCompraFormProps {
   }>;
   requerimientoId?: string;
   requerimientoNumero?: string;
+  // Props para pre-cargar viajero destino (flujo multi-viajero)
+  initialViajero?: {
+    id: string;
+    nombre: string;
+  };
 }
 
 interface ProductoOrdenItem {
@@ -35,6 +41,9 @@ interface ProductoOrdenItem {
   cantidad: number;
   costoUnitario: number;
   sugerenciaPrecio?: number;
+  // Viajero destino (para distribución multi-viajero)
+  viajeroId?: string;
+  viajeroNombre?: string;
 }
 
 export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
@@ -46,13 +55,23 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
   tcSugerido,
   initialProductos,
   requerimientoId,
-  requerimientoNumero
+  requerimientoNumero,
+  initialViajero
 }) => {
   const { user } = useAuthStore();
+  const toast = useToastStore();
 
   // Estado para proveedores y almacenes con autocomplete
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState<ProveedorSnapshot | null>(null);
-  const [almacenSeleccionado, setAlmacenSeleccionado] = useState<AlmacenSnapshot | null>(null);
+  // Si viene un viajero inicial, preseleccionarlo como almacén destino
+  const [almacenSeleccionado, setAlmacenSeleccionado] = useState<AlmacenSnapshot | null>(
+    initialViajero ? {
+      almacenId: initialViajero.id,
+      nombre: initialViajero.nombre,
+      ciudad: '',
+      pais: 'USA'
+    } : null
+  );
 
   // Inicializar productos - desde requerimiento o vacío
   const getInitialProductos = (): ProductoOrdenItem[] => {
@@ -98,6 +117,18 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
     }
   }, [tcSugerido]);
 
+  // Actualizar almacén seleccionado cuando cambie el viajero inicial (flujo multi-viajero)
+  useEffect(() => {
+    if (initialViajero) {
+      setAlmacenSeleccionado({
+        almacenId: initialViajero.id,
+        nombre: initialViajero.nombre,
+        ciudad: '',
+        pais: 'USA'
+      });
+    }
+  }, [initialViajero]);
+
   // Re-inicializar productos si cambian los iniciales (cuando viene de requerimiento)
   useEffect(() => {
     if (initialProductos && initialProductos.length > 0) {
@@ -137,7 +168,9 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
       nombreComercial: '',
       presentacion: '',
       cantidad: 1,
-      costoUnitario: 0
+      costoUnitario: 0,
+      viajeroId: undefined,
+      viajeroNombre: undefined
     }]);
   };
 
@@ -198,6 +231,17 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
     }
   };
 
+  // Actualizar viajero de un producto
+  const handleViajeroChange = (index: number, viajero: AlmacenSnapshot | null) => {
+    const nuevosProductos = [...productosOrden];
+    nuevosProductos[index] = {
+      ...nuevosProductos[index],
+      viajeroId: viajero?.almacenId,
+      viajeroNombre: viajero?.nombre
+    };
+    setProductosOrden(nuevosProductos);
+  };
+
   // Crear nuevo proveedor
   const handleCreateProveedor = async (data: ProveedorFormData): Promise<Proveedor> => {
     if (!user) throw new Error('Usuario no autenticado');
@@ -210,17 +254,17 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
 
     // Validaciones
     if (!proveedorSeleccionado) {
-      alert('Debe seleccionar un proveedor');
+      toast.warning('Debe seleccionar un proveedor');
       return;
     }
 
     if (!almacenSeleccionado) {
-      alert('Debe seleccionar un almacén de destino');
+      toast.warning('Debe seleccionar un almacén de destino');
       return;
     }
 
     if (tcCompra <= 0) {
-      alert('El tipo de cambio debe ser mayor a 0');
+      toast.warning('El tipo de cambio debe ser mayor a 0');
       return;
     }
 
@@ -229,7 +273,7 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
     );
 
     if (productosValidos.length === 0) {
-      alert('Debe agregar al menos un producto con cantidad y costo válidos');
+      toast.warning('Debe agregar al menos un producto con cantidad y costo válidos');
       return;
     }
 
@@ -242,7 +286,10 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
       presentacion: item.presentacion,
       cantidad: item.cantidad,
       costoUnitario: item.costoUnitario,
-      subtotal: item.cantidad * item.costoUnitario
+      subtotal: item.cantidad * item.costoUnitario,
+      // Viajero destino (opcional)
+      viajeroId: item.viajeroId,
+      viajeroNombre: item.viajeroNombre
     }));
 
     const formData: OrdenCompraFormData = {
@@ -267,27 +314,9 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
   // Contar productos con sugerencias disponibles
   const productosConSugerencia = productosOrden.filter(p => p.sugerenciaPrecio && p.sugerenciaPrecio !== p.costoUnitario).length;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full my-8">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Nueva Orden de Compra</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Registra una nueva orden de compra internacional
-            </p>
-          </div>
-          <button
-            onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+  // Contenido del formulario (reutilizable)
+  const formContent = (
+    <form onSubmit={handleSubmit} className="space-y-6">
           {/* Banner: Viene de Requerimiento */}
           {requerimientoId && (
             <div className="p-4 bg-primary-50 border border-primary-200 rounded-lg flex items-center gap-3">
@@ -446,6 +475,31 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
                           </div>
                         </div>
                       </div>
+
+                      {/* Fila 3: Viajero destino (opcional) */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center">
+                          <Users className="h-3 w-3 mr-1 text-purple-500" />
+                          Viajero Destino
+                          <span className="ml-1 text-gray-400 font-normal">(opcional)</span>
+                        </label>
+                        <AlmacenAutocomplete
+                          value={item.viajeroId ? {
+                            almacenId: item.viajeroId,
+                            nombre: item.viajeroNombre || '',
+                            ciudad: '',
+                            pais: 'USA'
+                          } : null}
+                          onChange={(viajero) => handleViajeroChange(index, viajero)}
+                          placeholder="Asignar a viajero..."
+                          soloViajeros
+                        />
+                        {item.viajeroNombre && (
+                          <p className="text-xs text-purple-600 mt-1">
+                            → Este producto irá a: {item.viajeroNombre}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     {/* Botón eliminar */}
@@ -597,25 +651,31 @@ export const OrdenCompraForm: React.FC<OrdenCompraFormProps> = ({
             </div>
           </Card>
 
-          {/* Acciones */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onCancel}
-              disabled={loading}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading || totalUSD === 0}
-            >
-              {loading ? 'Creando...' : 'Crear Orden de Compra'}
-            </Button>
-          </div>
-        </form>
+      {/* Acciones */}
+      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onCancel();
+          }}
+          disabled={loading}
+        >
+          Cancelar
+        </Button>
+        <Button
+          type="submit"
+          disabled={loading || totalUSD === 0}
+        >
+          {loading ? 'Creando...' : 'Crear Orden de Compra'}
+        </Button>
       </div>
-    </div>
+    </form>
   );
+
+  // Siempre retornar solo el contenido del formulario
+  // El contenedor modal se maneja desde el componente padre
+  return formContent;
 };

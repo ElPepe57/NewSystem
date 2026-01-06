@@ -60,15 +60,19 @@ export const Auditoria: React.FC = () => {
   const filteredLogs = useMemo(() => {
     let result = logs;
 
-    // Filtro por búsqueda
+    // Filtro por búsqueda (con validación segura)
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(log =>
-        log.descripcion.toLowerCase().includes(term) ||
-        log.usuarioNombre.toLowerCase().includes(term) ||
-        log.usuarioEmail.toLowerCase().includes(term) ||
-        log.entidadNombre?.toLowerCase().includes(term)
-      );
+      result = result.filter(log => {
+        const descripcion = (log.descripcion ?? '').toLowerCase();
+        const usuarioNombre = (log.usuarioNombre ?? '').toLowerCase();
+        const usuarioEmail = (log.usuarioEmail ?? '').toLowerCase();
+        const entidadNombre = (log.entidadNombre ?? '').toLowerCase();
+        return descripcion.includes(term) ||
+               usuarioNombre.includes(term) ||
+               usuarioEmail.includes(term) ||
+               entidadNombre.includes(term);
+      });
     }
 
     // Filtro por módulo

@@ -12,7 +12,14 @@ const COLORS = {
   black: { r: 0, g: 0, b: 0 },
   gray: { r: 128, g: 128, b: 128 },
   lightGray: { r: 200, g: 200, b: 200 },
-  white: { r: 255, g: 255, b: 255 }
+  white: { r: 255, g: 255, b: 255 },
+  // Nuevos colores para estados
+  amber: { r: 245, g: 158, b: 11 },        // Ámbar para alertas
+  amberLight: { r: 254, g: 243, b: 199 },  // Ámbar claro fondo
+  blue: { r: 59, g: 130, b: 246 },         // Azul info
+  blueDark: { r: 30, g: 64, b: 175 },      // Azul oscuro
+  green: { r: 34, g: 139, b: 34 },         // Verde
+  greenLight: { r: 230, g: 255, b: 230 }   // Verde claro
 };
 
 /**
@@ -35,6 +42,21 @@ const formatDate = (date: Date | { toDate: () => Date }): string => {
 };
 
 /**
+ * Calcula fecha de vencimiento
+ */
+const calcularFechaVencimiento = (fechaCreacion: Date | { toDate: () => Date }, diasVigencia: number): string => {
+  const fecha = 'toDate' in fechaCreacion ? fechaCreacion.toDate() : fechaCreacion;
+  const vencimiento = new Date(fecha);
+  vencimiento.setDate(vencimiento.getDate() + diasVigencia);
+  return vencimiento.toLocaleDateString('es-PE', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+};
+
+/**
  * Servicio para generación de PDFs de cotizaciones
  */
 export class CotizacionPdfService {
@@ -52,6 +74,10 @@ export class CotizacionPdfService {
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
     let yPosition = margin;
+
+    // Detectar si hay productos sin stock
+    const tieneProductosSinStock = cotizacion.productos.some(p => p.requiereStock);
+    const esImportacion = tieneProductosSinStock;
 
     // ========== HEADER CON FONDO DORADO ==========
     doc.setFillColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b);
@@ -76,11 +102,23 @@ export class CotizacionPdfService {
 
     yPosition = 55;
 
-    // ========== TÍTULO "COTIZACIÓN" ==========
+    // ========== TÍTULO "COTIZACIÓN" CON SUBTÍTULO DE MODALIDAD ==========
     doc.setTextColor(COLORS.black.r, COLORS.black.g, COLORS.black.b);
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
     doc.text('COTIZACIÓN', pageWidth / 2, yPosition, { align: 'center' });
+
+    // Subtítulo según modalidad (A. Cabecera y Estado)
+    yPosition += 6;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    if (esImportacion) {
+      doc.setTextColor(COLORS.amber.r, COLORS.amber.g, COLORS.amber.b);
+      doc.text('Propuesta de Importación Personalizada', pageWidth / 2, yPosition, { align: 'center' });
+    } else {
+      doc.setTextColor(COLORS.green.r, COLORS.green.g, COLORS.green.b);
+      doc.text('Entrega Inmediata', pageWidth / 2, yPosition, { align: 'center' });
+    }
 
     // Línea decorativa debajo del título
     yPosition += 3;
@@ -88,9 +126,10 @@ export class CotizacionPdfService {
     doc.setLineWidth(1);
     doc.line(margin + 40, yPosition, pageWidth - margin - 40, yPosition);
 
-    yPosition += 15;
+    yPosition += 12;
 
     // ========== INFORMACIÓN DE LA COTIZACIÓN ==========
+    doc.setTextColor(COLORS.black.r, COLORS.black.g, COLORS.black.b);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
 
@@ -165,13 +204,20 @@ export class CotizacionPdfService {
 
     yPosition = tableTop + 10;
 
-    // Filas de productos
+    // Filas de productos (B. Cuerpo de la Tabla - Mejora de Producto)
     doc.setTextColor(COLORS.black.r, COLORS.black.g, COLORS.black.b);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
 
     cotizacion.productos.forEach((producto, index) => {
-      const rowHeight = 8;
+      // Determinar si tiene info técnica para mostrar
+      const tieneInfoTecnica = producto.presentacion || producto.contenido || producto.dosaje;
+      const requiereNota = producto.requiereStock;
+
+      // Calcular altura de fila: base + info técnica + nota importación
+      let rowHeight = 8; // Altura base
+      if (tieneInfoTecnica) rowHeight += 4; // +4 para línea de contenido/dosaje
+      if (requiereNota) rowHeight += 5; // +5 para nota de importación
 
       // Fondo alternado
       if (index % 2 === 0) {
@@ -186,24 +232,55 @@ export class CotizacionPdfService {
 
       xPos = tableLeft + 3;
 
-      // Nombre del producto (truncar si es muy largo)
+      // Línea 1: Nombre del producto (marca + nombre comercial)
       let nombreProducto = `${producto.marca} - ${producto.nombreComercial}`;
-      if (producto.presentacion) {
-        nombreProducto += ` (${producto.presentacion})`;
+      if (nombreProducto.length > 50) {
+        nombreProducto = nombreProducto.substring(0, 47) + '...';
       }
-      if (nombreProducto.length > 45) {
-        nombreProducto = nombreProducto.substring(0, 42) + '...';
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(COLORS.black.r, COLORS.black.g, COLORS.black.b);
+      doc.setFontSize(9);
+      doc.text(nombreProducto, xPos, yPosition + 5);
+
+      // Línea 2: Info técnica (presentación • contenido • dosaje)
+      let currentY = yPosition + 5;
+      if (tieneInfoTecnica) {
+        currentY += 4;
+        const infoTecnica: string[] = [];
+        if (producto.presentacion) infoTecnica.push(producto.presentacion);
+        if (producto.contenido) infoTecnica.push(producto.contenido);
+        if (producto.dosaje) infoTecnica.push(producto.dosaje);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(COLORS.gray.r, COLORS.gray.g, COLORS.gray.b);
+        doc.text(infoTecnica.join(' • '), xPos, currentY);
       }
-      doc.text(nombreProducto, xPos, yPosition + 5.5);
+
+      // Línea 3: Nota de importación si requiere stock
+      if (requiereNota) {
+        currentY += 4;
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(7);
+        doc.setTextColor(COLORS.amber.r, COLORS.amber.g, COLORS.amber.b);
+        const tiempoBase = cotizacion.tiempoEstimadoImportacion || producto.disponibilidadMultiAlmacen?.tiempoEstimadoLlegadaDias || 10;
+        doc.text(`Importación. Tiempo estimado: ${tiempoBase}-${tiempoBase + 5} días hábiles.`, xPos, currentY);
+      }
+
+      // Resetear estilos y escribir cantidad, precio, total
+      doc.setTextColor(COLORS.black.r, COLORS.black.g, COLORS.black.b);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
 
       xPos += colWidths.producto;
-      doc.text(producto.cantidad.toString(), xPos + 5, yPosition + 5.5);
+      doc.text(producto.cantidad.toString(), xPos + 5, yPosition + 5);
 
       xPos += colWidths.cantidad;
-      doc.text(formatCurrency(producto.precioUnitario), xPos, yPosition + 5.5);
+      doc.text(formatCurrency(producto.precioUnitario), xPos, yPosition + 5);
 
       xPos += colWidths.precio;
-      doc.text(formatCurrency(producto.subtotal), xPos, yPosition + 5.5);
+      doc.text(formatCurrency(producto.subtotal), xPos, yPosition + 5);
 
       yPosition += rowHeight;
     });
@@ -219,6 +296,7 @@ export class CotizacionPdfService {
     const totalsLeft = tableLeft + colWidths.producto + colWidths.cantidad;
 
     doc.setFontSize(10);
+    doc.setTextColor(COLORS.black.r, COLORS.black.g, COLORS.black.b);
 
     // Subtotal
     doc.setFont('helvetica', 'normal');
@@ -259,27 +337,70 @@ export class CotizacionPdfService {
 
     yPosition += 15;
 
-    // ========== ADELANTO COMPROMETIDO (si existe) ==========
-    if (cotizacion.adelantoComprometido || cotizacion.adelanto) {
+    // ========== CONTENIDO DINÁMICO SEGÚN ESTADO ==========
+    const diasVigencia = cotizacion.diasVigencia || 7;
+    const fechaVencimiento = calcularFechaVencimiento(cotizacion.fechaCreacion, diasVigencia);
+
+    // Determinar el estado para mostrar contenido apropiado
+    const esSeguimiento = cotizacion.estado === 'nueva' || cotizacion.estado === 'validada';
+    const esEsperandoPago = cotizacion.estado === 'pendiente_adelanto';
+    const esAdelantoPagado = cotizacion.estado === 'adelanto_pagado' || cotizacion.estado === 'con_abono';
+
+    // ========== BLOQUE DE VALIDEZ (siempre visible) ==========
+    doc.setFillColor(254, 243, 199); // Amarillo claro
+    doc.setDrawColor(COLORS.amber.r, COLORS.amber.g, COLORS.amber.b);
+    doc.setLineWidth(1);
+    doc.roundedRect(margin, yPosition, pageWidth - margin * 2, 16, 2, 2, 'FD');
+
+    doc.setTextColor(COLORS.amber.r, COLORS.amber.g, COLORS.amber.b);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+
+    // Línea 1: Validez
+    doc.text(
+      `OFERTA VÁLIDA POR ${diasVigencia} DÍAS`,
+      pageWidth / 2,
+      yPosition + 6,
+      { align: 'center' }
+    );
+
+    // Línea 2: Fecha de vencimiento
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(
+      `Vence: ${fechaVencimiento}`,
+      pageWidth / 2,
+      yPosition + 12,
+      { align: 'center' }
+    );
+
+    yPosition += 22;
+
+    // ========== CONTENIDO PARA ESPERANDO PAGO O ADELANTO PAGADO ==========
+    if (esEsperandoPago || esAdelantoPagado) {
       const adelantoInfo = cotizacion.adelantoComprometido || cotizacion.adelanto;
       const montoAdelanto = adelantoInfo?.monto || 0;
       const porcentaje = cotizacion.adelantoComprometido?.porcentaje ||
         Math.round((montoAdelanto / cotizacion.totalPEN) * 100);
 
       // Caja de adelanto
-      doc.setFillColor(230, 255, 230); // Verde muy claro
-      doc.setDrawColor(34, 139, 34); // Verde bosque
+      const colorFondo = esAdelantoPagado ? COLORS.greenLight : { r: 254, g: 249, b: 195 }; // Verde si pagado, amarillo si pendiente
+      const colorBorde = esAdelantoPagado ? COLORS.green : COLORS.amber;
+
+      doc.setFillColor(colorFondo.r, colorFondo.g, colorFondo.b);
+      doc.setDrawColor(colorBorde.r, colorBorde.g, colorBorde.b);
       doc.setLineWidth(0.5);
       doc.roundedRect(margin, yPosition, pageWidth - margin * 2, 20, 3, 3, 'FD');
 
-      doc.setTextColor(34, 100, 34);
+      const colorTexto = esAdelantoPagado ? { r: 34, g: 100, b: 34 } : { r: 146, g: 64, b: 14 };
+      doc.setTextColor(colorTexto.r, colorTexto.g, colorTexto.b);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(11);
 
-      // Título
-      const tituloAdelanto = cotizacion.adelanto
-        ? 'ADELANTO PAGADO'
-        : 'ADELANTO REQUERIDO';
+      // Título según estado
+      const tituloAdelanto = esAdelantoPagado
+        ? '✓ ADELANTO PAGADO'
+        : 'ADELANTO PENDIENTE DE PAGO';
       doc.text(tituloAdelanto, margin + 5, yPosition + 8);
 
       // Monto y porcentaje
@@ -296,60 +417,110 @@ export class CotizacionPdfService {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.text(
-        `Saldo a pagar: ${formatCurrency(saldo)}`,
+        `Saldo a pagar contra entrega: ${formatCurrency(saldo)}`,
         pageWidth - margin - 5,
         yPosition + 15,
         { align: 'right' }
       );
 
       yPosition += 25;
+
+      // Compromiso de entrega (solo si está en esperando pago o adelanto pagado)
+      if (cotizacion.diasCompromisoEntrega && cotizacion.diasCompromisoEntrega > 0) {
+        doc.setFillColor(230, 245, 255); // Azul muy claro
+        doc.setDrawColor(COLORS.blue.r, COLORS.blue.g, COLORS.blue.b);
+        doc.setLineWidth(0.5);
+        doc.roundedRect(margin, yPosition, pageWidth - margin * 2, 18, 3, 3, 'FD');
+
+        doc.setTextColor(COLORS.blueDark.r, COLORS.blueDark.g, COLORS.blueDark.b);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('COMPROMISO DE ENTREGA', margin + 5, yPosition + 7);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        const textoEntrega = esAdelantoPagado
+          ? `Su pedido será entregado en ${cotizacion.diasCompromisoEntrega} días hábiles.`
+          : `Una vez realizado el pago del adelanto, la entrega será en ${cotizacion.diasCompromisoEntrega} días hábiles.`;
+        doc.text(textoEntrega, margin + 5, yPosition + 14);
+
+        yPosition += 23;
+      }
+
+      // Instrucciones de pago (solo si está ESPERANDO PAGO)
+      if (esEsperandoPago) {
+        doc.setFillColor(240, 253, 244); // Verde muy claro
+        doc.setDrawColor(COLORS.green.r, COLORS.green.g, COLORS.green.b);
+        doc.setLineWidth(0.5);
+        doc.roundedRect(margin, yPosition, pageWidth - margin * 2, 28, 3, 3, 'FD');
+
+        doc.setTextColor(COLORS.green.r, COLORS.green.g, COLORS.green.b);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('PARA COMPLETAR SU PEDIDO:', margin + 5, yPosition + 7);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(34, 80, 34);
+
+        doc.text('1. Realice el depósito/transferencia del adelanto indicado arriba.', margin + 8, yPosition + 14);
+        doc.text('2. Envíe el comprobante de pago por WhatsApp para confirmar su pedido.', margin + 8, yPosition + 21);
+
+        yPosition += 33;
+      }
     }
 
-    // ========== OBSERVACIONES (si existen) ==========
-    doc.setTextColor(COLORS.black.r, COLORS.black.g, COLORS.black.b);
-    if (cotizacion.observaciones) {
+    // ========== CONTENIDO PARA SEGUIMIENTO (nueva/validada) ==========
+    if (esSeguimiento) {
+      // Observaciones primero (si existen)
+      doc.setTextColor(COLORS.black.r, COLORS.black.g, COLORS.black.b);
+      if (cotizacion.observaciones) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Observaciones:', margin, yPosition);
+        yPosition += 5;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        const obsLines = doc.splitTextToSize(cotizacion.observaciones, pageWidth - margin * 2);
+        doc.text(obsLines, margin, yPosition);
+        yPosition += obsLines.length * 4 + 8;
+      }
+
+      // Llamado a la acción simple para seguimiento
+      doc.setFillColor(240, 253, 244); // Verde muy claro
+      doc.setDrawColor(COLORS.green.r, COLORS.green.g, COLORS.green.b);
+      doc.setLineWidth(0.5);
+      const ctaBoxHeight = 20;
+      doc.roundedRect(margin, yPosition, pageWidth - margin * 2, ctaBoxHeight, 3, 3, 'FD');
+
+      doc.setTextColor(COLORS.green.r, COLORS.green.g, COLORS.green.b);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
-      doc.text('Observaciones:', margin, yPosition);
-      yPosition += 5;
+      doc.text('¿CONFORME CON LA PROPUESTA?', margin + 5, yPosition + 8);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
-      const obsLines = doc.splitTextToSize(cotizacion.observaciones, pageWidth - margin * 2);
-      doc.text(obsLines, margin, yPosition);
-      yPosition += obsLines.length * 4 + 10;
+      doc.setTextColor(34, 80, 34);
+      doc.text('Responde "CONFIRMO" a este mensaje para reservar tu pedido.', margin + 5, yPosition + 15);
+
+      yPosition += ctaBoxHeight + 5;
+    } else {
+      // Observaciones para otros estados
+      doc.setTextColor(COLORS.black.r, COLORS.black.g, COLORS.black.b);
+      if (cotizacion.observaciones) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Observaciones:', margin, yPosition);
+        yPosition += 5;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        const obsLines = doc.splitTextToSize(cotizacion.observaciones, pageWidth - margin * 2);
+        doc.text(obsLines, margin, yPosition);
+        yPosition += obsLines.length * 4 + 8;
+      }
     }
-
-    // ========== CONDICIONES DE VALIDEZ ==========
-    // Calcular días de vigencia
-    const fechaCreacion = 'toDate' in cotizacion.fechaCreacion
-      ? cotizacion.fechaCreacion.toDate()
-      : cotizacion.fechaCreacion;
-
-    let diasVigencia = 7; // Default
-    if (cotizacion.fechaVencimiento) {
-      const fechaVencimiento = 'toDate' in cotizacion.fechaVencimiento
-        ? cotizacion.fechaVencimiento.toDate()
-        : cotizacion.fechaVencimiento;
-      diasVigencia = Math.ceil((fechaVencimiento.getTime() - fechaCreacion.getTime()) / (1000 * 60 * 60 * 24));
-    }
-
-    // Caja de vigencia
-    const vigenciaBoxY = yPosition;
-    doc.setFillColor(255, 250, 230); // Amarillo muy claro
-    doc.setDrawColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(margin, vigenciaBoxY, pageWidth - margin * 2, 15, 3, 3, 'FD');
-
-    doc.setTextColor(COLORS.primaryDark.r, COLORS.primaryDark.g, COLORS.primaryDark.b);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text(
-      `ESTE PRESUPUESTO TIENE VALIDEZ DE ${diasVigencia} DÍAS DESPUÉS DE SU EMISIÓN`,
-      pageWidth / 2,
-      vigenciaBoxY + 9,
-      { align: 'center' }
-    );
 
     // ========== FOOTER CON INFORMACIÓN DE CONTACTO ==========
     const footerY = pageHeight - 30;
@@ -365,7 +536,7 @@ export class CotizacionPdfService {
 
     // Información de contacto en una línea
     const contactInfo: string[] = [];
-    if (empresa.telefono) contactInfo.push(`Tel: ${empresa.telefono}`);
+    if (empresa.telefono) contactInfo.push(`Tel/WhatsApp: ${empresa.telefono}`);
     if (empresa.email) contactInfo.push(`Email: ${empresa.email}`);
     if (empresa.sitioWeb) contactInfo.push(empresa.sitioWeb);
 

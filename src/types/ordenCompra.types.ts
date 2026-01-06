@@ -120,6 +120,9 @@ export interface ProductoOrden {
   cantidad: number;
   costoUnitario: number;    // Precio por unidad en USD
   subtotal: number;         // cantidad × costoUnitario
+  // Viajero destino (para distribución multi-viajero)
+  viajeroId?: string;       // ID del almacén tipo viajero
+  viajeroNombre?: string;   // Nombre del viajero (desnormalizado)
 }
 
 /**
@@ -260,6 +263,9 @@ export interface OrdenCompraFormData {
     cantidad: number;
     costoUnitario: number;
     subtotal: number;
+    // Viajero destino (para distribución multi-viajero)
+    viajeroId?: string;
+    viajeroNombre?: string;
   }>;
   subtotalUSD: number;
   impuestoUSD?: number;       // Sales Tax USA

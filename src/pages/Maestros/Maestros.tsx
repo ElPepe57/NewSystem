@@ -38,9 +38,29 @@ import {
   Clock,
   TrendingDown,
   Boxes,
-  Eye
+  Eye,
+  Calculator
 } from 'lucide-react';
-import { Button, Card, Badge, Modal, KPICard, KPIGrid, AlertCard, StatDistribution } from '../../components/common';
+import {
+  Button,
+  Card,
+  Badge,
+  Modal,
+  KPICard,
+  KPIGrid,
+  AlertCard,
+  StatDistribution,
+  GradientHeader,
+  StatCard,
+  TabNavigation,
+  SectionHeader,
+  EmptyState,
+  MasterCard,
+  useConfirmDialog,
+  ConfirmDialog,
+  SearchInput
+} from '../../components/common';
+import { useToastStore } from '../../store/toastStore';
 import {
   ClienteDetalleModal,
   MarcaDetalleModal,
@@ -48,20 +68,32 @@ import {
   AlmacenDetalleModal,
   CompetidorDetalleModal
 } from '../../components/Maestros/DetalleModals';
+import { ClientesCRM } from '../../components/Maestros/ClientesCRM';
+import { MarcasAnalytics } from '../../components/Maestros/MarcasAnalytics';
+import { ProveedoresSRM } from '../../components/Maestros/ProveedoresSRM';
+import { CompetidoresIntel } from '../../components/Maestros/CompetidoresIntel';
+import { TransportistasLogistica } from '../../components/Maestros/TransportistasLogistica';
+import { CanalesVentaAnalytics } from '../../components/Maestros/CanalesVentaAnalytics';
+import { AlmacenesLogistica } from '../../components/Maestros/AlmacenesLogistica';
 import { ViajeroDetalle } from '../../components/modules/almacen/ViajeroDetalle';
 import { ClienteDetalle } from '../../components/modules/cliente/ClienteDetalle';
+import { TipoProductoList, CategoriaList, EtiquetaList } from '../../components/modules/clasificacion';
 import { useClienteStore } from '../../store/clienteStore';
 import { useMarcaStore } from '../../store/marcaStore';
 import { useProveedorStore } from '../../store/proveedorStore';
 import { useAlmacenStore } from '../../store/almacenStore';
 import { useCompetidorStore } from '../../store/competidorStore';
+import { useTransportistaStore } from '../../store/transportistaStore';
+import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useAuthStore } from '../../store/authStore';
+import { metricasService } from '../../services/metricas.service';
+import { almacenService } from '../../services/almacen.service';
 import type { Cliente, ClienteFormData, Competidor, CompetidorFormData, PlataformaCompetidor, ReputacionCompetidor } from '../../types/entidadesMaestras.types';
 import type { Marca, MarcaFormData } from '../../types/entidadesMaestras.types';
 import type { Proveedor, ProveedorFormData, TipoProveedor } from '../../types/ordenCompra.types';
 import type { Almacen, AlmacenFormData, TipoAlmacen, EstadoAlmacen, FrecuenciaViaje } from '../../types/almacen.types';
 
-type TabActiva = 'resumen' | 'clientes' | 'marcas' | 'proveedores' | 'almacenes' | 'competidores';
+type TabActiva = 'resumen' | 'clientes' | 'marcas' | 'proveedores' | 'almacenes' | 'competidores' | 'transportistas' | 'canales' | 'clasificacion';
 
 export const Maestros: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -69,13 +101,19 @@ export const Maestros: React.FC = () => {
 
   // Leer tab inicial desde query param
   const tabFromUrl = searchParams.get('tab') as TabActiva | null;
-  const initialTab: TabActiva = tabFromUrl && ['resumen', 'clientes', 'marcas', 'proveedores', 'almacenes', 'competidores'].includes(tabFromUrl)
+  const initialTab: TabActiva = tabFromUrl && ['resumen', 'clientes', 'marcas', 'proveedores', 'almacenes', 'competidores', 'transportistas', 'canales', 'clasificacion'].includes(tabFromUrl)
     ? tabFromUrl
     : 'resumen';
 
   const [tabActiva, setTabActiva] = useState<TabActiva>(initialTab);
   const [busqueda, setBusqueda] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isRecalculando, setIsRecalculando] = useState(false);
+
+  // Hook para dialogo de confirmacion y toasts
+  const { dialogProps, confirm } = useConfirmDialog();
+  const toast = useToastStore();
 
   // Stores
   const {
@@ -87,7 +125,8 @@ export const Maestros: React.FC = () => {
     createCliente,
     updateCliente,
     deleteCliente,
-    cambiarEstado: cambiarEstadoCliente
+    cambiarEstado: cambiarEstadoCliente,
+    recalcularMetricasDesdeVentas
   } = useClienteStore();
 
   const {
@@ -100,7 +139,8 @@ export const Maestros: React.FC = () => {
     updateMarca,
     deleteMarca,
     cambiarEstado: cambiarEstadoMarca,
-    migrarDesdeProductos
+    migrarDesdeProductos,
+    recalcularMetricasDesdeVentas: recalcularMetricasMarcas
   } = useMarcaStore();
 
   const {
@@ -137,6 +177,18 @@ export const Maestros: React.FC = () => {
     deleteCompetidor,
     cambiarEstado: cambiarEstadoCompetidor
   } = useCompetidorStore();
+
+  const {
+    transportistas,
+    loading: loadingTransportistas,
+    fetchTransportistas
+  } = useTransportistaStore();
+
+  const {
+    canales,
+    loading: loadingCanales,
+    fetchCanales
+  } = useCanalVentaStore();
 
   // Modales
   const [showClienteModal, setShowClienteModal] = useState(false);
@@ -202,46 +254,123 @@ export const Maestros: React.FC = () => {
         fetchAlmacenes(),
         fetchAlmacenStats(),
         fetchCompetidores(),
-        fetchCompetidorStats()
+        fetchCompetidorStats(),
+        fetchTransportistas(),
+        fetchCanales()
       ]);
     } finally {
       setIsRefreshing(false);
     }
   };
 
-  // Filtrar por búsqueda
-  const clientesFiltrados = clientes.filter(c =>
-    c.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    c.codigo?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    c.telefono?.includes(busqueda) ||
-    c.dniRuc?.includes(busqueda) ||
-    c.email?.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  // Sincronizar métricas (vincular datos existentes)
+  const handleSyncMetricas = async () => {
+    const confirmed = await confirm({
+      title: 'Sincronizar Metricas',
+      message: 'Esto vinculara ventas/productos/investigaciones existentes con clientes/marcas/proveedores/competidores y recalculara las estadisticas. El proceso puede tomar unos segundos.',
+      confirmText: 'Sincronizar',
+      variant: 'info'
+    });
+    if (!confirmed) return;
 
-  const marcasFiltradas = marcas.filter(m =>
-    m.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    m.codigo?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    m.alias?.some(a => a.toLowerCase().includes(busqueda.toLowerCase()))
-  );
+    setIsSyncing(true);
+    try {
+      // 1. Vincular ventas con clientes
+      const ventasResult = await metricasService.vincularVentasConClientes();
+      console.log('Ventas vinculadas:', ventasResult);
 
-  const proveedoresFiltrados = proveedores.filter(p =>
-    p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.codigo?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.url?.toLowerCase().includes(busqueda.toLowerCase())
-  );
+      // 2. Vincular productos con marcas
+      const productosResult = await metricasService.vincularProductosConMarcas();
+      console.log('Productos vinculados:', productosResult);
 
-  const almacenesFiltrados = almacenes.filter(a =>
-    a.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    a.codigo?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    a.ciudad?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    a.estado?.toLowerCase().includes(busqueda.toLowerCase())
-  );
+      // 3. Sincronizar métricas de clientes
+      const clientesResult = await metricasService.sincronizarMetricasClientes();
+      console.log('Métricas clientes:', clientesResult);
 
-  const competidoresFiltrados = competidores.filter(c =>
-    c.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    c.codigo?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    c.alias?.some(a => a.toLowerCase().includes(busqueda.toLowerCase()))
-  );
+      // 4. Sincronizar métricas de marcas (productos activos)
+      const marcasResult = await metricasService.sincronizarMetricasMarcas();
+      console.log('Métricas marcas (productos):', marcasResult);
+
+      // 5. Sincronizar ventas de marcas (unidades, ingresos, margen)
+      const ventasMarcasResult = await metricasService.sincronizarVentasMarcas();
+      console.log('Métricas marcas (ventas):', ventasMarcasResult);
+
+      // 7. Sincronizar métricas de proveedores (desde investigaciones de mercado)
+      const proveedoresInvResult = await metricasService.sincronizarMetricasProveedores();
+      console.log('Métricas proveedores (investigación):', proveedoresInvResult);
+
+      // 8. Sincronizar métricas de competidores (desde investigaciones de mercado)
+      const competidoresResult = await metricasService.sincronizarMetricasCompetidores();
+      console.log('Métricas competidores:', competidoresResult);
+
+      // 9. Sincronizar órdenes de compra con proveedores
+      const ordenesProvResult = await metricasService.sincronizarOrdenesProveedores();
+      console.log('Órdenes proveedores:', ordenesProvResult);
+
+      // 10. Recalcular inventario de todos los almacenes
+      const almacenesResult = await almacenService.recalcularTodosLosAlmacenes();
+      console.log('Almacenes recalculados:', almacenesResult);
+
+      // Recargar datos
+      await loadAllData();
+
+      toast.success(
+        `Clientes: ${clientesResult.clientesActualizados}, Marcas: ${marcasResult.marcasActualizadas}, Proveedores: ${ordenesProvResult.proveedoresActualizados}, Competidores: ${competidoresResult.competidoresActualizados}, Almacenes: ${almacenesResult.almacenesActualizados}`,
+        'Sincronizacion Completada'
+      );
+    } catch (error: any) {
+      console.error('Error en sincronización:', error);
+      toast.error(error.message, 'Error en sincronizacion');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Filtrar por búsqueda (con validación segura)
+  const termino = busqueda.toLowerCase();
+  const clientesArr = Array.isArray(clientes) ? clientes : [];
+  const clientesFiltrados = clientesArr.filter(c => {
+    const nombre = (c.nombre ?? '').toLowerCase();
+    const codigo = (c.codigo ?? '').toLowerCase();
+    const telefono = c.telefono ?? '';
+    const dniRuc = c.dniRuc ?? '';
+    const email = (c.email ?? '').toLowerCase();
+    return nombre.includes(termino) || codigo.includes(termino) ||
+           telefono.includes(busqueda) || dniRuc.includes(busqueda) || email.includes(termino);
+  });
+
+  const marcasArr = Array.isArray(marcas) ? marcas : [];
+  const marcasFiltradas = marcasArr.filter(m => {
+    const nombre = (m.nombre ?? '').toLowerCase();
+    const codigo = (m.codigo ?? '').toLowerCase();
+    const aliasMatch = m.alias?.some(a => (a ?? '').toLowerCase().includes(termino)) ?? false;
+    return nombre.includes(termino) || codigo.includes(termino) || aliasMatch;
+  });
+
+  const proveedoresArr = Array.isArray(proveedores) ? proveedores : [];
+  const proveedoresFiltrados = proveedoresArr.filter(p => {
+    const nombre = (p.nombre ?? '').toLowerCase();
+    const codigo = (p.codigo ?? '').toLowerCase();
+    const url = (p.url ?? '').toLowerCase();
+    return nombre.includes(termino) || codigo.includes(termino) || url.includes(termino);
+  });
+
+  const almacenesArr = Array.isArray(almacenes) ? almacenes : [];
+  const almacenesFiltrados = almacenesArr.filter(a => {
+    const nombre = (a.nombre ?? '').toLowerCase();
+    const codigo = (a.codigo ?? '').toLowerCase();
+    const ciudad = (a.ciudad ?? '').toLowerCase();
+    const estado = (a.estado ?? '').toLowerCase();
+    return nombre.includes(termino) || codigo.includes(termino) || ciudad.includes(termino) || estado.includes(termino);
+  });
+
+  const competidoresArr = Array.isArray(competidores) ? competidores : [];
+  const competidoresFiltrados = competidoresArr.filter(c => {
+    const nombre = (c.nombre ?? '').toLowerCase();
+    const codigo = (c.codigo ?? '').toLowerCase();
+    const aliasMatch = c.alias?.some(a => (a ?? '').toLowerCase().includes(termino)) ?? false;
+    return nombre.includes(termino) || codigo.includes(termino) || aliasMatch;
+  });
 
   // Estadísticas de almacenes
   const almacenesUSA = almacenes.filter(a => a.pais === 'USA');
@@ -283,19 +412,27 @@ export const Maestros: React.FC = () => {
       }
       setShowClienteModal(false);
       setEditingCliente(null);
+      toast.success(editingCliente ? 'Cliente actualizado' : 'Cliente creado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDeleteCliente = async (id: string) => {
-    if (!confirm('¿Está seguro de eliminar este cliente?')) return;
+    const confirmed = await confirm({
+      title: 'Eliminar Cliente',
+      message: '¿Esta seguro de eliminar este cliente?',
+      confirmText: 'Eliminar',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
     try {
       await deleteCliente(id);
+      toast.success('Cliente eliminado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
@@ -331,31 +468,45 @@ export const Maestros: React.FC = () => {
       }
       setShowMarcaModal(false);
       setEditingMarca(null);
+      toast.success(editingMarca ? 'Marca actualizada' : 'Marca creada');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDeleteMarca = async (id: string) => {
-    if (!confirm('¿Está seguro de eliminar esta marca?')) return;
+    const confirmed = await confirm({
+      title: 'Eliminar Marca',
+      message: '¿Esta seguro de eliminar esta marca?',
+      confirmText: 'Eliminar',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
     try {
       await deleteMarca(id);
+      toast.success('Marca eliminada');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
   const handleMigrarMarcas = async () => {
     if (!user) return;
-    if (!confirm('¿Desea migrar las marcas existentes desde los productos? Esto creará marcas basadas en los nombres de marca actuales.')) return;
+    const confirmed = await confirm({
+      title: 'Migrar Marcas',
+      message: '¿Desea migrar las marcas existentes desde los productos? Esto creara marcas basadas en los nombres de marca actuales.',
+      confirmText: 'Migrar',
+      variant: 'info'
+    });
+    if (!confirmed) return;
 
     try {
       const resultado = await migrarDesdeProductos(user.uid);
-      alert(`Migración completada: ${resultado.migradas} marcas creadas. ${resultado.errores.length > 0 ? `Errores: ${resultado.errores.join(', ')}` : ''}`);
+      toast.success(`${resultado.migradas} marcas creadas${resultado.errores.length > 0 ? `. Errores: ${resultado.errores.length}` : ''}`, 'Migracion Completada');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
@@ -391,8 +542,9 @@ export const Maestros: React.FC = () => {
       }
       setShowProveedorModal(false);
       setEditingProveedor(null);
+      toast.success(editingProveedor ? 'Proveedor actualizado' : 'Proveedor creado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     } finally {
       setIsSubmitting(false);
     }
@@ -400,11 +552,18 @@ export const Maestros: React.FC = () => {
 
   const handleDeleteProveedor = async (id: string) => {
     if (!user) return;
-    if (!confirm('¿Está seguro de eliminar este proveedor?')) return;
+    const confirmed = await confirm({
+      title: 'Eliminar Proveedor',
+      message: '¿Esta seguro de eliminar este proveedor?',
+      confirmText: 'Eliminar',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
     try {
       await deleteProveedor(id, user.uid);
+      toast.success('Proveedor eliminado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
@@ -412,8 +571,9 @@ export const Maestros: React.FC = () => {
     if (!user) return;
     try {
       await cambiarEstadoProveedor(proveedor.id, !proveedor.activo, user.uid);
+      toast.success(proveedor.activo ? 'Proveedor desactivado' : 'Proveedor activado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
@@ -482,8 +642,9 @@ export const Maestros: React.FC = () => {
       }
       setShowAlmacenModal(false);
       setEditingAlmacen(null);
+      toast.success(editingAlmacen ? 'Almacen actualizado' : 'Almacen creado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     } finally {
       setIsSubmitting(false);
     }
@@ -556,19 +717,27 @@ export const Maestros: React.FC = () => {
       }
       setShowCompetidorModal(false);
       setEditingCompetidor(null);
+      toast.success(editingCompetidor ? 'Competidor actualizado' : 'Competidor creado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDeleteCompetidor = async (id: string) => {
-    if (!confirm('¿Está seguro de eliminar este competidor?')) return;
+    const confirmed = await confirm({
+      title: 'Eliminar Competidor',
+      message: '¿Esta seguro de eliminar este competidor?',
+      confirmText: 'Eliminar',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
     try {
       await deleteCompetidor(id);
+      toast.success('Competidor eliminado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
@@ -577,8 +746,9 @@ export const Maestros: React.FC = () => {
     try {
       const nuevoEstado = competidor.estado === 'activo' ? 'inactivo' : 'activo';
       await cambiarEstadoCompetidor(competidor.id, nuevoEstado, user.uid);
+      toast.success(nuevoEstado === 'activo' ? 'Competidor activado' : 'Competidor desactivado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error');
     }
   };
 
@@ -656,182 +826,187 @@ export const Maestros: React.FC = () => {
     }
   };
 
-  const loading = loadingClientes || loadingMarcas || loadingProveedores || loadingAlmacenes || loadingCompetidores;
+  // Loading global solo cuando NO hay datos aún (primera carga)
+  const hayDatos = clientes.length > 0 || marcas.length > 0 || proveedores.length > 0 || almacenes.length > 0 || competidores.length > 0;
+  const loading = !hayDatos && (loadingClientes || loadingMarcas || loadingProveedores || loadingAlmacenes || loadingCompetidores);
+
+  // Configuración de tabs profesionales
+  const tabs = [
+    { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
+    { id: 'clientes', label: 'Clientes', icon: Users, count: clientes.length },
+    { id: 'marcas', label: 'Marcas', icon: Tag, count: marcas.length },
+    { id: 'proveedores', label: 'Proveedores', icon: Truck, count: proveedores.length },
+    { id: 'almacenes', label: 'Almacenes', icon: Warehouse, count: almacenes.length },
+    { id: 'competidores', label: 'Competidores', icon: Shield, count: competidores.length },
+    { id: 'transportistas', label: 'Transportistas', icon: Truck },
+    { id: 'canales', label: 'Canales', icon: Store },
+    { id: 'clasificacion', label: 'Clasificación', icon: Boxes }
+  ];
+
+  // Función para obtener el botón de acción según el tab activo
+  const getActionButton = () => {
+    switch (tabActiva) {
+      case 'resumen':
+        return (
+          <Button
+            variant="secondary"
+            onClick={handleSyncMetricas}
+            disabled={isSyncing || isRefreshing}
+            className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+          >
+            <Zap className={`h-5 w-5 mr-2 ${isSyncing ? 'animate-pulse' : ''}`} />
+            {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+          </Button>
+        );
+      case 'clientes':
+        return (
+          <Button variant="primary" onClick={() => handleOpenClienteModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+            <Plus className="h-5 w-5 mr-2" />
+            Nuevo Cliente
+          </Button>
+        );
+      case 'marcas':
+        return (
+          <Button variant="primary" onClick={() => handleOpenMarcaModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+            <Plus className="h-5 w-5 mr-2" />
+            Nueva Marca
+          </Button>
+        );
+      case 'proveedores':
+        return (
+          <Button variant="primary" onClick={() => handleOpenProveedorModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+            <Plus className="h-5 w-5 mr-2" />
+            Nuevo Proveedor
+          </Button>
+        );
+      case 'almacenes':
+        return (
+          <Button variant="primary" onClick={() => handleOpenAlmacenModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+            <Plus className="h-5 w-5 mr-2" />
+            Nuevo Almacén
+          </Button>
+        );
+      case 'competidores':
+        return (
+          <Button variant="primary" onClick={() => handleOpenCompetidorModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+            <Plus className="h-5 w-5 mr-2" />
+            Nuevo Competidor
+          </Button>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Maestros</h1>
-          <p className="text-gray-600 mt-1">
-            Administra clientes, marcas, proveedores y almacenes
-          </p>
-        </div>
-        <div className="flex space-x-3">
-          <Button
-            variant="ghost"
-            onClick={loadAllData}
-            disabled={isRefreshing}
-            title="Actualizar datos"
-          >
-            <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-          </Button>
-          {tabActiva === 'clientes' && (
-            <Button variant="primary" onClick={() => handleOpenClienteModal()}>
-              <Plus className="h-5 w-5 mr-2" />
-              Nuevo Cliente
+      {/* Header Profesional con Gradiente */}
+      <GradientHeader
+        title="Gestión de Maestros"
+        subtitle="Administra clientes, marcas, proveedores, almacenes y competidores"
+        icon={Boxes}
+        variant="dark"
+        actions={
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              onClick={loadAllData}
+              disabled={isRefreshing || isSyncing}
+              title="Actualizar datos"
+              className="text-white/70 hover:text-white hover:bg-white/10"
+            >
+              <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
-          )}
-          {tabActiva === 'marcas' && (
-            <Button variant="primary" onClick={() => handleOpenMarcaModal()}>
-              <Plus className="h-5 w-5 mr-2" />
-              Nueva Marca
-            </Button>
-          )}
-          {tabActiva === 'proveedores' && (
-            <Button variant="primary" onClick={() => handleOpenProveedorModal()}>
-              <Plus className="h-5 w-5 mr-2" />
-              Nuevo Proveedor
-            </Button>
-          )}
-          {tabActiva === 'almacenes' && (
-            <Button variant="primary" onClick={() => handleOpenAlmacenModal()}>
-              <Plus className="h-5 w-5 mr-2" />
-              Nuevo Almacén
-            </Button>
-          )}
-          {tabActiva === 'competidores' && (
-            <Button variant="primary" onClick={() => handleOpenCompetidorModal()}>
-              <Plus className="h-5 w-5 mr-2" />
-              Nuevo Competidor
-            </Button>
-          )}
-        </div>
-      </div>
+            {getActionButton()}
+          </div>
+        }
+        stats={[
+          { label: 'Clientes', value: clientes.length },
+          { label: 'Marcas', value: marcas.length },
+          { label: 'Proveedores', value: proveedores.length },
+          { label: 'Almacenes', value: almacenes.length },
+          { label: 'Transportistas', value: transportistas.length },
+          { label: 'Canales', value: canales.length }
+        ]}
+      />
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Card padding="md" className={tabActiva === 'resumen' ? 'ring-2 ring-indigo-500 bg-indigo-50' : ''}>
-          <button
-            onClick={() => setTabActiva('resumen')}
-            className="w-full text-left"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Resumen</div>
-                <div className="text-2xl font-bold text-indigo-600 mt-1">
-                  360°
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Visión consolidada
-                </div>
-              </div>
-              <LayoutDashboard className="h-10 w-10 text-indigo-400" />
-            </div>
-          </button>
-        </Card>
+      {/* Navegación por Tabs Profesional */}
+      <TabNavigation
+        tabs={tabs}
+        activeTab={tabActiva}
+        onTabChange={(tabId) => setTabActiva(tabId as TabActiva)}
+        variant="pills"
+      />
 
-        <Card padding="md" className={tabActiva === 'clientes' ? 'ring-2 ring-primary-500' : ''}>
-          <button
+      {/* Stats Cards - Solo visible cuando NO es resumen */}
+      {tabActiva !== 'resumen' && (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+          <StatCard
+            label="Clientes"
+            value={clientes.length}
+            icon={Users}
+            variant="blue"
             onClick={() => setTabActiva('clientes')}
-            className="w-full text-left"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Clientes</div>
-                <div className="text-2xl font-bold text-primary-600 mt-1">
-                  {clientes.length}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {clienteStats?.clientesConCompras || 0} con compras
-                </div>
-              </div>
-              <Users className="h-10 w-10 text-primary-400" />
-            </div>
-          </button>
-        </Card>
-
-        <Card padding="md" className={tabActiva === 'marcas' ? 'ring-2 ring-primary-500' : ''}>
-          <button
+            active={tabActiva === 'clientes'}
+          />
+          <StatCard
+            label="Marcas"
+            value={marcas.length}
+            icon={Tag}
+            variant="green"
             onClick={() => setTabActiva('marcas')}
-            className="w-full text-left"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Marcas</div>
-                <div className="text-2xl font-bold text-green-600 mt-1">
-                  {marcas.length}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {marcaStats?.marcasConProductos || 0} con productos
-                </div>
-              </div>
-              <Tag className="h-10 w-10 text-green-400" />
-            </div>
-          </button>
-        </Card>
-
-        <Card padding="md" className={tabActiva === 'proveedores' ? 'ring-2 ring-primary-500' : ''}>
-          <button
+            active={tabActiva === 'marcas'}
+          />
+          <StatCard
+            label="Proveedores"
+            value={proveedores.length}
+            icon={Truck}
+            variant="purple"
             onClick={() => setTabActiva('proveedores')}
-            className="w-full text-left"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Proveedores</div>
-                <div className="text-2xl font-bold text-purple-600 mt-1">
-                  {proveedores.length}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {proveedores.filter(p => p.activo).length} activos
-                </div>
-              </div>
-              <Truck className="h-10 w-10 text-purple-400" />
-            </div>
-          </button>
-        </Card>
-
-        <Card padding="md" className={tabActiva === 'almacenes' ? 'ring-2 ring-primary-500' : ''}>
-          <button
+            active={tabActiva === 'proveedores'}
+          />
+          <StatCard
+            label="Almacenes"
+            value={almacenes.length}
+            icon={Warehouse}
+            variant="amber"
             onClick={() => setTabActiva('almacenes')}
-            className="w-full text-left"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Almacenes</div>
-                <div className="text-2xl font-bold text-amber-600 mt-1">
-                  {almacenes.length}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {viajeros.length} viajeros · {almacenesUSA.length} USA · {almacenesPeru.length} Perú
-                </div>
-              </div>
-              <Warehouse className="h-10 w-10 text-amber-400" />
-            </div>
-          </button>
-        </Card>
-
-        <Card padding="md" className={tabActiva === 'competidores' ? 'ring-2 ring-primary-500' : ''}>
-          <button
+            active={tabActiva === 'almacenes'}
+          />
+          <StatCard
+            label="Competidores"
+            value={competidores.length}
+            icon={Shield}
+            variant="red"
             onClick={() => setTabActiva('competidores')}
-            className="w-full text-left"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Competidores</div>
-                <div className="text-2xl font-bold text-red-600 mt-1">
-                  {competidores.length}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {competidoresActivos.length} activos · {competidores.filter(c => c.nivelAmenaza === 'alto').length} alto riesgo
-                </div>
-              </div>
-              <Shield className="h-10 w-10 text-red-400" />
-            </div>
-          </button>
-        </Card>
-      </div>
+            active={tabActiva === 'competidores'}
+          />
+          <StatCard
+            label="Transportistas"
+            value={transportistas.length}
+            icon={Truck}
+            variant="blue"
+            onClick={() => setTabActiva('transportistas')}
+            active={tabActiva === 'transportistas'}
+          />
+          <StatCard
+            label="Canales"
+            value={canales.length}
+            icon={Store}
+            variant="green"
+            onClick={() => setTabActiva('canales')}
+            active={tabActiva === 'canales'}
+          />
+          <StatCard
+            label="Resumen 360°"
+            value="Ver"
+            icon={LayoutDashboard}
+            variant="default"
+            onClick={() => setTabActiva('resumen')}
+            active={false}
+          />
+        </div>
+      )}
 
       {/* Resumen Ejecutivo Consolidado */}
       {tabActiva === 'resumen' && (
@@ -845,7 +1020,7 @@ export const Maestros: React.FC = () => {
             <KPIGrid columns={5}>
               <KPICard
                 title="Total Entidades"
-                value={clientes.length + marcas.length + proveedores.length + almacenes.length + competidores.length}
+                value={clientes.length + marcas.length + proveedores.length + almacenes.length + competidores.length + transportistas.length + canales.length}
                 subtitle="en el sistema"
                 icon={Boxes}
                 variant="info"
@@ -883,11 +1058,27 @@ export const Maestros: React.FC = () => {
                 variant="success"
                 size="sm"
               />
+              <KPICard
+                title="Transportistas"
+                value={transportistas.filter(t => t.estado === 'activo').length}
+                subtitle={`de ${transportistas.length} totales`}
+                icon={Truck}
+                variant="info"
+                size="sm"
+              />
+              <KPICard
+                title="Canales Venta"
+                value={canales.filter(c => c.estado === 'activo').length}
+                subtitle={`de ${canales.length} totales`}
+                icon={Store}
+                variant="success"
+                size="sm"
+              />
             </KPIGrid>
           </div>
 
           {/* Distribución de Entidades */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
             <StatDistribution
               title="Distribución de Almacenes"
               data={[
@@ -902,6 +1093,20 @@ export const Maestros: React.FC = () => {
                 { label: 'Bajo', value: competidores.filter(c => c.nivelAmenaza === 'bajo').length, color: 'bg-green-500' },
                 { label: 'Medio', value: competidores.filter(c => c.nivelAmenaza === 'medio').length, color: 'bg-yellow-500' },
                 { label: 'Alto', value: competidores.filter(c => c.nivelAmenaza === 'alto').length, color: 'bg-red-500' }
+              ]}
+            />
+            <StatDistribution
+              title="Transportistas por Tipo"
+              data={[
+                { label: 'Internos', value: transportistas.filter(t => t.tipo === 'interno').length, color: 'bg-blue-500' },
+                { label: 'Externos', value: transportistas.filter(t => t.tipo === 'externo').length, color: 'bg-purple-500' }
+              ]}
+            />
+            <StatDistribution
+              title="Canales de Venta"
+              data={[
+                { label: 'Activos', value: canales.filter(c => c.estado === 'activo').length, color: 'bg-green-500' },
+                { label: 'Inactivos', value: canales.filter(c => c.estado === 'inactivo').length, color: 'bg-gray-400' }
               ]}
             />
           </div>
@@ -980,7 +1185,7 @@ export const Maestros: React.FC = () => {
                   id: c.clienteId,
                   label: c.nombre,
                   value: `S/ ${c.montoTotalPEN.toLocaleString()}`,
-                  sublabel: `${c.totalCompras} compras`
+                  sublabel: `${c.montoTotalPEN > 0 ? 'Cliente activo' : ''}`
                 }))}
                 maxItems={4}
                 onItemClick={() => setTabActiva('clientes')}
@@ -992,11 +1197,11 @@ export const Maestros: React.FC = () => {
                 icon={Tag}
                 variant="success"
                 emptyMessage="Sin productos asociados"
-                items={(marcaStats?.topMarcasPorProductos || []).slice(0, 4).map(m => ({
-                  id: m.id,
+                items={(marcaStats?.topMarcasPorVentas || []).slice(0, 4).map((m: { marcaId: string; nombre: string; ventasTotalPEN: number }) => ({
+                  id: m.marcaId,
                   label: m.nombre,
-                  value: `${m.productosActivos} prods`,
-                  sublabel: m.tipoMarca
+                  value: `S/ ${m.ventasTotalPEN.toLocaleString()}`,
+                  sublabel: 'Por ventas'
                 }))}
                 maxItems={4}
                 onItemClick={() => setTabActiva('marcas')}
@@ -1008,11 +1213,11 @@ export const Maestros: React.FC = () => {
                 icon={Truck}
                 variant="success"
                 emptyMessage="Sin productos asociados"
-                items={(proveedorStats?.topProveedoresPorProductos || []).slice(0, 4).map(p => ({
-                  id: p.id,
+                items={(proveedorStats?.topProveedoresPorCompras || []).slice(0, 4).map((p: { proveedorId: string; nombre: string; ordenesCompra: number }) => ({
+                  id: p.proveedorId,
                   label: p.nombre,
-                  value: `${p.productosActivos} prods`,
-                  sublabel: p.tipo
+                  value: `${p.ordenesCompra} órdenes`,
+                  sublabel: 'Por compras'
                 }))}
                 maxItems={4}
                 onItemClick={() => setTabActiva('proveedores')}
@@ -1091,6 +1296,40 @@ export const Maestros: React.FC = () => {
                 <RefreshCw className={`h-6 w-6 text-gray-600 ${isRefreshing ? 'animate-spin' : ''}`} />
                 <span className="text-xs">Actualizar Todo</span>
               </Button>
+              <Button
+                variant="outline"
+                className="flex flex-col items-center gap-2 h-auto py-4"
+                onClick={async () => {
+                  if (!user) return;
+                  const confirmado = await confirm({
+                    title: 'Recalcular Métricas',
+                    message: '¿Deseas recalcular las métricas de todos los clientes y marcas basándose en las ventas actuales? Esto es útil si borraste ventas manualmente desde Firebase.',
+                    confirmText: 'Recalcular',
+                    cancelText: 'Cancelar'
+                  });
+                  if (!confirmado) return;
+
+                  setIsRecalculando(true);
+                  try {
+                    // Recalcular clientes
+                    const resultadoClientes = await recalcularMetricasDesdeVentas(user.uid);
+                    // Recalcular marcas
+                    const resultadoMarcas = await recalcularMetricasMarcas();
+                    toast.success(
+                      `Métricas recalculadas: ${resultadoClientes.actualizados} clientes, ${resultadoMarcas.marcasActualizadas} marcas`,
+                      'Recálculo Completado'
+                    );
+                  } catch (error: any) {
+                    toast.error(error.message || 'Error al recalcular métricas');
+                  } finally {
+                    setIsRecalculando(false);
+                  }
+                }}
+                disabled={isRecalculando}
+              >
+                <Calculator className={`h-6 w-6 text-blue-600 ${isRecalculando ? 'animate-pulse' : ''}`} />
+                <span className="text-xs">Recalcular Métricas</span>
+              </Button>
             </div>
           </div>
 
@@ -1164,316 +1403,9 @@ export const Maestros: React.FC = () => {
       )}
 
       {/* Cards Informativas por Tab */}
-      {tabActiva === 'clientes' && clienteStats && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <KPIGrid columns={4}>
-              <KPICard
-                title="Ticket Promedio"
-                value={`S/ ${clienteStats.ticketPromedioGeneral?.toFixed(0) || 0}`}
-                icon={DollarSign}
-                variant="success"
-                size="sm"
-              />
-              <KPICard
-                title="Clientes Activos"
-                value={clienteStats.clientesActivos || 0}
-                subtitle="con estado activo"
-                icon={CheckCircle}
-                variant="info"
-                size="sm"
-              />
-              <KPICard
-                title="Nuevos Este Mes"
-                value={clienteStats.clientesNuevosMes || 0}
-                icon={TrendingUp}
-                variant="success"
-                size="sm"
-              />
-              <KPICard
-                title="Con Compras"
-                value={clienteStats.clientesConCompras || 0}
-                subtitle={`${((clienteStats.clientesConCompras || 0) / (clienteStats.totalClientes || 1) * 100).toFixed(0)}% del total`}
-                icon={ShoppingCart}
-                variant="default"
-                size="sm"
-              />
-            </KPIGrid>
-          </div>
-          {clienteStats.topClientesPorMonto && clienteStats.topClientesPorMonto.length > 0 && (
-            <AlertCard
-              title="Top Clientes"
-              icon={Crown}
-              variant="success"
-              items={clienteStats.topClientesPorMonto.slice(0, 3).map(c => ({
-                id: c.clienteId,
-                label: c.nombre,
-                value: `S/ ${c.montoTotalPEN.toFixed(0)}`
-              }))}
-              emptyMessage="Sin datos de compras"
-            />
-          )}
-        </div>
-      )}
+      {/* Nota: Los tabs de Clientes, Marcas, Proveedores y Competidores ahora usan componentes especializados con sus propios dashboards */}
 
-      {tabActiva === 'marcas' && marcaStats && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <KPIGrid columns={4}>
-              <KPICard
-                title="Marcas Activas"
-                value={marcaStats.marcasActivas || 0}
-                icon={Tag}
-                variant="info"
-                size="sm"
-              />
-              <KPICard
-                title="Con Productos"
-                value={marcaStats.marcasConProductos || 0}
-                icon={Package}
-                variant="success"
-                size="sm"
-              />
-              <KPICard
-                title="Margen Promedio"
-                value={`${(marcaStats.topMarcasPorMargen?.[0]?.margenPromedio || 0).toFixed(1)}%`}
-                subtitle="mejor marca"
-                icon={TrendingUp}
-                variant="success"
-                size="sm"
-              />
-              <KPICard
-                title="Total Marcas"
-                value={marcaStats.totalMarcas || 0}
-                icon={BarChart3}
-                variant="default"
-                size="sm"
-              />
-            </KPIGrid>
-          </div>
-          {marcaStats.topMarcasPorVentas && marcaStats.topMarcasPorVentas.length > 0 && (
-            <AlertCard
-              title="Top Marcas por Ventas"
-              icon={Crown}
-              variant="success"
-              items={marcaStats.topMarcasPorVentas.slice(0, 3).map(m => ({
-                id: m.marcaId,
-                label: m.nombre,
-                value: `S/ ${m.ventasTotalPEN.toFixed(0)}`,
-                sublabel: `${m.margenPromedio.toFixed(1)}% margen`
-              }))}
-              emptyMessage="Sin datos de ventas"
-            />
-          )}
-        </div>
-      )}
-
-      {tabActiva === 'proveedores' && proveedorStats && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <KPIGrid columns={4}>
-              <KPICard
-                title="Proveedores Activos"
-                value={proveedorStats.proveedoresActivos || 0}
-                icon={Truck}
-                variant="info"
-                size="sm"
-              />
-              <KPICard
-                title="Total Compras"
-                value={`$${((proveedorStats.topProveedoresPorCompras?.reduce((sum, p) => sum + p.montoTotalUSD, 0) || 0) / 1000).toFixed(1)}K`}
-                subtitle="USD acumulado"
-                icon={DollarSign}
-                variant="success"
-                size="sm"
-              />
-              <KPICard
-                title="USA"
-                value={proveedorStats.proveedoresPorPais?.['USA'] || 0}
-                icon={Globe}
-                variant="default"
-                size="sm"
-              />
-              <KPICard
-                title="China"
-                value={proveedorStats.proveedoresPorPais?.['China'] || 0}
-                icon={Globe}
-                variant="default"
-                size="sm"
-              />
-            </KPIGrid>
-          </div>
-          {proveedorStats.topProveedoresPorCompras && proveedorStats.topProveedoresPorCompras.length > 0 && (
-            <AlertCard
-              title="Top Proveedores"
-              icon={Crown}
-              variant="success"
-              items={proveedorStats.topProveedoresPorCompras.slice(0, 3).map(p => ({
-                id: p.proveedorId,
-                label: p.nombre,
-                value: `$${p.montoTotalUSD.toFixed(0)}`,
-                sublabel: `${p.ordenesCompra} órdenes`
-              }))}
-              emptyMessage="Sin datos de compras"
-            />
-          )}
-        </div>
-      )}
-
-      {tabActiva === 'almacenes' && almacenStats && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <KPIGrid columns={4}>
-              <KPICard
-                title="Unidades USA"
-                value={almacenStats.unidadesTotalesUSA || 0}
-                icon={Package}
-                variant="info"
-                size="sm"
-              />
-              <KPICard
-                title="Valor Inventario"
-                value={`$${((almacenStats.valorInventarioUSA || 0) / 1000).toFixed(1)}K`}
-                subtitle="USD en almacenes"
-                icon={DollarSign}
-                variant="success"
-                size="sm"
-              />
-              <KPICard
-                title="Viajeros"
-                value={almacenStats.viajeros || 0}
-                subtitle={`de ${almacenStats.almacenesUSA || 0} USA`}
-                icon={Plane}
-                variant="default"
-                size="sm"
-              />
-              <KPICard
-                title="Capacidad Usada"
-                value={`${(almacenStats.capacidadPromedioUsada || 0).toFixed(0)}%`}
-                icon={Warehouse}
-                variant={almacenStats.capacidadPromedioUsada > 80 ? 'warning' : 'default'}
-                size="sm"
-              />
-            </KPIGrid>
-          </div>
-          <div className="space-y-4">
-            {almacenStats.proximosViajes && almacenStats.proximosViajes.length > 0 && (
-              <AlertCard
-                title="Próximos Viajes"
-                icon={Plane}
-                variant="info"
-                items={almacenStats.proximosViajes.slice(0, 3).map(v => ({
-                  id: v.id,
-                  label: v.nombre,
-                  value: `${v.diasRestantes}d`,
-                  sublabel: `${v.unidadesActuales} uds`
-                }))}
-                emptyMessage="Sin viajes programados"
-              />
-            )}
-            {almacenStats.almacenesCapacidadCritica && almacenStats.almacenesCapacidadCritica.length > 0 && (
-              <AlertCard
-                title="Capacidad Crítica"
-                icon={AlertTriangle}
-                variant="warning"
-                items={almacenStats.almacenesCapacidadCritica.map(a => ({
-                  id: a.id,
-                  label: a.nombre,
-                  value: `${a.capacidadUsada.toFixed(0)}%`,
-                  sublabel: `${a.unidadesActuales}/${a.capacidadTotal}`
-                }))}
-                emptyMessage="Todo en orden"
-              />
-            )}
-          </div>
-        </div>
-      )}
-
-      {tabActiva === 'competidores' && competidorStats && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <KPIGrid columns={4}>
-              <KPICard
-                title="Competidores Activos"
-                value={competidorStats.activos || 0}
-                icon={Shield}
-                variant="info"
-                size="sm"
-              />
-              <KPICard
-                title="Amenaza Alta"
-                value={competidorStats.porNivelAmenaza?.['alto'] || 0}
-                icon={AlertTriangle}
-                variant="danger"
-                size="sm"
-              />
-              <KPICard
-                title="Productos Analizados"
-                value={competidorStats.totalProductosAnalizados || 0}
-                icon={Search}
-                variant="default"
-                size="sm"
-              />
-              <KPICard
-                title="Líderes"
-                value={competidorStats.lideresCategoria || 0}
-                subtitle="de categoría"
-                icon={Crown}
-                variant="warning"
-                size="sm"
-              />
-            </KPIGrid>
-          </div>
-          <div className="space-y-4">
-            {competidorStats.competidoresAmenazaAlta && competidorStats.competidoresAmenazaAlta.length > 0 && (
-              <AlertCard
-                title="Amenaza Alta - Monitorear"
-                icon={AlertTriangle}
-                variant="danger"
-                items={competidorStats.competidoresAmenazaAlta.slice(0, 4).map(c => ({
-                  id: c.id,
-                  label: c.nombre,
-                  value: c.codigo,
-                  sublabel: `${c.productosAnalizados} productos`
-                }))}
-                emptyMessage="Sin amenazas altas"
-              />
-            )}
-            {competidorStats.topCompetidoresPorAnalisis && competidorStats.topCompetidoresPorAnalisis.length > 0 && (
-              <AlertCard
-                title="Más Analizados"
-                icon={Activity}
-                variant="info"
-                items={competidorStats.topCompetidoresPorAnalisis.slice(0, 3).map(c => ({
-                  id: c.id,
-                  label: c.nombre,
-                  value: `${c.productosAnalizados}`,
-                  sublabel: `S/ ${c.precioPromedio.toFixed(0)} prom.`
-                }))}
-                emptyMessage="Sin análisis"
-              />
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Barra de búsqueda */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-        <input
-          type="text"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          placeholder={
-            tabActiva === 'clientes' ? 'Buscar por nombre, teléfono, DNI o email...' :
-            tabActiva === 'marcas' ? 'Buscar por nombre de marca...' :
-            tabActiva === 'proveedores' ? 'Buscar por nombre de proveedor...' :
-            tabActiva === 'almacenes' ? 'Buscar por nombre, código o ciudad del almacén...' :
-            'Buscar por nombre de competidor...'
-          }
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-        />
-      </div>
+      {/* Nota: El módulo de Almacenes ahora usa AlmacenesLogistica con su propio dashboard, KPIs y búsqueda integrada */}
 
       {/* Contenido por Tab */}
       {loading && !isRefreshing ? (
@@ -1482,601 +1414,95 @@ export const Maestros: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* ============ CLIENTES ============ */}
+          {/* ============ CLIENTES (CRM Potenciado) ============ */}
           {tabActiva === 'clientes' && (
-            <Card padding="none">
-              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Clientes ({clientesFiltrados.length})
-                </h3>
-              </div>
-
-              {clientesFiltrados.length === 0 ? (
-                <div className="text-center py-12">
-                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No hay clientes registrados</p>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleOpenClienteModal()}
-                    className="mt-4"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Crear Primer Cliente
-                  </Button>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-200">
-                  {clientesFiltrados.map((cliente) => (
-                    <div
-                      key={cliente.id}
-                      className="px-6 py-4 hover:bg-gray-50 flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center">
-                          {cliente.tipoCliente === 'empresa' ? (
-                            <Building2 className="h-5 w-5 text-primary-600" />
-                          ) : (
-                            <User className="h-5 w-5 text-primary-600" />
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            {cliente.codigo && (
-                              <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">{cliente.codigo}</span>
-                            )}
-                            <span className="font-medium text-gray-900">{cliente.nombre}</span>
-                            <Badge variant={getEstadoColor(cliente.estado)}>
-                              {cliente.estado}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                            {cliente.telefono && (
-                              <span className="flex items-center">
-                                <Phone className="h-3 w-3 mr-1" />
-                                {cliente.telefono}
-                              </span>
-                            )}
-                            {cliente.email && (
-                              <span className="flex items-center">
-                                <Mail className="h-3 w-3 mr-1" />
-                                {cliente.email}
-                              </span>
-                            )}
-                            {cliente.dniRuc && (
-                              <span className="flex items-center">
-                                <User className="h-3 w-3 mr-1" />
-                                {cliente.dniRuc}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="text-sm font-medium text-gray-900">
-                            {cliente.metricas.totalCompras} compras
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            S/ {cliente.metricas.montoTotalPEN.toFixed(0)} total
-                          </div>
-                        </div>
-
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={() => setDetalleCliente(cliente)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
-                            title="Ver detalle"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenClienteModal(cliente)}
-                            className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
-                            title="Editar"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCliente(cliente.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
-                            title="Eliminar"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+            <ClientesCRM
+              onOpenClienteModal={handleOpenClienteModal}
+              onViewCliente={(cliente) => setDetalleCliente(cliente)}
+              onEditCliente={(cliente) => handleOpenClienteModal(cliente)}
+              onDeleteCliente={handleDeleteCliente}
+            />
           )}
 
-          {/* ============ MARCAS ============ */}
+          {/* ============ MARCAS (Analytics Potenciado) ============ */}
           {tabActiva === 'marcas' && (
-            <Card padding="none">
-              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Marcas ({marcasFiltradas.length})
-                </h3>
-                {marcas.length === 0 && (
-                  <Button variant="secondary" onClick={handleMigrarMarcas} size="sm">
-                    Migrar desde Productos
-                  </Button>
-                )}
-              </div>
-
-              {marcasFiltradas.length === 0 ? (
-                <div className="text-center py-12">
-                  <Tag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">No hay marcas registradas</p>
-                  <div className="flex justify-center space-x-3">
-                    <Button
-                      variant="secondary"
-                      onClick={handleMigrarMarcas}
-                    >
-                      Migrar desde Productos
-                    </Button>
-                    <Button
-                      variant="primary"
-                      onClick={() => handleOpenMarcaModal()}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Crear Marca
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-200">
-                  {marcasFiltradas.map((marca) => (
-                    <div
-                      key={marca.id}
-                      className="px-6 py-4 hover:bg-gray-50 flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                          <Tag className="h-5 w-5 text-green-600" />
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            {marca.codigo && (
-                              <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">{marca.codigo}</span>
-                            )}
-                            <span className="font-medium text-gray-900">{marca.nombre}</span>
-                            <span className={`px-2 py-0.5 text-xs rounded ${getTipoMarcaColor(marca.tipoMarca)}`}>
-                              {marca.tipoMarca}
-                            </span>
-                            <Badge variant={getEstadoColor(marca.estado)}>
-                              {marca.estado}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                            {marca.paisOrigen && (
-                              <span className="flex items-center">
-                                <Globe className="h-3 w-3 mr-1" />
-                                {marca.paisOrigen}
-                              </span>
-                            )}
-                            {marca.alias && marca.alias.length > 0 && (
-                              <span className="text-xs text-gray-400">
-                                Alias: {marca.alias.join(', ')}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="flex items-center text-sm text-gray-900">
-                            <Package className="h-3 w-3 mr-1" />
-                            {marca.metricas.productosActivos} productos
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {marca.metricas.unidadesVendidas} unidades vendidas
-                          </div>
-                        </div>
-
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={() => setDetalleMarca(marca)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
-                            title="Ver detalle"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenMarcaModal(marca)}
-                            className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
-                            title="Editar"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteMarca(marca.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
-                            title="Eliminar"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+            <MarcasAnalytics
+              onOpenMarcaModal={handleOpenMarcaModal}
+              onViewMarca={(marca) => setDetalleMarca(marca)}
+              onEditMarca={(marca) => handleOpenMarcaModal(marca)}
+              onDeleteMarca={handleDeleteMarca}
+            />
           )}
 
-          {/* ============ PROVEEDORES ============ */}
+          {/* ============ PROVEEDORES (SRM Potenciado) ============ */}
           {tabActiva === 'proveedores' && (
-            <Card padding="none">
-              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Proveedores ({proveedoresFiltrados.length})
-                </h3>
-              </div>
-
-              {proveedoresFiltrados.length === 0 ? (
-                <div className="text-center py-12">
-                  <Truck className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No hay proveedores registrados</p>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleOpenProveedorModal()}
-                    className="mt-4"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Crear Primer Proveedor
-                  </Button>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-200">
-                  {proveedoresFiltrados.map((proveedor) => (
-                    <div
-                      key={proveedor.id}
-                      className="px-6 py-4 hover:bg-gray-50 flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <Truck className="h-5 w-5 text-purple-600" />
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            {proveedor.codigo && (
-                              <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">{proveedor.codigo}</span>
-                            )}
-                            <span className="font-medium text-gray-900">{proveedor.nombre}</span>
-                            <Badge variant={proveedor.activo ? 'success' : 'default'}>
-                              {proveedor.activo ? 'Activo' : 'Inactivo'}
-                            </Badge>
-                            <span className={`px-2 py-0.5 text-xs rounded ${getTipoProveedorColor(proveedor.tipo)}`}>
-                              {proveedor.tipo}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                            {proveedor.url && (
-                              <a
-                                href={proveedor.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center text-blue-600 hover:text-blue-800"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <ExternalLink className="h-3 w-3 mr-1" />
-                                Sitio web
-                              </a>
-                            )}
-                            {proveedor.telefono && (
-                              <span className="flex items-center">
-                                <Phone className="h-3 w-3 mr-1" />
-                                {proveedor.telefono}
-                              </span>
-                            )}
-                            <span className="flex items-center">
-                              <Globe className="h-3 w-3 mr-1" />
-                              {proveedor.pais}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="flex items-center text-sm text-gray-900">
-                            <ShoppingCart className="h-3 w-3 mr-1" />
-                            {proveedor.metricas?.ordenesCompra || 0} órdenes
-                          </div>
-                          <div className="flex items-center text-xs text-gray-500">
-                            <Search className="h-3 w-3 mr-1" />
-                            {proveedor.metricas?.productosAnalizados || 0} productos analizados
-                          </div>
-                          {(proveedor.metricas?.montoTotalUSD || 0) > 0 && (
-                            <div className="flex items-center text-xs text-gray-500">
-                              <DollarSign className="h-3 w-3" />
-                              {proveedor.metricas?.montoTotalUSD.toFixed(0)} USD total
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={() => setDetalleProveedor(proveedor)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
-                            title="Ver detalle"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenProveedorModal(proveedor)}
-                            className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
-                            title="Editar"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProveedor(proveedor.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
-                            title="Eliminar"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+            <ProveedoresSRM
+              onOpenProveedorModal={handleOpenProveedorModal}
+              onViewProveedor={(proveedor) => setDetalleProveedor(proveedor)}
+              onEditProveedor={(proveedor) => handleOpenProveedorModal(proveedor)}
+              onDeleteProveedor={handleDeleteProveedor}
+            />
           )}
 
-          {/* ============ ALMACENES ============ */}
+          {/* ============ ALMACENES (Logística Potenciado) ============ */}
           {tabActiva === 'almacenes' && (
-            <Card padding="none">
-              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Almacenes y Viajeros ({almacenesFiltrados.length})
-                </h3>
-              </div>
-
-              {almacenesFiltrados.length === 0 ? (
-                <div className="text-center py-12">
-                  <Warehouse className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No hay almacenes registrados</p>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleOpenAlmacenModal()}
-                    className="mt-4"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Crear Primer Almacén
-                  </Button>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-200">
-                  {almacenesFiltrados.map((almacen) => (
-                    <div
-                      key={almacen.id}
-                      className="px-6 py-4 hover:bg-gray-50 flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                          almacen.esViajero ? 'bg-purple-100' : almacen.pais === 'USA' ? 'bg-blue-100' : 'bg-green-100'
-                        }`}>
-                          {almacen.esViajero ? (
-                            <Plane className={`h-5 w-5 text-purple-600`} />
-                          ) : (
-                            <Warehouse className={`h-5 w-5 ${almacen.pais === 'USA' ? 'text-blue-600' : 'text-green-600'}`} />
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium text-gray-900">{almacen.nombre}</span>
-                            <span className="text-xs text-gray-500 font-mono">{almacen.codigo}</span>
-                            <Badge variant={almacen.estadoAlmacen === 'activo' ? 'success' : 'default'}>
-                              {almacen.estadoAlmacen}
-                            </Badge>
-                            <span className={`px-2 py-0.5 text-xs rounded ${getTipoAlmacenColor(almacen.tipo)}`}>
-                              {almacen.tipo === 'viajero' ? 'Viajero' : 'Perú'}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                            <span className="flex items-center">
-                              <MapPin className="h-3 w-3 mr-1" />
-                              {almacen.ciudad}{almacen.estado ? `, ${almacen.estado}` : ''} - {almacen.pais}
-                            </span>
-                            {almacen.telefono && (
-                              <span className="flex items-center">
-                                <Phone className="h-3 w-3 mr-1" />
-                                {almacen.telefono}
-                              </span>
-                            )}
-                            {almacen.esViajero && almacen.proximoViaje && (
-                              <span className="flex items-center text-purple-600">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                Próximo viaje: {formatProximoViaje(almacen.proximoViaje)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="flex items-center text-sm text-gray-900">
-                            <Package className="h-3 w-3 mr-1" />
-                            {almacen.unidadesActuales || 0} unidades
-                          </div>
-                          {(almacen.valorInventarioUSD || 0) > 0 && (
-                            <div className="flex items-center text-xs text-gray-500">
-                              <DollarSign className="h-3 w-3" />
-                              {almacen.valorInventarioUSD?.toFixed(0)} USD
-                            </div>
-                          )}
-                          {almacen.esViajero && almacen.frecuenciaViaje && (
-                            <div className="text-xs text-purple-500">
-                              Viaja: {almacen.frecuenciaViaje}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={() => setDetalleAlmacen(almacen)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
-                            title="Ver detalle"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenAlmacenModal(almacen)}
-                            className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
-                            title="Editar"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+            <AlmacenesLogistica
+              onOpenAlmacenModal={handleOpenAlmacenModal}
+              onViewAlmacen={(almacen) => setDetalleAlmacen(almacen)}
+              onEditAlmacen={(almacen) => handleOpenAlmacenModal(almacen)}
+            />
           )}
 
-          {/* ============ COMPETIDORES ============ */}
+          {/* ============ COMPETIDORES (Intel Potenciado) ============ */}
           {tabActiva === 'competidores' && (
-            <Card padding="none">
-              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Competidores ({competidoresFiltrados.length})
+            <CompetidoresIntel
+              onOpenCompetidorModal={handleOpenCompetidorModal}
+              onViewCompetidor={(competidor) => setDetalleCompetidor(competidor)}
+              onEditCompetidor={(competidor) => handleOpenCompetidorModal(competidor)}
+              onDeleteCompetidor={handleDeleteCompetidor}
+            />
+          )}
+
+          {/* ============ TRANSPORTISTAS ============ */}
+          {tabActiva === 'transportistas' && (
+            <TransportistasLogistica />
+          )}
+
+          {/* ============ CANALES DE VENTA ============ */}
+          {tabActiva === 'canales' && (
+            <CanalesVentaAnalytics />
+          )}
+
+          {/* ============ CLASIFICACION DE PRODUCTOS ============ */}
+          {tabActiva === 'clasificacion' && (
+            <div className="space-y-8">
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-indigo-900 mb-2">
+                  Sistema de Clasificación de Productos
                 </h3>
+                <p className="text-sm text-indigo-700">
+                  Gestiona los tipos de producto, categorías y etiquetas para organizar tu catálogo de manera flexible.
+                  Los productos pueden tener múltiples categorías y etiquetas para mejor filtrado y SEO.
+                </p>
               </div>
 
-              {competidoresFiltrados.length === 0 ? (
-                <div className="text-center py-12">
-                  <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No hay competidores registrados</p>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleOpenCompetidorModal()}
-                    className="mt-4"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Registrar Primer Competidor
-                  </Button>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Tipos de Producto */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <TipoProductoList />
                 </div>
-              ) : (
-                <div className="divide-y divide-gray-200">
-                  {competidoresFiltrados.map((competidor) => (
-                    <div
-                      key={competidor.id}
-                      className="px-6 py-4 hover:bg-gray-50 flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                          competidor.nivelAmenaza === 'alto' ? 'bg-red-100' :
-                          competidor.nivelAmenaza === 'medio' ? 'bg-yellow-100' : 'bg-green-100'
-                        }`}>
-                          <Shield className={`h-5 w-5 ${
-                            competidor.nivelAmenaza === 'alto' ? 'text-red-600' :
-                            competidor.nivelAmenaza === 'medio' ? 'text-yellow-600' : 'text-green-600'
-                          }`} />
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            {competidor.codigo && (
-                              <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">{competidor.codigo}</span>
-                            )}
-                            <span className="font-medium text-gray-900">{competidor.nombre}</span>
-                            <Badge variant={getEstadoColor(competidor.estado)}>
-                              {competidor.estado}
-                            </Badge>
-                            <span className={`px-2 py-0.5 text-xs rounded ${getPlataformaColor(competidor.plataformaPrincipal)}`}>
-                              {getPlataformaLabel(competidor.plataformaPrincipal)}
-                            </span>
-                            <span className={`px-2 py-0.5 text-xs rounded ${getNivelAmenazaColor(competidor.nivelAmenaza)}`}>
-                              {competidor.nivelAmenaza === 'alto' ? 'Alto Riesgo' :
-                               competidor.nivelAmenaza === 'medio' ? 'Riesgo Medio' : 'Bajo Riesgo'}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                            {competidor.ciudad && (
-                              <span className="flex items-center">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                {competidor.ciudad}{competidor.departamento ? `, ${competidor.departamento}` : ''}
-                              </span>
-                            )}
-                            {competidor.esLiderCategoria && (
-                              <span className="flex items-center text-amber-600">
-                                <Crown className="h-3 w-3 mr-1" />
-                                Líder en categoría
-                              </span>
-                            )}
-                            {competidor.urlTienda && (
-                              <a
-                                href={competidor.urlTienda}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center text-blue-600 hover:underline"
-                              >
-                                <ExternalLink className="h-3 w-3 mr-1" />
-                                Ver tienda
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      </div>
 
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="flex items-center text-sm text-gray-900">
-                            <Package className="h-3 w-3 mr-1" />
-                            {competidor.metricas?.productosAnalizados || 0} productos analizados
-                          </div>
-                          {(competidor.metricas?.precioPromedio || 0) > 0 && (
-                            <div className="flex items-center text-xs text-gray-500">
-                              <DollarSign className="h-3 w-3" />
-                              S/ {competidor.metricas?.precioPromedio?.toFixed(2)} precio prom.
-                            </div>
-                          )}
-                          {competidor.estrategiaPrecio && (
-                            <div className="text-xs text-gray-500">
-                              Estrategia: {competidor.estrategiaPrecio}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={() => setDetalleCompetidor(competidor)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
-                            title="Ver detalle"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenCompetidorModal(competidor)}
-                            className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
-                            title="Editar"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCompetidor(competidor.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
-                            title="Eliminar"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                {/* Categorias */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <CategoriaList />
                 </div>
-              )}
-            </Card>
+              </div>
+
+              {/* Etiquetas - Full width */}
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <EtiquetaList />
+              </div>
+            </div>
           )}
         </>
       )}
@@ -3058,6 +2484,9 @@ export const Maestros: React.FC = () => {
           }
         }}
       />
+
+      {/* Dialogo de Confirmacion */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 };

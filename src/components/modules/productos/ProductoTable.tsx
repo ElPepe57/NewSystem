@@ -1,21 +1,81 @@
 import React from 'react';
-import { Eye, Pencil, Trash2, AlertTriangle, Search, CheckCircle, XCircle, Clock, HelpCircle } from 'lucide-react';
+import { Eye, Pencil, Trash2, Search, CheckCircle, XCircle, Clock, HelpCircle, DollarSign, Tag, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { Badge } from '../../common';
 import { ProductoService } from '../../../services/producto.service';
 import type { Producto } from '../../../types/producto.types';
+import type { CategoriaSnapshot } from '../../../types/categoria.types';
+import type { EtiquetaSnapshot } from '../../../types/etiqueta.types';
+
+// Tipo para configuración de ordenamiento múltiple
+export interface SortConfig {
+  key: string;
+  direction: 'asc' | 'desc';
+}
 
 interface ProductoTableProps {
   productos: Producto[];
   onView: (producto: Producto) => void;
   onEdit: (producto: Producto) => void;
   onDelete: (producto: Producto) => void;
+  sortConfigs?: SortConfig[];
+  onSort?: (key: string) => void;
 }
+
+// Componente para encabezado ordenable
+const SortableHeader: React.FC<{
+  label: string;
+  sortKey: string;
+  sortConfigs: SortConfig[];
+  onSort: (key: string) => void;
+  align?: 'left' | 'center' | 'right';
+}> = ({ label, sortKey, sortConfigs, onSort, align = 'left' }) => {
+  const sortIndex = sortConfigs.findIndex(s => s.key === sortKey);
+  const currentSort = sortIndex >= 0 ? sortConfigs[sortIndex] : null;
+  const sortOrder = sortIndex >= 0 ? sortIndex + 1 : null;
+
+  const alignClasses = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right'
+  };
+
+  return (
+    <th
+      className={`px-6 py-3 text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 transition-colors select-none ${alignClasses[align]}`}
+      onClick={() => onSort(sortKey)}
+    >
+      <div className={`flex items-center gap-1.5 ${align === 'center' ? 'justify-center' : align === 'right' ? 'justify-end' : ''}`}>
+        <span>{label}</span>
+        <div className="flex items-center">
+          {currentSort ? (
+            <span className="flex items-center">
+              {currentSort.direction === 'asc' ? (
+                <ArrowUp className="h-3.5 w-3.5 text-primary-600" />
+              ) : (
+                <ArrowDown className="h-3.5 w-3.5 text-primary-600" />
+              )}
+              {sortConfigs.length > 1 && (
+                <span className="ml-0.5 text-[10px] bg-primary-100 text-primary-700 rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  {sortOrder}
+                </span>
+              )}
+            </span>
+          ) : (
+            <ArrowUpDown className="h-3.5 w-3.5 text-gray-300" />
+          )}
+        </div>
+      </div>
+    </th>
+  );
+};
 
 export const ProductoTable: React.FC<ProductoTableProps> = ({
   productos,
   onView,
   onEdit,
-  onDelete
+  onDelete,
+  sortConfigs = [],
+  onSort
 }) => {
   if (productos.length === 0) {
     return (
@@ -25,43 +85,76 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
     );
   }
 
+  const handleSort = (key: string) => {
+    if (onSort) {
+      onSort(key);
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
+      {/* Indicador de ordenamiento activo */}
+      {sortConfigs.length > 0 && (
+        <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex items-center gap-2 text-sm">
+          <span className="text-gray-500">Ordenado por:</span>
+          <div className="flex items-center gap-2">
+            {sortConfigs.map((sort, index) => (
+              <span key={sort.key} className="inline-flex items-center gap-1 bg-primary-100 text-primary-700 px-2 py-0.5 rounded text-xs font-medium">
+                <span className="bg-primary-200 text-primary-800 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">
+                  {index + 1}
+                </span>
+                {sort.key === 'sku' && 'SKU'}
+                {sort.key === 'marca' && 'Marca'}
+                {sort.key === 'nombreComercial' && 'Nombre'}
+                {sort.key === 'precioSugerido' && 'Precio'}
+                {sort.key === 'stockPeru' && 'Stock'}
+                {sort.key === 'estado' && 'Estado'}
+                {sort.key === 'margenEstimado' && 'Margen'}
+                {sort.key === 'roi' && 'ROI'}
+                {sort.direction === 'asc' ? (
+                  <ArrowUp className="h-3 w-3" />
+                ) : (
+                  <ArrowDown className="h-3 w-3" />
+                )}
+              </span>
+            ))}
+          </div>
+          <span className="text-xs text-gray-400 ml-2">(Ctrl+Click para multiorden)</span>
+        </div>
+      )}
+
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-              SKU
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-              Producto
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-              Grupo/Subgrupo
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-              Stock Perú
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-              Stock USA
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-              CTRU
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-              Investigación
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-              Estado
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-              Acciones
-            </th>
+            {onSort ? (
+              <>
+                <SortableHeader label="SKU" sortKey="sku" sortConfigs={sortConfigs} onSort={handleSort} />
+                <SortableHeader label="Producto" sortKey="marca" sortConfigs={sortConfigs} onSort={handleSort} />
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Tipo / Categorías
+                </th>
+                <SortableHeader label="Precios" sortKey="precioSugerido" sortConfigs={sortConfigs} onSort={handleSort} align="center" />
+                <SortableHeader label="Investigación" sortKey="roi" sortConfigs={sortConfigs} onSort={handleSort} align="center" />
+                <SortableHeader label="Estado" sortKey="estado" sortConfigs={sortConfigs} onSort={handleSort} />
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  Acciones
+                </th>
+              </>
+            ) : (
+              <>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo / Categorías</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Precios</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Investigación</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
+              </>
+            )}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {productos.map((producto) => {
-            const stockCritico = producto.stockPeru <= producto.stockMinimo;
             const invResumen = ProductoService.getResumenInvestigacion(producto);
 
             return (
@@ -83,35 +176,78 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                     {producto.contenido}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{producto.grupo}</div>
-                  {producto.subgrupo && (
-                    <div className="text-xs text-gray-500">{producto.subgrupo}</div>
+                <td className="px-6 py-4">
+                  {/* Tipo de Producto */}
+                  {producto.tipoProducto ? (
+                    <div className="flex items-center gap-1 mb-1">
+                      <Tag className="h-3 w-3 text-blue-500" />
+                      <span className="text-sm font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+                        {producto.tipoProducto.nombre}
+                      </span>
+                    </div>
+                  ) : producto.subgrupo ? (
+                    <div className="text-xs text-gray-500 mb-1">{producto.subgrupo}</div>
+                  ) : null}
+
+                  {/* Categorias */}
+                  {producto.categorias && producto.categorias.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {producto.categorias.slice(0, 2).map((cat: CategoriaSnapshot) => (
+                        <span
+                          key={cat.categoriaId}
+                          className={`text-xs px-1.5 py-0.5 rounded ${
+                            cat.categoriaId === producto.categoriaPrincipalId
+                              ? 'bg-primary-100 text-primary-700'
+                              : 'bg-gray-100 text-gray-600'
+                          }`}
+                        >
+                          {cat.nombre}
+                        </span>
+                      ))}
+                      {producto.categorias.length > 2 && (
+                        <span className="text-xs text-gray-400">
+                          +{producto.categorias.length - 2}
+                        </span>
+                      )}
+                    </div>
+                  ) : producto.grupo ? (
+                    <div className="text-xs text-gray-500">{producto.grupo}</div>
+                  ) : (
+                    <span className="text-xs text-gray-400">Sin clasificar</span>
                   )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <div className={`text-sm font-semibold ${stockCritico ? 'text-red-600' : 'text-gray-900'}`}>
-                    {producto.stockPeru}
-                  </div>
-                  {stockCritico && (
-                    <div className="flex items-center justify-center mt-1">
-                      <AlertTriangle className="h-4 w-4 text-red-500" />
+
+                  {/* Etiquetas */}
+                  {producto.etiquetasData && producto.etiquetasData.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {producto.etiquetasData.slice(0, 3).map((etq: EtiquetaSnapshot) => (
+                        <span
+                          key={etq.etiquetaId}
+                          className="text-xs px-1.5 py-0.5 rounded-full"
+                          style={{
+                            backgroundColor: etq.colorFondo || '#F3F4F6',
+                            color: etq.colorTexto || '#4B5563',
+                            fontSize: '10px'
+                          }}
+                        >
+                          {etq.icono && <span className="mr-0.5">{etq.icono}</span>}
+                          {etq.nombre}
+                        </span>
+                      ))}
                     </div>
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <div className="text-sm text-gray-900">{producto.stockUSA}</div>
-                  {producto.stockTransito > 0 && (
-                    <div className="text-xs text-blue-600">+{producto.stockTransito} tráns.</div>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="text-sm font-semibold text-gray-900">
-                    S/ {(producto.ctruPromedio || 0).toFixed(2)}
-                  </div>
-                  {producto.precioSugerido > 0 && (
-                    <div className="text-xs text-gray-500">
-                      PVP: S/ {producto.precioSugerido.toFixed(2)}
+                  {producto.precioSugerido > 0 ? (
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        S/ {producto.precioSugerido.toFixed(2)}
+                      </div>
+                      <div className="text-xs text-gray-500">PVP Sugerido</div>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-gray-400 flex items-center justify-center gap-1">
+                      <DollarSign className="h-3 w-3" />
+                      Sin precio
                     </div>
                   )}
                 </td>

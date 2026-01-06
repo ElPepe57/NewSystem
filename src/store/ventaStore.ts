@@ -192,7 +192,7 @@ export const useVentaStore = create<VentaState>((set, get) => ({
   asignarInventario: async (id: string, userId: string, permitirParcial: boolean = false) => {
     set({ loading: true, error: null });
     try {
-      const resultados = await VentaService.asignarInventario(id, userId, permitirParcial);
+      const resultados = await VentaService.asignarInventario(id, userId);
       await get().fetchVentas();
       await get().fetchStats();
       await get().fetchProductosDisponibles();

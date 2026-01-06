@@ -223,13 +223,17 @@ export const Usuarios: React.FC = () => {
     }
   };
 
-  // Filtrar usuarios
+  // Filtrar usuarios (con validación segura)
   const filteredUsuarios = useMemo(() => {
-    return usuarios.filter(usuario => {
+    const usuariosArr = Array.isArray(usuarios) ? usuarios : [];
+    const term = searchTerm.toLowerCase();
+    return usuariosArr.filter(usuario => {
       // Filtro de búsqueda
+      const displayName = (usuario.displayName ?? '').toLowerCase();
+      const email = (usuario.email ?? '').toLowerCase();
       const matchesSearch = searchTerm === '' ||
-        usuario.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        usuario.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        displayName.includes(term) ||
+        email.includes(term);
 
       // Filtro de rol
       const matchesRole = filterRole === 'all' || usuario.role === filterRole;

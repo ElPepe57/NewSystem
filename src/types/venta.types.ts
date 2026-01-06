@@ -1,9 +1,10 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type CanalVenta =
-  | 'mercado_libre'
-  | 'directo'
-  | 'otro';
+/**
+ * Canal de venta - ahora acepta IDs de canales dinámicos
+ * Los valores legacy ('mercado_libre', 'directo', 'otro') se mantienen para compatibilidad
+ */
+export type CanalVenta = string;
 
 export type EstadoVenta =
   | 'cotizacion'      // Solo cotización, no confirmada

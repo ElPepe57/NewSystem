@@ -1,27 +1,32 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Plus, Search, Filter, X, Download } from 'lucide-react';
+import { Plus, Search, Filter, X, Copy } from 'lucide-react';
 import { Button, Card, Modal } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ProductoTable } from '../../components/modules/productos/ProductoTable';
 import { ProductoCard } from '../../components/modules/productos/ProductoCard';
 import { InvestigacionModal } from '../../components/modules/productos/InvestigacionModal';
+import { DuplicadosModal } from '../../components/modules/productos/DuplicadosModal';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
+import { useTipoProductoStore } from '../../store/tipoProductoStore';
+import { useCategoriaStore } from '../../store/categoriaStore';
+import { useEtiquetaStore } from '../../store/etiquetaStore';
 import type { Producto, ProductoFormData, EstadoProducto, InvestigacionFormData } from '../../types/producto.types';
-import { exportService } from '../../services/export.service';
 import type { TipoCambio } from '../../types/tipoCambio.types';
 
 export const Productos: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const user = useAuthStore(state => state.user);
   const { productos, loading, fetchProductos, createProducto, updateProducto, deleteProducto, guardarInvestigacion, eliminarInvestigacion } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
+  const { tiposActivos, fetchTiposActivos } = useTipoProductoStore();
+  const { categoriasActivas, fetchCategoriasActivas } = useCategoriaStore();
+  const { etiquetasActivas, fetchEtiquetasActivas } = useEtiquetaStore();
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isInvestigacionModalOpen, setIsInvestigacionModalOpen] = useState(false);
+  const [isDuplicadosModalOpen, setIsDuplicadosModalOpen] = useState(false);
   const [selectedProducto, setSelectedProducto] = useState<Producto | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,37 +41,93 @@ export const Productos: React.FC = () => {
     marca: '',
     stockStatus: '' as 'todos' | 'critico' | 'agotado' | '',
     habilitadoML: '' as 'true' | 'false' | '',
-    investigacion: '' as 'todos' | 'sin_investigar' | 'vigente' | 'vencida' | 'importar' | 'descartar' | ''
+    investigacion: '' as 'todos' | 'sin_investigar' | 'vigente' | 'vencida' | 'importar' | 'descartar' | '',
+    tipoProductoId: '',
+    categoriaId: '',
+    etiquetaId: ''
   });
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  // Ordenamiento
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof Producto | null;
+  // Ordenamiento múltiple
+  const [sortConfigs, setSortConfigs] = useState<Array<{
+    key: string;
     direction: 'asc' | 'desc';
-  }>({ key: null, direction: 'asc' });
+  }>>([]);
+
+  // Detectar si Ctrl está presionado para multiorden
+  const [ctrlPressed, setCtrlPressed] = useState(false);
+
+  // Escuchar teclas Ctrl
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Control') setCtrlPressed(true);
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Control') setCtrlPressed(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  // Handler para ordenamiento
+  const handleSort = (key: string) => {
+    setSortConfigs(prev => {
+      const existingIndex = prev.findIndex(s => s.key === key);
+
+      if (ctrlPressed) {
+        // Multiorden: agregar o cambiar dirección
+        if (existingIndex >= 0) {
+          // Ya existe, cambiar dirección o remover
+          const existing = prev[existingIndex];
+          if (existing.direction === 'asc') {
+            // Cambiar a desc
+            const newConfigs = [...prev];
+            newConfigs[existingIndex] = { ...existing, direction: 'desc' };
+            return newConfigs;
+          } else {
+            // Remover del ordenamiento
+            return prev.filter((_, i) => i !== existingIndex);
+          }
+        } else {
+          // Agregar nuevo ordenamiento
+          return [...prev, { key, direction: 'asc' }];
+        }
+      } else {
+        // Sin Ctrl: ordenamiento simple
+        if (existingIndex >= 0 && prev.length === 1) {
+          // Ya es el único, cambiar dirección o limpiar
+          const existing = prev[existingIndex];
+          if (existing.direction === 'asc') {
+            return [{ key, direction: 'desc' }];
+          } else {
+            return []; // Limpiar ordenamiento
+          }
+        } else {
+          // Nuevo ordenamiento simple
+          return [{ key, direction: 'asc' }];
+        }
+      }
+    });
+    setCurrentPage(1);
+  };
 
   useEffect(() => {
     fetchProductos();
+    fetchTiposActivos();
+    fetchCategoriasActivas();
+    fetchEtiquetasActivas();
     // Cargar tipo de cambio del día
     getTCDelDia().then(tc => {
       if (tc) setTipoCambioActual(tc);
     }).catch(console.error);
-  }, [fetchProductos, getTCDelDia]);
-
-  // Manejar query parameter ?action=create para abrir modal desde otros módulos
-  useEffect(() => {
-    if (searchParams.get('action') === 'create') {
-      setSelectedProducto(null);
-      setIsEditing(false);
-      setIsFormModalOpen(true);
-      // Limpiar el query parameter para evitar reabrir al navegar
-      setSearchParams({}, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
+  }, [fetchProductos, getTCDelDia, fetchTiposActivos, fetchCategoriasActivas, fetchEtiquetasActivas]);
 
   const handleCreate = () => {
     setSelectedProducto(null);
@@ -92,15 +153,17 @@ export const Productos: React.FC = () => {
     try {
       if (isEditing && selectedProducto) {
         await updateProducto(selectedProducto.id, data);
-        alert('✅ Producto actualizado correctamente');
+        alert('Producto actualizado correctamente');
       } else {
         await createProducto(data, user.uid);
-        alert('✅ Producto creado correctamente');
+        alert('Producto creado correctamente');
       }
       setIsFormModalOpen(false);
       setSelectedProducto(null);
     } catch (error: any) {
-      alert(error.message);
+      console.error('Error en handleSubmit:', error);
+      const mensaje = error.message || 'Error desconocido al guardar el producto';
+      alert(`Error: ${mensaje}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -200,15 +263,25 @@ export const Productos: React.FC = () => {
     const productosArray = Array.isArray(productos) ? productos : [];
 
     return productosArray.filter(producto => {
-      // Búsqueda por término
+      // Búsqueda por término (con validación segura)
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
+        const sku = (producto.sku ?? '').toLowerCase();
+        const marca = (producto.marca ?? '').toLowerCase();
+        const nombreComercial = (producto.nombreComercial ?? '').toLowerCase();
+        const grupo = (producto.grupo ?? '').toLowerCase();
+        const subgrupo = (producto.subgrupo ?? '').toLowerCase();
+        const tipoProductoNombre = (producto.tipoProducto?.nombre ?? '').toLowerCase();
+
         const matchSearch =
-          producto.sku.toLowerCase().includes(term) ||
-          producto.marca.toLowerCase().includes(term) ||
-          producto.nombreComercial.toLowerCase().includes(term) ||
-          producto.grupo.toLowerCase().includes(term) ||
-          (producto.subgrupo && producto.subgrupo.toLowerCase().includes(term));
+          sku.includes(term) ||
+          marca.includes(term) ||
+          nombreComercial.includes(term) ||
+          grupo.includes(term) ||
+          subgrupo.includes(term) ||
+          tipoProductoNombre.includes(term) ||
+          (producto.categorias && producto.categorias.some(c => (c.nombre ?? '').toLowerCase().includes(term))) ||
+          (producto.etiquetasData && producto.etiquetasData.some(e => (e.nombre ?? '').toLowerCase().includes(term)));
 
         if (!matchSearch) return false;
       }
@@ -270,29 +343,81 @@ export const Productos: React.FC = () => {
         }
       }
 
+      // Filtro por tipo de producto
+      if (filters.tipoProductoId && producto.tipoProductoId !== filters.tipoProductoId) {
+        return false;
+      }
+
+      // Filtro por categoría
+      if (filters.categoriaId && !producto.categoriaIds?.includes(filters.categoriaId)) {
+        return false;
+      }
+
+      // Filtro por etiqueta
+      if (filters.etiquetaId && !producto.etiquetaIds?.includes(filters.etiquetaId)) {
+        return false;
+      }
+
       return true;
     });
   }, [productos, searchTerm, filters]);
 
-  // Ordenar productos
+  // Función auxiliar para obtener valor de ordenamiento
+  const getSortValue = (producto: Producto, key: string): any => {
+    switch (key) {
+      case 'sku':
+        return producto.sku || '';
+      case 'marca':
+        return producto.marca || '';
+      case 'nombreComercial':
+        return producto.nombreComercial || '';
+      case 'precioSugerido':
+        return producto.precioSugerido || 0;
+      case 'stockPeru':
+        return producto.stockPeru || 0;
+      case 'estado':
+        return producto.estado || '';
+      case 'roi': {
+        // Calcular ROI para ordenamiento
+        const inv = producto.investigacion;
+        if (!inv || inv.ctruEstimado <= 0) return -Infinity;
+        const precioVenta = inv.precioEntrada || inv.precioPERUPromedio || 0;
+        if (precioVenta <= 0) return -Infinity;
+        return ((precioVenta - inv.ctruEstimado) / inv.ctruEstimado) * 100;
+      }
+      case 'margenEstimado':
+        return producto.investigacion?.margenEstimado || -Infinity;
+      default:
+        return (producto as any)[key] ?? '';
+    }
+  };
+
+  // Ordenar productos con múltiples claves
   const sortedProductos = useMemo(() => {
-    if (!sortConfig.key) return filteredProductos;
+    if (sortConfigs.length === 0) return filteredProductos;
 
     return [...filteredProductos].sort((a, b) => {
-      const aValue = a[sortConfig.key!];
-      const bValue = b[sortConfig.key!];
+      for (const config of sortConfigs) {
+        const aValue = getSortValue(a, config.key);
+        const bValue = getSortValue(b, config.key);
 
-      if (aValue === undefined || bValue === undefined) return 0;
+        let comparison = 0;
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          comparison = aValue.localeCompare(bValue, 'es', { sensitivity: 'base' });
+        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+          comparison = aValue - bValue;
+        } else {
+          if (aValue < bValue) comparison = -1;
+          if (aValue > bValue) comparison = 1;
+        }
 
-      if (aValue < bValue) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
+        if (comparison !== 0) {
+          return config.direction === 'asc' ? comparison : -comparison;
+        }
       }
       return 0;
     });
-  }, [filteredProductos, sortConfig]);
+  }, [filteredProductos, sortConfigs]);
 
   // Paginar productos
   const paginatedProductos = useMemo(() => {
@@ -305,12 +430,14 @@ export const Productos: React.FC = () => {
 
   // Obtener listas únicas para filtros
   const uniqueGrupos = useMemo(() => {
-    const grupos = Array.from(new Set(productos.map(p => p.grupo))).filter(Boolean);
+    const productosArr = Array.isArray(productos) ? productos : [];
+    const grupos = Array.from(new Set(productosArr.map(p => p.grupo))).filter(Boolean);
     return grupos.sort();
   }, [productos]);
 
   const uniqueMarcas = useMemo(() => {
-    const marcas = Array.from(new Set(productos.map(p => p.marca))).filter(Boolean);
+    const productosArr = Array.isArray(productos) ? productos : [];
+    const marcas = Array.from(new Set(productosArr.map(p => p.marca))).filter(Boolean);
     return marcas.sort();
   }, [productos]);
 
@@ -321,6 +448,20 @@ export const Productos: React.FC = () => {
   const productosStockCritico = productosArray.filter(p => p.stockPeru <= p.stockMinimo).length;
   const productosSinInvestigar = productosArray.filter(p => !p.investigacion).length;
 
+  // Contar duplicados para el badge
+  const duplicadosCount = useMemo(() => {
+    const porClaveExacta = new Map<string, number>();
+    productosArray.forEach(p => {
+      const marca = (p.marca ?? '').toLowerCase().trim();
+      const nombre = (p.nombreComercial ?? '').toLowerCase().trim();
+      const dosaje = (p.dosaje ?? '').toLowerCase().trim();
+      const contenido = (p.contenido ?? '').toLowerCase().trim();
+      const key = `${marca}|${nombre}|${dosaje}|${contenido}`;
+      porClaveExacta.set(key, (porClaveExacta.get(key) || 0) + 1);
+    });
+    return Array.from(porClaveExacta.values()).filter(count => count > 1).length;
+  }, [productosArray]);
+
   const handleClearFilters = () => {
     setFilters({
       estado: '',
@@ -328,7 +469,10 @@ export const Productos: React.FC = () => {
       marca: '',
       stockStatus: '',
       habilitadoML: '',
-      investigacion: ''
+      investigacion: '',
+      tipoProductoId: '',
+      categoriaId: '',
+      etiquetaId: ''
     });
     setSearchTerm('');
     setCurrentPage(1);
@@ -346,14 +490,19 @@ export const Productos: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">Productos</h1>
           <p className="text-gray-600 mt-1">Gestiona tu catálogo de productos</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
           <Button
-            variant="outline"
-            onClick={() => exportService.exportProductos(filteredProductos)}
-            disabled={filteredProductos.length === 0}
+            variant={duplicadosCount > 0 ? 'danger' : 'outline'}
+            onClick={() => setIsDuplicadosModalOpen(true)}
+            className="relative"
           >
-            <Download className="h-5 w-5 mr-2" />
-            Exportar Excel
+            <Copy className="h-5 w-5 mr-2" />
+            Duplicados
+            {duplicadosCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                {duplicadosCount}
+              </span>
+            )}
           </Button>
           <Button variant="primary" onClick={handleCreate}>
             <Plus className="h-5 w-5 mr-2" />
@@ -548,6 +697,72 @@ export const Productos: React.FC = () => {
                 </div>
               </div>
 
+              {/* Segunda fila de filtros - Clasificación */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-gray-200">
+                {/* Filtro por Tipo de Producto */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Tipo de Producto
+                  </label>
+                  <select
+                    value={filters.tipoProductoId}
+                    onChange={(e) => {
+                      setFilters({ ...filters, tipoProductoId: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="">Todos los tipos</option>
+                    {tiposActivos.map(tipo => (
+                      <option key={tipo.id} value={tipo.id}>{tipo.nombre}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Filtro por Categoría */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Categoría
+                  </label>
+                  <select
+                    value={filters.categoriaId}
+                    onChange={(e) => {
+                      setFilters({ ...filters, categoriaId: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="">Todas las categorías</option>
+                    {categoriasActivas.map(cat => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.nivel === 2 && cat.categoriaPadreNombre ? `${cat.categoriaPadreNombre} > ` : ''}
+                        {cat.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Filtro por Etiqueta */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Etiqueta
+                  </label>
+                  <select
+                    value={filters.etiquetaId}
+                    onChange={(e) => {
+                      setFilters({ ...filters, etiquetaId: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="">Todas las etiquetas</option>
+                    {etiquetasActivas.map(etq => (
+                      <option key={etq.id} value={etq.id}>{etq.nombre}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               {/* Resultados */}
               <div className="text-sm text-gray-600 pt-2 border-t">
                 Mostrando {paginatedProductos.length} de {sortedProductos.length} productos
@@ -579,6 +794,8 @@ export const Productos: React.FC = () => {
               onView={handleView}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              sortConfigs={sortConfigs}
+              onSort={handleSort}
             />
 
             {/* Paginación */}
@@ -653,7 +870,6 @@ export const Productos: React.FC = () => {
           onSubmit={handleSubmit}
           onCancel={handleCloseFormModal}
           loading={isSubmitting}
-          productosExistentes={productos}
         />
       </Modal>
 
@@ -697,6 +913,18 @@ export const Productos: React.FC = () => {
           />
         )}
       </Modal>
+
+      {/* Modal de Duplicados */}
+      <DuplicadosModal
+        isOpen={isDuplicadosModalOpen}
+        onClose={() => setIsDuplicadosModalOpen(false)}
+        productos={productosArray}
+        onVerProducto={(producto) => {
+          setIsDuplicadosModalOpen(false);
+          handleView(producto);
+        }}
+        onEliminarProducto={handleDelete}
+      />
     </div>
   );
 };

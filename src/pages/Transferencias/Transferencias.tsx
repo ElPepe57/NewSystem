@@ -14,13 +14,19 @@ import {
   Search,
   Calculator,
   DollarSign,
-  Minus
+  Minus,
+  CreditCard,
+  Banknote
 } from "lucide-react";
-import { Button, Card, Badge, Modal, Select, Input } from "../../components/common";
+import { Button, Card, Badge, Modal, Select, Input, useConfirmDialog, ConfirmDialog, PipelineHeader, GradientHeader, StatCard, StatDistribution } from "../../components/common";
+import type { PipelineStage } from "../../components/common";
+import { FileText, Send, CheckCircle2, XOctagon, RefreshCw } from "lucide-react";
 import { useTransferenciaStore } from "../../store/transferenciaStore";
 import { useAlmacenStore } from "../../store/almacenStore";
 import { useAuthStore } from "../../store/authStore";
 import { unidadService } from "../../services/unidad.service";
+import { tesoreriaService } from "../../services/tesoreria.service";
+import { useTipoCambioStore } from "../../store/tipoCambioStore";
 import type {
   Transferencia,
   TipoTransferencia,
@@ -29,6 +35,7 @@ import type {
   RecepcionFormData
 } from "../../types/transferencia.types";
 import type { Unidad } from "../../types/unidad.types";
+import type { CuentaCaja, MetodoTesoreria } from "../../types/tesoreria.types";
 
 export const Transferencias: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -46,8 +53,12 @@ export const Transferencias: React.FC = () => {
     confirmarTransferencia,
     enviarTransferencia,
     registrarRecepcion,
-    cancelarTransferencia
+    cancelarTransferencia,
+    registrarPagoViajero
   } = useTransferenciaStore();
+
+  const { getTCDelDia } = useTipoCambioStore();
+  const [tipoCambioActual, setTipoCambioActual] = useState<{ tasaVenta: number } | null>(null);
 
   const {
     almacenesUSA,
@@ -60,12 +71,19 @@ export const Transferencias: React.FC = () => {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRecepcionModal, setShowRecepcionModal] = useState(false);
+  const [showPagoModal, setShowPagoModal] = useState(false);
   const [transferenciaParaRecepcion, setTransferenciaParaRecepcion] = useState<Transferencia | null>(null);
+  const [transferenciaParaPago, setTransferenciaParaPago] = useState<Transferencia | null>(null);
   const [selectedTransferencia, setSelectedTransferencia] = useState<Transferencia | null>(null);
   const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes'>('todas');
   const [filtroTipo, setFiltroTipo] = useState<TipoTransferencia | 'todas'>('todas');
   const [filtroEstado, setFiltroEstado] = useState<EstadoTransferencia | 'todas'>('todas');
   const [busqueda, setBusqueda] = useState('');
+  const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
+  const [pipelineStage, setPipelineStage] = useState<string | null>(null);
+
+  // Hook para dialogo de confirmacion
+  const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
 
   useEffect(() => {
     fetchTransferencias();
@@ -75,7 +93,63 @@ export const Transferencias: React.FC = () => {
     fetchAlmacenesUSA();
     fetchAlmacenesPeru();
     fetchViajeros();
-  }, [fetchTransferencias, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros]);
+    // Cargar tipo de cambio del día
+    getTCDelDia().then(tc => setTipoCambioActual(tc ? { tasaVenta: tc.venta } : null)).catch(console.error);
+    // Cargar cuentas de tesorería
+    tesoreriaService.getCuentas().then(setCuentasTesoreria).catch(console.error);
+  }, [fetchTransferencias, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia]);
+
+  // Pipeline stages para visualización
+  const pipelineStages: PipelineStage[] = useMemo(() => {
+    const contarPorEstado = (estados: EstadoTransferencia[]) =>
+      transferencias.filter(t => estados.includes(t.estado)).length;
+
+    return [
+      {
+        id: 'borrador',
+        label: 'Borrador',
+        count: contarPorEstado(['borrador']),
+        color: 'gray' as const,
+        icon: <FileText className="h-4 w-4" />
+      },
+      {
+        id: 'preparando',
+        label: 'Preparando',
+        count: contarPorEstado(['preparando']),
+        color: 'yellow' as const,
+        icon: <Package className="h-4 w-4" />
+      },
+      {
+        id: 'en_transito',
+        label: 'En Tránsito',
+        count: contarPorEstado(['en_transito']),
+        color: 'blue' as const,
+        icon: <Truck className="h-4 w-4" />
+      },
+      {
+        id: 'recibida',
+        label: 'Recibida',
+        count: contarPorEstado(['recibida_parcial', 'recibida_completa']),
+        color: 'green' as const,
+        icon: <CheckCircle2 className="h-4 w-4" />
+      },
+      {
+        id: 'cancelada',
+        label: 'Cancelada',
+        count: contarPorEstado(['cancelada']),
+        color: 'red' as const,
+        icon: <XOctagon className="h-4 w-4" />
+      }
+    ];
+  }, [transferencias]);
+
+  // Calcular valor total en tránsito
+  const valorEnTransito = useMemo(() => {
+    return transferenciasEnTransito.reduce((total, t) => {
+      const valorTransferencia = t.productosSummary?.reduce((sum, p) => sum + ((p as { costoTotalUSD?: number }).costoTotalUSD || 0), 0) || 0;
+      return total + valorTransferencia;
+    }, 0);
+  }, [transferenciasEnTransito]);
 
   // Filtrar transferencias
   const getTransferenciasFiltradas = () => {
@@ -84,6 +158,15 @@ export const Transferencias: React.FC = () => {
       : activeTab === 'pendientes'
         ? transferenciasPendientes
         : transferencias;
+
+    // Filtrar por etapa del pipeline
+    if (pipelineStage) {
+      if (pipelineStage === 'recibida') {
+        lista = lista.filter(t => t.estado === 'recibida_parcial' || t.estado === 'recibida_completa');
+      } else {
+        lista = lista.filter(t => t.estado === pipelineStage);
+      }
+    }
 
     if (filtroTipo !== 'todas') {
       lista = lista.filter(t => t.tipo === filtroTipo);
@@ -95,11 +178,14 @@ export const Transferencias: React.FC = () => {
 
     if (busqueda) {
       const term = busqueda.toLowerCase();
-      lista = lista.filter(t =>
-        t.numeroTransferencia.toLowerCase().includes(term) ||
-        t.almacenOrigenNombre.toLowerCase().includes(term) ||
-        t.almacenDestinoNombre.toLowerCase().includes(term)
-      );
+      lista = lista.filter(t => {
+        const numeroTransferencia = (t.numeroTransferencia ?? '').toLowerCase();
+        const almacenOrigenNombre = (t.almacenOrigenNombre ?? '').toLowerCase();
+        const almacenDestinoNombre = (t.almacenDestinoNombre ?? '').toLowerCase();
+        return numeroTransferencia.includes(term) ||
+               almacenOrigenNombre.includes(term) ||
+               almacenDestinoNombre.includes(term);
+      });
     }
 
     return lista;
@@ -107,14 +193,26 @@ export const Transferencias: React.FC = () => {
 
   const handleConfirmar = async (id: string) => {
     if (!user) return;
-    if (confirm("¿Confirmar esta transferencia para preparación?")) {
+    const confirmed = await confirmDialog({
+      title: 'Confirmar Transferencia',
+      message: '¿Confirmar esta transferencia para preparacion?',
+      confirmText: 'Confirmar',
+      variant: 'info'
+    });
+    if (confirmed) {
       await confirmarTransferencia(id, user.uid);
     }
   };
 
   const handleEnviar = async (id: string) => {
     if (!user) return;
-    if (confirm("¿Marcar esta transferencia como enviada?")) {
+    const confirmed = await confirmDialog({
+      title: 'Enviar Transferencia',
+      message: '¿Marcar esta transferencia como enviada?',
+      confirmText: 'Enviar',
+      variant: 'info'
+    });
+    if (confirmed) {
       await enviarTransferencia(id, { fechaSalida: new Date() }, user.uid);
     }
   };
@@ -131,6 +229,12 @@ export const Transferencias: React.FC = () => {
     setTransferenciaParaRecepcion(transferencia);
     setSelectedTransferencia(null);
     setShowRecepcionModal(true);
+  };
+
+  const handleAbrirPagoViajero = (transferencia: Transferencia) => {
+    setTransferenciaParaPago(transferencia);
+    setSelectedTransferencia(null);
+    setShowPagoModal(true);
   };
 
   // Formatear estado
@@ -1226,82 +1330,590 @@ export const Transferencias: React.FC = () => {
     );
   };
 
+  // Modal de Pago al Viajero - Inteligente
+  const PagoViajeroModal = ({
+    transferencia,
+    onClose,
+    onConfirm
+  }: {
+    transferencia: Transferencia;
+    onClose: () => void;
+    onConfirm: (datos: {
+      fechaPago: Date;
+      monedaPago: 'USD' | 'PEN';
+      montoOriginal: number;
+      tipoCambio: number;
+      metodoPago: MetodoTesoreria;
+      cuentaOrigenId?: string;
+      referencia?: string;
+      notas?: string;
+    }) => Promise<void>;
+  }) => {
+    // Datos de la transferencia
+    const fleteUSD = transferencia.costoFleteTotal || 0;
+    const monedaFleteOriginal = transferencia.monedaFlete || 'USD';
+    const tieneFleteDefinido = fleteUSD > 0;
+
+    const [formData, setFormData] = useState({
+      fechaPago: new Date().toISOString().split('T')[0],
+      monedaPago: monedaFleteOriginal as 'USD' | 'PEN',
+      montoOriginal: fleteUSD,
+      tipoCambio: tipoCambioActual?.tasaVenta || 3.75,
+      metodoPago: 'transferencia_bancaria' as MetodoTesoreria,
+      cuentaOrigenId: '',
+      referencia: '',
+      notas: ''
+    });
+    const [submitting, setSubmitting] = useState(false);
+
+    // Hook para dialogo de confirmacion interno
+    const { dialogProps: pagoDialogProps, confirm: confirmPago } = useConfirmDialog();
+
+    // Cálculos de equivalencias
+    const montoUSD = formData.monedaPago === 'USD'
+      ? formData.montoOriginal
+      : formData.montoOriginal / formData.tipoCambio;
+    const montoPEN = formData.monedaPago === 'PEN'
+      ? formData.montoOriginal
+      : formData.montoOriginal * formData.tipoCambio;
+
+    // Filtrar cuentas por moneda seleccionada, incluyendo bi-moneda
+    const cuentasFiltradas = useMemo(() => {
+      return cuentasTesoreria.filter(c => c.activa && (c.esBiMoneda || c.moneda === formData.monedaPago));
+    }, [cuentasTesoreria, formData.monedaPago]);
+
+    // Auto-seleccionar cuenta al cambiar moneda
+    useEffect(() => {
+      const cuentaPorDefecto = cuentasFiltradas.find(c => c.esCuentaPorDefecto);
+      if (cuentaPorDefecto) {
+        setFormData(prev => ({ ...prev, cuentaOrigenId: cuentaPorDefecto.id }));
+      } else if (cuentasFiltradas.length > 0) {
+        setFormData(prev => ({ ...prev, cuentaOrigenId: cuentasFiltradas[0].id }));
+      } else {
+        setFormData(prev => ({ ...prev, cuentaOrigenId: '' }));
+      }
+    }, [cuentasFiltradas]);
+
+    // Actualizar monto cuando cambia la moneda (convertir automáticamente)
+    const handleMonedaChange = (nuevaMoneda: 'USD' | 'PEN') => {
+      const nuevoMonto = nuevaMoneda === 'USD' ? fleteUSD : fleteUSD * formData.tipoCambio;
+      setFormData(prev => ({ ...prev, monedaPago: nuevaMoneda, montoOriginal: nuevoMonto }));
+    };
+
+    // Cuenta seleccionada y su saldo
+    const cuentaSeleccionada = cuentasTesoreria.find(c => c.id === formData.cuentaOrigenId);
+    const saldoCuenta = cuentaSeleccionada
+      ? (cuentaSeleccionada.esBiMoneda
+          ? (formData.monedaPago === 'USD' ? (cuentaSeleccionada.saldoUSD || 0) : (cuentaSeleccionada.saldoPEN || 0))
+          : cuentaSeleccionada.saldoActual)
+      : 0;
+    const saldoDespues = saldoCuenta - formData.montoOriginal;
+    const saldoInsuficiente = cuentaSeleccionada && saldoDespues < 0;
+
+    // Validaciones inteligentes
+    const montoDiferenteAlFlete = tieneFleteDefinido && Math.abs(montoUSD - fleteUSD) > 0.01;
+    const montoPagaMasFlete = tieneFleteDefinido && montoUSD > fleteUSD + 0.01;
+
+    const handleSubmit = async () => {
+      if (formData.montoOriginal <= 0) {
+        alert('El monto debe ser mayor a 0');
+        return;
+      }
+      if (formData.tipoCambio <= 0) {
+        alert('El tipo de cambio debe ser mayor a 0');
+        return;
+      }
+      if (montoPagaMasFlete) {
+        const confirmar = await confirmPago({
+          title: 'Pago Mayor al Flete',
+          message: (
+            <div className="space-y-2">
+              <p>Estas pagando mas del flete acordado:</p>
+              <div className="bg-amber-50 p-3 rounded-lg text-sm">
+                <div className="flex justify-between"><span>Flete acordado:</span><span>${fleteUSD.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span>Monto a pagar:</span><span>${montoUSD.toFixed(2)}</span></div>
+                <div className="flex justify-between font-medium text-amber-700"><span>Diferencia:</span><span>+${(montoUSD - fleteUSD).toFixed(2)}</span></div>
+              </div>
+            </div>
+          ),
+          confirmText: 'Continuar',
+          variant: 'warning'
+        });
+        if (!confirmar) return;
+      }
+      if (saldoInsuficiente) {
+        const simbolo = formData.monedaPago === 'USD' ? '$' : 'S/';
+        const confirmar = await confirmPago({
+          title: 'Saldo Insuficiente',
+          message: (
+            <div className="space-y-2">
+              <p>El saldo de la cuenta sera negativo despues del pago:</p>
+              <div className="bg-red-50 p-3 rounded-lg text-sm">
+                <div className="flex justify-between"><span>Saldo actual:</span><span>{simbolo} {saldoCuenta.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span>Monto a pagar:</span><span>{simbolo} {formData.montoOriginal.toFixed(2)}</span></div>
+                <div className="flex justify-between font-medium text-red-700"><span>Saldo despues:</span><span>{simbolo} {saldoDespues.toFixed(2)}</span></div>
+              </div>
+            </div>
+          ),
+          confirmText: 'Continuar de Todas Formas',
+          variant: 'danger'
+        });
+        if (!confirmar) return;
+      }
+
+      setSubmitting(true);
+      try {
+        await onConfirm({
+          fechaPago: new Date(formData.fechaPago),
+          monedaPago: formData.monedaPago,
+          montoOriginal: formData.montoOriginal,
+          tipoCambio: formData.tipoCambio,
+          metodoPago: formData.metodoPago,
+          cuentaOrigenId: formData.cuentaOrigenId || undefined,
+          referencia: formData.referencia || undefined,
+          notas: formData.notas || undefined
+        });
+        onClose();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Error desconocido';
+        alert('Error: ' + message);
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+    // Calcular costo por unidad
+    const costoPorUnidad = transferencia.totalUnidades > 0
+      ? fleteUSD / transferencia.totalUnidades
+      : 0;
+
+    return (
+      <Modal
+        isOpen={true}
+        onClose={onClose}
+        title={`Pago al Viajero - ${transferencia.numeroTransferencia}`}
+        size="lg"
+      >
+        <div className="space-y-5">
+          {/* Info de la transferencia */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs text-blue-600 uppercase tracking-wide">Viajero</div>
+                <div className="text-lg font-bold text-blue-900">
+                  {transferencia.almacenOrigenNombre}
+                </div>
+                <div className="text-sm text-blue-600 mt-1">
+                  {transferencia.totalUnidades} unidades • {transferencia.productosSummary.length} productos
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-blue-600 uppercase tracking-wide">Flete Total</div>
+                <div className="text-3xl font-bold text-blue-700">
+                  ${fleteUSD.toFixed(2)}
+                </div>
+                <div className="text-sm text-blue-500">
+                  ≈ S/ {(fleteUSD * formData.tipoCambio).toFixed(2)} • ${costoPorUnidad.toFixed(2)}/ud
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Advertencia si no hay flete definido */}
+          {!tieneFleteDefinido && (
+            <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 flex items-start gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-amber-800">
+                <strong>Sin flete registrado:</strong> Esta transferencia no tiene costo de flete definido.
+                Por favor ingresa el monto acordado con el viajero.
+              </div>
+            </div>
+          )}
+
+          {/* Formulario */}
+          <div className="space-y-4">
+            {/* Fecha y Moneda */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Fecha de Pago *
+                </label>
+                <input
+                  type="date"
+                  value={formData.fechaPago}
+                  onChange={(e) => setFormData({ ...formData, fechaPago: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Moneda de Pago *
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleMonedaChange('USD')}
+                    className={`flex-1 py-2.5 px-4 rounded-lg border-2 font-semibold transition-all ${
+                      formData.monedaPago === 'USD'
+                        ? 'border-green-500 bg-green-50 text-green-700 shadow-sm'
+                        : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    $ USD
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMonedaChange('PEN')}
+                    className={`flex-1 py-2.5 px-4 rounded-lg border-2 font-semibold transition-all ${
+                      formData.monedaPago === 'PEN'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                        : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    S/ PEN
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Tipo de cambio y Monto */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tipo de Cambio *
+                </label>
+                <input
+                  type="number"
+                  value={formData.tipoCambio}
+                  onChange={(e) => {
+                    const nuevoTC = parseFloat(e.target.value) || 0;
+                    // Si está en PEN, recalcular el monto
+                    if (formData.monedaPago === 'PEN') {
+                      setFormData({
+                        ...formData,
+                        tipoCambio: nuevoTC,
+                        montoOriginal: fleteUSD * nuevoTC
+                      });
+                    } else {
+                      setFormData({ ...formData, tipoCambio: nuevoTC });
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  step="0.001"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Monto a Pagar ({formData.monedaPago}) *
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                    {formData.monedaPago === 'USD' ? '$' : 'S/'}
+                  </span>
+                  <input
+                    type="number"
+                    value={formData.montoOriginal}
+                    onChange={(e) => setFormData({ ...formData, montoOriginal: parseFloat(e.target.value) || 0 })}
+                    className={`w-full pl-9 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                      montoPagaMasFlete
+                        ? 'border-amber-400 focus:ring-amber-500 bg-amber-50'
+                        : 'border-gray-300 focus:ring-primary-500'
+                    }`}
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.monedaPago === 'USD'
+                    ? `≈ S/ ${montoPEN.toFixed(2)}`
+                    : `≈ $${montoUSD.toFixed(2)} USD`
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Advertencia de diferencia con flete */}
+            {montoDiferenteAlFlete && !montoPagaMasFlete && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-sm text-blue-700 flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                Monto difiere del flete acordado (${fleteUSD.toFixed(2)}) por ${Math.abs(montoUSD - fleteUSD).toFixed(2)}
+              </div>
+            )}
+            {montoPagaMasFlete && (
+              <div className="bg-amber-50 border border-amber-300 rounded-lg p-2 text-sm text-amber-700 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                <strong>Pagando más del flete:</strong> ${(montoUSD - fleteUSD).toFixed(2)} adicionales
+              </div>
+            )}
+
+            {/* Método y Cuenta */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Método de Pago *
+                </label>
+                <select
+                  value={formData.metodoPago}
+                  onChange={(e) => setFormData({ ...formData, metodoPago: e.target.value as MetodoTesoreria })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="transferencia_bancaria">Transferencia Bancaria</option>
+                  <option value="efectivo">Efectivo</option>
+                  <option value="yape">Yape</option>
+                  <option value="plin">Plin</option>
+                  <option value="tarjeta">Tarjeta</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Cuenta de Origen ({formData.monedaPago})
+                </label>
+                {cuentasFiltradas.length === 0 ? (
+                  <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded-lg">
+                    No hay cuentas en {formData.monedaPago}
+                  </div>
+                ) : (
+                  <select
+                    value={formData.cuentaOrigenId}
+                    onChange={(e) => setFormData({ ...formData, cuentaOrigenId: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="">Sin cuenta específica</option>
+                    {cuentasFiltradas.map(cuenta => {
+                      const saldo = cuenta.esBiMoneda
+                        ? (formData.monedaPago === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0))
+                        : cuenta.saldoActual;
+                      const simbolo = formData.monedaPago === 'USD' ? '$' : 'S/';
+                      const etiqueta = cuenta.esBiMoneda ? ' [BI]' : '';
+                      return (
+                        <option key={cuenta.id} value={cuenta.id}>
+                          {cuenta.nombre}{etiqueta} - {simbolo} {saldo.toFixed(2)}
+                        </option>
+                      );
+                    })}
+                  </select>
+                )}
+              </div>
+            </div>
+
+            {/* Info de cuenta seleccionada */}
+            {cuentaSeleccionada && (
+              <div className={`p-3 rounded-lg text-sm ${saldoInsuficiente ? 'bg-red-50 border border-red-200' : 'bg-gray-50'}`}>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 flex items-center gap-1">
+                    {cuentaSeleccionada.nombre}
+                    {cuentaSeleccionada.esBiMoneda && (
+                      <span className="px-1.5 py-0.5 text-xs rounded bg-gradient-to-r from-green-100 to-blue-100 text-gray-600">
+                        BI-MONEDA
+                      </span>
+                    )}
+                  </span>
+                  <span className="font-medium">
+                    {formData.monedaPago === 'USD' ? '$' : 'S/'} {saldoCuenta.toFixed(2)}
+                  </span>
+                </div>
+                <div className={`flex justify-between mt-1 font-semibold ${saldoInsuficiente ? 'text-red-600' : 'text-primary-600'}`}>
+                  <span>Saldo después:</span>
+                  <span>
+                    {formData.monedaPago === 'USD' ? '$' : 'S/'} {saldoDespues.toFixed(2)}
+                    {saldoInsuficiente && ' ⚠️'}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Referencia y Notas en una fila */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Referencia / Nro. Operación
+                </label>
+                <input
+                  type="text"
+                  value={formData.referencia}
+                  onChange={(e) => setFormData({ ...formData, referencia: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="Ej: OP-123456"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Notas
+                </label>
+                <input
+                  type="text"
+                  value={formData.notas}
+                  onChange={(e) => setFormData({ ...formData, notas: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="Observaciones..."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Resumen del Pago */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs text-green-600 uppercase tracking-wide">Total a Pagar</div>
+                <div className="text-2xl font-bold text-green-700">
+                  {formData.monedaPago === 'USD' ? '$' : 'S/'} {formData.montoOriginal.toFixed(2)}
+                </div>
+                <div className="text-sm text-green-600">
+                  {formData.monedaPago === 'USD' ? `≈ S/ ${montoPEN.toFixed(2)}` : `≈ $${montoUSD.toFixed(2)} USD`}
+                </div>
+              </div>
+              <div className="text-right text-sm text-green-700">
+                <div>{new Date(formData.fechaPago).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                <div className="capitalize">{formData.metodoPago.replace('_', ' ')}</div>
+                <div>TC: {formData.tipoCambio.toFixed(3)}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Botones */}
+          <div className="flex justify-end space-x-3 pt-2">
+            <Button variant="secondary" onClick={onClose} disabled={submitting}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={submitting || formData.montoOriginal <= 0 || formData.tipoCambio <= 0}
+            >
+              {submitting ? (
+                <span className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Procesando...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <Banknote className="h-4 w-4 mr-2" />
+                  Confirmar Pago
+                </span>
+              )}
+            </Button>
+          </div>
+
+          {/* Dialogo de Confirmacion */}
+          <ConfirmDialog {...pagoDialogProps} />
+        </div>
+      </Modal>
+    );
+  };
+
   const transferenciasFiltradas = getTransferenciasFiltradas();
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Transferencias</h1>
-          <p className="text-gray-600 mt-1">
-            Gestiona el movimiento de productos entre almacenes
-          </p>
-        </div>
-        <Button variant="primary" onClick={() => setShowCreateModal(true)}>
-          <Plus className="h-5 w-5 mr-2" />
-          Nueva Transferencia
-        </Button>
+      {/* Header Profesional con Gradiente */}
+      <GradientHeader
+        title="Transferencias"
+        subtitle="Gestiona el movimiento de productos entre almacenes"
+        icon={ArrowRightLeft}
+        variant="dark"
+        actions={
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                fetchTransferencias();
+                fetchEnTransito();
+                fetchPendientesRecepcion();
+                fetchResumen();
+              }}
+              className="text-white/70 hover:text-white hover:bg-white/10"
+            >
+              <RefreshCw className="h-5 w-5" />
+            </Button>
+            <Button variant="primary" size="sm" onClick={() => setShowCreateModal(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nueva Transferencia
+            </Button>
+          </div>
+        }
+        stats={[
+          { label: 'Total', value: transferencias.length },
+          { label: 'En Tránsito', value: resumen?.enTransito || 0 },
+          { label: 'Pendientes', value: resumen?.pendientesRecepcion || 0 },
+          { label: 'Completadas', value: resumen?.completadasMes || 0 }
+        ]}
+      />
+
+      {/* StatCards interactivos */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <StatCard
+          label="Total"
+          value={transferencias.length}
+          icon={ArrowRightLeft}
+          variant="blue"
+        />
+        <StatCard
+          label="En Tránsito"
+          value={resumen?.enTransito || 0}
+          icon={Truck}
+          variant="blue"
+          onClick={() => setActiveTab('en_transito')}
+          active={activeTab === 'en_transito'}
+        />
+        <StatCard
+          label="Pendientes"
+          value={resumen?.pendientesRecepcion || 0}
+          icon={Clock}
+          variant="amber"
+          onClick={() => setActiveTab('pendientes')}
+          active={activeTab === 'pendientes'}
+        />
+        <StatCard
+          label="Completadas"
+          value={resumen?.completadasMes || 0}
+          icon={CheckCircle}
+          variant="green"
+        />
+        <StatCard
+          label="Incidencias"
+          value={resumen?.transferenciasConIncidencias || 0}
+          icon={AlertTriangle}
+          variant={resumen?.transferenciasConIncidencias ? 'red' : 'default'}
+        />
+        <StatCard
+          label="Valor USD"
+          value={valorEnTransito > 0 ? `$${valorEnTransito.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0'}
+          icon={DollarSign}
+          variant="green"
+        />
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">En Tránsito</div>
-              <div className="text-2xl font-bold text-blue-600 mt-1">
-                {resumen?.enTransito || 0}
-              </div>
-            </div>
-            <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Truck className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Pendientes Recepción</div>
-              <div className="text-2xl font-bold text-amber-600 mt-1">
-                {resumen?.pendientesRecepcion || 0}
-              </div>
-            </div>
-            <div className="h-12 w-12 bg-amber-100 rounded-full flex items-center justify-center">
-              <Clock className="h-6 w-6 text-amber-600" />
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Completadas (Mes)</div>
-              <div className="text-2xl font-bold text-green-600 mt-1">
-                {resumen?.completadasMes || 0}
-              </div>
-            </div>
-            <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Con Incidencias</div>
-              <div className="text-2xl font-bold text-red-600 mt-1">
-                {resumen?.transferenciasConIncidencias || 0}
-              </div>
-            </div>
-            <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
-            </div>
-          </div>
-        </Card>
+      {/* Distribución Visual */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <StatDistribution
+          title="Estado de Transferencias"
+          data={[
+            { label: 'Borrador', value: pipelineStages[0]?.count || 0, color: 'bg-gray-400' },
+            { label: 'Preparando', value: pipelineStages[1]?.count || 0, color: 'bg-yellow-500' },
+            { label: 'En Tránsito', value: pipelineStages[2]?.count || 0, color: 'bg-blue-500' },
+            { label: 'Recibida', value: pipelineStages[3]?.count || 0, color: 'bg-green-500' }
+          ]}
+        />
+        <StatDistribution
+          title="Tipo de Transferencias"
+          data={[
+            { label: 'USA → Perú', value: transferencias.filter(t => t.tipo === 'usa_peru').length, color: 'bg-blue-500' },
+            { label: 'Interna USA', value: transferencias.filter(t => t.tipo === 'interna_usa').length, color: 'bg-gray-500' }
+          ]}
+        />
       </div>
+
+      {/* Pipeline visual de estados */}
+      <PipelineHeader
+        stages={pipelineStages}
+        activeStage={pipelineStage}
+        onStageClick={setPipelineStage}
+        title="Flujo de Transferencias"
+      />
 
       {/* Tabs y Filtros */}
       <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
@@ -1540,6 +2152,22 @@ export const Transferencias: React.FC = () => {
                   Registrar Recepción
                 </Button>
               )}
+              {/* Botón para registrar pago al viajero */}
+              {selectedTransferencia.tipo === 'usa_peru' &&
+               (selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') &&
+               selectedTransferencia.estadoPagoViajero !== 'pagado' && (
+                <Button variant="success" onClick={() => handleAbrirPagoViajero(selectedTransferencia)}>
+                  <Banknote className="h-4 w-4 mr-2" />
+                  Registrar Pago Viajero
+                </Button>
+              )}
+              {/* Badge si ya está pagado */}
+              {selectedTransferencia.estadoPagoViajero === 'pagado' && (
+                <Badge variant="success">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Pago Registrado
+                </Badge>
+              )}
             </div>
           </div>
         </Modal>
@@ -1566,6 +2194,27 @@ export const Transferencias: React.FC = () => {
           }}
         />
       )}
+
+      {/* Modal de Pago al Viajero */}
+      {showPagoModal && transferenciaParaPago && (
+        <PagoViajeroModal
+          transferencia={transferenciaParaPago}
+          onClose={() => {
+            setShowPagoModal(false);
+            setTransferenciaParaPago(null);
+          }}
+          onConfirm={async (datos) => {
+            if (!user) return;
+            await registrarPagoViajero(transferenciaParaPago.id, datos, user.uid);
+            setShowPagoModal(false);
+            setTransferenciaParaPago(null);
+            alert('✅ Pago al viajero registrado correctamente');
+          }}
+        />
+      )}
+
+      {/* Dialogo de Confirmacion */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 };

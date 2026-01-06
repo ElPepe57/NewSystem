@@ -338,41 +338,6 @@ export const inventarioService = {
   },
 
   /**
-   * Obtener inventario de un almacén específico
-   */
-  async getInventarioAlmacen(almacenId: string): Promise<InventarioProducto[]> {
-    return this.getInventarioAgregado({ almacenId });
-  },
-
-  /**
-   * Obtener productos con stock crítico
-   */
-  async getProductosStockCritico(): Promise<InventarioProducto[]> {
-    return this.getInventarioAgregado({ soloStockCritico: true });
-  },
-
-  /**
-   * Obtener productos agotados
-   */
-  async getProductosAgotados(): Promise<InventarioProducto[]> {
-    return this.getInventarioAgregado({ soloAgotados: true });
-  },
-
-  /**
-   * Buscar inventario por SKU o nombre de producto
-   */
-  async buscarInventario(termino: string): Promise<InventarioProducto[]> {
-    const inventario = await this.getInventarioAgregado();
-    const terminoLower = termino.toLowerCase();
-
-    return inventario.filter(i =>
-      i.productoSKU.toLowerCase().includes(terminoLower) ||
-      i.productoNombre.toLowerCase().includes(terminoLower) ||
-      i.productoMarca.toLowerCase().includes(terminoLower)
-    );
-  },
-
-  /**
    * Sincronizar reservas huérfanas
    * Limpia unidades reservadas cuya venta/cotización ya no existe
    * Útil cuando se eliminan ventas o cotizaciones directamente desde Firebase
@@ -1014,5 +979,84 @@ export const inventarioService = {
       console.error('Error en sincronización completa:', error);
       throw new Error(`Error en sincronización completa: ${error.message}`);
     }
+  },
+
+  /**
+   * SINCRONIZAR STOCK DE UN PRODUCTO ESPECÍFICO
+   * Función ligera para sincronizar el stock de un solo producto.
+   * Debe llamarse cada vez que cambian las unidades de un producto.
+   */
+  async sincronizarStockProducto(productoId: string): Promise<void> {
+    try {
+      // Obtener unidades del producto
+      const q = query(
+        collection(db, 'unidades'),
+        where('productoId', '==', productoId)
+      );
+      const unidadesSnapshot = await getDocs(q);
+      const unidades = unidadesSnapshot.docs.map(d => d.data() as Unidad);
+
+      // Calcular stock real
+      let stockUSA = 0;
+      let stockPeru = 0;
+      let stockTransito = 0;
+      let stockReservado = 0;
+      let stockDisponible = 0;
+
+      for (const unidad of unidades) {
+        switch (unidad.estado) {
+          case 'recibida_usa':
+            stockUSA++;
+            stockDisponible++;
+            break;
+          case 'disponible_peru':
+            stockPeru++;
+            stockDisponible++;
+            break;
+          case 'en_transito_usa':
+          case 'en_transito_peru':
+            stockTransito++;
+            break;
+          case 'reservada':
+            stockReservado++;
+            if (unidad.pais === 'USA') {
+              stockUSA++;
+            } else {
+              stockPeru++;
+            }
+            break;
+          // Estados terminales no cuentan
+          case 'vendida':
+          case 'vencida':
+          case 'danada':
+            break;
+        }
+      }
+
+      // Actualizar producto
+      const productoRef = doc(db, 'productos', productoId);
+      await updateDoc(productoRef, {
+        stockUSA,
+        stockPeru,
+        stockTransito,
+        stockReservado,
+        stockDisponible,
+        ultimaEdicion: serverTimestamp()
+      });
+
+      console.log(`[Sync Stock] Producto ${productoId}: USA=${stockUSA}, Perú=${stockPeru}, Tránsito=${stockTransito}, Reservado=${stockReservado}`);
+    } catch (error: any) {
+      console.error(`Error sincronizando stock producto ${productoId}:`, error);
+      // No lanzar error para no interrumpir el flujo principal
+    }
+  },
+
+  /**
+   * SINCRONIZAR STOCK DE MÚLTIPLES PRODUCTOS
+   * Útil después de operaciones masivas
+   */
+  async sincronizarStockProductos_batch(productoIds: string[]): Promise<void> {
+    const uniqueIds = [...new Set(productoIds)];
+    await Promise.all(uniqueIds.map(id => this.sincronizarStockProducto(id)));
   }
 };
