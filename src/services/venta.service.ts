@@ -156,17 +156,24 @@ export class VentaService {
    */
   static async getProductosDisponibles(): Promise<ProductoDisponible[]> {
     try {
-      // Obtener productos e inventario en paralelo (2 consultas en lugar de N+1)
-      const [productos, inventarioCompleto] = await Promise.all([
+      // Obtener productos e inventario de ambos países en paralelo
+      const [productos, inventarioPeru, inventarioUSA] = await Promise.all([
         ProductoService.getAll(),
-        inventarioService.getInventarioAgregado({ pais: 'Peru' })
+        inventarioService.getInventarioAgregado({ pais: 'Peru' }),
+        inventarioService.getInventarioAgregado({ pais: 'USA' })
       ]);
 
-      // Crear mapa de disponibles por productoId para acceso O(1)
-      const disponiblesPorProducto = new Map<string, number>();
-      for (const inv of inventarioCompleto) {
-        const actual = disponiblesPorProducto.get(inv.productoId) || 0;
-        disponiblesPorProducto.set(inv.productoId, actual + inv.disponibles);
+      // Crear mapas de disponibles por productoId para acceso O(1)
+      const disponiblesPorProductoPeru = new Map<string, number>();
+      for (const inv of inventarioPeru) {
+        const actual = disponiblesPorProductoPeru.get(inv.productoId) || 0;
+        disponiblesPorProductoPeru.set(inv.productoId, actual + inv.disponibles);
+      }
+
+      const disponiblesPorProductoUSA = new Map<string, number>();
+      for (const inv of inventarioUSA) {
+        const actual = disponiblesPorProductoUSA.get(inv.productoId) || 0;
+        disponiblesPorProductoUSA.set(inv.productoId, actual + inv.disponibles);
       }
 
       // Procesar productos
@@ -175,7 +182,8 @@ export class VentaService {
       for (const producto of productos) {
         if (producto.estado !== 'activo') continue;
 
-        const disponiblesEnPeru = disponiblesPorProducto.get(producto.id) || 0;
+        const disponiblesEnPeru = disponiblesPorProductoPeru.get(producto.id) || 0;
+        const disponiblesEnUSA = disponiblesPorProductoUSA.get(producto.id) || 0;
 
         // Incluir todos los productos activos (con o sin stock en Perú)
         // para permitir cotizaciones que generen requerimientos
@@ -186,6 +194,8 @@ export class VentaService {
           nombreComercial: producto.nombreComercial,
           presentacion: producto.presentacion,
           unidadesDisponibles: disponiblesEnPeru,
+          unidadesUSA: disponiblesEnUSA,
+          unidadesEnTransito: 0,
           precioSugerido: producto.precioSugerido || 0,
           margenObjetivo: producto.margenObjetivo || 0
         };
@@ -1163,7 +1173,7 @@ export class VentaService {
                 producto.unidadesAsignadas,
                 venta.id,
                 venta.numeroVenta,
-                producto.subtotalPEN || (producto.cantidad * producto.precioUnitario),
+                producto.subtotal || (producto.cantidad * producto.precioUnitario),
                 userId
               );
             } catch (error) {
@@ -1184,7 +1194,21 @@ export class VentaService {
 
       console.log(`[marcarEntregada] Venta ${venta.numeroVenta} marcada como entregada. Entregas completadas: ${entregasCompletadas}`);
 
-      // 4. Actualizar métricas del Gestor Maestro (cliente y marcas)
+      // 4. Reclasificar anticipos: pasivo → ingreso real
+      try {
+        const reclasificados = await tesoreriaService.reclasificarAnticipos(
+          id,
+          venta.cotizacionOrigenId,
+          userId
+        );
+        if (reclasificados > 0) {
+          console.log(`[marcarEntregada] ${reclasificados} anticipo(s) reclasificados a ingreso_venta`);
+        }
+      } catch (reclasError) {
+        console.warn('[marcarEntregada] Error al reclasificar anticipos:', reclasError);
+      }
+
+      // 5. Actualizar métricas del Gestor Maestro (cliente y marcas)
       try {
         const marcaIds = new Map<string, string>();
         for (const producto of venta.productos) {
@@ -1422,10 +1446,12 @@ export class VentaService {
       }
 
       // Crear nuevo pago
+      const pagosAnteriores = venta.pagos || [];
       const nuevoPago: PagoVenta = {
         id: `PAG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         monto: datosPago.monto,
         metodoPago: datosPago.metodoPago,
+        tipoPago: pagosAnteriores.some(p => p.tipoPago === 'anticipo') ? 'saldo' : 'pago',
         fecha: Timestamp.now(),
         registradoPor: userId
       };
@@ -1435,7 +1461,6 @@ export class VentaService {
       if (datosPago.notas) nuevoPago.notas = datosPago.notas;
 
       // Calcular nuevos totales
-      const pagosAnteriores = venta.pagos || [];
       const nuevosPagos = [...pagosAnteriores, nuevoPago];
       const nuevoMontoPagado = venta.montoPagado + datosPago.monto;
       const nuevoMontoPendiente = venta.totalPEN - nuevoMontoPagado;
@@ -1835,6 +1860,7 @@ export class VentaService {
       // 5. Crear el pago de adelanto
       const pagoAdelanto: PagoVenta = {
         id: `ADL-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        tipoPago: 'anticipo',
         monto: adelanto.monto,
         metodoPago: adelanto.metodoPago,
         fecha: Timestamp.now(),
@@ -1903,7 +1929,45 @@ export class VentaService {
       // 9. Ejecutar todas las actualizaciones
       await batch.commit();
 
-      // 10. Crear notificación si es reserva virtual
+      // 10. Registrar movimiento de tesorería para el anticipo
+      try {
+        const metodoTesoreriaMap: Record<string, string> = {
+          'yape': 'yape', 'plin': 'plin', 'efectivo': 'efectivo',
+          'transferencia': 'transferencia_bancaria', 'mercado_pago': 'mercado_pago',
+          'tarjeta': 'tarjeta', 'paypal': 'paypal', 'zelle': 'otro', 'otro': 'otro'
+        };
+
+        let tipoCambio = 3.70;
+        try {
+          const tcDelDia = await tipoCambioService.getTCDelDia();
+          if (tcDelDia) tipoCambio = tcDelDia.venta;
+        } catch { /* usar fallback */ }
+
+        let cuentaDestinoId = adelanto.cuentaDestinoId;
+        if (!cuentaDestinoId) {
+          const metodoTes = metodoTesoreriaMap[adelanto.metodoPago] || 'efectivo';
+          const cuentaPorDefecto = await tesoreriaService.getCuentaPorMetodoPago(metodoTes as any, 'PEN');
+          if (cuentaPorDefecto) cuentaDestinoId = cuentaPorDefecto.id;
+        }
+
+        await tesoreriaService.registrarMovimiento({
+          tipo: 'ingreso_anticipo',
+          moneda: 'PEN',
+          monto: adelanto.monto,
+          tipoCambio,
+          metodo: (metodoTesoreriaMap[adelanto.metodoPago] || 'efectivo') as any,
+          concepto: `Adelanto con reserva - ${venta.numeroVenta} - ${venta.nombreCliente}`,
+          fecha: new Date(),
+          referencia: adelanto.referencia,
+          ventaId: cotizacionId,
+          ventaNumero: venta.numeroVenta,
+          cuentaDestino: cuentaDestinoId
+        }, userId);
+      } catch (tesoreriaError) {
+        console.warn('No se pudo registrar anticipo en tesorería:', tesoreriaError);
+      }
+
+      // 11. Crear notificación si es reserva virtual
       if (tipoReserva === 'virtual') {
         // Notificar que se necesita stock
         console.log(`[Reserva Virtual] Cotización ${venta.numeroVenta} requiere stock adicional`);

@@ -88,7 +88,7 @@ import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useAuthStore } from '../../store/authStore';
 import { metricasService } from '../../services/metricas.service';
 import { almacenService } from '../../services/almacen.service';
-import type { Cliente, ClienteFormData, Competidor, CompetidorFormData, PlataformaCompetidor, ReputacionCompetidor } from '../../types/entidadesMaestras.types';
+import type { Cliente, ClienteFormData, Competidor, CompetidorFormData, PlataformaCompetidor, PlataformaCompetidorData, ReputacionCompetidor } from '../../types/entidadesMaestras.types';
 import type { Marca, MarcaFormData } from '../../types/entidadesMaestras.types';
 import type { Proveedor, ProveedorFormData, TipoProveedor } from '../../types/ordenCompra.types';
 import type { Almacen, AlmacenFormData, TipoAlmacen, EstadoAlmacen, FrecuenciaViaje } from '../../types/almacen.types';
@@ -231,7 +231,7 @@ export const Maestros: React.FC = () => {
     esViajero: true
   });
   const [competidorForm, setCompetidorForm] = useState<Partial<CompetidorFormData>>({
-    plataformaPrincipal: 'mercado_libre',
+    plataformasData: [],
     reputacion: 'desconocida',
     nivelAmenaza: 'medio'
   });
@@ -678,10 +678,7 @@ export const Maestros: React.FC = () => {
       setEditingCompetidor(competidor);
       setCompetidorForm({
         nombre: competidor.nombre,
-        plataformaPrincipal: competidor.plataformaPrincipal,
-        plataformas: competidor.plataformas,
-        urlTienda: competidor.urlTienda,
-        urlMercadoLibre: competidor.urlMercadoLibre,
+        plataformasData: competidor.plataformasData || [],
         ciudad: competidor.ciudad,
         departamento: competidor.departamento,
         reputacion: competidor.reputacion,
@@ -697,12 +694,53 @@ export const Maestros: React.FC = () => {
     } else {
       setEditingCompetidor(null);
       setCompetidorForm({
-        plataformaPrincipal: 'mercado_libre',
+        plataformasData: [],
         reputacion: 'desconocida',
         nivelAmenaza: 'medio'
       });
     }
     setShowCompetidorModal(true);
+  };
+
+  // Handlers para plataformas dinámicas
+  const handleAddPlataforma = () => {
+    const newPlataforma: PlataformaCompetidorData = {
+      id: `plat_${Date.now()}`,
+      nombre: '',
+      url: '',
+      esPrincipal: (competidorForm.plataformasData?.length || 0) === 0
+    };
+    setCompetidorForm({
+      ...competidorForm,
+      plataformasData: [...(competidorForm.plataformasData || []), newPlataforma]
+    });
+  };
+
+  const handleUpdatePlataforma = (index: number, field: keyof PlataformaCompetidorData, value: string | boolean) => {
+    const updated = [...(competidorForm.plataformasData || [])];
+    updated[index] = { ...updated[index], [field]: value };
+
+    // Si se marca como principal, desmarcar las demás
+    if (field === 'esPrincipal' && value === true) {
+      updated.forEach((p, i) => {
+        if (i !== index) p.esPrincipal = false;
+      });
+    }
+
+    setCompetidorForm({ ...competidorForm, plataformasData: updated });
+  };
+
+  const handleRemovePlataforma = (index: number) => {
+    const updated = [...(competidorForm.plataformasData || [])];
+    const wasMain = updated[index].esPrincipal;
+    updated.splice(index, 1);
+
+    // Si eliminamos la principal y hay otras, hacer la primera principal
+    if (wasMain && updated.length > 0) {
+      updated[0].esPrincipal = true;
+    }
+
+    setCompetidorForm({ ...competidorForm, plataformasData: updated });
   };
 
   const handleSaveCompetidor = async () => {
@@ -2179,26 +2217,6 @@ export const Maestros: React.FC = () => {
               />
             </div>
 
-            {/* Plataforma Principal */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Plataforma Principal *
-              </label>
-              <select
-                value={competidorForm.plataformaPrincipal}
-                onChange={(e) => setCompetidorForm({ ...competidorForm, plataformaPrincipal: e.target.value as PlataformaCompetidor })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              >
-                <option value="mercado_libre">MercadoLibre</option>
-                <option value="amazon">Amazon</option>
-                <option value="web_propia">Web Propia</option>
-                <option value="inkafarma">InkaFarma</option>
-                <option value="mifarma">MiFarma</option>
-                <option value="falabella">Falabella</option>
-                <option value="otra">Otra</option>
-              </select>
-            </div>
-
             {/* Nivel de Amenaza */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -2213,33 +2231,6 @@ export const Maestros: React.FC = () => {
                 <option value="medio">Medio</option>
                 <option value="alto">Alto</option>
               </select>
-            </div>
-
-            {/* URLs */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL Tienda
-              </label>
-              <input
-                type="url"
-                value={competidorForm.urlTienda || ''}
-                onChange={(e) => setCompetidorForm({ ...competidorForm, urlTienda: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="https://..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL MercadoLibre
-              </label>
-              <input
-                type="url"
-                value={competidorForm.urlMercadoLibre || ''}
-                onChange={(e) => setCompetidorForm({ ...competidorForm, urlMercadoLibre: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="https://perfil.mercadolibre.com.pe/..."
-              />
             </div>
 
             {/* Ubicación */}
@@ -2331,6 +2322,97 @@ export const Maestros: React.FC = () => {
                   Es líder en alguna categoría
                 </span>
               </label>
+            </div>
+
+            {/* ============ PLATAFORMAS DINÁMICAS ============ */}
+            <div className="col-span-2 border-t pt-4 mt-2">
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  Plataformas donde opera
+                </label>
+                <button
+                  type="button"
+                  onClick={handleAddPlataforma}
+                  className="text-sm text-primary-600 hover:text-primary-700 flex items-center"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Agregar Plataforma
+                </button>
+              </div>
+
+              {(!competidorForm.plataformasData || competidorForm.plataformasData.length === 0) ? (
+                <div className="text-center py-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                  <Store className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-500">No hay plataformas registradas</p>
+                  <button
+                    type="button"
+                    onClick={handleAddPlataforma}
+                    className="mt-2 text-sm text-primary-600 hover:text-primary-700"
+                  >
+                    Agregar primera plataforma
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {competidorForm.plataformasData.map((plataforma, index) => (
+                    <div
+                      key={plataforma.id}
+                      className={`p-3 rounded-lg border ${plataforma.esPrincipal ? 'border-primary-300 bg-primary-50' : 'border-gray-200 bg-gray-50'}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1 grid grid-cols-2 gap-3">
+                          <div>
+                            <input
+                              type="text"
+                              value={plataforma.nombre}
+                              onChange={(e) => handleUpdatePlataforma(index, 'nombre', e.target.value)}
+                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded"
+                              placeholder="Nombre (ej: MercadoLibre, Web Propia)"
+                            />
+                          </div>
+                          <div>
+                            <input
+                              type="url"
+                              value={plataforma.url || ''}
+                              onChange={(e) => handleUpdatePlataforma(index, 'url', e.target.value)}
+                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded"
+                              placeholder="URL (ej: https://...)"
+                            />
+                          </div>
+                          <div className="col-span-2">
+                            <input
+                              type="text"
+                              value={plataforma.notas || ''}
+                              onChange={(e) => handleUpdatePlataforma(index, 'notas', e.target.value)}
+                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded"
+                              placeholder="Notas (opcional)"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                          <label className="flex items-center text-xs">
+                            <input
+                              type="checkbox"
+                              checked={plataforma.esPrincipal || false}
+                              onChange={(e) => handleUpdatePlataforma(index, 'esPrincipal', e.target.checked)}
+                              className="mr-1 h-3 w-3"
+                            />
+                            Principal
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePlataforma(index)}
+                            className="text-red-500 hover:text-red-700 p-1"
+                            title="Eliminar plataforma"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Fortalezas y Debilidades */}

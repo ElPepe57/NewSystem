@@ -504,19 +504,21 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
   return (
     <div className="space-y-6">
       {/* Header con tabs */}
-      <div className="flex items-center justify-between">
-        <TabNavigation
-          tabs={[
-            { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-            { id: 'lista', label: 'Lista de Canales', icon: Tag },
-            { id: 'rendimiento', label: 'Rendimiento', icon: Activity }
-          ]}
-          activeTab={subTab}
-          onTabChange={(tab: string) => setSubTab(tab as SubTabCanales)}
-        />
-        <Button variant="primary" onClick={openCreateModal}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="w-full sm:w-auto overflow-x-auto scrollbar-hide">
+          <TabNavigation
+            tabs={[
+              { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+              { id: 'lista', label: 'Canales', icon: Tag },
+              { id: 'rendimiento', label: 'Rendimiento', icon: Activity }
+            ]}
+            activeTab={subTab}
+            onTabChange={(tab: string) => setSubTab(tab as SubTabCanales)}
+          />
+        </div>
+        <Button variant="primary" onClick={openCreateModal} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
-          Nuevo Canal
+          <span className="sm:inline">Nuevo Canal</span>
         </Button>
       </div>
 
@@ -526,7 +528,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       {subTab === 'dashboard' && (
         <div className="space-y-6">
           {/* KPIs Principales - Ventas */}
-          <KPIGrid columns={5}>
+          <KPIGrid columns={2} mdColumns={3} lgColumns={5}>
             <KPICard
               title="Facturación Total"
               value={formatCurrency(statsGlobales.montoTotal)}
@@ -564,7 +566,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
           </KPIGrid>
 
           {/* KPIs de Canales */}
-          <KPIGrid columns={4}>
+          <KPIGrid columns={2} mdColumns={2} lgColumns={4}>
             <KPICard
               title="Total Canales"
               value={statsGlobales.totalCanales}
@@ -675,7 +677,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
           </Card>
 
           {/* Distribuciones */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-primary-600" />
@@ -713,7 +715,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Canales con Métricas
             </h3>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {canales
                 .filter(c => c.estado === 'activo')
                 .map(canal => {
@@ -818,7 +820,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       {subTab === 'lista' && (
         <div className="space-y-6">
           {/* KPIs simplificados */}
-          <KPIGrid columns={4}>
+          <KPIGrid columns={2} mdColumns={2} lgColumns={4}>
             <KPICard
               title="Total Canales"
               value={statsGlobales.totalCanales}
@@ -847,11 +849,12 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
 
           {/* Barra de acciones */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide w-full sm:w-auto pb-2 sm:pb-0">
               <Button
                 variant={activeTab === 'todos' ? 'primary' : 'secondary'}
                 size="sm"
                 onClick={() => setActiveTab('todos')}
+                className="whitespace-nowrap flex-shrink-0"
               >
                 Todos ({canales.length})
               </Button>
@@ -859,17 +862,23 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                 variant={activeTab === 'activos' ? 'primary' : 'secondary'}
                 size="sm"
                 onClick={() => setActiveTab('activos')}
+                className="whitespace-nowrap flex-shrink-0"
               >
                 <CheckCircle className="h-4 w-4 mr-1" />
-                Activos ({canales.filter(c => c.estado === 'activo').length})
+                <span className="hidden sm:inline">Activos</span>
+                <span className="sm:hidden">Act.</span>
+                ({canales.filter(c => c.estado === 'activo').length})
               </Button>
               <Button
                 variant={activeTab === 'inactivos' ? 'primary' : 'secondary'}
                 size="sm"
                 onClick={() => setActiveTab('inactivos')}
+                className="whitespace-nowrap flex-shrink-0"
               >
                 <XCircle className="h-4 w-4 mr-1" />
-                Inactivos ({canales.filter(c => c.estado === 'inactivo').length})
+                <span className="hidden sm:inline">Inactivos</span>
+                <span className="sm:hidden">Inact.</span>
+                ({canales.filter(c => c.estado === 'inactivo').length})
               </Button>
             </div>
 
@@ -902,7 +911,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
               )}
             </Card>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {canalesFiltrados.map((canal) => {
                 const metrics = metricas[canal.id];
                 return (
@@ -1040,7 +1049,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       {subTab === 'rendimiento' && (
         <div className="space-y-6">
           {/* Resumen de rendimiento */}
-          <KPIGrid columns={4}>
+          <KPIGrid columns={2} mdColumns={2} lgColumns={4}>
             <KPICard
               title="Facturación Total"
               value={formatCurrency(statsGlobales.montoTotal)}
@@ -1174,7 +1183,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
           </Card>
 
           {/* Top 3 canales por diferentes métricas */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Top por ventas */}
             <Card className="p-6">
               <h4 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">

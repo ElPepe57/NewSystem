@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet } from 'lucide-react';
-import { Card, Badge, Button, Select, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton } from '../../components/common';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List } from 'lucide-react';
+import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
@@ -10,9 +10,20 @@ import { PagoGastoForm } from './PagoGastoForm';
 import { exportService } from '../../services/export.service';
 import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type EstadoGasto, type ClaseGasto } from '../../types/gasto.types';
 
+const MONTH_NAMES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+
+type ViewMode = 'month' | 'all' | 'pending';
+
 export const Gastos: React.FC = () => {
   const { user } = useAuthStore();
-  const { gastos, stats, loading, fetchGastosMesActual, fetchStats } = useGastoStore();
+  const {
+    gastos, stats, loading,
+    fetchGastos, fetchGastosMes, buscarGastos,
+    fetchStats, setViewMode: storeSetViewMode, reloadCurrentView
+  } = useGastoStore();
 
   const [showModal, setShowModal] = useState(false);
   const [showPagoModal, setShowPagoModal] = useState(false);
@@ -25,18 +36,71 @@ export const Gastos: React.FC = () => {
     esProrrateable: '' as 'true' | 'false' | ''
   });
 
+  // Vista y navegación temporal
+  const [viewMode, setViewMode] = useState<ViewMode>('month');
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [searchTerm, setSearchTerm] = useState('');
+
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
   const toast = useToastStore();
 
-  useEffect(() => {
-    fetchGastosMesActual();
-    fetchStats();
-  }, [fetchGastosMesActual, fetchStats]);
+  const isCurrentMonth = selectedMonth === new Date().getMonth() + 1 && selectedYear === new Date().getFullYear();
 
-  // Filtrar gastos
-  const gastosFiltrados = React.useMemo(() => {
+  // Cargar datos según el modo de vista
+  useEffect(() => {
+    storeSetViewMode(viewMode, selectedMonth, selectedYear);
+    if (viewMode === 'all') {
+      fetchGastos();
+    } else if (viewMode === 'pending') {
+      buscarGastos({ estado: 'pendiente' });
+    } else {
+      fetchGastosMes(selectedMonth, selectedYear);
+    }
+    fetchStats();
+  }, [viewMode, selectedMonth, selectedYear]);
+
+  // Navegación de mes
+  const navigateMonth = useCallback((direction: 'prev' | 'next') => {
+    if (direction === 'prev') {
+      if (selectedMonth === 1) {
+        setSelectedMonth(12);
+        setSelectedYear(prev => prev - 1);
+      } else {
+        setSelectedMonth(prev => prev - 1);
+      }
+    } else {
+      if (selectedMonth === 12) {
+        setSelectedMonth(1);
+        setSelectedYear(prev => prev + 1);
+      } else {
+        setSelectedMonth(prev => prev + 1);
+      }
+    }
+  }, [selectedMonth]);
+
+  const goToCurrentMonth = useCallback(() => {
+    setSelectedMonth(new Date().getMonth() + 1);
+    setSelectedYear(new Date().getFullYear());
+    setViewMode('month');
+  }, []);
+
+  // Filtrar gastos (incluye búsqueda por texto)
+  const gastosFiltrados = useMemo(() => {
     let resultado = gastos;
+
+    // Búsqueda por texto
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      resultado = resultado.filter(g =>
+        g.descripcion?.toLowerCase().includes(term) ||
+        g.numeroGasto?.toLowerCase().includes(term) ||
+        g.proveedor?.toLowerCase().includes(term) ||
+        g.tipo?.toLowerCase().includes(term) ||
+        g.notas?.toLowerCase().includes(term)
+      );
+    }
 
     if (filtros.claseGasto) {
       resultado = resultado.filter(g => g.claseGasto === filtros.claseGasto);
@@ -55,7 +119,7 @@ export const Gastos: React.FC = () => {
     }
 
     return resultado;
-  }, [gastos, filtros]);
+  }, [gastos, filtros, searchTerm]);
 
   // Calcular resumen por tipo de gasto
   const resumenPorTipo = useMemo(() => {
@@ -117,8 +181,6 @@ export const Gastos: React.FC = () => {
   };
 
   const getTipoBadge = (tipo: TipoGasto) => {
-    // Para tipos personalizados, mostrar el tipo directamente
-    // Ya no usamos el mapeo predefinido ya que ahora los tipos son strings descriptivos
     return { variant: 'default' as const, label: tipo };
   };
 
@@ -150,8 +212,7 @@ export const Gastos: React.FC = () => {
         'CTRU Recalculado'
       );
 
-      // Recargar datos
-      await fetchGastosMesActual();
+      await reloadCurrentView();
       await fetchStats();
     } catch (error: any) {
       toast.error(error.message, 'Error al recalcular CTRU');
@@ -166,18 +227,28 @@ export const Gastos: React.FC = () => {
       estado: '',
       esProrrateable: ''
     });
+    setSearchTerm('');
   };
+
+  // Verificar si hay algún filtro activo
+  const hayFiltrosActivos = filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado || filtros.esProrrateable || searchTerm.trim();
 
   // Obtener badge para clase de gasto
   const getClaseBadge = (clase: ClaseGasto | undefined) => {
     if (!clase) {
-      // Para gastos antiguos sin clase, mostrar como GAO
       return { label: 'GAO', color: 'bg-gray-100 text-gray-700' };
     }
     if (clase === 'GVD') {
       return { label: 'GVD', color: 'bg-purple-100 text-purple-700' };
     }
     return { label: 'GAO', color: 'bg-blue-100 text-blue-700' };
+  };
+
+  // Label dinámico para métricas
+  const getViewLabel = () => {
+    if (viewMode === 'all') return 'Total General';
+    if (viewMode === 'pending') return 'Total Pendiente';
+    return `Total ${MONTH_NAMES[selectedMonth - 1]}`;
   };
 
   // Mostrar skeleton durante carga inicial
@@ -218,18 +289,113 @@ export const Gastos: React.FC = () => {
         </div>
       </div>
 
+      {/* Navegador de Período */}
+      <Card padding="md">
+        <div className="flex items-center justify-between">
+          {/* Tabs de vista */}
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('month')}
+              className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors flex items-center gap-1.5 ${
+                viewMode === 'month'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Calendar className="h-4 w-4" />
+              Mensual
+            </button>
+            <button
+              onClick={() => setViewMode('all')}
+              className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors flex items-center gap-1.5 ${
+                viewMode === 'all'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <List className="h-4 w-4" />
+              Todos
+            </button>
+            <button
+              onClick={() => setViewMode('pending')}
+              className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors flex items-center gap-1.5 ${
+                viewMode === 'pending'
+                  ? 'bg-amber-50 text-amber-800 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <AlertCircle className="h-4 w-4" />
+              Pendientes
+            </button>
+          </div>
+
+          {/* Navegación de mes (solo en modo mensual) */}
+          {viewMode === 'month' && (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigateMonth('prev')}
+                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <div className="text-center min-w-[180px]">
+                <span className="text-lg font-semibold text-gray-900">
+                  {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
+                </span>
+              </div>
+              <button
+                onClick={() => navigateMonth('next')}
+                className={`p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors ${
+                  isCurrentMonth ? 'opacity-30 cursor-not-allowed' : ''
+                }`}
+                disabled={isCurrentMonth}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+              {!isCurrentMonth && (
+                <button
+                  onClick={goToCurrentMonth}
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium ml-1"
+                >
+                  Hoy
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Label para modos no-mensuales */}
+          {viewMode === 'all' && (
+            <span className="text-lg font-semibold text-gray-900">
+              Todos los gastos ({gastos.length})
+            </span>
+          )}
+          {viewMode === 'pending' && (
+            <span className="text-lg font-semibold text-amber-700">
+              Gastos pendientes de pago ({gastos.length})
+            </span>
+          )}
+        </div>
+      </Card>
+
       {/* Métricas */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card padding="md">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-600">Total Mes Actual</div>
+                <div className="text-sm text-gray-600">{getViewLabel()}</div>
                 <div className="text-2xl font-bold text-gray-900 mt-1">
-                  {formatCurrency(stats.totalMesActual)}
+                  {formatCurrency(
+                    viewMode === 'month' && isCurrentMonth
+                      ? stats.totalMesActual
+                      : resumenPorTipo.totalGeneral
+                  )}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {stats.cantidadGastosMesActual} gastos
+                  {viewMode === 'month' && isCurrentMonth
+                    ? `${stats.cantidadGastosMesActual} gastos`
+                    : `${gastosFiltrados.length} gastos`
+                  }
                 </div>
               </div>
               <DollarSign className="h-8 w-8 text-gray-400" />
@@ -355,9 +521,18 @@ export const Gastos: React.FC = () => {
         </Card>
       )}
 
-      {/* Filtros */}
+      {/* Búsqueda + Filtros */}
       <Card padding="md">
         <div className="space-y-4">
+          {/* Búsqueda */}
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar por descripción, número, proveedor..."
+            size="md"
+          />
+
+          {/* Filtros */}
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5 text-gray-400" />
             <span className="font-medium text-gray-700">Filtros</span>
@@ -422,7 +597,7 @@ export const Gastos: React.FC = () => {
             />
           </div>
 
-          {(filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado || filtros.esProrrateable) && (
+          {hayFiltrosActivos && (
             <button
               onClick={limpiarFiltros}
               className="text-sm text-primary-600 hover:text-primary-700"
@@ -455,16 +630,26 @@ export const Gastos: React.FC = () => {
           </div>
         ) : gastosFiltrados.length === 0 ? (
           <EmptyStateAction
-            title={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado
-              ? 'No se encontraron gastos'
-              : 'No hay gastos registrados'}
-            description={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado
-              ? 'Prueba con otros filtros o limpia los filtros actuales'
-              : 'Comienza registrando un nuevo gasto operativo'}
-            variant={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado ? 'no-results' : 'no-data'}
-            icon={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado ? 'search' : 'file'}
-            actionLabel={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado ? 'Limpiar Filtros' : 'Nuevo Gasto'}
-            onAction={filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado ? limpiarFiltros : () => setShowModal(true)}
+            title={
+              viewMode === 'pending'
+                ? 'No hay gastos pendientes'
+                : hayFiltrosActivos
+                  ? 'No se encontraron gastos'
+                  : 'No hay gastos registrados'
+            }
+            description={
+              viewMode === 'pending'
+                ? 'Todos los gastos han sido pagados'
+                : hayFiltrosActivos
+                  ? 'Prueba con otros filtros o limpia los filtros actuales'
+                  : viewMode === 'month'
+                    ? `No hay gastos en ${MONTH_NAMES[selectedMonth - 1]} ${selectedYear}`
+                    : 'Comienza registrando un nuevo gasto operativo'
+            }
+            variant={hayFiltrosActivos || viewMode === 'pending' ? 'no-results' : 'no-data'}
+            icon={hayFiltrosActivos ? 'search' : 'file'}
+            actionLabel={hayFiltrosActivos ? 'Limpiar Filtros' : 'Nuevo Gasto'}
+            onAction={hayFiltrosActivos ? limpiarFiltros : () => setShowModal(true)}
           />
         ) : (
           <div className="overflow-x-auto">
@@ -633,7 +818,7 @@ export const Gastos: React.FC = () => {
           onSuccess={() => {
             setShowPagoModal(false);
             setGastoParaPago(null);
-            fetchGastosMesActual();
+            reloadCurrentView();
             fetchStats();
           }}
         />

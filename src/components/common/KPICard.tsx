@@ -151,9 +151,23 @@ export const KPICard: React.FC<KPICardProps> = ({
 export interface KPIGridProps {
   children: React.ReactNode;
   columns?: 2 | 3 | 4 | 5;
+  mdColumns?: 2 | 3 | 4 | 5;
+  lgColumns?: 2 | 3 | 4 | 5;
 }
 
-export const KPIGrid: React.FC<KPIGridProps> = ({ children, columns = 4 }) => {
+export const KPIGrid: React.FC<KPIGridProps> = ({ children, columns = 4, mdColumns, lgColumns }) => {
+  // Si se especifican mdColumns o lgColumns, usar clases personalizadas
+  if (mdColumns || lgColumns) {
+    const baseCol = `grid-cols-${columns}`;
+    const mdCol = mdColumns ? `md:grid-cols-${mdColumns}` : '';
+    const lgCol = lgColumns ? `lg:grid-cols-${lgColumns}` : '';
+    return (
+      <div className={`grid grid-cols-1 sm:${baseCol} ${mdCol} ${lgCol} gap-4`}>
+        {children}
+      </div>
+    );
+  }
+
   const gridCols = {
     2: 'grid-cols-1 sm:grid-cols-2',
     3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
@@ -283,6 +297,32 @@ export const AlertCard: React.FC<AlertCardProps> = ({
   );
 };
 
+// Función auxiliar para formatear valores
+const formatStatValue = (value: number, format?: 'currency' | 'number' | 'compact'): string => {
+  if (format === 'currency') {
+    return new Intl.NumberFormat('es-PE', {
+      style: 'currency',
+      currency: 'PEN',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
+  if (format === 'compact') {
+    if (Math.abs(value) >= 1000000) {
+      return `${(value / 1000000).toFixed(1)}M`;
+    }
+    if (Math.abs(value) >= 1000) {
+      return `${(value / 1000).toFixed(1)}K`;
+    }
+    return value.toFixed(0);
+  }
+  // Default: number format
+  return new Intl.NumberFormat('es-PE', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
 // Componente para estadísticas con distribución
 export interface StatDistributionProps {
   title: string;
@@ -293,13 +333,15 @@ export interface StatDistributionProps {
   }>;
   total?: number;
   showPercentage?: boolean;
+  valueFormat?: 'currency' | 'number' | 'compact';
 }
 
 export const StatDistribution: React.FC<StatDistributionProps> = ({
   title,
   data,
   total: providedTotal,
-  showPercentage = true
+  showPercentage = true,
+  valueFormat = 'currency'
 }) => {
   const total = providedTotal || data.reduce((sum, item) => sum + item.value, 0);
 
@@ -318,7 +360,7 @@ export const StatDistribution: React.FC<StatDistributionProps> = ({
       <h3 className="text-sm font-medium text-gray-700 mb-3">{title}</h3>
 
       {/* Barra de distribución */}
-      <div className="h-2 flex rounded-full overflow-hidden bg-gray-100 mb-3">
+      <div className="h-3 flex rounded-full overflow-hidden bg-gray-100 mb-4">
         {data.map((item, index) => {
           const percentage = total > 0 ? (item.value / total) * 100 : 0;
           if (percentage === 0) return null;
@@ -327,25 +369,30 @@ export const StatDistribution: React.FC<StatDistributionProps> = ({
               key={item.label}
               className={item.color || defaultColors[index % defaultColors.length]}
               style={{ width: `${percentage}%` }}
+              title={`${item.label}: ${formatStatValue(item.value, valueFormat)}`}
             />
           );
         })}
       </div>
 
-      {/* Leyenda */}
-      <div className="grid grid-cols-2 gap-2">
+      {/* Leyenda - ahora vertical para mejor legibilidad */}
+      <div className="space-y-2">
         {data.map((item, index) => {
           const percentage = total > 0 ? (item.value / total) * 100 : 0;
           return (
-            <div key={item.label} className="flex items-center gap-2">
-              <div className={`h-3 w-3 rounded ${item.color || defaultColors[index % defaultColors.length]}`} />
-              <span className="text-xs text-gray-600 truncate flex-1">{item.label}</span>
-              <span className="text-xs font-medium text-gray-900">
-                {item.value}
+            <div key={item.label} className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className={`h-3 w-3 rounded flex-shrink-0 ${item.color || defaultColors[index % defaultColors.length]}`} />
+                <span className="text-sm text-gray-700 truncate" title={item.label}>{item.label}</span>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="text-sm font-semibold text-gray-900">
+                  {formatStatValue(item.value, valueFormat)}
+                </span>
                 {showPercentage && total > 0 && (
-                  <span className="text-gray-500 ml-1">({percentage.toFixed(0)}%)</span>
+                  <span className="text-xs text-gray-500 w-10 text-right">({percentage.toFixed(0)}%)</span>
                 )}
-              </span>
+              </div>
             </div>
           );
         })}

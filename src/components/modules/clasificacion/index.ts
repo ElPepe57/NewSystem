@@ -16,3 +16,4 @@ export { EtiquetaList } from './EtiquetaList';
 // Modales de detalle con analytics
 export { TipoProductoDetalle } from './TipoProductoDetalle';
 export { CategoriaDetalle } from './CategoriaDetalle';
+export { EtiquetaDetalle } from './EtiquetaDetalle';

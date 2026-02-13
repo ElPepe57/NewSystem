@@ -18,16 +18,16 @@ const ICONOS_DISPONIBLES: { value: IconoCategoria; label: string }[] = [
   { value: 'brain', label: '🧠 Cerebro' },
   { value: 'bone', label: '🦴 Huesos' },
   { value: 'eye', label: '👁️ Ojos' },
-  { value: 'stomach', label: '🫃 Digestivo' },
-  { value: 'lungs', label: '🫁 Pulmones' },
+  { value: 'activity', label: '🫃 Digestivo' },
+  { value: 'pill', label: '💊 Medicamentos' },
   { value: 'shield', label: '🛡️ Inmunidad' },
   { value: 'zap', label: '⚡ Energia' },
   { value: 'moon', label: '🌙 Sueno' },
-  { value: 'smile', label: '😊 Bienestar' },
+  { value: 'user', label: '😊 Bienestar' },
   { value: 'droplet', label: '💧 Hidratacion' },
   { value: 'leaf', label: '🍃 Natural' },
   { value: 'flame', label: '🔥 Metabolismo' },
-  { value: 'activity', label: '📈 Rendimiento' },
+  { value: 'sun', label: '☀️ Vitaminas' },
   { value: 'sparkles', label: '✨ Belleza' }
 ];
 
@@ -59,7 +59,7 @@ export function CategoriaForm({
     icono: undefined,
     color: '#3B82F6',
     mostrarEnWeb: true,
-    ordenWeb: 0
+    ordenDisplay: 0
   });
 
   // Cargar datos si es edicion
@@ -73,7 +73,7 @@ export function CategoriaForm({
         icono: categoria.icono,
         color: categoria.color || '#3B82F6',
         mostrarEnWeb: categoria.mostrarEnWeb,
-        ordenWeb: categoria.ordenWeb || 0
+        ordenDisplay: categoria.ordenDisplay || 0
       });
     } else {
       // Si viene con categoriaPadreId, es nivel 2
@@ -85,7 +85,7 @@ export function CategoriaForm({
         icono: undefined,
         color: '#3B82F6',
         mostrarEnWeb: true,
-        ordenWeb: 0
+        ordenDisplay: 0
       });
     }
     clearError();
@@ -261,9 +261,9 @@ export function CategoriaForm({
           {formData.mostrarEnWeb && (
             <Input
               label="Orden en Web"
-              name="ordenWeb"
+              name="ordenDisplay"
               type="number"
-              value={formData.ordenWeb?.toString() || '0'}
+              value={formData.ordenDisplay?.toString() || '0'}
               onChange={handleChange}
               className="w-24"
             />

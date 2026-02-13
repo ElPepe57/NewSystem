@@ -113,39 +113,29 @@ export class ProductoService {
 
       const newProducto: Record<string, any> = {
         sku,
-        marca: data.marca,
-        ...(data.marcaId && { marcaId: data.marcaId }),
-        nombreComercial: data.nombreComercial,
-        presentacion: data.presentacion,
-        dosaje: data.dosaje,
-        contenido: data.contenido,
+        marca: data.marca || '',
+        nombreComercial: data.nombreComercial || '',
+        presentacion: data.presentacion || '',
+        dosaje: data.dosaje || '',
+        contenido: data.contenido || '',
 
         // Clasificacion legacy (mantener para compatibilidad)
-        grupo: data.grupo,
-        subgrupo: data.subgrupo,
+        grupo: data.grupo || '',
+        subgrupo: data.subgrupo || '',
 
-        // Nueva clasificacion
-        ...(data.tipoProductoId && { tipoProductoId: data.tipoProductoId }),
-        ...(tipoProducto && { tipoProducto }),
-        ...(data.categoriaIds && data.categoriaIds.length > 0 && { categoriaIds: data.categoriaIds }),
-        ...(categorias.length > 0 && { categorias }),
-        ...(data.categoriaPrincipalId && { categoriaPrincipalId: data.categoriaPrincipalId }),
-        ...(data.etiquetaIds && data.etiquetaIds.length > 0 && { etiquetaIds: data.etiquetaIds }),
-        ...(etiquetasData.length > 0 && { etiquetasData }),
-
-        enlaceProveedor: data.enlaceProveedor,
+        enlaceProveedor: data.enlaceProveedor || '',
         codigoUPC: data.codigoUPC || '',
 
         estado: 'activo' as const,
         etiquetas: [], // Campo legacy para etiquetas de texto
 
-        habilitadoML: data.habilitadoML,
+        habilitadoML: data.habilitadoML || false,
         restriccionML: data.restriccionML || '',
 
         ctruPromedio: 0,
-        precioSugerido: data.precioSugerido,
-        margenMinimo: data.margenMinimo,
-        margenObjetivo: data.margenObjetivo,
+        precioSugerido: data.precioSugerido || 0,
+        margenMinimo: data.margenMinimo || 20,
+        margenObjetivo: data.margenObjetivo || 35,
         costoFleteUSAPeru: data.costoFleteUSAPeru || 0,
 
         stockUSA: 0,
@@ -154,24 +144,57 @@ export class ProductoService {
         stockReservado: 0,
         stockDisponible: 0,
 
-        stockMinimo: data.stockMinimo,
-        stockMaximo: data.stockMaximo,
+        stockMinimo: data.stockMinimo || 10,
+        stockMaximo: data.stockMaximo || 100,
 
         rotacionPromedio: 0,
         diasParaQuiebre: 0,
 
         esPadre: false,
 
-        // Sabor y ciclo de recompra
-        ...(data.sabor && { sabor: data.sabor }),
-        ...(data.servingsPerDay && { servingsPerDay: data.servingsPerDay }),
-        ...(data.cicloRecompraDias && { cicloRecompraDias: data.cicloRecompraDias }),
-
         creadoPor: userId,
         fechaCreacion: serverTimestamp(),
       };
 
-      const docRef = await addDoc(collection(db, COLLECTION_NAME), newProducto);
+      // Agregar campos opcionales solo si tienen valor (evitar undefined en Firestore)
+      if (data.marcaId) {
+        newProducto.marcaId = data.marcaId;
+      }
+      if (data.tipoProductoId) {
+        newProducto.tipoProductoId = data.tipoProductoId;
+      }
+      if (tipoProducto) {
+        newProducto.tipoProducto = tipoProducto;
+      }
+      if (data.categoriaIds && data.categoriaIds.length > 0) {
+        newProducto.categoriaIds = data.categoriaIds;
+      }
+      if (categorias.length > 0) {
+        newProducto.categorias = categorias;
+      }
+      if (data.categoriaPrincipalId) {
+        newProducto.categoriaPrincipalId = data.categoriaPrincipalId;
+      }
+      if (data.etiquetaIds && data.etiquetaIds.length > 0) {
+        newProducto.etiquetaIds = data.etiquetaIds;
+      }
+      if (etiquetasData.length > 0) {
+        newProducto.etiquetasData = etiquetasData;
+      }
+      if (data.sabor) {
+        newProducto.sabor = data.sabor;
+      }
+      if (data.servingsPerDay !== undefined && data.servingsPerDay !== null) {
+        newProducto.servingsPerDay = data.servingsPerDay;
+      }
+      if (data.cicloRecompraDias !== undefined && data.cicloRecompraDias !== null) {
+        newProducto.cicloRecompraDias = data.cicloRecompraDias;
+      }
+
+      // Limpiar cualquier valor undefined restante antes de enviar a Firestore
+      const cleanedProducto = this.removeUndefined(newProducto);
+
+      const docRef = await addDoc(collection(db, COLLECTION_NAME), cleanedProducto);
 
       // Incrementar contador de productos activos en la marca (Gestor Maestro)
       if (data.marcaId) {
@@ -484,7 +507,7 @@ export class ProductoService {
       }));
 
       // Convertir competidores al formato con Timestamp (limpiando undefined)
-      const competidoresPeru = (data.competidoresPeru || []).map(c => this.removeUndefined({
+      let competidoresPeru = (data.competidoresPeru || []).map(c => this.removeUndefined({
         id: c.id,
         competidorId: c.competidorId || null,  // Vínculo con Gestor Maestro
         nombre: c.nombre || '',
@@ -497,6 +520,77 @@ export class ProductoService {
         notas: c.notas || null,
         fechaConsulta: Timestamp.now()
       }));
+
+      // === AUTO-CREAR PROVEEDORES NO VINCULADOS EN GESTOR MAESTRO ===
+      for (let i = 0; i < proveedoresUSA.length; i++) {
+        const prov = proveedoresUSA[i];
+        const provExtended = prov as any;
+
+        // Si tiene nombre pero no está vinculado a Maestro, crear automáticamente
+        if (prov.nombre && prov.nombre.trim() && !provExtended.proveedorId) {
+          try {
+            // Usar getOrCreate para evitar duplicados
+            const { proveedor, esNuevo } = await proveedorService.getOrCreate(
+              prov.nombre.trim(),
+              'USA',
+              'distribuidor',
+              userId
+            );
+
+            // Vincular el ID del proveedor creado/encontrado
+            proveedoresUSA[i] = {
+              ...prov,
+              proveedorId: proveedor.id
+            } as any;
+
+            if (esNuevo) {
+              console.log(`Proveedor "${prov.nombre}" creado automáticamente en Gestor Maestro`);
+            }
+          } catch (error) {
+            console.warn(`No se pudo auto-crear proveedor "${prov.nombre}":`, error);
+          }
+        }
+      }
+
+      // === AUTO-CREAR COMPETIDORES NO VINCULADOS EN GESTOR MAESTRO ===
+      for (let i = 0; i < competidoresPeru.length; i++) {
+        const comp = competidoresPeru[i];
+
+        // Si tiene nombre pero no está vinculado a Maestro, crear automáticamente
+        if (comp.nombre && comp.nombre.trim() && !comp.competidorId) {
+          try {
+            // Verificar si ya existe un competidor con ese nombre
+            const existente = await competidorService.buscarPorNombreExacto(comp.nombre.trim());
+
+            if (existente) {
+              // Vincular al competidor existente
+              competidoresPeru[i] = {
+                ...comp,
+                competidorId: existente.id
+              };
+            } else {
+              // Crear nuevo competidor en Gestor Maestro
+              const nuevoCompetidorId = await competidorService.create({
+                nombre: comp.nombre.trim(),
+                plataformaPrincipal: comp.plataforma || 'mercado_libre',
+                reputacion: comp.reputacion || 'desconocida',
+                nivelAmenaza: 'medio',
+                esLiderCategoria: comp.esLiderCategoria || false
+              }, userId);
+
+              // Vincular el ID del competidor creado
+              competidoresPeru[i] = {
+                ...comp,
+                competidorId: nuevoCompetidorId
+              };
+
+              console.log(`Competidor "${comp.nombre}" creado automáticamente en Gestor Maestro`);
+            }
+          } catch (error) {
+            console.warn(`No se pudo auto-crear competidor "${comp.nombre}":`, error);
+          }
+        }
+      }
 
       // Calcular precios desde proveedores INCLUYENDO IMPUESTO
       const preciosUSAConImpuesto = proveedoresUSA.map(p => {

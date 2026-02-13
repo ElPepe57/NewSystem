@@ -455,19 +455,19 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
 
   const renderListaTab = () => (
     <div className="space-y-4">
-      {/* Filtros */}
-      <div className="flex items-center gap-4">
+      {/* Filtros - Responsive */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
         <SearchInput
           value={busqueda}
           onChange={setBusqueda}
           placeholder="Buscar transportista..."
-          className="flex-1 max-w-md"
+          className="flex-1 sm:max-w-md"
         />
 
-        <div className="flex gap-2 bg-gray-100 rounded-lg p-1">
+        <div className="flex gap-1 sm:gap-2 bg-gray-100 rounded-lg p-1 overflow-x-auto">
           <button
             onClick={() => setFiltroTipo('todos')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               filtroTipo === 'todos'
                 ? 'bg-white shadow text-gray-900'
                 : 'text-gray-600 hover:text-gray-900'
@@ -477,25 +477,27 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           </button>
           <button
             onClick={() => setFiltroTipo('interno')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               filtroTipo === 'interno'
                 ? 'bg-white shadow text-blue-600'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             <User className="h-4 w-4 inline mr-1" />
-            Internos
+            <span className="hidden sm:inline">Internos</span>
+            <span className="sm:hidden">Int.</span>
           </button>
           <button
             onClick={() => setFiltroTipo('externo')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               filtroTipo === 'externo'
                 ? 'bg-white shadow text-purple-600'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             <Truck className="h-4 w-4 inline mr-1" />
-            Externos
+            <span className="hidden sm:inline">Externos</span>
+            <span className="sm:hidden">Ext.</span>
           </button>
         </div>
       </div>
@@ -589,7 +591,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
         </KPIGrid>
 
         {/* Distribuciones */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           <StatDistribution
             title="Por Estado"
             data={[
@@ -633,7 +635,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
         </div>
 
         {/* Alertas y Destacados */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           {/* Top 3 Mejor Rendimiento */}
           <AlertCard
             variant="success"
@@ -752,7 +754,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
         </Card>
 
         {/* Análisis Detallado */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <Card padding="lg">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
@@ -855,20 +857,23 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
   return (
     <div className="space-y-6">
       {/* Header con navegación de tabs */}
-      <div className="flex items-center justify-between">
-        <TabNavigation
-          tabs={[
-            { id: 'dashboard', label: 'Dashboard', icon: Activity },
-            { id: 'lista', label: 'Lista', icon: Truck },
-            { id: 'rendimiento', label: 'Rendimiento', icon: TrendingUp }
-          ]}
-          activeTab={subTab}
-          onTabChange={(tabId) => setSubTab(tabId as SubTab)}
-        />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <TabNavigation
+            tabs={[
+              { id: 'dashboard', label: 'Dashboard', icon: Activity },
+              { id: 'lista', label: 'Lista', icon: Truck },
+              { id: 'rendimiento', label: 'Rendimiento', icon: TrendingUp }
+            ]}
+            activeTab={subTab}
+            onTabChange={(tabId) => setSubTab(tabId as SubTab)}
+          />
+        </div>
 
-        <Button variant="primary" onClick={openCreateModal}>
+        <Button variant="primary" onClick={openCreateModal} className="w-full sm:w-auto">
           <Plus className="h-5 w-5 mr-2" />
-          Nuevo Transportista
+          <span className="hidden sm:inline">Nuevo Transportista</span>
+          <span className="sm:hidden">Nuevo</span>
         </Button>
       </div>
 

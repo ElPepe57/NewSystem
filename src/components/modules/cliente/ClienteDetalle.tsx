@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useLayoutEffect } from 'react';
 import {
   X,
   User,
@@ -22,6 +22,7 @@ import {
   Percent
 } from 'lucide-react';
 import { Button, Card, Badge } from '../../common';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
 import { VentaService } from '../../../services/venta.service';
 import type { Cliente } from '../../../types/entidadesMaestras.types';
 import type { Venta } from '../../../types/venta.types';
@@ -60,6 +61,18 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
   const [tabActiva, setTabActiva] = useState<TabActiva>('info');
   const [historial, setHistorial] = useState<HistorialCliente | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const cargarHistorial = async () => {

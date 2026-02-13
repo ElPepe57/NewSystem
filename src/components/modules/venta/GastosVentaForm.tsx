@@ -96,7 +96,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
       id: `temp-${Date.now()}`,
       tipo: nuevoTipo,
       categoria: nuevaCategoria,
-      descripcion: nuevaDescripcion || `${TIPOS_GASTO_LABELS[nuevoTipo]} - ${venta.numeroVenta}`,
+      descripcion: nuevaDescripcion || `${TIPOS_GASTO_LABELS[nuevoTipo]} ${venta.numeroVenta} - ${venta.nombreCliente}`,
       monto: Number(nuevoMonto)
     };
 

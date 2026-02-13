@@ -10,7 +10,6 @@ export type { ConfirmDialogProps, ConfirmDialogVariant, UseConfirmDialogOptions 
 export { AutocompleteInput } from './AutocompleteInput';
 export { KPICard, KPIGrid, AlertCard, StatDistribution } from './KPICard';
 export type { KPICardProps, KPIGridProps, AlertCardProps, StatDistributionProps } from './KPICard';
-export { QuickActions } from './QuickActions';
 export { ListSummary, ListSummaryCompact } from './ListSummary';
 export type { SummaryIcon } from './ListSummary';
 

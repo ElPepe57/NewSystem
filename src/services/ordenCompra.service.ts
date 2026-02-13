@@ -24,7 +24,8 @@ import type {
   Proveedor,
   ProveedorFormData,
   ProductoOrden,
-  PagoOrdenCompra
+  PagoOrdenCompra,
+  RecepcionParcial
 } from '../types/ordenCompra.types';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
@@ -61,6 +62,28 @@ export class OrdenCompraService {
     } catch (error: any) {
       console.error('Error al obtener proveedores:', error);
       throw new Error('Error al cargar proveedores');
+    }
+  }
+
+  /**
+   * Obtener proveedor por ID
+   */
+  static async getProveedorById(id: string): Promise<Proveedor | null> {
+    try {
+      const docRef = doc(db, PROVEEDORES_COLLECTION, id);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        return null;
+      }
+
+      return {
+        id: docSnap.id,
+        ...docSnap.data()
+      } as Proveedor;
+    } catch (error: any) {
+      console.error('Error al obtener proveedor:', error);
+      return null;
     }
   }
 
@@ -273,25 +296,67 @@ export class OrdenCompraService {
       if (gastosEnvio > 0) nuevaOrden.gastosEnvioUSD = gastosEnvio;
       if (otrosGastos > 0) nuevaOrden.otrosGastosUSD = otrosGastos;
       if (data.tcCompra) nuevaOrden.tcCompra = data.tcCompra;
-      if (data.almacenDestino) nuevaOrden.almacenDestino = data.almacenDestino;
+      if (data.almacenDestino) {
+        nuevaOrden.almacenDestino = data.almacenDestino;
+        // Obtener nombre del almacén
+        const almacen = await almacenService.getById(data.almacenDestino);
+        if (almacen) {
+          nuevaOrden.nombreAlmacenDestino = almacen.nombre;
+        }
+      }
       if (data.observaciones) nuevaOrden.observaciones = data.observaciones;
       if (data.requerimientoId) nuevaOrden.requerimientoId = data.requerimientoId;
 
+      // Soporte multi-requerimiento (OC consolidada)
+      if (data.requerimientoIds && data.requerimientoIds.length > 0) {
+        nuevaOrden.requerimientoIds = data.requerimientoIds;
+        nuevaOrden.requerimientoNumeros = [];
+        if (data.productosOrigen) {
+          nuevaOrden.productosOrigen = data.productosOrigen;
+          // Agregar origenRequerimientos a cada ProductoOrden
+          for (const prodOrden of productosOrden) {
+            prodOrden.origenRequerimientos = data.productosOrigen
+              .filter(o => o.productoId === prodOrden.productoId)
+              .map(o => ({
+                requerimientoId: o.requerimientoId,
+                cotizacionId: o.cotizacionId,
+                clienteNombre: o.clienteNombre,
+                cantidad: o.cantidad
+              }));
+          }
+        }
+        // Backwards compat: primer req como singular
+        if (!nuevaOrden.requerimientoId) {
+          nuevaOrden.requerimientoId = data.requerimientoIds[0];
+        }
+      }
+
       const docRef = await addDoc(collection(db, ORDENES_COLLECTION), nuevaOrden);
 
-      // Si viene de un requerimiento, vincularlo y actualizar su estado
-      if (data.requerimientoId) {
+      // Vincular requerimiento(s) con la OC
+      const reqIdsToLink = data.requerimientoIds && data.requerimientoIds.length > 0
+        ? data.requerimientoIds
+        : data.requerimientoId ? [data.requerimientoId] : [];
+
+      for (const reqId of reqIdsToLink) {
         try {
-          await ExpectativaService.vincularConOC(
-            data.requerimientoId,
-            docRef.id,
-            numeroOrden,
-            userId
-          );
+          const req = await ExpectativaService.getRequerimientoById(reqId);
+          await ExpectativaService.vincularConOC(reqId, docRef.id, numeroOrden, userId);
+          // Llenar números para multi-req
+          if (data.requerimientoIds?.length) {
+            nuevaOrden.requerimientoNumeros.push(req?.numeroRequerimiento || '');
+          }
         } catch (error) {
           console.error('Error al vincular requerimiento con OC:', error);
-          // No lanzamos error para no bloquear la creación de la OC
         }
+      }
+
+      // Actualizar OC con los números de requerimiento resueltos
+      if (nuevaOrden.requerimientoNumeros?.length > 0) {
+        await updateDoc(docRef, {
+          requerimientoNumeros: nuevaOrden.requerimientoNumeros,
+          requerimientoNumero: nuevaOrden.requerimientoNumeros[0]
+        });
       }
 
       return {
@@ -314,28 +379,28 @@ export class OrdenCompraService {
       if (!orden) {
         throw new Error('Orden no encontrada');
       }
-      
+
       if (orden.estado !== 'borrador') {
         throw new Error('Solo se pueden editar órdenes en borrador');
       }
-      
+
       const updates: any = {
         ultimaEdicion: serverTimestamp(),
         editadoPor: userId
       };
-      
+
       // Si se actualizan los productos, recalcular totales
       if (data.productos) {
         const productosOrden: ProductoOrden[] = [];
         let subtotalUSD = 0;
-        
+
         for (const prod of data.productos) {
           const producto = await ProductoService.getById(prod.productoId);
           if (!producto) continue;
-          
+
           const subtotal = prod.cantidad * prod.costoUnitario;
           subtotalUSD += subtotal;
-          
+
           productosOrden.push({
             productoId: prod.productoId,
             sku: producto.sku,
@@ -347,21 +412,51 @@ export class OrdenCompraService {
             subtotal
           });
         }
-        
+
         updates.productos = productosOrden;
         updates.subtotalUSD = subtotalUSD;
-        
+
+        const impuestoUSD = data.impuestoUSD !== undefined ? data.impuestoUSD : (orden.impuestoUSD || 0);
         const gastosEnvio = data.gastosEnvioUSD !== undefined ? data.gastosEnvioUSD : (orden.gastosEnvioUSD || 0);
         const otrosGastos = data.otrosGastosUSD !== undefined ? data.otrosGastosUSD : (orden.otrosGastosUSD || 0);
-        updates.totalUSD = subtotalUSD + gastosEnvio + otrosGastos;
+        updates.totalUSD = subtotalUSD + impuestoUSD + gastosEnvio + otrosGastos;
       }
-      
+
+      // Actualizar proveedor si cambió
+      if (data.proveedorId && data.proveedorId !== orden.proveedorId) {
+        const proveedor = await this.getProveedorById(data.proveedorId);
+        if (proveedor) {
+          updates.proveedorId = data.proveedorId;
+          updates.nombreProveedor = proveedor.nombre;
+        }
+      }
+
+      // Actualizar almacén destino si cambió
+      if (data.almacenDestino && data.almacenDestino !== orden.almacenDestino) {
+        const almacen = await almacenService.getById(data.almacenDestino);
+        if (almacen) {
+          updates.almacenDestino = data.almacenDestino;
+          updates.nombreAlmacenDestino = almacen.nombre;
+        }
+      }
+
+      if (data.impuestoUSD !== undefined) updates.impuestoUSD = data.impuestoUSD;
       if (data.gastosEnvioUSD !== undefined) updates.gastosEnvioUSD = data.gastosEnvioUSD;
       if (data.otrosGastosUSD !== undefined) updates.otrosGastosUSD = data.otrosGastosUSD;
       if (data.tcCompra !== undefined) updates.tcCompra = data.tcCompra;
-      if (data.almacenDestino !== undefined) updates.almacenDestino = data.almacenDestino;
+      if (data.numeroTracking !== undefined) updates.numeroTracking = data.numeroTracking;
+      if (data.courier !== undefined) updates.courier = data.courier;
       if (data.observaciones !== undefined) updates.observaciones = data.observaciones;
-      
+
+      // Recalcular totalPEN si cambió tcCompra
+      if (data.tcCompra !== undefined || updates.totalUSD !== undefined) {
+        const tc = data.tcCompra !== undefined ? data.tcCompra : (orden.tcCompra || 0);
+        const total = updates.totalUSD !== undefined ? updates.totalUSD : orden.totalUSD;
+        if (tc > 0) {
+          updates.totalPEN = total * tc;
+        }
+      }
+
       await updateDoc(doc(db, ORDENES_COLLECTION, id), updates);
     } catch (error: any) {
       console.error('Error al actualizar orden:', error);
@@ -404,6 +499,10 @@ export class OrdenCompraService {
         
         if (datos?.numeroTracking) updates.numeroTracking = datos.numeroTracking;
         if (datos?.courier) updates.courier = datos.courier;
+      } else if (nuevoEstado === 'recibida_parcial') {
+        if (!orden.fechaPrimeraRecepcion) {
+          updates.fechaPrimeraRecepcion = Timestamp.now();
+        }
       } else if (nuevoEstado === 'recibida' && !orden.fechaRecibida) {
         updates.fechaRecibida = Timestamp.now();
       }
@@ -574,19 +673,21 @@ export class OrdenCompraService {
   }
 
   /**
-   * Recibir orden y generar inventario automáticamente
-   * El costo unitario incluye la parte proporcional del impuesto, envío y otros gastos
-   *
-   * LÓGICA INTELIGENTE DE RESERVA:
-   * - Si la OC viene de un Requerimiento vinculado a una cotización/venta:
-   *   - Las unidades hasta la cantidad solicitada se marcan como "reservada"
-   *   - El excedente (si se compró más) queda como "disponible"
-   * - Si la OC NO viene de un Requerimiento: todas las unidades quedan como "disponible"
+   * Recepción parcial de orden de compra
+   * Permite recibir productos en múltiples entregas (ej: Amazon envía en varios paquetes)
+   * Genera inventario solo para los productos recibidos en esta entrega
    */
-  static async recibirOrden(id: string, userId: string): Promise<{
+  static async recibirOrdenParcial(
+    id: string,
+    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
+    userId: string,
+    observaciones?: string
+  ): Promise<{
+    recepcionId: string;
     unidadesGeneradas: string[];
     unidadesReservadas: string[];
     unidadesDisponibles: string[];
+    esRecepcionFinal: boolean;
     cotizacionVinculada?: string;
   }> {
     try {
@@ -595,12 +696,9 @@ export class OrdenCompraService {
         throw new Error('Orden no encontrada');
       }
 
-      if (orden.estado !== 'en_transito' && orden.estado !== 'enviada') {
-        throw new Error('La orden debe estar enviada o en tránsito para ser recibida');
-      }
-
-      if (orden.inventarioGenerado) {
-        throw new Error('El inventario ya fue generado para esta orden');
+      // Validar estados permitidos
+      if (!['en_transito', 'enviada', 'recibida_parcial'].includes(orden.estado)) {
+        throw new Error('La orden debe estar enviada, en tránsito o recibida parcial para recibir productos');
       }
 
       // Si no hay TC de pago, usar TC de compra como fallback
@@ -613,216 +711,358 @@ export class OrdenCompraService {
         throw new Error('Se requiere almacén destino para generar inventario');
       }
 
-      // ================================================================
-      // OBTENER INFORMACIÓN DEL REQUERIMIENTO SI EXISTE
-      // ================================================================
-      let requerimiento: any = null;
-      let cotizacionId: string | undefined;
-      const cantidadesSolicitadas: Map<string, number> = new Map();
+      // Validar productos recibidos
+      const productosValidos = productosRecibidos.filter(pr => pr.cantidadRecibida > 0);
+      if (productosValidos.length === 0) {
+        throw new Error('Debe recibir al menos 1 producto con cantidad mayor a 0');
+      }
 
-      if (orden.requerimientoId) {
-        try {
-          requerimiento = await ExpectativaService.getRequerimientoById(orden.requerimientoId);
-
-          if (requerimiento) {
-            // ventaRelacionadaId es realmente la cotizacionId en nuestro flujo
-            cotizacionId = requerimiento.ventaRelacionadaId;
-
-            // Construir mapa de cantidades solicitadas por producto
-            for (const prod of requerimiento.productos) {
-              cantidadesSolicitadas.set(prod.productoId, prod.cantidadSolicitada);
-            }
-
-            logger.info(`OC ${orden.numeroOrden} vinculada a requerimiento ${requerimiento.numeroRequerimiento}`);
-            if (cotizacionId) {
-              logger.info(`  → Cotización vinculada: ${cotizacionId}`);
-            }
-          }
-        } catch (error) {
-          console.error('Error al obtener requerimiento:', error);
-          // Continuar sin reservar si falla
+      for (const pr of productosValidos) {
+        const productoOC = orden.productos.find(p => p.productoId === pr.productoId);
+        if (!productoOC) {
+          throw new Error(`Producto ${pr.productoId} no existe en esta orden`);
+        }
+        const yaRecibido = productoOC.cantidadRecibida || 0;
+        const pendiente = productoOC.cantidad - yaRecibido;
+        if (pr.cantidadRecibida > pendiente) {
+          throw new Error(`${productoOC.nombreComercial}: no se pueden recibir ${pr.cantidadRecibida} unidades, solo quedan ${pendiente} pendientes`);
         }
       }
 
-      // Calcular el total de unidades para prorrateo de gastos adicionales
-      const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
+      // ================================================================
+      // OBTENER INFORMACIÓN DE REQUERIMIENTOS (soporte multi-req)
+      // ================================================================
+      const reservationMap = new Map<string, Array<{
+        requerimientoId: string;
+        cotizacionId: string;
+        cantidad: number;
+      }>>();
 
-      // Calcular costos adicionales totales (impuesto + envío + otros)
+      const reqIds: string[] = [];
+      if (orden.requerimientoIds && orden.requerimientoIds.length > 0) {
+        reqIds.push(...orden.requerimientoIds);
+      } else if (orden.requerimientoId) {
+        reqIds.push(orden.requerimientoId);
+      }
+
+      let cotizacionId: string | undefined;
+
+      for (const reqId of reqIds) {
+        try {
+          const req = await ExpectativaService.getRequerimientoById(reqId);
+          if (!req) continue;
+
+          const cotId = req.ventaRelacionadaId || '';
+          if (cotId && !cotizacionId) cotizacionId = cotId;
+
+          const productosDeEsteReq = orden.productosOrigen
+            ?.filter(po => po.requerimientoId === reqId)
+            || req.productos.map((p: any) => ({ productoId: p.productoId, cantidad: p.cantidadSolicitada }));
+
+          for (const prod of productosDeEsteReq) {
+            const existing = reservationMap.get(prod.productoId) || [];
+            existing.push({
+              requerimientoId: reqId,
+              cotizacionId: cotId,
+              cantidad: prod.cantidad
+            });
+            reservationMap.set(prod.productoId, existing);
+          }
+        } catch (error) {
+          console.error(`Error al obtener requerimiento ${reqId}:`, error);
+        }
+      }
+
+      // Calcular prorrateo de costos sobre el total COMPLETO de la OC
+      const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
       const impuestoTotal = orden.impuestoUSD || 0;
       const gastosEnvioTotal = orden.gastosEnvioUSD || 0;
       const otrosGastosTotal = orden.otrosGastosUSD || 0;
       const costosAdicionalesTotal = impuestoTotal + gastosEnvioTotal + otrosGastosTotal;
-
-      // Costo adicional por unidad (prorrateado equitativamente entre todas las unidades)
       const costoAdicionalPorUnidad = totalUnidadesOrden > 0
         ? costosAdicionalesTotal / totalUnidadesOrden
         : 0;
 
+      // Contar unidades ya reservadas en recepciones previas por producto
+      const unidadesYaReservadas = new Map<string, number>();
+      if (orden.recepcionesParciales) {
+        for (const recPrev of orden.recepcionesParciales) {
+          for (const id of recPrev.unidadesReservadas || []) {
+            // Las reservadas previas se cuentan por producto indirectamente
+            // Usamos el conteo directo de recepciones previas
+          }
+          for (const prPrev of recPrev.productosRecibidos) {
+            // No podemos saber cuántas fueron reservadas vs disponibles por producto
+            // desde el historial de recepciones, así que lo calculamos diferente
+          }
+        }
+      }
+      // Alternativa más precisa: calcular reservas restantes del reservationMap
+      // descontando lo ya recibido (cantidadRecibida) de cada producto
+      // La lógica de reserva tomará en cuenta el acumulado
+
       const unidadesGeneradas: string[] = [];
       const unidadesReservadas: string[] = [];
       const unidadesDisponibles: string[] = [];
+      let totalUnidadesRecepcion = 0;
 
-      // Generar inventario para cada producto
-      for (const producto of orden.productos) {
-        // Obtener información del producto
-        const productoInfo = await ProductoService.getById(producto.productoId);
+      // Obtener información del almacén una sola vez
+      const almacen = await almacenService.getById(orden.almacenDestino);
+      if (!almacen) {
+        throw new Error(`Almacén ${orden.almacenDestino} no encontrado`);
+      }
+      const almacenInfo = { nombre: almacen.nombre, pais: almacen.pais };
+
+      // Generar inventario solo para los productos de ESTA entrega
+      for (const pr of productosValidos) {
+        const productoOC = orden.productos.find(p => p.productoId === pr.productoId)!;
+        const productoInfo = await ProductoService.getById(pr.productoId);
         if (!productoInfo) {
-          throw new Error(`Producto ${producto.productoId} no encontrado`);
+          throw new Error(`Producto ${pr.productoId} no encontrado`);
         }
 
-        // Obtener información del almacén
-        const almacen = await almacenService.getById(orden.almacenDestino);
-        if (!almacen) {
-          throw new Error(`Almacén ${orden.almacenDestino} no encontrado`);
+        const costoUnitarioReal = productoOC.costoUnitario + costoAdicionalPorUnidad;
+
+        // Lógica de reserva: descontar lo ya reservado en entregas previas
+        const reservations = reservationMap.get(pr.productoId) || [];
+        const yaRecibidoEsteProducto = productoOC.cantidadRecibida || 0;
+
+        // Calcular cuántas unidades ya se reservaron (entregas previas)
+        let totalReservaRequerida = 0;
+        for (const res of reservations) {
+          totalReservaRequerida += res.cantidad;
         }
-        const almacenInfo = {
-          nombre: almacen.nombre,
-          pais: almacen.pais
+        const yaReservadoPrevio = Math.min(totalReservaRequerida, yaRecibidoEsteProducto);
+        const reservaPendiente = totalReservaRequerida - yaReservadoPrevio;
+
+        let unidadesRestantes = pr.cantidadRecibida;
+
+        const datosBaseLote = {
+          productoId: pr.productoId,
+          lote: `OC-${orden.numeroOrden}`,
+          fechaVencimiento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          almacenId: orden.almacenDestino,
+          costoUnitarioUSD: costoUnitarioReal,
+          ordenCompraId: id,
+          ordenCompraNumero: orden.numeroOrden,
+          fechaRecepcion: new Date(),
+          tcCompra: orden.tcCompra,
+          tcPago: orden.tcPago
         };
 
-        // Costo unitario real = costo producto + parte proporcional de gastos adicionales
-        const costoUnitarioReal = producto.costoUnitario + costoAdicionalPorUnidad;
+        // Crear lotes reservados (solo si quedan reservas pendientes)
+        if (reservaPendiente > 0 && reservations.length > 0) {
+          // Distribuir la reserva pendiente entre los requerimientos
+          let reservaPendienteRestante = reservaPendiente;
+          let yaConsumidoPrevio = yaReservadoPrevio;
 
-        // ================================================================
-        // LÓGICA INTELIGENTE DE RESERVA
-        // ================================================================
-        const cantidadSolicitada = cantidadesSolicitadas.get(producto.productoId) || 0;
-        const cantidadComprada = producto.cantidad;
+          for (const reserva of reservations) {
+            if (unidadesRestantes <= 0 || reservaPendienteRestante <= 0) break;
+            if (!reserva.cotizacionId) continue;
 
-        // Calcular cuántas reservar y cuántas dejar disponibles
-        const cantidadAReservar = cotizacionId ? Math.min(cantidadSolicitada, cantidadComprada) : 0;
-        const cantidadDisponible = cantidadComprada - cantidadAReservar;
+            // Cuánto de esta reserva específica ya se cubrió en entregas previas
+            const consumidoDeEstaReserva = Math.min(reserva.cantidad, yaConsumidoPrevio);
+            yaConsumidoPrevio -= consumidoDeEstaReserva;
+            const pendienteDeEstaReserva = reserva.cantidad - consumidoDeEstaReserva;
 
-        // Crear unidades RESERVADAS (para el cliente)
-        if (cantidadAReservar > 0) {
-          const unidadesReservadasIds = await unidadService.crearLote(
-            {
-              productoId: producto.productoId,
-              cantidad: cantidadAReservar,
-              lote: `OC-${orden.numeroOrden}`,
-              fechaVencimiento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-              almacenId: orden.almacenDestino,
-              costoUnitarioUSD: costoUnitarioReal,
-              ordenCompraId: id,
-              ordenCompraNumero: orden.numeroOrden,
-              fechaRecepcion: new Date(),
-              tcCompra: orden.tcCompra,
-              tcPago: orden.tcPago,
-              // RESERVA AUTOMÁTICA
-              estadoInicial: 'reservada',
-              reservadoPara: cotizacionId,
-              requerimientoId: orden.requerimientoId
-            },
-            userId,
-            {
-              sku: productoInfo.sku,
-              nombre: productoInfo.nombreComercial
-            },
-            almacenInfo
-          );
+            if (pendienteDeEstaReserva <= 0) continue;
 
-          unidadesGeneradas.push(...unidadesReservadasIds);
-          unidadesReservadas.push(...unidadesReservadasIds);
+            const cantReservar = Math.min(pendienteDeEstaReserva, unidadesRestantes);
 
-          logger.success(`  → ${cantidadAReservar} unidades de ${productoInfo.sku} RESERVADAS para cotización ${cotizacionId}`);
+            const reservadasIds = await unidadService.crearLote(
+              {
+                ...datosBaseLote,
+                cantidad: cantReservar,
+                estadoInicial: 'reservada',
+                reservadoPara: reserva.cotizacionId,
+                requerimientoId: reserva.requerimientoId
+              },
+              userId,
+              { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
+              almacenInfo
+            );
+
+            unidadesGeneradas.push(...reservadasIds);
+            unidadesReservadas.push(...reservadasIds);
+            unidadesRestantes -= cantReservar;
+            reservaPendienteRestante -= cantReservar;
+
+            logger.success(`  → ${cantReservar} unidades de ${productoInfo.sku} RESERVADAS para cotización ${reserva.cotizacionId}`);
+          }
         }
 
         // Crear unidades DISPONIBLES (excedente o sin requerimiento)
-        if (cantidadDisponible > 0) {
-          const unidadesDisponiblesIds = await unidadService.crearLote(
+        if (unidadesRestantes > 0) {
+          const disponiblesIds = await unidadService.crearLote(
             {
-              productoId: producto.productoId,
-              cantidad: cantidadDisponible,
-              lote: `OC-${orden.numeroOrden}`,
-              fechaVencimiento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-              almacenId: orden.almacenDestino,
-              costoUnitarioUSD: costoUnitarioReal,
-              ordenCompraId: id,
-              ordenCompraNumero: orden.numeroOrden,
-              fechaRecepcion: new Date(),
-              tcCompra: orden.tcCompra,
-              tcPago: orden.tcPago
-              // Sin estadoInicial = quedará como "recibida_usa" o "disponible_peru"
+              ...datosBaseLote,
+              cantidad: unidadesRestantes
             },
             userId,
-            {
-              sku: productoInfo.sku,
-              nombre: productoInfo.nombreComercial
-            },
+            { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
             almacenInfo
           );
 
-          unidadesGeneradas.push(...unidadesDisponiblesIds);
-          unidadesDisponibles.push(...unidadesDisponiblesIds);
+          unidadesGeneradas.push(...disponiblesIds);
+          unidadesDisponibles.push(...disponiblesIds);
+        }
 
-          if (cantidadAReservar > 0) {
-            logger.info(`  → ${cantidadDisponible} unidades de ${productoInfo.sku} como STOCK LIBRE (excedente)`);
+        totalUnidadesRecepcion += pr.cantidadRecibida;
+      }
+
+      // Actualizar cantidadRecibida en productos de la OC
+      const productosActualizados = orden.productos.map(p => {
+        const recibido = productosValidos.find(pr => pr.productoId === p.productoId);
+        if (recibido) {
+          return {
+            ...p,
+            cantidadRecibida: (p.cantidadRecibida || 0) + recibido.cantidadRecibida
+          };
+        }
+        return p;
+      });
+
+      // Determinar si es recepción final
+      const esRecepcionFinal = productosActualizados.every(
+        p => (p.cantidadRecibida || 0) >= p.cantidad
+      );
+
+      // Crear registro de recepción parcial
+      const recepcionesPrevias = orden.recepcionesParciales || [];
+      const recepcionNumero = recepcionesPrevias.length + 1;
+      const recepcionId = `REC-${Date.now()}`;
+
+      const nuevaRecepcion: RecepcionParcial = {
+        id: recepcionId,
+        fecha: Timestamp.now(),
+        numero: recepcionNumero,
+        productosRecibidos: productosValidos.map(pr => {
+          const productoOC = orden.productos.find(p => p.productoId === pr.productoId)!;
+          return {
+            productoId: pr.productoId,
+            cantidadRecibida: pr.cantidadRecibida,
+            cantidadAcumulada: (productoOC.cantidadRecibida || 0) + pr.cantidadRecibida
+          };
+        }),
+        unidadesGeneradas,
+        unidadesReservadas,
+        unidadesDisponibles,
+        totalUnidadesRecepcion,
+        costoAdicionalPorUnidad,
+        registradoPor: userId,
+        ...(observaciones ? { observaciones } : {})
+      };
+
+      // Actualizar contadores del almacén
+      const valorRecepcionUSD = productosValidos.reduce((sum, pr) => {
+        const productoOC = orden.productos.find(p => p.productoId === pr.productoId)!;
+        return sum + (pr.cantidadRecibida * (productoOC.costoUnitario + costoAdicionalPorUnidad));
+      }, 0);
+
+      await almacenService.incrementarUnidadesRecibidas(orden.almacenDestino, totalUnidadesRecepcion);
+      await almacenService.actualizarValorInventario(orden.almacenDestino, valorRecepcionUSD);
+
+      // Sincronizar stock de productos afectados
+      const productosAfectados = productosValidos.map(pr => pr.productoId);
+      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
+
+      // Acumular unidades generadas globales
+      const todasUnidadesGeneradas = [...(orden.unidadesGeneradas || []), ...unidadesGeneradas];
+      const totalUnidadesRecibidasGlobal = (orden.totalUnidadesRecibidas || 0) + totalUnidadesRecepcion;
+
+      // Preparar actualización de la OC
+      const ocUpdates: any = {
+        productos: productosActualizados,
+        recepcionesParciales: [...recepcionesPrevias, nuevaRecepcion],
+        unidadesGeneradas: todasUnidadesGeneradas,
+        totalUnidadesRecibidas: totalUnidadesRecibidasGlobal,
+        ultimaEdicion: serverTimestamp(),
+        editadoPor: userId
+      };
+
+      if (esRecepcionFinal) {
+        ocUpdates.estado = 'recibida';
+        ocUpdates.fechaRecibida = Timestamp.now();
+        ocUpdates.inventarioGenerado = true;
+        ocUpdates.cotizacionVinculada = cotizacionId || null;
+      } else {
+        ocUpdates.estado = 'recibida_parcial';
+        if (!orden.fechaPrimeraRecepcion) {
+          ocUpdates.fechaPrimeraRecepcion = Timestamp.now();
+        }
+      }
+
+      await updateDoc(doc(db, ORDENES_COLLECTION, id), ocUpdates);
+
+      // Marcar requerimientos como completados SOLO si es recepción final
+      // y TODOS sus productos están completos
+      if (esRecepcionFinal) {
+        for (const reqId of reqIds) {
+          try {
+            await ExpectativaService.actualizarEstado(reqId, 'completado', userId);
+          } catch (error) {
+            console.error(`Error al marcar requerimiento ${reqId} como completado:`, error);
           }
         }
       }
 
-      // Calcular total de unidades y valor TOTAL para el almacén
-      const totalUnidades = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
-      const valorTotalUSD = orden.totalUSD;
-
-      // Actualizar contadores del almacén destino
-      await almacenService.incrementarUnidadesRecibidas(orden.almacenDestino, totalUnidades);
-      await almacenService.actualizarValorInventario(
-        orden.almacenDestino,
-        valorTotalUSD
-      );
-
-      // Sincronizar stock de cada producto desde unidades (fuente de verdad)
-      const productosAfectados = orden.productos.map(p => p.productoId);
-      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
-
-      // Actualizar orden con información de reservas
-      await updateDoc(doc(db, ORDENES_COLLECTION, id), {
-        estado: 'recibida',
-        fechaRecibida: Timestamp.now(),
-        inventarioGenerado: true,
-        unidadesGeneradas,
-        unidadesReservadas: unidadesReservadas.length > 0 ? unidadesReservadas : null,
-        unidadesDisponibles: unidadesDisponibles.length > 0 ? unidadesDisponibles : null,
-        cotizacionVinculada: cotizacionId || null,
-        ultimaEdicion: serverTimestamp(),
-        editadoPor: userId
-      });
-
-      // Si la orden estaba vinculada a un requerimiento, marcarlo como completado
-      if (orden.requerimientoId) {
-        try {
-          await ExpectativaService.actualizarEstado(
-            orden.requerimientoId,
-            'completado',
-            userId
-          );
-        } catch (error) {
-          console.error('Error al marcar requerimiento como completado:', error);
-        }
-      }
-
       // Log resumen
-      if (unidadesReservadas.length > 0) {
-        logger.success(`OC ${orden.numeroOrden} recibida: ${unidadesReservadas.length} reservadas, ${unidadesDisponibles.length} disponibles`);
-      } else {
-        logger.info(`OC ${orden.numeroOrden} recibida: ${unidadesGeneradas.length} unidades disponibles`);
-      }
+      logger.success(`OC ${orden.numeroOrden} - Recepción #${recepcionNumero}: ${totalUnidadesRecepcion} unidades (${unidadesReservadas.length} reservadas, ${unidadesDisponibles.length} disponibles)${esRecepcionFinal ? ' - RECEPCIÓN FINAL' : ''}`);
 
       return {
+        recepcionId,
         unidadesGeneradas,
         unidadesReservadas,
         unidadesDisponibles,
+        esRecepcionFinal,
         cotizacionVinculada: cotizacionId
       };
     } catch (error: any) {
-      console.error('Error al recibir orden:', error);
-      throw new Error(error.message || 'Error al recibir orden');
+      console.error('Error al recibir orden parcial:', error);
+      throw new Error(error.message || 'Error al recibir orden parcial');
     }
   }
 
   /**
-   * Eliminar orden (solo borradores)
+   * Recibir orden completa (wrapper que delega a recibirOrdenParcial)
+   * Recibe TODO lo pendiente de una sola vez
+   */
+  static async recibirOrden(id: string, userId: string): Promise<{
+    unidadesGeneradas: string[];
+    unidadesReservadas: string[];
+    unidadesDisponibles: string[];
+    cotizacionVinculada?: string;
+  }> {
+    const orden = await this.getById(id);
+    if (!orden) {
+      throw new Error('Orden no encontrada');
+    }
+
+    // Calcular todo lo pendiente
+    const productosRecibidos = orden.productos
+      .map(p => ({
+        productoId: p.productoId,
+        cantidadRecibida: p.cantidad - (p.cantidadRecibida || 0)
+      }))
+      .filter(p => p.cantidadRecibida > 0);
+
+    if (productosRecibidos.length === 0) {
+      throw new Error('Todos los productos ya fueron recibidos');
+    }
+
+    const result = await this.recibirOrdenParcial(id, productosRecibidos, userId, 'Recepción completa');
+
+    return {
+      unidadesGeneradas: result.unidadesGeneradas,
+      unidadesReservadas: result.unidadesReservadas,
+      unidadesDisponibles: result.unidadesDisponibles,
+      cotizacionVinculada: result.cotizacionVinculada
+    };
+  }
+
+  /**
+   * Eliminar orden (solo si no ha generado inventario)
+   * Permite eliminar borradores, enviadas y en tránsito que no tengan recepciones
    */
   static async delete(id: string): Promise<void> {
     try {
@@ -830,11 +1070,22 @@ export class OrdenCompraService {
       if (!orden) {
         throw new Error('Orden no encontrada');
       }
-      
-      if (orden.estado !== 'borrador') {
-        throw new Error('Solo se pueden eliminar órdenes en borrador');
+
+      // Bloquear eliminación si ya tiene unidades generadas
+      const tieneInventario = (orden.unidadesGeneradas?.length ?? 0) > 0
+        || (orden.recepcionesParciales?.length ?? 0) > 0
+        || orden.inventarioGenerado === true;
+
+      if (tieneInventario) {
+        throw new Error('No se puede eliminar una orden que ya generó inventario. Usa "Revertir Recepciones" primero.');
       }
-      
+
+      // Solo permitir eliminar estados sin impacto
+      const estadosPermitidos: EstadoOrden[] = ['borrador', 'enviada', 'en_transito', 'cancelada'];
+      if (!estadosPermitidos.includes(orden.estado)) {
+        throw new Error(`No se puede eliminar una orden en estado "${orden.estado}"`);
+      }
+
       await deleteDoc(doc(db, ORDENES_COLLECTION, id));
     } catch (error: any) {
       console.error('Error al eliminar orden:', error);
@@ -855,17 +1106,19 @@ export class OrdenCompraService {
         enviadas: 0,
         pagadas: 0,
         enTransito: 0,
+        recibidasParcial: 0,
         recibidas: 0,
         canceladas: 0,
         valorTotalUSD: 0,
         valorTotalPEN: 0
       };
-      
+
       ordenes.forEach(orden => {
         // Contar por estado logístico
         if (orden.estado === 'borrador') stats.borradores++;
         else if (orden.estado === 'enviada') stats.enviadas++;
         else if (orden.estado === 'en_transito') stats.enTransito++;
+        else if (orden.estado === 'recibida_parcial') stats.recibidasParcial++;
         else if (orden.estado === 'recibida') stats.recibidas++;
         else if (orden.estado === 'cancelada') stats.canceladas++;
 
@@ -919,6 +1172,104 @@ export class OrdenCompraService {
       return `OC-${year}-${(maxNumber + 1).toString().padStart(3, '0')}`;
     } catch (error) {
       return `OC-${new Date().getFullYear()}-001`;
+    }
+  }
+
+  // ========================================
+  // LIMPIEZA DE DATOS DE PRUEBA
+  // ========================================
+
+  /**
+   * Revertir TODAS las recepciones parciales de una OC
+   * Elimina las unidades generadas, revierte el estado de la OC y limpia los contadores
+   * USO: Solo para limpiar datos de prueba. No usar en producción con datos reales.
+   */
+  static async revertirRecepciones(
+    ordenId: string,
+    userId: string
+  ): Promise<{
+    unidadesEliminadas: number;
+    recepcionesEliminadas: number;
+    estadoRestaurado: string;
+  }> {
+    try {
+      const orden = await this.getById(ordenId);
+      if (!orden) throw new Error('Orden no encontrada');
+
+      if (!['recibida_parcial', 'recibida'].includes(orden.estado)) {
+        throw new Error('La orden no tiene recepciones que revertir');
+      }
+
+      const recepciones = orden.recepcionesParciales || [];
+      const todasUnidadesGeneradas = orden.unidadesGeneradas || [];
+
+      // 1. Eliminar todas las unidades generadas de Firestore
+      let unidadesEliminadas = 0;
+      const batchSize = 400;
+      for (let i = 0; i < todasUnidadesGeneradas.length; i += batchSize) {
+        const batch = writeBatch(db);
+        const chunk = todasUnidadesGeneradas.slice(i, i + batchSize);
+        for (const unidadId of chunk) {
+          batch.delete(doc(db, 'unidades', unidadId));
+          unidadesEliminadas++;
+        }
+        await batch.commit();
+      }
+
+      // 2. Calcular valor total a restar del almacén
+      const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
+      const costosAdicionales = (orden.impuestoUSD || 0) + (orden.gastosEnvioUSD || 0) + (orden.otrosGastosUSD || 0);
+      const costoAdicionalPorUnidad = totalUnidadesOrden > 0 ? costosAdicionales / totalUnidadesOrden : 0;
+
+      const totalUnidadesRecibidas = orden.totalUnidadesRecibidas || 0;
+      const valorARestar = orden.productos.reduce((sum, p) => {
+        const recibido = p.cantidadRecibida || 0;
+        return sum + (recibido * (p.costoUnitario + costoAdicionalPorUnidad));
+      }, 0);
+
+      // 3. Restar del almacén
+      if (orden.almacenDestino && totalUnidadesRecibidas > 0) {
+        await almacenService.incrementarUnidadesRecibidas(orden.almacenDestino, -totalUnidadesRecibidas);
+      }
+
+      // 4. Restaurar productos a cantidadRecibida = 0
+      const productosRestaurados = orden.productos.map(p => ({
+        ...p,
+        cantidadRecibida: 0
+      }));
+
+      // 5. Determinar estado previo (antes de cualquier recepción)
+      const estadoRestaurado = 'en_transito';
+
+      // 6. Actualizar la OC
+      const updates: any = {
+        estado: estadoRestaurado,
+        productos: productosRestaurados,
+        recepcionesParciales: [],
+        unidadesGeneradas: [],
+        totalUnidadesRecibidas: 0,
+        inventarioGenerado: false,
+        ultimaEdicion: serverTimestamp(),
+        editadoPor: userId
+      };
+
+      // Limpiar campos de recepción
+      await updateDoc(doc(db, ORDENES_COLLECTION, ordenId), updates);
+
+      // 7. Sincronizar stock de productos afectados
+      const productosAfectados = orden.productos.map(p => p.productoId);
+      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
+
+      console.log(`[LIMPIEZA] OC ${orden.numeroOrden}: ${unidadesEliminadas} unidades eliminadas, ${recepciones.length} recepciones revertidas, estado → ${estadoRestaurado}`);
+
+      return {
+        unidadesEliminadas,
+        recepcionesEliminadas: recepciones.length,
+        estadoRestaurado
+      };
+    } catch (error: any) {
+      console.error('Error al revertir recepciones:', error);
+      throw new Error(error.message || 'Error al revertir recepciones');
     }
   }
 
@@ -1057,9 +1408,14 @@ export class OrdenCompraService {
   }>> {
     const resultado = new Map();
 
-    for (const productoId of productoIds) {
-      const precios = await this.getPreciosHistoricos(productoId);
+    // Obtener precios de todos los productos en paralelo para mejor performance
+    const preciosPromises = productoIds.map(id =>
+      this.getPreciosHistoricos(id).then(precios => ({ productoId: id, precios }))
+    );
 
+    const todosLosPrecios = await Promise.all(preciosPromises);
+
+    for (const { productoId, precios } of todosLosPrecios) {
       if (precios.length === 0) {
         resultado.set(productoId, {
           productoId,

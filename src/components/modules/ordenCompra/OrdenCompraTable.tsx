@@ -15,6 +15,7 @@ const estadoLabels: Record<EstadoOrden, { label: string; variant: 'success' | 'w
   borrador: { label: 'Borrador', variant: 'default' },
   enviada: { label: 'Enviada', variant: 'info' },
   en_transito: { label: 'En Tránsito', variant: 'warning' },
+  recibida_parcial: { label: 'Parcial', variant: 'warning' },
   recibida: { label: 'Recibida', variant: 'success' },
   cancelada: { label: 'Cancelada', variant: 'danger' }
 };
@@ -176,7 +177,7 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
                         </button>
                       )}
 
-                      {orden.estado === 'borrador' && onDelete && (
+                      {['borrador', 'enviada', 'en_transito', 'cancelada'].includes(orden.estado) && !orden.inventarioGenerado && onDelete && (
                         <button
                           onClick={() => onDelete(orden)}
                           className="text-danger-600 hover:text-danger-900"

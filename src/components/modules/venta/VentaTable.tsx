@@ -56,7 +56,7 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
       </div>
 
       {/* Resumen de la venta - 6 tarjetas */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-5">
         <div className="bg-white rounded-lg p-3 border border-gray-200">
           <div className="text-xs text-gray-500 flex items-center">
             <DollarSign className="h-3 w-3 mr-1" />
@@ -249,6 +249,58 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
   );
 };
 
+// Vista de tarjetas para móvil
+const VentaCard: React.FC<{
+  venta: Venta;
+  onView: (venta: Venta) => void;
+  onDelete?: (venta: Venta) => void;
+}> = ({ venta, onView, onDelete }) => {
+  const estadoInfo = estadoLabels[venta.estado];
+
+  const formatDate = (timestamp: any) => {
+    if (!timestamp) return '-';
+    const date = timestamp.toDate();
+    return date.toLocaleDateString('es-PE', { month: 'short', day: 'numeric' });
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-3 space-y-2" onClick={() => onView(venta)}>
+      <div className="flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-primary-600 font-semibold">{venta.numeroVenta}</span>
+            <Badge variant={estadoInfo.variant} size="sm">{estadoInfo.label}</Badge>
+          </div>
+          <div className="font-medium text-gray-900 text-sm truncate mt-1">{venta.nombreCliente}</div>
+          <div className="text-xs text-gray-500">{formatDate(venta.fechaCreacion)} - {canalLabels[venta.canal]}</div>
+        </div>
+        <div className="text-right">
+          <div className="font-bold text-gray-900">S/ {venta.totalPEN.toFixed(2)}</div>
+          {venta.margenPromedio !== undefined && (
+            <div className={`text-xs flex items-center justify-end ${venta.margenPromedio > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {venta.margenPromedio > 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+              {venta.margenPromedio.toFixed(1)}%
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+        <span>{venta.productos.length} producto{venta.productos.length !== 1 ? 's' : ''}</span>
+        <div className="flex items-center gap-2">
+          <button onClick={(e) => { e.stopPropagation(); onView(venta); }} className="p-1.5 text-primary-600 hover:bg-primary-50 rounded">
+            <Eye className="h-4 w-4" />
+          </button>
+          {venta.estado === 'cotizacion' && onDelete && (
+            <button onClick={(e) => { e.stopPropagation(); onDelete(venta); }} className="p-1.5 text-danger-600 hover:bg-danger-50 rounded">
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const VentaTable: React.FC<VentaTableProps> = ({
   ventas,
   onView,
@@ -317,7 +369,30 @@ export const VentaTable: React.FC<VentaTableProps> = ({
   };
 
   return (
-    <div className="overflow-x-auto">
+    <>
+      {/* Vista móvil - Cards */}
+      <div className="lg:hidden space-y-3">
+        {ventasPaginadas.map((venta) => (
+          <VentaCard
+            key={venta.id}
+            venta={venta}
+            onView={onView}
+            onDelete={onDelete}
+          />
+        ))}
+        {ventas.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={ventas.length}
+            pageSize={itemsPerPage}
+            onPageChange={setPage}
+            onPageSizeChange={setItemsPerPage}
+          />
+        )}
+      </div>
+
+      {/* Vista desktop - Tabla */}
+      <div className="hidden lg:block overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -573,6 +648,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
           onPageSizeChange={setItemsPerPage}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 };

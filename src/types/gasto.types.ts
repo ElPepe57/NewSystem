@@ -24,17 +24,65 @@ export type TipoGasto =
 export type CategoriaGasto = 'GV' | 'GD' | 'GA' | 'GO';
 
 /**
- * Clase de gasto - agrupación de categorías
- * - GVD: Gastos de Venta y Distribución (GV + GD) - afectan margen directo, NO CTRU
- * - GAO: Gastos Administrativos y Operativos (GA + GO) - prorrateables, SÍ afectan CTRU
+ * @deprecated Usar tipoCosto y asignacionGasto en su lugar
+ * Clase de gasto - agrupación de categorías (mantener para compatibilidad)
  */
 export type ClaseGasto = 'GVD' | 'GAO';
 
 /**
+ * Tipo de costo para clasificación contable
+ * - directo: Varía directamente con cada venta (GV, GD)
+ * - indirecto: Fijo del período, independiente del volumen (GA, GO)
+ */
+export type TipoCosto = 'directo' | 'indirecto';
+
+/**
+ * Tipo de asignación del gasto
+ * - venta: Se asigna directamente a cada venta (GV, GD)
+ * - periodo: Se asigna al período completo (GA, GO)
+ */
+export type AsignacionGasto = 'venta' | 'periodo';
+
+/**
+ * Comportamiento del costo
+ * - variable: Cambia proporcionalmente con las ventas (comisiones %)
+ * - fijo: Se mantiene constante independiente del volumen (alquiler)
+ * - semi_variable: Tiene componente fijo y variable (algunos servicios)
+ */
+export type ComportamientoCosto = 'variable' | 'fijo' | 'semi_variable';
+
+/**
+ * @deprecated Usar getTipoCosto en su lugar
  * Obtener la clase de gasto a partir de la categoría
  */
 export const getClaseGasto = (categoria: CategoriaGasto): ClaseGasto => {
   return categoria === 'GV' || categoria === 'GD' ? 'GVD' : 'GAO';
+};
+
+/**
+ * Obtener el tipo de costo a partir de la categoría
+ */
+export const getTipoCosto = (categoria: CategoriaGasto): TipoCosto => {
+  return categoria === 'GV' || categoria === 'GD' ? 'directo' : 'indirecto';
+};
+
+/**
+ * Obtener el tipo de asignación a partir de la categoría
+ */
+export const getAsignacionGasto = (categoria: CategoriaGasto): AsignacionGasto => {
+  return categoria === 'GV' || categoria === 'GD' ? 'venta' : 'periodo';
+};
+
+/**
+ * Obtener el comportamiento típico de una categoría
+ */
+export const getComportamientoCosto = (categoria: CategoriaGasto): ComportamientoCosto => {
+  switch (categoria) {
+    case 'GV': return 'variable';      // Comisiones varían con ventas
+    case 'GD': return 'variable';      // Delivery varía con entregas
+    case 'GA': return 'fijo';          // Administrativos son fijos
+    case 'GO': return 'semi_variable'; // Operativos pueden variar algo
+  }
 };
 
 /**
@@ -69,42 +117,64 @@ export const CLASES_GASTO: Record<ClaseGasto, {
 export const CATEGORIAS_GASTO: Record<CategoriaGasto, {
   codigo: CategoriaGasto;
   nombre: string;
+  nombreCorto: string;
   descripcion: string;
   color: string;
   ejemplos: string[];
+  /** @deprecated Usar tipoCosto en su lugar */
   impactaCTRU: boolean;
+  // Nuevos campos de clasificación contable
+  tipoCosto: TipoCosto;
+  asignacion: AsignacionGasto;
+  comportamiento: ComportamientoCosto;
 }> = {
   GV: {
     codigo: 'GV',
     nombre: 'Gasto de Venta',
+    nombreCorto: 'Ventas',
     descripcion: 'Comisiones, pasarelas de pago, fees de plataformas',
     color: 'purple',
     ejemplos: ['Comisión ML', 'Comisión pasarela', 'Fee plataforma', 'Marketing'],
-    impactaCTRU: false
+    impactaCTRU: false,
+    tipoCosto: 'directo',
+    asignacion: 'venta',
+    comportamiento: 'variable'
   },
   GD: {
     codigo: 'GD',
     nombre: 'Gasto de Distribución',
+    nombreCorto: 'Distribución',
     descripcion: 'Delivery, empaque, flete local',
     color: 'blue',
     ejemplos: ['Delivery', 'Empaque', 'Flete local', 'Courier'],
-    impactaCTRU: false
+    impactaCTRU: false,
+    tipoCosto: 'directo',
+    asignacion: 'venta',
+    comportamiento: 'variable'
   },
   GA: {
     codigo: 'GA',
     nombre: 'Gasto Administrativo',
+    nombreCorto: 'Administrativos',
     descripcion: 'Planilla, servicios, contador, alquiler',
     color: 'amber',
     ejemplos: ['Planilla', 'Luz', 'Agua', 'Internet', 'Contador', 'Alquiler'],
-    impactaCTRU: true
+    impactaCTRU: true,
+    tipoCosto: 'indirecto',
+    asignacion: 'periodo',
+    comportamiento: 'fijo'
   },
   GO: {
     codigo: 'GO',
     nombre: 'Gasto Operativo',
+    nombreCorto: 'Operativos',
     descripcion: 'Movilidad, suministros, mantenimiento',
     color: 'green',
     ejemplos: ['Movilidad', 'Suministros', 'Mantenimiento', 'Herramientas'],
-    impactaCTRU: true
+    impactaCTRU: true,
+    tipoCosto: 'indirecto',
+    asignacion: 'periodo',
+    comportamiento: 'semi_variable'
   }
 };
 

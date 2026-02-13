@@ -19,8 +19,15 @@ export class ReporteService {
   /**
    * Obtener resumen ejecutivo completo
    */
-  static async getResumenEjecutivo(): Promise<ResumenEjecutivo> {
+  static async getResumenEjecutivo(rango?: RangoFechas): Promise<ResumenEjecutivo> {
     try {
+      // Si no se proporciona rango, usar rango por defecto (mes actual)
+      const ahora = new Date();
+      const rangoFinal = rango || {
+        inicio: new Date(ahora.getFullYear(), ahora.getMonth(), 1),
+        fin: ahora
+      };
+
       const [
         ventasStats,
         productos,
@@ -30,7 +37,7 @@ export class ReporteService {
         VentaService.getStats(),
         ProductoService.getAll(),
         OrdenCompraService.getStats(),
-        this.getProductosRentabilidad({ inicio: new Date(0), fin: new Date() })
+        this.getProductosRentabilidad(rangoFinal)
       ]);
 
       // Obtener TC actual y promedio mensual
@@ -39,17 +46,17 @@ export class ReporteService {
         tipoCambioService.getPromedioMensual()
       ]);
 
-      // Calcular ventas por período
-      const ahora = new Date();
+      // Calcular ventas por período (basado en el rango seleccionado)
       const inicioHoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
       const inicioSemana = new Date(ahora);
       inicioSemana.setDate(ahora.getDate() - 7);
       const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
 
-      const [ventasHoy, ventasSemana, ventasMes] = await Promise.all([
+      const [ventasHoy, ventasSemana, ventasMes, ventasRango] = await Promise.all([
         this.getVentasPorRango({ inicio: inicioHoy, fin: ahora }),
         this.getVentasPorRango({ inicio: inicioSemana, fin: ahora }),
-        this.getVentasPorRango({ inicio: inicioMes, fin: ahora })
+        this.getVentasPorRango({ inicio: inicioMes, fin: ahora }),
+        this.getVentasPorRango(rangoFinal)
       ]);
 
       // Calcular valor de inventario
@@ -280,10 +287,21 @@ export class ReporteService {
   /**
    * Obtener ventas por canal
    */
-  static async getVentasPorCanal(): Promise<VentasPorCanal> {
+  static async getVentasPorCanal(rango?: RangoFechas): Promise<VentasPorCanal> {
     try {
       const ventas = await VentaService.getAll();
-      const ventasEntregadas = ventas.filter(v => v.estado === 'entregada');
+      // Incluir todas las ventas válidas (no cotizaciones ni canceladas)
+      const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada', 'reservada'];
+      let ventasValidas = ventas.filter(v => estadosValidos.includes(v.estado));
+
+      // Filtrar por rango si se proporciona
+      if (rango) {
+        ventasValidas = ventasValidas.filter(v => {
+          const fechaVenta = v.fechaEntrega?.toDate() || v.fechaConfirmacion?.toDate() || v.fechaCreacion?.toDate();
+          if (!fechaVenta) return false;
+          return fechaVenta >= rango.inicio && fechaVenta <= rango.fin;
+        });
+      }
 
       const stats: VentasPorCanal = {
         mercadoLibre: { cantidad: 0, totalPEN: 0, porcentaje: 0 },
@@ -293,9 +311,9 @@ export class ReporteService {
 
       let totalVentas = 0;
 
-      ventasEntregadas.forEach(venta => {
+      ventasValidas.forEach(venta => {
         totalVentas += venta.totalPEN;
-        
+
         if (venta.canal === 'mercado_libre') {
           stats.mercadoLibre.cantidad++;
           stats.mercadoLibre.totalPEN += venta.totalPEN;
@@ -324,11 +342,14 @@ export class ReporteService {
 
   /**
    * Obtener tendencia de ventas
+   * Incluye ventas confirmadas, asignadas, en_entrega y entregadas
    */
   static async getTendenciaVentas(dias: number = 30): Promise<TendenciaVentas[]> {
     try {
       const ventas = await VentaService.getAll();
-      const ventasEntregadas = ventas.filter(v => v.estado === 'entregada' && v.fechaEntrega);
+      // Incluir todas las ventas válidas (no cotizaciones ni canceladas)
+      const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada', 'reservada'];
+      const ventasValidas = ventas.filter(v => estadosValidos.includes(v.estado));
 
       const hoy = new Date();
       const tendencias: TendenciaVentas[] = [];
@@ -338,9 +359,14 @@ export class ReporteService {
         fecha.setDate(hoy.getDate() - i);
         fecha.setHours(0, 0, 0, 0);
 
-        const ventasDia = ventasEntregadas.filter(v => {
-          const fechaVenta = v.fechaEntrega!.toDate();
-          return fechaVenta.toDateString() === fecha.toDateString();
+        const fechaFinDia = new Date(fecha);
+        fechaFinDia.setHours(23, 59, 59, 999);
+
+        const ventasDia = ventasValidas.filter(v => {
+          // Usar fechaEntrega si existe, sino fechaConfirmacion, sino fechaCreacion
+          const fechaVenta = v.fechaEntrega?.toDate() || v.fechaConfirmacion?.toDate() || v.fechaCreacion?.toDate();
+          if (!fechaVenta) return false;
+          return fechaVenta >= fecha && fechaVenta <= fechaFinDia;
         });
 
         const totalVentas = ventasDia.reduce((sum, v) => sum + v.totalPEN, 0);
@@ -445,12 +471,16 @@ export class ReporteService {
    */
   private static async getVentasPorRango(rango: RangoFechas): Promise<{ cantidad: number; totalPEN: number; utilidadPEN: number }> {
     const ventas = await VentaService.getAll();
-    const ventasRango = ventas.filter(v => 
-      v.estado === 'entregada' &&
-      v.fechaEntrega &&
-      v.fechaEntrega.toDate() >= rango.inicio &&
-      v.fechaEntrega.toDate() <= rango.fin
-    );
+    // Incluir todas las ventas válidas (no cotizaciones ni canceladas)
+    const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada', 'reservada'];
+
+    const ventasRango = ventas.filter(v => {
+      if (!estadosValidos.includes(v.estado)) return false;
+      // Usar fechaEntrega si existe, sino fechaConfirmacion, sino fechaCreacion
+      const fechaVenta = v.fechaEntrega?.toDate() || v.fechaConfirmacion?.toDate() || v.fechaCreacion?.toDate();
+      if (!fechaVenta) return false;
+      return fechaVenta >= rango.inicio && fechaVenta <= rango.fin;
+    });
 
     return {
       cantidad: ventasRango.length,

@@ -177,7 +177,7 @@ class ProveedorService {
         codigo,
         nombre: data.nombre.trim(),
         tipo: data.tipo,
-        url: data.url.trim(),
+        url: data.url?.trim() || '',
         pais: data.pais,
         activo: true,
         creadoPor: userId,
@@ -198,6 +198,7 @@ class ProveedorService {
       if (data.telefono?.trim()) nuevoProveedor.telefono = data.telefono.trim();
       if (data.direccion?.trim()) nuevoProveedor.direccion = data.direccion.trim();
       if (data.notasInternas?.trim()) nuevoProveedor.notasInternas = data.notasInternas.trim();
+      if (data.email?.trim()) nuevoProveedor.email = data.email.trim();
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevoProveedor);
       return docRef.id;

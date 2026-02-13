@@ -34,7 +34,10 @@ import type {
   MonedaTesoreria,
   MetodoTesoreria,
   EstadisticasTesoreriaAgregadas,
-  EstadisticasMensuales
+  EstadisticasMensuales,
+  TransferenciaEntreCuentasFormData,
+  AporteCapitalFormData,
+  RetiroCapitalFormData
 } from '../types/tesoreria.types';
 
 const MOVIMIENTOS_COLLECTION = 'movimientosTesoreria';
@@ -46,7 +49,9 @@ const ESTADISTICAS_DOC = 'estadisticas/tesoreria';
 // Tipos de movimiento que son ingresos (entradas de dinero)
 const TIPOS_INGRESO: TipoMovimientoTesoreria[] = [
   'ingreso_venta',
+  'ingreso_anticipo',
   'ingreso_otro',
+  'aporte_capital',
   'ajuste_positivo'
 ];
 
@@ -275,6 +280,64 @@ export const tesoreriaService = {
 
     if (data.metodo !== undefined) updates.metodo = data.metodo;
 
+    // Manejo de cambio de cuenta origen
+    if (data.cuentaOrigen !== undefined && data.cuentaOrigen !== movimientoActual.cuentaOrigen) {
+      const monedaActual = data.moneda ?? movimientoActual.moneda;
+      const montoActual = data.monto ?? movimientoActual.monto;
+      const esEgreso = esMovimientoEgreso(movimientoActual.tipo, movimientoActual);
+
+      // Revertir saldo de cuenta origen anterior (si existía)
+      if (movimientoActual.cuentaOrigen) {
+        // Si era egreso, devolver el dinero a la cuenta anterior
+        await this.actualizarSaldoCuenta(
+          movimientoActual.cuentaOrigen,
+          esEgreso ? movimientoActual.monto : -movimientoActual.monto,
+          movimientoActual.moneda
+        );
+      }
+
+      // Aplicar saldo a nueva cuenta origen (si se especificó)
+      if (data.cuentaOrigen) {
+        // Si es egreso, restar de la nueva cuenta
+        await this.actualizarSaldoCuenta(
+          data.cuentaOrigen,
+          esEgreso ? -montoActual : montoActual,
+          monedaActual
+        );
+      }
+
+      updates.cuentaOrigen = data.cuentaOrigen || null;
+    }
+
+    // Manejo de cambio de cuenta destino
+    if (data.cuentaDestino !== undefined && data.cuentaDestino !== movimientoActual.cuentaDestino) {
+      const monedaActual = data.moneda ?? movimientoActual.moneda;
+      const montoActual = data.monto ?? movimientoActual.monto;
+      const esIngreso = esMovimientoIngreso(movimientoActual.tipo, movimientoActual);
+
+      // Revertir saldo de cuenta destino anterior (si existía)
+      if (movimientoActual.cuentaDestino) {
+        // Si era ingreso, quitar el dinero de la cuenta anterior
+        await this.actualizarSaldoCuenta(
+          movimientoActual.cuentaDestino,
+          esIngreso ? -movimientoActual.monto : movimientoActual.monto,
+          movimientoActual.moneda
+        );
+      }
+
+      // Aplicar saldo a nueva cuenta destino (si se especificó)
+      if (data.cuentaDestino) {
+        // Si es ingreso, sumar a la nueva cuenta
+        await this.actualizarSaldoCuenta(
+          data.cuentaDestino,
+          esIngreso ? montoActual : -montoActual,
+          monedaActual
+        );
+      }
+
+      updates.cuentaDestino = data.cuentaDestino || null;
+    }
+
     await updateDoc(doc(db, MOVIMIENTOS_COLLECTION, id), updates);
   },
 
@@ -341,6 +404,117 @@ export const tesoreriaService = {
       cuentaOrigen: movimiento.cuentaOrigen,
       cuentaDestino: movimiento.cuentaDestino
     }, true).catch(err => console.warn('Error actualizando estadísticas:', err));
+  },
+
+  /**
+   * Reclasificar anticipos a ingreso_venta cuando la venta es entregada.
+   * Busca movimientos 'ingreso_anticipo' vinculados por ventaId o cotizacionId.
+   * Solo cambia el tipo del movimiento (in-place), sin afectar saldos de cuenta.
+   */
+  async reclasificarAnticipos(
+    ventaId: string,
+    cotizacionOrigenId: string | undefined,
+    userId: string
+  ): Promise<number> {
+    try {
+      // Buscar movimientos anticipo por ventaId
+      const movimientos = await this.getMovimientos({});
+      const anticipos = movimientos.filter(m =>
+        m.tipo === 'ingreso_anticipo' &&
+        m.estado === 'ejecutado' &&
+        (
+          m.ventaId === ventaId ||
+          (cotizacionOrigenId && m.cotizacionId === cotizacionOrigenId)
+        )
+      );
+
+      if (anticipos.length === 0) return 0;
+
+      let count = 0;
+      for (const mov of anticipos) {
+        await updateDoc(doc(db, MOVIMIENTOS_COLLECTION, mov.id), {
+          tipo: 'ingreso_venta',
+          actualizadoPor: userId,
+          fechaActualizacion: Timestamp.now(),
+          notas: `${mov.notas || ''} [Reclasificado: anticipo → ingreso al entregar venta]`.trim()
+        });
+        count++;
+      }
+
+      console.log(`[Reclasificación] ${count} anticipo(s) reclasificados a ingreso_venta para venta ${ventaId}`);
+      return count;
+    } catch (error) {
+      console.error('[Reclasificación] Error:', error);
+      return 0;
+    }
+  },
+
+  /**
+   * Migración única: reclasificar movimientos históricos de ingreso_venta a ingreso_anticipo
+   * cuando están vinculados a ventas que aún están en estado 'reservada' (producto no entregado).
+   * Ejecutar una vez desde consola: await tesoreriaService.migrarAnticiposHistoricos('USER_ID')
+   */
+  async migrarAnticiposHistoricos(userId: string): Promise<{ migrados: number; detalles: string[] }> {
+    try {
+      const detalles: string[] = [];
+
+      // 1. Obtener todos los movimientos ingreso_venta
+      const movimientos = await this.getMovimientos({});
+      const ingresosVenta = movimientos.filter(m =>
+        m.tipo === 'ingreso_venta' && m.estado === 'ejecutado' && m.ventaId
+      );
+
+      detalles.push(`Encontrados ${ingresosVenta.length} movimientos ingreso_venta con ventaId`);
+
+      // 2. Para cada uno, verificar si la venta está en estado 'reservada'
+      let migrados = 0;
+      for (const mov of ingresosVenta) {
+        try {
+          const ventaSnap = await getDoc(doc(db, 'ventas', mov.ventaId!));
+          if (!ventaSnap.exists()) {
+            // Intentar como cotización (ventaId puede ser cotizacionId en adelantos)
+            const cotSnap = await getDoc(doc(db, 'cotizaciones', mov.ventaId!));
+            if (cotSnap.exists()) {
+              const cot = cotSnap.data();
+              // Si la cotización no se ha convertido en venta entregada, es anticipo
+              if (cot.estado !== 'entregada' && cot.estado !== 'completada') {
+                await updateDoc(doc(db, MOVIMIENTOS_COLLECTION, mov.id), {
+                  tipo: 'ingreso_anticipo',
+                  actualizadoPor: userId,
+                  fechaActualizacion: Timestamp.now(),
+                  notas: `${mov.notas || ''} [Migrado: ingreso_venta → ingreso_anticipo (cotización pendiente)]`.trim()
+                });
+                migrados++;
+                detalles.push(`✅ Migrado: ${mov.concepto} (cotización ${mov.ventaId})`);
+              }
+            }
+            continue;
+          }
+
+          const venta = ventaSnap.data();
+          // Solo migrar si la venta está en reservada (producto no entregado)
+          if (venta.estado === 'reservada') {
+            await updateDoc(doc(db, MOVIMIENTOS_COLLECTION, mov.id), {
+              tipo: 'ingreso_anticipo',
+              actualizadoPor: userId,
+              fechaActualizacion: Timestamp.now(),
+              notas: `${mov.notas || ''} [Migrado: ingreso_venta → ingreso_anticipo (venta reservada)]`.trim()
+            });
+            migrados++;
+            detalles.push(`✅ Migrado: ${mov.concepto} - ${venta.numeroVenta} (${venta.estado})`);
+          }
+        } catch (e) {
+          detalles.push(`⚠️ Error procesando mov ${mov.id}: ${e}`);
+        }
+      }
+
+      detalles.push(`\nTotal migrados: ${migrados} de ${ingresosVenta.length} revisados`);
+      console.log('[Migración Anticipos]', detalles.join('\n'));
+      return { migrados, detalles };
+    } catch (error) {
+      console.error('[Migración Anticipos] Error:', error);
+      return { migrados: 0, detalles: [`Error: ${error}`] };
+    }
   },
 
   /**
@@ -1835,6 +2009,357 @@ export const tesoreriaService = {
       saldoFinalPEN,
       tcPromedioMes: tcPromedio
     };
+  },
+
+  // ===============================================
+  // TRANSFERENCIAS ENTRE CUENTAS
+  // ===============================================
+
+  /**
+   * Transferir fondos entre cuentas propias
+   * NO afecta el patrimonio, solo redistribuye efectivo
+   * Genera 2 movimientos: salida de origen + entrada en destino
+   */
+  async transferirEntreCuentas(
+    data: TransferenciaEntreCuentasFormData,
+    userId: string
+  ): Promise<{ movimientoSalidaId: string; movimientoEntradaId: string }> {
+    // Validaciones
+    if (data.cuentaOrigenId === data.cuentaDestinoId) {
+      throw new Error('La cuenta de origen y destino no pueden ser la misma');
+    }
+    if (data.monto <= 0) {
+      throw new Error('El monto debe ser mayor a 0');
+    }
+
+    const cuentaOrigen = await this.getCuentaById(data.cuentaOrigenId);
+    const cuentaDestino = await this.getCuentaById(data.cuentaDestinoId);
+
+    if (!cuentaOrigen) throw new Error('Cuenta de origen no encontrada');
+    if (!cuentaDestino) throw new Error('Cuenta de destino no encontrada');
+    if (!cuentaOrigen.activa) throw new Error('La cuenta de origen está inactiva');
+    if (!cuentaDestino.activa) throw new Error('La cuenta de destino está inactiva');
+
+    // Verificar saldo suficiente
+    const saldoDisponible = cuentaOrigen.esBiMoneda
+      ? (data.moneda === 'USD' ? cuentaOrigen.saldoUSD || 0 : cuentaOrigen.saldoPEN || 0)
+      : cuentaOrigen.saldoActual;
+
+    if (saldoDisponible < data.monto) {
+      throw new Error(`Saldo insuficiente. Disponible: ${saldoDisponible.toFixed(2)} ${data.moneda}`);
+    }
+
+    const concepto = data.concepto || `Transferencia de ${cuentaOrigen.nombre} a ${cuentaDestino.nombre}`;
+    const numeroSalida = await this.generateNumeroMovimiento();
+    const numeroEntrada = await this.generateNumeroMovimiento();
+
+    // Calcular equivalentes
+    const montoEquivalentePEN = data.moneda === 'USD' ? data.monto * data.tipoCambio : data.monto;
+    const montoEquivalenteUSD = data.moneda === 'USD' ? data.monto : data.monto / data.tipoCambio;
+
+    // Movimiento de SALIDA (desde cuenta origen)
+    const movimientoSalida: Record<string, any> = {
+      numeroMovimiento: numeroSalida,
+      tipo: 'transferencia_interna',
+      estado: 'ejecutado',
+      moneda: data.moneda,
+      monto: data.monto,
+      tipoCambio: data.tipoCambio,
+      montoEquivalentePEN,
+      montoEquivalenteUSD,
+      metodo: 'otro',
+      concepto: `[SALIDA] ${concepto}`,
+      cuentaOrigen: data.cuentaOrigenId,
+      fecha: Timestamp.fromDate(data.fecha),
+      creadoPor: userId,
+      fechaCreacion: Timestamp.now()
+    };
+    if (data.notas) movimientoSalida.notas = data.notas;
+
+    // Movimiento de ENTRADA (hacia cuenta destino)
+    const movimientoEntrada: Record<string, any> = {
+      numeroMovimiento: numeroEntrada,
+      tipo: 'transferencia_interna',
+      estado: 'ejecutado',
+      moneda: data.moneda,
+      monto: data.monto,
+      tipoCambio: data.tipoCambio,
+      montoEquivalentePEN,
+      montoEquivalenteUSD,
+      metodo: 'otro',
+      concepto: `[ENTRADA] ${concepto}`,
+      cuentaDestino: data.cuentaDestinoId,
+      fecha: Timestamp.fromDate(data.fecha),
+      creadoPor: userId,
+      fechaCreacion: Timestamp.now()
+    };
+    if (data.notas) movimientoEntrada.notas = data.notas;
+
+    // Ejecutar en batch
+    const batch = writeBatch(db);
+
+    const salidaRef = doc(collection(db, MOVIMIENTOS_COLLECTION));
+    const entradaRef = doc(collection(db, MOVIMIENTOS_COLLECTION));
+
+    batch.set(salidaRef, movimientoSalida);
+    batch.set(entradaRef, movimientoEntrada);
+
+    await batch.commit();
+
+    // Actualizar saldos de cuentas
+    await this.actualizarSaldoCuenta(data.cuentaOrigenId, -data.monto, data.moneda);
+    await this.actualizarSaldoCuenta(data.cuentaDestinoId, data.monto, data.moneda);
+
+    logger.success(`Transferencia completada: ${data.monto} ${data.moneda} de ${cuentaOrigen.nombre} a ${cuentaDestino.nombre}`);
+
+    return {
+      movimientoSalidaId: salidaRef.id,
+      movimientoEntradaId: entradaRef.id
+    };
+  },
+
+  // ===============================================
+  // APORTES DE CAPITAL
+  // ===============================================
+
+  /**
+   * Registrar aporte/inyección de capital por un socio
+   * AUMENTA el patrimonio y el efectivo
+   * Se registra en la colección de aportes para tracking contable
+   */
+  async registrarAporteCapital(
+    data: AporteCapitalFormData,
+    userId: string
+  ): Promise<string> {
+    if (data.monto <= 0) {
+      throw new Error('El monto debe ser mayor a 0');
+    }
+
+    const cuentaDestino = await this.getCuentaById(data.cuentaDestinoId);
+    if (!cuentaDestino) throw new Error('Cuenta de destino no encontrada');
+    if (!cuentaDestino.activa) throw new Error('La cuenta de destino está inactiva');
+
+    const numeroMovimiento = await this.generateNumeroMovimiento();
+    const concepto = data.concepto || `Aporte de capital - ${data.socioNombre}`;
+
+    // Calcular equivalentes
+    const montoEquivalentePEN = data.moneda === 'USD' ? data.monto * data.tipoCambio : data.monto;
+    const montoEquivalenteUSD = data.moneda === 'USD' ? data.monto : data.monto / data.tipoCambio;
+
+    // Crear movimiento de tesorería
+    const movimiento: Record<string, any> = {
+      numeroMovimiento,
+      tipo: 'aporte_capital',
+      estado: 'ejecutado',
+      moneda: data.moneda,
+      monto: data.monto,
+      tipoCambio: data.tipoCambio,
+      montoEquivalentePEN,
+      montoEquivalenteUSD,
+      metodo: data.metodo,
+      concepto,
+      cuentaDestino: data.cuentaDestinoId,
+      fecha: Timestamp.fromDate(data.fecha),
+      creadoPor: userId,
+      fechaCreacion: Timestamp.now(),
+      // Metadata específica de aporte
+      socioNombre: data.socioNombre,
+      esAporteCapital: true
+    };
+    if (data.socioId) movimiento.socioId = data.socioId;
+    if (data.referencia) movimiento.referencia = data.referencia;
+    if (data.notas) movimiento.notas = data.notas;
+
+    const docRef = await addDoc(collection(db, MOVIMIENTOS_COLLECTION), movimiento);
+
+    // Actualizar saldo de cuenta destino
+    await this.actualizarSaldoCuenta(data.cuentaDestinoId, data.monto, data.moneda);
+
+    // Actualizar estadísticas
+    await this.actualizarEstadisticasPorMovimiento({
+      tipo: 'aporte_capital',
+      moneda: data.moneda,
+      monto: data.monto,
+      tipoCambio: data.tipoCambio,
+      cuentaDestino: data.cuentaDestinoId
+    }).catch(err => console.warn('Error actualizando estadísticas:', err));
+
+    // Registrar también en colección de aportes para contabilidad
+    await addDoc(collection(db, 'aportesCapital'), {
+      movimientoId: docRef.id,
+      numeroMovimiento,
+      socioNombre: data.socioNombre,
+      socioId: data.socioId || null,
+      monto: data.monto,
+      moneda: data.moneda,
+      montoEquivalentePEN,
+      tipoCambio: data.tipoCambio,
+      fecha: Timestamp.fromDate(data.fecha),
+      creadoPor: userId,
+      fechaCreacion: Timestamp.now()
+    });
+
+    logger.success(`Aporte de capital registrado: ${data.monto} ${data.moneda} por ${data.socioNombre}`);
+
+    return docRef.id;
+  },
+
+  /**
+   * Registrar retiro de capital/utilidades por un socio
+   * DISMINUYE el patrimonio y el efectivo
+   */
+  async registrarRetiroCapital(
+    data: RetiroCapitalFormData,
+    userId: string
+  ): Promise<string> {
+    if (data.monto <= 0) {
+      throw new Error('El monto debe ser mayor a 0');
+    }
+
+    const cuentaOrigen = await this.getCuentaById(data.cuentaOrigenId);
+    if (!cuentaOrigen) throw new Error('Cuenta de origen no encontrada');
+    if (!cuentaOrigen.activa) throw new Error('La cuenta de origen está inactiva');
+
+    // Verificar saldo
+    const saldoDisponible = cuentaOrigen.esBiMoneda
+      ? (data.moneda === 'USD' ? cuentaOrigen.saldoUSD || 0 : cuentaOrigen.saldoPEN || 0)
+      : cuentaOrigen.saldoActual;
+
+    if (saldoDisponible < data.monto) {
+      throw new Error(`Saldo insuficiente. Disponible: ${saldoDisponible.toFixed(2)} ${data.moneda}`);
+    }
+
+    const numeroMovimiento = await this.generateNumeroMovimiento();
+    const tipoRetiroLabel = data.tipoRetiro === 'utilidades' ? 'utilidades' :
+                           data.tipoRetiro === 'capital' ? 'capital' : 'préstamo a socio';
+    const concepto = data.concepto || `Retiro de ${tipoRetiroLabel} - ${data.socioNombre}`;
+
+    // Calcular equivalentes
+    const montoEquivalentePEN = data.moneda === 'USD' ? data.monto * data.tipoCambio : data.monto;
+    const montoEquivalenteUSD = data.moneda === 'USD' ? data.monto : data.monto / data.tipoCambio;
+
+    // Crear movimiento de tesorería
+    const movimiento: Record<string, any> = {
+      numeroMovimiento,
+      tipo: 'retiro_socio',
+      estado: 'ejecutado',
+      moneda: data.moneda,
+      monto: data.monto,
+      tipoCambio: data.tipoCambio,
+      montoEquivalentePEN,
+      montoEquivalenteUSD,
+      metodo: data.metodo,
+      concepto,
+      cuentaOrigen: data.cuentaOrigenId,
+      fecha: Timestamp.fromDate(data.fecha),
+      creadoPor: userId,
+      fechaCreacion: Timestamp.now(),
+      // Metadata específica de retiro
+      socioNombre: data.socioNombre,
+      tipoRetiro: data.tipoRetiro,
+      esRetiroCapital: true
+    };
+    if (data.socioId) movimiento.socioId = data.socioId;
+    if (data.referencia) movimiento.referencia = data.referencia;
+    if (data.notas) movimiento.notas = data.notas;
+
+    const docRef = await addDoc(collection(db, MOVIMIENTOS_COLLECTION), movimiento);
+
+    // Actualizar saldo de cuenta origen (resta)
+    await this.actualizarSaldoCuenta(data.cuentaOrigenId, -data.monto, data.moneda);
+
+    // Actualizar estadísticas
+    await this.actualizarEstadisticasPorMovimiento({
+      tipo: 'retiro_socio',
+      moneda: data.moneda,
+      monto: data.monto,
+      tipoCambio: data.tipoCambio,
+      cuentaOrigen: data.cuentaOrigenId
+    }).catch(err => console.warn('Error actualizando estadísticas:', err));
+
+    // Registrar también en colección de retiros para contabilidad
+    await addDoc(collection(db, 'retirosCapital'), {
+      movimientoId: docRef.id,
+      numeroMovimiento,
+      socioNombre: data.socioNombre,
+      socioId: data.socioId || null,
+      tipoRetiro: data.tipoRetiro,
+      monto: data.monto,
+      moneda: data.moneda,
+      montoEquivalentePEN,
+      tipoCambio: data.tipoCambio,
+      fecha: Timestamp.fromDate(data.fecha),
+      creadoPor: userId,
+      fechaCreacion: Timestamp.now()
+    });
+
+    logger.success(`Retiro de ${tipoRetiroLabel} registrado: ${data.monto} ${data.moneda} por ${data.socioNombre}`);
+
+    return docRef.id;
+  },
+
+  /**
+   * Obtener total de aportes de capital (para contabilidad)
+   * Suma todos los aportes registrados
+   */
+  async getTotalAportesCapital(): Promise<{ totalPEN: number; totalUSD: number; cantidad: number }> {
+    try {
+      const snapshot = await getDocs(collection(db, 'aportesCapital'));
+
+      let totalPEN = 0;
+      let totalUSD = 0;
+      let cantidad = 0;
+
+      snapshot.forEach(doc => {
+        const aporte = doc.data();
+        if (aporte.moneda === 'USD') {
+          totalUSD += aporte.monto || 0;
+        }
+        totalPEN += aporte.montoEquivalentePEN || 0;
+        cantidad++;
+      });
+
+      return { totalPEN, totalUSD, cantidad };
+    } catch (error) {
+      console.warn('Error obteniendo total de aportes:', error);
+      return { totalPEN: 0, totalUSD: 0, cantidad: 0 };
+    }
+  },
+
+  /**
+   * Obtener total de retiros de capital (para contabilidad)
+   */
+  async getTotalRetirosCapital(): Promise<{ totalPEN: number; totalUSD: number; cantidad: number; porTipo: Record<string, number> }> {
+    try {
+      const snapshot = await getDocs(collection(db, 'retirosCapital'));
+
+      let totalPEN = 0;
+      let totalUSD = 0;
+      let cantidad = 0;
+      const porTipo: Record<string, number> = {
+        utilidades: 0,
+        capital: 0,
+        prestamo: 0
+      };
+
+      snapshot.forEach(doc => {
+        const retiro = doc.data();
+        if (retiro.moneda === 'USD') {
+          totalUSD += retiro.monto || 0;
+        }
+        totalPEN += retiro.montoEquivalentePEN || 0;
+        cantidad++;
+
+        if (retiro.tipoRetiro && porTipo[retiro.tipoRetiro] !== undefined) {
+          porTipo[retiro.tipoRetiro] += retiro.montoEquivalentePEN || 0;
+        }
+      });
+
+      return { totalPEN, totalUSD, cantidad, porTipo };
+    } catch (error) {
+      console.warn('Error obteniendo total de retiros:', error);
+      return { totalPEN: 0, totalUSD: 0, cantidad: 0, porTipo: { utilidades: 0, capital: 0, prestamo: 0 } };
+    }
   }
 };
 

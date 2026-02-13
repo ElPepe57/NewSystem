@@ -21,8 +21,10 @@ export type MonedaTesoreria = 'USD' | 'PEN';
  */
 export type TipoMovimientoTesoreria =
   // Entradas
-  | 'ingreso_venta'           // Cobro de venta
+  | 'ingreso_venta'           // Cobro de venta (producto entregado)
+  | 'ingreso_anticipo'        // Adelanto recibido (pasivo - producto pendiente de entrega)
   | 'ingreso_otro'            // Otros ingresos
+  | 'aporte_capital'          // Inyección de capital por socio
   // Salidas
   | 'pago_orden_compra'       // Pago a proveedor USA
   | 'pago_viajero'            // Pago a viajero (flete)
@@ -32,6 +34,8 @@ export type TipoMovimientoTesoreria =
   // Conversiones
   | 'conversion_pen_usd'      // Cambio de PEN a USD
   | 'conversion_usd_pen'      // Cambio de USD a PEN
+  // Transferencias internas
+  | 'transferencia_interna'   // Movimiento entre cuentas propias (no afecta patrimonio)
   // Ajustes
   | 'ajuste_positivo'         // Ajuste de caja positivo
   | 'ajuste_negativo';        // Ajuste de caja negativo
@@ -53,9 +57,11 @@ export type MetodoTesoreria =
   | 'yape'
   | 'plin'
   | 'tarjeta'
+  | 'tarjeta_credito'           // Tarjeta de crédito (genera deuda)
+  | 'prestamo_viajero'          // Préstamo/adelanto de viajero
   | 'mercado_pago'
   | 'paypal'
-  | 'zelle'                   // Para pagos USA
+  | 'zelle'                     // Para pagos USA
   | 'otro';
 
 // ===============================================
@@ -218,7 +224,7 @@ export interface CuentaCaja {
   id: string;
   nombre: string;               // "Caja Chica PEN", "Cuenta BCP", etc.
   titular: string;              // Nombre del titular de la cuenta (obligatorio)
-  tipo: 'efectivo' | 'banco' | 'digital'; // Tipo de cuenta
+  tipo: 'efectivo' | 'banco' | 'digital' | 'credito'; // Tipo de cuenta
 
   // Configuración de moneda
   esBiMoneda: boolean;          // true = maneja USD y PEN en la misma cuenta
@@ -340,7 +346,7 @@ export interface ConversionCambiariaFormData {
 export interface CuentaCajaFormData {
   nombre: string;
   titular: string;              // Nombre del titular (obligatorio)
-  tipo: 'efectivo' | 'banco' | 'digital';
+  tipo: 'efectivo' | 'banco' | 'digital' | 'credito';
 
   // Configuración de moneda
   esBiMoneda: boolean;          // true = cuenta bi-moneda
@@ -362,6 +368,58 @@ export interface CuentaCajaFormData {
   cci?: string;
   metodoPagoAsociado?: MetodoTesoreria;
   esCuentaPorDefecto?: boolean;
+}
+
+/**
+ * Datos para transferencia entre cuentas propias
+ * NO afecta el patrimonio, solo redistribuye fondos
+ */
+export interface TransferenciaEntreCuentasFormData {
+  cuentaOrigenId: string;
+  cuentaDestinoId: string;
+  monto: number;
+  moneda: MonedaTesoreria;
+  tipoCambio: number;           // Para el cálculo de equivalentes
+  concepto?: string;
+  notas?: string;
+  fecha: Date;
+}
+
+/**
+ * Datos para aporte/inyección de capital
+ * AUMENTA el patrimonio (Capital Social o Aportes de Socios)
+ */
+export interface AporteCapitalFormData {
+  monto: number;
+  moneda: MonedaTesoreria;
+  tipoCambio: number;
+  cuentaDestinoId: string;      // Cuenta donde se deposita el capital
+  socioNombre: string;          // Nombre del socio que aporta
+  socioId?: string;             // ID del socio (si existe en el sistema)
+  metodo: MetodoTesoreria;      // Cómo se recibió (efectivo, transferencia, etc.)
+  referencia?: string;          // Nro de operación bancaria, etc.
+  concepto?: string;
+  notas?: string;
+  fecha: Date;
+}
+
+/**
+ * Datos para retiro de capital/utilidades por socio
+ * DISMINUYE el patrimonio
+ */
+export interface RetiroCapitalFormData {
+  monto: number;
+  moneda: MonedaTesoreria;
+  tipoCambio: number;
+  cuentaOrigenId: string;       // Cuenta de donde sale el dinero
+  socioNombre: string;          // Nombre del socio que retira
+  socioId?: string;             // ID del socio
+  tipoRetiro: 'utilidades' | 'capital' | 'prestamo';
+  metodo: MetodoTesoreria;
+  referencia?: string;
+  concepto?: string;
+  notas?: string;
+  fecha: Date;
 }
 
 // ===============================================
@@ -618,6 +676,34 @@ export interface DashboardCuentasPendientes {
     porCobrarUSD: number;
     porPagarUSD: number;
     flujoNetoUSD: number;
+  };
+
+  // Flujo de caja proyectado mejorado
+  flujoCajaProyectado?: {
+    // Saldo actual en cuentas
+    saldoActualPEN: number;
+    saldoActualUSD: number;
+
+    // Ingresos ya cobrados este mes
+    ingresosCobradosMesPEN: number;
+    ingresosCobradosMesUSD: number;
+
+    // Egresos ya pagados este mes
+    egresosPagadosMesPEN: number;
+    egresosPagadosMesUSD: number;
+
+    // Proyección de ingresos futuros
+    proyeccionIngresos: {
+      cotizacionesPendientes: number;    // Cotizaciones enviadas no convertidas
+      expectativasActivas: number;        // Expectativas de venta
+      inventarioDisponibleValor: number;  // Valor del inventario disponible para venta (con margen)
+      inversionTotalPEN: number;          // Inversión total (costo + flete) sin margen
+      totalProyectadoPEN: number;
+    };
+
+    // Flujo neto proyectado total
+    flujoNetoProyectadoPEN: number;  // saldoActual + porCobrar - porPagar + proyección
+    rentabilidadProyectada: number;  // % rentabilidad sobre la inversión
   };
 
   // Alertas

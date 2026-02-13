@@ -169,7 +169,8 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
       await registrarResultado({
         entregaId: entrega.id,
         exitosa: false,
-        motivoFallo: motivo,
+        motivoFallo: 'otro' as const,
+        descripcionFallo: motivo,
         notasEntrega: `Fallida: ${motivo}`
       }, user.uid);
 
@@ -217,19 +218,19 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
               {resumenVenta.entregaCompleta ? 'Entrega Completa' : 'Entrega Parcial'}
             </Badge>
           </div>
-          <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-3 text-sm">
             <div>
-              <span className="text-gray-500">Productos Entregados</span>
+              <span className="text-gray-500 text-xs sm:text-sm">Productos</span>
               <p className="font-semibold text-gray-900">
                 {resumenVenta.productosEntregados} / {resumenVenta.totalProductos}
               </p>
             </div>
             <div>
-              <span className="text-gray-500">Entregas</span>
+              <span className="text-gray-500 text-xs sm:text-sm">Entregas</span>
               <p className="font-semibold text-gray-900">{resumenVenta.entregas.length}</p>
             </div>
-            <div>
-              <span className="text-gray-500">Costo Distribución</span>
+            <div className="col-span-2 sm:col-span-1">
+              <span className="text-gray-500 text-xs sm:text-sm">Costo Distribución</span>
               <p className="font-semibold text-amber-600">
                 S/ {resumenVenta.costoTotalDistribucion.toFixed(2)}
               </p>
@@ -274,11 +275,11 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm mb-3">
                 <div>
                   <div className="flex items-center text-gray-500 mb-1">
-                    <Truck className="h-4 w-4 mr-1" />
-                    Transportista
+                    <Truck className="h-4 w-4 mr-1 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm">Transportista</span>
                   </div>
                   <div className="font-medium text-gray-900">
                     {entrega.nombreTransportista}
@@ -289,16 +290,16 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     )}
                   </div>
                   {entrega.telefonoTransportista && (
-                    <div className="text-gray-500 flex items-center mt-1">
+                    <a href={`tel:${entrega.telefonoTransportista}`} className="text-gray-500 flex items-center mt-1 hover:text-blue-600">
                       <Phone className="h-3 w-3 mr-1" />
                       {entrega.telefonoTransportista}
-                    </div>
+                    </a>
                   )}
                 </div>
                 <div>
                   <div className="flex items-center text-gray-500 mb-1">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Programada
+                    <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm">Programada</span>
                   </div>
                   <div className="font-medium text-gray-900">
                     {formatDate(entrega.fechaProgramada)}
@@ -317,8 +318,8 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                 </span>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t">
-                <div className="flex items-center gap-4 text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
                   <span className="text-gray-500">
                     <Package className="h-4 w-4 inline mr-1" />
                     {entrega.cantidadItems} items
@@ -340,8 +341,8 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     onClick={() => handlePrintGuia(entrega)}
                     title="Guía para transportista"
                   >
-                    <FileText className="h-4 w-4 mr-1" />
-                    Guía
+                    <FileText className="h-4 w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Guía</span>
                   </Button>
                   <Button
                     size="sm"
@@ -349,24 +350,26 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     onClick={() => handlePrintCargo(entrega)}
                     title="Cargo para cliente"
                   >
-                    <Printer className="h-4 w-4 mr-1" />
-                    Cargo
+                    <Printer className="h-4 w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Cargo</span>
                   </Button>
                 </div>
               </div>
 
               {/* Botones de acción según estado */}
               {(entrega.estado === 'programada' || entrega.estado === 'en_camino' || entrega.estado === 'reprogramada') && (
-                <div className="flex items-center justify-end gap-2 pt-3 border-t mt-3">
+                <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t mt-3">
                   {entrega.estado === 'programada' && (
                     <Button
                       size="sm"
                       variant="warning"
                       onClick={() => handleMarcarEnCamino(entrega)}
                       disabled={procesando === entrega.id}
+                      className="flex-1 sm:flex-none"
                     >
                       <PlayCircle className="h-4 w-4 mr-1" />
-                      {procesando === entrega.id ? 'Procesando...' : 'Iniciar Entrega'}
+                      <span className="hidden xs:inline">{procesando === entrega.id ? 'Procesando...' : 'Iniciar'}</span>
+                      <span className="xs:hidden">{procesando === entrega.id ? '...' : 'Iniciar'}</span>
                     </Button>
                   )}
                   <Button
@@ -374,18 +377,22 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     variant="success"
                     onClick={() => handleCompletarEntrega(entrega)}
                     disabled={procesando === entrega.id}
+                    className="flex-1 sm:flex-none"
                   >
                     <CheckCircle className="h-4 w-4 mr-1" />
-                    {procesando === entrega.id ? 'Procesando...' : 'Completar Entrega'}
+                    <span className="hidden sm:inline">{procesando === entrega.id ? 'Procesando...' : 'Completar'}</span>
+                    <span className="sm:hidden">{procesando === entrega.id ? '...' : 'OK'}</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="danger"
                     onClick={() => handleMarcarFallida(entrega)}
                     disabled={procesando === entrega.id}
+                    className="flex-1 sm:flex-none"
                   >
                     <XCircle className="h-4 w-4 mr-1" />
-                    Fallida
+                    <span className="hidden sm:inline">Fallida</span>
+                    <span className="sm:hidden">Fallo</span>
                   </Button>
                 </div>
               )}

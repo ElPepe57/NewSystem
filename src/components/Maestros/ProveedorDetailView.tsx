@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import {
   X,
   Truck,
@@ -32,6 +32,7 @@ import {
   TrendingUp as ChartLine
 } from 'lucide-react';
 import { Button, Card, Badge, KPICard, KPIGrid } from '../common';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import { ProveedorAnalyticsService, type ProveedorAnalytics, type ComparativoPrecioProducto } from '../../services/proveedor.analytics.service';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
 import { useProductoStore } from '../../store/productoStore';
@@ -55,6 +56,18 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
   const [analytics, setAnalytics] = useState<ProveedorAnalytics | null>(null);
   const [comparativoPrecios, setComparativoPrecios] = useState<ComparativoPrecioProducto[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   const { ordenes: ordenesCompra, fetchOrdenes: fetchOrdenesCompra } = useOrdenCompraStore();
   const { productos, fetchProductos } = useProductoStore();

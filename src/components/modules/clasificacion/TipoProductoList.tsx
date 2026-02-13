@@ -10,7 +10,7 @@ import type { TipoProducto } from '../../../types/tipoProducto.types';
 
 export function TipoProductoList() {
   const { user } = useAuthStore();
-  const { tiposActivos, fetchTiposActivos, remove, loading } = useTipoProductoStore();
+  const { tiposActivos, fetchTiposActivos, delete: deleteTipo, loading } = useTipoProductoStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -28,9 +28,9 @@ export function TipoProductoList() {
   };
 
   const handleDelete = async () => {
-    if (!deletingTipo || !user) return;
+    if (!deletingTipo) return;
     try {
-      await remove(deletingTipo.id, user.uid);
+      await deleteTipo(deletingTipo.id);
       setDeletingTipo(null);
     } catch (err) {
       // Error manejado por store
@@ -177,7 +177,7 @@ export function TipoProductoList() {
         variant="danger"
       />
 
-      {/* Modal de Detalle con Analytics */}
+      {/* Analytics Modal */}
       <TipoProductoDetalle
         isOpen={!!viewingTipo}
         onClose={() => setViewingTipo(null)}

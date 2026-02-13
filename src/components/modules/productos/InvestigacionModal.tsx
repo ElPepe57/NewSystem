@@ -218,28 +218,28 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       ? ctruEstimado / (1 - margenObjetivo / 100)
       : 0;
 
-    // Margen basado en precio Perú promedio
-    const margenEstimado = preciosPeru.promedio > 0 && ctruEstimado > 0
-      ? ((preciosPeru.promedio - ctruEstimado) / preciosPeru.promedio) * 100
-      : 0;
-
-    // Precio de entrada (competitivo)
+    // Precio de entrada (competitivo) - calcularlo primero
     const precioEntrada = preciosPeru.min > 0 ? preciosPeru.min * 0.95 : precioSugeridoCalculado;
+
+    // Margen basado en precio de entrada (consistente con ProductoTable)
+    const margenEstimado = precioEntrada > 0 && ctruEstimado > 0
+      ? ((precioEntrada - ctruEstimado) / precioEntrada) * 100
+      : 0;
 
     // Determinar si es rentable
     const esRentable = margenEstimado >= (producto.margenMinimo || 15);
 
-    // Métricas de inversión
-    const gananciaUnidad = preciosPeru.promedio > 0 && ctruEstimado > 0
-      ? preciosPeru.promedio - ctruEstimado
+    // Métricas de inversión - basadas en precio de entrada
+    const gananciaUnidad = precioEntrada > 0 && ctruEstimado > 0
+      ? precioEntrada - ctruEstimado
       : 0;
 
     const roi = ctruEstimado > 0 && gananciaUnidad > 0
       ? (gananciaUnidad / ctruEstimado) * 100
       : 0;
 
-    const multiplicador = ctruEstimado > 0 && preciosPeru.promedio > 0
-      ? preciosPeru.promedio / ctruEstimado
+    const multiplicador = ctruEstimado > 0 && precioEntrada > 0
+      ? precioEntrada / ctruEstimado
       : 0;
 
     // Puntuación de viabilidad (0-100)

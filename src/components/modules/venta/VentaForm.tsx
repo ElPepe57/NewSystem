@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, AlertCircle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Trash2, AlertCircle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight, Boxes, Calendar, DollarSign, Lock } from 'lucide-react';
 import { Button, Input, Select, Modal, Stepper, useStepper, StepContent } from '../../common';
 import type { Step } from '../../common/Stepper';
 import { ProductoForm } from '../productos/ProductoForm';
 import { ClienteAutocomplete } from '../entidades/ClienteAutocomplete';
 import { CanalAutocomplete } from '../canalVenta/CanalAutocomplete';
+import { ProductoSearchVentas, type ProductoVentaSnapshot } from '../entidades/ProductoSearchVentas';
 import { tesoreriaService } from '../../../services/tesoreria.service';
 import { clienteService } from '../../../services/cliente.service';
 import { useProductoStore } from '../../../store/productoStore';
@@ -54,6 +55,7 @@ interface ProductoVentaItem {
   productoId: string;
   cantidad: number;
   precioUnitario: number;
+  snapshot?: ProductoVentaSnapshot | null; // Info completa del producto
 }
 
 // canalOptions legacy - ahora usamos CanalAutocomplete dinámico
@@ -100,7 +102,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   const [canalNombre, setCanalNombre] = useState('');
   const [mercadoLibreId, setMercadoLibreId] = useState('');
   const [productos, setProductos] = useState<ProductoVentaItem[]>([
-    { productoId: '', cantidad: 1, precioUnitario: 0 }
+    { productoId: '', cantidad: 1, precioUnitario: 0, snapshot: null }
   ]);
   const [descuento, setDescuento] = useState(0);
   const [costoEnvio, setCostoEnvio] = useState(0);
@@ -254,7 +256,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
   // Agregar producto
   const handleAddProducto = () => {
-    setProductos([...productos, { productoId: '', cantidad: 1, precioUnitario: 0 }]);
+    setProductos([...productos, { productoId: '', cantidad: 1, precioUnitario: 0, snapshot: null }]);
   };
 
   // Eliminar producto
@@ -267,13 +269,13 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   // Actualizar producto
   const handleProductoChange = (index: number, field: keyof ProductoVentaItem, value: any) => {
     const nuevosProductos = [...productos];
-    
+
     if (field === 'productoId') {
       nuevosProductos[index] = {
         ...nuevosProductos[index],
         productoId: value
       };
-      
+
       // Auto-llenar precio sugerido
       const producto = productosDisponibles.find(p => p.productoId === value);
       if (producto && producto.precioSugerido > 0) {
@@ -285,7 +287,29 @@ export const VentaForm: React.FC<VentaFormProps> = ({
         [field]: parseFloat(value) || 0
       };
     }
-    
+
+    setProductos(nuevosProductos);
+  };
+
+  // Handler para selección de producto desde buscador inteligente
+  const handleProductoSelect = (index: number, snapshot: ProductoVentaSnapshot | null) => {
+    const nuevosProductos = [...productos];
+
+    if (snapshot) {
+      nuevosProductos[index] = {
+        ...nuevosProductos[index],
+        productoId: snapshot.productoId,
+        precioUnitario: snapshot.precioSugerido > 0 ? snapshot.precioSugerido : nuevosProductos[index].precioUnitario,
+        snapshot: snapshot
+      };
+    } else {
+      nuevosProductos[index] = {
+        ...nuevosProductos[index],
+        productoId: '',
+        snapshot: null
+      };
+    }
+
     setProductos(nuevosProductos);
   };
 
@@ -448,27 +472,30 @@ export const VentaForm: React.FC<VentaFormProps> = ({
       <StepContent currentStep={currentStep}>
         {/* PASO 1: PRODUCTOS */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-gray-900">Selecciona los productos</h4>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+            <h4 className="text-base sm:text-lg font-semibold text-gray-900">Selecciona los productos</h4>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowProductoModal(true)}
-                className="text-primary-600"
+                className="text-primary-600 flex-1 sm:flex-none"
               >
                 <PlusCircle className="h-4 w-4 mr-1" />
-                Crear Producto
+                <span className="hidden sm:inline">Crear Producto</span>
+                <span className="sm:hidden">Crear</span>
               </Button>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={handleAddProducto}
+                className="flex-1 sm:flex-none"
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Agregar Línea
+                <span className="hidden sm:inline">Agregar Línea</span>
+                <span className="sm:hidden">Agregar</span>
               </Button>
             </div>
           </div>
@@ -490,172 +517,150 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
           <div className="space-y-3">
             {productos.map((item, index) => {
-              const stockDisponible = getStockDisponible(item.productoId);
+              const stockDisponible = item.snapshot?.stockLibre ?? getStockDisponible(item.productoId);
               const stockInsuficiente = item.productoId && item.cantidad > stockDisponible;
               const productoSeleccionado = productosDisponibles.find(p => p.productoId === item.productoId);
               const tieneInvestigacion = productoSeleccionado?.investigacion;
+              const margenActual = item.snapshot?.ctruPromedio && item.precioUnitario > 0
+                ? ((item.precioUnitario - item.snapshot.ctruPromedio) / item.precioUnitario) * 100
+                : null;
 
               return (
                 <div key={index} className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-start space-x-3">
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
-                      <div className="md:col-span-2">
-                        <Select
-                          label="Producto"
-                          value={item.productoId}
-                          onChange={(e) => handleProductoChange(index, 'productoId', e.target.value)}
-                          options={productosDisponibles.map(p => ({
-                            value: p.productoId,
-                            label: `${p.sku} - ${p.marca} ${p.nombreComercial} (Stock: ${p.unidadesDisponibles})`
-                          }))}
-                          required
-                        />
-                      </div>
-
+                    <div className="flex-1 space-y-3">
+                      {/* Buscador inteligente de productos */}
                       <div>
-                        <Input
-                          label="Cantidad"
-                          type="number"
-                          min="1"
-                          value={item.cantidad}
-                          onChange={(e) => handleProductoChange(index, 'cantidad', e.target.value)}
-                          required
-                        />
-                        {stockInsuficiente && (
-                          <div className="flex items-center mt-1 text-xs text-danger-600">
-                            <AlertCircle className="h-3 w-3 mr-1" />
-                            Stock: {stockDisponible}
-                          </div>
-                        )}
-                      </div>
-
-                      <div>
-                        <Input
-                          label="Precio (PEN)"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={item.precioUnitario}
-                          onChange={(e) => handleProductoChange(index, 'precioUnitario', e.target.value)}
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Producto
+                        </label>
+                        <ProductoSearchVentas
+                          productos={productosDisponibles}
+                          value={item.snapshot}
+                          onChange={(snapshot) => handleProductoSelect(index, snapshot)}
+                          placeholder="Buscar por SKU, marca o nombre..."
                           required
                         />
                       </div>
-                    </div>
 
-                    <div className="flex items-end space-x-2">
-                      <div className="text-right">
-                        <div className="text-xs text-gray-600 mb-1">Subtotal</div>
-                        <div className="text-lg font-semibold text-gray-900">
-                          S/ {(item.cantidad * item.precioUnitario).toFixed(2)}
-                        </div>
-                      </div>
-
-                      {productos.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveProducto(index)}
-                          className="text-danger-600 hover:text-danger-900"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Sugerencia de precio basado en investigación */}
-                  {tieneInvestigacion && (
-                    <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <div className="flex items-start gap-2">
-                        <TrendingUp className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-blue-800">Rango de precios sugerido</p>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-xs">
-                            <div>
-                              <span className="text-blue-600">Entrada competitiva:</span>
-                              <span className="ml-1 font-semibold text-blue-800">
-                                S/{tieneInvestigacion.precioEntrada.toFixed(2)}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-blue-600">Mín. mercado:</span>
-                              <span className="ml-1 font-semibold text-blue-800">
-                                S/{tieneInvestigacion.precioPERUMin.toFixed(2)}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-blue-600">Promedio:</span>
-                              <span className="ml-1 font-semibold text-blue-800">
-                                S/{tieneInvestigacion.precioPERUPromedio.toFixed(2)}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-blue-600">Máx. mercado:</span>
-                              <span className="ml-1 font-semibold text-blue-800">
-                                S/{tieneInvestigacion.precioPERUMax.toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
-                          {/* Botones rápidos para aplicar precio */}
-                          <div className="flex gap-2 mt-2">
-                            <button
-                              type="button"
-                              onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioEntrada.toFixed(2))}
-                              className={`px-2 py-1 text-xs rounded-full transition-colors ${
-                                Math.abs(item.precioUnitario - tieneInvestigacion.precioEntrada) < 1
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                              }`}
-                            >
-                              Entrada
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUMin.toFixed(2))}
-                              className={`px-2 py-1 text-xs rounded-full transition-colors ${
-                                Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUMin) < 1
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                              }`}
-                            >
-                              Mínimo
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUPromedio.toFixed(2))}
-                              className={`px-2 py-1 text-xs rounded-full transition-colors ${
-                                Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUPromedio) < 1
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                              }`}
-                            >
-                              Promedio
-                            </button>
-                          </div>
-                          {/* Margen estimado */}
-                          {tieneInvestigacion.ctruEstimado > 0 && item.precioUnitario > 0 && (
-                            <div className="mt-2 flex items-center gap-2">
-                              <Info className="h-3 w-3 text-blue-500" />
-                              <span className="text-xs text-blue-600">
-                                Margen estimado:{' '}
-                                <span className={`font-semibold ${
-                                  ((item.precioUnitario - tieneInvestigacion.ctruEstimado) / item.precioUnitario * 100) >= 20
-                                    ? 'text-green-600'
-                                    : ((item.precioUnitario - tieneInvestigacion.ctruEstimado) / item.precioUnitario * 100) >= 10
-                                      ? 'text-yellow-600'
-                                      : 'text-red-600'
-                                }`}>
-                                  {((item.precioUnitario - tieneInvestigacion.ctruEstimado) / item.precioUnitario * 100).toFixed(1)}%
-                                </span>
-                                {' '}(CTRU: S/{tieneInvestigacion.ctruEstimado.toFixed(2)})
-                              </span>
+                      {/* Cantidad, Precio y Subtotal */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
+                        <div>
+                          <Input
+                            label="Cantidad"
+                            type="number"
+                            min="1"
+                            value={item.cantidad}
+                            onChange={(e) => handleProductoChange(index, 'cantidad', e.target.value)}
+                            required
+                          />
+                          {stockInsuficiente && (
+                            <div className="flex items-center mt-1 text-xs text-danger-600">
+                              <AlertCircle className="h-3 w-3 mr-1" />
+                              Stock disponible: {stockDisponible}
                             </div>
                           )}
                         </div>
+
+                        <div>
+                          <Input
+                            label="Precio (PEN)"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={item.precioUnitario}
+                            onChange={(e) => handleProductoChange(index, 'precioUnitario', e.target.value)}
+                            required
+                          />
+                        </div>
+
+                        {/* Margen en tiempo real */}
+                        <div className="text-center">
+                          {margenActual !== null ? (
+                            <div className={`px-3 py-2 rounded-lg ${
+                              margenActual >= 20 ? 'bg-green-100' :
+                              margenActual >= 10 ? 'bg-yellow-100' : 'bg-red-100'
+                            }`}>
+                              <div className="text-xs text-gray-600">Margen</div>
+                              <div className={`text-lg font-bold ${
+                                margenActual >= 20 ? 'text-green-600' :
+                                margenActual >= 10 ? 'text-yellow-600' : 'text-red-600'
+                              }`}>
+                                {margenActual.toFixed(1)}%
+                              </div>
+                            </div>
+                          ) : item.snapshot && (
+                            <div className="px-3 py-2 rounded-lg bg-gray-100">
+                              <div className="text-xs text-gray-500">Margen</div>
+                              <div className="text-sm text-gray-400">-</div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Subtotal y eliminar */}
+                        <div className="flex items-center justify-between">
+                          <div className="text-right flex-1">
+                            <div className="text-xs text-gray-600 mb-1">Subtotal</div>
+                            <div className="text-lg font-semibold text-gray-900">
+                              S/ {(item.cantidad * item.precioUnitario).toFixed(2)}
+                            </div>
+                          </div>
+
+                          {productos.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveProducto(index)}
+                              className="text-danger-600 hover:text-danger-900 ml-2"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
+
+                      {/* Precios rápidos de investigación si está disponible */}
+                      {tieneInvestigacion && item.productoId && (
+                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200">
+                          <span className="text-xs text-gray-500 w-full sm:w-auto">Aplicar precio:</span>
+                          <button
+                            type="button"
+                            onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioEntrada.toFixed(2))}
+                            className={`px-2 py-1 text-xs rounded-full transition-colors ${
+                              Math.abs(item.precioUnitario - tieneInvestigacion.precioEntrada) < 1
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                            }`}
+                          >
+                            Entrada S/{tieneInvestigacion.precioEntrada.toFixed(0)}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUMin.toFixed(2))}
+                            className={`px-2 py-1 text-xs rounded-full transition-colors ${
+                              Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUMin) < 1
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                            }`}
+                          >
+                            Mín. S/{tieneInvestigacion.precioPERUMin.toFixed(0)}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUPromedio.toFixed(2))}
+                            className={`px-2 py-1 text-xs rounded-full transition-colors ${
+                              Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUPromedio) < 1
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                            }`}
+                          >
+                            Prom. S/{tieneInvestigacion.precioPERUPromedio.toFixed(0)}
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}
@@ -684,28 +689,30 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
           {/* Tipo de envío */}
           {costoEnvio > 0 && (
-            <div className="flex items-center space-x-4 bg-gray-50 p-3 rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 bg-gray-50 p-3 rounded-lg">
               <span className="text-sm font-medium text-gray-700">Tipo de envío:</span>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="tipoEnvio"
-                  checked={incluyeEnvio}
-                  onChange={() => setIncluyeEnvio(true)}
-                  className="mr-2"
-                />
-                <span className="text-sm text-gray-600">Envío gratis (asumido por la empresa)</span>
-              </label>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="tipoEnvio"
-                  checked={!incluyeEnvio}
-                  onChange={() => setIncluyeEnvio(false)}
-                  className="mr-2"
-                />
-                <span className="text-sm text-gray-600">Cliente paga envío</span>
-              </label>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="tipoEnvio"
+                    checked={incluyeEnvio}
+                    onChange={() => setIncluyeEnvio(true)}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-600">Envío gratis</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="tipoEnvio"
+                    checked={!incluyeEnvio}
+                    onChange={() => setIncluyeEnvio(false)}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-600">Cliente paga</span>
+                </label>
+              </div>
             </div>
           )}
 
@@ -749,25 +756,25 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-2xl font-bold text-blue-700">
-                    <ShoppingBag className="h-5 w-5" />
+                  <div className="flex items-center justify-center gap-1 text-lg sm:text-2xl font-bold text-blue-700">
+                    <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
                     {historialCliente.totalCompras}
                   </div>
                   <p className="text-xs text-gray-600">Compras</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-lg sm:text-2xl font-bold text-green-600">
                     S/{historialCliente.montoTotal.toFixed(0)}
                   </div>
-                  <p className="text-xs text-gray-600">Total gastado</p>
+                  <p className="text-xs text-gray-600">Total</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">
+                  <div className="text-lg sm:text-2xl font-bold text-purple-600">
                     S/{(historialCliente.montoTotal / historialCliente.totalCompras).toFixed(0)}
                   </div>
-                  <p className="text-xs text-gray-600">Ticket promedio</p>
+                  <p className="text-xs text-gray-600">Promedio</p>
                 </div>
               </div>
               {historialCliente.ultimaCompra && (
@@ -1133,14 +1140,15 @@ export const VentaForm: React.FC<VentaFormProps> = ({
       </StepContent>
 
       {/* Navegación entre pasos */}
-      <div className="flex items-center justify-between pt-6 border-t">
-        <div>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 border-t">
+        <div className="order-2 sm:order-1">
           {!isFirstStep && (
             <Button
               type="button"
               variant="ghost"
               onClick={handlePrevStep}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
               Anterior
@@ -1148,12 +1156,13 @@ export const VentaForm: React.FC<VentaFormProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 order-1 sm:order-2">
           <Button
             type="button"
             variant="ghost"
             onClick={onCancel}
             disabled={loading}
+            className="order-last sm:order-first"
           >
             Cancelar
           </Button>
@@ -1163,30 +1172,35 @@ export const VentaForm: React.FC<VentaFormProps> = ({
               type="button"
               variant="primary"
               onClick={handleNextStep}
+              className="w-full sm:w-auto"
             >
               Siguiente
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
-            <>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={handleSubmitCotizacion}
                 loading={loading}
+                className="w-full sm:w-auto"
               >
-                Guardar como Cotización
+                <span className="hidden sm:inline">Guardar como Cotización</span>
+                <span className="sm:hidden">Cotización</span>
               </Button>
               <Button
                 type="button"
                 variant="primary"
                 onClick={handleSubmitVenta}
                 loading={loading}
+                className="w-full sm:w-auto"
               >
                 <CheckCircle className="h-4 w-4 mr-1" />
-                Confirmar Venta
+                <span className="hidden sm:inline">Confirmar Venta</span>
+                <span className="sm:hidden">Confirmar</span>
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>

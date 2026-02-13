@@ -10,15 +10,17 @@ import {
   History,
   DollarSign,
   AlertTriangle,
-  ShoppingCart
+  ShoppingCart,
+  Unlock
 } from 'lucide-react';
-import { Badge } from '../../common';
+import { Badge, Button } from '../../common';
 import { useUserName } from '../../../hooks/useUserNames';
 import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
 
 interface UnidadDetailsModalProps {
   unidad: Unidad;
   onClose: () => void;
+  onLiberarReserva?: (unidad: Unidad) => void;
 }
 
 const estadoConfig: Record<EstadoUnidad, { label: string; variant: 'success' | 'info' | 'warning' | 'danger' | 'default' }> = {
@@ -44,7 +46,8 @@ const tipoMovimientoLabels: Record<string, { label: string; color: string }> = {
 
 export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
   unidad,
-  onClose
+  onClose,
+  onLiberarReserva
 }) => {
   // Resolver nombres de usuario
   const creadoPorNombre = useUserName(unidad.creadoPor);
@@ -237,6 +240,44 @@ export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
                     {formatCurrency(unidad.precioVentaPEN, 'PEN')}
                   </div>
                 </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Reserva (si aplica) */}
+        {unidad.estado === 'reservada' && (
+          <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  <h4 className="font-semibold text-gray-900">Unidad Reservada</h4>
+                </div>
+                {(unidad as any).reservadaPara ? (
+                  <div className="text-sm text-gray-600">
+                    Reservada para cotización: <span className="font-mono text-xs">{(unidad as any).reservadaPara}</span>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-600">
+                    Reservada sin cotización asociada
+                  </div>
+                )}
+                {unidad.fechaReserva && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    Desde: {formatDate(unidad.fechaReserva)}
+                  </div>
+                )}
+              </div>
+              {onLiberarReserva && (
+                <Button
+                  variant="warning"
+                  size="sm"
+                  onClick={() => onLiberarReserva(unidad)}
+                >
+                  <Unlock className="h-4 w-4 mr-1" />
+                  Liberar Reserva
+                </Button>
               )}
             </div>
           </div>

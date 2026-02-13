@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import {
   User, Phone, Mail, MapPin, Calendar, ShoppingCart, DollarSign,
   TrendingUp, TrendingDown, Package, Star, AlertTriangle, Clock,
   BarChart3, Target, Award, RefreshCw, ExternalLink, MessageSquare
 } from 'lucide-react';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import type { Cliente } from '../../types/entidadesMaestras.types';
 import {
   clienteAnalyticsService,
@@ -25,6 +26,18 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
   const [activeTab, setActiveTab] = useState<DetailTab>('resumen');
   const [analytics, setAnalytics] = useState<ClienteAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     loadAnalytics();

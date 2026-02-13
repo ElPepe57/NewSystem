@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import {
   Warehouse, MapPin, Phone, Mail, Calendar, Package, DollarSign,
   TrendingUp, TrendingDown, AlertTriangle, Clock, BarChart3, Truck,
   RefreshCw, ArrowRight, ArrowLeft, Plane, Users, Star, X,
   ChevronRight, Activity, Target, Zap, AlertCircle, CheckCircle
 } from 'lucide-react';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import type { Almacen } from '../../types/almacen.types';
 import {
   almacenAnalyticsService,
@@ -26,6 +27,18 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
   const [activeTab, setActiveTab] = useState<DetailTab>('resumen');
   const [analytics, setAnalytics] = useState<AlmacenAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     loadAnalytics();

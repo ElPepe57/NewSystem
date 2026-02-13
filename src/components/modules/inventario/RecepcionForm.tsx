@@ -1,16 +1,30 @@
 import React, { useState } from 'react';
 import { Button, Input, Select } from '../../common';
-import type { UnidadFormData, Almacen } from '../../../types/producto.types';
+
+// Tipos locales para este formulario
+interface RecepcionFormData {
+  productoId: string;
+  cantidad: number;
+  lote?: string;
+  fechaVencimiento?: Date;
+  costoUnitarioUSD: number;
+  tcCompra: number;
+  tcPago: number;
+  almacenDestinoId: string;
+  observaciones?: string;
+  numeroTracking?: string;
+  courier?: string;
+}
 
 interface RecepcionFormProps {
   productoId: string;
   sku: string;
-  onSubmit: (data: UnidadFormData) => void;
+  onSubmit: (data: RecepcionFormData) => void;
   onCancel: () => void;
   loading?: boolean;
 }
 
-const almacenOptions: Array<{ value: Almacen; label: string }> = [
+const almacenOptions = [
   { value: 'miami_1', label: 'Miami 1' },
   { value: 'miami_2', label: 'Miami 2' },
   { value: 'utah', label: 'Utah' },
@@ -25,23 +39,23 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
   onCancel,
   loading = false
 }) => {
-  const [formData, setFormData] = useState<UnidadFormData>({
+  const [formData, setFormData] = useState<RecepcionFormData>({
     productoId,
     cantidad: 1,
     lote: '',
-    costoUSA: 0,
+    costoUnitarioUSD: 0,
     tcCompra: 0,
     tcPago: 0,
-    almacenDestino: 'miami_1',
+    almacenDestinoId: 'miami_1',
     observaciones: ''
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    
+
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'number' ? parseFloat(value) || 0 : 
+      [name]: type === 'number' ? parseFloat(value) || 0 :
               type === 'date' ? new Date(value) :
               value
     }));
@@ -52,7 +66,7 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
     onSubmit(formData);
   };
 
-  const costoPEN = formData.costoUSA * formData.tcPago;
+  const costoPEN = formData.costoUnitarioUSD * formData.tcPago;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -76,25 +90,25 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
             required
             helperText="Número de unidades a recibir"
           />
-          
+
           <Select
             label="Almacén Destino"
-            name="almacenDestino"
-            value={formData.almacenDestino}
+            name="almacenDestinoId"
+            value={formData.almacenDestinoId}
             onChange={handleChange}
             options={almacenOptions}
             required
           />
-          
+
           <Input
             label="Lote"
             name="lote"
-            value={formData.lote}
+            value={formData.lote || ''}
             onChange={handleChange}
             required
             placeholder="ej: LOT-2024-001"
           />
-          
+
           <Input
             label="Fecha de Vencimiento"
             name="fechaVencimiento"
@@ -108,17 +122,17 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
       {/* Costos */}
       <div>
         <h4 className="text-lg font-semibold text-gray-900 mb-4">Costos y Tipo de Cambio</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Input
             label="Costo Unitario (USD)"
-            name="costoUSA"
+            name="costoUnitarioUSD"
             type="number"
             step="0.01"
-            value={formData.costoUSA}
+            value={formData.costoUnitarioUSD}
             onChange={handleChange}
             required
           />
-          
+
           <Input
             label="TC Compra"
             name="tcCompra"
@@ -129,7 +143,7 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
             required
             helperText="TC al momento de la compra"
           />
-          
+
           <Input
             label="TC Pago"
             name="tcPago"
@@ -141,8 +155,8 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
             helperText="TC al momento del pago"
           />
         </div>
-        
-        {formData.costoUSA > 0 && formData.tcPago > 0 && (
+
+        {formData.costoUnitarioUSD > 0 && formData.tcPago > 0 && (
           <div className="mt-4 p-4 bg-primary-50 rounded-lg">
             <div className="text-sm text-gray-600">Costo Total por Unidad (PEN)</div>
             <div className="text-2xl font-bold text-primary-600">
@@ -166,7 +180,7 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
             onChange={handleChange}
             placeholder="ej: 1Z999AA10123456784"
           />
-          
+
           <Input
             label="Courier"
             name="courier"
@@ -193,12 +207,13 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
       </div>
 
       {/* Botones */}
-      <div className="flex items-center justify-end space-x-3 pt-6 border-t">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-6 border-t">
         <Button
           type="button"
           variant="ghost"
           onClick={onCancel}
           disabled={loading}
+          className="w-full sm:w-auto"
         >
           Cancelar
         </Button>
@@ -206,6 +221,7 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
           type="submit"
           variant="primary"
           loading={loading}
+          className="w-full sm:w-auto"
         >
           Recibir {formData.cantidad} {formData.cantidad === 1 ? 'Unidad' : 'Unidades'}
         </Button>

@@ -19,15 +19,15 @@ interface ReporteState {
   alertasInventario: AlertaInventario[];
   loading: boolean;
   error: string | null;
-  
+
   // Actions
-  fetchResumenEjecutivo: () => Promise<void>;
+  fetchResumenEjecutivo: (rango?: RangoFechas) => Promise<void>;
   fetchProductosRentabilidad: (rango?: RangoFechas) => Promise<void>;
   fetchInventarioValorizado: () => Promise<void>;
-  fetchVentasPorCanal: () => Promise<void>;
+  fetchVentasPorCanal: (rango?: RangoFechas) => Promise<void>;
   fetchTendenciaVentas: (dias?: number) => Promise<void>;
   fetchAlertasInventario: () => Promise<void>;
-  fetchAll: () => Promise<void>;
+  fetchAll: (rango?: RangoFechas) => Promise<void>;
 }
 
 export const useReporteStore = create<ReporteState>((set, get) => ({
@@ -40,10 +40,10 @@ export const useReporteStore = create<ReporteState>((set, get) => ({
   loading: false,
   error: null,
   
-  fetchResumenEjecutivo: async () => {
+  fetchResumenEjecutivo: async (rango?: RangoFechas) => {
     set({ loading: true, error: null });
     try {
-      const resumenEjecutivo = await ReporteService.getResumenEjecutivo();
+      const resumenEjecutivo = await ReporteService.getResumenEjecutivo(rango);
       set({ resumenEjecutivo, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
@@ -71,10 +71,10 @@ export const useReporteStore = create<ReporteState>((set, get) => ({
     }
   },
   
-  fetchVentasPorCanal: async () => {
+  fetchVentasPorCanal: async (rango?: RangoFechas) => {
     set({ loading: true, error: null });
     try {
-      const ventasPorCanal = await ReporteService.getVentasPorCanal();
+      const ventasPorCanal = await ReporteService.getVentasPorCanal(rango);
       set({ ventasPorCanal, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
@@ -101,14 +101,14 @@ export const useReporteStore = create<ReporteState>((set, get) => ({
     }
   },
   
-  fetchAll: async () => {
+  fetchAll: async (rango?: RangoFechas) => {
     set({ loading: true, error: null });
     try {
       await Promise.all([
-        get().fetchResumenEjecutivo(),
-        get().fetchProductosRentabilidad(),
+        get().fetchResumenEjecutivo(rango),
+        get().fetchProductosRentabilidad(rango),
         get().fetchInventarioValorizado(),
-        get().fetchVentasPorCanal(),
+        get().fetchVentasPorCanal(rango),
         get().fetchTendenciaVentas(),
         get().fetchAlertasInventario()
       ]);

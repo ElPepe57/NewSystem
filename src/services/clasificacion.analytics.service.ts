@@ -163,8 +163,8 @@ class ClasificacionAnalyticsService {
     // Obtener todas las ventas del periodo
     const ventasQuery = query(
       collection(db, 'ventas'),
-      where('fecha', '>=', Timestamp.fromDate(inicio)),
-      where('fecha', '<=', Timestamp.fromDate(fin))
+      where('fechaCreacion', '>=', Timestamp.fromDate(inicio)),
+      where('fechaCreacion', '<=', Timestamp.fromDate(fin))
     );
     const ventasSnap = await getDocs(ventasQuery);
     const todasLasVentas = ventasSnap.docs.map(doc => ({
@@ -228,9 +228,9 @@ class ClasificacionAnalyticsService {
     let totalUnidadesGeneral = 0;
 
     for (const venta of todasLasVentas) {
-      if (venta.estado === 'anulada') continue;
+      if (venta.estado === 'cancelada') continue;
 
-      for (const item of venta.items || []) {
+      for (const item of venta.productos || []) {
         totalVentasGeneral += item.subtotal || 0;
         totalUnidadesGeneral += item.cantidad || 0;
 
@@ -238,7 +238,9 @@ class ClasificacionAnalyticsService {
           const current = ventasProductos.get(item.productoId) || { unidades: 0, ventas: 0, costo: 0 };
           current.unidades += item.cantidad || 0;
           current.ventas += item.subtotal || 0;
-          current.costo += (item.ctru || 0) * (item.cantidad || 0);
+          // Usar costoTotalUnidades si existe, sino calcular basado en cantidad
+          const costoPorUnidad = item.costoTotalUnidades ? item.costoTotalUnidades / item.cantidad : 0;
+          current.costo += costoPorUnidad * (item.cantidad || 0);
           ventasProductos.set(item.productoId, current);
         }
       }
@@ -358,8 +360,8 @@ class ClasificacionAnalyticsService {
     // Número de ventas únicas que incluyen estos productos
     const ventasUnicas = new Set<string>();
     for (const venta of todasLasVentas) {
-      if (venta.estado === 'anulada') continue;
-      for (const item of venta.items || []) {
+      if (venta.estado === 'cancelada') continue;
+      for (const item of venta.productos || []) {
         if (productIds.includes(item.productoId)) {
           ventasUnicas.add(venta.id);
           break;
@@ -377,15 +379,15 @@ class ClasificacionAnalyticsService {
     const tendenciaMap = new Map<string, { ventas: number; unidades: number }>();
 
     for (const venta of todasLasVentas) {
-      if (venta.estado === 'anulada') continue;
+      if (venta.estado === 'cancelada') continue;
 
-      const fecha = venta.fecha?.toDate?.() || new Date();
+      const fecha = venta.fechaCreacion?.toDate?.() || new Date();
       // Agrupar por semana
       const weekStart = new Date(fecha);
       weekStart.setDate(weekStart.getDate() - weekStart.getDay());
       const weekKey = weekStart.toISOString().split('T')[0];
 
-      for (const item of venta.items || []) {
+      for (const item of venta.productos || []) {
         if (productIds.includes(item.productoId)) {
           const current = tendenciaMap.get(weekKey) || { ventas: 0, unidades: 0 };
           current.ventas += item.subtotal || 0;

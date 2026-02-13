@@ -4,10 +4,10 @@ import { Button, Input } from '../../common';
 import { useCompetidorStore } from '../../../store/competidorStore';
 import { useAuthStore } from '../../../store/authStore';
 import type { CompetidorPeruFormData } from '../../../types/producto.types';
-import type { Competidor, CompetidorFormData, PlataformaCompetidor } from '../../../types/entidadesMaestras.types';
+import type { Competidor, CompetidorFormData, PlataformaCompetidor, PlataformaCompetidorData } from '../../../types/entidadesMaestras.types';
 
-// Plataformas disponibles
-const PLATAFORMAS = [
+// Plataformas por defecto (fallback para competidores sin plataformasData)
+const PLATAFORMAS_DEFAULT = [
   { value: 'mercado_libre', label: 'Mercado Libre' },
   { value: 'web_propia', label: 'Web Propia' },
   { value: 'inkafarma', label: 'Inkafarma' },
@@ -81,7 +81,7 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
   };
 
   const getPlataformaLabel = (plataforma: PlataformaCompetidor) => {
-    return PLATAFORMAS.find(p => p.value === plataforma)?.label || plataforma;
+    return PLATAFORMAS_DEFAULT.find(p => p.value === plataforma)?.label || plataforma;
   };
 
   const getNivelAmenazaColor = (nivel: string) => {
@@ -174,11 +174,23 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
                       <span className={`px-1.5 py-0.5 rounded ${getNivelAmenazaColor(competidor.nivelAmenaza)}`}>
                         {competidor.nivelAmenaza}
                       </span>
-                      <span>{getPlataformaLabel(competidor.plataformaPrincipal)}</span>
+                      {/* Mostrar plataformasData si existen (nuevo sistema) */}
+                      {competidor.plataformasData && competidor.plataformasData.length > 0 ? (
+                        competidor.plataformasData.slice(0, 2).map((p, idx) => (
+                          <span key={p.id} className={`${p.esPrincipal ? 'font-medium text-primary-600' : ''}`}>
+                            {p.nombre}{idx < Math.min(competidor.plataformasData!.length, 2) - 1 ? ',' : ''}
+                          </span>
+                        ))
+                      ) : (
+                        <span>{getPlataformaLabel(competidor.plataformaPrincipal || 'otra')}</span>
+                      )}
+                      {competidor.plataformasData && competidor.plataformasData.length > 2 && (
+                        <span className="text-gray-400">+{competidor.plataformasData.length - 2}</span>
+                      )}
                       {competidor.esLiderCategoria && (
                         <span className="flex items-center gap-0.5 text-amber-600">
                           <Crown className="h-3 w-3" /> Líder
@@ -301,7 +313,11 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
   };
 
   const getPlataformaLabel = (value: string) => {
-    return PLATAFORMAS.find(p => p.value === value)?.label || value;
+    // Primero buscar en plataformas por defecto
+    const defaultPlat = PLATAFORMAS_DEFAULT.find(p => p.value === value);
+    if (defaultPlat) return defaultPlat.label;
+    // Si no es una plataforma legacy, devolver el valor tal cual (es un nombre dinámico)
+    return value;
   };
 
   const getReputacionIcon = (reputacion?: string) => {
@@ -449,18 +465,47 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Plataforma
                     </label>
-                    <select
-                      value={competidor.plataforma}
-                      onChange={(e) => handleUpdateCompetidor(competidor.id, {
-                        plataforma: e.target.value as CompetidorPeruFormData['plataforma']
-                      })}
-                      disabled={disabled}
-                      className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    >
-                      {PLATAFORMAS.map(p => (
-                        <option key={p.value} value={p.value}>{p.label}</option>
-                      ))}
-                    </select>
+                    {(() => {
+                      // Obtener plataformas del competidor vinculado
+                      const competidorVinculado = competidor.competidorId
+                        ? competidoresActivos.find(c => c.id === competidor.competidorId)
+                        : null;
+                      const plataformasDelCompetidor = competidorVinculado?.plataformasData;
+                      const tieneNuevasPlataformas = plataformasDelCompetidor && plataformasDelCompetidor.length > 0;
+
+                      return (
+                        <select
+                          value={competidor.plataforma}
+                          onChange={(e) => handleUpdateCompetidor(competidor.id, {
+                            plataforma: e.target.value as CompetidorPeruFormData['plataforma']
+                          })}
+                          disabled={disabled}
+                          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        >
+                          {tieneNuevasPlataformas ? (
+                            // Mostrar plataformas del competidor vinculado
+                            <>
+                              <option value="">Seleccionar plataforma...</option>
+                              {plataformasDelCompetidor.map(p => (
+                                <option key={p.id} value={p.nombre}>
+                                  {p.nombre}{p.esPrincipal ? ' (Principal)' : ''}
+                                </option>
+                              ))}
+                            </>
+                          ) : (
+                            // Fallback: plataformas por defecto (legacy o sin vincular)
+                            PLATAFORMAS_DEFAULT.map(p => (
+                              <option key={p.value} value={p.value}>{p.label}</option>
+                            ))
+                          )}
+                        </select>
+                      );
+                    })()}
+                    {competidor.competidorId && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Plataformas del competidor vinculado
+                      </p>
+                    )}
                   </div>
 
                   <Input

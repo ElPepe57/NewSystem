@@ -2,11 +2,12 @@ import type { Timestamp } from 'firebase/firestore';
 
 // Estado logístico de la orden (ciclo de vida del producto físico)
 export type EstadoOrden =
-  | 'borrador'      // Creada pero no enviada
-  | 'enviada'       // Enviada al proveedor
-  | 'en_transito'   // Mercadería en camino
-  | 'recibida'      // Recibida en almacén
-  | 'cancelada';    // Cancelada
+  | 'borrador'          // Creada pero no enviada
+  | 'enviada'           // Enviada al proveedor
+  | 'en_transito'       // Mercadería en camino
+  | 'recibida_parcial'  // Algunos productos recibidos, otros pendientes
+  | 'recibida'          // Recibida en almacén (completa)
+  | 'cancelada';        // Cancelada
 
 // Estado de pago (independiente del estado logístico)
 export type EstadoPago =
@@ -120,9 +121,17 @@ export interface ProductoOrden {
   cantidad: number;
   costoUnitario: number;    // Precio por unidad en USD
   subtotal: number;         // cantidad × costoUnitario
+  cantidadRecibida?: number; // Acumulado de unidades recibidas (0 por defecto)
   // Viajero destino (para distribución multi-viajero)
   viajeroId?: string;       // ID del almacén tipo viajero
   viajeroNombre?: string;   // Nombre del viajero (desnormalizado)
+  // Origen multi-requerimiento (tracking por cliente)
+  origenRequerimientos?: Array<{
+    requerimientoId: string;
+    cotizacionId?: string;
+    clienteNombre?: string;
+    cantidad: number;
+  }>;
 }
 
 /**
@@ -157,6 +166,34 @@ export interface PagoOrdenCompra {
   // Auditoría
   registradoPor: string;
   fechaRegistro: Timestamp;
+}
+
+// ========== RECEPCIÓN PARCIAL ==========
+
+export interface RecepcionParcial {
+  id: string;                         // REC-{timestamp}
+  fecha: Timestamp;
+  numero: number;                     // Secuencial: 1, 2, 3...
+  productosRecibidos: Array<{
+    productoId: string;
+    cantidadRecibida: number;         // Cuántas llegaron EN ESTA entrega
+    cantidadAcumulada: number;        // Acumulado después de esta recepción
+  }>;
+  unidadesGeneradas: string[];
+  unidadesReservadas: string[];
+  unidadesDisponibles: string[];
+  totalUnidadesRecepcion: number;
+  costoAdicionalPorUnidad: number;
+  registradoPor: string;
+  observaciones?: string;
+}
+
+export interface RecepcionParcialFormData {
+  productosRecibidos: Array<{
+    productoId: string;
+    cantidadRecibida: number;
+  }>;
+  observaciones?: string;
 }
 
 export interface OrdenCompra {
@@ -207,7 +244,8 @@ export interface OrdenCompra {
   // Tracking y logística
   numeroTracking?: string;
   courier?: string;
-  almacenDestino?: string;    // miami_1, utah, etc.
+  almacenDestino?: string;        // ID del almacén (viajero)
+  nombreAlmacenDestino?: string;  // Nombre del almacén para display
   
   // Información adicional
   observaciones?: string;
@@ -217,10 +255,27 @@ export interface OrdenCompra {
   inventarioGenerado: boolean;
   unidadesGeneradas?: string[];  // IDs de las unidades creadas
 
+  // ========== Recepciones Parciales ==========
+  recepcionesParciales?: RecepcionParcial[];
+  totalUnidadesRecibidas?: number;
+  fechaPrimeraRecepcion?: Timestamp;
+
   // ========== Requerimiento de origen ==========
-  // Si la OC se generó desde un requerimiento
+  // Si la OC se generó desde un requerimiento (singular - legacy)
   requerimientoId?: string;
   requerimientoNumero?: string;
+
+  // ========== Soporte Multi-Requerimiento (OC Consolidada) ==========
+  requerimientoIds?: string[];
+  requerimientoNumeros?: string[];
+  productosOrigen?: Array<{
+    productoId: string;
+    requerimientoId: string;
+    requerimientoNumero: string;
+    cotizacionId?: string;
+    clienteNombre?: string;
+    cantidad: number;
+  }>;
 
   // ========== Expectativa vs Realidad ==========
   // Si viene de un requerimiento, guardar la expectativa para comparar
@@ -277,7 +332,16 @@ export interface OrdenCompraFormData {
   numeroTracking?: string;
   courier?: string;
   observaciones?: string;
-  requerimientoId?: string;   // Vinculación con requerimiento origen
+  requerimientoId?: string;   // Vinculación con requerimiento origen (singular)
+  // Soporte multi-requerimiento (OC consolidada)
+  requerimientoIds?: string[];
+  productosOrigen?: Array<{
+    productoId: string;
+    requerimientoId: string;
+    cantidad: number;
+    cotizacionId?: string;
+    clienteNombre?: string;
+  }>;
 }
 
 export interface CambioEstadoOrden {
@@ -300,6 +364,7 @@ export interface OrdenCompraStats {
   enviadas: number;
   pagadas: number;
   enTransito: number;
+  recibidasParcial: number;
   recibidas: number;
   canceladas: number;
   valorTotalUSD: number;

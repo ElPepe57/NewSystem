@@ -355,9 +355,25 @@ export interface MarcaStats {
 // COMPETIDORES
 // ===============================================
 
-export type PlataformaCompetidor = 'mercado_libre' | 'web_propia' | 'inkafarma' | 'mifarma' | 'amazon' | 'falabella' | 'otra';
+// Tipo legacy para compatibilidad (se mantiene para datos existentes)
+export type PlataformaCompetidorLegacy = 'mercado_libre' | 'web_propia' | 'inkafarma' | 'mifarma' | 'amazon' | 'falabella' | 'otra';
+// Alias para compatibilidad
+export type PlataformaCompetidor = PlataformaCompetidorLegacy;
+
 export type ReputacionCompetidor = 'excelente' | 'buena' | 'regular' | 'mala' | 'desconocida';
 export type EstadoCompetidor = 'activo' | 'inactivo' | 'cerrado';
+
+/**
+ * Plataforma donde opera un competidor
+ * Permite crear plataformas dinámicamente sin estar limitado a un enum
+ */
+export interface PlataformaCompetidorData {
+  id: string;                   // ID único generado
+  nombre: string;               // "Mercado Libre", "Web Propia", "Inkafarma", etc.
+  url?: string;                 // URL de la tienda en esta plataforma
+  notas?: string;               // Observaciones sobre esta plataforma
+  esPrincipal?: boolean;        // Si es la plataforma principal del competidor
+}
 
 /**
  * Competidor del negocio
@@ -372,9 +388,12 @@ export interface Competidor {
   nombreNormalizado: string;  // En minúsculas sin acentos para búsqueda
   alias?: string[];           // Nombres alternativos
 
-  // Información de negocio
-  plataformaPrincipal: PlataformaCompetidor;
-  plataformas: PlataformaCompetidor[];  // Puede estar en múltiples plataformas
+  // Información de negocio - NUEVO: Plataformas como objetos
+  plataformasData?: PlataformaCompetidorData[];  // Nuevo: array de objetos plataforma
+
+  // Legacy: mantener para compatibilidad con datos existentes
+  plataformaPrincipal?: PlataformaCompetidor;
+  plataformas?: PlataformaCompetidor[];
   urlTienda?: string;         // URL principal de la tienda
   urlMercadoLibre?: string;   // Perfil de MercadoLibre si aplica
 
@@ -420,7 +439,10 @@ export interface Competidor {
  */
 export interface CompetidorFormData {
   nombre: string;
-  plataformaPrincipal: PlataformaCompetidor;
+  // Nuevo sistema de plataformas
+  plataformasData?: PlataformaCompetidorData[];
+  // Legacy (mantener para compatibilidad)
+  plataformaPrincipal?: PlataformaCompetidor;
   plataformas?: PlataformaCompetidor[];
   urlTienda?: string;
   urlMercadoLibre?: string;
@@ -444,7 +466,9 @@ export interface CompetidorSnapshot {
   competidorId: string;
   codigo: string;
   nombre: string;
-  plataformaPrincipal: PlataformaCompetidor;
+  plataformasData?: PlataformaCompetidorData[];  // Nuevo
+  // Legacy
+  plataformaPrincipal?: PlataformaCompetidor;
   reputacion: ReputacionCompetidor;
 }
 

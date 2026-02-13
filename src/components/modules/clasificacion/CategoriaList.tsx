@@ -10,7 +10,7 @@ import type { Categoria, CategoriaArbol } from '../../../types/categoria.types';
 
 export function CategoriaList() {
   const { user } = useAuthStore();
-  const { arbol, fetchArbol, remove, loading } = useCategoriaStore();
+  const { arbol, fetchArbol, delete: deleteCategoria, loading } = useCategoriaStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -37,9 +37,9 @@ export function CategoriaList() {
   };
 
   const handleDelete = async () => {
-    if (!deletingCategoria || !user) return;
+    if (!deletingCategoria) return;
     try {
-      await remove(deletingCategoria.id, user.uid);
+      await deleteCategoria(deletingCategoria.id);
       setDeletingCategoria(null);
     } catch (err) {
       // Error manejado por store
@@ -93,7 +93,7 @@ export function CategoriaList() {
           {categoria.nombre}
         </span>
         {categoria.mostrarEnWeb && (
-          <Globe className="h-3 w-3 text-green-500" title="Visible en web" />
+          <Globe className="h-3 w-3 text-green-500" />
         )}
       </div>
 
@@ -231,7 +231,7 @@ export function CategoriaList() {
         variant="danger"
       />
 
-      {/* Modal de Detalle con Analytics */}
+      {/* Analytics Modal */}
       <CategoriaDetalle
         isOpen={!!viewingCategoria}
         onClose={() => setViewingCategoria(null)}

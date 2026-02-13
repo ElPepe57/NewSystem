@@ -525,8 +525,8 @@ class AlmacenAnalyticsService {
     const ahora = new Date();
     let sumaDias = 0;
     unidadesDisponibles.forEach(u => {
-      if (u.fechaIngreso) {
-        const fechaIngreso = u.fechaIngreso instanceof Timestamp ? u.fechaIngreso.toDate() : new Date(u.fechaIngreso);
+      if (u.fechaRecepcion) {
+        const fechaIngreso = u.fechaRecepcion instanceof Timestamp ? u.fechaRecepcion.toDate() : new Date(u.fechaRecepcion);
         sumaDias += Math.floor((ahora.getTime() - fechaIngreso.getTime()) / (1000 * 60 * 60 * 24));
       }
     });
@@ -572,7 +572,7 @@ class AlmacenAnalyticsService {
       const key = u.productoId;
       const existing = productosMap.get(key);
 
-      const fechaIngreso = u.fechaIngreso instanceof Timestamp ? u.fechaIngreso.toDate() : (u.fechaIngreso ? new Date(u.fechaIngreso) : undefined);
+      const fechaIngreso = u.fechaRecepcion instanceof Timestamp ? u.fechaRecepcion.toDate() : (u.fechaRecepcion ? new Date(u.fechaRecepcion) : undefined);
       const fechaVencimiento = u.fechaVencimiento instanceof Timestamp ? u.fechaVencimiento.toDate() : (u.fechaVencimiento ? new Date(u.fechaVencimiento) : undefined);
       const diasEnAlmacen = fechaIngreso ? Math.floor((ahora.getTime() - fechaIngreso.getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
@@ -589,10 +589,10 @@ class AlmacenAnalyticsService {
       } else {
         productosMap.set(key, {
           productoId: u.productoId,
-          sku: u.sku || '',
-          nombre: u.nombreProducto || u.sku || '',
-          marca: u.marca || '',
-          presentacion: u.presentacion || '',
+          sku: u.productoSKU || '',
+          nombre: u.productoNombre || u.productoSKU || '',
+          marca: '',
+          presentacion: '',
           cantidad: 1,
           valorTotal: u.costoUnitarioUSD || 0,
           diasTotal: diasEnAlmacen,
@@ -682,16 +682,16 @@ class AlmacenAnalyticsService {
 
     // Movimientos de entrada (recepción de OC)
     unidades.forEach(u => {
-      if (u.fechaIngreso) {
-        const fecha = u.fechaIngreso instanceof Timestamp ? u.fechaIngreso.toDate() : new Date(u.fechaIngreso);
+      if (u.fechaRecepcion) {
+        const fecha = u.fechaRecepcion instanceof Timestamp ? u.fechaRecepcion.toDate() : new Date(u.fechaRecepcion);
         movimientos.push({
           id: `entrada-${u.id}`,
           fecha,
           tipo: 'entrada',
           cantidad: 1,
           productoId: u.productoId,
-          productoSKU: u.sku || '',
-          productoNombre: u.nombreProducto || u.sku || '',
+          productoSKU: u.productoSKU || '',
+          productoNombre: u.productoNombre || u.productoSKU || '',
           ordenCompraId: u.ordenCompraId,
           valorUSD: u.costoUnitarioUSD || 0
         });
@@ -703,19 +703,19 @@ class AlmacenAnalyticsService {
       const fecha = t.fechaCreacion instanceof Timestamp ? t.fechaCreacion.toDate() : new Date(t.fechaCreacion);
       const esOrigen = t.almacenOrigenId === almacenId;
 
-      if (t.unidadesIds && t.unidadesIds.length > 0) {
+      if (t.unidades && t.unidades.length > 0) {
         movimientos.push({
           id: `trans-${t.id}`,
           fecha,
           tipo: esOrigen ? 'transferencia_salida' : 'transferencia_entrada',
-          cantidad: t.unidadesIds.length,
+          cantidad: t.unidades.length,
           productoId: '',
           productoSKU: 'Múltiples',
-          productoNombre: `Transferencia ${t.codigo || t.id}`,
+          productoNombre: `Transferencia ${t.numeroTransferencia || t.id}`,
           origen: esOrigen ? almacenId : t.almacenOrigenId,
           destino: esOrigen ? t.almacenDestinoId : almacenId,
           transferenciaId: t.id,
-          valorUSD: t.valorTotalUSD || 0
+          valorUSD: t.costoFleteTotal || 0
         });
       }
     });
@@ -828,16 +828,16 @@ class AlmacenAnalyticsService {
       return {
         id: t.id,
         fecha,
-        tipoMovimiento: esOrigen ? 'salida' : 'entrada',
+        tipoMovimiento: esOrigen ? 'salida' as const : 'entrada' as const,
         almacenOrigenId: t.almacenOrigenId,
         almacenOrigenNombre: t.almacenOrigenNombre || '',
         almacenDestinoId: t.almacenDestinoId,
         almacenDestinoNombre: t.almacenDestinoNombre || '',
         productos: [], // Se podría expandir con datos de productos
-        totalUnidades: t.unidadesIds?.length || 0,
-        valorTotalUSD: t.valorTotalUSD || 0,
-        estado: t.estado || 'completada',
-        tiempoTransito: t.tiempoTransito
+        totalUnidades: t.unidades?.length || 0,
+        valorTotalUSD: t.costoFleteTotal || 0,
+        estado: t.estado || 'recibida_completa',
+        tiempoTransito: t.diasEnTransito
       };
     }).sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
   }
@@ -864,8 +864,8 @@ class AlmacenAnalyticsService {
       return fecha >= hace90Dias;
     });
 
-    const unidadesTotal = viajes.reduce((sum, v) => sum + (v.unidadesIds?.length || 0), 0);
-    const valorTotal = viajes.reduce((sum, v) => sum + (v.valorTotalUSD || 0), 0);
+    const unidadesTotal = viajes.reduce((sum, v) => sum + (v.unidades?.length || 0), 0);
+    const valorTotal = viajes.reduce((sum, v) => sum + (v.costoFleteTotal || 0), 0);
 
     return {
       totalViajes: metricas?.viajesRealizados || viajes.length,

@@ -3,6 +3,7 @@ import { X, AlertCircle, CheckCircle, Info, AlertTriangle } from 'lucide-react';
 import { Button } from './Button';
 import { Input } from './Input';
 import { create } from 'zustand';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from './Modal';
 
 export type ActionModalVariant = 'info' | 'warning' | 'success' | 'danger';
 
@@ -96,6 +97,22 @@ export const ActionModal: React.FC<ActionModalProps> = ({
       }, 100);
     }
   }, [isOpen, fields]);
+
+  // Registrar/desregistrar en el sistema global de modales
+  useEffect(() => {
+    if (isOpen) {
+      registerModalOpen();
+      document.body.setAttribute('data-modal-open', 'true');
+    }
+    return () => {
+      if (isOpen) {
+        unregisterModalOpen();
+        if (getModalCount() === 0) {
+          document.body.removeAttribute('data-modal-open');
+        }
+      }
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

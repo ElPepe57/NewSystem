@@ -25,7 +25,10 @@ import {
   ChevronRight,
   Boxes,
   BarChart3,
-  Shield
+  Shield,
+  X,
+  BookOpen,
+  Zap
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
@@ -57,6 +60,7 @@ const menuGroups: MenuGroup[] = [
     defaultOpen: true,
     items: [
       { icon: Package, label: 'Productos', path: '/productos', permiso: PERMISOS.VER_INVENTARIO },
+      { icon: Zap, label: 'Inteligencia', path: '/productos-intel', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Box, label: 'Unidades', path: '/unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
       { icon: ArrowRightLeft, label: 'Transferencias', path: '/transferencias', permiso: PERMISOS.GESTIONAR_INVENTARIO },
@@ -82,6 +86,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { icon: Receipt, label: 'Gastos', path: '/gastos', permiso: PERMISOS.VER_FINANZAS },
       { icon: Wallet, label: 'Tesorería', path: '/tesoreria', permiso: PERMISOS.VER_FINANZAS },
+      { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_FINANZAS },
       { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_FINANZAS },
       { icon: Calculator, label: 'CTRU', path: '/ctru', permiso: PERMISOS.VER_FINANZAS },
       { icon: Target, label: 'Expectativas', path: '/expectativas', permiso: PERMISOS.VER_FINANZAS },
@@ -102,7 +107,11 @@ const menuGroups: MenuGroup[] = [
   }
 ];
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const location = useLocation();
   const logout = useAuthStore(state => state.logout);
   const { hasPermiso, profile, role, displayName } = usePermissions();
@@ -176,14 +185,26 @@ export const Sidebar: React.FC = () => {
     <div className="w-64 bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 min-h-screen flex flex-col border-r border-gray-800/50">
       {/* Logo con efecto */}
       <div className="p-5 border-b border-gray-800/50">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl shadow-lg shadow-primary-500/20">
-            <Package className="h-6 w-6 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl shadow-lg shadow-primary-500/20">
+              <Package className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-white tracking-tight">BusinessMN</h1>
+              <p className="text-[10px] text-gray-500 font-medium">Sistema de Gestión v2.0</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-white tracking-tight">BusinessMN</h1>
-            <p className="text-[10px] text-gray-500 font-medium">Sistema de Gestión v2.0</p>
-          </div>
+          {/* Botón cerrar - solo visible en móvil */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-800 transition-colors text-gray-400 hover:text-white"
+              aria-label="Cerrar menú"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
         </div>
       </div>
 

@@ -19,12 +19,19 @@ interface PagoGastoData {
   notas?: string;
 }
 
+type ViewMode = 'month' | 'all' | 'pending';
+
 interface GastoState {
   gastos: Gasto[];
   resumenMes: ResumenGastosMes | null;
   stats: GastoStats | null;
   loading: boolean;
   error: string | null;
+
+  // Vista actual
+  currentViewMode: ViewMode;
+  currentMonth: number;
+  currentYear: number;
 
   // Acciones
   fetchGastos: () => Promise<void>;
@@ -37,6 +44,8 @@ interface GastoState {
   actualizarGasto: (id: string, data: Partial<GastoFormData>, userId: string) => Promise<void>;
   registrarPagoGasto: (gastoId: string, datoPago: PagoGastoData, userId: string) => Promise<void>;
   getGastosPendientesRecalculo: () => Promise<Gasto[]>;
+  setViewMode: (mode: ViewMode, mes?: number, anio?: number) => void;
+  reloadCurrentView: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -46,6 +55,11 @@ export const useGastoStore = create<GastoState>((set, get) => ({
   stats: null,
   loading: false,
   error: null,
+
+  // Vista actual - defaults al mes actual
+  currentViewMode: 'month',
+  currentMonth: new Date().getMonth() + 1,
+  currentYear: new Date().getFullYear(),
 
   fetchGastos: async () => {
     set({ loading: true, error: null });
@@ -117,8 +131,7 @@ export const useGastoStore = create<GastoState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const id = await gastoService.create(data, userId);
-      // Recargar gastos
-      await get().fetchGastosMesActual();
+      await get().reloadCurrentView();
       await get().fetchStats();
       set({ loading: false });
       return id;
@@ -132,8 +145,7 @@ export const useGastoStore = create<GastoState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await gastoService.update(id, data, userId);
-      // Recargar gastos
-      await get().fetchGastosMesActual();
+      await get().reloadCurrentView();
       await get().fetchStats();
       set({ loading: false });
     } catch (error: any) {
@@ -164,13 +176,31 @@ export const useGastoStore = create<GastoState>((set, get) => ({
         referenciaPago: datoPago.referenciaPago,
         notas: datoPago.notas
       }, userId);
-      // Recargar gastos y stats
-      await get().fetchGastosMesActual();
+      await get().reloadCurrentView();
       await get().fetchStats();
       set({ loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
+    }
+  },
+
+  setViewMode: (mode: ViewMode, mes?: number, anio?: number) => {
+    set({
+      currentViewMode: mode,
+      currentMonth: mes ?? get().currentMonth,
+      currentYear: anio ?? get().currentYear
+    });
+  },
+
+  reloadCurrentView: async () => {
+    const { currentViewMode, currentMonth, currentYear } = get();
+    if (currentViewMode === 'all') {
+      await get().fetchGastos();
+    } else if (currentViewMode === 'pending') {
+      await get().buscarGastos({ estado: 'pendiente' });
+    } else {
+      await get().fetchGastosMes(currentMonth, currentYear);
     }
   },
 

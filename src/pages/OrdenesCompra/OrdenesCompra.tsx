@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard } from 'lucide-react';
+import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
 import type { PipelineStage } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
@@ -8,6 +8,7 @@ import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompr
 import { OrdenCompraTable } from '../../components/modules/ordenCompra/OrdenCompraTable';
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
 import { PagoForm } from '../../components/modules/ordenCompra/PagoForm';
+import { RecepcionParcialModal } from '../../components/modules/ordenCompra/RecepcionParcialModal';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
 import { useProveedorStore } from '../../store/proveedorStore';
 import { useProductoStore } from '../../store/productoStore';
@@ -71,15 +72,25 @@ export const OrdenesCompra: React.FC = () => {
   // Datos del requerimiento si viene de Requerimientos
   const fromRequerimiento = (location.state as { fromRequerimiento?: RequerimientoData })?.fromRequerimiento;
   const fromRequerimientoMultiViajero = (location.state as { fromRequerimientoMultiViajero?: RequerimientoMultiViajeroData })?.fromRequerimientoMultiViajero;
+  const fromMultipleRequerimientos = (location.state as { fromMultipleRequerimientos?: {
+    requerimientoIds: string[];
+    requerimientoNumeros: string[];
+    productos: Array<{ productoId: string; cantidad: number; precioUnitarioUSD: number }>;
+    productosOrigen: Array<{ productoId: string; requerimientoId: string; cantidad: number; cotizacionId?: string; clienteNombre?: string }>;
+    clientes: Array<{ requerimientoId: string; requerimientoNumero: string; clienteNombre: string }>;
+    tcInvestigacion: number;
+  } })?.fromMultipleRequerimientos;
   const {
     ordenes,
     stats,
     loading,
     fetchOrdenes,
     createOrden,
+    updateOrden,
     cambiarEstadoOrden,
     registrarPago,
     recibirOrden,
+    recibirOrdenParcial,
     deleteOrden,
     fetchStats
   } = useOrdenCompraStore();
@@ -87,14 +98,23 @@ export const OrdenesCompra: React.FC = () => {
   const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
+  const [isRecepcionModalOpen, setIsRecepcionModalOpen] = useState(false);
   const [selectedOrden, setSelectedOrdenLocal] = useState<OrdenCompra | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
+  // Estado para edición
+  const [ordenEditando, setOrdenEditando] = useState<OrdenCompra | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Datos iniciales para el formulario (cuando viene de un requerimiento)
   const [initialFormData, setInitialFormData] = useState<{
     requerimientoId?: string;
     requerimientoNumero?: string;
+    // Multi-requerimiento (OC consolidada)
+    requerimientoIds?: string[];
+    requerimientoNumeros?: string[];
+    clientesOrigen?: Array<{ requerimientoId: string; requerimientoNumero: string; clienteNombre: string }>;
+    productosOrigen?: Array<{ productoId: string; requerimientoId: string; cantidad: number; cotizacionId?: string; clienteNombre?: string }>;
     productos?: Array<{
       productoId: string;
       cantidad: number;
@@ -128,6 +148,7 @@ export const OrdenesCompra: React.FC = () => {
       borrador: ordenes.filter(o => o.estado === 'borrador').length,
       enviada: ordenes.filter(o => o.estado === 'enviada').length,
       en_transito: ordenes.filter(o => o.estado === 'en_transito').length,
+      recibida_parcial: ordenes.filter(o => o.estado === 'recibida_parcial').length,
       recibida: ordenes.filter(o => o.estado === 'recibida').length,
       cancelada: ordenes.filter(o => o.estado === 'cancelada').length
     };
@@ -136,6 +157,7 @@ export const OrdenesCompra: React.FC = () => {
       { id: 'borrador', label: 'Borrador', count: counts.borrador, color: 'gray', icon: <FileText className="h-4 w-4" /> },
       { id: 'enviada', label: 'Enviada', count: counts.enviada, color: 'blue', icon: <Send className="h-4 w-4" /> },
       { id: 'en_transito', label: 'En Tránsito', count: counts.en_transito, color: 'yellow', icon: <Truck className="h-4 w-4" /> },
+      { id: 'recibida_parcial', label: 'Parcial', count: counts.recibida_parcial, color: 'orange', icon: <PackageCheck className="h-4 w-4" /> },
       { id: 'recibida', label: 'Recibida', count: counts.recibida, color: 'green', icon: <CheckCircle className="h-4 w-4" /> },
       { id: 'cancelada', label: 'Cancelada', count: counts.cancelada, color: 'red', icon: <XCircle className="h-4 w-4" /> }
     ];
@@ -234,6 +256,26 @@ export const OrdenesCompra: React.FC = () => {
       window.history.replaceState({}, document.title);
     }
   }, [fromRequerimientoMultiViajero, proveedoresActivos, creandoMultiOC, multiViajeroData, multiViajeroCompletado]);
+
+  // Si viene de Requerimientos con múltiples requerimientos (OC consolidada)
+  useEffect(() => {
+    if (fromMultipleRequerimientos && proveedoresActivos.length > 0) {
+      setInitialFormData({
+        requerimientoIds: fromMultipleRequerimientos.requerimientoIds,
+        requerimientoNumeros: fromMultipleRequerimientos.requerimientoNumeros,
+        clientesOrigen: fromMultipleRequerimientos.clientes,
+        productosOrigen: fromMultipleRequerimientos.productosOrigen,
+        productos: fromMultipleRequerimientos.productos.map(p => ({
+          productoId: p.productoId,
+          cantidad: p.cantidad,
+          precioUnitarioUSD: p.precioUnitarioUSD
+        })),
+        tcSugerido: fromMultipleRequerimientos.tcInvestigacion
+      });
+      setIsOrdenModalOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [fromMultipleRequerimientos, proveedoresActivos]);
 
   // Crear orden
   const handleCreateOrden = async (data: OrdenCompraFormData) => {
@@ -351,6 +393,9 @@ export const OrdenesCompra: React.FC = () => {
   const handleCloseOrdenModal = () => {
     setIsOrdenModalOpen(false);
     setInitialFormData(null);
+    // Limpiar estado de edición
+    setOrdenEditando(null);
+    setIsEditMode(false);
     // Limpiar datos de multi-viajero si estaba en ese modo
     if (creandoMultiOC) {
       // Marcar como completado para evitar que el useEffect re-abra el modal
@@ -367,6 +412,36 @@ export const OrdenesCompra: React.FC = () => {
   const handleViewDetails = (orden: OrdenCompra) => {
     setSelectedOrdenLocal(orden);
     setIsDetailsModalOpen(true);
+  };
+
+  // Editar orden (solo permitido en estado borrador)
+  const handleEditOrden = (orden: OrdenCompra) => {
+    if (orden.estado !== 'borrador') {
+      toast.warning('Solo se pueden editar órdenes en estado Borrador');
+      return;
+    }
+    setOrdenEditando(orden);
+    setIsEditMode(true);
+    setIsOrdenModalOpen(true);
+  };
+
+  // Actualizar orden existente
+  const handleUpdateOrden = async (data: OrdenCompraFormData) => {
+    if (!user || !ordenEditando) return;
+
+    setIsSubmitting(true);
+    try {
+      await updateOrden(ordenEditando.id, data, user.uid);
+      toast.success('Orden actualizada correctamente');
+      setIsOrdenModalOpen(false);
+      setOrdenEditando(null);
+      setIsEditMode(false);
+    } catch (error: any) {
+      console.error('Error al actualizar orden:', error);
+      toast.error(error.message, 'Error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Cambiar estado
@@ -474,41 +549,53 @@ export const OrdenesCompra: React.FC = () => {
     }
   };
 
-  // Recibir orden
-  const handleRecibirOrden = async () => {
+  // Recibir orden - abrir modal de recepción parcial
+  const handleRecibirOrden = () => {
+    if (!selectedOrden) return;
+    setIsRecepcionModalOpen(true);
+  };
+
+  // Submit de recepción parcial
+  const handleSubmitRecepcion = async (
+    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
+    observaciones?: string
+  ) => {
+    if (!user || !selectedOrden) return;
+
+    await recibirOrdenParcial(selectedOrden.id, productosRecibidos, user.uid, observaciones);
+
+    // Recargar orden actualizada
+    await fetchOrdenes();
+    const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
+    if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+  };
+
+  // Revertir recepciones (limpieza de datos de prueba)
+  const handleRevertirRecepciones = async () => {
     if (!user || !selectedOrden) return;
 
     const confirmed = await confirm({
-      title: 'Recibir Orden de Compra',
-      message: `¿Recibir la orden ${selectedOrden.numeroOrden} y generar inventario automaticamente?`,
-      confirmText: 'Recibir',
-      variant: 'info'
+      title: 'Revertir Recepciones',
+      message: `¿Revertir TODAS las recepciones de ${selectedOrden.numeroOrden}? Esto eliminará las unidades generadas y regresará la OC a estado "En Tránsito". Esta acción NO se puede deshacer.`,
+      confirmText: 'Revertir Todo',
+      variant: 'danger'
     });
     if (!confirmed) return;
 
     try {
-      const resultado = await recibirOrden(selectedOrden.id, user.uid);
-
-      // Mostrar mensaje según si hay reservas o no
-      let mensaje = `¡Orden recibida! Se generaron ${resultado.unidadesGeneradas.length} unidades de inventario.`;
-
-      if (resultado.unidadesReservadas.length > 0) {
-        mensaje += `\n\n📦 ${resultado.unidadesReservadas.length} unidades RESERVADAS para el cliente`;
-        if (resultado.cotizacionVinculada) {
-          mensaje += ` (Cotización vinculada)`;
-        }
-      }
-      if (resultado.unidadesDisponibles.length > 0 && resultado.unidadesReservadas.length > 0) {
-        mensaje += `\n📦 ${resultado.unidadesDisponibles.length} unidades como STOCK LIBRE`;
-      }
-
-      alert(mensaje);
-
-      // Recargar orden
+      setIsSubmitting(true);
+      const { OrdenCompraService } = await import('../../services/ordenCompra.service');
+      const result = await OrdenCompraService.revertirRecepciones(selectedOrden.id, user.uid);
+      toast.success(`Recepciones revertidas: ${result.unidadesEliminadas} unidades eliminadas, estado → ${result.estadoRestaurado}`);
+      await fetchOrdenes();
+      await fetchStats();
       const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
       if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+      else setIsDetailsModalOpen(false);
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message || 'Error al revertir');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -600,10 +687,10 @@ export const OrdenesCompra: React.FC = () => {
               <div>
                 <div className="text-sm text-gray-600">En Proceso</div>
                 <div className="text-2xl font-bold text-warning-600 mt-1">
-                  {stats.enviadas + stats.pagadas + stats.enTransito}
+                  {stats.enviadas + stats.pagadas + stats.enTransito + (stats.recibidasParcial || 0)}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {stats.enviadas} env. / {stats.pagadas} pag. / {stats.enTransito} trán.
+                  {stats.enviadas} env. / {stats.enTransito} trán.{(stats.recibidasParcial || 0) > 0 ? ` / ${stats.recibidasParcial} parc.` : ''}
                 </div>
               </div>
               <TrendingUp className="h-10 w-10 text-warning-400" />
@@ -662,6 +749,7 @@ export const OrdenesCompra: React.FC = () => {
         <OrdenCompraTable
           ordenes={ordenesFiltradas}
           onView={handleViewDetails}
+          onEdit={handleEditOrden}
           onDelete={handleDelete}
           loading={loading}
         />
@@ -685,11 +773,13 @@ export const OrdenesCompra: React.FC = () => {
               {/* Header con X para cerrar */}
               <div className="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b border-gray-200">
                 <h3 className="text-xl font-semibold text-gray-900">
-                  {creandoMultiOC && multiViajeroData
-                    ? `Nueva OC para ${multiViajeroData.asignaciones[currentViajeroIndex]?.viajeroNombre} (${viajerosCompletados + 1}/${totalViajerosOriginal})`
-                    : initialFormData?.requerimientoNumero
-                      ? `Nueva OC desde ${initialFormData.requerimientoNumero}`
-                      : "Nueva Orden de Compra"
+                  {isEditMode && ordenEditando
+                    ? `Editar Orden ${ordenEditando.numeroOrden}`
+                    : creandoMultiOC && multiViajeroData
+                      ? `Nueva OC para ${multiViajeroData.asignaciones[currentViajeroIndex]?.viajeroNombre} (${viajerosCompletados + 1}/${totalViajerosOriginal})`
+                      : initialFormData?.requerimientoNumero
+                        ? `Nueva OC desde ${initialFormData.requerimientoNumero}`
+                        : "Nueva Orden de Compra"
                   }
                 </h3>
                 <button
@@ -728,17 +818,47 @@ export const OrdenesCompra: React.FC = () => {
                   </div>
                 )}
                 <OrdenCompraForm
-                  key={initialFormData?.viajero?.id || 'default'}
+                  key={isEditMode ? ordenEditando?.id : (initialFormData?.viajero?.id || 'default')}
                   proveedores={proveedoresActivos}
                   productos={productos}
-                  onSubmit={handleCreateOrden}
+                  onSubmit={isEditMode ? handleUpdateOrden : handleCreateOrden}
                   onCancel={handleCloseOrdenModal}
                   loading={isSubmitting}
                   tcSugerido={initialFormData?.tcSugerido || tcSugerido}
                   initialProductos={initialFormData?.productos}
                   requerimientoId={initialFormData?.requerimientoId}
                   requerimientoNumero={initialFormData?.requerimientoNumero}
+                  requerimientoIds={initialFormData?.requerimientoIds}
+                  requerimientoNumeros={initialFormData?.requerimientoNumeros}
+                  clientesOrigen={initialFormData?.clientesOrigen}
+                  productosOrigen={initialFormData?.productosOrigen}
                   initialViajero={initialFormData?.viajero}
+                  isEditMode={isEditMode}
+                  ordenEditar={ordenEditando ? {
+                    id: ordenEditando.id,
+                    numeroOrden: ordenEditando.numeroOrden,
+                    proveedorId: ordenEditando.proveedorId,
+                    nombreProveedor: ordenEditando.nombreProveedor,
+                    almacenDestino: ordenEditando.almacenDestino || '',
+                    productos: ordenEditando.productos.map(p => ({
+                      productoId: p.productoId,
+                      sku: p.sku,
+                      marca: p.marca,
+                      nombreComercial: p.nombreComercial,
+                      presentacion: p.presentacion,
+                      cantidad: p.cantidad,
+                      costoUnitario: p.costoUnitario
+                    })),
+                    subtotalUSD: ordenEditando.subtotalUSD,
+                    impuestoUSD: ordenEditando.impuestoUSD,
+                    gastosEnvioUSD: ordenEditando.gastosEnvioUSD,
+                    otrosGastosUSD: ordenEditando.otrosGastosUSD,
+                    totalUSD: ordenEditando.totalUSD,
+                    tcCompra: ordenEditando.tcCompra || 0,
+                    numeroTracking: ordenEditando.numeroTracking,
+                    courier: ordenEditando.courier,
+                    observaciones: ordenEditando.observaciones
+                  } : undefined}
                 />
               </div>
             </div>
@@ -759,6 +879,7 @@ export const OrdenesCompra: React.FC = () => {
             onCambiarEstado={handleCambiarEstado}
             onRegistrarPago={handleRegistrarPago}
             onRecibirOrden={handleRecibirOrden}
+            onRevertirRecepciones={handleRevertirRecepciones}
           />
         )}
       </Modal>
@@ -770,6 +891,16 @@ export const OrdenesCompra: React.FC = () => {
           onSubmit={handleSubmitPago}
           onCancel={() => setIsPagoModalOpen(false)}
           loading={isSubmitting}
+        />
+      )}
+
+      {/* Modal Recepción Parcial */}
+      {isRecepcionModalOpen && selectedOrden && (
+        <RecepcionParcialModal
+          isOpen={isRecepcionModalOpen}
+          onClose={() => setIsRecepcionModalOpen(false)}
+          orden={selectedOrden}
+          onSubmit={handleSubmitRecepcion}
         />
       )}
 

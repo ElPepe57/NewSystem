@@ -351,11 +351,11 @@ class CompetidorAnalyticsService {
       const actividadReciente = this.generarActividadReciente(competidor, analisisPreciosActual);
 
       // Días sin análisis
-      const ultimoAnalisis = competidor.ultimoAnalisis instanceof Timestamp
-        ? competidor.ultimoAnalisis.toDate()
+      const ultimaActualizacion = competidor.metricas?.ultimaActualizacion instanceof Timestamp
+        ? competidor.metricas.ultimaActualizacion.toDate()
         : undefined;
-      const diasSinAnalisis = ultimoAnalisis
-        ? Math.floor((ahora.getTime() - ultimoAnalisis.getTime()) / (1000 * 60 * 60 * 24))
+      const diasSinAnalisis = ultimaActualizacion
+        ? Math.floor((ahora.getTime() - ultimaActualizacion.getTime()) / (1000 * 60 * 60 * 24))
         : 999;
 
       // Comparativa con otros competidores
@@ -403,7 +403,7 @@ class CompetidorAnalyticsService {
         volatilidadGeneral: 'media',
 
         analisisPorPlataforma,
-        plataformaPrincipal: analisisPorPlataforma[0]?.plataforma || competidor.plataforma || 'desconocida',
+        plataformaPrincipal: analisisPorPlataforma[0]?.plataforma || competidor.plataformaPrincipal || 'desconocida',
         plataformasActivas: analisisPorPlataforma.filter(p => p.activo).length,
 
         fortalezas,
@@ -417,7 +417,7 @@ class CompetidorAnalyticsService {
         tendenciaAmenaza: 'estable',
 
         actividadReciente,
-        ultimoAnalisis,
+        ultimoAnalisis: ultimaActualizacion,
         diasSinAnalisis,
         frecuenciaAnalisisPromedio: 7,
         totalAnalisisHistoricos: competidor.metricas?.productosAnalizados || 0,
@@ -483,13 +483,13 @@ class CompetidorAnalyticsService {
 
     // Por cada producto nuestro, buscar si hay info del competidor
     productos.forEach(producto => {
-      // Buscar precio del competidor en los datos del producto
-      const competidorPeru = producto.competidoresPeru?.find(
-        c => c.competidorId === competidor.id || c.nombre?.toLowerCase().includes(competidor.nombre.toLowerCase())
+      // Buscar precio del competidor en los datos del producto (en investigación)
+      const competidorPeru = producto.investigacion?.competidoresPeru?.find(
+        c => c.id === competidor.id || c.nombre?.toLowerCase().includes(competidor.nombre.toLowerCase())
       );
 
       if (competidorPeru && competidorPeru.precio && competidorPeru.precio > 0) {
-        const nuestroPrecio = producto.precioVentaPEN || 0;
+        const nuestroPrecio = producto.precioSugerido || 0;
         const precioCompetidor = competidorPeru.precio;
         const diferencia = nuestroPrecio - precioCompetidor;
         const diferenciaPorcentaje = nuestroPrecio > 0 ? (diferencia / nuestroPrecio) * 100 : 0;
@@ -511,7 +511,7 @@ class CompetidorAnalyticsService {
           diferenciaPorcentaje,
           diferenciaAbsoluta: Math.abs(diferencia),
           ventajaCompetitiva: ventaja,
-          plataforma: competidorPeru.plataforma || competidor.plataforma || 'mercado_libre',
+          plataforma: competidorPeru.plataforma || competidor.plataformaPrincipal || 'mercado_libre',
           urlProducto: competidorPeru.url,
           disponibleCompetidor: true
         });
@@ -588,8 +588,8 @@ class CompetidorAnalyticsService {
     });
 
     // Si no hay análisis, usar la plataforma del competidor
-    if (plataformasMap.size === 0 && competidor.plataforma) {
-      plataformasMap.set(competidor.plataforma, { productos: [], total: 0 });
+    if (plataformasMap.size === 0 && competidor.plataformaPrincipal) {
+      plataformasMap.set(competidor.plataformaPrincipal, { productos: [], total: 0 });
     }
 
     return Array.from(plataformasMap.entries()).map(([plataforma, data]) => {
@@ -607,7 +607,7 @@ class CompetidorAnalyticsService {
         diferenciaPromedioVsNosotros: diferenciaPromedio,
         productosConVentaja: data.productos.filter(p => p.ventajaCompetitiva === 'nosotros').length,
         productosConDesventaja: data.productos.filter(p => p.ventajaCompetitiva === 'competidor').length,
-        reputacionPlataforma: competidor.metricas?.reputacion || 80,
+        reputacionPlataforma: competidor.reputacion === 'excelente' ? 95 : competidor.reputacion === 'buena' ? 80 : competidor.reputacion === 'regular' ? 60 : competidor.reputacion === 'mala' ? 40 : 50,
         ultimoAnalisis: data.productos[0]?.fechaAnalisis,
         activo: true
       };
@@ -659,50 +659,50 @@ class CompetidorAnalyticsService {
     }
 
     // Análisis de reputación
-    const reputacion = competidor.metricas?.reputacion || 0;
-    if (reputacion >= 90) {
+    const reputacionScore = competidor.reputacion === 'excelente' ? 95 : competidor.reputacion === 'buena' ? 80 : competidor.reputacion === 'regular' ? 60 : competidor.reputacion === 'mala' ? 40 : 50;
+    if (reputacionScore >= 90) {
       debilidades.push({
         id: `fd-${idCounter++}`,
         tipo: 'debilidad',
         categoria: 'reputacion',
         titulo: 'Alta reputación del competidor',
-        descripcion: `El competidor tiene una reputación de ${reputacion}/100`,
+        descripcion: `El competidor tiene una reputación ${competidor.reputacion} (${reputacionScore}/100)`,
         impacto: 'alto',
         productosAfectados: totalProductos
       });
-    } else if (reputacion < 70) {
+    } else if (reputacionScore < 70) {
       fortalezas.push({
         id: `fd-${idCounter++}`,
         tipo: 'fortaleza',
         categoria: 'reputacion',
         titulo: 'Baja reputación del competidor',
-        descripcion: `El competidor tiene una reputación de solo ${reputacion}/100`,
-        impacto: reputacion < 50 ? 'alto' : 'medio',
+        descripcion: `El competidor tiene una reputación ${competidor.reputacion} (${reputacionScore}/100)`,
+        impacto: reputacionScore < 50 ? 'alto' : 'medio',
         productosAfectados: totalProductos
       });
     }
 
     // Análisis de variedad
-    const productosAnalizados = competidor.metricas?.productosAnalizados || 0;
-    if (productosAnalizados > 50) {
+    const cantidadProductos = competidor.cantidadProductos || competidor.metricas?.productosAnalizados || 0;
+    if (cantidadProductos > 50) {
       debilidades.push({
         id: `fd-${idCounter++}`,
         tipo: 'debilidad',
         categoria: 'variedad',
         titulo: 'Amplia variedad de productos',
-        descripcion: `El competidor tiene ${productosAnalizados} productos analizados`,
-        impacto: productosAnalizados > 100 ? 'alto' : 'medio',
-        productosAfectados: productosAnalizados
+        descripcion: `El competidor tiene ${cantidadProductos} productos`,
+        impacto: cantidadProductos > 100 ? 'alto' : 'medio',
+        productosAfectados: cantidadProductos
       });
-    } else if (productosAnalizados < 10) {
+    } else if (cantidadProductos < 10 && cantidadProductos > 0) {
       fortalezas.push({
         id: `fd-${idCounter++}`,
         tipo: 'fortaleza',
         categoria: 'variedad',
         titulo: 'Variedad limitada del competidor',
-        descripcion: `El competidor solo tiene ${productosAnalizados} productos`,
+        descripcion: `El competidor solo tiene ${cantidadProductos} productos`,
         impacto: 'medio',
-        productosAfectados: productosAnalizados
+        productosAfectados: cantidadProductos
       });
     }
 
@@ -750,19 +750,19 @@ class CompetidorAnalyticsService {
     // Precio competitivo: % de productos donde son más baratos
     const precioCompetitivo = Math.round((productosMasBaratos / totalProductos) * 100);
 
-    // Variedad: basado en productos analizados
-    const productosAnalizados = competidor.metricas?.productosAnalizados || 0;
-    const variedadProductos = Math.min(100, productosAnalizados * 2);
+    // Variedad: basado en cantidad de productos
+    const cantidadProductos = competidor.cantidadProductos || competidor.metricas?.productosAnalizados || 0;
+    const variedadProductos = Math.min(100, cantidadProductos * 2);
 
-    // Reputación
-    const reputacion = competidor.metricas?.reputacion || 50;
+    // Reputación: convertir enum a score
+    const reputacion = competidor.reputacion === 'excelente' ? 95 : competidor.reputacion === 'buena' ? 80 : competidor.reputacion === 'regular' ? 60 : competidor.reputacion === 'mala' ? 40 : 50;
 
-    // Actividad reciente: basado en último análisis
-    const ultimoAnalisis = competidor.ultimoAnalisis instanceof Timestamp
-      ? competidor.ultimoAnalisis.toDate()
+    // Actividad reciente: basado en última actualización
+    const ultimaActualizacion = competidor.metricas?.ultimaActualizacion instanceof Timestamp
+      ? competidor.metricas.ultimaActualizacion.toDate()
       : undefined;
-    const diasSinActividad = ultimoAnalisis
-      ? Math.floor((new Date().getTime() - ultimoAnalisis.getTime()) / (1000 * 60 * 60 * 24))
+    const diasSinActividad = ultimaActualizacion
+      ? Math.floor((new Date().getTime() - ultimaActualizacion.getTime()) / (1000 * 60 * 60 * 24))
       : 30;
     const actividadReciente = Math.max(0, 100 - diasSinActividad * 3);
 
@@ -860,15 +860,25 @@ class CompetidorAnalyticsService {
         const factores = this.calcularFactoresAmenaza(c, analisis, []);
         const nivelAmenazaScore = this.calcularNivelAmenazaScore(factores);
 
+        // Convertir reputación enum a score
+        const reputacionScore = c.reputacion === 'excelente' ? 95 : c.reputacion === 'buena' ? 80 : c.reputacion === 'regular' ? 60 : c.reputacion === 'mala' ? 40 : 50;
+
+        // Determinar plataformas: primero plataformasData (nuevo), luego legacy
+        const plataformas: string[] = c.plataformasData && c.plataformasData.length > 0
+          ? c.plataformasData.map(p => p.nombre)
+          : c.plataformas && c.plataformas.length > 0
+            ? c.plataformas.filter(p => !!p) as string[]
+            : [c.plataformaPrincipal || 'otra'];
+
         return {
           competidorId: c.id,
           nombre: c.nombre,
-          plataformas: c.plataforma ? [c.plataforma] : [],
+          plataformas,
           productosEnComun,
           precioPromedioVsNosotros: diferenciaPromedio,
           nivelAmenaza: this.determinarNivelAmenaza(nivelAmenazaScore),
           nivelAmenazaScore,
-          reputacion: c.metricas?.reputacion || 0,
+          reputacion: reputacionScore,
           ventajasNuestras: productosMasCaros,
           ventajasSuyas: productosMasBaratos,
           ranking: 0,
@@ -1071,15 +1081,25 @@ class CompetidorAnalyticsService {
       const factores = this.calcularFactoresAmenaza(c, analisis, []);
       const nivelAmenazaScore = this.calcularNivelAmenazaScore(factores);
 
+      // Convertir reputación enum a score
+      const reputacionScore = c.reputacion === 'excelente' ? 95 : c.reputacion === 'buena' ? 80 : c.reputacion === 'regular' ? 60 : c.reputacion === 'mala' ? 40 : 50;
+
+      // Determinar plataformas: primero plataformasData (nuevo), luego legacy
+      const plataformas: string[] = c.plataformasData && c.plataformasData.length > 0
+        ? c.plataformasData.map(p => p.nombre)
+        : c.plataformas && c.plataformas.length > 0
+          ? c.plataformas.filter(p => !!p) as string[]
+          : [c.plataformaPrincipal || 'otra'];
+
       return {
         competidorId: c.id,
         nombre: c.nombre,
-        plataformas: c.plataforma ? [c.plataforma] : [],
+        plataformas,
         productosEnComun: analisis.length,
         precioPromedioVsNosotros: this.calcularDiferenciaPromedio(analisis),
         nivelAmenaza: this.determinarNivelAmenaza(nivelAmenazaScore),
         nivelAmenazaScore,
-        reputacion: c.metricas?.reputacion || 0,
+        reputacion: reputacionScore,
         ventajasNuestras: analisis.filter(a => a.ventajaCompetitiva === 'nosotros').length,
         ventajasSuyas: analisis.filter(a => a.ventajaCompetitiva === 'competidor').length,
         ranking: 0,

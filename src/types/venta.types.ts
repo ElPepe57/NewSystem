@@ -161,6 +161,7 @@ export interface StockReservado {
  */
 export interface PagoVenta {
   id: string;
+  tipoPago?: 'anticipo' | 'pago' | 'saldo';  // Clasificación: anticipo, pago regular, saldo final
   monto: number;
   moneda?: 'PEN' | 'USD';     // Moneda del pago (default PEN)
   metodoPago: MetodoPago;
@@ -427,7 +428,9 @@ export interface ProductoDisponible {
   nombreComercial: string;
   presentacion: string;
 
-  unidadesDisponibles: number;
+  unidadesDisponibles: number;   // Stock en Perú
+  unidadesUSA: number;           // Stock en USA
+  unidadesEnTransito: number;    // En tránsito USA → Perú
   precioSugerido: number;
   margenObjetivo: number;
 

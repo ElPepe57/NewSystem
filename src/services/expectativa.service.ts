@@ -18,6 +18,7 @@ import { ctruService } from './ctru.service';
 import { VentaService } from './venta.service';
 import { OrdenCompraService } from './ordenCompra.service';
 import { ProductoService } from './producto.service';
+import { unidadService } from './unidad.service';
 import type {
   Requerimiento,
   RequerimientoFormData,
@@ -844,6 +845,407 @@ export const expectativaService = {
       },
       insights
     };
+  },
+
+  // ===============================================
+  // VINCULACIÓN RETROACTIVA Y CONSOLIDACIÓN
+  // ===============================================
+
+  /**
+   * Vincular retroactivamente una OC existente con una cotización
+   * Crea requerimiento → lo aprueba → vincula con OC → reserva unidades → completa
+   */
+  async vincularOCRetroactivamente(params: {
+    cotizacionId: string;
+    cotizacionNumero: string;
+    nombreCliente: string;
+    ordenCompraId: string;
+    ordenCompraNumero: string;
+    productos: Array<{
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      cantidadFaltante: number;
+      precioEstimadoUSD?: number;
+    }>;
+    userId: string;
+  }): Promise<{ requerimientoId: string; requerimientoNumero: string; unidadesReservadas: number; detalles: Array<{ productoId: string; reservadas: number; faltantes: number }> }> {
+    const { cotizacionId, cotizacionNumero, nombreCliente, ordenCompraId, ordenCompraNumero, productos, userId } = params;
+
+    // 1. Buscar requerimiento existente para esta cotización (evitar duplicados)
+    let requerimientoId: string;
+    let requerimientoNumero: string;
+    let reqYaVinculadoAEstaOC = false;
+
+    const reqsExistentes = await this.getRequerimientos();
+    // Primero buscar uno sin OC vinculada (pendiente o aprobado)
+    let reqExistente = reqsExistentes.find(r =>
+      r.ventaRelacionadaId === cotizacionId &&
+      r.estado !== 'cancelado' &&
+      !r.ordenCompraId
+    );
+
+    // Si no hay sin vincular, buscar uno ya vinculado a ESTA misma OC (re-ejecución)
+    if (!reqExistente) {
+      reqExistente = reqsExistentes.find(r =>
+        r.ventaRelacionadaId === cotizacionId &&
+        r.estado !== 'cancelado' &&
+        r.ordenCompraId === ordenCompraId
+      );
+      if (reqExistente) reqYaVinculadoAEstaOC = true;
+    }
+
+    if (reqExistente) {
+      // Reutilizar el requerimiento existente
+      requerimientoId = reqExistente.id!;
+      requerimientoNumero = reqExistente.numeroRequerimiento;
+
+      // Si estaba pendiente, aprobarlo
+      if (reqExistente.estado === 'pendiente') {
+        await this.actualizarEstado(requerimientoId, 'aprobado', userId);
+      }
+    } else {
+      // Crear nuevo solo si no existe ninguno para esta cotización
+      const created = await this.crearRequerimientoDesdeCotizacion(
+        cotizacionId,
+        cotizacionNumero,
+        nombreCliente,
+        productos.map(p => ({
+          productoId: p.productoId,
+          sku: p.sku,
+          marca: p.marca,
+          nombreComercial: p.nombreComercial,
+          cantidadFaltante: p.cantidadFaltante,
+          precioEstimadoUSD: p.precioEstimadoUSD
+        })),
+        userId
+      );
+      requerimientoId = created.id;
+      requerimientoNumero = created.numero;
+
+      // Aprobar inmediatamente
+      await this.actualizarEstado(requerimientoId, 'aprobado', userId);
+    }
+
+    // 2. Vincular con la OC (saltar si ya estaba vinculado a esta misma OC)
+    if (!reqYaVinculadoAEstaOC) {
+      await this.vincularConOC(requerimientoId, ordenCompraId, ordenCompraNumero, userId);
+    }
+
+    // 2b. Recalcular expectativa financiera con costos reales de la OC
+    try {
+      const ordenCompra = await OrdenCompraService.getById(ordenCompraId);
+      if (ordenCompra) {
+        // Obtener TC actual
+        let tcActual = 3.70;
+        try {
+          const tcDelDia = await tipoCambioService.getTCDelDia();
+          if (tcDelDia) tcActual = tcDelDia.venta;
+        } catch { /* usar fallback */ }
+
+        // Calcular costos reales basados en la OC
+        const costoEstimadoUSD = productos.reduce((sum, p) => {
+          const productoOC = ordenCompra.productos.find(po => po.productoId === p.productoId);
+          const costoReal = productoOC?.costoUnitario || p.precioEstimadoUSD || 0;
+          return sum + costoReal * p.cantidadFaltante;
+        }, 0);
+
+        // Sin flete ficticio — el flete se calcula cuando realmente se envía
+        const fleteEstimadoUSD = 0;
+        const impuestoEstimadoUSD = 0;
+        const costoTotalEstimadoUSD = costoEstimadoUSD + impuestoEstimadoUSD + fleteEstimadoUSD;
+
+        await updateDoc(doc(db, REQUERIMIENTOS_COLLECTION, requerimientoId), {
+          expectativa: {
+            tcInvestigacion: tcActual,
+            costoEstimadoUSD,
+            costoEstimadoPEN: costoEstimadoUSD * tcActual,
+            impuestoEstimadoUSD,
+            fleteEstimadoUSD,
+            costoTotalEstimadoUSD,
+            costoTotalEstimadoPEN: costoTotalEstimadoUSD * tcActual
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('No se pudo recalcular expectativa con datos de OC:', e);
+    }
+
+    // 3. Actualizar la OC con el requerimientoId (solo si no estaba ya vinculado)
+    const ORDENES_COLLECTION = 'ordenesCompra';
+    const ordenRef = doc(db, ORDENES_COLLECTION, ordenCompraId);
+
+    if (!reqYaVinculadoAEstaOC) {
+      const ordenSnap = await getDoc(ordenRef);
+      if (ordenSnap.exists()) {
+        const ordenData = ordenSnap.data();
+        const existingReqIds = ordenData.requerimientoIds || [];
+        const existingReqNumeros = ordenData.requerimientoNumeros || [];
+        const existingProductosOrigen = ordenData.productosOrigen || [];
+
+        const newProductosOrigen = productos.map(p => ({
+          productoId: p.productoId,
+          requerimientoId,
+          requerimientoNumero,
+          cotizacionId,
+          clienteNombre: nombreCliente,
+          cantidad: p.cantidadFaltante
+        }));
+
+        await updateDoc(ordenRef, {
+          // Actualizar campo singular (backwards compat) si no existía
+          ...(!ordenData.requerimientoId ? { requerimientoId, requerimientoNumero } : {}),
+          // Actualizar campos multi-req
+          requerimientoIds: [...existingReqIds, requerimientoId],
+          requerimientoNumeros: [...existingReqNumeros, requerimientoNumero],
+          productosOrigen: [...existingProductosOrigen, ...newProductosOrigen],
+          ultimaEdicion: serverTimestamp(),
+          editadoPor: userId
+        });
+      }
+    }
+
+    // 4. Reservar unidades existentes
+    const reservaResult = await unidadService.reservarUnidadesParaCotizacion({
+      ordenCompraId,
+      cotizacionId,
+      requerimientoId,
+      productos: productos.map(p => ({
+        productoId: p.productoId,
+        cantidad: p.cantidadFaltante
+      })),
+      userId
+    });
+
+    // 5. Marcar requerimiento como completado
+    await this.actualizarEstado(requerimientoId, 'completado', userId);
+
+    // 6. Actualizar cotización/venta con el requerimiento generado
+    const VENTAS_COLLECTION = 'ventas';
+    try {
+      const ventaRef = doc(db, VENTAS_COLLECTION, cotizacionId);
+      const ventaSnap = await getDoc(ventaRef);
+      if (ventaSnap.exists()) {
+        const ventaData = ventaSnap.data();
+        const existingReqIds = ventaData.requerimientosIds || [];
+        const existingReqNumeros = ventaData.requerimientosNumeros || [];
+
+        // Verificar si todas las unidades fueron reservadas (sin faltantes)
+        const todasReservadas = reservaResult.detalles.every(d => d.faltantes === 0);
+
+        const updateData: Record<string, any> = {
+          requerimientosIds: [...new Set([...existingReqIds, requerimientoId])],
+          requerimientosNumeros: [...new Set([...existingReqNumeros, requerimientoNumero])]
+        };
+
+        // Si todas las unidades se reservaron, quitar el flag de faltante
+        if (todasReservadas && reservaResult.totalReservadas > 0) {
+          updateData.requiereStock = false;
+          updateData.productosConFaltante = null;
+        }
+
+        await updateDoc(ventaRef, updateData);
+      }
+    } catch (e) {
+      console.warn('No se pudo actualizar la venta con requerimientoId:', e);
+    }
+
+    return {
+      requerimientoId,
+      requerimientoNumero,
+      unidadesReservadas: reservaResult.totalReservadas,
+      detalles: reservaResult.detalles
+    };
+  },
+
+  /**
+   * Consolidar productos de múltiples requerimientos para OC unificada
+   * Agrupa por productoId y trackea el origen por cliente/requerimiento
+   */
+  consolidarProductosRequerimientos(requerimientos: Requerimiento[]): {
+    productosConsolidados: Array<{
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      cantidadTotal: number;
+      precioEstimadoUSD: number;
+      origenes: Array<{
+        requerimientoId: string;
+        requerimientoNumero: string;
+        cotizacionId?: string;
+        clienteNombre?: string;
+        cantidad: number;
+      }>;
+    }>;
+    resumen: { totalProductos: number; totalUnidades: number; clientes: string[] };
+  } {
+    const productoMap = new Map<string, {
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      cantidadTotal: number;
+      precioAcumulado: number;
+      cantidadParaPrecio: number;
+      origenes: Array<{
+        requerimientoId: string;
+        requerimientoNumero: string;
+        cotizacionId?: string;
+        clienteNombre?: string;
+        cantidad: number;
+      }>;
+    }>();
+
+    const clientesSet = new Set<string>();
+
+    for (const req of requerimientos) {
+      const clienteNombre = req.nombreClienteSolicitante || 'Stock interno';
+      clientesSet.add(clienteNombre);
+
+      for (const prod of req.productos) {
+        const existing = productoMap.get(prod.productoId);
+        const origen = {
+          requerimientoId: req.id!,
+          requerimientoNumero: req.numeroRequerimiento,
+          cotizacionId: req.ventaRelacionadaId,
+          clienteNombre,
+          cantidad: prod.cantidadSolicitada
+        };
+
+        if (existing) {
+          existing.cantidadTotal += prod.cantidadSolicitada;
+          if (prod.precioEstimadoUSD) {
+            existing.precioAcumulado += prod.precioEstimadoUSD * prod.cantidadSolicitada;
+            existing.cantidadParaPrecio += prod.cantidadSolicitada;
+          }
+          existing.origenes.push(origen);
+        } else {
+          productoMap.set(prod.productoId, {
+            productoId: prod.productoId,
+            sku: prod.sku || '',
+            marca: prod.marca || '',
+            nombreComercial: prod.nombreComercial || '',
+            cantidadTotal: prod.cantidadSolicitada,
+            precioAcumulado: (prod.precioEstimadoUSD || 0) * prod.cantidadSolicitada,
+            cantidadParaPrecio: prod.precioEstimadoUSD ? prod.cantidadSolicitada : 0,
+            origenes: [origen]
+          });
+        }
+      }
+    }
+
+    const productosConsolidados = Array.from(productoMap.values()).map(p => ({
+      productoId: p.productoId,
+      sku: p.sku,
+      marca: p.marca,
+      nombreComercial: p.nombreComercial,
+      cantidadTotal: p.cantidadTotal,
+      precioEstimadoUSD: p.cantidadParaPrecio > 0 ? p.precioAcumulado / p.cantidadParaPrecio : 0,
+      origenes: p.origenes
+    }));
+
+    return {
+      productosConsolidados,
+      resumen: {
+        totalProductos: productosConsolidados.length,
+        totalUnidades: productosConsolidados.reduce((sum, p) => sum + p.cantidadTotal, 0),
+        clientes: Array.from(clientesSet)
+      }
+    };
+  },
+
+  /**
+   * Limpieza de datos: eliminar requerimientos duplicados y corregir flags de ventas.
+   * - Agrupa reqs por ventaRelacionadaId, conserva el más reciente no-cancelado, cancela el resto
+   * - Para cada venta con requiereStock=true que ya tiene unidades reservadas, marca requiereStock=false
+   */
+  async limpiarDatosVinculacion(userId: string): Promise<{
+    reqsCancelados: string[];
+    ventasCorregidas: string[];
+    resumen: string;
+  }> {
+    const reqsCancelados: string[] = [];
+    const ventasCorregidas: string[] = [];
+
+    // 1. Obtener todos los requerimientos
+    const allReqs = await this.getRequerimientos();
+
+    // 2. Agrupar por ventaRelacionadaId (cotización)
+    const reqsPorCotizacion = new Map<string, typeof allReqs>();
+    for (const req of allReqs) {
+      if (!req.ventaRelacionadaId || req.estado === 'cancelado') continue;
+      const existing = reqsPorCotizacion.get(req.ventaRelacionadaId) || [];
+      existing.push(req);
+      reqsPorCotizacion.set(req.ventaRelacionadaId, existing);
+    }
+
+    // 3. Para cada grupo con duplicados, mantener el que tiene OC vinculada más reciente
+    for (const [cotId, reqs] of reqsPorCotizacion) {
+      if (reqs.length <= 1) continue;
+
+      // Priorizar: completado con OC > aprobado con OC > aprobado sin OC > pendiente
+      const sorted = [...reqs].sort((a, b) => {
+        // Primero por tener OC vinculada
+        const aHasOC = a.ordenCompraId ? 1 : 0;
+        const bHasOC = b.ordenCompraId ? 1 : 0;
+        if (aHasOC !== bHasOC) return bHasOC - aHasOC;
+        // Luego por estado (completado > aprobado > pendiente)
+        const stateOrder: Record<string, number> = { completado: 3, en_proceso: 2, aprobado: 1, pendiente: 0 };
+        return (stateOrder[b.estado] || 0) - (stateOrder[a.estado] || 0);
+      });
+
+      // Mantener el primero, cancelar el resto
+      const keeper = sorted[0];
+      for (let i = 1; i < sorted.length; i++) {
+        const dup = sorted[i];
+        try {
+          await this.actualizarEstado(dup.id!, 'cancelado', userId);
+          reqsCancelados.push(`${dup.numeroRequerimiento} (${dup.nombreClienteSolicitante || cotId})`);
+        } catch (e) {
+          console.error(`Error cancelando ${dup.numeroRequerimiento}:`, e);
+        }
+      }
+    }
+
+    // 4. Corregir ventas con requiereStock=true que ya tienen reqs completados con OC
+    const ventas = await VentaService.getAll();
+    const ventasConFaltante = ventas.filter(v => v.estado === 'confirmada' && v.requiereStock === true);
+
+    for (const venta of ventasConFaltante) {
+      // Buscar si tiene un requerimiento completado con OC vinculada
+      const reqsDeEstaVenta = allReqs.filter(r =>
+        r.ventaRelacionadaId === venta.id &&
+        r.estado !== 'cancelado'
+      );
+
+      const tieneReqCompletadoConOC = reqsDeEstaVenta.some(r =>
+        r.estado === 'completado' && r.ordenCompraId
+      );
+
+      if (tieneReqCompletadoConOC) {
+        try {
+          const ventaRef = doc(db, 'ventas', venta.id);
+          await updateDoc(ventaRef, {
+            requiereStock: false,
+            productosConFaltante: null
+          });
+          ventasCorregidas.push(`${venta.numeroVenta} (${venta.nombreCliente})`);
+        } catch (e) {
+          console.error(`Error actualizando venta ${venta.numeroVenta}:`, e);
+        }
+      }
+    }
+
+    const resumen = [
+      `Requerimientos duplicados cancelados: ${reqsCancelados.length}`,
+      ...reqsCancelados.map(r => `  - ${r}`),
+      `Ventas corregidas (requiereStock → false): ${ventasCorregidas.length}`,
+      ...ventasCorregidas.map(v => `  - ${v}`)
+    ].join('\n');
+
+    return { reqsCancelados, ventasCorregidas, resumen };
   }
 };
 

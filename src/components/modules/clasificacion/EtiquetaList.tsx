@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Tag, Search, Package } from 'lucide-react';
+import { Plus, Pencil, Trash2, Tag, Search, Package, BarChart3 } from 'lucide-react';
 import { Button } from '../../common';
 import { ConfirmDialog } from '../../common/ConfirmDialog';
 import { useEtiquetaStore } from '../../../store/etiquetaStore';
 import { useAuthStore } from '../../../store/authStore';
 import { EtiquetaForm } from './EtiquetaForm';
+import { EtiquetaDetalle } from './EtiquetaDetalle';
 import type { Etiqueta, TipoEtiqueta } from '../../../types/etiqueta.types';
 
 const TIPO_LABELS: Record<TipoEtiqueta, { label: string; color: string }> = {
@@ -17,13 +18,14 @@ const TIPO_ORDER: TipoEtiqueta[] = ['atributo', 'marketing', 'origen'];
 
 export function EtiquetaList() {
   const { user } = useAuthStore();
-  const { etiquetasAgrupadas, fetchEtiquetasAgrupadas, remove, loading } = useEtiquetaStore();
+  const { etiquetasAgrupadas, fetchEtiquetasAgrupadas, delete: deleteEtiqueta, loading } = useEtiquetaStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingEtiqueta, setEditingEtiqueta] = useState<Etiqueta | null>(null);
   const [tipoParaNueva, setTipoParaNueva] = useState<TipoEtiqueta>('atributo');
   const [deletingEtiqueta, setDeletingEtiqueta] = useState<Etiqueta | null>(null);
+  const [viewingEtiqueta, setViewingEtiqueta] = useState<Etiqueta | null>(null);
 
   useEffect(() => {
     fetchEtiquetasAgrupadas();
@@ -41,9 +43,9 @@ export function EtiquetaList() {
   };
 
   const handleDelete = async () => {
-    if (!deletingEtiqueta || !user) return;
+    if (!deletingEtiqueta) return;
     try {
-      await remove(deletingEtiqueta.id, user.uid);
+      await deleteEtiqueta(deletingEtiqueta.id);
       setDeletingEtiqueta(null);
     } catch (err) {
       // Error manejado por store
@@ -161,10 +163,17 @@ export function EtiquetaList() {
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-1 text-sm text-gray-500">
                             <Package className="h-4 w-4" />
-                            <span>{etiqueta.metricas?.productosActivos || 0}</span>
+                            <span>{etiqueta.productosActivos || 0}</span>
                           </div>
 
                           <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => setViewingEtiqueta(etiqueta)}
+                              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                              title="Ver Analytics"
+                            >
+                              <BarChart3 className="h-4 w-4" />
+                            </button>
                             <button
                               onClick={() => handleEdit(etiqueta)}
                               className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
@@ -209,6 +218,13 @@ export function EtiquetaList() {
         message={`¿Estas seguro de eliminar "${deletingEtiqueta?.nombre}"? Los productos que la usan mantendran la referencia pero no aparecera en nuevas asignaciones.`}
         confirmText="Eliminar"
         variant="danger"
+      />
+
+      {/* Analytics Modal */}
+      <EtiquetaDetalle
+        isOpen={!!viewingEtiqueta}
+        onClose={() => setViewingEtiqueta(null)}
+        etiqueta={viewingEtiqueta}
       />
     </div>
   );

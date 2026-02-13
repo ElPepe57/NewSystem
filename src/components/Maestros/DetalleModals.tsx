@@ -43,6 +43,7 @@ import {
   XCircle
 } from 'lucide-react';
 import { Badge, Card } from '../common';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import {
   HealthScore,
   ProgressBar,
@@ -87,6 +88,22 @@ const DetailModalBase: React.FC<DetailModalBaseProps> = ({
   children,
   actions
 }) => {
+  // Registrar/desregistrar en el sistema global de modales
+  useEffect(() => {
+    if (isOpen) {
+      registerModalOpen();
+      document.body.setAttribute('data-modal-open', 'true');
+    }
+    return () => {
+      if (isOpen) {
+        unregisterModalOpen();
+        if (getModalCount() === 0) {
+          document.body.removeAttribute('data-modal-open');
+        }
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -1433,7 +1450,7 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
                   icon={Plane}
                   iconColor="text-purple-500"
                 />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="bg-purple-50 p-3 rounded-lg">
                     <p className="text-xs text-purple-600">Frecuencia de Viaje</p>
                     <p className="text-sm font-bold capitalize">{almacen.frecuenciaViaje || 'Variable'}</p>
@@ -1612,7 +1629,7 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
       onClose={onClose}
       title={competidor.nombre}
       code={competidor.codigo}
-      subtitle={`${competidor.plataformaPrincipal.replace('_', ' ')} · ${competidor.ciudad || 'Ubicación no especificada'}`}
+      subtitle={`${(competidor.plataformaPrincipal || 'otra').replace('_', ' ')} · ${competidor.ciudad || 'Ubicación no especificada'}`}
       headerColor={amenazaConfig.color}
       badge={{
         text: competidor.estado.toUpperCase(),
@@ -1704,10 +1721,28 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
               <div className="space-y-3">
                 <div>
                   <p className="text-xs text-gray-500">Plataforma Principal</p>
-                  <p className="text-sm font-medium capitalize">{competidor.plataformaPrincipal.replace('_', ' ')}</p>
+                  <p className="text-sm font-medium capitalize">{(competidor.plataformaPrincipal || 'otra').replace('_', ' ')}</p>
                 </div>
 
-                {competidor.plataformas && competidor.plataformas.length > 1 && (
+                {/* Mostrar plataformasData si existe (nuevo sistema) */}
+                {competidor.plataformasData && competidor.plataformasData.length > 0 && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Plataformas</p>
+                    <div className="flex flex-wrap gap-1">
+                      {competidor.plataformasData.map((p) => (
+                        <span
+                          key={p.id}
+                          className={`px-2 py-0.5 text-xs rounded ${p.esPrincipal ? 'bg-primary-100 text-primary-700 font-medium' : 'bg-gray-100 text-gray-700'}`}
+                        >
+                          {p.nombre}{p.esPrincipal ? ' ⭐' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Fallback: mostrar plataformas legacy si no hay plataformasData */}
+                {(!competidor.plataformasData || competidor.plataformasData.length === 0) && competidor.plataformas && competidor.plataformas.length > 1 && (
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Otras Plataformas</p>
                     <div className="flex flex-wrap gap-1">
@@ -1715,7 +1750,7 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
                         .filter(p => p !== competidor.plataformaPrincipal)
                         .map((p, idx) => (
                           <span key={idx} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
-                            {p.replace('_', ' ')}
+                            {p?.replace('_', ' ')}
                           </span>
                         ))}
                     </div>
@@ -1765,7 +1800,7 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
                 icon={Target}
                 iconColor="text-amber-500"
               />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className={`p-3 rounded-lg ${
                   competidor.nivelAmenaza === 'alto' ? 'bg-red-50' :
                   competidor.nivelAmenaza === 'medio' ? 'bg-yellow-50' :

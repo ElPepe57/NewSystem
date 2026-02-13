@@ -31,11 +31,16 @@ import {
   ExternalLink,
   Target,
   Truck,
-  UserCheck
+  UserCheck,
+  CheckSquare,
+  Square,
+  Layers
 } from 'lucide-react';
 import { Button, Card, Modal, Badge, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
+import { VincularOCModal } from '../../components/modules/requerimiento/VincularOCModal';
+import { ProductoSearchRequerimientos, type ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { useProductoStore } from '../../store/productoStore';
 import type { ProductoFormData } from '../../types/producto.types';
 import { ExpectativaService } from '../../services/expectativa.service';
@@ -128,6 +133,14 @@ export const Requerimientos: React.FC = () => {
   // Modal de asignar responsable
   const [isAsignacionModalOpen, setIsAsignacionModalOpen] = useState(false);
 
+  // Modal vincular OC retroactiva
+  const [isVincularOCModalOpen, setIsVincularOCModalOpen] = useState(false);
+  const [ventaParaVincular, setVentaParaVincular] = useState<Venta | null>(null);
+
+  // Selección múltiple para OC consolidada
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedReqIds, setSelectedReqIds] = useState<Set<string>>(new Set());
+
   // Form
   const [formData, setFormData] = useState<Partial<RequerimientoFormData>>({
     origen: 'manual',
@@ -137,6 +150,7 @@ export const Requerimientos: React.FC = () => {
   });
 
   // Producto temporal para agregar
+  const [productoSnapshot, setProductoSnapshot] = useState<ProductoRequerimientoSnapshot | null>(null);
   const [productoTemp, setProductoTemp] = useState({
     productoId: '',
     cantidadSolicitada: 1,
@@ -188,8 +202,18 @@ export const Requerimientos: React.FC = () => {
       setProductos(prods);
 
       // Filtrar cotizaciones confirmadas que requieren stock
+      // y que NO tengan ya un requerimiento activo (no cancelado)
+      const reqVentaIds = new Set(
+        reqs
+          .filter(r => r.estado !== 'cancelado')
+          .flatMap(r => [
+            (r as any).ventaRelacionadaId,
+            r.cotizacionId,
+            r.ventaId
+          ].filter(Boolean))
+      );
       const cotizacionesConFaltante = ventas.filter(
-        v => v.estado === 'confirmada' && v.requiereStock === true
+        v => v.estado === 'confirmada' && v.requiereStock === true && !reqVentaIds.has(v.id)
       );
       setCotizacionesConfirmadas(cotizacionesConFaltante);
 
@@ -205,13 +229,21 @@ export const Requerimientos: React.FC = () => {
   // Cargar sugerencias basadas en stock bajo
   const loadSugerenciasStock = async (prods: Producto[]) => {
     try {
-      const sugerencias: SugerenciaStock[] = [];
-
       // Obtener inventario agregado
       const inventarioAgregado = await inventarioService.getInventarioAgregado();
       const inventarioMap = new Map(inventarioAgregado.map((inv: { productoId: string; disponibles: number }) => [inv.productoId, inv]));
       // TODO: Implementar getDemandaPromedioPorProducto en VentaService
       const demandaHistorica: Map<string, number> = new Map();
+
+      // Primero identificar productos con stock bajo
+      const productosStockBajo: Array<{
+        producto: Producto;
+        stockActual: number;
+        stockMinimo: number;
+        demandaPromedio: number;
+        diasParaAgotarse: number;
+        urgencia: 'critica' | 'alta' | 'media';
+      }> = [];
 
       for (const producto of prods) {
         // Verificar si está activo
@@ -224,32 +256,46 @@ export const Requerimientos: React.FC = () => {
 
         if (stockActual <= stockMinimo) {
           // Calcular demanda promedio basándose en ventas históricas
-          const demandaPromedio = demandaHistorica.get(producto.id) || 1; // Mínimo 1 por día si no hay datos
+          const demandaPromedio = demandaHistorica.get(producto.id) || 1;
           const diasParaAgotarse = demandaPromedio > 0
             ? Math.floor(stockActual / demandaPromedio)
-            : stockActual > 0 ? 30 : 0; // Si no hay demanda, asumir 30 días
+            : stockActual > 0 ? 30 : 0;
 
           // Determinar urgencia
           let urgencia: 'critica' | 'alta' | 'media' = 'media';
           if (stockActual === 0) urgencia = 'critica';
           else if (diasParaAgotarse <= 3) urgencia = 'alta';
 
-          // Obtener precio histórico si existe
-          const investigacion = await OrdenCompraService.getInvestigacionMercado([producto.id]);
-          const info = investigacion.get(producto.id);
-
-          sugerencias.push({
+          productosStockBajo.push({
             producto,
             stockActual,
             stockMinimo,
             demandaPromedio,
             diasParaAgotarse,
-            urgencia,
-            precioEstimadoUSD: info?.proveedorRecomendado?.ultimoPrecioUSD || info?.ultimoPrecioUSD,
-            proveedorSugerido: info?.proveedorRecomendado?.nombre
+            urgencia
           });
         }
       }
+
+      // Si no hay productos con stock bajo, terminar
+      if (productosStockBajo.length === 0) {
+        setSugerenciasStock([]);
+        return;
+      }
+
+      // Hacer UNA sola llamada para obtener investigación de mercado de todos los productos
+      const productosIds = productosStockBajo.map(p => p.producto.id);
+      const investigacionMercadoMap = await OrdenCompraService.getInvestigacionMercado(productosIds);
+
+      // Construir sugerencias con la información de mercado
+      const sugerencias: SugerenciaStock[] = productosStockBajo.map(item => {
+        const info = investigacionMercadoMap.get(item.producto.id);
+        return {
+          ...item,
+          precioEstimadoUSD: info?.proveedorRecomendado?.ultimoPrecioUSD || info?.ultimoPrecioUSD,
+          proveedorSugerido: info?.proveedorRecomendado?.nombre
+        };
+      });
 
       // Ordenar por urgencia
       sugerencias.sort((a, b) => {
@@ -282,6 +328,61 @@ export const Requerimientos: React.FC = () => {
 
     return grouped;
   }, [requerimientos]);
+
+  // Handler para selección desde el buscador inteligente
+  const handleProductoSnapshotSelect = async (snapshot: ProductoRequerimientoSnapshot | null) => {
+    setProductoSnapshot(snapshot);
+
+    if (snapshot) {
+      // Actualizar productoTemp con los datos del snapshot
+      setProductoTemp(prev => ({
+        ...prev,
+        productoId: snapshot.productoId,
+        precioEstimadoUSD: snapshot.ultimoCostoUSD || prev.precioEstimadoUSD
+      }));
+
+      // Si hay investigación vigente, cargar información adicional
+      if (!investigacionMercado.has(snapshot.productoId)) {
+        setLoadingInvestigacion(true);
+        try {
+          const resultado = await OrdenCompraService.getInvestigacionMercado([snapshot.productoId]);
+          const info = resultado.get(snapshot.productoId);
+
+          if (info) {
+            setInvestigacionMercado(prev => new Map(prev).set(snapshot.productoId, info));
+
+            if (info.proveedorRecomendado) {
+              setProductoTemp(prev => ({
+                ...prev,
+                precioEstimadoUSD: info.proveedorRecomendado!.ultimoPrecioUSD,
+                proveedorSugerido: info.proveedorRecomendado!.nombre
+              }));
+            }
+          }
+        } catch (error) {
+          console.error('Error al cargar investigación de mercado:', error);
+        } finally {
+          setLoadingInvestigacion(false);
+        }
+      } else {
+        const info = investigacionMercado.get(snapshot.productoId)!;
+        if (info.proveedorRecomendado) {
+          setProductoTemp(prev => ({
+            ...prev,
+            precioEstimadoUSD: info.proveedorRecomendado!.ultimoPrecioUSD,
+            proveedorSugerido: info.proveedorRecomendado!.nombre
+          }));
+        }
+      }
+    } else {
+      setProductoTemp(prev => ({
+        ...prev,
+        productoId: '',
+        precioEstimadoUSD: 0,
+        proveedorSugerido: ''
+      }));
+    }
+  };
 
   // Cargar investigación de mercado cuando se selecciona un producto
   const handleProductoChange = async (productoId: string) => {
@@ -488,6 +589,45 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
+  // Cancelar requerimiento
+  const handleCancelar = async (req: Requerimiento) => {
+    if (!user) return;
+    const confirmar = await confirm({
+      title: 'Cancelar Requerimiento',
+      message: `¿Estás seguro de cancelar ${req.numeroRequerimiento}? Esta acción no se puede deshacer.`,
+      confirmText: 'Cancelar Requerimiento',
+      variant: 'danger'
+    });
+    if (!confirmar) return;
+    try {
+      await ExpectativaService.actualizarEstado(req.id, 'cancelado', user.uid);
+      loadData();
+    } catch (error: any) {
+      console.error('Error al cancelar:', error);
+      alert('Error al cancelar el requerimiento');
+    }
+  };
+
+  // Limpieza de datos: cancelar duplicados y corregir flags de ventas
+  const handleLimpiarDatos = async () => {
+    if (!user) return;
+    const confirmar = await confirm({
+      title: 'Limpiar datos de vinculación',
+      message: 'Esto cancelará requerimientos duplicados y corregirá las cotizaciones que ya tienen stock reservado. ¿Continuar?',
+      confirmText: 'Limpiar datos',
+      variant: 'danger'
+    });
+    if (!confirmar) return;
+    try {
+      const result = await ExpectativaService.limpiarDatosVinculacion(user.uid);
+      alert(result.resumen);
+      loadData();
+    } catch (error: any) {
+      console.error('Error al limpiar datos:', error);
+      alert('Error: ' + error.message);
+    }
+  };
+
   // Navegar a Órdenes de Compra con datos del requerimiento pre-cargados
   const handleGenerarOC = (req: Requerimiento) => {
     // Preparar los productos del requerimiento para el formulario de OC
@@ -583,6 +723,69 @@ export const Requerimientos: React.FC = () => {
         }
       }
     });
+  };
+
+  // =============== Selección múltiple y OC Consolidada ===============
+
+  const toggleReqSelection = (reqId: string) => {
+    setSelectedReqIds(prev => {
+      const next = new Set(prev);
+      if (next.has(reqId)) {
+        next.delete(reqId);
+      } else {
+        next.add(reqId);
+      }
+      return next;
+    });
+  };
+
+  const handleGenerarOCConsolidada = () => {
+    const selectedReqs = requerimientos.filter(r => selectedReqIds.has(r.id!));
+    if (selectedReqs.length === 0) return;
+
+    const { productosConsolidados } = ExpectativaService.consolidarProductosRequerimientos(selectedReqs);
+
+    const productosParaOC = productosConsolidados.map(p => ({
+      productoId: p.productoId,
+      sku: p.sku,
+      marca: p.marca,
+      nombreComercial: p.nombreComercial,
+      cantidad: p.cantidadTotal,
+      precioUnitarioUSD: p.precioEstimadoUSD || 0
+    }));
+
+    const productosOrigen = productosConsolidados.flatMap(p =>
+      p.origenes.map(o => ({
+        productoId: p.productoId,
+        requerimientoId: o.requerimientoId,
+        cantidad: o.cantidad,
+        cotizacionId: o.cotizacionId,
+        clienteNombre: o.clienteNombre
+      }))
+    );
+
+    navigate('/compras', {
+      state: {
+        fromMultipleRequerimientos: {
+          requerimientoIds: selectedReqs.map(r => r.id!),
+          requerimientoNumeros: selectedReqs.map(r => r.numeroRequerimiento),
+          productos: productosParaOC,
+          productosOrigen,
+          clientes: selectedReqs.map(r => ({
+            requerimientoId: r.id!,
+            requerimientoNumero: r.numeroRequerimiento,
+            clienteNombre: r.nombreClienteSolicitante || 'Stock interno'
+          })),
+          tcInvestigacion: Math.max(...selectedReqs.map(r => r.expectativa?.tcInvestigacion || 3.70))
+        }
+      }
+    });
+  };
+
+  // Vincular OC retroactiva desde cotización con faltante
+  const handleVincularOC = (venta: Venta) => {
+    setVentaParaVincular(venta);
+    setIsVincularOCModalOpen(true);
   };
 
   // Badges y formateo
@@ -709,18 +912,39 @@ export const Requerimientos: React.FC = () => {
     : null;
 
   // Renderizar tarjeta de requerimiento para Kanban
-  const renderKanbanCard = (req: Requerimiento) => (
+  const renderKanbanCard = (req: Requerimiento) => {
+    const isSelected = selectedReqIds.has(req.id!);
+    const isSelectable = selectionMode && (req.estado === 'aprobado' || req.estado === 'pendiente');
+
+    return (
     <div
       key={req.id}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-3 hover:shadow-md transition-shadow cursor-pointer"
+      className={`bg-white rounded-lg shadow-sm border p-4 mb-3 hover:shadow-md transition-shadow cursor-pointer ${
+        isSelected ? 'border-primary-500 ring-2 ring-primary-200 bg-primary-50' : 'border-gray-200'
+      }`}
       onClick={() => {
-        setSelectedRequerimiento(req);
-        setIsDetailModalOpen(true);
+        if (isSelectable) {
+          toggleReqSelection(req.id!);
+        } else {
+          setSelectedRequerimiento(req);
+          setIsDetailModalOpen(true);
+        }
       }}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-2">
-        <span className="font-semibold text-primary-600 text-sm">{req.numeroRequerimiento}</span>
+        <div className="flex items-center gap-2">
+          {isSelectable && (
+            <span className="flex-shrink-0">
+              {isSelected ? (
+                <CheckSquare className="h-4 w-4 text-primary-600" />
+              ) : (
+                <Square className="h-4 w-4 text-gray-400" />
+              )}
+            </span>
+          )}
+          <span className="font-semibold text-primary-600 text-sm">{req.numeroRequerimiento}</span>
+        </div>
         {getPrioridadBadge(req.prioridad)}
       </div>
 
@@ -746,11 +970,11 @@ export const Requerimientos: React.FC = () => {
 
       {/* Acciones rápidas */}
       {req.estado === 'pendiente' && (
-        <div className="mt-3 pt-2 border-t border-gray-100">
+        <div className="mt-3 pt-2 border-t border-gray-100 flex gap-2">
           <Button
             variant="primary"
             size="sm"
-            className="w-full"
+            className="flex-1"
             onClick={(e) => {
               e.stopPropagation();
               handleAprobar(req);
@@ -759,15 +983,26 @@ export const Requerimientos: React.FC = () => {
             <Check className="h-4 w-4 mr-1" />
             Aprobar
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCancelar(req);
+            }}
+            title="Cancelar requerimiento"
+          >
+            <XCircle className="h-4 w-4 text-red-500" />
+          </Button>
         </div>
       )}
 
       {req.estado === 'aprobado' && !req.ordenCompraId && (
-        <div className="mt-3 pt-2 border-t border-gray-100">
+        <div className="mt-3 pt-2 border-t border-gray-100 flex gap-2">
           <Button
             variant="primary"
             size="sm"
-            className="w-full"
+            className="flex-1"
             onClick={(e) => {
               e.stopPropagation();
               handleGenerarOC(req);
@@ -776,27 +1011,39 @@ export const Requerimientos: React.FC = () => {
             <ShoppingCart className="h-4 w-4 mr-1" />
             Generar OC
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCancelar(req);
+            }}
+            title="Cancelar requerimiento"
+          >
+            <XCircle className="h-4 w-4 text-red-500" />
+          </Button>
         </div>
       )}
     </div>
   );
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Requerimientos</h1>
-          <p className="text-gray-600 mt-1">
-            Gestión inteligente de solicitudes de compra
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Requerimientos</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
+            Gestión de solicitudes de compra
           </p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           {/* Toggle de vista */}
           <div className="bg-gray-100 rounded-lg p-1 flex">
             <button
               onClick={() => setViewMode('kanban')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                 viewMode === 'kanban' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -804,7 +1051,7 @@ export const Requerimientos: React.FC = () => {
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                 viewMode === 'list' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -815,13 +1062,40 @@ export const Requerimientos: React.FC = () => {
           <Button
             variant="ghost"
             onClick={() => setShowIntelligencePanel(!showIntelligencePanel)}
+            className="hidden sm:flex"
           >
             <Zap className={`h-5 w-5 ${showIntelligencePanel ? 'text-yellow-500' : 'text-gray-400'}`} />
           </Button>
 
-          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
-            <Plus className="h-5 w-5 mr-2" />
-            Nuevo Requerimiento
+          {/* Botón limpieza temporal */}
+          {cotizacionesConfirmadas.length > 0 && (
+            <Button
+              variant="ghost"
+              onClick={handleLimpiarDatos}
+              className="hidden sm:flex text-red-500 hover:text-red-700"
+              title="Limpiar duplicados y corregir datos"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          )}
+
+          {/* Botón selección para OC consolidada */}
+          <Button
+            variant={selectionMode ? 'warning' : 'outline'}
+            onClick={() => {
+              setSelectionMode(!selectionMode);
+              if (selectionMode) setSelectedReqIds(new Set());
+            }}
+            className="hidden sm:flex"
+          >
+            {selectionMode ? <CheckSquare className="h-4 w-4 mr-1" /> : <Layers className="h-4 w-4 mr-1" />}
+            {selectionMode ? 'Cancelar' : 'OC Consolidada'}
+          </Button>
+
+          <Button variant="primary" onClick={() => setIsModalOpen(true)} className="flex-1 sm:flex-none">
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Nuevo Requerimiento</span>
+            <span className="sm:hidden">Nuevo</span>
           </Button>
         </div>
       </div>
@@ -989,13 +1263,24 @@ export const Requerimientos: React.FC = () => {
                             {venta.numeroVenta} • {venta.productos.length} productos
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleCrearDesdeCotizacion(venta)}
-                        >
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleVincularOC(venta)}
+                            title="Vincular con OC existente"
+                          >
+                            <Link2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCrearDesdeCotizacion(venta)}
+                            title="Crear requerimiento nuevo"
+                          >
+                            <ArrowRight className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -1286,22 +1571,14 @@ export const Requerimientos: React.FC = () => {
               </div>
             </div>
 
-            {/* Búsqueda de producto */}
-            <div className="relative mb-4">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <select
-                value={productoTemp.productoId}
-                onChange={(e) => handleProductoChange(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary-500 focus:ring-0 text-gray-900 bg-white appearance-none cursor-pointer"
-              >
-                <option value="">Buscar y seleccionar producto...</option>
-                {productos.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.sku} - {p.marca} {p.nombreComercial}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+            {/* Buscador inteligente de productos */}
+            <div className="mb-4">
+              <ProductoSearchRequerimientos
+                productos={productos}
+                value={productoSnapshot}
+                onChange={handleProductoSnapshotSelect}
+                placeholder="Buscar producto por SKU, marca o nombre..."
+              />
             </div>
 
             {/* Producto seleccionado - Vista expandida */}
@@ -1358,7 +1635,7 @@ export const Requerimientos: React.FC = () => {
                     </div>
 
                     {/* Métricas de precio */}
-                    <div className="grid grid-cols-4 gap-2 mb-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
                       <div className="bg-gray-50 rounded-lg p-2 text-center">
                         <div className="text-xs text-gray-500">Último</div>
                         <div className="font-bold text-gray-900">${infoProductoSeleccionado.ultimoPrecioUSD.toFixed(2)}</div>
@@ -1426,7 +1703,7 @@ export const Requerimientos: React.FC = () => {
 
                 {/* Campos de entrada */}
                 <div className="p-4 border-t bg-gray-50">
-                  <div className="grid grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">Cantidad</label>
                       <input
@@ -1636,19 +1913,19 @@ export const Requerimientos: React.FC = () => {
                       <span className="mx-2 text-gray-400">-</span>
                       <span>{sug.producto.marca} {sug.producto.nombreComercial}</span>
                     </div>
-                    <div className="mt-2 grid grid-cols-3 gap-4 text-sm">
+                    <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm">
                       <div>
-                        <span className="text-gray-500">Stock actual:</span>
+                        <span className="text-gray-500">Stock:</span>
                         <span className={`ml-1 font-medium ${sug.stockActual === 0 ? 'text-red-600' : ''}`}>
                           {sug.stockActual}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-500">Stock mínimo:</span>
+                        <span className="text-gray-500">Mínimo:</span>
                         <span className="ml-1 font-medium">{sug.stockMinimo}</span>
                       </div>
                       <div>
-                        <span className="text-gray-500">Días para agotarse:</span>
+                        <span className="text-gray-500">Días:</span>
                         <span className={`ml-1 font-medium ${sug.diasParaAgotarse <= 3 ? 'text-red-600' : ''}`}>
                           {sug.diasParaAgotarse}
                         </span>
@@ -1780,7 +2057,7 @@ export const Requerimientos: React.FC = () => {
                 <TrendingUp className="h-5 w-5 mr-2" />
                 Expectativa Financiera
               </h4>
-              <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm">
                 <div>
                   <label className="text-blue-600">TC Investigación</label>
                   <div className="font-bold text-blue-900">
@@ -1800,7 +2077,7 @@ export const Requerimientos: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-3 text-sm">
                 <div>
                   <label className="text-blue-600">Impuesto Est.</label>
                   <div className="font-medium text-blue-900">
@@ -2048,6 +2325,49 @@ export const Requerimientos: React.FC = () => {
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
+
+      {/* Modal Vincular OC Retroactiva */}
+      {ventaParaVincular && (
+        <VincularOCModal
+          isOpen={isVincularOCModalOpen}
+          onClose={() => {
+            setIsVincularOCModalOpen(false);
+            setVentaParaVincular(null);
+          }}
+          venta={ventaParaVincular}
+          userId={user?.uid || ''}
+          onSuccess={() => {
+            loadData();
+          }}
+        />
+      )}
+
+      {/* Barra flotante de selección para OC consolidada */}
+      {selectionMode && selectedReqIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white shadow-xl border border-primary-200 rounded-xl px-6 py-3 flex items-center gap-4">
+          <div className="text-sm text-gray-700">
+            <span className="font-semibold text-primary-600">{selectedReqIds.size}</span> requerimiento(s) seleccionado(s)
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleGenerarOCConsolidada}
+          >
+            <Layers className="h-4 w-4 mr-2" />
+            Generar OC Consolidada
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSelectionMode(false);
+              setSelectedReqIds(new Set());
+            }}
+          >
+            Cancelar
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { X, CreditCard, AlertCircle, Wallet, Calendar, DollarSign, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button, Input, Card, Select, Badge } from '../../common';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
 import { useTipoCambioStore } from '../../../store/tipoCambioStore';
 import { useToastStore } from '../../../store/toastStore';
 import { tesoreriaService } from '../../../services/tesoreria.service';
@@ -33,6 +34,18 @@ export const PagoForm: React.FC<PagoFormProps> = ({
 }) => {
   const { getTCDelDia } = useTipoCambioStore();
   const toast = useToastStore();
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   // ========== Estado del formulario ==========
   const [fechaPago, setFechaPago] = useState<string>(
@@ -410,21 +423,30 @@ export const PagoForm: React.FC<PagoFormProps> = ({
           </div>
 
           {/* ========== Método y Cuenta ========== */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`grid ${metodoPago === 'tarjeta_credito' || metodoPago === 'prestamo_viajero' ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
             <Select
               label="Método de Pago *"
               value={metodoPago}
-              onChange={(e) => setMetodoPago(e.target.value as MetodoTesoreria)}
+              onChange={(e) => {
+                setMetodoPago(e.target.value as MetodoTesoreria);
+                // Limpiar cuenta si cambia a método sin cuenta
+                if (e.target.value === 'tarjeta_credito' || e.target.value === 'prestamo_viajero') {
+                  setCuentaOrigenId('');
+                }
+              }}
               options={[
                 { value: 'transferencia_bancaria', label: 'Transferencia Bancaria' },
                 { value: 'zelle', label: 'Zelle' },
                 { value: 'paypal', label: 'PayPal' },
                 { value: 'efectivo', label: 'Efectivo' },
-                { value: 'tarjeta', label: 'Tarjeta' },
+                { value: 'tarjeta', label: 'Tarjeta Débito' },
+                { value: 'tarjeta_credito', label: 'Tarjeta de Crédito' },
+                { value: 'prestamo_viajero', label: 'Préstamo de Viajero' },
                 { value: 'otro', label: 'Otro' }
               ]}
             />
 
+            {metodoPago !== 'tarjeta_credito' && metodoPago !== 'prestamo_viajero' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 <Wallet className="inline h-4 w-4 mr-1" />
@@ -458,10 +480,11 @@ export const PagoForm: React.FC<PagoFormProps> = ({
                 </select>
               )}
             </div>
+            )}
           </div>
 
           {/* Info de cuenta seleccionada */}
-          {cuentaSeleccionada && (() => {
+          {metodoPago !== 'tarjeta_credito' && metodoPago !== 'prestamo_viajero' && cuentaSeleccionada && (() => {
             // Para cuentas bi-moneda, usar el saldo de la moneda seleccionada
             const saldoActual = cuentaSeleccionada.esBiMoneda
               ? (monedaPago === 'USD' ? (cuentaSeleccionada.saldoUSD || 0) : (cuentaSeleccionada.saldoPEN || 0))
@@ -496,6 +519,37 @@ export const PagoForm: React.FC<PagoFormProps> = ({
               </div>
             );
           })()}
+
+          {/* ========== Info contextual por método de pago ========== */}
+          {metodoPago === 'tarjeta_credito' && (
+            <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-sm">
+              <div className="flex items-start gap-2">
+                <CreditCard className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <span className="font-medium text-purple-800">Pago con Tarjeta de Crédito</span>
+                  <p className="text-purple-700 mt-0.5">
+                    Este pago genera una deuda pendiente. No se descontará de ninguna cuenta de caja.
+                    Registra la referencia de la transacción abajo.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {metodoPago === 'prestamo_viajero' && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <span className="font-medium text-amber-800">Préstamo de Viajero</span>
+                  <p className="text-amber-700 mt-0.5">
+                    El viajero adelantó el pago. Se registrará como deuda pendiente con el viajero.
+                    Indica el nombre del viajero en las notas.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ========== Referencia y Notas ========== */}
           <div className="grid grid-cols-2 gap-4">

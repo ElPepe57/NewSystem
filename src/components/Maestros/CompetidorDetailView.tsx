@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import {
   Users, Globe, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
   BarChart3, Target, Shield, ShieldAlert, ShieldCheck, Eye, X,
   RefreshCw, ExternalLink, Package, Star, AlertCircle, Zap,
   ThumbsUp, ThumbsDown, Activity, Award, ChevronRight
 } from 'lucide-react';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import type { Competidor } from '../../types/entidadesMaestras.types';
 import {
   competidorAnalyticsService,
@@ -27,6 +28,18 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
   const [activeTab, setActiveTab] = useState<DetailTab>('resumen');
   const [analytics, setAnalytics] = useState<CompetidorAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     loadAnalytics();
@@ -121,15 +134,15 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
             <p className="text-gray-500">{competidor.codigo}</p>
 
             <div className="flex flex-wrap gap-4 mt-3">
-              {competidor.plataforma && (
+              {competidor.plataformaPrincipal && (
                 <div className="flex items-center gap-1 text-sm text-gray-600">
                   <Globe className="w-4 h-4" />
-                  {competidor.plataforma}
+                  {competidor.plataformaPrincipal}
                 </div>
               )}
-              {competidor.url && (
+              {competidor.urlTienda && (
                 <a
-                  href={competidor.url}
+                  href={competidor.urlTienda}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 text-sm text-blue-600 hover:underline"
@@ -740,7 +753,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
             {getNivelAmenazaIcon(analytics?.nivelAmenaza)}
             <div>
               <h2 className="text-xl font-bold text-gray-900">{competidor.nombre}</h2>
-              <p className="text-sm text-gray-500">{competidor.codigo} - {competidor.plataforma}</p>
+              <p className="text-sm text-gray-500">{competidor.codigo} - {competidor.plataformaPrincipal}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">

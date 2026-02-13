@@ -522,25 +522,44 @@ class TransportistaAnalyticsService {
         fecha,
         ventaId: e.ventaId || '',
         numeroVenta: e.numeroVenta || '',
-        clienteId: e.clienteId || '',
-        clienteNombre: e.clienteNombre || '',
-        zona: e.zona || e.distrito || 'Sin zona',
+        clienteId: '', // Entrega no tiene clienteId directo
+        clienteNombre: e.nombreCliente || '',
+        zona: e.distrito || 'Sin zona', // Usar distrito como zona
         distrito: e.distrito || '',
-        direccion: e.direccion || '',
-        unidades: e.unidades || 1,
-        pesoKg: e.pesoKg,
-        volumenM3: e.volumenM3,
-        costoEntrega: e.costoEntrega || 0,
-        tiempoEntrega: e.tiempoEntrega || 0,
-        estado: (e.estado as EntregaHistorial['estado']) || 'completada',
+        direccion: e.direccionEntrega || '',
+        unidades: e.cantidadItems || 1, // Usar cantidadItems en lugar de unidades
+        pesoKg: undefined, // Entrega no tiene pesoKg
+        volumenM3: undefined, // Entrega no tiene volumenM3
+        costoEntrega: e.costoTransportista || 0, // Usar costoTransportista en lugar de costoEntrega
+        tiempoEntrega: e.tiempoEntregaMinutos ? e.tiempoEntregaMinutos / 60 : 0, // Convertir minutos a horas
+        estado: this.mapEstadoEntrega(e.estado),
         motivoFallo: e.motivoFallo,
-        calificacionCliente: e.calificacion,
-        comentarioCliente: e.comentario,
+        calificacionCliente: undefined, // Entrega no tiene calificacion
+        comentarioCliente: undefined, // Entrega no tiene comentario
         observaciones: e.observaciones,
-        fechaAsignacion: e.fechaAsignacion instanceof Timestamp ? e.fechaAsignacion.toDate() : undefined,
+        fechaAsignacion: e.fechaSalida instanceof Timestamp ? e.fechaSalida.toDate() : undefined, // Usar fechaSalida
         fechaCompletada: e.fechaEntrega instanceof Timestamp ? e.fechaEntrega.toDate() : undefined
       };
     }).sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
+  }
+
+  /**
+   * Mapea el estado de Entrega al estado de EntregaHistorial
+   */
+  private mapEstadoEntrega(estado: string): EntregaHistorial['estado'] {
+    switch (estado) {
+      case 'entregada':
+        return 'completada';
+      case 'fallida':
+        return 'fallida';
+      case 'reprogramada':
+        return 'reprogramada';
+      case 'programada':
+      case 'en_camino':
+        return 'en_proceso';
+      default:
+        return 'completada';
+    }
   }
 
   /**
@@ -578,10 +597,9 @@ class TransportistaAnalyticsService {
       }
     });
 
-    // Usar métricas del transportista si existen
-    const metricas = transportista.metricas;
-    const entregasExitosasFromMetricas = metricas?.entregasExitosas || exitosas;
-    const tasaExitoFromMetricas = metricas?.tasaExito || (total > 0 ? (exitosas / total) * 100 : 0);
+    // Usar métricas del transportista si existen (propiedades directas)
+    const entregasExitosasFromMetricas = transportista.entregasExitosas || exitosas;
+    const tasaExitoFromMetricas = transportista.tasaExito || (total > 0 ? (exitosas / total) * 100 : 0);
 
     return {
       entregasTotales: total,
@@ -593,7 +611,7 @@ class TransportistaAnalyticsService {
       tasaReprogramacion: total > 0 ? (reprogramadas / total) * 100 : 0,
       tasaFallo: total > 0 ? (fallidas / total) * 100 : 0,
 
-      tiempoPromedioEntrega: metricas?.tiempoPromedioHoras || tiempoPromedio,
+      tiempoPromedioEntrega: transportista.tiempoPromedioEntrega || tiempoPromedio,
       tiempoMinimoEntrega: tiempoMin,
       tiempoMaximoEntrega: tiempoMax,
       desviacionTiempo: desviacion,
@@ -606,7 +624,7 @@ class TransportistaAnalyticsService {
       totalCalificaciones: calificaciones.length,
       distribucionCalificaciones,
 
-      capacidadDiaria: transportista.capacidadDiaria || 20,
+      capacidadDiaria: 20, // Valor por defecto - Transportista no tiene capacidadDiaria
       capacidadUtilizada: 0, // Se calcularía con entregas del día
       utilizacionCapacidad: 70 // Promedio estimado
     };
@@ -704,7 +722,7 @@ class TransportistaAnalyticsService {
 
     // Costos del transportista si existen
     const costoFijo = transportista.costoFijo || 0;
-    const costoVariable = transportista.costoPorEntrega || costoPromedio;
+    const costoVariable = transportista.costoPromedioPorEntrega || costoPromedio; // Usar costoPromedioPorEntrega
 
     return {
       costoTotalPeriodo: costoTotal,
@@ -859,21 +877,20 @@ class TransportistaAnalyticsService {
     const comparativas = todosTransportistas
       .filter(t => t.estado === 'activo')
       .map(t => {
-        const metricas = t.metricas;
         return {
           transportistaId: t.id,
           codigo: t.codigo,
           nombre: t.nombre,
           tipo: t.tipo,
-          entregas: metricas?.entregasExitosas || 0,
-          tasaExito: metricas?.tasaExito || 0,
-          tiempoPromedio: metricas?.tiempoPromedioHoras || 0,
-          costoPromedio: t.costoPorEntrega || 0,
-          calificacion: 4.0, // Se calcularía con datos reales
+          entregas: t.entregasExitosas || 0, // Propiedad directa
+          tasaExito: t.tasaExito || 0, // Propiedad directa
+          tiempoPromedio: t.tiempoPromedioEntrega || 0, // Propiedad directa
+          costoPromedio: t.costoPromedioPorEntrega || 0, // Propiedad directa
+          calificacion: t.calificacionPromedio || 4.0, // Propiedad directa
           incidencias: 0,
           puntualidad: 85,
           ranking: 0,
-          esRecomendado: (metricas?.tasaExito || 0) >= 90,
+          esRecomendado: (t.tasaExito || 0) >= 90,
           tendencia: 'estable' as const
         };
       });
@@ -1039,15 +1056,15 @@ class TransportistaAnalyticsService {
       codigo: t.codigo,
       nombre: t.nombre,
       tipo: t.tipo,
-      entregas: t.metricas?.entregasExitosas || 0,
-      tasaExito: t.metricas?.tasaExito || 0,
-      tiempoPromedio: t.metricas?.tiempoPromedioHoras || 0,
-      costoPromedio: t.costoPorEntrega || 0,
-      calificacion: 4.0,
+      entregas: t.entregasExitosas || 0, // Propiedad directa
+      tasaExito: t.tasaExito || 0, // Propiedad directa
+      tiempoPromedio: t.tiempoPromedioEntrega || 0, // Propiedad directa
+      costoPromedio: t.costoPromedioPorEntrega || 0, // Propiedad directa
+      calificacion: t.calificacionPromedio || 4.0, // Propiedad directa
       incidencias: 0,
       puntualidad: 85,
       ranking: 0,
-      esRecomendado: (t.metricas?.tasaExito || 0) >= 90,
+      esRecomendado: (t.tasaExito || 0) >= 90,
       tendencia: 'estable' as const
     }));
 

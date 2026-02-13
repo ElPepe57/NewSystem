@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useLayoutEffect } from 'react';
 import {
   X,
   Truck,
@@ -33,6 +33,7 @@ import {
   formatNumber,
   formatCurrency
 } from '../../common/Charts';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
 
 // ============================================
 // TIPOS
@@ -119,13 +120,13 @@ const generarRendimientoMensual = (transportista: Transportista) => {
   const meses = ['Ago', 'Sep', 'Oct', 'Nov', 'Dic', 'Ene'];
   const totalBase = (transportista.totalEntregas || 50) / 6;
 
-  return meses.map((mes, idx) => {
+  return meses.map((mes) => {
     const variacion = 0.7 + Math.random() * 0.6;
     const total = Math.round(totalBase * variacion);
     const tasaExito = (transportista.tasaExito || 95) + (Math.random() * 10 - 5);
 
     return {
-      mes,
+      name: mes,
       entregas: total,
       exitosas: Math.round(total * (tasaExito / 100)),
       fallidas: Math.round(total * (1 - tasaExito / 100)),
@@ -145,6 +146,18 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
 }) => {
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
   const [filtroEstado, setFiltroEstado] = useState<'todas' | 'exitosa' | 'fallida' | 'pendiente'>('todas');
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   // Datos simulados
   const entregas = useMemo(() => generarEntregasSimuladas(transportista), [transportista]);
@@ -251,7 +264,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 <div className="flex items-center gap-3 mb-2">
                   <h2 className="text-2xl font-bold">{transportista.nombre}</h2>
                   <Badge
-                    variant={transportista.estado === 'activo' ? 'success' : 'secondary'}
+                    variant={transportista.estado === 'activo' ? 'success' : 'default'}
                     className="text-xs"
                   >
                     {transportista.estado === 'activo' ? 'Activo' : 'Inactivo'}
@@ -450,7 +463,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     </h4>
                     <div className="flex flex-wrap gap-2">
                       {transportista.zonasAtendidas.map((zona) => (
-                        <Badge key={zona} variant="secondary">
+                        <Badge key={zona} variant="default">
                           {zona}
                         </Badge>
                       ))}
@@ -559,7 +572,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     title="Entregas por Mes"
                     data={rendimientoMensual}
                     dataKey="entregas"
-                    xAxisKey="mes"
+                    xAxisKey="name"
                     height={250}
                     color={CHART_COLORS.primary}
                     formatValue={formatNumber}
@@ -572,7 +585,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     title="Tasa de Éxito Mensual (%)"
                     data={rendimientoMensual}
                     dataKey="tasaExito"
-                    xAxisKey="mes"
+                    xAxisKey="name"
                     height={250}
                     color={CHART_COLORS.success}
                     formatValue={(v) => `${v.toFixed(1)}%`}

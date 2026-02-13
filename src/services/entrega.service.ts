@@ -26,6 +26,7 @@ import { transportistaService } from './transportista.service';
 import { movimientoTransportistaService } from './movimiento-transportista.service';
 import { gastoService } from './gasto.service';
 import { unidadService } from './unidad.service';
+import { tesoreriaService } from './tesoreria.service';
 
 const COLLECTION_NAME = 'entregas';
 
@@ -583,6 +584,22 @@ export const entregaService = {
           ultimaEdicion: Timestamp.now()
         });
         console.log(`[Venta ${venta.numeroVenta}] Estado actualizado a: ${nuevoEstado}`);
+
+        // Si la venta se marcó como entregada, reclasificar anticipos
+        if (nuevoEstado === 'entregada') {
+          try {
+            const reclasificados = await tesoreriaService.reclasificarAnticipos(
+              ventaId,
+              venta.cotizacionOrigenId,
+              userId
+            );
+            if (reclasificados > 0) {
+              console.log(`[actualizarEstadoVenta] ${reclasificados} anticipo(s) reclasificados a ingreso_venta`);
+            }
+          } catch (reclasError) {
+            console.warn('[actualizarEstadoVenta] Error al reclasificar anticipos:', reclasError);
+          }
+        }
       }
     } catch (error) {
       console.error(`[actualizarEstadoVenta] Error para venta ${ventaId}:`, error);

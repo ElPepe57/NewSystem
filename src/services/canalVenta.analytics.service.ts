@@ -578,21 +578,28 @@ class CanalVentaAnalyticsService {
    */
   private construirVentasHistorial(ventas: Venta[]): VentaCanal[] {
     return ventas.map(v => {
-      const fecha = v.fecha instanceof Timestamp ? v.fecha.toDate() : new Date(v.fecha || Date.now());
+      // Usar fechaCreacion o fechaVenta según disponibilidad
+      const fecha = v.fechaCreacion instanceof Timestamp
+        ? v.fechaCreacion.toDate()
+        : new Date();
+
+      // Calcular margen desde utilidadNetaPEN o utilidadBrutaPEN
+      const margen = v.utilidadNetaPEN || v.utilidadBrutaPEN || 0;
+      const margenPorcentaje = v.margenNeto || v.margenBruto || 0;
 
       return {
         ventaId: v.id,
         numeroVenta: v.numeroVenta || v.id,
         fecha,
         clienteId: v.clienteId || '',
-        clienteNombre: v.clienteNombre || 'Cliente',
+        clienteNombre: v.nombreCliente || 'Cliente',
         productos: v.productos?.length || 0,
         unidades: v.productos?.reduce((sum, p) => sum + (p.cantidad || 0), 0) || 0,
-        subtotalPEN: v.subtotal || 0,
+        subtotalPEN: v.subtotalPEN || 0,
         descuento: v.descuento || 0,
-        totalPEN: v.total || 0,
-        margen: v.margen || 0,
-        margenPorcentaje: v.total > 0 ? ((v.margen || 0) / v.total) * 100 : 0,
+        totalPEN: v.totalPEN || 0,
+        margen: margen,
+        margenPorcentaje: margenPorcentaje,
         estado: v.estado || 'completada',
         esClienteNuevo: false // Se calcularía con datos históricos
       };
@@ -604,25 +611,37 @@ class CanalVentaAnalyticsService {
    */
   private construirCotizacionesHistorial(cotizaciones: Cotizacion[]): CotizacionCanal[] {
     return cotizaciones.map(c => {
-      const fecha = c.fecha instanceof Timestamp ? c.fecha.toDate() : new Date(c.fecha || Date.now());
+      const fecha = c.fechaCreacion instanceof Timestamp
+        ? c.fechaCreacion.toDate()
+        : new Date();
 
       let estado: CotizacionCanal['estado'] = 'pendiente';
-      if (c.convertidaVenta || c.ventaId) estado = 'convertida';
-      else if (c.estado === 'aprobada') estado = 'aprobada';
+      if (c.ventaId) estado = 'convertida';
+      else if (c.estado === 'confirmada') estado = 'aprobada';
       else if (c.estado === 'rechazada') estado = 'rechazada';
       else if (c.estado === 'vencida') estado = 'vencida';
 
+      // Calcular días hasta conversión si aplica
+      let diasHastaConversion: number | undefined;
+      if (c.ventaId && c.fechaConfirmacion) {
+        const fechaConfirm = c.fechaConfirmacion instanceof Timestamp
+          ? c.fechaConfirmacion.toDate()
+          : new Date(c.fechaConfirmacion);
+        diasHastaConversion = Math.floor((fechaConfirm.getTime() - fecha.getTime()) / (1000 * 60 * 60 * 24));
+      }
+
       return {
         cotizacionId: c.id,
-        numero: c.numero || c.id,
+        numero: c.numeroCotizacion || c.id,
         fecha,
         clienteId: c.clienteId || '',
-        clienteNombre: c.clienteNombre || 'Cliente',
-        montoPEN: c.total || 0,
+        clienteNombre: c.nombreCliente || 'Cliente',
+        montoPEN: c.totalPEN || 0,
         estado,
         convertidaVenta: estado === 'convertida',
         ventaId: c.ventaId,
-        motivoRechazo: c.motivoRechazo
+        diasHastaConversion,
+        motivoRechazo: c.rechazo?.motivo
       };
     }).sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
   }
@@ -926,7 +945,7 @@ class CanalVentaAnalyticsService {
       v.productos?.forEach(p => {
         const existing = productosMap.get(p.productoId) || {
           sku: p.sku || '',
-          nombre: p.nombre || p.sku || '',
+          nombre: p.nombreComercial || p.sku || '',
           marca: p.marca || '',
           unidades: 0,
           ingresos: 0,
@@ -935,7 +954,7 @@ class CanalVentaAnalyticsService {
         };
         existing.unidades += p.cantidad || 0;
         existing.ingresos += p.subtotal || 0;
-        existing.margen += (p.subtotal || 0) * 0.25; // Estimado
+        existing.margen += (p.margenReal || 0); // Usar margenReal del producto
         existing.ventasCount++;
         productosMap.set(p.productoId, existing);
       });
@@ -966,7 +985,8 @@ class CanalVentaAnalyticsService {
 
     ventas.forEach(v => {
       v.productos?.forEach(p => {
-        const categoria = p.grupo || p.marca || 'Sin categoría';
+        // Usar marca como categoría ya que 'grupo' no existe en ProductoVenta
+        const categoria = p.marca || 'Sin categoría';
         const existing = categoriasMap.get(categoria) || {
           unidades: 0,
           ingresos: 0,
@@ -975,7 +995,7 @@ class CanalVentaAnalyticsService {
         };
         existing.unidades += p.cantidad || 0;
         existing.ingresos += p.subtotal || 0;
-        existing.margen += (p.subtotal || 0) * 0.25;
+        existing.margen += (p.margenReal || 0);
         existing.productos.add(p.productoId);
         categoriasMap.set(categoria, existing);
       });
@@ -1030,9 +1050,9 @@ class CanalVentaAnalyticsService {
    */
   private calcularMetricasROI(metricas: MetricasVenta, canal: CanalVenta): MetricasROI {
     const ingresos = metricas.ingresosTotales;
-    const tasaComision = canal.comision || 0;
+    const tasaComision = canal.comisionPorcentaje || 0;
     const comisiones = ingresos * (tasaComision / 100);
-    const costoCanal = canal.costoFijo || 0;
+    const costoCanal = 0; // CanalVenta no tiene costoFijo
 
     const margenBruto = metricas.margenTotal;
     const margenNeto = margenBruto - comisiones - costoCanal;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Plus, Search, Filter, X, Copy } from 'lucide-react';
-import { Button, Card, Modal } from '../../components/common';
+import { Plus, Search, Filter, X, Copy, Package, RefreshCw } from 'lucide-react';
+import { Button, Card, Modal, GradientHeader } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ProductoTable } from '../../components/modules/productos/ProductoTable';
 import { ProductoCard } from '../../components/modules/productos/ProductoCard';
@@ -377,16 +377,52 @@ export const Productos: React.FC = () => {
         return producto.stockPeru || 0;
       case 'estado':
         return producto.estado || '';
-      case 'roi': {
-        // Calcular ROI para ordenamiento
+      case 'precioCompra': {
+        // P. Compra Sugerido (costo estimado)
         const inv = producto.investigacion;
-        if (!inv || inv.ctruEstimado <= 0) return -Infinity;
-        const precioVenta = inv.precioEntrada || inv.precioPERUPromedio || 0;
-        if (precioVenta <= 0) return -Infinity;
-        return ((precioVenta - inv.ctruEstimado) / inv.ctruEstimado) * 100;
+        if (!inv) return -Infinity;
+        return inv.ctruEstimado || -Infinity;
       }
-      case 'margenEstimado':
-        return producto.investigacion?.margenEstimado || -Infinity;
+      case 'precioVenta': {
+        // P. Venta Sugerido
+        const inv = producto.investigacion;
+        if (!inv) return -Infinity;
+        return inv.precioEntrada || inv.precioSugeridoCalculado || -Infinity;
+      }
+      case 'roi': {
+        // ROI = (ganancia / costo) * 100
+        const inv = producto.investigacion;
+        if (!inv || !inv.ctruEstimado || inv.ctruEstimado <= 0) return -Infinity;
+        const precioVenta = inv.precioEntrada || inv.precioSugeridoCalculado || 0;
+        if (precioVenta <= 0) return -Infinity;
+        const ganancia = precioVenta - inv.ctruEstimado;
+        return (ganancia / inv.ctruEstimado) * 100;
+      }
+      case 'margen': {
+        // Margen = (ganancia / precioVenta) * 100
+        const inv = producto.investigacion;
+        if (!inv || !inv.ctruEstimado || inv.ctruEstimado <= 0) return -Infinity;
+        const precioVenta = inv.precioEntrada || inv.precioSugeridoCalculado || 0;
+        if (precioVenta <= 0) return -Infinity;
+        const ganancia = precioVenta - inv.ctruEstimado;
+        return (ganancia / precioVenta) * 100;
+      }
+      case 'multiplicador': {
+        // Multiplicador = precioVenta / precioCompra
+        const inv = producto.investigacion;
+        if (!inv || !inv.ctruEstimado || inv.ctruEstimado <= 0) return -Infinity;
+        const precioVenta = inv.precioEntrada || inv.precioSugeridoCalculado || 0;
+        if (precioVenta <= 0) return -Infinity;
+        return precioVenta / inv.ctruEstimado;
+      }
+      case 'gananciaUnidad': {
+        // Ganancia por unidad = precioVenta - precioCompra
+        const inv = producto.investigacion;
+        if (!inv || !inv.ctruEstimado || inv.ctruEstimado <= 0) return -Infinity;
+        const precioVenta = inv.precioEntrada || inv.precioSugeridoCalculado || 0;
+        if (precioVenta <= 0) return -Infinity;
+        return precioVenta - inv.ctruEstimado;
+      }
       default:
         return (producto as any)[key] ?? '';
     }
@@ -485,54 +521,50 @@ export const Productos: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Productos</h1>
-          <p className="text-gray-600 mt-1">Gestiona tu catálogo de productos</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button
-            variant={duplicadosCount > 0 ? 'danger' : 'outline'}
-            onClick={() => setIsDuplicadosModalOpen(true)}
-            className="relative"
-          >
-            <Copy className="h-5 w-5 mr-2" />
-            Duplicados
-            {duplicadosCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                {duplicadosCount}
-              </span>
-            )}
-          </Button>
-          <Button variant="primary" onClick={handleCreate}>
-            <Plus className="h-5 w-5 mr-2" />
-            Nuevo Producto
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card padding="md">
-          <div className="text-sm text-gray-600">Total Productos</div>
-          <div className="text-2xl font-bold text-primary-600 mt-1">{productosArray.length}</div>
-        </Card>
-        <Card padding="md">
-          <div className="text-sm text-gray-600">Activos</div>
-          <div className="text-2xl font-bold text-success-600 mt-1">{productosActivos}</div>
-        </Card>
-        <Card padding="md">
-          <div className="text-sm text-gray-600">En Mercado Libre</div>
-          <div className="text-2xl font-bold text-info-600 mt-1">{productosConML}</div>
-        </Card>
-        <Card padding="md">
-          <div className="text-sm text-gray-600">Stock Crítico</div>
-          <div className="text-2xl font-bold text-danger-600 mt-1">{productosStockCritico}</div>
-        </Card>
-        <Card padding="md">
-          <div className="text-sm text-gray-600">Sin Investigar</div>
-          <div className="text-2xl font-bold text-warning-600 mt-1">{productosSinInvestigar}</div>
-        </Card>
-      </div>
+      {/* Header Profesional con Gradiente - Estilo Maestros */}
+      <GradientHeader
+        title="Gestión de Productos"
+        subtitle="Administra tu catálogo de productos, precios e investigaciones de mercado"
+        icon={Package}
+        variant="dark"
+        actions={
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              onClick={() => fetchProductos()}
+              disabled={loading}
+              title="Actualizar datos"
+              className="text-white/70 hover:text-white hover:bg-white/10"
+            >
+              <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+            </Button>
+            <Button
+              variant={duplicadosCount > 0 ? 'danger' : 'ghost'}
+              onClick={() => setIsDuplicadosModalOpen(true)}
+              className={`relative ${duplicadosCount > 0 ? '' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
+            >
+              <Copy className="h-5 w-5 mr-2" />
+              Duplicados
+              {duplicadosCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {duplicadosCount}
+                </span>
+              )}
+            </Button>
+            <Button variant="primary" onClick={handleCreate} className="bg-white text-slate-800 hover:bg-gray-100">
+              <Plus className="h-5 w-5 mr-2" />
+              Nuevo Producto
+            </Button>
+          </div>
+        }
+        stats={[
+          { label: 'Total Productos', value: productosArray.length },
+          { label: 'Activos', value: productosActivos },
+          { label: 'En Mercado Libre', value: productosConML },
+          { label: 'Stock Crítico', value: productosStockCritico },
+          { label: 'Sin Investigar', value: productosSinInvestigar }
+        ]}
+      />
 
       {/* Búsqueda y Filtros */}
       <Card padding="md">
@@ -876,7 +908,7 @@ export const Productos: React.FC = () => {
       <Modal
         isOpen={isViewModalOpen}
         onClose={handleCloseViewModal}
-        title="Detalles del Producto"
+        title={selectedProducto ? `${selectedProducto.marca} - ${selectedProducto.nombreComercial}` : 'Detalles del Producto'}
         size="xl"
       >
         {selectedProducto && (

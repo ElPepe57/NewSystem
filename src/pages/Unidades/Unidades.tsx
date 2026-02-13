@@ -35,6 +35,7 @@ import { useUnidadStore } from '../../store/unidadStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useAlmacenStore } from '../../store/almacenStore';
 import { useToastStore } from '../../store/toastStore';
+import { useAuthStore } from '../../store/authStore';
 import { unidadService } from '../../services/unidad.service';
 import type { Unidad, EstadoUnidad } from '../../types/unidad.types';
 
@@ -45,6 +46,7 @@ export const Unidades: React.FC = () => {
   const { productos, fetchProductos } = useProductoStore();
   const { almacenes, fetchAlmacenes } = useAlmacenStore();
   const { addToast } = useToastStore();
+  const { user } = useAuthStore();
 
   const [filtros, setFiltros] = useState({
     productoId: '',
@@ -764,6 +766,30 @@ export const Unidades: React.FC = () => {
         <UnidadDetailsModal
           unidad={unidadSeleccionada}
           onClose={() => setUnidadSeleccionada(null)}
+          onLiberarReserva={async (unidad) => {
+            if (!user) return;
+            const confirmar = window.confirm(
+              `¿Liberar la reserva de la unidad ${unidad.lote}?\n\nLa unidad volverá al estado "Disponible Perú" y podrá ser asignada a otra cotización.`
+            );
+            if (!confirmar) return;
+            try {
+              const resultado = await unidadService.liberarUnidades(
+                [unidad.id],
+                'Liberación manual desde detalle de unidad',
+                user.uid
+              );
+              if (resultado.exitos > 0) {
+                addToast('Reserva liberada exitosamente', 'success');
+                setUnidadSeleccionada(null);
+                await fetchUnidades();
+                await fetchStats();
+              } else {
+                addToast('No se pudo liberar la reserva', 'error');
+              }
+            } catch (error: any) {
+              addToast(error.message || 'Error al liberar reserva', 'error');
+            }
+          }}
         />
       )}
     </div>

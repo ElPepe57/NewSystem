@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard, ChevronDown, ChevronUp, Clock, RotateCcw } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
 import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPago } from '../../../types/ordenCompra.types';
@@ -9,12 +9,14 @@ interface OrdenCompraCardProps {
   onCambiarEstado?: (nuevoEstado: EstadoOrden) => void;
   onRegistrarPago?: () => void;
   onRecibirOrden?: () => void;
+  onRevertirRecepciones?: () => void;
 }
 
 const estadoLabels: Record<EstadoOrden, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
   borrador: { label: 'Borrador', variant: 'default' },
   enviada: { label: 'Enviada', variant: 'info' },
   en_transito: { label: 'En Tránsito', variant: 'warning' },
+  recibida_parcial: { label: 'Recibida Parcial', variant: 'warning' },
   recibida: { label: 'Recibida', variant: 'success' },
   cancelada: { label: 'Cancelada', variant: 'danger' }
 };
@@ -29,8 +31,11 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   orden,
   onCambiarEstado,
   onRegistrarPago,
-  onRecibirOrden
+  onRecibirOrden,
+  onRevertirRecepciones
 }) => {
+  const [showHistory, setShowHistory] = useState(false);
+
   const formatDate = (timestamp: any) => {
     if (!timestamp) return '-';
     const date = timestamp.toDate();
@@ -46,18 +51,20 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   const estadoInfo = estadoLabels[orden.estado];
   const estadoPagoInfo = estadoPagoLabels[orden.estadoPago || 'pendiente'];
 
-  // Generar pasos del timeline
+  // Generar pasos del timeline (5 pasos con recibida_parcial)
   const timelineSteps: TimelineStep[] = useMemo(() => {
     const estadoIndex: Record<string, number> = {
       'borrador': 0,
       'enviada': 1,
       'en_transito': 2,
-      'recibida': 3,
+      'recibida_parcial': 3,
+      'recibida': 4,
       'cancelada': -1
     };
 
     const currentIndex = estadoIndex[orden.estado] ?? 0;
     const isCancelled = orden.estado === 'cancelada';
+    const hasParcial = orden.recepcionesParciales && orden.recepcionesParciales.length > 0;
 
     return [
       {
@@ -79,10 +86,19 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         status: isCancelled ? 'skipped' : currentIndex > 2 ? 'completed' : currentIndex === 2 ? 'current' : 'pending'
       },
       {
+        id: 'recibida_parcial',
+        label: 'Parcial',
+        date: orden.fechaPrimeraRecepcion,
+        status: isCancelled ? 'skipped'
+          : currentIndex > 3 ? (hasParcial ? 'completed' : 'skipped')
+          : currentIndex === 3 ? 'current'
+          : 'pending'
+      },
+      {
         id: 'recibida',
         label: 'Recibida',
         date: orden.fechaRecibida,
-        status: isCancelled ? 'skipped' : currentIndex === 3 ? 'completed' : 'pending'
+        status: isCancelled ? 'skipped' : currentIndex === 4 ? 'completed' : 'pending'
       }
     ];
   }, [orden]);
@@ -107,11 +123,18 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         variant: 'warning'
       },
       en_transito: {
-        label: 'Recibir Orden',
-        description: 'Confirma la recepción y genera inventario',
+        label: 'Recibir Productos',
+        description: 'Registra los productos recibidos y genera inventario',
         buttonText: onRecibirOrden ? 'Recibir' : undefined,
         onClick: onRecibirOrden,
         variant: 'success'
+      },
+      recibida_parcial: {
+        label: 'Recibir Más Productos',
+        description: 'Registrar siguiente entrega de productos',
+        buttonText: onRecibirOrden ? 'Recibir Más' : undefined,
+        onClick: onRecibirOrden,
+        variant: 'warning'
       }
     };
 
@@ -130,6 +153,11 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
     return acciones;
   };
+
+  // Progreso por producto (para recibida_parcial)
+  const tieneRecepcionesParciales = orden.recepcionesParciales && orden.recepcionesParciales.length > 0;
+  const totalOrdenado = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
+  const totalRecibido = orden.productos.reduce((sum, p) => sum + (p.cantidadRecibida || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -190,9 +218,15 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 <span className="text-gray-900">{formatDate(orden.fechaPago)}</span>
               </div>
             )}
+            {orden.fechaPrimeraRecepcion && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Primera recepción:</span>
+                <span className="text-gray-900">{formatDate(orden.fechaPrimeraRecepcion)}</span>
+              </div>
+            )}
             {orden.fechaRecibida && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Recibida:</span>
+                <span className="text-gray-600">Recibida completa:</span>
                 <span className="text-gray-900">{formatDate(orden.fechaRecibida)}</span>
               </div>
             )}
@@ -254,34 +288,115 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         </div>
       </div>
 
-      {/* Productos */}
+      {/* Productos con Costo Real */}
       <div>
         <h4 className="font-semibold text-gray-900 mb-3">Productos ({orden.productos.length})</h4>
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Producto</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Cantidad</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Costo Unit.</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {orden.productos.map((producto, index) => (
-                <tr key={index}>
-                  <td className="px-4 py-3">
-                    <div className="text-sm font-medium text-gray-900">{producto.marca} {producto.nombreComercial}</div>
-                    <div className="text-xs text-gray-500">{producto.sku}</div>
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm text-gray-900">{producto.cantidad}</td>
-                  <td className="px-4 py-3 text-right text-sm text-gray-900">${producto.costoUnitario.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">${producto.subtotal.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+
+        {/* Calcular factor de prorrateo para gastos adicionales */}
+        {(() => {
+          const gastosAdicionales = (orden.impuestoUSD || 0) + (orden.gastosEnvioUSD || 0) + (orden.otrosGastosUSD || 0);
+          const factorProrrateo = orden.subtotalUSD > 0 ? gastosAdicionales / orden.subtotalUSD : 0;
+          const tc = orden.tcCompra || orden.tcPago || 3.70;
+          const totalUnidades = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
+
+          return (
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Producto</th>
+                    <th className="px-2 py-2 text-center text-xs font-medium text-gray-500">Cant.</th>
+                    <th className="px-2 py-2 text-right text-xs font-medium text-gray-500">
+                      <div>Precio Base</div>
+                      <div className="text-[10px] font-normal text-gray-400">sin impuestos</div>
+                    </th>
+                    <th className="px-2 py-2 text-right text-xs font-medium text-gray-500">
+                      <div>+ Gastos</div>
+                      <div className="text-[10px] font-normal text-gray-400">prorrateado</div>
+                    </th>
+                    <th className="px-3 py-2 text-right text-xs font-medium text-emerald-700 bg-emerald-50">
+                      <div>Costo Real</div>
+                      <div className="text-[10px] font-normal text-emerald-600">unitario</div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {orden.productos.map((producto, index) => {
+                    const gastosProrrateados = producto.subtotal * factorProrrateo;
+                    const costoTotalProducto = producto.subtotal + gastosProrrateados;
+                    const costoRealUnitario = costoTotalProducto / producto.cantidad;
+                    const costoRealUnitarioPEN = costoRealUnitario * tc;
+
+                    return (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-3 py-3">
+                          <div className="text-sm font-medium text-gray-900">{producto.nombreComercial}</div>
+                          <div className="text-xs text-gray-500">{producto.marca} · {producto.sku}</div>
+                        </td>
+                        <td className="px-2 py-3 text-center">
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-sm font-semibold text-gray-700">
+                            {producto.cantidad}
+                          </span>
+                        </td>
+                        <td className="px-2 py-3 text-right text-sm text-gray-600">
+                          ${producto.costoUnitario.toFixed(2)}
+                        </td>
+                        <td className="px-2 py-3 text-right text-sm text-amber-600">
+                          {gastosProrrateados > 0 ? `+$${(gastosProrrateados / producto.cantidad).toFixed(2)}` : '-'}
+                        </td>
+                        <td className="px-3 py-3 text-right bg-emerald-50">
+                          <div className="text-sm font-bold text-emerald-700">${costoRealUnitario.toFixed(2)}</div>
+                          <div className="text-xs text-emerald-600">S/ {costoRealUnitarioPEN.toFixed(2)}</div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot className="bg-gray-50 border-t-2 border-gray-300">
+                  <tr>
+                    <td className="px-3 py-2 text-sm font-medium text-gray-700">Total</td>
+                    <td className="px-2 py-2 text-center text-sm font-semibold text-gray-700">{totalUnidades}</td>
+                    <td className="px-2 py-2 text-right text-sm font-medium text-gray-700">${orden.subtotalUSD.toFixed(2)}</td>
+                    <td className="px-2 py-2 text-right text-sm font-medium text-amber-700">
+                      {gastosAdicionales > 0 ? `+$${gastosAdicionales.toFixed(2)}` : '-'}
+                    </td>
+                    <td className="px-3 py-2 text-right bg-emerald-100">
+                      <div className="text-base font-bold text-emerald-800">${orden.totalUSD.toFixed(2)}</div>
+                      <div className="text-sm font-semibold text-emerald-700">S/ {(orden.totalUSD * tc).toFixed(2)}</div>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+
+              {/* Leyenda explicativa */}
+              <div className="px-3 py-2 bg-blue-50 border-t border-blue-200">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                  <span className="text-blue-700">
+                    <strong>TC:</strong> S/ {tc.toFixed(2)}
+                  </span>
+                  {(orden.impuestoUSD || 0) > 0 && (
+                    <span className="text-amber-700">
+                      <strong>Tax:</strong> ${orden.impuestoUSD?.toFixed(2)} ({((orden.impuestoUSD! / orden.subtotalUSD) * 100).toFixed(1)}%)
+                    </span>
+                  )}
+                  {(orden.gastosEnvioUSD || 0) > 0 && (
+                    <span className="text-amber-700">
+                      <strong>Envío:</strong> ${orden.gastosEnvioUSD?.toFixed(2)}
+                    </span>
+                  )}
+                  {(orden.otrosGastosUSD || 0) > 0 && (
+                    <span className="text-amber-700">
+                      <strong>Otros:</strong> ${orden.otrosGastosUSD?.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1 text-[10px] text-blue-600">
+                  * El costo real incluye impuestos y gastos prorrateados por subtotal de cada producto
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Tracking */}
@@ -315,7 +430,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 <MapPin className="h-5 w-5 text-gray-600 mr-2" />
                 <h4 className="font-semibold text-gray-900">Almacén Destino</h4>
               </div>
-              <p className="text-gray-900">{orden.almacenDestino}</p>
+              <p className="text-gray-900">
+                {orden.nombreAlmacenDestino || orden.almacenDestino}
+              </p>
             </div>
           )}
           
@@ -323,6 +440,83 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="font-semibold text-gray-900 mb-2">Observaciones</h4>
               <p className="text-sm text-gray-700">{orden.observaciones}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Progreso de recepción por producto */}
+      {(orden.estado === 'recibida_parcial' || tieneRecepcionesParciales) && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="font-semibold text-gray-900">Progreso de Recepción</h4>
+            <span className="text-sm font-medium text-gray-600">
+              {totalRecibido}/{totalOrdenado} unidades ({totalOrdenado > 0 ? ((totalRecibido / totalOrdenado) * 100).toFixed(0) : 0}%)
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className={`h-2 rounded-full transition-all ${totalRecibido >= totalOrdenado ? 'bg-green-500' : 'bg-amber-500'}`}
+              style={{ width: `${totalOrdenado > 0 ? (totalRecibido / totalOrdenado) * 100 : 0}%` }}
+            />
+          </div>
+          <div className="space-y-2">
+            {orden.productos.map(p => {
+              const recibido = p.cantidadRecibida || 0;
+              const pct = p.cantidad > 0 ? (recibido / p.cantidad) * 100 : 0;
+              return (
+                <div key={p.productoId} className="flex items-center gap-3 text-sm">
+                  <div className="w-40 truncate text-gray-700" title={p.nombreComercial}>{p.nombreComercial}</div>
+                  <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                    <div
+                      className={`h-1.5 rounded-full ${pct >= 100 ? 'bg-green-500' : 'bg-amber-500'}`}
+                      style={{ width: `${Math.min(pct, 100)}%` }}
+                    />
+                  </div>
+                  <div className="w-24 text-right text-gray-600">
+                    <span className={recibido >= p.cantidad ? 'text-green-600 font-medium' : ''}>
+                      {recibido}/{p.cantidad}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Historial de recepciones */}
+          {orden.recepcionesParciales && orden.recepcionesParciales.length > 0 && (
+            <div className="border rounded-lg">
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-gray-500" />
+                  <span>Historial de recepciones ({orden.recepcionesParciales.length})</span>
+                </div>
+                {showHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </button>
+              {showHistory && (
+                <div className="border-t divide-y">
+                  {orden.recepcionesParciales.map(rec => (
+                    <div key={rec.id} className="px-4 py-3 text-sm">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-gray-900">Recepción #{rec.numero}</span>
+                        <span className="text-xs text-gray-500">{formatDate(rec.fecha)}</span>
+                      </div>
+                      <div className="text-gray-600">
+                        {rec.totalUnidadesRecepcion} unidades: {rec.productosRecibidos.map(pr => {
+                          const prod = orden.productos.find(p => p.productoId === pr.productoId);
+                          return `${prod?.nombreComercial || pr.productoId} (${pr.cantidadRecibida})`;
+                        }).join(', ')}
+                      </div>
+                      {rec.observaciones && (
+                        <div className="text-xs text-gray-500 mt-1">{rec.observaciones}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -353,13 +547,24 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         )}
 
         {/* Botón de recibir orden */}
-        {(orden.estado === 'en_transito' || orden.estado === 'enviada') && !orden.inventarioGenerado && onRecibirOrden && (
+        {(['en_transito', 'enviada', 'recibida_parcial'].includes(orden.estado)) && onRecibirOrden && (
           <Button
-            variant="primary"
+            variant={orden.estado === 'recibida_parcial' ? 'warning' : 'primary'}
             onClick={onRecibirOrden}
           >
             <Box className="h-4 w-4 mr-2" />
-            Recibir y Generar Inventario
+            {orden.estado === 'recibida_parcial' ? 'Recibir Más Productos' : 'Recibir Productos'}
+          </Button>
+        )}
+
+        {/* Botón revertir recepciones (solo cuando hay recepciones) */}
+        {(['recibida_parcial', 'recibida'].includes(orden.estado)) && onRevertirRecepciones && (orden.recepcionesParciales?.length ?? 0) > 0 && (
+          <Button
+            variant="danger"
+            onClick={onRevertirRecepciones}
+          >
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Revertir Recepciones
           </Button>
         )}
       </div>

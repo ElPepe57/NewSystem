@@ -894,7 +894,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                 const contenidoNumero = formData.contenido ? parseInt(formData.contenido.replace(/\D/g, '')) : 0;
                 const mostrar = contenidoNumero > 0 && formData.servingsPerDay && formData.servingsPerDay > 0;
                 if (!mostrar) return null;
-                const ciclo = Math.round(contenidoNumero / formData.servingsPerDay);
+                const ciclo = Math.round(contenidoNumero / (formData.servingsPerDay || 1));
                 return (
                   <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
                     <div className="flex items-center justify-between">

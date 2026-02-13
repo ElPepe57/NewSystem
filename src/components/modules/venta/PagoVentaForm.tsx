@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { X, CreditCard, Banknote, Smartphone, Building2, Wallet } from 'lucide-react';
 import { Button, Input, Card, useConfirmDialog, ConfirmDialog } from '../../common';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
 import { tesoreriaService } from '../../../services/tesoreria.service';
 import type { Venta, MetodoPago } from '../../../types/venta.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../../types/tesoreria.types';
@@ -55,6 +56,18 @@ export const PagoVentaForm: React.FC<PagoVentaFormProps> = ({
   const [referencia, setReferencia] = useState('');
   const [notas, setNotas] = useState('');
   const [esPagoCompleto, setEsPagoCompleto] = useState(true);
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();

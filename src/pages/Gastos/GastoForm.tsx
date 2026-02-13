@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { X, Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote } from 'lucide-react';
 import { Button, Input, Select, AutocompleteInput } from '../../components/common';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../components/common/Modal';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
@@ -21,6 +22,18 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
   const { getTCDelDia } = useTipoCambioStore();
   const toast = useToastStore();
   const [tipoCambio, setTipoCambio] = React.useState<number>(0);
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   const [formData, setFormData] = useState<GastoFormData>({
     tipo: 'otros',

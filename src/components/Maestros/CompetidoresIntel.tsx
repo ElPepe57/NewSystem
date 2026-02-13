@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Eye, Edit2, Trash2, ExternalLink, Plus, Filter, X } from 'lucide-react';
 import { useCompetidorStore } from '../../store/competidorStore';
 import { CompetidorDetailView } from './CompetidorDetailView';
 import type { Competidor, PlataformaCompetidor, ReputacionCompetidor } from '../../types/entidadesMaestras.types';
-import { Pagination, usePagination } from '../common';
+import { Pagination, usePagination, Badge } from '../common';
 
 // Sub-tabs del módulo
 type SubTab = 'lista' | 'dashboard' | 'alertas';
@@ -13,6 +14,77 @@ interface CompetidoresIntelProps {
   onEditCompetidor?: (competidor: Competidor) => void;
   onDeleteCompetidor: (id: string) => void;
 }
+
+// Componente Card para vista móvil
+const CompetidorCard: React.FC<{
+  competidor: Competidor;
+  onView: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  getPlataformaLabel: (p: PlataformaCompetidor) => string;
+  getPlataformaColor: (p: PlataformaCompetidor) => string;
+  getAmenazaColor: (n: string) => string;
+  getReputacionLabel: (r: ReputacionCompetidor) => string;
+  getEstadoColor: (e: string) => string;
+}> = ({ competidor, onView, onEdit, onDelete, getPlataformaLabel, getPlataformaColor, getAmenazaColor, getReputacionLabel, getEstadoColor }) => (
+  <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+    <div className="flex items-start justify-between">
+      <div className="flex items-center gap-3">
+        <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 ${
+          competidor.nivelAmenaza === 'alto' ? 'bg-red-500' :
+          competidor.nivelAmenaza === 'medio' ? 'bg-yellow-500' : 'bg-green-500'
+        }`}>
+          {competidor.nombre.charAt(0).toUpperCase()}
+        </div>
+        <div className="min-w-0">
+          <div className="font-medium text-gray-900 flex items-center gap-1 flex-wrap">
+            <span className="truncate">{competidor.nombre}</span>
+            {competidor.esLiderCategoria && <span className="text-yellow-500">⭐</span>}
+          </div>
+          <div className="text-sm text-gray-500">{competidor.codigo}</div>
+        </div>
+      </div>
+      <span className={`px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ${getEstadoColor(competidor.estado)}`}>
+        {competidor.estado.charAt(0).toUpperCase() + competidor.estado.slice(1)}
+      </span>
+    </div>
+
+    <div className="flex flex-wrap gap-2">
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPlataformaColor(competidor.plataformaPrincipal || 'otra')}`}>
+        {getPlataformaLabel(competidor.plataformaPrincipal || 'otra')}
+      </span>
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getAmenazaColor(competidor.nivelAmenaza)}`}>
+        Amenaza: {competidor.nivelAmenaza.charAt(0).toUpperCase() + competidor.nivelAmenaza.slice(1)}
+      </span>
+    </div>
+
+    <div className="flex items-center justify-between text-sm">
+      <div className="text-gray-600">
+        <span className="text-gray-500">Reputación:</span> {getReputacionLabel(competidor.reputacion)}
+      </div>
+      <div className="text-gray-600">
+        <span className="text-gray-500">Productos:</span> {competidor.metricas?.productosAnalizados || 0}
+      </div>
+    </div>
+
+    <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+      <button onClick={onView} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Ver detalle">
+        <Eye className="w-4 h-4" />
+      </button>
+      {competidor.urlTienda && (
+        <a href={competidor.urlTienda} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg" title="Visitar tienda">
+          <ExternalLink className="w-4 h-4" />
+        </a>
+      )}
+      <button onClick={onEdit} className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg" title="Editar">
+        <Edit2 className="w-4 h-4" />
+      </button>
+      <button onClick={onDelete} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar">
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+);
 
 export function CompetidoresIntel({
   onOpenCompetidorModal,
@@ -26,6 +98,7 @@ export function CompetidoresIntel({
   const [filtroAmenaza, setFiltroAmenaza] = useState<string>('todos');
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
   const [competidorDetalle, setCompetidorDetalle] = useState<Competidor | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const {
     competidores,
@@ -200,64 +273,98 @@ export function CompetidoresIntel({
   // Render de la lista
   const renderLista = () => (
     <div className="space-y-4">
-      {/* Filtros */}
-      <div className="flex flex-wrap gap-4 items-center">
-        <div className="flex-1 min-w-64">
-          <input
-            type="text"
-            placeholder="Buscar por nombre, código o alias..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
+      {/* Filtros - Responsivo */}
+      <div className="space-y-3">
+        {/* Barra superior: búsqueda + botones */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Buscar por nombre, código o alias..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`px-4 py-2 border rounded-lg flex items-center gap-2 lg:hidden ${
+                showFilters ? 'bg-blue-50 border-blue-500 text-blue-600' : 'hover:bg-gray-50'
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              Filtros
+              {(filtroPlataforma !== 'todos' || filtroAmenaza !== 'todos' || filtroEstado !== 'todos') && (
+                <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {[filtroPlataforma, filtroAmenaza, filtroEstado].filter(f => f !== 'todos').length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => onOpenCompetidorModal()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 whitespace-nowrap"
+            >
+              <Plus className="w-5 h-5" />
+              <span className="hidden sm:inline">Nuevo Competidor</span>
+              <span className="sm:hidden">Nuevo</span>
+            </button>
+          </div>
         </div>
 
-        <select
-          value={filtroPlataforma}
-          onChange={(e) => setFiltroPlataforma(e.target.value)}
-          className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="todos">Todas las plataformas</option>
-          <option value="mercado_libre">Mercado Libre</option>
-          <option value="web_propia">Web Propia</option>
-          <option value="inkafarma">InkaFarma</option>
-          <option value="mifarma">MiFarma</option>
-          <option value="amazon">Amazon</option>
-          <option value="falabella">Falabella</option>
-          <option value="otra">Otra</option>
-        </select>
+        {/* Filtros desplegables en móvil / siempre visibles en desktop */}
+        <div className={`${showFilters ? 'block' : 'hidden'} lg:flex flex-col lg:flex-row gap-3`}>
+          <select
+            value={filtroPlataforma}
+            onChange={(e) => setFiltroPlataforma(e.target.value)}
+            className="w-full lg:w-auto px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="todos">Todas las plataformas</option>
+            <option value="mercado_libre">Mercado Libre</option>
+            <option value="web_propia">Web Propia</option>
+            <option value="inkafarma">InkaFarma</option>
+            <option value="mifarma">MiFarma</option>
+            <option value="amazon">Amazon</option>
+            <option value="falabella">Falabella</option>
+            <option value="otra">Otra</option>
+          </select>
 
-        <select
-          value={filtroAmenaza}
-          onChange={(e) => setFiltroAmenaza(e.target.value)}
-          className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="todos">Todos los niveles</option>
-          <option value="alto">Amenaza Alta</option>
-          <option value="medio">Amenaza Media</option>
-          <option value="bajo">Amenaza Baja</option>
-        </select>
+          <select
+            value={filtroAmenaza}
+            onChange={(e) => setFiltroAmenaza(e.target.value)}
+            className="w-full lg:w-auto px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="todos">Todos los niveles</option>
+            <option value="alto">Amenaza Alta</option>
+            <option value="medio">Amenaza Media</option>
+            <option value="bajo">Amenaza Baja</option>
+          </select>
 
-        <select
-          value={filtroEstado}
-          onChange={(e) => setFiltroEstado(e.target.value)}
-          className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="todos">Todos los estados</option>
-          <option value="activo">Activo</option>
-          <option value="inactivo">Inactivo</option>
-          <option value="cerrado">Cerrado</option>
-        </select>
+          <select
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value)}
+            className="w-full lg:w-auto px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="todos">Todos los estados</option>
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+            <option value="cerrado">Cerrado</option>
+          </select>
 
-        <button
-          onClick={() => onOpenCompetidorModal()}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Nuevo Competidor
-        </button>
+          {(filtroPlataforma !== 'todos' || filtroAmenaza !== 'todos' || filtroEstado !== 'todos') && (
+            <button
+              onClick={() => {
+                setFiltroPlataforma('todos');
+                setFiltroAmenaza('todos');
+                setFiltroEstado('todos');
+              }}
+              className="w-full lg:w-auto px-4 py-2 text-gray-600 hover:text-gray-800 flex items-center justify-center gap-1"
+            >
+              <X className="w-4 h-4" />
+              Limpiar filtros
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Contador */}
@@ -265,8 +372,40 @@ export function CompetidoresIntel({
         Mostrando {competidoresFiltrados.length} de {competidores.length} competidores
       </div>
 
-      {/* Tabla */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
+      {/* Vista móvil - Cards */}
+      <div className="lg:hidden space-y-3">
+        {competidoresPaginados.map(competidor => (
+          <CompetidorCard
+            key={competidor.id}
+            competidor={competidor}
+            onView={() => setCompetidorDetalle(competidor)}
+            onEdit={() => onEditCompetidor ? onEditCompetidor(competidor) : onOpenCompetidorModal(competidor)}
+            onDelete={() => onDeleteCompetidor(competidor.id)}
+            getPlataformaLabel={getPlataformaLabel}
+            getPlataformaColor={getPlataformaColor}
+            getAmenazaColor={getAmenazaColor}
+            getReputacionLabel={getReputacionLabel}
+            getEstadoColor={getEstadoColor}
+          />
+        ))}
+        {competidoresFiltrados.length === 0 && (
+          <div className="text-center py-12 text-gray-500 bg-white rounded-lg">
+            No se encontraron competidores con los filtros aplicados
+          </div>
+        )}
+        {competidoresFiltrados.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={competidoresFiltrados.length}
+            pageSize={itemsPerPage}
+            onPageChange={setPage}
+            onPageSizeChange={setItemsPerPage}
+          />
+        )}
+      </div>
+
+      {/* Vista desktop - Tabla */}
+      <div className="hidden lg:block overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -283,7 +422,7 @@ export function CompetidoresIntel({
                 Reputación
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Productos Analizados
+                Productos
               </th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Estado
@@ -316,8 +455,8 @@ export function CompetidoresIntel({
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPlataformaColor(competidor.plataformaPrincipal)}`}>
-                    {getPlataformaLabel(competidor.plataformaPrincipal)}
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPlataformaColor(competidor.plataformaPrincipal || 'otra')}`}>
+                    {getPlataformaLabel(competidor.plataformaPrincipal || 'otra')}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -338,18 +477,13 @@ export function CompetidoresIntel({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <div className="flex justify-center gap-2">
-                    {(
-                      <button
-                        onClick={() => setCompetidorDetalle(competidor)}
-                        className="text-blue-600 hover:text-blue-800"
-                        title="Ver detalle"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setCompetidorDetalle(competidor)}
+                      className="text-blue-600 hover:text-blue-800"
+                      title="Ver detalle"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
                     {competidor.urlTienda && (
                       <a
                         href={competidor.urlTienda}
@@ -358,9 +492,7 @@ export function CompetidoresIntel({
                         className="text-gray-600 hover:text-gray-800"
                         title="Visitar tienda"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
+                        <ExternalLink className="w-5 h-5" />
                       </a>
                     )}
                     <button
@@ -368,18 +500,14 @@ export function CompetidoresIntel({
                       className="text-gray-600 hover:text-gray-800"
                       title="Editar"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
+                      <Edit2 className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => onDeleteCompetidor(competidor.id)}
                       className="text-red-600 hover:text-red-800"
                       title="Eliminar"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
                 </td>
@@ -412,7 +540,7 @@ export function CompetidoresIntel({
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* KPIs principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 mb-1">Total Competidores</div>
           <div className="text-3xl font-bold text-gray-900">{stats?.total || 0}</div>
@@ -447,7 +575,7 @@ export function CompetidoresIntel({
       </div>
 
       {/* Distribuciones */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Por plataforma */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Por Plataforma</h3>
@@ -563,7 +691,7 @@ export function CompetidoresIntel({
       </div>
 
       {/* Top competidores */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top por Análisis de Productos</h3>
           <div className="space-y-3">
@@ -606,8 +734,8 @@ export function CompetidoresIntel({
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-red-900">{comp.nombre}</div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${getPlataformaColor(comp.plataformaPrincipal)}`}>
-                    {getPlataformaLabel(comp.plataformaPrincipal)}
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${getPlataformaColor(comp.plataformaPrincipal || 'otra')}`}>
+                    {getPlataformaLabel(comp.plataformaPrincipal || 'otra')}
                   </span>
                 </div>
                 <div className="text-sm text-red-600">
@@ -640,7 +768,7 @@ export function CompetidoresIntel({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           <div className="p-4 bg-red-50 rounded-lg border border-red-200">
             <div className="flex items-center gap-2 mb-2">
               <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -677,7 +805,7 @@ export function CompetidoresIntel({
       </div>
 
       {/* Lista de alertas por tipo */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Amenaza Alta */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-red-800 mb-4 flex items-center gap-2">
@@ -695,8 +823,8 @@ export function CompetidoresIntel({
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">{comp.nombre}</div>
                   <div className="text-sm text-gray-500 flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${getPlataformaColor(comp.plataformaPrincipal)}`}>
-                      {getPlataformaLabel(comp.plataformaPrincipal)}
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${getPlataformaColor(comp.plataformaPrincipal || 'otra')}`}>
+                      {getPlataformaLabel(comp.plataformaPrincipal || 'otra')}
                     </span>
                     {comp.esLiderCategoria && <span className="text-yellow-500">⭐ Líder</span>}
                   </div>
@@ -768,7 +896,7 @@ export function CompetidoresIntel({
       </div>
 
       {/* Líderes y nuevos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Líderes de categoría */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -816,8 +944,8 @@ export function CompetidoresIntel({
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">{comp.nombre}</div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${getPlataformaColor(comp.plataformaPrincipal)}`}>
-                    {getPlataformaLabel(comp.plataformaPrincipal)}
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${getPlataformaColor(comp.plataformaPrincipal || 'otra')}`}>
+                    {getPlataformaLabel(comp.plataformaPrincipal || 'otra')}
                   </span>
                 </div>
                 <span className={`px-2 py-1 text-xs rounded-full ${getAmenazaColor(comp.nivelAmenaza)}`}>
@@ -837,7 +965,7 @@ export function CompetidoresIntel({
       {/* Recomendaciones */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Recomendaciones de Inteligencia Competitiva</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <div className="p-4 bg-red-50 rounded-lg">
             <h4 className="font-medium text-red-800 mb-2">Monitoreo Prioritario</h4>
             <p className="text-sm text-red-700">
@@ -875,33 +1003,33 @@ export function CompetidoresIntel({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Sub-tabs de navegación */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Sub-tabs de navegación - scroll horizontal en móvil */}
+      <div className="border-b border-gray-200 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <nav className="-mb-px flex gap-4 overflow-x-auto scrollbar-hide">
           <button
             onClick={() => setSubTab('lista')}
-            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
               subTab === 'lista'
                 ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Lista de Competidores
+            Lista
           </button>
           <button
             onClick={() => setSubTab('dashboard')}
-            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
               subTab === 'dashboard'
                 ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Dashboard Intel
+            Dashboard
           </button>
           <button
             onClick={() => setSubTab('alertas')}
-            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${
               subTab === 'alertas'
                 ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'

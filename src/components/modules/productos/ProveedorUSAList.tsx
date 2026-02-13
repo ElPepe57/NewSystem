@@ -265,7 +265,8 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
   const [nuevoProveedor, setNuevoProveedor] = useState<Partial<ProveedorFormData>>({
     nombre: '',
     tipo: 'distribuidor',
-    pais: 'USA'
+    pais: 'USA',
+    url: ''
   });
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -310,7 +311,8 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
     setNuevoProveedor({
       nombre: inputValue,
       tipo: 'distribuidor',
-      pais: 'USA'
+      pais: 'USA',
+      url: ''
     });
     setShowCreateForm(true);
     setIsDropdownOpen(false);
@@ -474,6 +476,14 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                   className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm"
                   placeholder="Nombre del proveedor"
                   autoFocus
+                />
+
+                <input
+                  type="url"
+                  value={nuevoProveedor.url || ''}
+                  onChange={(e) => setNuevoProveedor({ ...nuevoProveedor, url: e.target.value })}
+                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm"
+                  placeholder="URL del sitio web (opcional)"
                 />
 
                 <div className="grid grid-cols-2 gap-2">

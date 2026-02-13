@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import {
   Truck, Phone, Mail, Calendar, DollarSign,
   TrendingUp, TrendingDown, AlertTriangle, Clock, BarChart3,
@@ -6,6 +6,7 @@ import {
   Activity, Target, CheckCircle, AlertCircle, Package,
   XCircle, Timer, Award, Route, Zap
 } from 'lucide-react';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import type { Transportista } from '../../types/transportista.types';
 import {
   transportistaAnalyticsService,
@@ -28,6 +29,18 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
   const [activeTab, setActiveTab] = useState<DetailTab>('resumen');
   const [analytics, setAnalytics] = useState<TransportistaAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     loadAnalytics();

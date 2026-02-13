@@ -858,6 +858,9 @@ export const unidadService = {
         }
 
         const docRef = doc(db, COLLECTION_NAME, unidadId);
+        // Determinar estado correcto según país
+        const estadoLiberado = unidad.pais === 'USA' ? 'recibida_usa' : 'disponible_peru';
+
         const movimientoLiberacion: MovimientoUnidad = {
           id: crypto.randomUUID(),
           tipo: 'ajuste',
@@ -867,7 +870,7 @@ export const unidadService = {
         };
 
         await updateDoc(docRef, {
-          estado: 'disponible_peru',
+          estado: estadoLiberado,
           // Limpiar datos de reserva/venta
           reservadaPara: deleteField(),
           fechaReserva: deleteField(),
@@ -975,5 +978,85 @@ export const unidadService = {
         tc
       }
     };
+  },
+
+  /**
+   * Reservar unidades existentes para una cotización (vinculación retroactiva)
+   * Cambia unidades de disponible_peru → reservada para una cotización específica
+   */
+  async reservarUnidadesParaCotizacion(params: {
+    ordenCompraId: string;
+    cotizacionId: string;
+    requerimientoId: string;
+    productos: Array<{ productoId: string; cantidad: number }>;
+    userId: string;
+  }): Promise<{ totalReservadas: number; detalles: Array<{ productoId: string; reservadas: number; faltantes: number }> }> {
+    const { ordenCompraId, cotizacionId, requerimientoId, productos, userId } = params;
+    let totalReservadas = 0;
+    const detalles: Array<{ productoId: string; reservadas: number; faltantes: number }> = [];
+
+    for (const prod of productos) {
+      // Buscar unidades disponibles de esta OC para este producto
+      // Buscar en todos los estados no-reservados/no-vendidos (puede estar en USA o Perú)
+      const todasUnidades = await this.buscar({
+        ordenCompraId,
+        productoId: prod.productoId
+      });
+      // Filtrar solo las que están en estado disponible (no reservada, no vendida, no en_movimiento)
+      // También excluir unidades ya reservadas para ESTA MISMA cotización (evitar doble reserva)
+      const estadosDisponibles = ['recibida_usa', 'en_transito_peru', 'disponible_peru'];
+      const unidades = todasUnidades.filter(u => {
+        if (!estadosDisponibles.includes(u.estado)) return false;
+        // Excluir unidades que ya tienen reserva para esta cotización
+        const reservada = (u as any).reservadaPara;
+        if (reservada === cotizacionId) return false;
+        return true;
+      });
+
+      const cantidadAReservar = Math.min(prod.cantidad, unidades.length);
+      const unidadesAReservar = unidades.slice(0, cantidadAReservar);
+
+      // Reservar en lotes de hasta 500 (límite Firestore batch)
+      for (let i = 0; i < unidadesAReservar.length; i += 450) {
+        const chunk = unidadesAReservar.slice(i, i + 450);
+        const batch = writeBatch(db);
+
+        for (const unidad of chunk) {
+          const docRef = doc(db, COLLECTION_NAME, unidad.id);
+          const movimiento: MovimientoUnidad = {
+            id: crypto.randomUUID(),
+            tipo: 'reserva' as TipoMovimiento,
+            fecha: Timestamp.now(),
+            usuarioId: userId,
+            observaciones: `Reserva retroactiva para cotización ${cotizacionId}`
+          };
+
+          batch.update(docRef, {
+            estado: 'reservada',
+            reservadaPara: cotizacionId,
+            fechaReserva: Timestamp.now(),
+            requerimientoId,
+            movimientos: [...unidad.movimientos, movimiento],
+            actualizadoPor: userId,
+            fechaActualizacion: Timestamp.now()
+          });
+        }
+
+        await batch.commit();
+      }
+
+      totalReservadas += cantidadAReservar;
+      detalles.push({
+        productoId: prod.productoId,
+        reservadas: cantidadAReservar,
+        faltantes: Math.max(0, prod.cantidad - cantidadAReservar)
+      });
+    }
+
+    // Sincronizar stock de productos afectados
+    const productosAfectados = productos.map(p => p.productoId);
+    await inventarioService.sincronizarStockProductos_batch(productosAfectados);
+
+    return { totalReservadas, detalles };
   }
 };

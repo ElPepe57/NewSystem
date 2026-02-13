@@ -1,7 +1,7 @@
 import React from 'react';
 import { Package, TrendingUp, MapPin, Calendar, Clock } from 'lucide-react';
 import { Badge } from '../../common';
-import type { Unidad, EstadoUnidad, Almacen } from '../../../types/producto.types';
+import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
 
 interface UnidadTableProps {
   unidades: Unidad[];
@@ -11,21 +11,13 @@ interface UnidadTableProps {
 
 const estadoLabels: Record<EstadoUnidad, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
   recibida_usa: { label: 'Recibida USA', variant: 'info' },
-  en_transito: { label: 'En Tránsito', variant: 'warning' },
+  en_transito_usa: { label: 'En Tránsito USA', variant: 'warning' },
+  en_transito_peru: { label: 'En Tránsito a Perú', variant: 'warning' },
   disponible_peru: { label: 'Disponible', variant: 'success' },
-  asignada_pedido: { label: 'Asignada', variant: 'warning' },
-  entregada: { label: 'Entregada', variant: 'default' },
-  devuelta: { label: 'Devuelta', variant: 'danger' },
-  danada: { label: 'Dañada', variant: 'danger' },
-  vencida: { label: 'Vencida', variant: 'danger' }
-};
-
-const almacenLabels: Record<Almacen, string> = {
-  miami_1: 'Miami 1',
-  miami_2: 'Miami 2',
-  utah: 'Utah',
-  peru_principal: 'Perú Principal',
-  peru_secundario: 'Perú Secundario'
+  reservada: { label: 'Reservada', variant: 'warning' },
+  vendida: { label: 'Vendida', variant: 'default' },
+  vencida: { label: 'Vencida', variant: 'danger' },
+  danada: { label: 'Dañada', variant: 'danger' }
 };
 
 export const UnidadTable: React.FC<UnidadTableProps> = ({
@@ -51,14 +43,19 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
     );
   }
 
-  const formatDate = (timestamp: any) => {
+  const formatDate = (timestamp: unknown) => {
     if (!timestamp) return '-';
-    const date = timestamp.toDate();
-    return date.toLocaleDateString('es-PE', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+    // Handle Firestore Timestamp
+    const ts = timestamp as { toDate?: () => Date };
+    if (ts.toDate) {
+      const date = ts.toDate();
+      return date.toLocaleDateString('es-PE', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+    return '-';
   };
 
   return (
@@ -67,7 +64,7 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Código Unidad
+              ID / SKU
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Lote
@@ -82,7 +79,7 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
               CTRU
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Fecha Origen
+              Fecha Recepción
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Vencimiento
@@ -94,61 +91,69 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {unidades.map((unidad) => {
-            const estadoInfo = estadoLabels[unidad.estado];
-            
+            const estadoInfo = estadoLabels[unidad.estado] || { label: unidad.estado, variant: 'default' as const };
+
             return (
               <tr key={unidad.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <Package className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm font-mono font-medium text-gray-900">
-                      {unidad.codigoUnidad}
-                    </span>
+                    <div>
+                      <span className="text-sm font-mono font-medium text-gray-900">
+                        {unidad.productoSKU}
+                      </span>
+                      <div className="text-xs text-gray-500">
+                        {unidad.id.slice(0, 8)}...
+                      </div>
+                    </div>
                   </div>
                 </td>
-                
+
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{unidad.lote}</div>
                 </td>
-                
+
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 text-gray-400 mr-1" />
-                    <span className="text-sm text-gray-900">
-                      {almacenLabels[unidad.almacenActual]}
-                    </span>
+                    <div>
+                      <span className="text-sm text-gray-900">
+                        {unidad.almacenNombre}
+                      </span>
+                      <div className="text-xs text-gray-500">{unidad.pais}</div>
+                    </div>
                   </div>
                 </td>
-                
+
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Badge variant={estadoInfo.variant}>
                     {estadoInfo.label}
                   </Badge>
                 </td>
-                
+
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <TrendingUp className="h-4 w-4 text-gray-400 mr-1" />
                     <div>
                       <div className="text-sm font-medium text-gray-900">
-                        S/ {unidad.ctruDinamico.toFixed(2)}
+                        S/ {(unidad.ctruDinamico || unidad.ctruInicial || 0).toFixed(2)}
                       </div>
                       <div className="text-xs text-gray-500">
-                        ${unidad.costoUSA.toFixed(2)} × {unidad.tcPago.toFixed(3)}
+                        ${unidad.costoUnitarioUSD.toFixed(2)} {unidad.tcPago ? `× ${unidad.tcPago.toFixed(3)}` : ''}
                       </div>
                     </div>
                   </div>
                 </td>
-                
+
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 text-gray-400 mr-1" />
                     <span className="text-sm text-gray-900">
-                      {formatDate(unidad.fechaOrigen)}
+                      {formatDate(unidad.fechaRecepcion)}
                     </span>
                   </div>
                 </td>
-                
+
                 <td className="px-6 py-4 whitespace-nowrap">
                   {unidad.fechaVencimiento ? (
                     <div className="flex items-center">
@@ -161,7 +166,7 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
                     <span className="text-sm text-gray-400">-</span>
                   )}
                 </td>
-                
+
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => onViewDetails(unidad)}

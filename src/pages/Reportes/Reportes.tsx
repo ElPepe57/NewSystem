@@ -62,6 +62,8 @@ export const Reportes: React.FC = () => {
   const handleFiltroFechas = (inicio: Date, fin: Date, periodo: PeriodoPreset) => {
     setFechasFiltro({ inicio, fin });
     setPeriodoActivo(periodo);
+    // Recargar todos los datos con el nuevo rango
+    fetchAll({ inicio, fin });
   };
 
   // Productos filtrados por fecha
@@ -69,10 +71,12 @@ export const Reportes: React.FC = () => {
     return productosRentabilidad;
   }, [productosRentabilidad, fechasFiltro]);
 
-  // Cargar todos los reportes al montar
+  // Cargar todos los reportes al montar (con rango inicial del mes)
   useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const ahora = new Date();
+    fetchAll({ inicio: inicioMes, fin: ahora });
+  }, []);
 
   // Calcular rentabilidad neta del mes
   useEffect(() => {

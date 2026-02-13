@@ -14,6 +14,8 @@ export interface StepperProps {
   currentStep: number;
   onStepClick?: (stepIndex: number) => void;
   orientation?: 'horizontal' | 'vertical';
+  /** Cambiar automáticamente a vertical en pantallas pequeñas */
+  autoResponsive?: boolean;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   allowClickCompleted?: boolean;
@@ -52,12 +54,29 @@ export const Stepper: React.FC<StepperProps> = ({
   currentStep,
   onStepClick,
   orientation = 'horizontal',
+  autoResponsive = true,
   size = 'md',
   className = '',
   allowClickCompleted = true,
   allowClickFuture = false
 }) => {
   const sizes = sizeConfig[size];
+
+  // Hook para detectar pantalla móvil
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640); // sm breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Usar orientación vertical en móvil si autoResponsive está activo
+  const effectiveOrientation = autoResponsive && isMobile ? 'vertical' : orientation;
 
   const getStepStatus = (index: number): 'completed' | 'current' | 'pending' => {
     if (index < currentStep) return 'completed';
@@ -137,7 +156,7 @@ export const Stepper: React.FC<StepperProps> = ({
     const status = getStepStatus(index);
     const isCompleted = status === 'completed';
 
-    if (orientation === 'horizontal') {
+    if (effectiveOrientation === 'horizontal') {
       return (
         <div
           className={`
@@ -158,7 +177,7 @@ export const Stepper: React.FC<StepperProps> = ({
     );
   };
 
-  if (orientation === 'vertical') {
+  if (effectiveOrientation === 'vertical') {
     return (
       <nav
         aria-label="Progreso del formulario"

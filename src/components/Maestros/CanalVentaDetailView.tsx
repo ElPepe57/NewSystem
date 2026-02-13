@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import {
   ShoppingBag, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
   BarChart3, RefreshCw, Users, Star, X, Activity, Target, Zap,
@@ -6,6 +6,7 @@ import {
   FileText, ArrowUpRight, ArrowDownRight, CheckCircle, Clock,
   MessageCircle, Instagram, Store, MoreHorizontal
 } from 'lucide-react';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import type { CanalVenta } from '../../types/canalVenta.types';
 import {
   canalVentaAnalyticsService,
@@ -28,6 +29,18 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
   const [activeTab, setActiveTab] = useState<DetailTab>('resumen');
   const [analytics, setAnalytics] = useState<CanalVentaAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     loadAnalytics();

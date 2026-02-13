@@ -797,7 +797,13 @@ export const Ventas: React.FC = () => {
             }
             onEntregaCompletada={async () => {
               // Refrescar la venta seleccionada para ver el nuevo estado
-              await fetchVentaById(selectedVenta.id);
+              // fetchVentaById no existe, usar el ID directo
+              if (selectedVenta) {
+                const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
+                if (ventaActualizada) {
+                  setSelectedVenta(ventaActualizada);
+                }
+              }
               // Refrescar la lista de ventas
               await fetchVentas();
               // Refrescar la rentabilidad (invalida cache y recalcula)

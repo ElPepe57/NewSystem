@@ -1015,7 +1015,7 @@ export class CotizacionService {
           const conceptoMovimiento = `Adelanto cotización ${cotizacion.numeroCotizacion} - ${cotizacion.nombreCliente}`;
 
           await tesoreriaService.registrarMovimiento({
-            tipo: 'ingreso_venta',
+            tipo: 'ingreso_anticipo',
             moneda: monedaMovimiento,
             monto: montoMovimiento,
             tipoCambio: tcParaMovimiento,

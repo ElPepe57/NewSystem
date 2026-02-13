@@ -114,48 +114,49 @@ export const GradientHeader: React.FC<GradientHeaderProps> = ({
   };
 
   return (
-    <div className={`bg-gradient-to-r ${gradients[variant]} rounded-2xl p-6 text-white shadow-xl`}>
-      <div className="flex items-start justify-between">
-        <div className="flex items-center space-x-4">
+    <div className={`bg-gradient-to-r ${gradients[variant]} rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white shadow-xl`}>
+      {/* Header row - stacked on mobile, side by side on desktop */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+        <div className="flex items-center space-x-3 sm:space-x-4">
           {Icon && (
-            <div className="h-14 w-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Icon className="h-7 w-7 text-white" />
+            <div className="h-10 w-10 sm:h-14 sm:w-14 bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <Icon className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
             </div>
           )}
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold tracking-tight truncate">{title}</h1>
             {subtitle && (
-              <p className="text-white/70 mt-1 text-sm">{subtitle}</p>
+              <p className="text-white/70 mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-2">{subtitle}</p>
             )}
           </div>
         </div>
         {actions && (
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2 sm:space-x-3 flex-shrink-0 overflow-x-auto">
             {actions}
           </div>
         )}
       </div>
 
       {stats && stats.length > 0 && (
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mt-4 sm:mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/15 transition-colors"
+              className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl p-2.5 sm:p-4 hover:bg-white/15 transition-colors"
             >
-              <div className="text-white/60 text-xs font-medium uppercase tracking-wider">
+              <div className="text-white/60 text-[10px] sm:text-xs font-medium uppercase tracking-wider truncate">
                 {stat.label}
               </div>
-              <div className="mt-1 flex items-baseline space-x-2">
-                <span className="text-2xl font-bold">{stat.value}</span>
+              <div className="mt-0.5 sm:mt-1 flex items-baseline space-x-1 sm:space-x-2">
+                <span className="text-lg sm:text-2xl font-bold">{stat.value}</span>
                 {stat.trend && (
-                  <span className={`flex items-center text-xs font-medium ${
+                  <span className={`flex items-center text-[10px] sm:text-xs font-medium ${
                     stat.trend === 'up' ? 'text-green-400' :
                     stat.trend === 'down' ? 'text-red-400' : 'text-white/50'
                   }`}>
-                    {stat.trend === 'up' && <TrendingUp className="h-3 w-3 mr-0.5" />}
-                    {stat.trend === 'down' && <TrendingDown className="h-3 w-3 mr-0.5" />}
-                    {stat.trend === 'neutral' && <Minus className="h-3 w-3 mr-0.5" />}
+                    {stat.trend === 'up' && <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />}
+                    {stat.trend === 'down' && <TrendingDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />}
+                    {stat.trend === 'neutral' && <Minus className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />}
                     {stat.trendValue}
                   </span>
                 )}

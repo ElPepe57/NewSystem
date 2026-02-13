@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AlertTriangle, Trash2, CheckCircle, Info, X, AlertCircle } from 'lucide-react';
 import { Button } from './Button';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from './Modal';
 
 export type ConfirmDialogVariant = 'danger' | 'warning' | 'info' | 'success';
 
@@ -62,6 +63,22 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   loading = false,
   icon
 }) => {
+  // Registrar/desregistrar en el sistema global de modales
+  useEffect(() => {
+    if (isOpen) {
+      registerModalOpen();
+      document.body.setAttribute('data-modal-open', 'true');
+    }
+    return () => {
+      if (isOpen) {
+        unregisterModalOpen();
+        if (getModalCount() === 0) {
+          document.body.removeAttribute('data-modal-open');
+        }
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const config = variantConfig[variant];

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useLayoutEffect } from 'react';
 import {
   X,
   Warehouse,
@@ -22,6 +22,7 @@ import { Card } from '../../common/Card';
 import { Tabs, TabsProvider, TabPanel, useTabs } from '../../common/Tabs';
 import { KPICard, KPIGrid, AlertCard, StatDistribution } from '../../common/KPICard';
 import { SimpleAreaChart, MultiLineChart, SimpleBarChart, CHART_COLORS } from '../../common/Charts';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
 import type { Almacen } from '../../../types/almacen.types';
 
 interface AlmacenDetalleProps {
@@ -56,7 +57,7 @@ interface MetricasMovimientos {
   totalEnviadas: number;
   balanceNeto: number;
   movimientosPorMes: Array<{
-    mes: string;
+    name: string;
     recibidas: number;
     enviadas: number;
   }>;
@@ -72,7 +73,7 @@ interface MetricasMovimientos {
 
 interface MetricasAnalytics {
   ocupacionHistorica: Array<{
-    mes: string;
+    name: string;
     ocupacion: number;
     capacidad: number;
   }>;
@@ -87,7 +88,19 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
   onClose,
   onEdit
 }) => {
-  const { activeTab, setActiveTab } = useTabs<TabActiva>('resumen');
+  const { activeTab, setActiveTab } = useTabs('resumen');
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   // Estados para métricas calculadas
   const [metricasInventario, setMetricasInventario] = useState<MetricasInventario>({
@@ -287,10 +300,10 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
 
         // Convertir a array y ordenar
         const movimientosPorMes = Array.from(movimientosPorMesMap.entries())
-          .map(([mes, data]) => ({ mes, ...data }))
+          .map(([mes, data]) => ({ name: mes, ...data }))
           .sort((a, b) => {
-            const dateA = new Date(a.mes);
-            const dateB = new Date(b.mes);
+            const dateA = new Date(a.name);
+            const dateB = new Date(b.name);
             return dateA.getTime() - dateB.getTime();
           })
           .slice(-6); // Últimos 6 meses
@@ -327,7 +340,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
           fecha.setMonth(fecha.getMonth() - (5 - i));
           const ocupacionBase = (almacen.unidadesActuales || 0) * (0.7 + Math.random() * 0.3);
           return {
-            mes: fecha.toLocaleDateString('es-PE', { month: 'short', year: 'numeric' }),
+            name: fecha.toLocaleDateString('es-PE', { month: 'short', year: 'numeric' }),
             ocupacion: Math.round(ocupacionBase),
             capacidad: almacen.capacidadUnidades || 0
           };
@@ -702,7 +715,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                         { dataKey: 'recibidas', color: CHART_COLORS.primary, name: 'Recibidas' },
                         { dataKey: 'enviadas', color: CHART_COLORS.success, name: 'Enviadas' }
                       ]}
-                      xAxisKey="mes"
+                      xAxisKey="name"
                       height={300}
                     />
                   </Card>
@@ -796,7 +809,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                     <SimpleAreaChart
                       data={metricasAnalytics.ocupacionHistorica}
                       dataKey="ocupacion"
-                      xAxisKey="mes"
+                      xAxisKey="name"
                       height={300}
                       color={CHART_COLORS.primary}
                     />

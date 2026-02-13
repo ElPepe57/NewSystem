@@ -166,8 +166,11 @@ export const competidorService = {
         codigo,
         nombre: data.nombre.trim(),
         nombreNormalizado: normalizarTexto(data.nombre),
-        plataformaPrincipal: data.plataformaPrincipal,
-        plataformas: data.plataformas || [data.plataformaPrincipal],
+        // Nuevo sistema: plataformasData como array de objetos
+        plataformasData: data.plataformasData || [],
+        // Legacy: mantener para compatibilidad
+        plataformaPrincipal: data.plataformasData?.find(p => p.esPrincipal)?.nombre || data.plataformaPrincipal || 'otra',
+        plataformas: data.plataformasData?.map(p => p.nombre) || data.plataformas || [],
         reputacion: data.reputacion || 'desconocida',
         nivelAmenaza: data.nivelAmenaza || 'medio',
         estado: 'activo',
@@ -179,7 +182,7 @@ export const competidorService = {
         }
       };
 
-      // Agregar campos opcionales solo si tienen valor
+      // Agregar campos opcionales solo si tienen valor (legacy URLs)
       if (data.urlTienda) nuevoCompetidor.urlTienda = data.urlTienda;
       if (data.urlMercadoLibre) nuevoCompetidor.urlMercadoLibre = data.urlMercadoLibre;
       if (data.ciudad) nuevoCompetidor.ciudad = data.ciudad;
@@ -226,8 +229,16 @@ export const competidorService = {
         updates.nombre = data.nombre.trim();
         updates.nombreNormalizado = normalizarTexto(data.nombre);
       }
-      if (data.plataformaPrincipal) updates.plataformaPrincipal = data.plataformaPrincipal;
-      if (data.plataformas) updates.plataformas = data.plataformas;
+      // Nuevo sistema: plataformasData
+      if (data.plataformasData !== undefined) {
+        updates.plataformasData = data.plataformasData;
+        // Sincronizar campos legacy para compatibilidad
+        updates.plataformaPrincipal = data.plataformasData.find(p => p.esPrincipal)?.nombre || 'otra';
+        updates.plataformas = data.plataformasData.map(p => p.nombre);
+      }
+      // Legacy: mantener compatibilidad
+      if (data.plataformaPrincipal && !data.plataformasData) updates.plataformaPrincipal = data.plataformaPrincipal;
+      if (data.plataformas && !data.plataformasData) updates.plataformas = data.plataformas;
       if (data.urlTienda !== undefined) updates.urlTienda = data.urlTienda || null;
       if (data.urlMercadoLibre !== undefined) updates.urlMercadoLibre = data.urlMercadoLibre || null;
       if (data.ciudad !== undefined) updates.ciudad = data.ciudad || null;
@@ -377,7 +388,10 @@ export const competidorService = {
       let competidoresConPrecio = 0;
 
       activos.forEach(c => {
-        porPlataforma[c.plataformaPrincipal]++;
+        // plataformaPrincipal puede ser undefined para competidores nuevos con plataformasData
+        if (c.plataformaPrincipal) {
+          porPlataforma[c.plataformaPrincipal]++;
+        }
         porNivelAmenaza[c.nivelAmenaza]++;
         porReputacion[c.reputacion]++;
         if (c.esLiderCategoria) lideresCategoria++;
@@ -413,7 +427,7 @@ export const competidorService = {
           id: c.id,
           codigo: c.codigo,
           nombre: c.nombre,
-          plataformaPrincipal: c.plataformaPrincipal,
+          plataformaPrincipal: c.plataformaPrincipal || 'otra' as PlataformaCompetidor,
           productosAnalizados: c.metricas?.productosAnalizados || 0
         }));
 

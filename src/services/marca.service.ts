@@ -186,14 +186,9 @@ export const marcaService = {
     try {
       const terminoNormalizado = normalizarTexto(termino);
 
-      // Obtener todas las marcas para búsqueda local
-      const q = query(
-        collection(db, COLLECTION_NAME),
-        where('estado', '==', 'activa'),
-        limit(200)
-      );
-
-      const snapshot = await getDocs(q);
+      // Obtener TODAS las marcas para búsqueda local (no filtrar por estado en query)
+      // porque algunas marcas antiguas pueden no tener el campo 'estado'
+      const snapshot = await getDocs(collection(db, COLLECTION_NAME));
       const marcas = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -204,12 +199,15 @@ export const marcaService = {
         .map(marca => {
           let score = 0;
 
+          // Calcular nombreNormalizado si no existe (para marcas creadas antes de este campo)
+          const marcaNombreNormalizado = marca.nombreNormalizado || normalizarTexto(marca.nombre);
+
           // Match exacto en nombre normalizado
-          if (marca.nombreNormalizado === terminoNormalizado) {
+          if (marcaNombreNormalizado === terminoNormalizado) {
             score = 100;
           }
           // Match parcial en nombre normalizado
-          else if (marca.nombreNormalizado.includes(terminoNormalizado)) {
+          else if (marcaNombreNormalizado.includes(terminoNormalizado)) {
             score = 90;
           }
           // Match en alias
@@ -224,6 +222,13 @@ export const marcaService = {
           else {
             score = calcularSimilitud(marca.nombre, termino);
             if (score < 50) score = 0;
+          }
+
+          // Boost para marcas activas (priorizar en resultados)
+          // Marcas sin estado definido se tratan como activas para compatibilidad
+          const esActiva = !marca.estado || marca.estado === 'activa';
+          if (score > 0 && esActiva) {
+            score += 5; // Pequeño boost para priorizar activas
           }
 
           return { marca, score };

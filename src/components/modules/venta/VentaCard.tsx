@@ -122,18 +122,24 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
         // Buscar requerimientos asociados a esta venta
         const todosRequerimientos = await requerimientoService.getAll();
-        const requerimientosVenta = todosRequerimientos.filter(
-          r => r.ventaId === venta.id || r.cotizacionId === venta.cotizacionOrigenId
-        );
+        const requerimientosVenta = todosRequerimientos.filter(r => {
+          if (r.ventaId === venta.id) return true;
+          // Solo comparar cotizacionId/ventaRelacionadaId si la venta tiene cotizacionOrigenId
+          if (!venta.cotizacionOrigenId) return false;
+          return r.cotizacionId === venta.cotizacionOrigenId
+            || (r as any).ventaRelacionadaId === venta.cotizacionOrigenId;
+        });
 
         // Buscar órdenes de compra asociadas a los requerimientos
         let ordenesCompraVenta: OrdenCompra[] = [];
         if (requerimientosVenta.length > 0) {
           const todasOCs = await OrdenCompraService.getAll();
           const requerimientoIds = requerimientosVenta.map(r => r.id);
-          ordenesCompraVenta = todasOCs.filter(
-            oc => oc.requerimientoId && requerimientoIds.includes(oc.requerimientoId)
-          );
+          ordenesCompraVenta = todasOCs.filter(oc => {
+            if (oc.requerimientoId && requerimientoIds.includes(oc.requerimientoId)) return true;
+            if (oc.requerimientoIds?.some(id => requerimientoIds.includes(id))) return true;
+            return false;
+          });
         }
 
         setDocumentosRelacionados({

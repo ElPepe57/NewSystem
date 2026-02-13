@@ -57,6 +57,17 @@ import {
   Bar
 } from 'recharts';
 
+// Helper para formatear moneda de forma corta (para móvil)
+const formatCurrencyShort = (value: number): string => {
+  if (value >= 1000000) {
+    return `S/${(value / 1000000).toFixed(1)}M`;
+  }
+  if (value >= 1000) {
+    return `S/${(value / 1000).toFixed(1)}K`;
+  }
+  return `S/${value.toFixed(0)}`;
+};
+
 export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
@@ -148,6 +159,15 @@ export const Dashboard: React.FC = () => {
   const margenPromedioMes = ventasMesActual.length > 0
     ? ventasMesActual.reduce((sum, v) => sum + (v.margenPromedio || 0), 0) / ventasMesActual.length
     : 0;
+
+  // Anticipos pendientes (pasivo): ventas reservadas con dinero adelantado
+  const anticiposPendientes = useMemo(() => {
+    const ventasConAnticipo = (ventas || []).filter(v =>
+      v.estado === 'reservada' && v.montoPagado > 0
+    );
+    const totalAnticipado = ventasConAnticipo.reduce((sum, v) => sum + v.montoPagado, 0);
+    return { cantidad: ventasConAnticipo.length, monto: totalAnticipado };
+  }, [ventas]);
 
   // Órdenes en proceso
   const ordenesEnProceso = ordenes?.filter(o =>
@@ -417,11 +437,11 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-sm lg:text-base text-gray-600 mt-1 hidden sm:block">
           Resumen ejecutivo del sistema - {new Date().toLocaleDateString('es-PE', {
             weekday: 'long',
             year: 'numeric',
@@ -432,160 +452,187 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Métricas Principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {/* Total Productos */}
         <Link to="/productos">
-          <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card padding="sm" className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Productos Activos</div>
-                <div className="text-3xl font-bold text-gray-900 mt-1">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs lg:text-sm text-gray-600 truncate">Productos</div>
+                <div className="text-xl lg:text-3xl font-bold text-gray-900 mt-1">
                   {productosActivos}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-[10px] lg:text-xs text-gray-500 mt-1 hidden sm:block">
                   {productos.length} total
                 </div>
               </div>
-              <Package className="h-10 w-10 text-primary-400" />
+              <Package className="h-8 w-8 lg:h-10 lg:w-10 text-primary-400 flex-shrink-0" />
             </div>
           </Card>
         </Link>
 
         {/* Valor Inventario */}
         <Link to="/inventario">
-          <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card padding="sm" className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Valor Inventario</div>
-                <div className="text-3xl font-bold text-gray-900 mt-1">
-                  {formatCurrency(valorInventarioPEN)}
+              <div className="min-w-0 flex-1">
+                <div className="text-xs lg:text-sm text-gray-600 truncate">Inventario</div>
+                <div className="text-lg lg:text-3xl font-bold text-gray-900 mt-1">
+                  <span className="hidden sm:inline">{formatCurrency(valorInventarioPEN)}</span>
+                  <span className="sm:hidden">{formatCurrencyShort(valorInventarioPEN)}</span>
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-[10px] lg:text-xs text-gray-500 mt-1 hidden sm:block">
                   En stock disponible
                 </div>
               </div>
-              <Warehouse className="h-10 w-10 text-blue-400" />
+              <Warehouse className="h-8 w-8 lg:h-10 lg:w-10 text-blue-400 flex-shrink-0" />
             </div>
           </Card>
         </Link>
 
         {/* Ventas del Mes */}
         <Link to="/ventas">
-          <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card padding="sm" className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Ventas del Mes</div>
-                <div className="text-3xl font-bold text-gray-900 mt-1">
-                  {formatCurrency(totalVentasMes)}
+              <div className="min-w-0 flex-1">
+                <div className="text-xs lg:text-sm text-gray-600 truncate">Ventas Mes</div>
+                <div className="text-lg lg:text-3xl font-bold text-gray-900 mt-1">
+                  <span className="hidden sm:inline">{formatCurrency(totalVentasMes)}</span>
+                  <span className="sm:hidden">{formatCurrencyShort(totalVentasMes)}</span>
                 </div>
-                <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                <div className="text-[10px] lg:text-xs text-gray-500 mt-1 flex items-center gap-1">
                   {margenPromedioMes >= 25 ? (
                     <ArrowUpRight className="h-3 w-3 text-success-500" />
                   ) : (
                     <ArrowDownRight className="h-3 w-3 text-danger-500" />
                   )}
-                  Margen: {margenPromedioMes.toFixed(1)}%
+                  <span className="hidden sm:inline">Margen:</span> {margenPromedioMes.toFixed(1)}%
                 </div>
               </div>
-              <ShoppingCart className="h-10 w-10 text-success-400" />
+              <ShoppingCart className="h-8 w-8 lg:h-10 lg:w-10 text-success-400 flex-shrink-0" />
             </div>
           </Card>
         </Link>
 
         {/* Utilidad del Mes */}
-        <Card padding="md">
+        <Card padding="sm" className="h-full">
           <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Utilidad del Mes</div>
-              <div className="text-3xl font-bold text-success-600 mt-1">
-                {formatCurrency(utilidadMes)}
+            <div className="min-w-0 flex-1">
+              <div className="text-xs lg:text-sm text-gray-600 truncate">Utilidad</div>
+              <div className="text-lg lg:text-3xl font-bold text-success-600 mt-1">
+                <span className="hidden sm:inline">{formatCurrency(utilidadMes)}</span>
+                <span className="sm:hidden">{formatCurrencyShort(utilidadMes)}</span>
               </div>
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-[10px] lg:text-xs text-gray-500 mt-1">
                 {ventasMesActual.length} ventas
               </div>
             </div>
-            <TrendingUp className="h-10 w-10 text-success-400" />
+            <TrendingUp className="h-8 w-8 lg:h-10 lg:w-10 text-success-400 flex-shrink-0" />
           </div>
         </Card>
       </div>
 
       {/* Segunda fila de métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {/* Stock Crítico */}
         <Link to="/inventario">
-          <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card padding="sm" className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Stock Crítico</div>
-                <div className="text-3xl font-bold text-warning-600 mt-1">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs lg:text-sm text-gray-600 truncate">Stock Crítico</div>
+                <div className="text-xl lg:text-3xl font-bold text-warning-600 mt-1">
                   {stockCritico}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Productos bajo mínimo
+                <div className="text-[10px] lg:text-xs text-gray-500 mt-1 hidden sm:block">
+                  Bajo mínimo
                 </div>
               </div>
-              <AlertTriangle className="h-10 w-10 text-warning-400" />
+              <AlertTriangle className="h-8 w-8 lg:h-10 lg:w-10 text-warning-400 flex-shrink-0" />
             </div>
           </Card>
         </Link>
 
         {/* Órdenes en Proceso */}
         <Link to="/compras">
-          <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card padding="sm" className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Órdenes en Proceso</div>
-                <div className="text-3xl font-bold text-gray-900 mt-1">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs lg:text-sm text-gray-600 truncate">Órdenes</div>
+                <div className="text-xl lg:text-3xl font-bold text-gray-900 mt-1">
                   {ordenesEnProceso.length}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {ordenesStats?.enTransito || 0} en tránsito
+                <div className="text-[10px] lg:text-xs text-gray-500 mt-1">
+                  {ordenesStats?.enTransito || 0} tránsito
                 </div>
               </div>
-              <Box className="h-10 w-10 text-primary-400" />
+              <Box className="h-8 w-8 lg:h-10 lg:w-10 text-primary-400 flex-shrink-0" />
             </div>
           </Card>
         </Link>
 
         {/* Gastos del Mes */}
         <Link to="/gastos">
-          <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card padding="sm" className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Gastos del Mes</div>
-                <div className="text-3xl font-bold text-gray-900 mt-1">
-                  {formatCurrency(gastosStats?.totalMesActual || 0)}
+              <div className="min-w-0 flex-1">
+                <div className="text-xs lg:text-sm text-gray-600 truncate">Gastos</div>
+                <div className="text-lg lg:text-3xl font-bold text-gray-900 mt-1">
+                  <span className="hidden sm:inline">{formatCurrency(gastosStats?.totalMesActual || 0)}</span>
+                  <span className="sm:hidden">{formatCurrencyShort(gastosStats?.totalMesActual || 0)}</span>
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-[10px] lg:text-xs text-gray-500 mt-1">
                   {gastosStats?.cantidadGastosMesActual || 0} gastos
                 </div>
               </div>
-              <Receipt className="h-10 w-10 text-gray-400" />
+              <Receipt className="h-8 w-8 lg:h-10 lg:w-10 text-gray-400 flex-shrink-0" />
             </div>
           </Card>
         </Link>
 
         {/* Tipo de Cambio */}
         <Link to="/tipo-cambio">
-          <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card padding="sm" className="hover:shadow-lg transition-shadow cursor-pointer h-full">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Tipo de Cambio</div>
-                <div className="text-3xl font-bold text-gray-900 mt-1">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs lg:text-sm text-gray-600 truncate">T/C</div>
+                <div className="text-xl lg:text-3xl font-bold text-gray-900 mt-1">
                   {tipoCambioDelDia?.compra.toFixed(3) || '-'}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Venta: {tipoCambioDelDia?.venta.toFixed(3) || '-'}
+                <div className="text-[10px] lg:text-xs text-gray-500 mt-1">
+                  V: {tipoCambioDelDia?.venta.toFixed(3) || '-'}
                 </div>
               </div>
-              <DollarSign className="h-10 w-10 text-success-400" />
+              <DollarSign className="h-8 w-8 lg:h-10 lg:w-10 text-success-400 flex-shrink-0" />
             </div>
           </Card>
         </Link>
       </div>
 
-      {/* Tercera fila: Métricas de Inversión (ROI) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Anticipos Pendientes (Pasivo) */}
+      {anticiposPendientes.monto > 0 && (
+        <div className="grid grid-cols-1">
+          <Link to="/tesoreria">
+            <Card padding="sm" className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-purple-500 bg-gradient-to-r from-purple-50 to-white">
+              <div className="flex items-center justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs lg:text-sm text-purple-700 font-medium">Anticipos Pendientes (Pasivo)</div>
+                  <div className="text-lg lg:text-2xl font-bold text-purple-800 mt-1">
+                    <span className="hidden sm:inline">{formatCurrency(anticiposPendientes.monto)}</span>
+                    <span className="sm:hidden">{formatCurrencyShort(anticiposPendientes.monto)}</span>
+                  </div>
+                  <div className="text-[10px] lg:text-xs text-purple-600 mt-1">
+                    {anticiposPendientes.cantidad} venta(s) con adelanto — Dinero recibido, producto pendiente de entrega
+                  </div>
+                </div>
+                <CreditCard className="h-8 w-8 lg:h-10 lg:w-10 text-purple-400 flex-shrink-0" />
+              </div>
+            </Card>
+          </Link>
+        </div>
+      )}
+
+      {/* Tercera fila: Métricas de Inversión (ROI) - Ocultar en móvil pequeño */}
+      <div className="hidden sm:grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {/* ROI Promedio */}
         <Link to="/productos">
           <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-emerald-50 to-teal-50">
@@ -659,7 +706,7 @@ export const Dashboard: React.FC = () => {
 
       {/* Cuarta fila: Cuentas por Cobrar / Pagar (CxC/CxP) */}
       {dashboardCxPCxC && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           {/* Por Cobrar */}
           <Link to="/tesoreria">
             <Card padding="md" className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-green-50 to-emerald-50 border-l-4 border-green-500">
@@ -749,7 +796,7 @@ export const Dashboard: React.FC = () => {
       )}
 
       {/* Sección de ROI: Top Productos y Oportunidades */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Top 5 Mejor ROI */}
         <Card padding="md">
           <div className="flex items-center justify-between mb-4">
@@ -860,7 +907,7 @@ export const Dashboard: React.FC = () => {
 
       {/* Sección de Antigüedad de Cartera y Alertas Financieras */}
       {dashboardCxPCxC && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           {/* Antigüedad de Cartera - Por Cobrar */}
           <Card padding="md">
             <div className="flex items-center justify-between mb-4">
@@ -1007,7 +1054,7 @@ export const Dashboard: React.FC = () => {
       )}
 
       {/* Sección de Alertas y Resúmenes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Alertas de Inventario */}
         <Card padding="md">
           <div className="flex items-center justify-between mb-4">
@@ -1109,7 +1156,7 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Top Productos y Ventas por Canal (widgets nuevos) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Top Productos Vendidos */}
         <TopProductosWidget
           productos={topProductosVendidos}
@@ -1122,7 +1169,7 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Gráficos de Tendencia */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Gráfico de Ventas - Últimos 30 días */}
         <Card padding="md">
           <div className="flex items-center justify-between mb-4">
@@ -1297,7 +1344,7 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Widget de Vencimientos y Actividad Reciente */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Widget de Control de Vencimientos */}
         <VencimientosWidget maxItems={6} />
 
@@ -1313,38 +1360,45 @@ export const Dashboard: React.FC = () => {
       )}
 
       {/* Quick Actions */}
-      <Card padding="md">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
+      <Card padding="sm" className="lg:hidden">
+        <h3 className="text-base font-semibold text-gray-900 mb-3">Acciones Rápidas</h3>
+        <div className="grid grid-cols-4 gap-2">
+          <Link to="/productos" className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50 text-center">
+            <Package className="h-5 w-5 mx-auto mb-1 text-primary-600" />
+            <div className="text-[10px] font-medium text-gray-700">Producto</div>
+          </Link>
+          <Link to="/compras" className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50 text-center">
+            <Box className="h-5 w-5 mx-auto mb-1 text-blue-600" />
+            <div className="text-[10px] font-medium text-gray-700">Orden</div>
+          </Link>
+          <Link to="/ventas" className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50 text-center">
+            <ShoppingCart className="h-5 w-5 mx-auto mb-1 text-green-600" />
+            <div className="text-[10px] font-medium text-gray-700">Venta</div>
+          </Link>
+          <Link to="/gastos" className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50 text-center">
+            <Receipt className="h-5 w-5 mx-auto mb-1 text-gray-600" />
+            <div className="text-[10px] font-medium text-gray-700">Gasto</div>
+          </Link>
+        </div>
+      </Card>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Link
-            to="/productos"
-            className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center"
-          >
+      {/* Quick Actions - Desktop */}
+      <Card padding="md" className="hidden lg:block">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
+        <div className="grid grid-cols-4 gap-3">
+          <Link to="/productos" className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center">
             <Package className="h-6 w-6 mx-auto mb-2 text-gray-600" />
             <div className="text-sm font-medium text-gray-900">Nuevo Producto</div>
           </Link>
-
-          <Link
-            to="/compras"
-            className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center"
-          >
+          <Link to="/compras" className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center">
             <Box className="h-6 w-6 mx-auto mb-2 text-gray-600" />
             <div className="text-sm font-medium text-gray-900">Nueva Orden</div>
           </Link>
-
-          <Link
-            to="/ventas"
-            className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center"
-          >
+          <Link to="/ventas" className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center">
             <ShoppingCart className="h-6 w-6 mx-auto mb-2 text-gray-600" />
             <div className="text-sm font-medium text-gray-900">Nueva Venta</div>
           </Link>
-
-          <Link
-            to="/gastos"
-            className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center"
-          >
+          <Link to="/gastos" className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-center">
             <Receipt className="h-6 w-6 mx-auto mb-2 text-gray-600" />
             <div className="text-sm font-medium text-gray-900">Nuevo Gasto</div>
           </Link>

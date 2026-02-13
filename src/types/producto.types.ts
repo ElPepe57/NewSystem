@@ -312,6 +312,10 @@ export interface Producto {
   restriccionML: string;
 
   // === COSTOS ===
+  /**
+   * CMV Promedio - Costo de Mercadería Vendida promedio de las unidades en stock
+   * Antes llamado "ctruPromedio"
+   */
   ctruPromedio: number;
   precioSugerido: number;
   margenMinimo: number;
@@ -461,10 +465,27 @@ export interface Unidad {
   tcCompra: number;                // TC al momento de la OC
   tcPago: number;                  // TC al momento del pago de la OC
 
-  // CTRU
-  ctruBase: number;                // Costo base en PEN (costoTotalUSD × tcPago)
-  ctruGastos: number;              // Gastos operativos prorrateados
-  ctruDinamico: number;            // ctruBase + ctruGastos (CTRU actual)
+  // === COSTOS EN PEN (CMV - Costo de Mercadería Vendida) ===
+  // Nota: Los campos ctru* se mantienen por compatibilidad, usar cmv* en código nuevo
+
+  /**
+   * Costo de Mercadería Vendida base en PEN = costoTotalUSD × tcPago
+   * Antes llamado "ctruBase"
+   */
+  ctruBase: number;
+
+  /**
+   * @deprecated No usar. Los gastos del período no deben mezclarse con el costo unitario.
+   * Se mantiene por compatibilidad, pero su valor debería ser 0.
+   */
+  ctruGastos: number;
+
+  /**
+   * CMV (Costo de Mercadería Vendida) = ctruBase
+   * Antes llamado "ctruDinamico". Ahora es igual a ctruBase.
+   * Este es el costo real de la unidad para calcular rentabilidad.
+   */
+  ctruDinamico: number;
 
   // === UBICACIÓN Y ESTADO ===
   estado: EstadoUnidad;

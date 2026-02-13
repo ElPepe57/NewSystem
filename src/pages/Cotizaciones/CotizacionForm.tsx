@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { X, Plus, Trash2, Search, AlertTriangle, Package, TrendingUp, Info, PlusCircle, User, Star, ShoppingBag, History, Download, FileText, MapPin, Truck, Clock, ShoppingCart } from 'lucide-react';
 import { Modal, Input, Select, Button, Badge } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
 import { CanalAutocomplete } from '../../components/modules/canalVenta/CanalAutocomplete';
+import { ProductoSearchCotizaciones, type ProductoCotizacionSnapshot } from '../../components/modules/entidades/ProductoSearchCotizaciones';
 import { useCotizacionStore } from '../../store/cotizacionStore';
 import { useConfiguracionStore } from '../../store/configuracionStore';
 import { useVentaStore } from '../../store/ventaStore';
@@ -99,6 +100,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
   const [busquedaProducto, setBusquedaProducto] = useState('');
   const [productosFiltrados, setProductosFiltrados] = useState<typeof productos>([]);
   const [showProductoSelector, setShowProductoSelector] = useState(false);
+  const [productoSnapshot, setProductoSnapshot] = useState<ProductoCotizacionSnapshot | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Modal de crear producto
@@ -257,6 +259,53 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
       setShowProductoSelector(false);
     }
   }, [busquedaProducto, productos]);
+
+  // Handler para selección desde el nuevo buscador inteligente
+  const handleProductoSnapshotSelect = useCallback(async (snapshot: ProductoCotizacionSnapshot | null) => {
+    setProductoSnapshot(snapshot);
+
+    if (snapshot) {
+      // Verificar si ya existe
+      if (lineas.some(l => l.productoId === snapshot.productoId)) {
+        alert('Este producto ya está en la cotización');
+        setProductoSnapshot(null);
+        return;
+      }
+
+      // Buscar producto completo para obtener datos adicionales
+      const producto = productos.find(p => p.id === snapshot.productoId);
+      const productoDisponible = productosDisponibles.find(p => p.productoId === snapshot.productoId);
+
+      const nuevaLinea: ProductoLinea = {
+        productoId: snapshot.productoId,
+        sku: snapshot.sku,
+        marca: snapshot.marca,
+        nombre: snapshot.nombreComercial,
+        presentacion: snapshot.presentacion,
+        contenido: producto?.contenido,
+        dosaje: producto?.dosaje,
+        cantidad: 1,
+        precioUnitario: snapshot.precioSugerido || productoDisponible?.precioSugerido || 0,
+        subtotal: snapshot.precioSugerido || productoDisponible?.precioSugerido || 0,
+        stockDisponible: snapshot.stockTotal,
+        investigacion: productoDisponible?.investigacion,
+        disponibilidadMultiAlmacen: {
+          stockPeru: snapshot.stockPeru,
+          stockUSA: snapshot.stockUSA,
+          stockTotal: snapshot.stockTotal,
+          fuenteRecomendada: snapshot.fuenteRecomendada,
+          cantidadDesdePeru: Math.min(1, snapshot.stockPeru),
+          cantidadDesdeUSA: snapshot.stockPeru > 0 ? 0 : Math.min(1, snapshot.stockUSA),
+          cantidadVirtual: snapshot.stockTotal === 0 ? 1 : 0,
+          tiempoEstimadoDias: snapshot.tiempoEntregaEstimado,
+          razonRecomendacion: snapshot.mensajeDisponibilidad
+        }
+      };
+
+      setLineas([...lineas, nuevaLinea]);
+      setProductoSnapshot(null); // Limpiar para permitir agregar más
+    }
+  }, [lineas, productos, productosDisponibles]);
 
   const handleAgregarProducto = async (producto: typeof productos[0]) => {
     // Verificar si ya existe
@@ -572,25 +621,25 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
                 <div>
-                  <div className="flex items-center justify-center gap-1 text-lg font-bold text-blue-700">
-                    <ShoppingBag className="h-4 w-4" />
+                  <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold text-blue-700">
+                    <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />
                     {historialCliente.totalCompras}
                   </div>
                   <p className="text-xs text-gray-600">Compras</p>
                 </div>
                 <div>
-                  <div className="text-lg font-bold text-green-600">
+                  <div className="text-base sm:text-lg font-bold text-green-600">
                     S/{historialCliente.montoTotal.toFixed(0)}
                   </div>
                   <p className="text-xs text-gray-600">Total</p>
                 </div>
                 <div>
-                  <div className="text-lg font-bold text-purple-600">
+                  <div className="text-base sm:text-lg font-bold text-purple-600">
                     S/{(historialCliente.montoTotal / historialCliente.totalCompras).toFixed(0)}
                   </div>
-                  <p className="text-xs text-gray-600">Ticket prom.</p>
+                  <p className="text-xs text-gray-600">Promedio</p>
                 </div>
               </div>
               {historialCliente.ultimaCompra && (
@@ -672,43 +721,13 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
             </Button>
           </div>
 
-          {/* Buscador de productos */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar producto por SKU, nombre o marca..."
-              value={busquedaProducto}
-              onChange={(e) => setBusquedaProducto(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-
-            {/* Dropdown de productos */}
-            {showProductoSelector && productosFiltrados.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-                {productosFiltrados.map((producto) => (
-                  <button
-                    key={producto.id}
-                    type="button"
-                    onClick={() => handleAgregarProducto(producto)}
-                    className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {producto.sku} - {producto.marca}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {producto.nombreComercial}
-                      </div>
-                    </div>
-                    <div className="text-sm text-primary-600 font-medium">
-                      {formatCurrency(producto.precioSugerido || 0)}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Buscador inteligente de productos */}
+          <ProductoSearchCotizaciones
+            productos={productosDisponibles}
+            value={productoSnapshot}
+            onChange={handleProductoSnapshotSelect}
+            placeholder="Buscar producto por SKU, nombre o marca..."
+          />
 
           {/* Lista de productos agregados */}
           {lineas.length > 0 ? (
@@ -1090,8 +1109,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         </div>
 
         {/* Botones */}
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="text-sm text-gray-500">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t">
+          <div className="text-sm text-gray-500 text-center sm:text-left">
             {clienteSeleccionado && historialCliente?.clasificacionABC === 'A' && (
               <span className="inline-flex items-center gap-1 text-green-600">
                 <Star className="h-3 w-3" />
@@ -1099,13 +1118,14 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               </span>
             )}
           </div>
-          <div className="flex gap-3">
-            <Button type="button" variant="ghost" onClick={onClose}>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+            <Button type="button" variant="ghost" onClick={onClose} className="w-full sm:w-auto">
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || lineas.length === 0}
+              className="w-full sm:w-auto"
             >
               {isSubmitting
                 ? (modoEdicion ? 'Guardando...' : 'Creando...')

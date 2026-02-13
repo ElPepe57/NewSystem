@@ -1,34 +1,46 @@
 import React, { useEffect, useRef, useId, useCallback, useState } from 'react';
 import { X } from 'lucide-react';
 
+// Estado global simple para tracking de modales abiertos
+let modalCount = 0;
+const listeners = new Set<() => void>();
+
+const notifyListeners = () => {
+  listeners.forEach(listener => listener());
+};
+
+export const registerModalOpen = () => {
+  modalCount++;
+  notifyListeners();
+};
+
+export const unregisterModalOpen = () => {
+  modalCount = Math.max(0, modalCount - 1);
+  notifyListeners();
+};
+
+export const getModalCount = () => modalCount;
+
+export const subscribeToModalChanges = (callback: () => void) => {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+};
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
-  /** Contenido del footer sticky (botones de accion) */
   footer?: React.ReactNode;
-  /** Subtitulo o descripcion bajo el titulo */
   subtitle?: string;
-  /** Si es true, el modal ocupa casi toda la pantalla con scroll interno */
   fullHeight?: boolean;
-  /** Deshabilitar el cierre al hacer clic en el backdrop */
   disableBackdropClick?: boolean;
-  /** Deshabilitar el cierre con la tecla Escape */
   disableEscapeKey?: boolean;
-  /** Clase CSS adicional para el contenedor del contenido */
   contentClassName?: string;
-  /** Padding del contenido (default: 'md') */
   contentPadding?: 'none' | 'sm' | 'md' | 'lg';
-  /** Mostrar sombra en el header cuando hay scroll */
   showHeaderShadow?: boolean;
-  /** Mostrar indicador de scroll (gradiente) en la parte inferior del contenido */
   showScrollIndicator?: boolean;
-  /** Modo responsivo en móviles (default: 'fullscreen') */
-  mobileMode?: 'fullscreen' | 'bottom-sheet' | 'default';
-  /** Habilitar swipe para cerrar en móvil (solo con mobileMode='bottom-sheet') */
-  swipeToClose?: boolean;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -46,20 +58,16 @@ export const Modal: React.FC<ModalProps> = ({
   contentPadding = 'md',
   showHeaderShadow = true,
   showScrollIndicator = true,
-  mobileMode = 'fullscreen',
-  swipeToClose = true
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
-  const [hasScroll, setHasScroll] = React.useState(false);
-  const [isAtTop, setIsAtTop] = React.useState(true);
-  const [isAtBottom, setIsAtBottom] = React.useState(false);
-  const [swipeOffset, setSwipeOffset] = useState(0);
-  const [isSwiping, setIsSwiping] = useState(false);
+  const scrollPositionRef = useRef(0);
+  const [hasScroll, setHasScroll] = useState(false);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const [isAtBottom, setIsAtBottom] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
-  const touchStartY = useRef(0);
 
   const titleId = useId();
   const descriptionId = useId();
@@ -68,7 +76,6 @@ export const Modal: React.FC<ModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
-      // Pequeño delay para que el DOM se actualice antes de la animación
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsAnimating(true);
@@ -76,10 +83,9 @@ export const Modal: React.FC<ModalProps> = ({
       });
     } else {
       setIsAnimating(false);
-      // Esperar a que termine la animación antes de desmontar
       const timer = setTimeout(() => {
         setShouldRender(false);
-      }, 200); // Duración de la animación
+      }, 200);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -98,28 +104,60 @@ export const Modal: React.FC<ModalProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, disableEscapeKey, onClose]);
 
-  // Guardar y restaurar foco, bloquear scroll
+  // Bloquear scroll del body
   useEffect(() => {
     if (isOpen) {
       previousFocusRef.current = document.activeElement as HTMLElement;
-      document.body.style.overflow = 'hidden';
+      scrollPositionRef.current = window.scrollY;
 
-      // Enfocar el modal cuando se abre
+      // Bloquear scroll del body
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollPositionRef.current}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+      document.body.setAttribute('data-modal-open', 'true');
+      registerModalOpen();
+
       setTimeout(() => {
         modalRef.current?.focus();
       }, 0);
     } else {
+      // Restaurar scroll del body
       document.body.style.overflow = '';
-      // Restaurar foco al elemento anterior
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      window.scrollTo(0, scrollPositionRef.current);
+
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
       previousFocusRef.current?.focus();
     }
 
     return () => {
-      document.body.style.overflow = '';
+      if (isOpen) {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollPositionRef.current);
+        unregisterModalOpen();
+        if (getModalCount() === 0) {
+          document.body.removeAttribute('data-modal-open');
+        }
+      }
     };
   }, [isOpen]);
 
-  // Focus trap - mantener el foco dentro del modal
+  // Focus trap
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key !== 'Tab' || !modalRef.current) return;
 
@@ -142,49 +180,22 @@ export const Modal: React.FC<ModalProps> = ({
     }
   }, []);
 
-  // Handlers para swipe to close (móvil)
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (mobileMode !== 'bottom-sheet' || !swipeToClose) return;
-    touchStartY.current = e.touches[0].clientY;
-    setIsSwiping(true);
-  }, [mobileMode, swipeToClose]);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isSwiping || mobileMode !== 'bottom-sheet') return;
-    const currentY = e.touches[0].clientY;
-    const diff = currentY - touchStartY.current;
-    // Solo permitir swipe hacia abajo
-    if (diff > 0) {
-      setSwipeOffset(diff);
-    }
-  }, [isSwiping, mobileMode]);
-
-  const handleTouchEnd = useCallback(() => {
-    if (!isSwiping) return;
-    setIsSwiping(false);
-    // Si se ha deslizado más de 100px, cerrar el modal
-    if (swipeOffset > 100) {
-      onClose();
-    }
-    setSwipeOffset(0);
-  }, [isSwiping, swipeOffset, onClose]);
-
   // Detectar scroll en el contenido
   useEffect(() => {
     const content = contentRef.current;
-    if (!content) return;
+    if (!content || !isOpen) return;
 
     const checkScroll = () => {
       const hasVerticalScroll = content.scrollHeight > content.clientHeight;
       setHasScroll(hasVerticalScroll);
-      setIsAtTop(content.scrollTop === 0);
+      setIsAtTop(content.scrollTop <= 1);
       setIsAtBottom(
-        Math.abs(content.scrollHeight - content.scrollTop - content.clientHeight) < 1
+        Math.abs(content.scrollHeight - content.scrollTop - content.clientHeight) < 2
       );
     };
 
-    checkScroll();
-    content.addEventListener('scroll', checkScroll);
+    setTimeout(checkScroll, 100);
+    content.addEventListener('scroll', checkScroll, { passive: true });
     window.addEventListener('resize', checkScroll);
 
     return () => {
@@ -195,13 +206,12 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!shouldRender) return null;
 
-  // Estilos de tamaño para desktop
   const sizeStyles = {
-    sm: 'max-w-md',
-    md: 'max-w-2xl',
-    lg: 'max-w-4xl',
-    xl: 'max-w-6xl',
-    full: 'max-w-[95vw]'
+    sm: 'sm:max-w-md',
+    md: 'sm:max-w-2xl',
+    lg: 'sm:max-w-4xl',
+    xl: 'sm:max-w-6xl',
+    full: 'sm:max-w-[95vw]'
   };
 
   const paddingStyles = {
@@ -209,20 +219,6 @@ export const Modal: React.FC<ModalProps> = ({
     sm: 'p-4',
     md: 'p-6',
     lg: 'p-8'
-  };
-
-  const heightStyles = fullHeight ? 'max-h-[90vh]' : 'max-h-[85vh]';
-
-  // Estilos responsivos para móvil
-  const getMobileStyles = () => {
-    switch (mobileMode) {
-      case 'fullscreen':
-        return 'sm:rounded-lg sm:max-h-[85vh] max-sm:rounded-none max-sm:max-h-full max-sm:h-full max-sm:max-w-full';
-      case 'bottom-sheet':
-        return 'sm:rounded-lg max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:max-h-[90vh] max-sm:mt-auto max-sm:max-w-full';
-      default:
-        return '';
-    }
   };
 
   const handleBackdropClick = () => {
@@ -239,15 +235,16 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Backdrop */}
       <div
         className={`
-          fixed inset-0 bg-black transition-opacity duration-200 ease-out
-          ${isAnimating ? 'bg-opacity-50' : 'bg-opacity-0'}
+          absolute inset-0 bg-black transition-opacity duration-200
+          ${isAnimating ? 'opacity-50' : 'opacity-0'}
         `}
         onClick={handleBackdropClick}
         aria-hidden="true"
       />
 
-      {/* Modal */}
-      <div className={`flex min-h-full items-center justify-center p-4 max-sm:p-0 ${mobileMode === 'bottom-sheet' ? 'max-sm:items-end' : ''}`}>
+      {/* Container para centrar en desktop */}
+      <div className="absolute inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
+        {/* Modal */}
         <div
           ref={modalRef}
           role="dialog"
@@ -256,81 +253,102 @@ export const Modal: React.FC<ModalProps> = ({
           aria-describedby={subtitle ? descriptionId : undefined}
           tabIndex={-1}
           onKeyDown={handleKeyDown}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          style={swipeOffset > 0 ? { transform: `translateY(${swipeOffset}px)`, transition: isSwiping ? 'none' : 'transform 0.2s ease-out' } : undefined}
           className={`
-            relative bg-white shadow-xl w-full flex flex-col overflow-hidden focus:outline-none
-            ${sizeStyles[size]} ${heightStyles} ${getMobileStyles()}
-            ${mobileMode !== 'default' ? 'rounded-lg' : 'rounded-lg'}
+            relative bg-white shadow-2xl
             transition-all duration-200 ease-out
             ${isAnimating
               ? 'opacity-100 scale-100 translate-y-0'
-              : mobileMode === 'bottom-sheet'
-                ? 'opacity-0 translate-y-8 max-sm:translate-y-full'
-                : 'opacity-0 scale-95 translate-y-4'
+              : 'opacity-0 scale-95 translate-y-4'
             }
+
+            /* Mobile: full screen */
+            w-full h-full
+
+            /* Desktop: centered modal */
+            sm:h-auto sm:rounded-xl sm:w-full ${sizeStyles[size]}
+            ${fullHeight ? 'sm:h-[calc(100vh-2rem)] sm:max-h-[90vh]' : 'sm:max-h-[calc(100vh-2rem)]'}
           `}
+          style={{
+            outline: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Swipe indicator para bottom-sheet en móvil */}
-          {mobileMode === 'bottom-sheet' && swipeToClose && (
-            <div className="sm:hidden flex justify-center py-2 cursor-grab active:cursor-grabbing">
-              <div className="w-10 h-1 bg-gray-300 rounded-full" />
-            </div>
-          )}
-
-          {/* Header - Sticky */}
+          {/* Header */}
           <div
             className={`
-              flex-shrink-0 flex items-center justify-between p-6 max-sm:p-4 border-b border-gray-200 bg-white
-              transition-shadow duration-200
-              ${showHeaderShadow && hasScroll && !isAtTop ? 'shadow-md' : ''}
+              flex items-center justify-between
+              px-4 py-3 sm:px-6 sm:py-4
+              border-b border-gray-200 bg-white
+              sm:rounded-t-xl
+              ${showHeaderShadow && hasScroll && !isAtTop ? 'shadow-md z-10' : ''}
             `}
+            style={{
+              flexShrink: 0,
+              paddingTop: 'max(0.75rem, env(safe-area-inset-top))'
+            }}
           >
             <div className="flex-1 min-w-0 pr-4">
-              <h2 id={titleId} className="text-xl max-sm:text-lg font-semibold text-gray-900 truncate">{title}</h2>
+              <h2 id={titleId} className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                {title}
+              </h2>
               {subtitle && (
-                <p id={descriptionId} className="text-sm text-gray-500 mt-0.5 truncate">{subtitle}</p>
+                <p id={descriptionId} className="text-sm text-gray-500 mt-0.5 truncate">
+                  {subtitle}
+                </p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors rounded-full p-2 max-sm:p-1.5 hover:bg-gray-100 active:bg-gray-200"
+              className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors rounded-full p-2 hover:bg-gray-100 active:bg-gray-200"
               aria-label="Cerrar modal"
             >
-              <X className="h-6 w-6 max-sm:h-5 max-sm:w-5" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Content - Scrollable */}
+          {/* Content - área scrolleable */}
           <div
             ref={contentRef}
             className={`
-              flex-1 overflow-y-auto overscroll-contain
               ${paddingStyles[contentPadding]}
-              max-sm:${contentPadding === 'lg' ? 'p-4' : contentPadding === 'md' ? 'p-4' : paddingStyles[contentPadding]}
+              max-sm:p-4
               ${contentClassName}
             `}
+            style={{
+              flex: '1 1 auto',
+              minHeight: 0,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'contain',
+            }}
           >
             {children}
           </div>
 
-          {/* Scroll indicator gradient */}
+          {/* Scroll indicator */}
           {showScrollIndicator && hasScroll && !isAtBottom && (
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none" style={{ bottom: footer ? '72px' : 0 }} />
+            <div
+              className="absolute left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"
+              style={{ bottom: footer ? '60px' : 0 }}
+            />
           )}
 
-          {/* Footer - Sticky (si se provee) */}
+          {/* Footer */}
           {footer && (
             <div
               className={`
-                flex-shrink-0 px-6 py-4 max-sm:px-4 max-sm:py-3 border-t border-gray-200 bg-gray-50
-                transition-shadow duration-200
-                max-sm:pb-[calc(0.75rem+env(safe-area-inset-bottom))]
+                px-4 py-3 sm:px-6 sm:py-4
+                border-t border-gray-200 bg-gray-50
+                sm:rounded-b-xl
                 ${showHeaderShadow && hasScroll && !isAtBottom ? 'shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]' : ''}
               `}
+              style={{
+                flexShrink: 0,
+                paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))'
+              }}
             >
               {footer}
             </div>
@@ -342,7 +360,7 @@ export const Modal: React.FC<ModalProps> = ({
 };
 
 /**
- * Componente helper para el footer del modal con botones alineados
+ * Componente helper para el footer del modal
  */
 interface ModalFooterProps {
   children: React.ReactNode;

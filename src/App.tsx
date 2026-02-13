@@ -29,6 +29,8 @@ import { Expectativas } from './pages/Expectativas/Expectativas';
 import { Maestros } from './pages/Maestros/Maestros';
 import { Usuarios } from './pages/Usuarios/Usuarios';
 import { Auditoria } from './pages/Auditoria/Auditoria';
+import { Contabilidad } from './pages/Contabilidad/Contabilidad';
+import { ProductosIntel } from './pages/ProductosIntel/ProductosIntel';
 
 // Utilidades
 import { MigracionProductos } from './pages/Migracion/MigracionProductos';
@@ -109,6 +111,7 @@ function App() {
 
             {/* Inventario */}
             <Route path="productos" element={<Productos />} />
+            <Route path="productos-intel" element={<ProductosIntel />} />
             <Route path="inventario" element={<Inventario />} />
             <Route path="almacenes" element={<Almacenes />} />
             <Route path="transferencias" element={<Transferencias />} />
@@ -123,6 +126,7 @@ function App() {
             {/* Finanzas */}
             <Route path="gastos" element={<Gastos />} />
             <Route path="tesoreria" element={<Tesoreria />} />
+            <Route path="contabilidad" element={<Contabilidad />} />
             <Route path="tipo-cambio" element={<TipoCambio />} />
             <Route path="ctru" element={<CTRUDashboard />} />
             <Route path="expectativas" element={<Expectativas />} />

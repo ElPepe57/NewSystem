@@ -48,6 +48,19 @@ interface OrdenCompraState {
     unidadesDisponibles: string[];
     cotizacionVinculada?: string;
   }>;
+  recibirOrdenParcial: (
+    id: string,
+    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
+    userId: string,
+    observaciones?: string
+  ) => Promise<{
+    recepcionId: string;
+    unidadesGeneradas: string[];
+    unidadesReservadas: string[];
+    unidadesDisponibles: string[];
+    esRecepcionFinal: boolean;
+    cotizacionVinculada?: string;
+  }>;
   deleteOrden: (id: string) => Promise<void>;
   fetchStats: () => Promise<void>;
   setSelectedOrden: (orden: OrdenCompra | null) => void;
@@ -240,7 +253,22 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
       throw error;
     }
   },
-  
+
+  recibirOrdenParcial: async (id, productosRecibidos, userId, observaciones) => {
+    set({ loading: true, error: null });
+    try {
+      const resultado = await OrdenCompraService.recibirOrdenParcial(id, productosRecibidos, userId, observaciones);
+      await get().fetchOrdenes();
+      await get().fetchStats();
+
+      set({ loading: false });
+      return resultado;
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
   deleteOrden: async (id: string) => {
     set({ loading: true, error: null });
     try {

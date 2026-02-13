@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import {
   X,
   Shield,
@@ -24,6 +24,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { Button, Card, Badge } from '../../common';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
 import type { Competidor, PlataformaCompetidor, ReputacionCompetidor } from '../../../types/entidadesMaestras.types';
 
 interface CompetidorDetalleProps {
@@ -58,6 +59,18 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
   onEdit
 }) => {
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   // Calcular nivel de amenaza basado en metricas
   const getNivelAmenazaColor = (nivel: string) => {
@@ -310,10 +323,25 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                   <div className="space-y-3 text-sm">
                     <div>
                       <span className="text-gray-500 block mb-1">Plataforma Principal:</span>
-                      <Badge variant="info">{plataformaLabels[competidor.plataformaPrincipal]}</Badge>
+                      <Badge variant="info">{plataformaLabels[competidor.plataformaPrincipal || 'otra']}</Badge>
                     </div>
 
-                    {competidor.plataformas && competidor.plataformas.length > 1 && (
+                    {/* Nuevo sistema: plataformasData */}
+                    {competidor.plataformasData && competidor.plataformasData.length > 0 && (
+                      <div>
+                        <span className="text-gray-500 block mb-1">Plataformas:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {competidor.plataformasData.map((plat) => (
+                            <Badge key={plat.id} variant={plat.esPrincipal ? 'info' : 'default'} size="sm">
+                              {plat.nombre}{plat.esPrincipal ? ' ⭐' : ''}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fallback: legacy plataformas */}
+                    {(!competidor.plataformasData || competidor.plataformasData.length === 0) && competidor.plataformas && competidor.plataformas.length > 1 && (
                       <div>
                         <span className="text-gray-500 block mb-1">Otras Plataformas:</span>
                         <div className="flex flex-wrap gap-1">
@@ -321,7 +349,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                             .filter(p => p !== competidor.plataformaPrincipal)
                             .map((plat, idx) => (
                               <Badge key={idx} variant="default" size="sm">
-                                {plataformaLabels[plat]}
+                                {plat ? plataformaLabels[plat] || plat : 'otra'}
                               </Badge>
                             ))}
                         </div>

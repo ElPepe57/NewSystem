@@ -23,6 +23,8 @@ export interface TabsProps {
   size?: 'sm' | 'md' | 'lg';
   /** Ocupar todo el ancho disponible */
   fullWidth?: boolean;
+  /** Habilitar scroll horizontal en móvil */
+  scrollable?: boolean;
   /** Clases adicionales */
   className?: string;
 }
@@ -115,9 +117,12 @@ export const Tabs: React.FC<TabsProps> = ({
   variant = 'underline',
   size = 'md',
   fullWidth = false,
+  scrollable = true,
   className = ''
 }) => {
   const styles = variantStyles[variant];
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const activeTabRef = useRef<HTMLButtonElement>(null);
 
   const handleClick = useCallback(
     (tab: Tab) => {
@@ -128,11 +133,28 @@ export const Tabs: React.FC<TabsProps> = ({
     [onChange]
   );
 
+  // Auto-scroll al tab activo cuando cambia
+  useEffect(() => {
+    if (scrollable && activeTabRef.current && tabsRef.current) {
+      const container = tabsRef.current;
+      const activeButton = activeTabRef.current;
+      const containerRect = container.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
+
+      // Verificar si el botón está fuera del área visible
+      if (buttonRect.left < containerRect.left || buttonRect.right > containerRect.right) {
+        activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [activeTab, scrollable]);
+
   return (
     <div
+      ref={tabsRef}
       className={`
         ${styles.container}
         ${fullWidth ? 'flex' : 'inline-flex'}
+        ${scrollable ? 'overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0' : ''}
         ${className}
       `}
       role="tablist"
@@ -144,6 +166,7 @@ export const Tabs: React.FC<TabsProps> = ({
         return (
           <button
             key={tab.id}
+            ref={isActive ? activeTabRef : undefined}
             id={`tab-${tab.id}`}
             type="button"
             role="tab"
@@ -158,6 +181,7 @@ export const Tabs: React.FC<TabsProps> = ({
               ${isDisabled ? styles.tab.disabled : ''}
               ${sizeStyles[size]}
               ${fullWidth ? 'flex-1' : ''}
+              ${scrollable ? 'whitespace-nowrap flex-shrink-0' : ''}
               flex items-center justify-center gap-2
             `}
           >

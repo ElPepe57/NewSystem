@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useLayoutEffect } from 'react';
+import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import type { Marca } from '../../types/entidadesMaestras.types';
 import { marcaAnalyticsService, type MarcaAnalytics, type ProductoMarcaMetrics } from '../../services/marca.analytics.service';
 
@@ -16,6 +17,18 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
   const [loading, setLoading] = useState(true);
   const [ordenProductos, setOrdenProductos] = useState<'ventas' | 'stock' | 'margen' | 'nombre'>('ventas');
   const [filtroProducto, setFiltroProducto] = useState('');
+
+  // Registrar modal abierto
+  useLayoutEffect(() => {
+    registerModalOpen();
+    document.body.setAttribute('data-modal-open', 'true');
+    return () => {
+      unregisterModalOpen();
+      if (getModalCount() === 0) {
+        document.body.removeAttribute('data-modal-open');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     loadAnalytics();

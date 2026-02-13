@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Wallet,
@@ -20,7 +20,9 @@ import {
   XCircle,
   Trash2,
   MoreVertical,
-  ExternalLink
+  ExternalLink,
+  ArrowLeftRight,
+  CreditCard
 } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { TesoreriaService } from '../../services/tesoreria.service';
@@ -37,10 +39,29 @@ import type {
   TipoMovimientoTesoreria,
   MonedaTesoreria,
   DashboardCuentasPendientes,
-  PendienteFinanciero
+  PendienteFinanciero,
+  TransferenciaEntreCuentasFormData
 } from '../../types/tesoreria.types';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 
-type TabActiva = 'movimientos' | 'conversiones' | 'cuentas' | 'pendientes';
+type TabActiva = 'movimientos' | 'conversiones' | 'transferencias' | 'cuentas' | 'pendientes';
+
+// Interface para transferencia entre cuentas (para el historial)
+interface TransferenciaEntreCuentas {
+  id: string;
+  fecha: Date;
+  cuentaOrigenId: string;
+  cuentaOrigenNombre: string;
+  cuentaDestinoId: string;
+  cuentaDestinoNombre: string;
+  monto: number;
+  moneda: MonedaTesoreria;
+  concepto?: string;
+  creadoPor: string;
+  creadoEn: Date;
+}
 
 export const Tesoreria: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -53,6 +74,7 @@ export const Tesoreria: React.FC = () => {
   // Data
   const [movimientos, setMovimientos] = useState<MovimientoTesoreria[]>([]);
   const [conversiones, setConversiones] = useState<ConversionCambiaria[]>([]);
+  const [transferencias, setTransferencias] = useState<TransferenciaEntreCuentas[]>([]);
   const [cuentas, setCuentas] = useState<CuentaCaja[]>([]);
   const [stats, setStats] = useState<TesoreriaStats | null>(null);
   const [dashboardPendientes, setDashboardPendientes] = useState<DashboardCuentasPendientes | null>(null);
@@ -61,6 +83,7 @@ export const Tesoreria: React.FC = () => {
   // Modales
   const [isMovimientoModalOpen, setIsMovimientoModalOpen] = useState(false);
   const [isConversionModalOpen, setIsConversionModalOpen] = useState(false);
+  const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] = useState(false);
   const [isCuentaModalOpen, setIsCuentaModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -92,6 +115,11 @@ export const Tesoreria: React.FC = () => {
     saldoInicialUSD: 0,
     saldoInicialPEN: 0
   });
+  const [transferenciaForm, setTransferenciaForm] = useState<Partial<TransferenciaEntreCuentasFormData>>({
+    moneda: 'PEN',
+    fecha: new Date(),
+    tipoCambio: 3.70
+  });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isRecalculando, setIsRecalculando] = useState(false);
@@ -108,6 +136,13 @@ export const Tesoreria: React.FC = () => {
       setStatsOptimizadas(!!stats);
     });
   }, []);
+
+  // Cargar transferencias cuando cambian los movimientos o cuentas
+  useEffect(() => {
+    if (movimientos.length > 0 && cuentas.length > 0) {
+      loadTransferencias();
+    }
+  }, [movimientos, cuentas]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -174,6 +209,45 @@ export const Tesoreria: React.FC = () => {
     }
   };
 
+  const loadTransferencias = async () => {
+    try {
+      // Filtrar movimientos de tipo transferencia_interna que tienen ambas cuentas
+      const movsTrans = movimientos.filter(m =>
+        m.tipo === 'transferencia_interna' &&
+        m.cuentaOrigen &&
+        m.cuentaDestino
+      );
+
+      // Crear registros de transferencia (cada movimiento ya tiene origen y destino)
+      const transArray: TransferenciaEntreCuentas[] = movsTrans.map(mov => {
+        const cuentaOrigenData = cuentas.find(c => c.id === mov.cuentaOrigen);
+        const cuentaDestinoData = cuentas.find(c => c.id === mov.cuentaDestino);
+        const fechaDate = mov.fecha.toDate();
+
+        return {
+          id: mov.id,
+          fecha: fechaDate,
+          cuentaOrigenId: mov.cuentaOrigen || '',
+          cuentaOrigenNombre: cuentaOrigenData?.nombre || 'Cuenta desconocida',
+          cuentaDestinoId: mov.cuentaDestino || '',
+          cuentaDestinoNombre: cuentaDestinoData?.nombre || 'Cuenta desconocida',
+          monto: mov.monto,
+          moneda: mov.moneda,
+          concepto: mov.concepto?.replace('Transferencia entre cuentas: ', '') || '',
+          creadoPor: mov.creadoPor,
+          creadoEn: mov.fechaCreacion.toDate()
+        };
+      });
+
+      // Ordenar por fecha descendente
+      transArray.sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
+
+      setTransferencias(transArray);
+    } catch (error) {
+      console.error('Error al cargar transferencias:', error);
+    }
+  };
+
   // Handlers
   const handleCrearMovimiento = async () => {
     if (!user || !movimientoForm.monto || !movimientoForm.tipo) return;
@@ -216,7 +290,9 @@ export const Tesoreria: React.FC = () => {
       referencia: mov.referencia,
       notas: mov.notas,
       fecha: mov.fecha.toDate ? mov.fecha.toDate() : new Date(mov.fecha as any),
-      metodo: mov.metodo
+      metodo: mov.metodo,
+      cuentaOrigen: mov.cuentaOrigen,
+      cuentaDestino: mov.cuentaDestino
     });
     setIsMovimientoModalOpen(true);
   };
@@ -347,6 +423,39 @@ export const Tesoreria: React.FC = () => {
     }
   };
 
+  const handleCrearTransferencia = async () => {
+    if (!user || !transferenciaForm.monto || !transferenciaForm.cuentaOrigenId || !transferenciaForm.cuentaDestinoId) return;
+
+    setIsSubmitting(true);
+    try {
+      await TesoreriaService.transferirEntreCuentas(
+        {
+          ...transferenciaForm,
+          fecha: transferenciaForm.fecha || new Date(),
+          tipoCambio: transferenciaForm.tipoCambio || 3.70,
+          moneda: transferenciaForm.moneda || 'PEN',
+          monto: transferenciaForm.monto,
+          cuentaOrigenId: transferenciaForm.cuentaOrigenId,
+          cuentaDestinoId: transferenciaForm.cuentaDestinoId
+        } as TransferenciaEntreCuentasFormData,
+        user.uid
+      );
+      setIsTransferenciaModalOpen(false);
+      setTransferenciaForm({
+        moneda: 'PEN',
+        fecha: new Date(),
+        tipoCambio: 3.70
+      });
+      // Recargar datos y cargar historial de transferencias
+      await loadData();
+      await loadTransferencias();
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleCrearCuenta = async () => {
     if (!user || !cuentaForm.nombre || !cuentaForm.titular?.trim()) {
       alert('El nombre y el titular de la cuenta son obligatorios');
@@ -466,7 +575,7 @@ export const Tesoreria: React.FC = () => {
   };
 
   const esIngreso = (tipo: TipoMovimientoTesoreria): boolean => {
-    return ['ingreso_venta', 'ingreso_otro', 'ajuste_positivo'].includes(tipo);
+    return ['ingreso_venta', 'ingreso_anticipo', 'ingreso_otro', 'ajuste_positivo'].includes(tipo);
   };
 
   // Para conversiones, determinar si es ingreso basándose en cuentaDestino
@@ -478,6 +587,81 @@ export const Tesoreria: React.FC = () => {
     // Para otros tipos, usar la lógica normal
     return esIngreso(mov.tipo);
   };
+
+  // ============ Saldo Corrido por Movimiento ============
+  const saldosCorridos = useMemo(() => {
+    const balanceMap = new Map<string, number>();
+    const porCuenta: Record<string, MovimientoTesoreria[]> = {};
+
+    for (const mov of movimientos) {
+      if (mov.estado === 'anulado') continue;
+      const cuentaId = esIngresoMovimiento(mov) ? mov.cuentaDestino : mov.cuentaOrigen;
+      if (!cuentaId) continue;
+      if (!porCuenta[cuentaId]) porCuenta[cuentaId] = [];
+      porCuenta[cuentaId].push(mov);
+    }
+
+    Object.entries(porCuenta).forEach(([cuentaId, movsGrupo]) => {
+      const cuenta = cuentas.find(c => c.id === cuentaId);
+      if (!cuenta) return;
+      let saldo = cuenta.saldoPEN ?? cuenta.saldoActual ?? 0;
+
+      for (const mov of movsGrupo) {
+        balanceMap.set(mov.id, Number(saldo.toFixed(2)));
+        if (esIngresoMovimiento(mov)) {
+          saldo -= mov.monto;
+        } else {
+          saldo += mov.monto;
+        }
+      }
+    });
+
+    return balanceMap;
+  }, [movimientos, cuentas]);
+
+  // ============ Datos para Gráfica de Evolución ============
+  const chartEvolucionSaldo = useMemo(() => {
+    const movsOrdenados = [...movimientos]
+      .filter(m => m.estado !== 'anulado')
+      .reverse();
+
+    if (movsOrdenados.length === 0) return [];
+
+    // Calcular saldo PEN total actual
+    let saldoPEN = 0;
+    cuentas.filter(c => c.activa).forEach(c => {
+      saldoPEN += c.saldoPEN ?? c.saldoActual ?? 0;
+    });
+
+    // Retroceder: restar todos los movimientos PEN para obtener saldo inicial
+    movimientos.forEach(mov => {
+      if (mov.estado === 'anulado' || mov.moneda !== 'PEN') return;
+      if (esIngresoMovimiento(mov)) saldoPEN -= mov.monto;
+      else saldoPEN += mov.monto;
+    });
+
+    // Avanzar cronológicamente construyendo puntos
+    const puntos: { fecha: string; saldo: number }[] = [];
+    const fechaInicial = movsOrdenados[0].fecha?.toDate
+      ? movsOrdenados[0].fecha.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
+      : '';
+    puntos.push({ fecha: fechaInicial, saldo: Number(saldoPEN.toFixed(2)) });
+
+    for (const mov of movsOrdenados) {
+      if (mov.moneda !== 'PEN') continue;
+      if (esIngresoMovimiento(mov)) saldoPEN += mov.monto;
+      else saldoPEN -= mov.monto;
+
+      puntos.push({
+        fecha: mov.fecha?.toDate
+          ? mov.fecha.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
+          : '',
+        saldo: Number(saldoPEN.toFixed(2))
+      });
+    }
+
+    return puntos;
+  }, [movimientos, cuentas]);
 
   // Recalcular saldos de todas las cuentas basándose en los movimientos
   const handleRecalcularSaldos = async () => {
@@ -511,6 +695,7 @@ export const Tesoreria: React.FC = () => {
   const getTipoLabel = (tipo: TipoMovimientoTesoreria): string => {
     const labels: Record<TipoMovimientoTesoreria, string> = {
       'ingreso_venta': 'Venta',
+      'ingreso_anticipo': 'Anticipo',
       'ingreso_otro': 'Otro Ingreso',
       'pago_orden_compra': 'Pago OC',
       'pago_viajero': 'Pago Viajero',
@@ -520,7 +705,9 @@ export const Tesoreria: React.FC = () => {
       'conversion_usd_pen': 'Conv. USD→PEN',
       'ajuste_positivo': 'Ajuste +',
       'ajuste_negativo': 'Ajuste -',
-      'retiro_socio': 'Retiro Socio'
+      'retiro_socio': 'Retiro Socio',
+      'transferencia_interna': 'Transferencia',
+      'aporte_capital': 'Aporte Capital'
     };
     return labels[tipo] || tipo;
   };
@@ -528,14 +715,14 @@ export const Tesoreria: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Tesorería</h1>
-          <p className="text-gray-600 mt-1">
-            Gestión de caja, movimientos y conversiones de moneda
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Tesorería</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">
+            Gestión de caja, movimientos y conversiones
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           {!statsOptimizadas && (
             <Button
               variant="secondary"
@@ -547,12 +734,12 @@ export const Tesoreria: React.FC = () => {
               {isRecalculando ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
-                  Calculando...
+                  <span className="hidden sm:inline">Calculando...</span>
                 </>
               ) : (
                 <>
                   <TrendingUp className="h-4 w-4 mr-1" />
-                  Optimizar
+                  <span className="hidden sm:inline">Optimizar</span>
                 </>
               )}
             </Button>
@@ -653,7 +840,7 @@ export const Tesoreria: React.FC = () => {
           </div>
 
           {/* Fila 2: Métricas adicionales */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <Card padding="sm" className="bg-gray-50">
               <div className="text-xs text-gray-500 mb-1">Conversiones Mes</div>
               <div className="text-lg font-bold text-gray-800">
@@ -699,38 +886,52 @@ export const Tesoreria: React.FC = () => {
 
       {/* Tabs */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="-mb-px flex overflow-x-auto scrollbar-hide space-x-4 sm:space-x-8">
           <button
             onClick={() => setTabActiva('movimientos')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
               tabActiva === 'movimientos'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <Wallet className="h-5 w-5 inline mr-2" />
-            Movimientos
+            <Wallet className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Movimientos</span>
+            <span className="sm:hidden">Mov.</span>
           </button>
           <button
             onClick={() => setTabActiva('conversiones')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
               tabActiva === 'conversiones'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <RefreshCw className="h-5 w-5 inline mr-2" />
-            Conversiones
+            <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Conversiones</span>
+            <span className="sm:hidden">Conv.</span>
+          </button>
+          <button
+            onClick={() => setTabActiva('transferencias')}
+            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
+              tabActiva === 'transferencias'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <ArrowLeftRight className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Transferencias</span>
+            <span className="sm:hidden">Transf.</span>
           </button>
           <button
             onClick={() => setTabActiva('cuentas')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
               tabActiva === 'cuentas'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <Building2 className="h-5 w-5 inline mr-2" />
+            <Building2 className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
             Cuentas
           </button>
           <button
@@ -738,16 +939,16 @@ export const Tesoreria: React.FC = () => {
               setTabActiva('pendientes');
               if (!dashboardPendientes) loadPendientes();
             }}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
               tabActiva === 'pendientes'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <FileText className="h-5 w-5 inline mr-2" />
-            CxP / CxC
+            <FileText className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
+            CxP/CxC
             {dashboardPendientes && (dashboardPendientes.cuentasPorCobrar.cantidadDocumentos + dashboardPendientes.cuentasPorPagar.cantidadDocumentos) > 0 && (
-              <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-orange-100 text-orange-800">
+              <span className="ml-1 sm:ml-2 px-1.5 sm:px-2 py-0.5 text-xs rounded-full bg-orange-100 text-orange-800">
                 {dashboardPendientes.cuentasPorCobrar.cantidadDocumentos + dashboardPendientes.cuentasPorPagar.cantidadDocumentos}
               </span>
             )}
@@ -758,15 +959,45 @@ export const Tesoreria: React.FC = () => {
       {/* Contenido de Tab */}
       {tabActiva === 'movimientos' && (
         <Card padding="none">
-          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
               Movimientos ({movimientos.length})
             </h3>
-            <Button variant="primary" onClick={() => setIsMovimientoModalOpen(true)}>
-              <Plus className="h-5 w-5 mr-2" />
-              Nuevo Movimiento
+            <Button variant="primary" onClick={() => setIsMovimientoModalOpen(true)} className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <span className="sm:hidden">Nuevo</span>
+              <span className="hidden sm:inline">Nuevo Movimiento</span>
             </Button>
           </div>
+
+          {/* Gráfica Evolución de Saldo */}
+          {chartEvolucionSaldo.length > 1 && (
+            <div className="px-4 sm:px-6 pb-4">
+              <h4 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary-500" />
+                Evolución de Saldo (PEN)
+              </h4>
+              <div className="h-48 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartEvolucionSaldo}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="fecha" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                    <YAxis
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v: number) => v >= 1000 ? `S/${(v / 1000).toFixed(1)}K` : `S/${v}`}
+                      width={70}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => [`S/ ${value.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`, 'Saldo']}
+                      contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
+                    />
+                    <Line type="monotone" dataKey="saldo" stroke="#10B981" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -778,7 +1009,10 @@ export const Tesoreria: React.FC = () => {
                     Tipo
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Origen
+                    Doc.
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Cuenta
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Concepto
@@ -800,7 +1034,7 @@ export const Tesoreria: React.FC = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {movimientos.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
                       No hay movimientos registrados
                     </td>
                   </tr>
@@ -823,9 +1057,11 @@ export const Tesoreria: React.FC = () => {
                           <div className="flex flex-col gap-1">
                             <span
                               className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                                esIngresoMovimiento(mov)
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
+                                mov.tipo === 'ingreso_anticipo'
+                                  ? 'bg-purple-100 text-purple-800'
+                                  : esIngresoMovimiento(mov)
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-red-100 text-red-800'
                               }`}
                             >
                               {esIngresoMovimiento(mov) && <TrendingUp className="h-3 w-3 mr-1" />}
@@ -867,6 +1103,27 @@ export const Tesoreria: React.FC = () => {
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}
+                        </td>
+                        {/* Columna de Cuenta */}
+                        <td className="px-4 py-3 whitespace-nowrap text-sm">
+                          {(() => {
+                            const cuentaId = esIngresoMovimiento(mov) ? mov.cuentaDestino : mov.cuentaOrigen;
+                            const cuenta = cuentaId ? cuentas.find(c => c.id === cuentaId) : null;
+                            if (cuenta) {
+                              const saldoMomento = saldosCorridos.get(mov.id);
+                              return (
+                                <div className="flex flex-col">
+                                  <span className="font-medium text-gray-900 truncate max-w-[120px]" title={cuenta.nombre}>
+                                    {cuenta.nombre}
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    Saldo: {mov.moneda === 'USD' ? '$' : 'S/'}{(saldoMomento ?? 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                  </span>
+                                </div>
+                              );
+                            }
+                            return <span className="text-gray-400">-</span>;
+                          })()}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate" title={mov.concepto}>
                           {mov.concepto || '-'}
@@ -926,13 +1183,14 @@ export const Tesoreria: React.FC = () => {
 
       {tabActiva === 'conversiones' && (
         <Card padding="none">
-          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Conversiones de Moneda ({conversiones.length})
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+              Conversiones ({conversiones.length})
             </h3>
-            <Button variant="primary" onClick={() => setIsConversionModalOpen(true)}>
-              <Plus className="h-5 w-5 mr-2" />
-              Nueva Conversión
+            <Button variant="primary" onClick={() => setIsConversionModalOpen(true)} className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <span className="sm:hidden">Nueva</span>
+              <span className="hidden sm:inline">Nueva Conversión</span>
             </Button>
           </div>
           <div className="overflow-x-auto">
@@ -1011,109 +1269,259 @@ export const Tesoreria: React.FC = () => {
         </Card>
       )}
 
+      {/* Tab de Transferencias entre Cuentas */}
+      {tabActiva === 'transferencias' && (
+        <Card padding="none">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                Transferencias entre Cuentas
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1 hidden sm:block">
+                Mueve fondos entre tus propias cuentas sin afectar el patrimonio
+              </p>
+            </div>
+            <Button variant="primary" onClick={() => setIsTransferenciaModalOpen(true)} className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <span className="sm:hidden">Nueva</span>
+              <span className="hidden sm:inline">Nueva Transferencia</span>
+            </Button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Fecha
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Cuenta Origen
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    →
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Cuenta Destino
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Monto
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Concepto
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {transferencias.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                      <ArrowLeftRight className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                      <p className="font-medium">No hay transferencias registradas</p>
+                      <p className="text-sm mt-1">Las transferencias entre cuentas se mostrarán aquí</p>
+                    </td>
+                  </tr>
+                ) : (
+                  transferencias.map((transf) => (
+                    <tr key={transf.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(transf.fecha)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="font-medium text-gray-900">{transf.cuentaOrigenNombre}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <ArrowLeftRight className="h-4 w-4 text-gray-400 inline" />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="font-medium text-gray-900">{transf.cuentaDestinoNombre}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
+                        {transf.moneda === 'PEN' ? 'S/ ' : '$ '}
+                        {transf.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {transf.concepto || '-'}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
       {tabActiva === 'cuentas' && (
         <Card padding="none">
-          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
               Cuentas de Caja ({cuentas.length})
             </h3>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 onClick={handleRecalcularSaldos}
                 disabled={isSubmitting || cuentas.length === 0}
                 title="Recalcular saldos basándose en los movimientos registrados"
+                className="flex-1 sm:flex-none"
               >
-                <RefreshCw className={`h-5 w-5 mr-2 ${isSubmitting ? 'animate-spin' : ''}`} />
-                Recalcular Saldos
+                <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 ${isSubmitting ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Recalcular</span>
               </Button>
-              <Button variant="primary" onClick={() => setIsCuentaModalOpen(true)}>
-                <Plus className="h-5 w-5 mr-2" />
-                Nueva Cuenta
+              <Button variant="primary" onClick={() => setIsCuentaModalOpen(true)} className="flex-1 sm:flex-none">
+                <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                <span className="sm:hidden">Nueva</span>
+                <span className="hidden sm:inline">Nueva Cuenta</span>
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
-            {cuentas.length === 0 ? (
-              <div className="col-span-full text-center text-gray-500 py-8">
-                No hay cuentas registradas
-              </div>
-            ) : (
-              cuentas.map((cuenta) => (
-                <Card key={cuenta.id} padding="md" className="border border-gray-200 relative group">
-                  {/* Botón de editar */}
-                  <button
-                    onClick={() => handleEditarCuenta(cuenta)}
-                    className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Editar cuenta"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </button>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      {cuenta.tipo === 'efectivo' && <Banknote className="h-6 w-6 text-green-500 mr-2" />}
-                      {cuenta.tipo === 'banco' && <Building2 className="h-6 w-6 text-blue-500 mr-2" />}
-                      {cuenta.tipo === 'digital' && <Wallet className="h-6 w-6 text-purple-500 mr-2" />}
-                      <div>
-                        <h4 className="font-medium text-gray-900">{cuenta.nombre}</h4>
-                        <p className="text-xs text-gray-500">{cuenta.tipo}</p>
-                      </div>
-                    </div>
-                    {cuenta.esBiMoneda ? (
-                      <span className="px-2 py-1 rounded text-xs font-medium bg-gradient-to-r from-green-100 to-blue-100 text-gray-800 border border-gray-200">
-                        BI-MONEDA
-                      </span>
-                    ) : (
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          cuenta.moneda === 'PEN'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}
+          {cuentas.length === 0 ? (
+            <div className="text-center text-gray-500 py-8 px-6">
+              No hay cuentas registradas
+            </div>
+          ) : (
+            <>
+              {/* === CUENTAS DE CAJA (Activos) === */}
+              <div className="p-4 sm:p-6">
+                <h4 className="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Wallet className="h-4 w-4" />
+                  Cuentas de Caja
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {cuentas.filter(c => c.tipo !== 'credito').map((cuenta) => (
+                    <Card key={cuenta.id} padding="md" className="border border-gray-200 relative group">
+                      <button
+                        onClick={() => handleEditarCuenta(cuenta)}
+                        className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Editar cuenta"
                       >
-                        {cuenta.moneda}
-                      </span>
-                    )}
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center">
+                          {cuenta.tipo === 'efectivo' && <Banknote className="h-6 w-6 text-green-500 mr-2" />}
+                          {cuenta.tipo === 'banco' && <Building2 className="h-6 w-6 text-blue-500 mr-2" />}
+                          {cuenta.tipo === 'digital' && <Wallet className="h-6 w-6 text-purple-500 mr-2" />}
+                          <div>
+                            <h4 className="font-medium text-gray-900">{cuenta.nombre}</h4>
+                            <p className="text-xs text-gray-500">{cuenta.tipo}</p>
+                          </div>
+                        </div>
+                        {cuenta.esBiMoneda ? (
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-gradient-to-r from-green-100 to-blue-100 text-gray-800 border border-gray-200">
+                            BI-MONEDA
+                          </span>
+                        ) : (
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            cuenta.moneda === 'PEN' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {cuenta.moneda}
+                          </span>
+                        )}
+                      </div>
+                      {cuenta.esBiMoneda ? (
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-500">Saldo PEN:</span>
+                            <span className="text-lg font-bold text-green-600">
+                              S/ {(cuenta.saldoPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-500">Saldo USD:</span>
+                            <span className="text-lg font-bold text-blue-600">
+                              $ {(cuenta.saldoUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-2xl font-bold text-gray-900">
+                          {cuenta.moneda === 'PEN' ? 'S/ ' : '$ '}
+                          {cuenta.saldoActual.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                        </div>
+                      )}
+                      {cuenta.titular && (
+                        <div className="flex items-center text-sm text-gray-600 mt-2">
+                          <User className="h-4 w-4 mr-1 text-gray-400" />
+                          <span>{cuenta.titular}</span>
+                        </div>
+                      )}
+                      {cuenta.banco && (
+                        <p className="text-sm text-gray-500 mt-1">{cuenta.banco}</p>
+                      )}
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              {/* === CUENTAS DE CRÉDITO (Deudas) === */}
+              {cuentas.some(c => c.tipo === 'credito') && (
+                <div className="p-4 sm:p-6 border-t border-red-200 bg-red-50/30">
+                  <h4 className="text-sm font-semibold text-red-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    Líneas de Crédito / Deudas
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {cuentas.filter(c => c.tipo === 'credito').map((cuenta) => (
+                      <Card key={cuenta.id} padding="md" className="border border-red-200 bg-white relative group">
+                        <button
+                          onClick={() => handleEditarCuenta(cuenta)}
+                          className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Editar cuenta"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center">
+                            <CreditCard className="h-6 w-6 text-red-500 mr-2" />
+                            <div>
+                              <h4 className="font-medium text-gray-900">{cuenta.nombre}</h4>
+                              <p className="text-xs text-red-500">crédito</p>
+                            </div>
+                          </div>
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-700">
+                            CRÉDITO
+                          </span>
+                        </div>
+                        {/* Saldo: negativo = deuda */}
+                        {cuenta.esBiMoneda ? (
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-500">PEN:</span>
+                              <span className={`text-lg font-bold ${(cuenta.saldoPEN || 0) < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                                {(cuenta.saldoPEN || 0) < 0 ? 'Deuda: ' : ''}S/ {Math.abs(cuenta.saldoPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-500">USD:</span>
+                              <span className={`text-lg font-bold ${(cuenta.saldoUSD || 0) < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                                {(cuenta.saldoUSD || 0) < 0 ? 'Deuda: ' : ''}$ {Math.abs(cuenta.saldoUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className={`text-2xl font-bold ${cuenta.saldoActual < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                            {cuenta.saldoActual < 0 ? 'Deuda: ' : ''}
+                            {cuenta.moneda === 'PEN' ? 'S/ ' : '$ '}
+                            {Math.abs(cuenta.saldoActual).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                          </div>
+                        )}
+                        {cuenta.titular && (
+                          <div className="flex items-center text-sm text-gray-600 mt-2">
+                            <User className="h-4 w-4 mr-1 text-gray-400" />
+                            <span>{cuenta.titular}</span>
+                          </div>
+                        )}
+                        {cuenta.banco && (
+                          <p className="text-sm text-gray-500 mt-1">{cuenta.banco}</p>
+                        )}
+                      </Card>
+                    ))}
                   </div>
-
-                  {/* Saldos */}
-                  {cuenta.esBiMoneda ? (
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">Saldo PEN:</span>
-                        <span className="text-lg font-bold text-green-600">
-                          S/ {(cuenta.saldoPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">Saldo USD:</span>
-                        <span className="text-lg font-bold text-blue-600">
-                          $ {(cuenta.saldoUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-2xl font-bold text-gray-900">
-                      {cuenta.moneda === 'PEN' ? 'S/ ' : '$ '}
-                      {cuenta.saldoActual.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                    </div>
-                  )}
-
-                  {/* Titular de la cuenta */}
-                  {cuenta.titular && (
-                    <div className="flex items-center text-sm text-gray-600 mt-2">
-                      <User className="h-4 w-4 mr-1 text-gray-400" />
-                      <span>{cuenta.titular}</span>
-                    </div>
-                  )}
-                  {cuenta.banco && (
-                    <p className="text-sm text-gray-500 mt-1">{cuenta.banco}</p>
-                  )}
-                </Card>
-              ))
-            )}
-          </div>
+                </div>
+              )}
+            </>
+          )}
         </Card>
       )}
 
@@ -1167,7 +1575,7 @@ export const Tesoreria: React.FC = () => {
                 <Card padding="md" className={`border-l-4 ${dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? 'border-l-blue-500' : 'border-l-orange-500'}`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm text-gray-600">Flujo Neto Proyectado</div>
+                      <div className="text-sm text-gray-600">Flujo Neto (CxC - CxP)</div>
                       <div className={`text-2xl font-bold mt-1 ${dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                         {dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? '+' : ''}
                         S/ {dashboardPendientes.balanceNeto.flujoNetoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
@@ -1184,6 +1592,112 @@ export const Tesoreria: React.FC = () => {
                   </div>
                 </Card>
               </div>
+
+              {/* Flujo de Caja Proyectado Mejorado */}
+              {dashboardPendientes.flujoCajaProyectado && (
+                <Card padding="md" className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200">
+                  <h3 className="font-semibold text-indigo-800 mb-4 flex items-center">
+                    <TrendingUp className="h-5 w-5 mr-2" />
+                    Flujo de Caja Proyectado Completo
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* Saldo Actual */}
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <div className="text-xs text-gray-500 uppercase">Saldo Actual en Cuentas</div>
+                      <div className="text-lg font-bold text-gray-900 mt-1">
+                        S/ {dashboardPendientes.flujoCajaProyectado.saldoActualPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                      </div>
+                      {dashboardPendientes.flujoCajaProyectado.saldoActualUSD > 0 && (
+                        <div className="text-xs text-gray-500">
+                          + $ {dashboardPendientes.flujoCajaProyectado.saldoActualUSD.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Ingresos del Mes */}
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <div className="text-xs text-gray-500 uppercase">Cobrado este Mes</div>
+                      <div className="text-lg font-bold text-green-600 mt-1">
+                        + S/ {dashboardPendientes.flujoCajaProyectado.ingresosCobradosMesPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                      </div>
+                      {dashboardPendientes.flujoCajaProyectado.ingresosCobradosMesUSD > 0 && (
+                        <div className="text-xs text-green-500">
+                          + $ {dashboardPendientes.flujoCajaProyectado.ingresosCobradosMesUSD.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Egresos del Mes */}
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <div className="text-xs text-gray-500 uppercase">Pagado este Mes</div>
+                      <div className="text-lg font-bold text-red-600 mt-1">
+                        - S/ {dashboardPendientes.flujoCajaProyectado.egresosPagadosMesPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                      </div>
+                      {dashboardPendientes.flujoCajaProyectado.egresosPagadosMesUSD > 0 && (
+                        <div className="text-xs text-red-500">
+                          - $ {dashboardPendientes.flujoCajaProyectado.egresosPagadosMesUSD.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Flujo Neto Proyectado Total */}
+                    <div className={`rounded-lg p-3 shadow-sm ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'bg-blue-100' : 'bg-orange-100'}`}>
+                      <div className="text-xs text-gray-600 uppercase">Proyección Total</div>
+                      <div className={`text-lg font-bold mt-1 ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
+                        S/ {dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className={`text-sm font-semibold mt-1 ${dashboardPendientes.flujoCajaProyectado.rentabilidadProyectada >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {dashboardPendientes.flujoCajaProyectado.rentabilidadProyectada >= 0 ? '+' : ''}{dashboardPendientes.flujoCajaProyectado.rentabilidadProyectada.toFixed(1)}% s/inversión
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Proyección de Ingresos Futuros */}
+                  {(dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.cotizacionesPendientes > 0 ||
+                    dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.expectativasActivas > 0 ||
+                    dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.inventarioDisponibleValor > 0) && (
+                    <div className="mt-4 pt-4 border-t border-indigo-200">
+                      <div className="text-xs text-indigo-600 font-medium mb-2">Proyección de Ingresos Futuros (potencial)</div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                        <div className="bg-white/50 rounded px-3 py-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-600">Cotizaciones pendientes</span>
+                            <span className="text-xs text-indigo-500 font-medium">40%</span>
+                          </div>
+                          <div className="font-bold text-gray-900 mt-1">
+                            S/ {dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.cotizacionesPendientes.toLocaleString('es-PE', { minimumFractionDigits: 0 })}
+                          </div>
+                        </div>
+                        <div className="bg-white/50 rounded px-3 py-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-600">Requerimientos activos</span>
+                            <span className="text-xs text-indigo-500 font-medium">30%</span>
+                          </div>
+                          <div className="font-bold text-gray-900 mt-1">
+                            S/ {dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.expectativasActivas.toLocaleString('es-PE', { minimumFractionDigits: 0 })}
+                          </div>
+                        </div>
+                        <div className="bg-green-50 rounded px-3 py-2 border border-green-200">
+                          <div className="flex items-center justify-between">
+                            <span className="text-green-700">Inventario por vender</span>
+                            <span className="text-xs text-green-600 font-medium">100%</span>
+                          </div>
+                          <div className="font-bold text-green-700 mt-1">
+                            S/ {dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.inventarioDisponibleValor.toLocaleString('es-PE', { minimumFractionDigits: 0 })}
+                          </div>
+                          <div className="text-xs text-green-600 mt-1">
+                            (costo + flete) × TC × 1.3
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3 text-xs text-gray-500 bg-white/30 rounded p-2">
+                        <strong>Nota:</strong> Cotizaciones y requerimientos usan factor de probabilidad.
+                        El inventario usa 100% porque ya incluye el margen de venta (30%).
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              )}
 
               {/* Alertas */}
               {dashboardPendientes.alertas.length > 0 && (
@@ -1436,7 +1950,9 @@ export const Tesoreria: React.FC = () => {
               >
                 <optgroup label="Ingresos">
                   <option value="ingreso_venta">Ingreso por Venta</option>
+                  <option value="ingreso_anticipo">Anticipo / Adelanto</option>
                   <option value="ingreso_otro">Otro Ingreso</option>
+                  <option value="aporte_capital">Aporte de Capital (Socio)</option>
                   <option value="ajuste_positivo">Ajuste Positivo</option>
                 </optgroup>
                 <optgroup label="Egresos">
@@ -1529,34 +2045,94 @@ export const Tesoreria: React.FC = () => {
             />
           </div>
 
-          {/* Mostrar información adicional cuando se edita */}
+          {/* Selector de cuenta origen/destino cuando se edita */}
           {movimientoEditando && (
-            <div className="bg-gray-50 rounded-lg p-3 text-sm">
-              <div className="grid grid-cols-2 gap-2 text-gray-600">
-                {movimientoEditando.cuentaOrigen && (
-                  <div>
-                    <span className="font-medium">Cuenta origen:</span> {movimientoEditando.cuentaOrigen}
-                  </div>
-                )}
-                {movimientoEditando.cuentaDestino && (
-                  <div>
-                    <span className="font-medium">Cuenta destino:</span> {movimientoEditando.cuentaDestino}
-                  </div>
-                )}
-                {movimientoEditando.ordenCompraNumero && (
-                  <div>
-                    <span className="font-medium">OC:</span> {movimientoEditando.ordenCompraNumero}
-                  </div>
-                )}
-                {movimientoEditando.ventaNumero && (
-                  <div>
-                    <span className="font-medium">Venta:</span> {movimientoEditando.ventaNumero}
-                  </div>
-                )}
+            <div className="space-y-4 pt-2 border-t border-gray-200">
+              <h4 className="text-sm font-medium text-gray-700">Cuenta asociada</h4>
+
+              {/* Selector de cuenta origen (para egresos) */}
+              {!esIngresoMovimiento(movimientoEditando) && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Cuenta origen (de donde sale el dinero)
+                  </label>
+                  <select
+                    value={movimientoForm.cuentaOrigen || ''}
+                    onChange={(e) =>
+                      setMovimientoForm({ ...movimientoForm, cuentaOrigen: e.target.value || undefined })
+                    }
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  >
+                    <option value="">Sin cuenta asociada</option>
+                    {cuentas
+                      .filter(c => c.activa && (c.esBiMoneda || c.moneda === movimientoForm.moneda))
+                      .map(cuenta => {
+                        const saldoActual = cuenta.esBiMoneda
+                          ? (movimientoForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
+                          : cuenta.saldoActual;
+                        return (
+                          <option key={cuenta.id} value={cuenta.id}>
+                            {cuenta.nombre} - Saldo: {movimientoForm.moneda === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
+                          </option>
+                        );
+                      })}
+                  </select>
+                </div>
+              )}
+
+              {/* Selector de cuenta destino (para ingresos) */}
+              {esIngresoMovimiento(movimientoEditando) && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Cuenta destino (donde entra el dinero)
+                  </label>
+                  <select
+                    value={movimientoForm.cuentaDestino || ''}
+                    onChange={(e) =>
+                      setMovimientoForm({ ...movimientoForm, cuentaDestino: e.target.value || undefined })
+                    }
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  >
+                    <option value="">Sin cuenta asociada</option>
+                    {cuentas
+                      .filter(c => c.activa && (c.esBiMoneda || c.moneda === movimientoForm.moneda))
+                      .map(cuenta => {
+                        const saldoActual = cuenta.esBiMoneda
+                          ? (movimientoForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
+                          : cuenta.saldoActual;
+                        return (
+                          <option key={cuenta.id} value={cuenta.id}>
+                            {cuenta.nombre} - Saldo: {movimientoForm.moneda === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
+                          </option>
+                        );
+                      })}
+                  </select>
+                </div>
+              )}
+
+              {/* Info de documentos relacionados */}
+              <div className="bg-gray-50 rounded-lg p-3 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-gray-600">
+                  {movimientoEditando.ordenCompraNumero && (
+                    <div>
+                      <span className="font-medium">OC:</span> {movimientoEditando.ordenCompraNumero}
+                    </div>
+                  )}
+                  {movimientoEditando.ventaNumero && (
+                    <div>
+                      <span className="font-medium">Venta:</span> {movimientoEditando.ventaNumero}
+                    </div>
+                  )}
+                  {movimientoEditando.gastoNumero && (
+                    <div>
+                      <span className="font-medium">Gasto:</span> {movimientoEditando.gastoNumero}
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-orange-600 mt-2">
+                  * Al cambiar cuenta/monto/moneda se ajustarán automáticamente los saldos
+                </p>
               </div>
-              <p className="text-xs text-orange-600 mt-2">
-                * Al editar monto/moneda se ajustarán automáticamente los saldos de las cuentas asociadas
-              </p>
             </div>
           )}
 
@@ -1820,6 +2396,194 @@ export const Tesoreria: React.FC = () => {
         </div>
       </Modal>
 
+      {/* Modal Transferencia entre Cuentas */}
+      <Modal
+        isOpen={isTransferenciaModalOpen}
+        onClose={() => {
+          setIsTransferenciaModalOpen(false);
+          setTransferenciaForm({
+            moneda: 'PEN',
+            fecha: new Date(),
+            tipoCambio: 3.70
+          });
+        }}
+        title="Transferencia entre Cuentas"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p className="text-sm text-blue-800">
+              <strong>Nota:</strong> Esta operación mueve fondos entre tus propias cuentas.
+              No afecta el patrimonio ni se registra como ingreso/egreso.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Moneda
+              </label>
+              <select
+                value={transferenciaForm.moneda}
+                onChange={(e) =>
+                  setTransferenciaForm({
+                    ...transferenciaForm,
+                    moneda: e.target.value as MonedaTesoreria,
+                    cuentaOrigenId: undefined,
+                    cuentaDestinoId: undefined
+                  })
+                }
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              >
+                <option value="PEN">PEN (Soles)</option>
+                <option value="USD">USD (Dólares)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Monto a Transferir
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={transferenciaForm.monto || ''}
+                onChange={(e) =>
+                  setTransferenciaForm({ ...transferenciaForm, monto: parseFloat(e.target.value) })
+                }
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <ArrowUpCircle className="inline h-4 w-4 mr-1 text-red-500" />
+                Cuenta Origen (Sale)
+              </label>
+              <select
+                value={transferenciaForm.cuentaOrigenId || ''}
+                onChange={(e) =>
+                  setTransferenciaForm({ ...transferenciaForm, cuentaOrigenId: e.target.value || undefined })
+                }
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              >
+                <option value="">Seleccionar cuenta...</option>
+                {cuentas
+                  .filter(c => c.activa && (
+                    c.esBiMoneda ||
+                    c.moneda === transferenciaForm.moneda
+                  ))
+                  .filter(c => c.id !== transferenciaForm.cuentaDestinoId)
+                  .map(cuenta => {
+                    const saldoActual = cuenta.esBiMoneda
+                      ? (transferenciaForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
+                      : cuenta.saldoActual;
+                    return (
+                      <option key={cuenta.id} value={cuenta.id}>
+                        {cuenta.nombre} - Saldo: {transferenciaForm.moneda === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
+                      </option>
+                    );
+                  })}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <ArrowDownCircle className="inline h-4 w-4 mr-1 text-green-500" />
+                Cuenta Destino (Entra)
+              </label>
+              <select
+                value={transferenciaForm.cuentaDestinoId || ''}
+                onChange={(e) =>
+                  setTransferenciaForm({ ...transferenciaForm, cuentaDestinoId: e.target.value || undefined })
+                }
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              >
+                <option value="">Seleccionar cuenta...</option>
+                {cuentas
+                  .filter(c => c.activa && (
+                    c.esBiMoneda ||
+                    c.moneda === transferenciaForm.moneda
+                  ))
+                  .filter(c => c.id !== transferenciaForm.cuentaOrigenId)
+                  .map(cuenta => {
+                    const saldoActual = cuenta.esBiMoneda
+                      ? (transferenciaForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
+                      : cuenta.saldoActual;
+                    return (
+                      <option key={cuenta.id} value={cuenta.id}>
+                        {cuenta.nombre} - Saldo: {transferenciaForm.moneda === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
+                      </option>
+                    );
+                  })}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Concepto / Motivo (Opcional)
+            </label>
+            <input
+              type="text"
+              value={transferenciaForm.concepto || ''}
+              onChange={(e) =>
+                setTransferenciaForm({ ...transferenciaForm, concepto: e.target.value })
+              }
+              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              placeholder="Ej: Reposición de caja chica, fondeo de cuenta..."
+            />
+          </div>
+
+          {/* Preview */}
+          {transferenciaForm.monto && transferenciaForm.cuentaOrigenId && transferenciaForm.cuentaDestinoId && (
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Vista Previa de Transferencia</h4>
+              <div className="flex items-center justify-center space-x-4">
+                <div className="text-center">
+                  <p className="text-xs text-gray-500">Sale de</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {cuentas.find(c => c.id === transferenciaForm.cuentaOrigenId)?.nombre}
+                  </p>
+                  <p className="text-lg font-bold text-red-600">
+                    -{transferenciaForm.moneda === 'USD' ? '$' : 'S/'}{transferenciaForm.monto.toFixed(2)}
+                  </p>
+                </div>
+                <ArrowLeftRight className="h-6 w-6 text-purple-400" />
+                <div className="text-center">
+                  <p className="text-xs text-gray-500">Entra a</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {cuentas.find(c => c.id === transferenciaForm.cuentaDestinoId)?.nombre}
+                  </p>
+                  <p className="text-lg font-bold text-green-600">
+                    +{transferenciaForm.moneda === 'USD' ? '$' : 'S/'}{transferenciaForm.monto.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button variant="ghost" onClick={() => setIsTransferenciaModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleCrearTransferencia}
+              disabled={
+                isSubmitting ||
+                !transferenciaForm.monto ||
+                !transferenciaForm.cuentaOrigenId ||
+                !transferenciaForm.cuentaDestinoId
+              }
+            >
+              {isSubmitting ? 'Procesando...' : 'Realizar Transferencia'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Modal Nueva/Editar Cuenta */}
       <Modal
         isOpen={isCuentaModalOpen}
@@ -1914,11 +2678,12 @@ export const Tesoreria: React.FC = () => {
                 <option value="efectivo">Efectivo</option>
                 <option value="banco">Banco</option>
                 <option value="digital">Digital (Yape/Plin)</option>
+                <option value="credito">Crédito (TC / Préstamo)</option>
               </select>
             </div>
           </div>
 
-          {cuentaForm.tipo === 'banco' && (
+          {(cuentaForm.tipo === 'banco' || cuentaForm.tipo === 'credito') && (
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1947,7 +2712,7 @@ export const Tesoreria: React.FC = () => {
             </div>
           )}
 
-          {cuentaForm.tipo === 'banco' && (
+          {(cuentaForm.tipo === 'banco' || cuentaForm.tipo === 'credito') && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 CCI (Código Interbancario)
