@@ -779,12 +779,12 @@ export const Unidades: React.FC = () => {
                 user.uid
               );
               if (resultado.exitos > 0) {
-                addToast('Reserva liberada exitosamente', 'success');
+                addToast('success', 'Reserva liberada exitosamente');
                 setUnidadSeleccionada(null);
                 await fetchUnidades();
                 await fetchStats();
               } else {
-                addToast('No se pudo liberar la reserva', 'error');
+                addToast('error', 'No se pudo liberar la reserva');
               }
             } catch (error: any) {
               addToast(error.message || 'Error al liberar reserva', 'error');

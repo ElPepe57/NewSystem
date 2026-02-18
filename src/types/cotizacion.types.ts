@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { ExpectativaCotizacion } from './expectativa.types';
 import type {
   CanalVenta,
   MetodoPago,
@@ -259,6 +260,9 @@ export interface Cotizacion {
 
   // Observaciones
   observaciones?: string;
+
+  // Expectativa financiera al cotizar (TC momento 1)
+  expectativaCotizacion?: ExpectativaCotizacion;
 }
 
 /**

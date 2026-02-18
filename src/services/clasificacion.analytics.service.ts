@@ -8,6 +8,7 @@ import {
 import { db } from '../lib/firebase';
 import type { Producto, Unidad } from '../types/producto.types';
 import type { Venta } from '../types/venta.types';
+import { getCTRU } from '../utils/ctru.utils';
 
 // ============ TIPOS ============
 
@@ -200,22 +201,22 @@ class ClasificacionAnalyticsService {
         switch (unidad.estado) {
           case 'recibida_usa':
             stock.usa++;
-            stock.ctruTotal += unidad.ctruDinamico || unidad.ctruBase || 0;
+            stock.ctruTotal += getCTRU(unidad as any);
             break;
           case 'disponible_peru':
             stock.peru++;
-            stock.ctruTotal += unidad.ctruDinamico || unidad.ctruBase || 0;
+            stock.ctruTotal += getCTRU(unidad as any);
             break;
           case 'en_transito_usa':
           case 'en_transito_peru':
             stock.transito++;
-            stock.ctruTotal += unidad.ctruDinamico || unidad.ctruBase || 0;
+            stock.ctruTotal += getCTRU(unidad as any);
             break;
           case 'asignada_pedido':
           case 'en_despacho':
             // Estas cuentan como stock Perú pero reservadas
             stock.peru++;
-            stock.ctruTotal += unidad.ctruDinamico || unidad.ctruBase || 0;
+            stock.ctruTotal += getCTRU(unidad as any);
             break;
           // Estados terminales no cuentan: vendida, entregada, devuelta, danada, vencida
         }

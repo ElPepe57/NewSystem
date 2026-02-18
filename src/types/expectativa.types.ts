@@ -1,5 +1,13 @@
 import { Timestamp } from 'firebase/firestore';
-import type { AsignacionResponsable, ResumenAsignaciones } from './requerimiento.types';
+
+// Re-export Requerimiento types from canonical source
+export type {
+  EstadoRequerimiento,
+  TipoSolicitante,
+  Requerimiento,
+  RequerimientoFormData,
+  RequerimientoFiltros
+} from './requerimiento.types';
 
 /**
  * ===============================================
@@ -51,6 +59,10 @@ export interface ExpectativaCotizacion {
   diasVigencia?: number;           // Días de vigencia (default 7)
 }
 
+// ===============================================
+// COMPARACIÓN VENTA
+// ===============================================
+
 /**
  * Comparación de expectativa vs realidad en una venta
  */
@@ -78,20 +90,11 @@ export interface ComparacionVenta {
 
   // Diferencias
   diferencias: {
-    // Diferencia de TC
     diferenciaTC: number;           // tcVenta - tcCotizacion
     impactoTCenPEN: number;         // Impacto del cambio de TC en PEN
-
-    // Diferencia de costo
     diferenciaCostoPEN: number;     // costoReal - costoEstimado
-
-    // Diferencia de margen
     diferenciaMargen: number;       // margenReal - margenEsperado (en %)
-
-    // Diferencia de utilidad
     diferenciaUtilidadPEN: number;  // utilidadReal - utilidadEsperada
-
-    // Resumen
     cumplioExpectativa: boolean;    // true si utilidadReal >= utilidadEsperada
     porcentajeCumplimiento: number; // (utilidadReal / utilidadEsperada) × 100
   };
@@ -101,105 +104,8 @@ export interface ComparacionVenta {
 }
 
 // ===============================================
-// REQUERIMIENTO DE COMPRA
+// COMPARACIÓN COMPRA
 // ===============================================
-
-/**
- * Estado del requerimiento
- */
-export type EstadoRequerimiento =
-  | 'borrador'          // En proceso de creación
-  | 'pendiente'         // Pendiente de aprobación
-  | 'aprobado'          // Aprobado, pendiente de compra
-  | 'en_proceso'        // OC creada, en proceso
-  | 'completado'        // OC recibida
-  | 'cancelado';        // Cancelado
-
-/**
- * Tipo de solicitante del requerimiento
- */
-export type TipoSolicitante =
-  | 'cliente'           // Pedido por un cliente específico
-  | 'administracion'    // Por parte de administración para mantener stock
-  | 'ventas'            // Por parte del equipo de ventas
-  | 'investigacion';    // Producto interesante encontrado en investigación de mercado
-
-/**
- * Requerimiento de compra
- * Representa la intención/necesidad de comprar antes de crear la OC
- */
-export interface Requerimiento {
-  id: string;
-  numeroRequerimiento: string;    // REQ-2024-001
-
-  // Origen del requerimiento
-  origen: 'stock_minimo' | 'venta_pendiente' | 'proyeccion' | 'manual';
-  ventaRelacionadaId?: string;    // Si es por venta pendiente
-
-  // Quién solicita el requerimiento
-  tipoSolicitante: TipoSolicitante;
-  nombreClienteSolicitante?: string;  // Si tipoSolicitante === 'cliente'
-
-  // Productos solicitados
-  productos: Array<{
-    productoId: string;
-    sku: string;
-    marca: string;
-    nombreComercial: string;
-    cantidadSolicitada: number;
-
-    // Cantidades para tracking de asignación múltiple
-    cantidadAsignada: number;       // Cantidad total asignada a responsables
-    cantidadPendiente: number;      // cantidadSolicitada - cantidadAsignada
-    cantidadRecibida: number;       // Cantidad ya recibida en Perú
-
-    // Expectativa de precio (investigación)
-    precioEstimadoUSD?: number;     // Precio investigado
-    proveedorSugerido?: string;
-    urlReferencia?: string;         // Link de Amazon, etc.
-    fechaInvestigacion?: Timestamp;
-  }>;
-
-  // Asignaciones a responsables/viajeros (soporte para múltiples)
-  asignaciones: AsignacionResponsable[];
-
-  // Resumen de asignaciones (para visualización rápida)
-  resumenAsignaciones?: ResumenAsignaciones;
-
-  // Expectativa financiera
-  expectativa: {
-    tcInvestigacion: number;        // TC al momento de investigar
-    costoEstimadoUSD: number;       // Suma de precios estimados
-    costoEstimadoPEN: number;       // costoEstimadoUSD × tcInvestigacion
-    impuestoEstimadoUSD?: number;   // Tax estimado (ej: 7%)
-    fleteEstimadoUSD?: number;      // Flete estimado
-    costoTotalEstimadoUSD: number;  // Todo incluido
-    costoTotalEstimadoPEN: number;
-  };
-
-  // Prioridad y urgencia
-  prioridad: 'alta' | 'media' | 'baja';
-  fechaRequerida?: Timestamp;       // Fecha para cuando se necesita
-
-  // Estado
-  estado: EstadoRequerimiento;
-
-  // Relación con OC (cuando se genera)
-  ordenCompraId?: string;
-  ordenCompraNumero?: string;
-
-  // Notas
-  justificacion?: string;
-  observaciones?: string;
-
-  // Auditoría
-  solicitadoPor: string;
-  fechaSolicitud: Timestamp;
-  aprobadoPor?: string;
-  fechaAprobacion?: Timestamp;
-  creadoPor: string;
-  fechaCreacion: Timestamp;
-}
 
 /**
  * Comparación de expectativa vs realidad en una compra
@@ -237,66 +143,18 @@ export interface ComparacionCompra {
 
   // Diferencias
   diferencias: {
-    // Diferencia de TC
     diferenciaTC: number;           // tcCompra - tcInvestigacion
     diferenciaTCPago?: number;      // tcPago - tcCompra (si aplica)
-
-    // Diferencia de costo (en USD)
     diferenciaCostoUSD: number;     // costoReal - costoEstimado
-
-    // Diferencia de costo (en PEN, considerando TC)
     diferenciaCostoPEN: number;
-
-    // Desglose
     diferenciaImpuesto: number;
     diferenciaFlete: number;
-
-    // Resumen
     dentroPresupuesto: boolean;     // true si costoReal <= costoEstimado × 1.05 (5% tolerancia)
     porcentajeDesviacion: number;   // ((costoReal - costoEstimado) / costoEstimado) × 100
   };
 
   // Razones de la diferencia
   razones?: string[];
-}
-
-// ===============================================
-// FORM DATA
-// ===============================================
-
-export interface RequerimientoFormData {
-  origen: 'stock_minimo' | 'venta_pendiente' | 'proyeccion' | 'manual';
-  ventaRelacionadaId?: string;
-  tipoSolicitante: TipoSolicitante;
-  nombreClienteSolicitante?: string;  // Requerido si tipoSolicitante === 'cliente'
-  productos: Array<{
-    productoId: string;
-    cantidadSolicitada: number;
-    precioEstimadoUSD?: number;       // Precio base de compra en USA
-    impuestoPorcentaje?: number;      // % de sales tax USA (ej: 3 para 3%)
-    logisticaEstimadaUSD?: number;    // Costo logístico por unidad (flete, courier)
-    ctruEstimado?: number;            // CTRU ya calculado (precio + logística en PEN)
-    proveedorSugerido?: string;
-    urlReferencia?: string;
-  }>;
-  prioridad: 'alta' | 'media' | 'baja';
-  fechaRequerida?: Date;
-  justificacion?: string;
-  observaciones?: string;
-}
-
-// ===============================================
-// FILTROS
-// ===============================================
-
-export interface RequerimientoFiltros {
-  estado?: EstadoRequerimiento;
-  prioridad?: 'alta' | 'media' | 'baja';
-  origen?: 'stock_minimo' | 'venta_pendiente' | 'proyeccion' | 'manual';
-  fechaInicio?: Date;
-  fechaFin?: Date;
-  solicitadoPor?: string;
-  productoId?: string;
 }
 
 // ===============================================

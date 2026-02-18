@@ -658,7 +658,7 @@ export const expectativaService = {
     let reqDentroPresupuesto = 0;
 
     for (const req of reqCompletados) {
-      costoTotalEstimado += req.expectativa.costoTotalEstimadoPEN;
+      costoTotalEstimado += req.expectativa?.costoTotalEstimadoPEN || 0;
 
       if (req.ordenCompraId) {
         const comparacion = await this.compararCompra(req.ordenCompraId);
@@ -693,7 +693,7 @@ export const expectativaService = {
     let impactoTotalTCCompras = 0;
 
     for (const req of reqCompletados) {
-      if (req.ordenCompraId && req.expectativa.tcInvestigacion) {
+      if (req.ordenCompraId && req.expectativa?.tcInvestigacion) {
         const comparacion = await this.compararCompra(req.ordenCompraId);
         if (comparacion && Math.abs(comparacion.diferencias.diferenciaTC) > 0.01) {
           comprasAfectadasPorTC++;

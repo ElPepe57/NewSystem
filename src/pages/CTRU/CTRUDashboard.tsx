@@ -451,13 +451,15 @@ export const CTRUDashboard: React.FC = () => {
           <div>
             <h3 className="font-semibold text-blue-900">Fórmula CTRU</h3>
             <p className="text-blue-800 mt-2 font-mono text-sm">
-              CTRU = (Costo USD × TC) + Flete + (GA + GO) / Unidades Disponibles
+              CTRU = CostoBase + (GA + GO) × (CostoBase / ΣCostosBases)
             </p>
             <div className="mt-3 text-sm text-blue-700 space-y-1">
-              <p>• <strong>Costo USD × TC:</strong> Costo de compra convertido a soles</p>
-              <p>• <strong>Flete:</strong> Costo de envío USA→Perú prorrateado por OC</p>
+              <p>• <strong>CostoBase:</strong> (Costo USD + Flete USD) × TC de pago</p>
+              <p>• <strong>Distribución proporcional:</strong> Unidades más costosas absorben mayor proporción de GA/GO</p>
               <p>• <strong>GA (Administrativos):</strong> Servicios, planilla, contador, software</p>
               <p>• <strong>GO (Operativos):</strong> Movilidad, útiles, mantenimiento, almacenaje</p>
+              <p>• <strong>ctruInicial:</strong> Se calcula al recibir la OC y no cambia</p>
+              <p>• <strong>ctruDinámico:</strong> Se recalcula automáticamente al registrar gastos GA/GO</p>
             </div>
           </div>
         </div>

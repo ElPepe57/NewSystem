@@ -13,6 +13,7 @@ import { db } from '../lib/firebase';
 import type { Marca } from '../types/entidadesMaestras.types';
 import type { Producto } from '../types/producto.types';
 import type { Venta } from '../types/venta.types';
+import { tipoCambioService } from './tipoCambio.service';
 
 // ============================================
 // TIPOS PARA ANALYTICS DE MARCAS
@@ -202,8 +203,12 @@ export const marcaAnalyticsService = {
           return fechaVenta >= hace365Dias && v.estado !== 'cancelada';
         });
 
-      // 4. Calcular métricas por producto
-      const productosMetrics = this.calcularMetricasProductos(productosData, ventas);
+      // 4. Obtener TC del día para cálculos
+      const tcData = await tipoCambioService.getTCDelDia();
+      const tcDelDia = tcData?.venta || 3.75;
+
+      // 5. Calcular métricas por producto
+      const productosMetrics = this.calcularMetricasProductos(productosData, ventas, tcDelDia);
 
       // 5. Calcular métricas por categoría
       const categorias = this.calcularMetricasCategorias(productosMetrics);
@@ -331,7 +336,7 @@ export const marcaAnalyticsService = {
   /**
    * Calcula métricas por producto
    */
-  calcularMetricasProductos(productos: Producto[], ventas: Venta[]): ProductoMarcaMetrics[] {
+  calcularMetricasProductos(productos: Producto[], ventas: Venta[], tcDelDia: number = 3.75): ProductoMarcaMetrics[] {
     const ahora = new Date();
 
     return productos.map(producto => {
@@ -405,7 +410,7 @@ export const marcaAnalyticsService = {
       // Valor inventario
       const ctru = producto.ctruPromedio || 0;
       const valorInventarioPEN = stockTotal * ctru;
-      const tc = 3.75; // TODO: Obtener TC dinámico
+      const tc = tcDelDia;
       const valorInventarioUSD = valorInventarioPEN / tc;
 
       return {

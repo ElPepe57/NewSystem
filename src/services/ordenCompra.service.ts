@@ -33,6 +33,7 @@ import { unidadService } from './unidad.service';
 import { almacenService } from './almacen.service';
 import { ExpectativaService } from './expectativa.service';
 import { tesoreriaService } from './tesoreria.service';
+import { ctruService } from './ctru.service';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 
 const ORDENES_COLLECTION = 'ordenesCompra';
@@ -908,6 +909,17 @@ export class OrdenCompraService {
         }
 
         totalUnidadesRecepcion += pr.cantidadRecibida;
+      }
+
+      // Calcular CTRU inicial para todas las unidades generadas en esta recepción
+      if (unidadesGeneradas.length > 0) {
+        try {
+          const ctruCalculadas = await ctruService.calcularCTRULote(unidadesGeneradas, id);
+          logger.success(`  → CTRU inicial calculado para ${ctruCalculadas} unidades`);
+        } catch (ctruError) {
+          // No bloquear la recepción si falla el cálculo de CTRU
+          console.error('Error al calcular CTRU de lote (no bloqueante):', ctruError);
+        }
       }
 
       // Actualizar cantidadRecibida en productos de la OC

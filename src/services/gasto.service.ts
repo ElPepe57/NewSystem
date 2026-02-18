@@ -85,12 +85,16 @@ export const gastoService = {
 
       const docRef = await addDoc(collection(db, GASTOS_COLLECTION), gasto);
 
-      // NOTA: El recálculo automático de CTRU se deshabilitó porque es muy costoso
-      // (actualiza todas las unidades y productos). El usuario puede recalcular
-      // manualmente desde el botón "Recalcular CTRU" cuando lo necesite.
-      // El gasto queda marcado con ctruRecalculado: false para procesarse después.
+      // Auto-recálculo de CTRU cuando se crea un gasto GA/GO prorrateable
+      // Se ejecuta en background (no bloquea la creación del gasto)
       if (data.esProrrateable && (data.categoria === 'GA' || data.categoria === 'GO')) {
-        console.log('[CTRU] Gasto GA/GO prorrateable creado. Recálculo pendiente (usar botón "Recalcular CTRU").');
+        ctruService.recalcularCTRUDinamico()
+          .then(result => {
+            console.log(`[CTRU] Auto-recálculo completado: ${result.unidadesActualizadas} unidades actualizadas, ${result.gastosAplicados} gastos aplicados`);
+          })
+          .catch(error => {
+            console.error('[CTRU] Error en auto-recálculo (no bloqueante):', error);
+          });
       }
 
       return docRef.id;

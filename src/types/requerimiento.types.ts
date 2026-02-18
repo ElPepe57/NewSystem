@@ -4,6 +4,7 @@ import { Timestamp } from 'firebase/firestore';
  * Estado del requerimiento
  */
 export type EstadoRequerimiento =
+  | 'borrador'        // En proceso de creación
   | 'pendiente'       // Recién creado, sin asignar
   | 'aprobado'        // Aprobado para compra
   | 'en_proceso'      // En proceso de compra/envío (al menos una asignación activa)
@@ -13,7 +14,7 @@ export type EstadoRequerimiento =
 /**
  * Prioridad del requerimiento
  */
-export type PrioridadRequerimiento = 'baja' | 'normal' | 'alta' | 'urgente';
+export type PrioridadRequerimiento = 'baja' | 'normal' | 'media' | 'alta' | 'urgente';
 
 /**
  * Origen del requerimiento
@@ -21,7 +22,19 @@ export type PrioridadRequerimiento = 'baja' | 'normal' | 'alta' | 'urgente';
 export type OrigenRequerimiento =
   | 'venta_pendiente'     // Desde cotización con productos sin stock
   | 'stock_minimo'        // Alerta de stock mínimo
+  | 'proyeccion'          // Proyección de demanda
   | 'manual';             // Creación manual
+
+/**
+ * Tipo de solicitante del requerimiento
+ */
+export type TipoSolicitante =
+  | 'cliente'           // Pedido por un cliente específico
+  | 'interno'           // Interno (administración/equipo)
+  | 'administracion'    // Por administración
+  | 'ventas'            // Por equipo de ventas
+  | 'stock_minimo'      // Por alerta de stock mínimo
+  | 'investigacion';    // Producto encontrado en investigación de mercado
 
 /**
  * Estado de una asignación de responsable
@@ -116,6 +129,8 @@ export interface ProductoRequerimiento {
   precioEstimadoUSD?: number;         // Precio estimado de compra
   precioVentaPEN?: number;            // Precio al que se venderá
   fechaInvestigacion?: Timestamp;
+  proveedorSugerido?: string;         // Proveedor sugerido (Amazon, etc.)
+  urlReferencia?: string;             // Link de referencia
 
   // Estado del producto en el requerimiento
   completado: boolean;                // cantidadRecibida >= cantidadSolicitada
@@ -154,14 +169,16 @@ export interface Requerimiento {
 
   // Origen y solicitante
   origen: OrigenRequerimiento;
-  tipoSolicitante: 'cliente' | 'interno' | 'stock_minimo';
+  tipoSolicitante: TipoSolicitante;
   nombreSolicitante?: string;         // Nombre del cliente o área
+  nombreClienteSolicitante?: string;  // Alias legacy (si tipoSolicitante === 'cliente')
 
   // Referencias
   cotizacionId?: string;              // Cotización que lo originó
   cotizacionNumero?: string;
   ventaId?: string;                   // Venta asociada (cuando se confirme)
   ventaNumero?: string;
+  ventaRelacionadaId?: string;        // Si es por venta pendiente
   clienteId?: string;
   clienteNombre?: string;
 
@@ -178,6 +195,10 @@ export interface Requerimiento {
   // Estado y prioridad
   estado: EstadoRequerimiento;
   prioridad: PrioridadRequerimiento;
+
+  // Relación con OC (cuando se genera)
+  ordenCompraId?: string;
+  ordenCompraNumero?: string;
 
   // Fechas
   fechaRequerida?: Timestamp;         // Fecha límite de necesidad
@@ -203,23 +224,30 @@ export interface Requerimiento {
  */
 export interface RequerimientoFormData {
   origen: OrigenRequerimiento;
-  tipoSolicitante: 'cliente' | 'interno' | 'stock_minimo';
+  tipoSolicitante: TipoSolicitante;
   nombreSolicitante?: string;
+  nombreClienteSolicitante?: string;  // Legacy alias
 
   cotizacionId?: string;
   cotizacionNumero?: string;
+  ventaRelacionadaId?: string;        // Si es por venta pendiente
   clienteId?: string;
   clienteNombre?: string;
 
   productos: {
     productoId: string;
-    sku: string;
-    marca: string;
-    nombreComercial: string;
+    sku?: string;
+    marca?: string;
+    nombreComercial?: string;
     presentacion?: string;
     cantidadSolicitada: number;
     precioEstimadoUSD?: number;
     precioVentaPEN?: number;
+    impuestoPorcentaje?: number;      // % de sales tax USA
+    logisticaEstimadaUSD?: number;    // Costo logístico por unidad
+    ctruEstimado?: number;            // CTRU ya calculado
+    proveedorSugerido?: string;
+    urlReferencia?: string;
   }[];
 
   expectativa?: ExpectativaRequerimiento;

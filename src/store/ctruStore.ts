@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ctruService } from '../services/ctru.service';
 import { unidadService } from '../services/unidad.service';
 import { gastoService } from '../services/gasto.service';
+import { getCTRU, getCostoBasePEN } from '../utils/ctru.utils';
 import type { Unidad } from '../types/unidad.types';
 import type { CategoriaGasto } from '../types/gasto.types';
 
@@ -106,23 +107,19 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       const gastosPendientesProrrateables = gastosPendientes.filter(g => g.esProrrateable);
       const totalGastosPendientes = gastosPendientesProrrateables.reduce((sum, g) => sum + g.montoPEN, 0);
 
-      // Calcular CTRU promedio global usando costo REAL de cada unidad
-      // CTRU = (CostoUSD × TC) + (FleteUSD × TC) + (GastosProrrateables / NumUnidades)
-      let sumaCostoBase = 0;
+      // Calcular CTRU promedio global usando utility centralizado
+      // Usa ctruDinamico > ctruInicial > cálculo manual (en ese orden)
+      let sumaCTRU = 0;
       for (const u of unidades) {
-        const tc = u.tcPago || u.tcCompra || 3.70;
-        // Flete está en USD, convertir a PEN
-        const fletePEN = (u.costoFleteUSD || 0) * tc;
-        const costoBase = (u.costoUnitarioUSD * tc) + fletePEN;
-        sumaCostoBase += costoBase;
+        sumaCTRU += getCTRU(u);
       }
 
-      // Impacto de gastos por unidad
-      const impactoPorUnidad = unidades.length > 0 ? totalGastos / unidades.length : 0;
+      // CTRU promedio global basado en valores reales de cada unidad
+      const ctruPromedio = unidades.length > 0 ? sumaCTRU / unidades.length : 0;
 
-      // CTRU promedio = Costo base promedio + Impacto gastos
-      const costoBasePromedio = unidades.length > 0 ? sumaCostoBase / unidades.length : 0;
-      const ctruPromedio = costoBasePromedio + impactoPorUnidad;
+      // Impacto de gastos pendientes por unidad (distribución proporcional)
+      // Para display: mostramos cuánto falta por aplicar
+      const impactoPorUnidad = unidades.length > 0 ? totalGastosPendientes / unidades.length : 0;
 
       const resumen: CTRUResumen = {
         ctruPromedioGlobal: ctruPromedio,
@@ -147,13 +144,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
         pais: 'Peru'
       });
 
-      // Obtener gastos prorrateables totales para calcular impacto
-      const todosLosGastos = await gastoService.getAll();
-      const gastosProrrateables = todosLosGastos.filter(g => g.esProrrateable);
-      const totalGastos = gastosProrrateables.reduce((sum, g) => sum + g.montoPEN, 0);
-      const impactoPorUnidad = unidades.length > 0 ? totalGastos / unidades.length : 0;
-
-      // Agrupar por producto
+      // Agrupar por producto usando CTRU real de cada unidad
       const productoMap = new Map<string, {
         productoId: string;
         productoNombre: string;
@@ -162,12 +153,8 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       }>();
 
       for (const u of unidades) {
-        // Calcular CTRU real: CostoBase + Impacto de gastos
-        const tc = u.tcPago || u.tcCompra || 3.70;
-        // Flete está en USD, convertir a PEN
-        const fletePEN = (u.costoFleteUSD || 0) * tc;
-        const costoBase = (u.costoUnitarioUSD * tc) + fletePEN;
-        const ctru = costoBase + impactoPorUnidad;
+        // Usar utility centralizado (ctruDinamico > ctruInicial > cálculo manual)
+        const ctru = getCTRU(u);
 
         if (!productoMap.has(u.productoId)) {
           productoMap.set(u.productoId, {
@@ -271,7 +258,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       let totalFletePEN = 0;
 
       for (const u of unidades) {
-        const tc = u.tcPago || u.tcCompra || 3.70;
+        const tc = u.tcPago || u.tcCompra || 0;
         totalCompraUSD += u.costoUnitarioUSD;
         totalCompraPEN += u.costoUnitarioUSD * tc;
         // El flete está en USD, convertir a PEN usando el mismo TC de la unidad

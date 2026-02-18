@@ -129,9 +129,9 @@ export const requerimientoService = {
       // Preparar productos con cantidades iniciales
       const productos: ProductoRequerimiento[] = data.productos.map(p => ({
         productoId: p.productoId,
-        sku: p.sku,
-        marca: p.marca,
-        nombreComercial: p.nombreComercial,
+        sku: p.sku || '',
+        marca: p.marca || '',
+        nombreComercial: p.nombreComercial || '',
         presentacion: p.presentacion,
         cantidadSolicitada: p.cantidadSolicitada,
         cantidadAsignada: 0,

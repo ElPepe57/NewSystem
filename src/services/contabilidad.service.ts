@@ -56,6 +56,7 @@ import type {
 } from '../types/contabilidad.types';
 import type { CuentaCaja } from '../types/tesoreria.types';
 import type { Unidad } from '../types/unidad.types';
+import { getCTRU } from '../utils/ctru.utils';
 
 // ============================================================================
 // CONFIGURACIÓN CONTABLE
@@ -1136,8 +1137,8 @@ async function getInventarios(tc: number): Promise<Inventarios> {
     const costoTotalUSD = costoProductoUSD + costoFleteUSD;
     const tcUnidad = unidad.tcPago || unidad.tcCompra || tc;
 
-    // CTRU: usar el dinámico si existe, sino calcular con producto + flete
-    const ctru = unidad.ctruDinamico || unidad.ctruInicial || (costoTotalUSD * tcUnidad);
+    // CTRU: usar utility centralizado
+    const ctru = getCTRU(unidad);
 
     if (ctru > 0) {
       sumaCTRU += ctru;

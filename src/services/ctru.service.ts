@@ -3,6 +3,7 @@ import { db } from '../lib/firebase';
 import { unidadService } from './unidad.service';
 import { gastoService } from './gasto.service';
 import { ProductoService } from './producto.service';
+import { getCTRU, getCostoBasePEN, getTC } from '../utils/ctru.utils';
 import type { Unidad } from '../types/unidad.types';
 import type { Gasto } from '../types/gasto.types';
 
@@ -11,29 +12,33 @@ import type { Gasto } from '../types/gasto.types';
  *
  * CTRU = Costo Base + Costos Prorrateados
  *
- * Costo Base:
+ * Costo Base (ctruInicial - INMUTABLE después de recepción):
  * - Costo USD convertido a PEN (con TC pago o TC compra)
  * - Costos de flete USA→Perú (prorrateado por OC)
  *
- * Costos Prorrateados:
- * - Gastos administrativos del mes
- * - Gastos operativos del mes
- * - Otros gastos prorrateables
+ * Costos Prorrateados (ctruDinamico - CAMBIA con cada recálculo):
+ * - Gastos administrativos (GA)
+ * - Gastos operativos (GO)
  */
+
+/** Límite seguro de operaciones por batch de Firestore */
+const BATCH_LIMIT = 450;
+
 export const ctruService = {
   /**
-   * Calcular CTRU inicial de una unidad al momento de recibirla en Perú
-   * Este es el CTRU base que incluye:
-   * - Costo USA en PEN
-   * - Costo de flete prorrateado de la OC
+   * Calcular CTRU inicial de una unidad al momento de recibirla.
+   * Este valor es INMUTABLE - no debe cambiar después de la recepción.
+   * Incluye: costo USA en PEN + flete prorrateado de la OC
    */
   async calcularCTRUInicial(unidad: Unidad): Promise<number> {
     try {
-      // 1. Costo USA convertido a PEN
-      const tcAplicable = unidad.tcPago ?? unidad.tcCompra ?? 3.8;
-      const costoBasePEN = unidad.costoUnitarioUSD * tcAplicable;
+      const tc = getTC(unidad);
+      if (tc === 0) {
+        console.warn(`[CTRU] Unidad ${unidad.id} sin TC - usando costoUnitarioUSD directo`);
+      }
+      const costoBasePEN = unidad.costoUnitarioUSD * (tc || 1);
 
-      // 2. Obtener costos de flete de la OC (si existe)
+      // Obtener costos de flete de la OC (si existe)
       let costoFletePorUnidad = 0;
       if (unidad.ordenCompraId) {
         costoFletePorUnidad = await this.calcularCostoFleteProrrateado(
@@ -42,12 +47,57 @@ export const ctruService = {
         );
       }
 
-      const ctruInicial = costoBasePEN + costoFletePorUnidad;
-
-      return ctruInicial;
+      return costoBasePEN + costoFletePorUnidad;
     } catch (error: any) {
       console.error('Error al calcular CTRU inicial:', error);
       throw new Error(`Error al calcular CTRU inicial: ${error.message}`);
+    }
+  },
+
+  /**
+   * Calcular y guardar CTRU inicial para un lote de unidades recién recibidas.
+   * Se llama después de crearLote() en la recepción de OC.
+   */
+  async calcularCTRULote(unidadIds: string[], ordenCompraId: string): Promise<number> {
+    try {
+      if (unidadIds.length === 0) return 0;
+
+      // Obtener la primera unidad para calcular flete (es igual para todas del mismo lote)
+      const primeraUnidad = await unidadService.getById(unidadIds[0]);
+      if (!primeraUnidad) return 0;
+
+      // Calcular flete prorrateado una sola vez
+      let costoFletePorUnidad = 0;
+      if (ordenCompraId) {
+        costoFletePorUnidad = await this.calcularCostoFleteProrrateado(
+          ordenCompraId,
+          primeraUnidad.id
+        );
+      }
+
+      const tc = getTC(primeraUnidad);
+      const costoBasePEN = primeraUnidad.costoUnitarioUSD * (tc || 1);
+      const ctruInicial = costoBasePEN + costoFletePorUnidad;
+
+      // Actualizar todas las unidades del lote en batches
+      for (let i = 0; i < unidadIds.length; i += BATCH_LIMIT) {
+        const batch = writeBatch(db);
+        const chunk = unidadIds.slice(i, i + BATCH_LIMIT);
+
+        for (const id of chunk) {
+          batch.update(doc(db, 'unidades', id), {
+            ctruInicial,
+            ctruDinamico: ctruInicial // Inicialmente igual, cambiará con GA/GO
+          });
+        }
+
+        await batch.commit();
+      }
+
+      return unidadIds.length;
+    } catch (error: any) {
+      console.error('Error al calcular CTRU de lote:', error);
+      return 0;
     }
   },
 
@@ -59,7 +109,6 @@ export const ctruService = {
     unidadId: string
   ): Promise<number> {
     try {
-      // Obtener gastos de flete de esta OC
       const gastosFleteOC = await gastoService.buscar({
         ordenCompraId,
         tipo: 'flete_usa_peru'
@@ -69,20 +118,14 @@ export const ctruService = {
         return 0;
       }
 
-      // Sumar todos los gastos de flete
       const totalFlete = gastosFleteOC.reduce((sum, g) => sum + g.montoPEN, 0);
-
-      // Obtener todas las unidades de esta OC
       const unidadesOC = await unidadService.buscar({ ordenCompraId });
 
       if (unidadesOC.length === 0) {
         return 0;
       }
 
-      // Prorratear entre todas las unidades
-      const fletePorUnidad = totalFlete / unidadesOC.length;
-
-      return fletePorUnidad;
+      return totalFlete / unidadesOC.length;
     } catch (error: any) {
       console.error('Error al calcular costo de flete prorrateado:', error);
       return 0;
@@ -90,21 +133,18 @@ export const ctruService = {
   },
 
   /**
-   * Recalcular CTRU dinámico de todas las unidades activas
-   * Se ejecuta cuando se registra un nuevo gasto prorrateable
+   * Recalcular CTRU dinámico de todas las unidades activas.
    *
-   * CTRU Dinámico = CTRU Inicial + Gastos Prorrateados (solo GA/GO)
+   * IMPORTANTE: ctruInicial NO se modifica. Solo ctruDinamico cambia.
+   * ctruDinamico = ctruInicial + GA/GO prorrateado proporcionalmente.
    *
    * DISTRIBUCIÓN PROPORCIONAL:
-   * Los gastos GA/GO se distribuyen proporcionalmente al costo base de cada unidad.
-   * Formula: costoGAGO_unidad = totalGastosGAGO × (costoBase_unidad / costoBase_total)
-   * Esto es más justo: unidades más costosas absorben más gastos operativos.
+   * costoGAGO_unidad = totalGastosGAGO × (costoBase_unidad / costoBase_total)
    *
-   * Nota: Solo los gastos GA (Administrativos) y GO (Operativos) impactan CTRU.
-   * Los gastos GV (Venta) y GD (Distribución) NO impactan CTRU - se descuentan
-   * de la utilidad de cada venta específica.
+   * Solo GA (Administrativos) y GO (Operativos) impactan CTRU.
+   * GV (Venta) y GD (Distribución) NO impactan CTRU.
    *
-   * Se consideran unidades activas: disponible_peru, recibida_usa, reservada
+   * Unidades activas: disponible_peru, recibida_usa, reservada
    */
   async recalcularCTRUDinamico(): Promise<{
     unidadesActualizadas: number;
@@ -112,7 +152,7 @@ export const ctruService = {
     impactoPorUnidad: number;
   }> {
     try {
-      // 1. Obtener todas las unidades activas (disponibles + reservadas)
+      // 1. Obtener todas las unidades activas
       const todasUnidades = await unidadService.getAll();
       const unidadesActivas = todasUnidades.filter(u =>
         u.estado === 'disponible_peru' ||
@@ -121,90 +161,85 @@ export const ctruService = {
       );
 
       if (unidadesActivas.length === 0) {
-        return {
-          unidadesActualizadas: 0,
-          gastosAplicados: 0,
-          impactoPorUnidad: 0
-        };
+        return { unidadesActualizadas: 0, gastosAplicados: 0, impactoPorUnidad: 0 };
       }
 
-      // 2. Obtener gastos pendientes de recálculo que impactan CTRU
+      // 2. Obtener gastos pendientes de recálculo (solo GA/GO prorrateables)
       const gastosPendientes = await gastoService.getGastosPendientesRecalculoCTRU();
-      // Solo considerar GA y GO (gastos que se prorratean entre unidades)
-      // GV y GD NO se prorratean - se asocian directamente a ventas
       const gastosProrrateables = gastosPendientes.filter(
         g => g.esProrrateable && (g.categoria === 'GA' || g.categoria === 'GO')
       );
 
       if (gastosProrrateables.length === 0) {
-        return {
-          unidadesActualizadas: 0,
-          gastosAplicados: 0,
-          impactoPorUnidad: 0
-        };
+        return { unidadesActualizadas: 0, gastosAplicados: 0, impactoPorUnidad: 0 };
       }
 
-      // 3. Calcular total de gastos GA + GO a prorratear
+      // 3. Total de gastos a prorratear
       const totalGastosProrrateables = gastosProrrateables.reduce(
-        (sum, g) => sum + g.montoPEN,
-        0
+        (sum, g) => sum + g.montoPEN, 0
       );
 
-      // 4. DISTRIBUCIÓN PROPORCIONAL: Calcular costo base total de todas las unidades
-      // Cada unidad absorbe GA/GO en proporción a su costo base
+      // 4. DISTRIBUCIÓN PROPORCIONAL usando getCostoBasePEN (utility centralizado)
       let costoBaseTotalUnidades = 0;
       const unidadesConCostoBase = unidadesActivas.map(unidad => {
-        const tc = unidad.tcPago || unidad.tcCompra || 3.70;
-        const costoTotalUSD = unidad.costoUnitarioUSD + (unidad.costoFleteUSD || 0);
-        const costoBase = unidad.ctruInicial || (costoTotalUSD * tc);
+        const costoBase = getCostoBasePEN(unidad);
         costoBaseTotalUnidades += costoBase;
         return { unidad, costoBase };
       });
 
-      // Evitar división por cero
       if (costoBaseTotalUnidades === 0) {
         costoBaseTotalUnidades = 1;
       }
 
-      // 5. Calcular impacto promedio por referencia (para display)
+      // 5. Impacto promedio para display
       const impactoPorUnidadPromedio = totalGastosProrrateables / unidadesActivas.length;
 
-      // 6. Actualizar CTRU dinámico de cada unidad con distribución proporcional
-      const batch = writeBatch(db);
+      // 6. Actualizar unidades en batches segmentados
       let actualizadas = 0;
 
+      // Combinar updates de unidades + gastos, respetar límite de batch
+      const allOps: Array<{ ref: any; data: any }> = [];
+
       for (const { unidad, costoBase } of unidadesConCostoBase) {
-        // Proporción de esta unidad respecto al costo base total
         const proporcion = costoBase / costoBaseTotalUnidades;
-        // GA/GO asignado proporcionalmente a esta unidad
         const costoGAGOUnidad = totalGastosProrrateables * proporcion;
-        // Nuevo CTRU dinámico = costo base + GA/GO proporcional
+        // ctruDinamico = costoBase (ctruInicial) + GA/GO proporcional
+        // NO tocamos ctruInicial - es inmutable
         const nuevoCtruDinamico = costoBase + costoGAGOUnidad;
 
-        const unidadRef = doc(db, 'unidades', unidad.id);
-        batch.update(unidadRef, {
-          ctruInicial: costoBase,
-          ctruDinamico: nuevoCtruDinamico,
-          // Guardar desglose para transparencia
-          costoGAGOAsignado: costoGAGOUnidad,
-          proporcionGAGO: proporcion
+        allOps.push({
+          ref: doc(db, 'unidades', unidad.id),
+          data: {
+            ctruDinamico: nuevoCtruDinamico,
+            costoGAGOAsignado: costoGAGOUnidad,
+            proporcionGAGO: proporcion
+          }
         });
-
         actualizadas++;
       }
 
-      // 7. Marcar gastos como recalculados
+      // Marcar gastos como recalculados
       for (const gasto of gastosProrrateables) {
-        const gastoRef = doc(db, 'gastos', gasto.id);
-        batch.update(gastoRef, {
-          ctruRecalculado: true,
-          fechaRecalculoCTRU: new Date()
+        allOps.push({
+          ref: doc(db, 'gastos', gasto.id),
+          data: {
+            ctruRecalculado: true,
+            fechaRecalculoCTRU: new Date()
+          }
         });
       }
 
-      await batch.commit();
+      // Ejecutar en batches segmentados
+      for (let i = 0; i < allOps.length; i += BATCH_LIMIT) {
+        const batch = writeBatch(db);
+        const chunk = allOps.slice(i, i + BATCH_LIMIT);
+        for (const op of chunk) {
+          batch.update(op.ref, op.data);
+        }
+        await batch.commit();
+      }
 
-      // 8. Actualizar CTRU promedio de productos
+      // 7. Actualizar CTRU promedio de productos
       await this.actualizarCTRUPromedioProductos();
 
       return {
@@ -220,14 +255,7 @@ export const ctruService = {
 
   /**
    * Actualizar CTRU promedio de todos los productos
-   * Basado en las unidades activas de cada producto (disponibles + reservadas)
-   *
-   * IMPORTANTE: Se consideran todas las unidades que representan inventario real:
-   * - disponible_peru: listas para venta en Perú
-   * - recibida_usa: disponibles en USA
-   * - reservada: comprometidas para una venta/cotización
-   *
-   * Las unidades vendidas, vencidas o dañadas NO se consideran.
+   * Basado en las unidades activas de cada producto
    */
   async actualizarCTRUPromedioProductos(): Promise<number> {
     try {
@@ -235,12 +263,10 @@ export const ctruService = {
       let productosActualizados = 0;
 
       for (const producto of productos) {
-        // Obtener TODAS las unidades activas del producto (disponibles, recibidas y reservadas)
         const todasUnidades = await unidadService.buscar({
           productoId: producto.id
         });
 
-        // Filtrar solo unidades activas (no vendidas, vencidas ni dañadas)
         const unidadesActivas = todasUnidades.filter(u =>
           u.estado === 'disponible_peru' ||
           u.estado === 'recibida_usa' ||
@@ -251,21 +277,11 @@ export const ctruService = {
           continue;
         }
 
-        // Calcular CTRU promedio (usar ctruDinamico o estimar el base)
-        // CTRU = (CostoUSD + FleteUSD) * TC
-        const sumaCTRU = unidadesActivas.reduce((sum, u) => {
-          const tc = u.tcPago || u.tcCompra || 3.70;
-          const costoTotalUSD = u.costoUnitarioUSD + (u.costoFleteUSD || 0);
-          const ctru = u.ctruDinamico || u.ctruInicial || (costoTotalUSD * tc);
-          return sum + ctru;
-        }, 0);
+        // Usar utility centralizado
+        const sumaCTRU = unidadesActivas.reduce((sum, u) => sum + getCTRU(u), 0);
         const ctruPromedio = sumaCTRU / unidadesActivas.length;
 
-        // Actualizar producto
-        await ProductoService.update(producto.id, {
-          ctruPromedio
-        } as any);
-
+        await ProductoService.update(producto.id, { ctruPromedio } as any);
         productosActualizados++;
       }
 
@@ -278,7 +294,6 @@ export const ctruService = {
 
   /**
    * Obtener el CTRU actual de un producto (promedio de unidades activas)
-   * Incluye: disponible_peru, recibida_usa, reservada
    */
   async getCTRUProducto(productoId: string): Promise<{
     ctruPromedio: number;
@@ -287,11 +302,8 @@ export const ctruService = {
     ctruMaximo: number;
   }> {
     try {
-      const todasUnidades = await unidadService.buscar({
-        productoId
-      });
+      const todasUnidades = await unidadService.buscar({ productoId });
 
-      // Filtrar solo unidades activas
       const unidadesActivas = todasUnidades.filter(u =>
         u.estado === 'disponible_peru' ||
         u.estado === 'recibida_usa' ||
@@ -299,30 +311,17 @@ export const ctruService = {
       );
 
       if (unidadesActivas.length === 0) {
-        return {
-          ctruPromedio: 0,
-          unidadesActivas: 0,
-          ctruMinimo: 0,
-          ctruMaximo: 0
-        };
+        return { ctruPromedio: 0, unidadesActivas: 0, ctruMinimo: 0, ctruMaximo: 0 };
       }
 
-      // CTRU = (CostoUSD + FleteUSD) * TC
-      const ctrus = unidadesActivas.map(u => {
-        const tc = u.tcPago || u.tcCompra || 3.70;
-        const costoTotalUSD = u.costoUnitarioUSD + (u.costoFleteUSD || 0);
-        return u.ctruDinamico || u.ctruInicial || (costoTotalUSD * tc);
-      });
+      const ctrus = unidadesActivas.map(u => getCTRU(u));
       const sumaCTRU = ctrus.reduce((sum, c) => sum + c, 0);
-      const ctruPromedio = sumaCTRU / unidadesActivas.length;
-      const ctruMinimo = Math.min(...ctrus);
-      const ctruMaximo = Math.max(...ctrus);
 
       return {
-        ctruPromedio,
+        ctruPromedio: sumaCTRU / unidadesActivas.length,
         unidadesActivas: unidadesActivas.length,
-        ctruMinimo,
-        ctruMaximo
+        ctruMinimo: Math.min(...ctrus),
+        ctruMaximo: Math.max(...ctrus)
       };
     } catch (error: any) {
       console.error('Error al obtener CTRU de producto:', error);
@@ -340,10 +339,9 @@ export const ctruService = {
   ): Promise<{
     costoTotal: number;
     utilidadBruta: number;
-    margen: number; // %
+    margen: number;
   }> {
     try {
-      // Obtener las unidades asignadas
       const unidades = await Promise.all(
         unidadesAsignadas.map(id => unidadService.getById(id))
       );
@@ -351,33 +349,14 @@ export const ctruService = {
       const unidadesValidas = unidades.filter(u => u !== null) as Unidad[];
 
       if (unidadesValidas.length === 0) {
-        return {
-          costoTotal: 0,
-          utilidadBruta: 0,
-          margen: 0
-        };
+        return { costoTotal: 0, utilidadBruta: 0, margen: 0 };
       }
 
-      // Sumar CTRU de todas las unidades
-      // CTRU = (CostoUSD + FleteUSD) * TC
-      const costoTotal = unidadesValidas.reduce(
-        (sum, u) => {
-          const tc = u.tcPago || u.tcCompra || 3.70;
-          const costoTotalUSD = u.costoUnitarioUSD + (u.costoFleteUSD || 0);
-          const ctru = u.ctruDinamico || u.ctruInicial || (costoTotalUSD * tc);
-          return sum + ctru;
-        },
-        0
-      );
-
+      const costoTotal = unidadesValidas.reduce((sum, u) => sum + getCTRU(u), 0);
       const utilidadBruta = precioVentaPEN - costoTotal;
-      const margen = (utilidadBruta / precioVentaPEN) * 100;
+      const margen = precioVentaPEN > 0 ? (utilidadBruta / precioVentaPEN) * 100 : 0;
 
-      return {
-        costoTotal,
-        utilidadBruta,
-        margen
-      };
+      return { costoTotal, utilidadBruta, margen };
     } catch (error: any) {
       console.error('Error al calcular margen de venta:', error);
       throw new Error(`Error al calcular margen de venta: ${error.message}`);
@@ -386,7 +365,6 @@ export const ctruService = {
 
   /**
    * Obtener historial de evolución del CTRU de un producto
-   * Útil para gráficos y análisis
    */
   async getHistorialCTRUProducto(
     productoId: string,
@@ -411,13 +389,11 @@ export const ctruService = {
         const mes = fecha.getMonth() + 1;
         const anio = fecha.getFullYear();
 
-        // Obtener unidades del producto en ese mes
         const unidades = await unidadService.buscar({
           productoId,
           estado: 'disponible_peru'
         });
 
-        // Filtrar por mes/año (aproximado)
         const unidadesMes = unidades.filter(u => {
           const fechaCreacion = u.fechaCreacion.toDate();
           return (
@@ -427,25 +403,18 @@ export const ctruService = {
         });
 
         if (unidadesMes.length > 0) {
-          // CTRU = (CostoUSD + FleteUSD) * TC
-          const sumaCTRU = unidadesMes.reduce((sum, u) => {
-            const tc = u.tcPago || u.tcCompra || 3.70;
-            const costoTotalUSD = u.costoUnitarioUSD + (u.costoFleteUSD || 0);
-            const ctru = u.ctruDinamico || u.ctruInicial || (costoTotalUSD * tc);
-            return sum + ctru;
-          }, 0);
-          const ctruPromedio = sumaCTRU / unidadesMes.length;
+          const sumaCTRU = unidadesMes.reduce((sum, u) => sum + getCTRU(u), 0);
 
           historial.push({
             mes,
             anio,
-            ctruPromedio,
+            ctruPromedio: sumaCTRU / unidadesMes.length,
             unidades: unidadesMes.length
           });
         }
       }
 
-      return historial.reverse(); // Más antiguo primero
+      return historial.reverse();
     } catch (error: any) {
       console.error('Error al obtener historial CTRU:', error);
       throw new Error(`Error al obtener historial CTRU: ${error.message}`);

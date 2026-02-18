@@ -208,8 +208,8 @@ export const Requerimientos: React.FC = () => {
           .filter(r => r.estado !== 'cancelado')
           .flatMap(r => [
             (r as any).ventaRelacionadaId,
-            r.cotizacionId,
-            r.ventaId
+            (r as any).cotizacionId,
+            (r as any).ventaId
           ].filter(Boolean))
       );
       const cotizacionesConFaltante = ventas.filter(
@@ -649,7 +649,7 @@ export const Requerimientos: React.FC = () => {
           id: req.id,
           numeroRequerimiento: req.numeroRequerimiento,
           productos: productosParaOC,
-          tcInvestigacion: req.expectativa.tcInvestigacion,
+          tcInvestigacion: req.expectativa?.tcInvestigacion,
           prioridad: req.prioridad
         }
       }
@@ -808,16 +808,18 @@ export const Requerimientos: React.FC = () => {
     );
   };
 
-  const getPrioridadBadge = (prioridad: 'alta' | 'media' | 'baja') => {
-    const config = {
+  const getPrioridadBadge = (prioridad: string) => {
+    const config: Record<string, string> = {
+      urgente: 'bg-red-200 text-red-900 border-red-300',
       alta: 'bg-red-100 text-red-800 border-red-200',
       media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      normal: 'bg-yellow-100 text-yellow-800 border-yellow-200',
       baja: 'bg-gray-100 text-gray-800 border-gray-200'
     };
 
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config[prioridad]}`}>
-        {prioridad === 'alta' && <AlertTriangle className="h-3 w-3 mr-1" />}
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config[prioridad] || config.baja}`}>
+        {(prioridad === 'alta' || prioridad === 'urgente') && <AlertTriangle className="h-3 w-3 mr-1" />}
         {prioridad}
       </span>
     );

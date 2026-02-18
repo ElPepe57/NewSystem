@@ -314,6 +314,32 @@ export class CotizacionService {
       const incluyeEnvio = data.incluyeEnvio ?? true;
       const totalPEN = subtotalPEN - descuento + (incluyeEnvio ? 0 : costoEnvio);
 
+      // Calcular expectativa de cotización (TC momento 1: al cotizar)
+      let expectativaCotizacion: Record<string, any> | undefined;
+      try {
+        const tcData = await tipoCambioService.getTCDelDia();
+        const tcCotizacion = tcData?.venta || 3.70;
+        const expectativaCalc = await expectativaService.calcularExpectativaCotizacion(
+          data.productos.map(p => ({
+            productoId: p.productoId,
+            cantidad: p.cantidad,
+            precioUnitario: p.precioUnitario
+          })),
+          tcCotizacion
+        );
+        expectativaCotizacion = {
+          tcCotizacion,
+          costoEstimadoUSD: expectativaCalc.costoEstimadoUSD,
+          costoEstimadoPEN: expectativaCalc.costoEstimadoPEN,
+          margenEsperado: expectativaCalc.margenEsperado,
+          utilidadEsperadaPEN: expectativaCalc.utilidadEsperadaPEN,
+          productosEstimados: expectativaCalc.productosEstimados,
+          fechaCotizacion: Timestamp.now()
+        };
+      } catch (e) {
+        console.warn('[Expectativa] No se pudo calcular expectativa de cotización (no bloqueante):', e);
+      }
+
       // Generar número de cotización
       const numeroCotizacion = await this.generateNumeroCotizacion();
 
@@ -337,6 +363,11 @@ export class CotizacionService {
         productosInteres: productosCotizacion.map(p => p.productoId),
         creadoPor: userId
       };
+
+      // Guardar expectativa en la cotización
+      if (expectativaCotizacion) {
+        nuevaCotizacion.expectativaCotizacion = expectativaCotizacion;
+      }
 
       // Agregar campos opcionales
       if (data.clienteId) nuevaCotizacion.clienteId = data.clienteId;
@@ -1122,11 +1153,26 @@ export class CotizacionService {
       // Crear la venta (solo valida stock si NO tiene reserva previa)
       const venta = await VentaService.create(ventaData, userId, esVentaDirectaSinReserva);
 
-      // Guardar referencia a la cotización de origen en la venta
-      await updateDoc(doc(db, 'ventas', venta.id), {
+      // Guardar referencia a la cotización de origen y expectativa en la venta
+      const ventaUpdateData: Record<string, any> = {
         cotizacionOrigenId: id,
         numeroCotizacionOrigen: cotizacion.numeroCotizacion
-      });
+      };
+
+      // Transferir expectativa de cotización a la venta (TC momento 1)
+      if (cotizacion.expectativaCotizacion) {
+        ventaUpdateData.expectativaCotizacion = cotizacion.expectativaCotizacion;
+      }
+
+      // Registrar TC al momento de confirmar la venta (TC momento 4: al vender)
+      try {
+        const tcDataVenta = await tipoCambioService.getTCDelDia();
+        if (tcDataVenta) {
+          ventaUpdateData.tcVenta = tcDataVenta.venta;
+        }
+      } catch { /* no bloquear si falla */ }
+
+      await updateDoc(doc(db, 'ventas', venta.id), ventaUpdateData);
 
       // Si hay adelanto, registrarlo como pago en la venta
       // El adelanto ya fue pagado en la cotización, debe reflejarse en la venta

@@ -642,7 +642,7 @@ export const Tesoreria: React.FC = () => {
 
     // Avanzar cronológicamente construyendo puntos
     const puntos: { fecha: string; saldo: number }[] = [];
-    const fechaInicial = movsOrdenados[0].fecha?.toDate
+    const fechaInicial = movsOrdenados[0].fecha?.toDate?.()
       ? movsOrdenados[0].fecha.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
       : '';
     puntos.push({ fecha: fechaInicial, saldo: Number(saldoPEN.toFixed(2)) });
