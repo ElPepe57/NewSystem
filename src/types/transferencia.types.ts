@@ -67,8 +67,11 @@ export interface Transferencia {
   monedaFlete?: 'USD' | 'PEN';
 
   // === PAGO AL VIAJERO ===
-  estadoPagoViajero?: 'pendiente' | 'pagado';
-  pagoViajero?: PagoViajero;
+  estadoPagoViajero?: 'pendiente' | 'parcial' | 'pagado';
+  pagoViajero?: PagoViajero;            // Legacy: single payment (backward compat)
+  pagosViajero?: PagoViajero[];         // Array de pagos parciales
+  montoPagadoUSD?: number;              // Acumulado pagado en USD
+  montoPendienteUSD?: number;           // costoFleteTotal - montoPagadoUSD
 
   // === MOTIVO (solo para interna_usa) ===
   motivo?: MotivoTransferenciaUSA;
@@ -129,6 +132,8 @@ export interface PagoViajero {
 
   // Tesorería
   movimientoTesoreriaId?: string;   // ID del movimiento en tesorería
+  errorTesoreria?: boolean;         // True si el registro en tesorería falló
+  errorTesoreriaMsg?: string;       // Mensaje de error
 
   // Auditoría
   registradoPor: string;

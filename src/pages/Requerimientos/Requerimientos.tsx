@@ -42,6 +42,7 @@ import { AsignacionResponsableForm } from '../../components/modules/requerimient
 import { VincularOCModal } from '../../components/modules/requerimiento/VincularOCModal';
 import { ProductoSearchRequerimientos, type ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { useProductoStore } from '../../store/productoStore';
+import { useExpectativaStore } from '../../store/expectativaStore';
 import type { ProductoFormData } from '../../types/producto.types';
 import { ExpectativaService } from '../../services/expectativa.service';
 import { ProductoService } from '../../services/producto.service';
@@ -50,6 +51,7 @@ import { VentaService } from '../../services/venta.service';
 import { inventarioService } from '../../services/inventario.service';
 import { tipoCambioService } from '../../services/tipoCambio.service';
 import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../store/toastStore';
 import type {
   Requerimiento,
   RequerimientoFormData,
@@ -102,14 +104,22 @@ const KANBAN_COLUMNS: { id: EstadoRequerimiento; label: string; color: string; i
 export const Requerimientos: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const toast = useToastStore();
   const { productos: productosStore, createProducto, fetchProductos } = useProductoStore();
+  const {
+    requerimientos,
+    loading: loadingReqs,
+    fetchRequerimientos,
+    actualizarEstado: storeActualizarEstado,
+    limpiarDatosVinculacion: storeLimpiarDatos
+  } = useExpectativaStore();
 
   // TC del día
   const [tcDelDia, setTcDelDia] = useState<{ venta: number; compra: number } | null>(null);
 
-  // Estados principales
-  const [loading, setLoading] = useState(true);
-  const [requerimientos, setRequerimientos] = useState<Requerimiento[]>([]);
+  // Estados principales (loading combina store + local)
+  const [loadingLocal, setLoadingLocal] = useState(true);
+  const loading = loadingReqs || loadingLocal;
   const [productos, setProductos] = useState<Producto[]>([]);
   const [cotizacionesConfirmadas, setCotizacionesConfirmadas] = useState<Venta[]>([]);
   const [sugerenciasStock, setSugerenciasStock] = useState<SugerenciaStock[]>([]);
@@ -191,18 +201,19 @@ export const Requerimientos: React.FC = () => {
   };
 
   const loadData = async () => {
-    setLoading(true);
+    setLoadingLocal(true);
     try {
-      const [reqs, prods, ventas] = await Promise.all([
-        ExpectativaService.getRequerimientos(),
+      const [, prods, ventas] = await Promise.all([
+        fetchRequerimientos(),
         ProductoService.getAll(),
         VentaService.getAll()
       ]);
-      setRequerimientos(reqs);
       setProductos(prods);
 
       // Filtrar cotizaciones confirmadas que requieren stock
       // y que NO tengan ya un requerimiento activo (no cancelado)
+      // Nota: usamos requerimientos del store (se actualiza via fetchRequerimientos)
+      const reqs = useExpectativaStore.getState().requerimientos;
       const reqVentaIds = new Set(
         reqs
           .filter(r => r.estado !== 'cancelado')
@@ -213,7 +224,9 @@ export const Requerimientos: React.FC = () => {
           ].filter(Boolean))
       );
       const cotizacionesConFaltante = ventas.filter(
-        v => v.estado === 'confirmada' && v.requiereStock === true && !reqVentaIds.has(v.id)
+        v => v.estado === 'confirmada' && v.requiereStock === true &&
+          !reqVentaIds.has(v.id) &&
+          !(v.cotizacionOrigenId && reqVentaIds.has(v.cotizacionOrigenId))
       );
       setCotizacionesConfirmadas(cotizacionesConFaltante);
 
@@ -222,7 +235,7 @@ export const Requerimientos: React.FC = () => {
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
-      setLoading(false);
+      setLoadingLocal(false);
     }
   };
 
@@ -470,11 +483,11 @@ export const Requerimientos: React.FC = () => {
   };
 
   const handleCrearRequerimiento = async () => {
-    if (!user || !formData.productos?.length) return;
+    if (!user || !formData.productos?.length || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      await ExpectativaService.crearRequerimiento(
+      await useExpectativaStore.getState().crearRequerimiento(
         formData as RequerimientoFormData,
         user.uid
       );
@@ -482,7 +495,7 @@ export const Requerimientos: React.FC = () => {
       setFormData({ origen: 'manual', prioridad: 'media', tipoSolicitante: 'administracion', productos: [] });
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error al crear requerimiento');
     } finally {
       setIsSubmitting(false);
     }
@@ -499,9 +512,9 @@ export const Requerimientos: React.FC = () => {
       await fetchProductos();
       loadData(); // Refrescar también los datos locales
       setShowProductoModal(false);
-      alert('✅ Producto creado correctamente');
+      toast.success('Producto creado correctamente');
     } catch (error: any) {
-      alert(`❌ Error al crear producto: ${error.message}`);
+      toast.error(error.message, 'Error al crear producto');
     } finally {
       setIsCreatingProducto(false);
     }
@@ -539,7 +552,7 @@ export const Requerimientos: React.FC = () => {
     });
 
     if (productosVenta.length === 0) {
-      alert('No hay productos con faltante de stock en esta venta');
+      toast.warning('No hay productos con faltante de stock en esta venta');
       return;
     }
 
@@ -581,11 +594,12 @@ export const Requerimientos: React.FC = () => {
   const handleAprobar = async (req: Requerimiento) => {
     if (!user) return;
     try {
-      await ExpectativaService.actualizarEstado(req.id, 'aprobado', user.uid);
+      await storeActualizarEstado(req.id, 'aprobado', user.uid);
+      toast.success('Requerimiento aprobado');
       loadData();
     } catch (error: any) {
       console.error('Error al aprobar:', error);
-      alert('Error al aprobar el requerimiento');
+      toast.error('Error al aprobar el requerimiento');
     }
   };
 
@@ -600,11 +614,12 @@ export const Requerimientos: React.FC = () => {
     });
     if (!confirmar) return;
     try {
-      await ExpectativaService.actualizarEstado(req.id, 'cancelado', user.uid);
+      await storeActualizarEstado(req.id, 'cancelado', user.uid);
+      toast.success('Requerimiento cancelado');
       loadData();
     } catch (error: any) {
       console.error('Error al cancelar:', error);
-      alert('Error al cancelar el requerimiento');
+      toast.error('Error al cancelar el requerimiento');
     }
   };
 
@@ -619,12 +634,12 @@ export const Requerimientos: React.FC = () => {
     });
     if (!confirmar) return;
     try {
-      const result = await ExpectativaService.limpiarDatosVinculacion(user.uid);
-      alert(result.resumen);
+      const result = await storeLimpiarDatos(user.uid);
+      toast.success(result.resumen, 'Limpieza completada');
       loadData();
     } catch (error: any) {
       console.error('Error al limpiar datos:', error);
-      alert('Error: ' + error.message);
+      toast.error(error.message, 'Error en limpieza');
     }
   };
 
@@ -662,7 +677,7 @@ export const Requerimientos: React.FC = () => {
 
     const asignaciones = (req as any).asignaciones as AsignacionResponsable[] | undefined;
     if (!asignaciones || asignaciones.length === 0) {
-      alert('No hay viajeros asignados para generar OCs');
+      toast.warning('No hay viajeros asignados para generar OCs');
       return;
     }
 
@@ -672,7 +687,7 @@ export const Requerimientos: React.FC = () => {
     );
 
     if (asignacionesSinOC.length === 0) {
-      alert('Todas las asignaciones ya tienen OC generada');
+      toast.info('Todas las asignaciones ya tienen OC generada');
       return;
     }
 

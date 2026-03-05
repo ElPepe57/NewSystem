@@ -8,7 +8,8 @@ import {
   AlertTriangle,
   Clock,
   DollarSign,
-  Eye
+  Eye,
+  CheckCircle
 } from 'lucide-react';
 import { Badge, Button, Card } from '../../common';
 import type { ProductoConUnidades } from './ProductoInventarioTable';
@@ -83,7 +84,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
         <div className="text-xs font-medium text-gray-500 uppercase mb-2">
           Distribución
         </div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {/* USA */}
           <div className="text-center p-2 bg-blue-50 rounded-lg">
             <Warehouse className="h-4 w-4 text-blue-500 mx-auto mb-1" />
@@ -111,13 +112,31 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
             <div className="text-[10px] text-green-500 font-medium">Perú</div>
           </div>
 
-          {/* Reservadas */}
+          {/* Reservadas USA */}
           <div className="text-center p-2 bg-purple-50 rounded-lg">
             <ShoppingBag className="h-4 w-4 text-purple-500 mx-auto mb-1" />
             <div className="text-lg font-bold text-purple-600">
-              {producto.reservada}
+              {producto.reservadaUSA}
             </div>
-            <div className="text-[10px] text-purple-500 font-medium">Reserv.</div>
+            <div className="text-[10px] text-purple-500 font-medium">Res. USA</div>
+          </div>
+
+          {/* Reservadas Perú */}
+          <div className="text-center p-2 bg-purple-50 rounded-lg">
+            <ShoppingBag className="h-4 w-4 text-purple-400 mx-auto mb-1" />
+            <div className="text-lg font-bold text-purple-500">
+              {producto.reservadaPeru}
+            </div>
+            <div className="text-[10px] text-purple-400 font-medium">Res. Perú</div>
+          </div>
+
+          {/* Vendidas */}
+          <div className="text-center p-2 bg-emerald-50 rounded-lg">
+            <CheckCircle className="h-4 w-4 text-emerald-500 mx-auto mb-1" />
+            <div className="text-lg font-bold text-emerald-600">
+              {producto.vendida}
+            </div>
+            <div className="text-[10px] text-emerald-500 font-medium">Vendidas</div>
           </div>
         </div>
       </div>

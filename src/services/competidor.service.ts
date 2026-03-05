@@ -20,8 +20,9 @@ import type {
   PlataformaCompetidor,
   ReputacionCompetidor
 } from '../types/entidadesMaestras.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'competidores';
+const COLLECTION_NAME = COLLECTIONS.COMPETIDORES;
 
 // Normalizar texto para búsquedas
 const normalizarTexto = (texto: string): string => {

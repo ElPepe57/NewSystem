@@ -38,6 +38,7 @@ import { RegistrarAdelantoModal } from '../../components/modules/venta/Registrar
 import { useCotizacionStore } from '../../store/cotizacionStore';
 import { useConfiguracionStore } from '../../store/configuracionStore';
 import { useAuthStore } from '../../store/authStore';
+import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { exportService } from '../../services/export.service';
 import { CotizacionPdfService } from '../../services/cotizacionPdf.service';
 import { tesoreriaService } from '../../services/tesoreria.service';
@@ -401,6 +402,7 @@ const MOTIVOS_RECHAZO: { value: MotivoRechazo; label: string }[] = [
 export const Cotizaciones: React.FC = () => {
   const { user } = useAuthStore();
   const { empresa, fetchEmpresa } = useConfiguracionStore();
+  const { canales: canalesVenta, fetchCanales: fetchCanalesVenta } = useCanalVentaStore();
   const {
     cotizaciones: todasCotizaciones,
     loading,
@@ -455,7 +457,19 @@ export const Cotizaciones: React.FC = () => {
     fetchCotizaciones();
     fetchStats();
     fetchEmpresa();
-  }, [fetchCotizaciones, fetchStats, fetchEmpresa]);
+    fetchCanalesVenta();
+  }, [fetchCotizaciones, fetchStats, fetchEmpresa, fetchCanalesVenta]);
+
+  // Helper para resolver nombre de canal
+  const resolverNombreCanal = (canalId: string): string => {
+    if (!canalId) return '-';
+    // Legacy values
+    if (canalId === 'mercado_libre') return 'Mercado Libre';
+    if (canalId === 'directo') return 'Directo';
+    // Buscar en los canales cargados
+    const canal = canalesVenta.find(c => c.id === canalId);
+    return canal?.nombre || canalId;
+  };
 
   // Filtrar cotizaciones
   const cotizacionesFiltradas = useMemo(() => {
@@ -1628,7 +1642,7 @@ export const Cotizaciones: React.FC = () => {
                    selectedCotizacion.estado === 'vencida' ? 'Vencida' : selectedCotizacion.estado}
                 </Badge>
                 <span className="text-sm text-gray-600">
-                  Canal: <span className="font-medium">{selectedCotizacion.canal === 'mercado_libre' ? 'Mercado Libre' : selectedCotizacion.canal === 'directo' ? 'Directo' : selectedCotizacion.canal}</span>
+                  Canal: <span className="font-medium">{resolverNombreCanal(selectedCotizacion.canal)}</span>
                 </span>
               </div>
               <div className="text-right">

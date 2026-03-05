@@ -4,6 +4,8 @@ import {
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
   type User
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
@@ -17,6 +19,25 @@ export class AuthService {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       return userCredential.user;
     } catch (error: any) {
+      throw new Error(this.getErrorMessage(error.code));
+    }
+  }
+
+  /**
+   * Login con Google (popup)
+   */
+  static async loginWithGoogle(): Promise<User> {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      return result.user;
+    } catch (error: any) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        throw new Error('Inicio de sesión cancelado');
+      }
+      if (error.code === 'auth/popup-blocked') {
+        throw new Error('El navegador bloqueó la ventana emergente. Permite pop-ups e intenta de nuevo.');
+      }
       throw new Error(this.getErrorMessage(error.code));
     }
   }

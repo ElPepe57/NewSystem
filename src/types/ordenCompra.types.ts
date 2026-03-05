@@ -10,7 +10,7 @@ export type EstadoOrden =
   | 'cancelada';        // Cancelada
 
 // Estado de pago (independiente del estado logístico)
-export type EstadoPago =
+export type EstadoPagoOC =
   | 'pendiente'     // No pagada
   | 'pagada'        // Pago completado
   | 'pago_parcial'; // Pagada parcialmente
@@ -224,7 +224,7 @@ export interface OrdenCompra {
   
   // Estados (logístico y financiero son independientes)
   estado: EstadoOrden;              // Estado logístico
-  estadoPago: EstadoPago;           // Estado de pago (independiente)
+  estadoPago: EstadoPagoOC;           // Estado de pago (independiente)
 
   // Fechas logísticas
   fechaCreacion: Timestamp;

@@ -133,7 +133,7 @@ export const productoIntelService = {
     ventas30dAnterior: Venta[] // 30 dias previos para comparar
   ): MetricasRotacion {
     // Filtrar ventas de este producto (solo ventas efectivas, no cotizaciones)
-    const estadosValidos = ['confirmada', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada'];
+    const estadosValidos = ['confirmada', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada'];
 
     const ventasProducto30d = this.filtrarVentasProducto(ventas30d, producto.id, estadosValidos);
     const ventasProducto90d = this.filtrarVentasProducto(ventas90d, producto.id, estadosValidos);
@@ -298,7 +298,7 @@ export const productoIntelService = {
     ventas30d: Venta[],
     ventas90d: Venta[]
   ): MetricasRentabilidad {
-    const estadosValidos = ['confirmada', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada'];
+    const estadosValidos = ['confirmada', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada'];
 
     const ventasProducto30d = this.filtrarVentasProducto(ventas30d, producto.id, estadosValidos);
     const ventasProducto90d = this.filtrarVentasProducto(ventas90d, producto.id, estadosValidos);
@@ -971,7 +971,7 @@ export const productoIntelService = {
     const ventasRecientes = await this.getVentasRecientes(30);
     const ventasPendientes = ventasRecientes.filter(v =>
       v.estadoPago !== 'pagado' &&
-      ['confirmada', 'asignada', 'en_entrega'].includes(v.estado)
+      ['confirmada', 'asignada', 'en_entrega', 'despachada'].includes(v.estado)
     );
 
     const cajaPendienteCobrar = ventasPendientes.reduce((sum, v) => {
@@ -1233,7 +1233,7 @@ export const productoIntelService = {
     dias: number = 90
   ): Promise<RendimientoProductoCanal[]> {
     const ventas = await this.getVentasRecientes(dias);
-    const estadosValidos = ['confirmada', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada'];
+    const estadosValidos = ['confirmada', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada'];
 
     const ventasProducto = ventas.filter(v =>
       estadosValidos.includes(v.estado) &&

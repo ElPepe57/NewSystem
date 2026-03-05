@@ -28,8 +28,9 @@ import type {
   ResumenAsignaciones
 } from '../types/requerimiento.types';
 import { almacenService } from './almacen.service';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'requerimientos';
+const COLLECTION_NAME = COLLECTIONS.REQUERIMIENTOS;
 
 export const requerimientoService = {
   /**

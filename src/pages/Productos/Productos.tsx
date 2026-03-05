@@ -193,6 +193,13 @@ export const Productos: React.FC = () => {
     setSelectedProducto(null);
   };
 
+  // Helper: obtener producto fresco del store (evita stale closure)
+  const refreshSelectedProducto = (productoId: string) => {
+    const freshProductos = useProductoStore.getState().productos;
+    const productoActualizado = freshProductos.find(p => p.id === productoId);
+    if (productoActualizado) setSelectedProducto(productoActualizado);
+  };
+
   // Investigación de Mercado
   const handleOpenInvestigacion = (producto: Producto) => {
     setSelectedProducto(producto);
@@ -219,10 +226,7 @@ export const Productos: React.FC = () => {
 
       // Refrescar producto seleccionado si el view modal sigue abierto
       if (isViewModalOpen) {
-        const productoActualizado = productos.find(p => p.id === selectedProducto.id);
-        if (productoActualizado) {
-          setSelectedProducto(productoActualizado);
-        }
+        refreshSelectedProducto(selectedProducto.id);
       }
     } catch (error: any) {
       alert(error.message);
@@ -246,10 +250,7 @@ export const Productos: React.FC = () => {
 
       // Refrescar producto seleccionado si el view modal sigue abierto
       if (isViewModalOpen) {
-        const productoActualizado = productos.find(p => p.id === selectedProducto.id);
-        if (productoActualizado) {
-          setSelectedProducto(productoActualizado);
-        }
+        refreshSelectedProducto(selectedProducto.id);
       }
     } catch (error: any) {
       alert(error.message);

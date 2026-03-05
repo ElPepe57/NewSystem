@@ -6,7 +6,8 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { Producto, Unidad } from '../types/producto.types';
+import type { Producto } from '../types/producto.types';
+import type { Unidad } from '../types/unidad.types';
 import type { Venta } from '../types/venta.types';
 import { getCTRU } from '../utils/ctru.utils';
 
@@ -212,9 +213,7 @@ class ClasificacionAnalyticsService {
             stock.transito++;
             stock.ctruTotal += getCTRU(unidad as any);
             break;
-          case 'asignada_pedido':
-          case 'en_despacho':
-            // Estas cuentan como stock Perú pero reservadas
+          case 'reservada':
             stock.peru++;
             stock.ctruTotal += getCTRU(unidad as any);
             break;

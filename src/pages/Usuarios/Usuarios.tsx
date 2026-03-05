@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle } from 'lucide-react';
+import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle, LogOut, Wifi, WifiOff, Clock, CheckCircle } from 'lucide-react';
 import { userService, PERMISOS_INFO } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
-import { DEFAULT_PERMISOS, PERMISOS } from '../../types/auth.types';
+import { DEFAULT_PERMISOS, PERMISOS, ROLE_LABELS, ROLE_DESCRIPTIONS } from '../../types/auth.types';
 
-type ModalType = 'none' | 'create' | 'edit-permisos' | 'view-permisos' | 'delete-confirm' | 'reset-password';
+type ModalType = 'none' | 'create' | 'edit-permisos' | 'view-permisos' | 'delete-confirm' | 'reset-password' | 'disconnect-confirm' | 'disconnect-all-confirm' | 'approve-user';
 
 export const Usuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<UserProfile[]>([]);
@@ -34,6 +34,9 @@ export const Usuarios: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<UserRole | 'all'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
+
+  // Estado para aprobar usuario
+  const [approveRole, setApproveRole] = useState<UserRole>('vendedor');
 
   // Estado para resetear contraseña
   const [newPassword, setNewPassword] = useState('');
@@ -128,16 +131,15 @@ export const Usuarios: React.FC = () => {
   const handleSavePermisos = async () => {
     if (!selectedUser) return;
 
-    if (selectedUser.uid === currentUser?.uid) {
-      setError('No puedes modificar tus propios permisos');
-      return;
-    }
+    // Si es auto-edición, forzar que el rol no cambie
+    const isSelf = selectedUser.uid === currentUser?.uid;
+    const roleToSave = isSelf ? selectedUser.role : editRole;
 
     setSaving(true);
     setError(null);
 
     try {
-      await userService.updateRoleAndPermisos(selectedUser.uid, editRole, editPermisos);
+      await userService.updateRoleAndPermisos(selectedUser.uid, roleToSave, editPermisos);
       setSuccess('Permisos actualizados correctamente');
       setModalType('none');
       await fetchUsuarios();
@@ -223,6 +225,69 @@ export const Usuarios: React.FC = () => {
     }
   };
 
+  // Función para desconectar un usuario
+  const handleOpenDisconnect = (usuario: UserProfile) => {
+    setSelectedUser(usuario);
+    setModalType('disconnect-confirm');
+  };
+
+  const handleDisconnectUser = async () => {
+    if (!selectedUser) return;
+    setSaving(true);
+    setError(null);
+
+    try {
+      await userService.forceDisconnectUser(selectedUser.uid);
+      setSuccess(`"${selectedUser.displayName}" ha sido desconectado`);
+      setModalType('none');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Función para desconectar a TODOS
+  const handleDisconnectAll = async () => {
+    setSaving(true);
+    setError(null);
+
+    try {
+      const count = await userService.forceDisconnectAll();
+      setSuccess(`${count} usuarios han sido desconectados`);
+      setModalType('none');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Aprobar usuario pendiente
+  const handleOpenApprove = (usuario: UserProfile) => {
+    setSelectedUser(usuario);
+    setApproveRole('vendedor');
+    setModalType('approve-user');
+  };
+
+  const handleApproveUser = async () => {
+    if (!selectedUser) return;
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      await userService.aprobarUsuario(selectedUser.uid, approveRole);
+      setSuccess(`"${selectedUser.displayName}" aprobado como ${ROLE_LABELS[approveRole]}`);
+      setModalType('none');
+      await fetchUsuarios();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Filtrar usuarios (con validación segura)
   const filteredUsuarios = useMemo(() => {
     const usuariosArr = Array.isArray(usuarios) ? usuarios : [];
@@ -249,26 +314,37 @@ export const Usuarios: React.FC = () => {
 
   const roleBadgeColor: Record<UserRole, string> = {
     admin: 'bg-red-100 text-red-800',
+    gerente: 'bg-purple-100 text-purple-800',
     vendedor: 'bg-blue-100 text-blue-800',
+    comprador: 'bg-amber-100 text-amber-800',
     almacenero: 'bg-green-100 text-green-800',
+    finanzas: 'bg-teal-100 text-teal-800',
+    supervisor: 'bg-indigo-100 text-indigo-800',
     invitado: 'bg-gray-100 text-gray-800'
   };
 
-  const roleLabels: Record<UserRole, string> = {
-    admin: 'Administrador',
-    vendedor: 'Vendedor',
-    almacenero: 'Almacenero',
-    invitado: 'Invitado'
-  };
-
   // Estadísticas
+  const pendientes = useMemo(() =>
+    usuarios.filter(u => !u.activo && u.role === 'invitado'),
+    [usuarios]
+  );
   const stats = {
     total: usuarios.length,
     activos: usuarios.filter(u => u.activo).length,
-    admins: usuarios.filter(u => u.role === 'admin').length,
-    vendedores: usuarios.filter(u => u.role === 'vendedor').length,
-    almaceneros: usuarios.filter(u => u.role === 'almacenero').length
+    inactivos: usuarios.filter(u => !u.activo).length,
+    pendientes: pendientes.length,
   };
+
+  // Conteo por rol (dinámico)
+  const roleStats = useMemo(() => {
+    const counts: Partial<Record<UserRole, number>> = {};
+    const allRoles: UserRole[] = ['admin', 'gerente', 'vendedor', 'comprador', 'almacenero', 'finanzas', 'supervisor', 'invitado'];
+    allRoles.forEach(role => {
+      const count = usuarios.filter(u => u.role === role).length;
+      if (count > 0) counts[role] = count;
+    });
+    return counts;
+  }, [usuarios]);
 
   // Agrupar permisos
   const permisosAgrupados = userService.getPermisosAgrupados();
@@ -289,13 +365,21 @@ export const Usuarios: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
           <p className="text-gray-600">Administra roles y permisos de los usuarios del sistema</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => setModalType('disconnect-all-confirm')}
+            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+            title="Desconectar todas las sesiones"
+          >
+            <WifiOff className="h-4 w-4" />
+            <span className="hidden sm:inline">Desconectar Todos</span>
+          </button>
           <button
             onClick={fetchUsuarios}
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
             <RefreshCw className="h-4 w-4" />
-            Actualizar
+            <span className="hidden sm:inline">Actualizar</span>
           </button>
           <button
             onClick={() => setModalType('create')}
@@ -326,15 +410,41 @@ export const Usuarios: React.FC = () => {
         </div>
       )}
 
+      {/* Banner de Solicitudes Pendientes */}
+      {stats.pendientes > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-amber-100 rounded-xl">
+              <Clock className="h-5 w-5 text-amber-600" />
+            </div>
+            <div>
+              <p className="font-semibold text-amber-800">
+                {stats.pendientes} solicitud{stats.pendientes > 1 ? 'es' : ''} pendiente{stats.pendientes > 1 ? 's' : ''} de aprobación
+              </p>
+              <p className="text-sm text-amber-600">
+                {pendientes.map(u => u.displayName || u.email).join(', ')}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => { setFilterStatus('inactive'); setFilterRole('invitado'); }}
+            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium whitespace-nowrap"
+          >
+            <UserCheck className="h-4 w-4" />
+            Revisar Solicitudes
+          </button>
+        </div>
+      )}
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary-100 rounded-lg">
               <Users className="h-5 w-5 text-primary-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Total</p>
+              <p className="text-sm text-gray-600">Total Usuarios</p>
               <p className="text-xl font-bold">{stats.total}</p>
             </div>
           </div>
@@ -347,7 +457,7 @@ export const Usuarios: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Activos</p>
-              <p className="text-xl font-bold">{stats.activos}</p>
+              <p className="text-xl font-bold text-green-600">{stats.activos}</p>
             </div>
           </div>
         </div>
@@ -355,39 +465,33 @@ export const Usuarios: React.FC = () => {
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-100 rounded-lg">
-              <Shield className="h-5 w-5 text-red-600" />
+              <UserX className="h-5 w-5 text-red-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Admins</p>
-              <p className="text-xl font-bold">{stats.admins}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Users className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Vendedores</p>
-              <p className="text-xl font-bold">{stats.vendedores}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Users className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Almaceneros</p>
-              <p className="text-xl font-bold">{stats.almaceneros}</p>
+              <p className="text-sm text-gray-600">Inactivos</p>
+              <p className="text-xl font-bold text-red-600">{stats.inactivos}</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Distribución por Rol */}
+      {Object.keys(roleStats).length > 0 && (
+        <div className="bg-white rounded-lg shadow p-4">
+          <h3 className="text-sm font-medium text-gray-600 mb-3">Distribución por Rol</h3>
+          <div className="flex flex-wrap gap-2">
+            {(Object.entries(roleStats) as [UserRole, number][]).map(([role, count]) => (
+              <span
+                key={role}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${roleBadgeColor[role]}`}
+              >
+                {ROLE_LABELS[role]}
+                <span className="bg-white/60 px-1.5 py-0.5 rounded-full text-xs font-bold">{count}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Búsqueda y Filtros */}
       <div className="bg-white rounded-lg shadow p-4">
@@ -414,8 +518,12 @@ export const Usuarios: React.FC = () => {
             >
               <option value="all">Todos los roles</option>
               <option value="admin">Administradores</option>
+              <option value="gerente">Gerentes</option>
               <option value="vendedor">Vendedores</option>
+              <option value="comprador">Compradores</option>
               <option value="almacenero">Almaceneros</option>
+              <option value="finanzas">Finanzas</option>
+              <option value="supervisor">Supervisores</option>
               <option value="invitado">Invitados</option>
             </select>
           </div>
@@ -523,7 +631,7 @@ export const Usuarios: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`text-sm rounded-full px-3 py-1 font-medium ${roleBadgeColor[usuario.role]}`}>
-                    {roleLabels[usuario.role]}
+                    {ROLE_LABELS[usuario.role]}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -559,13 +667,31 @@ export const Usuarios: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex justify-end gap-1">
+                    {/* Botón Aprobar (solo para pendientes) */}
+                    {!usuario.activo && usuario.role === 'invitado' && (
+                      <button
+                        onClick={() => handleOpenApprove(usuario)}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-colors"
+                        title="Aprobar usuario"
+                      >
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        <span className="text-xs font-medium">Aprobar</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => handleOpenEditPermisos(usuario)}
-                      disabled={usuario.uid === currentUser?.uid}
-                      className="p-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg"
                       title="Editar permisos"
                     >
                       <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleOpenDisconnect(usuario)}
+                      disabled={usuario.uid === currentUser?.uid}
+                      className="p-2 text-orange-600 hover:text-orange-900 hover:bg-orange-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Desconectar sesión"
+                    >
+                      <LogOut className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleOpenResetPassword(usuario)}
@@ -669,11 +795,13 @@ export const Usuarios: React.FC = () => {
                     onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRole })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   >
-                    <option value="admin">Administrador</option>
-                    <option value="vendedor">Vendedor</option>
-                    <option value="almacenero">Almacenero</option>
-                    <option value="invitado">Invitado</option>
+                    {(Object.entries(ROLE_LABELS) as [UserRole, string][]).map(([role, label]) => (
+                      <option key={role} value={role}>{label}</option>
+                    ))}
                   </select>
+                  {newUser.role && (
+                    <p className="text-xs text-gray-500 mt-1">{ROLE_DESCRIPTIONS[newUser.role]}</p>
+                  )}
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
@@ -733,25 +861,41 @@ export const Usuarios: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Rol del usuario
                 </label>
-                <div className="flex gap-2 flex-wrap">
-                  {(['admin', 'vendedor', 'almacenero', 'invitado'] as UserRole[]).map((role) => (
-                    <button
-                      key={role}
-                      type="button"
-                      onClick={() => handleRoleChange(role)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        editRole === role
-                          ? 'bg-primary-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {roleLabels[role]}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Al cambiar el rol, los permisos se resetean a los predeterminados del rol.
-                </p>
+                {selectedUser.uid === currentUser?.uid ? (
+                  <div>
+                    <span className={`inline-block px-3 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white`}>
+                      {ROLE_LABELS[editRole]}
+                    </span>
+                    <p className="text-xs text-amber-600 mt-2">
+                      No puedes cambiar tu propio rol por seguridad.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {(Object.entries(ROLE_LABELS) as [UserRole, string][]).map(([role, label]) => (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={() => handleRoleChange(role)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            editRole === role
+                              ? 'bg-primary-600 text-white shadow-sm'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {ROLE_DESCRIPTIONS[editRole]}
+                    </p>
+                    <p className="text-xs text-amber-600 mt-1">
+                      Al cambiar el rol, los permisos se resetean a los predeterminados.
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Permisos por grupo */}
@@ -950,26 +1094,232 @@ export const Usuarios: React.FC = () => {
         </div>
       )}
 
+      {/* Modal Confirmar Desconexión Individual */}
+      {modalType === 'disconnect-confirm' && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="p-3 bg-orange-100 rounded-full">
+                  <LogOut className="h-6 w-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Desconectar Usuario</h3>
+                  <p className="text-sm text-gray-500">Terminará la sesión activa del usuario</p>
+                </div>
+              </div>
+
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-orange-800">
+                  Se cerrará la sesión activa de:
+                </p>
+                <p className="font-medium text-orange-900 mt-2">
+                  {selectedUser.displayName} ({selectedUser.email})
+                </p>
+                <p className="text-xs text-orange-700 mt-2">
+                  El usuario deberá iniciar sesión nuevamente para acceder al sistema.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setModalType('none')}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleDisconnectUser}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
+                >
+                  {saving ? (
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <LogOut className="h-4 w-4" />
+                  )}
+                  Desconectar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Confirmar Desconexión de TODOS */}
+      {modalType === 'disconnect-all-confirm' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="p-3 bg-red-100 rounded-full">
+                  <WifiOff className="h-6 w-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Desconectar Todos</h3>
+                  <p className="text-sm text-gray-500">Terminará todas las sesiones activas</p>
+                </div>
+              </div>
+
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-red-800">
+                  Se cerrarán las sesiones de <strong>todos los usuarios</strong> excepto la tuya.
+                </p>
+                <p className="text-xs text-red-700 mt-2">
+                  Cada usuario deberá iniciar sesión nuevamente. Tu sesión no se verá afectada.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setModalType('none')}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleDisconnectAll}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+                >
+                  {saving ? (
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <WifiOff className="h-4 w-4" />
+                  )}
+                  Desconectar Todos
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Aprobar Usuario */}
+      {modalType === 'approve-user' && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-green-100 rounded-xl">
+                  <UserCheck className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Aprobar Solicitud de Acceso</h3>
+                  <p className="text-sm text-gray-500">Asigna un rol para activar la cuenta</p>
+                </div>
+                <button
+                  onClick={() => setModalType('none')}
+                  className="ml-auto text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Info del usuario */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                    <span className="text-amber-700 font-bold">
+                      {selectedUser.displayName?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">{selectedUser.displayName}</p>
+                    <p className="text-sm text-gray-500">{selectedUser.email}</p>
+                  </div>
+                </div>
+                {selectedUser.fechaCreacion && (
+                  <p className="text-xs text-gray-400 mt-3">
+                    Registrado el {new Date(selectedUser.fechaCreacion.toDate()).toLocaleDateString('es-PE', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                )}
+              </div>
+
+              {/* Selector de Rol */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Asignar Rol
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(Object.entries(ROLE_LABELS) as [UserRole, string][])
+                    .filter(([role]) => role !== 'invitado' && role !== 'admin')
+                    .map(([role, label]) => (
+                      <button
+                        key={role}
+                        type="button"
+                        onClick={() => setApproveRole(role)}
+                        className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                          approveRole === role
+                            ? 'bg-primary-600 text-white shadow-md ring-2 ring-primary-300'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                </div>
+                <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-xs text-blue-800">
+                    <strong>{ROLE_LABELS[approveRole]}:</strong> {ROLE_DESCRIPTIONS[approveRole]}
+                  </p>
+                  <p className="text-[10px] text-blue-600 mt-1">
+                    {DEFAULT_PERMISOS[approveRole].length} permisos predeterminados
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setModalType('none')}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleApproveUser}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors"
+                >
+                  {saving ? (
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4" />
+                  )}
+                  Aprobar y Activar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Info sobre roles */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-medium text-blue-800 mb-2">Información sobre Roles</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
-          <div>
-            <p className="font-medium">Administrador:</p>
-            <p>Acceso total al sistema, puede gestionar usuarios y configuración.</p>
-          </div>
-          <div>
-            <p className="font-medium">Vendedor:</p>
-            <p>Puede ver dashboard, crear/ver ventas, cotizaciones y ver inventario.</p>
-          </div>
-          <div>
-            <p className="font-medium">Almacenero:</p>
-            <p>Puede gestionar inventario, unidades, transferencias y ver ventas.</p>
-          </div>
-          <div>
-            <p className="font-medium">Invitado:</p>
-            <p>Acceso limitado, solo puede ver el dashboard básico.</p>
-          </div>
+        <h3 className="font-medium text-blue-800 mb-3">Información sobre Roles</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+          {(Object.entries(ROLE_LABELS) as [UserRole, string][]).map(([role, label]) => (
+            <div key={role} className="bg-white/60 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${roleBadgeColor[role]}`}>
+                  {label}
+                </span>
+              </div>
+              <p className="text-xs text-gray-600">{ROLE_DESCRIPTIONS[role]}</p>
+              <p className="text-[10px] text-gray-400 mt-1">
+                {DEFAULT_PERMISOS[role].length} permisos
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

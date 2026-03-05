@@ -341,7 +341,7 @@ export const StatDistribution: React.FC<StatDistributionProps> = ({
   data,
   total: providedTotal,
   showPercentage = true,
-  valueFormat = 'currency'
+  valueFormat = 'number'
 }) => {
   const total = providedTotal || data.reduce((sum, item) => sum + item.value, 0);
 

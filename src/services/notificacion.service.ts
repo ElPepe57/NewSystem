@@ -15,8 +15,9 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Notificacion, NotificacionCreate } from '../types/notificacion.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'notificaciones';
+const COLLECTION_NAME = COLLECTIONS.NOTIFICACIONES;
 
 class NotificacionService {
   private collectionRef = collection(db, COLLECTION_NAME);

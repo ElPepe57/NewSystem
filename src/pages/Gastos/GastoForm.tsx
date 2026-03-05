@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
-import { X, Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote } from 'lucide-react';
+import { X, Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote, AlertCircle } from 'lucide-react';
 import { Button, Input, Select, AutocompleteInput } from '../../components/common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../components/common/Modal';
 import { useGastoStore } from '../../store/gastoStore';
@@ -8,17 +8,19 @@ import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useToastStore } from '../../store/toastStore';
 import { tesoreriaService } from '../../services/tesoreria.service';
 import { VentaService } from '../../services/venta.service';
-import { CATEGORIAS_GASTO, type GastoFormData, type CategoriaGasto, type MonedaGasto, type EstadoGasto } from '../../types/gasto.types';
+import { CATEGORIAS_GASTO, type Gasto, type GastoFormData, type CategoriaGasto, type MonedaGasto, type EstadoGasto } from '../../types/gasto.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
 import type { Venta } from '../../types/venta.types';
 
 interface GastoFormProps {
   onClose: () => void;
+  gastoEditar?: Gasto | null;
 }
 
-export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
+export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) => {
+  const isEditing = !!gastoEditar;
   const { user } = useAuthStore();
-  const { crearGasto, gastos } = useGastoStore();
+  const { crearGasto, actualizarGasto, gastos } = useGastoStore();
   const { getTCDelDia } = useTipoCambioStore();
   const toast = useToastStore();
   const [tipoCambio, setTipoCambio] = React.useState<number>(0);
@@ -35,19 +37,41 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     };
   }, []);
 
-  const [formData, setFormData] = useState<GastoFormData>({
-    tipo: 'otros',
-    categoria: 'GO',
-    descripcion: '',
-    moneda: 'PEN',
-    montoOriginal: 0,
-    tipoCambio: tipoCambio || 0,
-    esProrrateable: false,
-    prorrateoTipo: 'unidad',
-    fecha: new Date(),
-    frecuencia: 'unico',
-    estado: 'pendiente',
-    impactaCTRU: false
+  const [formData, setFormData] = useState<GastoFormData>(() => {
+    if (gastoEditar) {
+      return {
+        tipo: gastoEditar.tipo || 'otros',
+        categoria: gastoEditar.categoria || 'GO',
+        descripcion: gastoEditar.descripcion || '',
+        moneda: gastoEditar.moneda || 'PEN',
+        montoOriginal: gastoEditar.montoOriginal || 0,
+        tipoCambio: gastoEditar.tipoCambio || tipoCambio || 0,
+        esProrrateable: gastoEditar.esProrrateable || false,
+        prorrateoTipo: gastoEditar.prorrateoTipo || 'unidad',
+        fecha: gastoEditar.fecha?.toDate?.() || new Date(),
+        frecuencia: gastoEditar.frecuencia || 'unico',
+        estado: gastoEditar.estado || 'pendiente',
+        impactaCTRU: gastoEditar.impactaCTRU || false,
+        ventaId: gastoEditar.ventaId,
+        proveedor: gastoEditar.proveedor,
+        numeroComprobante: gastoEditar.numeroComprobante,
+        notas: gastoEditar.notas,
+      };
+    }
+    return {
+      tipo: 'otros',
+      categoria: 'GO',
+      descripcion: '',
+      moneda: 'PEN',
+      montoOriginal: 0,
+      tipoCambio: tipoCambio || 0,
+      esProrrateable: false,
+      prorrateoTipo: 'unidad',
+      fecha: new Date(),
+      frecuencia: 'unico',
+      estado: 'pendiente',
+      impactaCTRU: false
+    };
   });
 
   // Cargar tipo de cambio al montar
@@ -56,7 +80,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
       const tc = await getTCDelDia();
       if (tc) {
         setTipoCambio(tc.compra);
-        setFormData(prev => ({ ...prev, tipoCambio: tc.compra }));
+        // Solo setear TC si no estamos editando (o si el gasto no tenía TC)
+        if (!gastoEditar?.tipoCambio) {
+          setFormData(prev => ({ ...prev, tipoCambio: tc.compra }));
+        }
       }
     };
     loadTC();
@@ -88,9 +115,22 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
 
       try {
         setLoadingVentas(true);
-        // Obtener ventas de los últimos 30 días
         const ventasRecientes = await VentaService.getVentasRecientes(30);
         setVentas(ventasRecientes);
+
+        // Si estamos editando y el gasto tiene ventaId, buscar la venta asociada
+        if (gastoEditar?.ventaId && !ventaSeleccionada) {
+          const ventaAsociada = ventasRecientes.find(v => v.id === gastoEditar.ventaId);
+          if (ventaAsociada) {
+            setVentaSeleccionada(ventaAsociada);
+          } else {
+            // La venta vinculada no está en las recientes (puede ser más antigua), buscarla directamente
+            const ventaDirecta = await VentaService.getById(gastoEditar.ventaId);
+            if (ventaDirecta) {
+              setVentaSeleccionada(ventaDirecta);
+            }
+          }
+        }
       } catch (error) {
         console.error('Error al cargar ventas:', error);
       } finally {
@@ -178,9 +218,27 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     cargarCuentas();
   }, []);
 
-  // Actualizar cuenta por defecto cuando cambia la moneda
+  // Pre-poblar campos de pago cuando se edita un gasto pagado
   useEffect(() => {
-    if (!loadingCuentas && cuentas.length > 0) {
+    if (!loadingCuentas && cuentas.length > 0 && gastoEditar && gastoEditar.estado === 'pagado') {
+      const pagoExistente = gastoEditar.pagos?.[0];
+      if (pagoExistente) {
+        // Pre-poblar desde pagos[0]
+        if (pagoExistente.cuentaOrigenId) setCuentaOrigenId(pagoExistente.cuentaOrigenId);
+        if (pagoExistente.metodoPago) setMetodoPago(pagoExistente.metodoPago as MetodoTesoreria);
+        if (pagoExistente.referencia) setReferenciaPago(pagoExistente.referencia);
+      } else {
+        // Legacy: pre-poblar desde campos del gasto
+        if ((gastoEditar as any).cuentaOrigenId) setCuentaOrigenId((gastoEditar as any).cuentaOrigenId);
+        if (gastoEditar.metodoPago) setMetodoPago(gastoEditar.metodoPago as MetodoTesoreria);
+      }
+      return; // No aplicar lógica de cuenta por defecto
+    }
+  }, [gastoEditar, loadingCuentas, cuentas]);
+
+  // Actualizar cuenta por defecto cuando cambia la moneda (solo para gastos nuevos o no pagados)
+  useEffect(() => {
+    if (!loadingCuentas && cuentas.length > 0 && !(gastoEditar && gastoEditar.estado === 'pagado')) {
       const cuentaMoneda = cuentas.find(c =>
         (c.esBiMoneda || c.moneda === formData.moneda) &&
         c.activa
@@ -189,7 +247,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
         setCuentaOrigenId(cuentaMoneda.id);
       }
     }
-  }, [formData.moneda, loadingCuentas, cuentas]);
+  }, [formData.moneda, loadingCuentas, cuentas, gastoEditar]);
 
   const cuentaSeleccionada = cuentas.find(c => c.id === cuentaOrigenId);
 
@@ -235,16 +293,21 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     try {
       const gastoData = {
         ...formData,
-        cuentaOrigenId: formData.estado === 'pagado' ? (cuentaOrigenId || undefined) : undefined,
-        metodoPago: formData.estado === 'pagado' ? metodoPago : undefined,
-        referenciaPago: formData.estado === 'pagado' ? (referenciaPago || undefined) : undefined
+        cuentaOrigenId: cuentaOrigenId || undefined,
+        metodoPago: metodoPago || undefined,
+        referenciaPago: referenciaPago || undefined
       };
 
-      await crearGasto(gastoData, user.uid);
-      toast.success('Gasto registrado exitosamente');
+      if (isEditing && gastoEditar) {
+        await actualizarGasto(gastoEditar.id, gastoData, user.uid);
+        toast.success('Gasto actualizado exitosamente');
+      } else {
+        await crearGasto(gastoData, user.uid);
+        toast.success('Gasto registrado exitosamente');
+      }
       onClose();
     } catch (error: any) {
-      toast.error(error.message, 'Error al crear gasto');
+      toast.error(error.message, isEditing ? 'Error al actualizar gasto' : 'Error al crear gasto');
     } finally {
       setLoading(false);
     }
@@ -293,7 +356,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Nuevo Gasto</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{isEditing ? 'Editar Gasto' : 'Nuevo Gasto'}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -304,6 +367,14 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Banner informativo para gastos pagados */}
+          {isEditing && gastoEditar?.estado === 'pagado' && (
+            <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+              <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <span>Este gasto está pagado. Cambiar el monto, cuenta o método actualizará el movimiento en tesorería. Cambiar a "Pendiente" anulará el movimiento.</span>
+            </div>
+          )}
+
           {/* Sección 1: Categoría */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Categoría del Gasto</h3>
@@ -848,7 +919,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
               type="submit"
               disabled={loading}
             >
-              {loading ? 'Guardando...' : 'Guardar Gasto'}
+              {loading ? 'Guardando...' : isEditing ? 'Actualizar Gasto' : 'Guardar Gasto'}
             </Button>
           </div>
         </form>

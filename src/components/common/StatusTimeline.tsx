@@ -10,6 +10,8 @@ export interface TimelineStep {
   date?: Timestamp | Date | null;
   status: 'completed' | 'current' | 'pending' | 'skipped';
   metadata?: Record<string, string | number>;
+  /** Label to show on the connector AFTER this step (e.g. "3d") */
+  durationLabel?: string;
 }
 
 export interface NextAction {
@@ -17,7 +19,7 @@ export interface NextAction {
   description?: string;
   buttonText?: string;
   onClick?: () => void;
-  variant?: 'primary' | 'warning' | 'success';
+  variant?: 'primary' | 'warning' | 'success' | 'info';
 }
 
 export interface StatusTimelineProps {
@@ -76,7 +78,7 @@ const statusConfig = {
   }
 };
 
-const actionVariantConfig = {
+const actionVariantConfig: Record<string, { bg: string; border: string; text: string; button: string }> = {
   primary: {
     bg: 'bg-primary-50',
     border: 'border-primary-200',
@@ -94,6 +96,12 @@ const actionVariantConfig = {
     border: 'border-green-200',
     text: 'text-green-700',
     button: 'bg-green-600 hover:bg-green-700 text-white'
+  },
+  info: {
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    text: 'text-blue-700',
+    button: 'bg-blue-600 hover:bg-blue-700 text-white'
   }
 };
 
@@ -242,10 +250,14 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
 
               {/* Conector */}
               {!isLast && (
-                <div className={`
-                  flex-1 h-0.5 mx-2 min-w-[20px]
-                  ${config.lineColor}
-                `} />
+                <div className="flex-1 mx-2 min-w-[20px] flex flex-col items-center justify-center">
+                  {step.durationLabel && (
+                    <span className="text-[10px] text-gray-400 mb-0.5 whitespace-nowrap">
+                      {step.durationLabel}
+                    </span>
+                  )}
+                  <div className={`w-full h-0.5 ${config.lineColor}`} />
+                </div>
               )}
             </React.Fragment>
           );
@@ -267,7 +279,7 @@ interface NextActionBoxProps {
 }
 
 const NextActionBox: React.FC<NextActionBoxProps> = ({ action, className = '' }) => {
-  const config = actionVariantConfig[action.variant || 'primary'];
+  const config = actionVariantConfig[action.variant || 'primary'] || actionVariantConfig.primary;
 
   return (
     <div className={`
@@ -310,6 +322,8 @@ export const useVentaTimelineSteps = (venta: {
   fechaCreacion?: Timestamp | Date;
   fechaConfirmacion?: Timestamp | Date;
   fechaAsignacion?: Timestamp | Date;
+  fechaEnEntrega?: Timestamp | Date;
+  fechaDespacho?: Timestamp | Date;
   fechaEntrega?: Timestamp | Date;
 }): TimelineStep[] => {
   const estadoIndex: Record<string, number> = {
@@ -317,7 +331,8 @@ export const useVentaTimelineSteps = (venta: {
     'confirmada': 1,
     'asignada': 2,
     'en_entrega': 3,
-    'entregada': 4,
+    'despachada': 4,
+    'entregada': 5,
     'cancelada': -1
   };
 
@@ -345,14 +360,21 @@ export const useVentaTimelineSteps = (venta: {
     },
     {
       id: 'en_entrega',
-      label: 'En Entrega',
+      label: 'Programada',
+      date: venta.fechaEnEntrega,
       status: isCancelled ? 'skipped' : currentIndex > 3 ? 'completed' : currentIndex === 3 ? 'current' : 'pending'
+    },
+    {
+      id: 'despachada',
+      label: 'En Camino',
+      date: venta.fechaDespacho,
+      status: isCancelled ? 'skipped' : currentIndex > 4 ? 'completed' : currentIndex === 4 ? 'current' : 'pending'
     },
     {
       id: 'entregada',
       label: 'Entregada',
       date: venta.fechaEntrega,
-      status: isCancelled ? 'skipped' : currentIndex === 4 ? 'completed' : 'pending'
+      status: isCancelled ? 'skipped' : currentIndex === 5 ? 'completed' : 'pending'
     }
   ];
 };

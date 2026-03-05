@@ -73,7 +73,7 @@ export const HistorialVentasChart: React.FC<HistorialVentasChartProps> = ({
       }
 
       // Filtrar ventas que contienen este producto y estan confirmadas
-      const estadosValidos = ['confirmada', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada'];
+      const estadosValidos = ['confirmada', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada'];
       const ventasProducto = ventas.filter(v =>
         estadosValidos.includes(v.estado) &&
         v.productos?.some(p => p.productoId === productoId)

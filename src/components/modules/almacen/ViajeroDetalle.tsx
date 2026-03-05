@@ -231,6 +231,9 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
     if (!estado || estado === 'pendiente') {
       return { variant: 'warning' as const, label: 'Pendiente' };
     }
+    if (estado === 'parcial') {
+      return { variant: 'info' as const, label: 'Parcial' };
+    }
     if (estado === 'pagado') {
       return { variant: 'success' as const, label: 'Pagado' };
     }
@@ -610,6 +613,8 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                       <div className="space-y-3">
                         {historial.pendientes.map((t) => {
                           const estadoPago = getEstadoPagoBadge(t.estadoPagoViajero);
+                          const montoPagado = t.montoPagadoUSD || 0;
+                          const fleteTotal = t.costoFleteTotal || 0;
                           return (
                             <Card key={t.id} padding="sm" className="border-l-4 border-l-amber-400 bg-amber-50">
                               <div className="flex items-center justify-between">
@@ -621,11 +626,21 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                                       : `Creada: ${t.fechaCreacion.toDate().toLocaleDateString('es-PE')}`
                                     }
                                   </div>
+                                  {t.estadoPagoViajero === 'parcial' && fleteTotal > 0 && (
+                                    <div className="mt-1">
+                                      <div className="w-24 bg-gray-200 rounded-full h-1.5">
+                                        <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: `${(montoPagado / fleteTotal * 100)}%` }} />
+                                      </div>
+                                      <div className="text-xs text-amber-600 mt-0.5">
+                                        ${montoPagado.toFixed(2)} de ${fleteTotal.toFixed(2)}
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="flex items-center space-x-4">
                                   <div className="text-right">
                                     <div className="text-lg font-bold text-amber-700">
-                                      ${(t.costoFleteTotal || 0).toFixed(2)}
+                                      ${(fleteTotal - montoPagado).toFixed(2)}
                                     </div>
                                     <div className="text-xs text-gray-500">
                                       {t.unidades.length} unidades
@@ -649,32 +664,41 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                         Pagos Realizados ({historial.pagados.length})
                       </h3>
                       <div className="space-y-3">
-                        {historial.pagados.map((t) => (
-                          <Card key={t.id} padding="sm" className="border-l-4 border-l-green-400 bg-green-50">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium text-gray-900">{t.numeroTransferencia}</div>
-                                <div className="text-sm text-gray-500">
-                                  {t.pagoViajero?.fecha
-                                    ? `Pagado: ${t.pagoViajero.fecha.toDate().toLocaleDateString('es-PE')}`
-                                    : t.fechaCreacion.toDate().toLocaleDateString('es-PE')
-                                  }
+                        {historial.pagados.map((t) => {
+                          const pagos = t.pagosViajero && t.pagosViajero.length > 0
+                            ? t.pagosViajero
+                            : (t.pagoViajero ? [t.pagoViajero] : []);
+                          const ultimoPago = pagos[pagos.length - 1];
+                          return (
+                            <Card key={t.id} padding="sm" className="border-l-4 border-l-green-400 bg-green-50">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="font-medium text-gray-900">{t.numeroTransferencia}</div>
+                                  <div className="text-sm text-gray-500">
+                                    {ultimoPago?.fecha?.toDate
+                                      ? `Pagado: ${ultimoPago.fecha.toDate().toLocaleDateString('es-PE')}`
+                                      : t.fechaCreacion.toDate().toLocaleDateString('es-PE')
+                                    }
+                                  </div>
+                                  {pagos.length > 1 && (
+                                    <div className="text-xs text-gray-400">{pagos.length} pagos parciales</div>
+                                  )}
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                  <div className="text-right">
+                                    <div className="text-lg font-bold text-green-700">
+                                      ${(t.costoFleteTotal || 0).toFixed(2)}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {t.unidades.length} unidades
+                                    </div>
+                                  </div>
+                                  <Badge variant="success">Pagado</Badge>
                                 </div>
                               </div>
-                              <div className="flex items-center space-x-4">
-                                <div className="text-right">
-                                  <div className="text-lg font-bold text-green-700">
-                                    ${(t.costoFleteTotal || 0).toFixed(2)}
-                                  </div>
-                                  <div className="text-xs text-gray-500">
-                                    {t.unidades.length} unidades
-                                  </div>
-                                </div>
-                                <Badge variant="success">Pagado</Badge>
-                              </div>
-                            </div>
-                          </Card>
-                        ))}
+                            </Card>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

@@ -85,6 +85,7 @@ import { useAlmacenStore } from '../../store/almacenStore';
 import { useCompetidorStore } from '../../store/competidorStore';
 import { useTransportistaStore } from '../../store/transportistaStore';
 import { useCanalVentaStore } from '../../store/canalVentaStore';
+import { CanalAutocomplete } from '../../components/modules/canalVenta/CanalAutocomplete';
 import { useAuthStore } from '../../store/authStore';
 import { metricasService } from '../../services/metricas.service';
 import { almacenService } from '../../services/almacen.service';
@@ -186,8 +187,10 @@ export const Maestros: React.FC = () => {
 
   const {
     canales,
+    canalesActivos,
     loading: loadingCanales,
-    fetchCanales
+    fetchCanales,
+    fetchCanalesActivos
   } = useCanalVentaStore();
 
   // Modales
@@ -215,7 +218,7 @@ export const Maestros: React.FC = () => {
   // Forms
   const [clienteForm, setClienteForm] = useState<Partial<ClienteFormData>>({
     tipoCliente: 'persona',
-    canalOrigen: 'whatsapp'
+    canalOrigen: ''
   });
   const [marcaForm, setMarcaForm] = useState<Partial<MarcaFormData>>({
     tipoMarca: 'farmaceutica'
@@ -256,7 +259,8 @@ export const Maestros: React.FC = () => {
         fetchCompetidores(),
         fetchCompetidorStats(),
         fetchTransportistas(),
-        fetchCanales()
+        fetchCanales(),
+        fetchCanalesActivos()
       ]);
     } finally {
       setIsRefreshing(false);
@@ -395,7 +399,7 @@ export const Maestros: React.FC = () => {
       });
     } else {
       setEditingCliente(null);
-      setClienteForm({ tipoCliente: 'persona', canalOrigen: 'whatsapp' });
+      setClienteForm({ tipoCliente: 'persona', canalOrigen: canalesActivos[0]?.id || '' });
     }
     setShowClienteModal(true);
   };
@@ -631,7 +635,17 @@ export const Maestros: React.FC = () => {
   };
 
   const handleSaveAlmacen = async () => {
-    if (!user || !almacenForm.nombre) return;
+    if (!user) return;
+
+    // Validar campos requeridos con mensajes claros
+    if (!almacenForm.nombre?.trim()) {
+      toast.error('Ingresa el nombre del almacén o viajero', 'Campo requerido');
+      return;
+    }
+    if (!almacenForm.direccion?.trim()) {
+      toast.error('Ingresa la dirección del almacén', 'Campo requerido');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -644,7 +658,7 @@ export const Maestros: React.FC = () => {
       setEditingAlmacen(null);
       toast.success(editingAlmacen ? 'Almacen actualizado' : 'Almacen creado');
     } catch (error: any) {
-      toast.error(error.message, 'Error');
+      toast.error(error.message, 'Error al guardar almacén');
     } finally {
       setIsSubmitting(false);
     }
@@ -1624,22 +1638,12 @@ export const Maestros: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Canal de Origen
-              </label>
-              <select
-                value={clienteForm.canalOrigen}
-                onChange={(e) => setClienteForm({ ...clienteForm, canalOrigen: e.target.value as any })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              >
-                <option value="whatsapp">WhatsApp</option>
-                <option value="facebook">Facebook</option>
-                <option value="instagram">Instagram</option>
-                <option value="mercadolibre">MercadoLibre</option>
-                <option value="referido">Referido</option>
-                <option value="web">Web</option>
-                <option value="otro">Otro</option>
-              </select>
+              <CanalAutocomplete
+                value={clienteForm.canalOrigen || ''}
+                onChange={(canalId) => setClienteForm({ ...clienteForm, canalOrigen: canalId })}
+                label="Canal de Origen"
+                placeholder="Buscar o crear canal..."
+              />
             </div>
 
             <div>

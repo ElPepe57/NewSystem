@@ -28,7 +28,8 @@ import {
   Shield,
   X,
   BookOpen,
-  Zap
+  Zap,
+  Droplets
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
@@ -63,7 +64,7 @@ const menuGroups: MenuGroup[] = [
       { icon: Zap, label: 'Inteligencia', path: '/productos-intel', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Box, label: 'Unidades', path: '/unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
-      { icon: ArrowRightLeft, label: 'Transferencias', path: '/transferencias', permiso: PERMISOS.GESTIONAR_INVENTARIO },
+      { icon: ArrowRightLeft, label: 'Transferencias', path: '/transferencias', permiso: PERMISOS.TRANSFERIR_UNIDADES },
     ]
   },
   {
@@ -72,10 +73,11 @@ const menuGroups: MenuGroup[] = [
     icon: ShoppingBag,
     defaultOpen: true,
     items: [
-      { icon: ShoppingCart, label: 'Compras', path: '/compras', permiso: PERMISOS.GESTIONAR_INVENTARIO },
+      { icon: ShoppingCart, label: 'Compras', path: '/compras', permiso: PERMISOS.VER_ORDENES_COMPRA },
       { icon: ShoppingBag, label: 'Ventas', path: '/ventas', permiso: PERMISOS.VER_VENTAS },
-      { icon: FileText, label: 'Cotizaciones', path: '/cotizaciones', permiso: PERMISOS.VER_VENTAS },
-      { icon: ClipboardList, label: 'Requerimientos', path: '/requerimientos', permiso: PERMISOS.GESTIONAR_INVENTARIO },
+      { icon: FileText, label: 'Cotizaciones', path: '/cotizaciones', permiso: PERMISOS.VER_COTIZACIONES },
+      { icon: ClipboardList, label: 'Requerimientos', path: '/requerimientos', permiso: PERMISOS.VER_REQUERIMIENTOS },
+      { icon: Droplets, label: 'Mercado Libre', path: '/mercado-libre', permiso: PERMISOS.VER_VENTAS },
     ]
   },
   {
@@ -84,13 +86,13 @@ const menuGroups: MenuGroup[] = [
     icon: BarChart3,
     defaultOpen: false,
     items: [
-      { icon: Receipt, label: 'Gastos', path: '/gastos', permiso: PERMISOS.VER_FINANZAS },
-      { icon: Wallet, label: 'Tesorería', path: '/tesoreria', permiso: PERMISOS.VER_FINANZAS },
-      { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_FINANZAS },
-      { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_FINANZAS },
-      { icon: Calculator, label: 'CTRU', path: '/ctru', permiso: PERMISOS.VER_FINANZAS },
-      { icon: Target, label: 'Expectativas', path: '/expectativas', permiso: PERMISOS.VER_FINANZAS },
-      { icon: TrendingUp, label: 'Reportes', path: '/reportes', permiso: PERMISOS.VER_FINANZAS },
+      { icon: Receipt, label: 'Gastos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
+      { icon: Wallet, label: 'Tesorería', path: '/tesoreria', permiso: PERMISOS.VER_TESORERIA },
+      { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
+      { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
+      { icon: Calculator, label: 'CTRU', path: '/ctru', permiso: PERMISOS.VER_CTRU },
+      { icon: Target, label: 'Expectativas', path: '/expectativas', permiso: PERMISOS.VER_REPORTES },
+      { icon: TrendingUp, label: 'Reportes', path: '/reportes', permiso: PERMISOS.VER_REPORTES },
     ]
   },
   {
@@ -99,10 +101,10 @@ const menuGroups: MenuGroup[] = [
     icon: Shield,
     defaultOpen: false,
     items: [
-      { icon: Database, label: 'Maestros', path: '/maestros', permiso: PERMISOS.ADMIN_TOTAL },
-      { icon: Users, label: 'Usuarios', path: '/usuarios', permiso: PERMISOS.ADMIN_TOTAL },
-      { icon: Activity, label: 'Auditoría', path: '/auditoria', permiso: PERMISOS.ADMIN_TOTAL },
-      { icon: Settings, label: 'Configuración', path: '/configuracion', permiso: PERMISOS.ADMIN_TOTAL },
+      { icon: Database, label: 'Maestros', path: '/maestros', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
+      { icon: Users, label: 'Usuarios', path: '/usuarios', permiso: PERMISOS.GESTIONAR_USUARIOS },
+      { icon: Activity, label: 'Auditoría', path: '/auditoria', permiso: PERMISOS.VER_AUDITORIA },
+      { icon: Settings, label: 'Configuración', path: '/configuracion', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
     ]
   }
 ];
@@ -174,25 +176,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   // Color y gradiente del badge según rol
   const roleConfig: Record<string, { bg: string; text: string; label: string }> = {
     admin: { bg: 'bg-gradient-to-r from-red-500 to-orange-500', text: 'text-white', label: 'Administrador' },
+    gerente: { bg: 'bg-gradient-to-r from-purple-500 to-violet-500', text: 'text-white', label: 'Gerente' },
     vendedor: { bg: 'bg-gradient-to-r from-blue-500 to-cyan-500', text: 'text-white', label: 'Vendedor' },
+    comprador: { bg: 'bg-gradient-to-r from-amber-500 to-yellow-500', text: 'text-white', label: 'Comprador' },
     almacenero: { bg: 'bg-gradient-to-r from-green-500 to-emerald-500', text: 'text-white', label: 'Almacenero' },
+    finanzas: { bg: 'bg-gradient-to-r from-teal-500 to-cyan-600', text: 'text-white', label: 'Finanzas' },
+    supervisor: { bg: 'bg-gradient-to-r from-indigo-500 to-blue-600', text: 'text-white', label: 'Supervisor' },
     invitado: { bg: 'bg-gray-600', text: 'text-gray-300', label: 'Invitado' }
   };
 
   const currentRole = roleConfig[role || 'invitado'];
 
   return (
-    <div className="w-64 bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 min-h-screen flex flex-col border-r border-gray-800/50">
-      {/* Logo con efecto */}
+    <div className="w-64 h-full bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 flex flex-col border-r border-gray-800/50">
+      {/* Logo Vita Skin Peru */}
       <div className="p-5 border-b border-gray-800/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl shadow-lg shadow-primary-500/20">
-              <Package className="h-6 w-6 text-white" />
+            <div className="p-2 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl shadow-lg shadow-primary-500/20 relative">
+              <Droplets className="h-6 w-6 text-white" />
+              {/* Mini hoja decorativa */}
+              <svg className="absolute -top-1 -right-1 h-3 w-3 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.7C7.14 19.87 7.64 20 8.17 20C12.04 20 15.54 17.5 17 14C18.45 10.5 17 8 17 8Z"/>
+              </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white tracking-tight">BusinessMN</h1>
-              <p className="text-[10px] text-gray-500 font-medium">Sistema de Gestión v2.0</p>
+              <h1 className="text-base font-bold text-white tracking-tight leading-tight">Vita Skin</h1>
+              <p className="text-[10px] text-primary-400 font-semibold tracking-wider">PERU</p>
             </div>
           </div>
           {/* Botón cerrar - solo visible en móvil */}
@@ -212,9 +222,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       {profile && (
         <div className="mx-3 mt-3 p-3 bg-gray-800/40 rounded-xl border border-gray-700/30">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center text-white font-semibold text-sm shadow-inner">
-              {displayName?.charAt(0).toUpperCase() || 'U'}
-            </div>
+            {profile.photoURL ? (
+              <img
+                src={profile.photoURL}
+                alt={displayName}
+                className="w-9 h-9 rounded-lg object-cover shadow-inner"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center text-white font-semibold text-sm shadow-inner">
+                {displayName?.charAt(0).toUpperCase() || 'U'}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <p className="text-sm text-white font-medium truncate">{displayName}</p>
               <span className={`inline-block px-2 py-0.5 text-[10px] font-semibold rounded-md ${currentRole.bg} ${currentRole.text} mt-0.5`}>

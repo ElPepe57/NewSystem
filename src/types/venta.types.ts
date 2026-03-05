@@ -1,4 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { EstadoCotizacion } from './cotizacion.types';
+export type { EstadoCotizacion };
 
 /**
  * Canal de venta - ahora acepta IDs de canales dinámicos
@@ -12,7 +14,8 @@ export type EstadoVenta =
   | 'confirmada'      // Venta confirmada, pendiente de asignación
   | 'parcial'         // Algunos productos asignados, otros pendientes de stock
   | 'asignada'        // Unidades asignadas del inventario
-  | 'en_entrega'      // En proceso de entrega
+  | 'en_entrega'      // Entrega programada, producto aun en almacen
+  | 'despachada'      // Producto despachado, transportista en camino
   | 'entrega_parcial' // Se entregó parte, quedan productos pendientes
   | 'entregada'       // Completada (todos los productos entregados)
   | 'cancelada'         // Cancelada
@@ -23,15 +26,6 @@ export type EstadoVenta =
  * Tipo de reserva de stock
  */
 export type TipoReserva = 'fisica' | 'virtual';
-
-/**
- * Estado del flujo de cotización (antes de convertirse en venta)
- * Flujo: nueva → validada → con_abono → (se convierte en reservada)
- */
-export type EstadoCotizacion =
-  | 'nueva'       // Cotización recién creada, pendiente de validación del cliente
-  | 'validada'    // Cliente confirmó interés, pendiente de adelanto
-  | 'con_abono';  // Adelanto recibido, se creará reserva
 
 /**
  * Estado de asignación de un producto individual
@@ -219,10 +213,19 @@ export interface Venta {
   emailCliente?: string;
   telefonoCliente?: string;
   direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
   dniRuc?: string;
 
   // Canal
   canal: CanalVenta;
+  canalNombre?: string;           // Nombre legible del canal (para display)
 
   // Productos
   productos: ProductoVenta[];
@@ -307,6 +310,8 @@ export interface Venta {
   fechaCreacion: Timestamp;
   fechaConfirmacion?: Timestamp;
   fechaAsignacion?: Timestamp;
+  fechaEnEntrega?: Timestamp;
+  fechaDespacho?: Timestamp;
   fechaEntrega?: Timestamp;
 
   // Entrega
@@ -364,8 +369,17 @@ export interface VentaFormData {
   emailCliente?: string;
   telefonoCliente?: string;
   direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
   dniRuc?: string;
   canal: CanalVenta;
+  canalNombre?: string;
   productos: Array<{
     productoId: string;
     cantidad: number;
@@ -419,6 +433,27 @@ export interface VentaStats {
   ventasML: number;
   ventasDirecto: number;
   ventasOtro: number;
+}
+
+export interface EditarVentaData {
+  productos?: Array<{
+    productoId: string;
+    precioUnitario: number;
+    cantidad: number;
+  }>;
+  costoEnvio?: number;
+  descuento?: number;
+  incluyeEnvio?: boolean;
+  nombreCliente?: string;
+  telefonoCliente?: string;
+  emailCliente?: string;
+  direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  dniRuc?: string;
+  observaciones?: string;
 }
 
 export interface ProductoDisponible {

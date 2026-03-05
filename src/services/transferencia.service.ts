@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
+import { COLLECTIONS } from '../config/collections';
 import type {
   Transferencia,
   TransferenciaFormData,
@@ -31,8 +32,21 @@ import { tesoreriaService } from './tesoreria.service';
 import { inventarioService } from './inventario.service';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 
-const COLLECTION_NAME = 'transferencias';
-const UNIDADES_COLLECTION = 'unidades';
+const COLLECTION_NAME = COLLECTIONS.TRANSFERENCIAS;
+const UNIDADES_COLLECTION = COLLECTIONS.UNIDADES;
+
+/**
+ * Helper: obtiene pagos como array (backward compat con pagoViajero singular)
+ */
+function getPagosArray(transferencia: Transferencia): PagoViajero[] {
+  if (transferencia.pagosViajero && transferencia.pagosViajero.length > 0) {
+    return transferencia.pagosViajero;
+  }
+  if (transferencia.pagoViajero) {
+    return [transferencia.pagoViajero];
+  }
+  return [];
+}
 
 /**
  * Genera el siguiente número de transferencia
@@ -641,8 +655,25 @@ export const transferenciaService = {
           updateData.fechaLlegadaPeru = now;
 
           // Propagar el costo de flete USD de la transferencia a la unidad
-          if (unidadTransferencia && unidadTransferencia.costoFleteUSD > 0) {
-            updateData.costoFleteUSD = unidadTransferencia.costoFleteUSD;
+          // Siempre escribir el campo para que exista en el documento
+          if (unidadTransferencia) {
+            const costoFleteUSD = unidadTransferencia.costoFleteUSD ?? 0;
+            updateData.costoFleteUSD = costoFleteUSD;
+
+            // Recalcular ctruInicial para incluir el flete internacional
+            // ctruInicial fue calculado al recibir la OC SIN flete, ahora lo actualizamos
+            if (costoFleteUSD > 0) {
+              const tc = unidadData.tcPago || unidadData.tcCompra || 0;
+              const costoBasePEN = (unidadData.costoUnitarioUSD || 0) * tc;
+              const costoFletePEN = costoFleteUSD * tc;
+              const nuevoCtruInicial = costoBasePEN + costoFletePEN;
+              updateData.ctruInicial = nuevoCtruInicial;
+              // También actualizar ctruDinamico si no tiene GA/GO asignado
+              // (si tiene GA/GO, el recálculo dinámico lo corregirá)
+              if (!(unidadData as any).costoGAGOAsignado || (unidadData as any).costoGAGOAsignado === 0) {
+                updateData.ctruDinamico = nuevoCtruInicial;
+              }
+            }
           }
         }
 
@@ -940,8 +971,11 @@ export const transferenciaService = {
       throw new Error('Solo se pueden registrar pagos a viajero en transferencias USA-Perú');
     }
 
-    if (transferencia.estadoPagoViajero === 'pagado') {
-      throw new Error('El pago a viajero ya fue registrado');
+    // Permitir pagos parciales: solo bloquear si ya está completamente pagado
+    const pagosAnteriores = getPagosArray(transferencia);
+    const esPagadoSinRegistro = transferencia.estadoPagoViajero === 'pagado' && pagosAnteriores.length === 0;
+    if (transferencia.estadoPagoViajero === 'pagado' && !esPagadoSinRegistro) {
+      throw new Error('El pago a viajero ya fue completado');
     }
 
     const {
@@ -967,6 +1001,22 @@ export const transferenciaService = {
     const montoUSD = monedaPago === 'USD' ? montoOriginal : montoOriginal / tipoCambio;
     const montoPEN = monedaPago === 'PEN' ? montoOriginal : montoOriginal * tipoCambio;
 
+    // Calcular montos acumulados y pendientes
+    const costoFleteTotal = transferencia.costoFleteTotal || 0;
+    const montoPagadoUSDAnterior = pagosAnteriores.reduce((sum, p) => sum + p.montoUSD, 0);
+    const montoPendienteUSD = costoFleteTotal - montoPagadoUSDAnterior;
+
+    // Validar que no exceda el pendiente
+    if (montoUSD > montoPendienteUSD + 0.01) {
+      throw new Error(`El monto excede el saldo pendiente. Pendiente: $${montoPendienteUSD.toFixed(2)} USD`);
+    }
+
+    // Determinar nuevo estado
+    const nuevoMontoPagadoUSD = montoPagadoUSDAnterior + montoUSD;
+    const nuevoMontoPendienteUSD = costoFleteTotal - nuevoMontoPagadoUSD;
+    const nuevoEstado = nuevoMontoPendienteUSD <= 0.01 ? 'pagado' : 'parcial';
+    const esPagoCompleto = nuevoEstado === 'pagado';
+
     // Obtener nombre de cuenta si se especificó
     let cuentaOrigenNombre: string | undefined;
     if (cuentaOrigenId) {
@@ -980,7 +1030,7 @@ export const transferenciaService = {
       }
     }
 
-    // Crear registro de pago (sin campos undefined para Firestore)
+    // Crear registro de pago
     const pagoId = `PAG-VIA-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
     const nuevoPago: PagoViajero = {
       id: pagoId,
@@ -994,17 +1044,22 @@ export const transferenciaService = {
       registradoPor: userId,
       fechaRegistro: Timestamp.now()
     };
-    // Agregar campos opcionales solo si tienen valor
     if (cuentaOrigenId) nuevoPago.cuentaOrigenId = cuentaOrigenId;
     if (cuentaOrigenNombre) nuevoPago.cuentaOrigenNombre = cuentaOrigenNombre;
     if (referencia) nuevoPago.referencia = referencia;
     if (notas) nuevoPago.notas = notas;
 
-    // Actualizar la transferencia
+    const nuevosPagos = [...pagosAnteriores, nuevoPago];
+
+    // Actualizar la transferencia con array de pagos y montos acumulados
     const docRef = doc(db, COLLECTION_NAME, transferenciaId);
     await updateDoc(docRef, {
-      estadoPagoViajero: 'pagado',
-      pagoViajero: nuevoPago,
+      estadoPagoViajero: nuevoEstado,
+      pagosViajero: nuevosPagos,
+      montoPagadoUSD: nuevoMontoPagadoUSD,
+      montoPendienteUSD: Math.max(0, nuevoMontoPendienteUSD),
+      // Legacy field: solo al pago completo
+      ...(esPagoCompleto ? { pagoViajero: nuevoPago } : {}),
       actualizadoPor: userId,
       fechaActualizacion: Timestamp.now()
     });
@@ -1017,32 +1072,126 @@ export const transferenciaService = {
         monto: montoOriginal,
         tipoCambio,
         metodo: metodoPago,
-        concepto: `Pago flete ${transferencia.numeroTransferencia} - Viajero: ${transferencia.viajeroNombre || 'Sin nombre'}`,
+        concepto: `Pago ${esPagoCompleto ? '' : 'parcial '}flete ${transferencia.numeroTransferencia} - Viajero: ${transferencia.viajeroNombre || 'Sin nombre'}`,
         notas: notas || `Transferencia ${transferencia.numeroTransferencia}. ${monedaPago === 'USD' ? `≈ S/ ${montoPEN.toFixed(2)}` : `≈ $${montoUSD.toFixed(2)} USD`}`,
         fecha: fechaPago,
         transferenciaId: transferenciaId,
         transferenciaNumero: transferencia.numeroTransferencia
       };
 
-      // Agregar campos opcionales solo si tienen valor
       if (referencia) movimientoData.referencia = referencia;
       if (cuentaOrigenId) movimientoData.cuentaOrigen = cuentaOrigenId;
 
       const movimientoId = await tesoreriaService.registrarMovimiento(movimientoData, userId);
       nuevoPago.movimientoTesoreriaId = movimientoId;
 
-      // Actualizar con el ID del movimiento
+      // Actualizar el último pago en el array con el ID del movimiento
+      nuevosPagos[nuevosPagos.length - 1] = { ...nuevoPago, movimientoTesoreriaId: movimientoId };
       await updateDoc(docRef, {
-        'pagoViajero.movimientoTesoreriaId': movimientoId
+        pagosViajero: nuevosPagos,
+        ...(esPagoCompleto ? { 'pagoViajero.movimientoTesoreriaId': movimientoId } : {})
       });
 
       logger.success(`Pago viajero registrado en tesorería: ${monedaPago} ${montoOriginal} para ${transferencia.numeroTransferencia}`);
     } catch (tesoreriaError) {
-      // No bloquear el pago si falla tesorería
       console.error('Error registrando pago viajero en tesorería:', tesoreriaError);
+      // Marcar error en el último pago del array
+      nuevosPagos[nuevosPagos.length - 1] = { ...nuevoPago, errorTesoreria: true, errorTesoreriaMsg: tesoreriaError instanceof Error ? tesoreriaError.message : 'Error desconocido' };
+      await updateDoc(docRef, { pagosViajero: nuevosPagos }).catch(() => {});
     }
 
     return nuevoPago;
+  },
+
+  /**
+   * Reconciliar pago de viajero: re-crear el movimiento en tesorería
+   * para pagos que se registraron pero cuyo movimiento falló o no existe
+   */
+  async reconciliarPagoViajero(
+    transferenciaId: string,
+    userId: string,
+    pagoId?: string
+  ): Promise<string> {
+    const transferencia = await this.getById(transferenciaId);
+    if (!transferencia) {
+      throw new Error('Transferencia no encontrada');
+    }
+
+    const pagos = getPagosArray(transferencia);
+    if (pagos.length === 0) {
+      throw new Error('Esta transferencia no tiene pagos registrados');
+    }
+
+    // Encontrar el pago a reconciliar
+    let pago: PagoViajero | undefined;
+    if (pagoId) {
+      pago = pagos.find(p => p.id === pagoId);
+    } else {
+      // Buscar el primer pago con error o sin movimiento de tesorería
+      pago = pagos.find(p => p.errorTesoreria || !p.movimientoTesoreriaId);
+    }
+
+    if (!pago) {
+      // Verificar si todos los movimientos realmente existen
+      for (const p of pagos) {
+        if (p.movimientoTesoreriaId) {
+          const movExistente = await tesoreriaService.getMovimientoById(p.movimientoTesoreriaId);
+          if (!movExistente) {
+            pago = p;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!pago) {
+      throw new Error('Todos los pagos ya tienen sus movimientos de tesorería vinculados correctamente');
+    }
+
+    // Re-crear el movimiento en tesorería
+    const movimientoData: any = {
+      tipo: 'pago_viajero',
+      moneda: pago.monedaPago,
+      monto: pago.montoOriginal,
+      tipoCambio: pago.tipoCambio,
+      metodo: pago.metodoPago,
+      concepto: `Pago flete ${transferencia.numeroTransferencia} - Viajero: ${transferencia.viajeroNombre || 'Sin nombre'}`,
+      notas: `[Reconciliado] Transferencia ${transferencia.numeroTransferencia}. ${pago.monedaPago === 'USD' ? `≈ S/ ${pago.montoPEN.toFixed(2)}` : `≈ $${pago.montoUSD.toFixed(2)} USD`}`,
+      fecha: pago.fecha.toDate(),
+      transferenciaId: transferenciaId,
+      transferenciaNumero: transferencia.numeroTransferencia
+    };
+
+    if (pago.referencia) movimientoData.referencia = pago.referencia;
+    if (pago.cuentaOrigenId) movimientoData.cuentaOrigen = pago.cuentaOrigenId;
+
+    const movimientoId = await tesoreriaService.registrarMovimiento(movimientoData, userId);
+
+    // Actualizar el pago específico en el array
+    const pagosActualizados = pagos.map(p =>
+      p.id === pago!.id
+        ? { ...p, movimientoTesoreriaId: movimientoId, errorTesoreria: undefined, errorTesoreriaMsg: undefined }
+        : p
+    );
+    // Limpiar undefined para Firestore
+    pagosActualizados.forEach(p => {
+      if (p.errorTesoreria === undefined) delete (p as any).errorTesoreria;
+      if (p.errorTesoreriaMsg === undefined) delete (p as any).errorTesoreriaMsg;
+    });
+
+    const docRef = doc(db, COLLECTION_NAME, transferenciaId);
+    await updateDoc(docRef, {
+      pagosViajero: pagosActualizados,
+      // Legacy field update si solo hay 1 pago
+      ...(pagos.length === 1 ? {
+        'pagoViajero.movimientoTesoreriaId': movimientoId,
+        'pagoViajero.errorTesoreria': deleteField(),
+        'pagoViajero.errorTesoreriaMsg': deleteField()
+      } : {})
+    });
+
+    logger.success(`Pago viajero reconciliado en tesorería: ${pago.monedaPago} ${pago.montoOriginal} para ${transferencia.numeroTransferencia}`);
+    return movimientoId;
   },
 
   /**
@@ -1062,6 +1211,121 @@ export const transferenciaService = {
   // ============================================
   // HISTORIAL DE VIAJERO
   // ============================================
+
+  // ============================================
+  // ACTUALIZAR FLETE
+  // ============================================
+
+  /**
+   * Actualiza el costo de flete de una transferencia existente.
+   * Permite agregar o editar el flete después de crear la transferencia.
+   * Si las unidades ya fueron recibidas, también actualiza el costoFleteUSD
+   * en cada unidad y recalcula el ctruInicial.
+   */
+  async actualizarFleteTransferencia(
+    transferenciaId: string,
+    costoFletePorProducto: Record<string, number>,
+    userId: string
+  ): Promise<void> {
+    const transferencia = await this.getById(transferenciaId);
+    if (!transferencia) {
+      throw new Error('Transferencia no encontrada');
+    }
+
+    if (transferencia.tipo !== 'usa_peru') {
+      throw new Error('Solo se puede asignar flete a transferencias USA → Perú');
+    }
+
+    // Agrupar unidades por producto
+    const unidadesPorProducto = new Map<string, TransferenciaUnidad[]>();
+    for (const u of transferencia.unidades) {
+      if (!unidadesPorProducto.has(u.productoId)) {
+        unidadesPorProducto.set(u.productoId, []);
+      }
+      unidadesPorProducto.get(u.productoId)!.push(u);
+    }
+
+    // Calcular costoFleteUSD por unidad y actualizar array de unidades
+    let costoFleteTotal = 0;
+    const unidadesActualizadas = transferencia.unidades.map(u => {
+      const costoFleteProducto = costoFletePorProducto[u.productoId] || 0;
+      const cantidadUnidades = unidadesPorProducto.get(u.productoId)?.length || 1;
+      const costoPorUnidad = cantidadUnidades > 0 ? costoFleteProducto / cantidadUnidades : 0;
+      return { ...u, costoFleteUSD: costoPorUnidad };
+    });
+
+    // Calcular total (suma de los costos por producto, no por unidad)
+    for (const [, costo] of Object.entries(costoFletePorProducto)) {
+      costoFleteTotal += costo || 0;
+    }
+
+    // Actualizar el documento de transferencia
+    const docRef = doc(db, COLLECTION_NAME, transferenciaId);
+    await updateDoc(docRef, {
+      unidades: unidadesActualizadas,
+      costoFleteTotal,
+      monedaFlete: 'USD',
+      actualizadoPor: userId,
+      fechaActualizacion: Timestamp.now()
+    });
+
+    // Si las unidades ya fueron recibidas, propagar flete a las unidades individuales
+    const yaRecibida = transferencia.estado === 'recibida_completa' || transferencia.estado === 'recibida_parcial';
+    if (yaRecibida) {
+      const batch = writeBatch(db);
+      let batchCount = 0;
+
+      for (const unidadTransf of unidadesActualizadas) {
+        if (unidadTransf.estadoTransferencia !== 'recibida') continue;
+
+        const unidadRef = doc(db, UNIDADES_COLLECTION, unidadTransf.unidadId);
+        const unidadSnap = await getDoc(unidadRef);
+        if (!unidadSnap.exists()) continue;
+
+        const unidadData = unidadSnap.data();
+        const updateData: Record<string, unknown> = {
+          costoFleteUSD: unidadTransf.costoFleteUSD,
+          actualizadoPor: userId,
+          fechaActualizacion: Timestamp.now()
+        };
+
+        // Recalcular ctruInicial incluyendo flete
+        if (unidadTransf.costoFleteUSD > 0) {
+          const tc = unidadData.tcPago || unidadData.tcCompra || 0;
+          const costoBasePEN = (unidadData.costoUnitarioUSD || 0) * tc;
+          const costoFletePEN = unidadTransf.costoFleteUSD * tc;
+          const nuevoCtruInicial = costoBasePEN + costoFletePEN;
+          updateData.ctruInicial = nuevoCtruInicial;
+          if (!unidadData.costoGAGOAsignado || unidadData.costoGAGOAsignado === 0) {
+            updateData.ctruDinamico = nuevoCtruInicial;
+          }
+        }
+
+        batch.update(unidadRef, updateData);
+        batchCount++;
+
+        // Firestore batch limit
+        if (batchCount >= 490) {
+          await batch.commit();
+          batchCount = 0;
+        }
+      }
+
+      if (batchCount > 0) {
+        await batch.commit();
+      }
+
+      // Trigger CTRU recalculation if flete changed
+      try {
+        const ctruService = await import('./ctru.service');
+        await ctruService.ctruService.recalcularCTRUDinamicoSafe();
+      } catch (e) {
+        console.warn('No se pudo recalcular CTRU tras actualizar flete:', e);
+      }
+    }
+
+    logger.success(`Flete actualizado para transferencia ${transferencia.numeroTransferencia}: $${costoFleteTotal.toFixed(2)}`);
+  },
 
   /**
    * Obtiene todas las transferencias de un viajero específico
@@ -1118,6 +1382,11 @@ export const transferenciaService = {
         if (t.estadoPagoViajero === 'pagado') {
           totalFletePagado += t.costoFleteTotal;
           pagados.push(t);
+        } else if (t.estadoPagoViajero === 'parcial') {
+          const pagadoUSD = t.montoPagadoUSD || 0;
+          totalFletePagado += pagadoUSD;
+          totalFletePendiente += (t.costoFleteTotal - pagadoUSD);
+          pendientes.push(t);
         } else {
           totalFletePendiente += t.costoFleteTotal;
           pendientes.push(t);

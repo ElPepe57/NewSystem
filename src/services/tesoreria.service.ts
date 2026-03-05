@@ -39,11 +39,13 @@ import type {
   AporteCapitalFormData,
   RetiroCapitalFormData
 } from '../types/tesoreria.types';
+import { actividadService } from './actividad.service';
+import { COLLECTIONS } from '../config/collections';
 
-const MOVIMIENTOS_COLLECTION = 'movimientosTesoreria';
-const CONVERSIONES_COLLECTION = 'conversionesCambiarias';
-const CUENTAS_COLLECTION = 'cuentasCaja';
-const REGISTROS_TC_COLLECTION = 'registrosTCTransaccion';
+const MOVIMIENTOS_COLLECTION = COLLECTIONS.MOVIMIENTOS_TESORERIA;
+const CONVERSIONES_COLLECTION = COLLECTIONS.CONVERSIONES_CAMBIARIAS;
+const CUENTAS_COLLECTION = COLLECTIONS.CUENTAS_CAJA;
+const REGISTROS_TC_COLLECTION = COLLECTIONS.REGISTROS_TC_TRANSACCION;
 const ESTADISTICAS_DOC = 'estadisticas/tesoreria';
 
 // Tipos de movimiento que son ingresos (entradas de dinero)
@@ -203,6 +205,15 @@ export const tesoreriaService = {
       cuentaOrigen: data.cuentaOrigen,
       cuentaDestino: data.cuentaDestino
     }).catch(err => console.warn('Error actualizando estadísticas:', err));
+
+    // Broadcast actividad (fire-and-forget)
+    actividadService.registrar({
+      tipo: 'pago_registrado',
+      mensaje: `Movimiento ${numeroMovimiento} registrado: ${data.concepto} - ${data.moneda} ${data.monto.toFixed(2)}`,
+      userId,
+      displayName: userId,
+      metadata: { entidadId: docRef.id, entidadTipo: 'movimientoTesoreria', monto: data.monto, moneda: data.moneda }
+    }).catch(() => {});
 
     return docRef.id;
   },
@@ -720,6 +731,15 @@ export const tesoreriaService = {
       spreadCambiario,
       diferenciaVsReferencia
     }).catch(err => console.warn('Error actualizando estadísticas por conversión:', err));
+
+    // Broadcast actividad (fire-and-forget)
+    actividadService.registrar({
+      tipo: 'conversion_registrada',
+      mensaje: `Conversión ${numeroConversion}: ${data.monedaOrigen} ${data.montoOrigen.toFixed(2)} → ${monedaDestino} ${montoDestino.toFixed(2)} (TC: ${data.tipoCambio.toFixed(3)})`,
+      userId,
+      displayName: userId,
+      metadata: { entidadId: conversionId, entidadTipo: 'conversion', monto: data.montoOrigen, moneda: data.monedaOrigen }
+    }).catch(() => {});
 
     return conversionId;
   },
@@ -1783,42 +1803,97 @@ export const tesoreriaService = {
    * Lee directamente del documento materializado
    */
   async getStats(): Promise<TesoreriaStats> {
-    // Intentar leer estadísticas materializadas
-    const statsAgregadas = await this.getEstadisticasAgregadas();
+    // Siempre calcular saldos reales desde las cuentas (evita desync con doc materializado)
+    const cuentas = await this.getCuentas();
+    let saldoTotalUSD = 0;
+    let saldoTotalPEN = 0;
 
-    if (statsAgregadas) {
-      const mes = statsAgregadas.mesActual;
-      const tcPromedio = mes.cantidadOperacionesTC > 0
-        ? mes.sumaTipoCambio / mes.cantidadOperacionesTC
-        : statsAgregadas.tipoCambioActual;
+    cuentas.filter(c => c.activa).forEach(c => {
+      if (c.esBiMoneda) {
+        saldoTotalUSD += c.saldoUSD || 0;
+        saldoTotalPEN += c.saldoPEN || 0;
+      } else {
+        if (c.moneda === 'USD') {
+          saldoTotalUSD += c.saldoActual;
+        } else {
+          saldoTotalPEN += c.saldoActual;
+        }
+      }
+    });
 
-      const spreadPromedio = mes.cantidadConversiones > 0
-        ? mes.spreadAcumulado / mes.cantidadConversiones
-        : 0;
-
-      return {
-        saldoTotalUSD: statsAgregadas.saldoTotalUSD,
-        saldoTotalPEN: statsAgregadas.saldoTotalPEN,
-        saldoTotalEquivalentePEN: statsAgregadas.saldoTotalEquivalentePEN,
-        ingresosMesUSD: mes.ingresosUSD,
-        ingresosMesPEN: mes.ingresosPEN,
-        egresosMesUSD: mes.egresosUSD,
-        egresosMesPEN: mes.egresosPEN,
-        conversionesMes: mes.cantidadConversiones,
-        montoConvertidoMes: mes.conversionesUSDaPEN + mes.conversionesPENaUSD,
-        spreadPromedioMes: spreadPromedio,
-        tcPromedioMes: tcPromedio,
-        diferenciaNetaMes: mes.diferenciaNetaMes,
-        diferenciaAcumuladaAnio: statsAgregadas.acumuladoAnio.diferenciaNetaAnio,
-        pagosPendientesUSD: 0, // Se calcula desde pendientes
-        pagosPendientesPEN: 0,
-        porCobrarPEN: 0
-      };
+    let tcActual = 3.70;
+    try {
+      const tc = await tipoCambioService.getTCDelDia();
+      if (tc) tcActual = tc.venta;
+    } catch (e) {
+      console.warn('No se pudo obtener TC actual');
     }
 
-    // Fallback: cálculo en tiempo real (solo si no hay estadísticas materializadas)
-    logger.warn('Estadísticas materializadas no encontradas, calculando en tiempo real...');
-    return this._calcularStatsEnTiempoReal();
+    const saldoTotalEquivalentePEN = saldoTotalPEN + (saldoTotalUSD * tcActual);
+
+    // Siempre calcular ingresos/egresos mensuales en tiempo real (evita desync con doc materializado)
+    const ahora = new Date();
+    const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+
+    const movimientosMes = await this.getMovimientos({
+      fechaInicio: inicioMes,
+      fechaFin: ahora
+    });
+
+    const ingresosMes = movimientosMes.filter(m => m.estado !== 'anulado' && esMovimientoIngreso(m.tipo, m));
+    const egresosMes = movimientosMes.filter(m => m.estado !== 'anulado' && esMovimientoEgreso(m.tipo, m));
+
+    const ingresosMesUSD = ingresosMes.filter(m => m.moneda === 'USD').reduce((sum, m) => sum + m.monto, 0);
+    const ingresosMesPEN = ingresosMes.filter(m => m.moneda === 'PEN').reduce((sum, m) => sum + m.monto, 0);
+    const egresosMesUSD = egresosMes.filter(m => m.moneda === 'USD').reduce((sum, m) => sum + m.monto, 0);
+    const egresosMesPEN = egresosMes.filter(m => m.moneda === 'PEN').reduce((sum, m) => sum + m.monto, 0);
+
+    // Conversiones y métricas secundarias desde doc materializado o cálculo directo
+    const conversionesMes = await this.getConversiones({
+      fechaInicio: inicioMes,
+      fechaFin: ahora
+    });
+    const montoConvertidoMes = conversionesMes.reduce((sum, c) => sum + c.montoOrigen, 0);
+    const spreadPromedioMes = conversionesMes.length > 0
+      ? conversionesMes.reduce((sum, c) => sum + c.spreadCambiario, 0) / conversionesMes.length
+      : 0;
+
+    const movimientosConTC = movimientosMes.filter(m => m.tipoCambio > 0 && m.estado !== 'anulado');
+    const tcPromedioMes = movimientosConTC.length > 0
+      ? movimientosConTC.reduce((sum, m) => sum + m.tipoCambio, 0) / movimientosConTC.length
+      : tcActual;
+
+    const diferenciaConversiones = conversionesMes.reduce((sum, c) => sum + c.diferenciaVsReferencia, 0);
+
+    // Intentar leer diferencia acumulada del año desde doc materializado
+    let diferenciaAcumuladaAnio = diferenciaConversiones;
+    try {
+      const statsAgregadas = await this.getEstadisticasAgregadas();
+      if (statsAgregadas) {
+        diferenciaAcumuladaAnio = statsAgregadas.acumuladoAnio.diferenciaNetaAnio;
+      }
+    } catch (e) {
+      // Use monthly as fallback
+    }
+
+    return {
+      saldoTotalUSD,
+      saldoTotalPEN,
+      saldoTotalEquivalentePEN,
+      ingresosMesUSD,
+      ingresosMesPEN,
+      egresosMesUSD,
+      egresosMesPEN,
+      conversionesMes: conversionesMes.length,
+      montoConvertidoMes,
+      spreadPromedioMes,
+      tcPromedioMes,
+      diferenciaNetaMes: diferenciaConversiones,
+      diferenciaAcumuladaAnio,
+      pagosPendientesUSD: 0,
+      pagosPendientesPEN: 0,
+      porCobrarPEN: 0
+    };
   },
 
   /**

@@ -60,6 +60,7 @@ import type { Marca } from '../../types/entidadesMaestras.types';
 import type { Proveedor } from '../../types/ordenCompra.types';
 import type { Almacen } from '../../types/almacen.types';
 import type { Competidor } from '../../types/entidadesMaestras.types';
+import { useCanalVentaStore } from '../../store/canalVentaStore';
 
 // ============================================
 // COMPONENTE BASE PARA MODALES DE DETALLE
@@ -210,6 +211,13 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
   onEdit,
   onViewHistory
 }) => {
+  const { canales } = useCanalVentaStore();
+
+  const resolverNombreCanal = (canalOrigen: string) => {
+    const canal = canales.find(c => c.id === canalOrigen || c.codigo === canalOrigen || c.nombre.toLowerCase() === canalOrigen.toLowerCase());
+    return canal?.nombre || canalOrigen.replace('_', ' ');
+  };
+
   if (!cliente) return null;
 
   const dias = diasDesde(cliente.metricas?.ultimaCompra);
@@ -421,7 +429,7 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
                   <Globe className="h-4 w-4 text-gray-400" />
                   <div>
                     <p className="text-xs text-gray-500">Canal de Origen</p>
-                    <p className="text-sm font-medium capitalize">{cliente.canalOrigen.replace('_', ' ')}</p>
+                    <p className="text-sm font-medium capitalize">{resolverNombreCanal(cliente.canalOrigen)}</p>
                   </div>
                 </div>
               </div>

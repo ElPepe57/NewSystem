@@ -357,6 +357,7 @@ export function Contabilidad() {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
             <StatDistribution
               title="Composición de Activos"
+              valueFormat="currency"
               data={[
                 { label: 'Efectivo', value: balance.activos.corriente.efectivo.total, color: 'bg-green-500' },
                 { label: 'CxC', value: balance.activos.corriente.cuentasPorCobrar.neto, color: 'bg-blue-500' },
@@ -365,6 +366,7 @@ export function Contabilidad() {
             />
             <StatDistribution
               title="Estructura Financiera"
+              valueFormat="currency"
               data={[
                 { label: 'Pasivos', value: balance.pasivos.totalPasivos, color: 'bg-red-500' },
                 { label: 'Patrimonio', value: balance.patrimonio.totalPatrimonio, color: 'bg-blue-500' },
@@ -372,6 +374,7 @@ export function Contabilidad() {
             />
             <StatDistribution
               title="Estructura de Costos"
+              valueFormat="currency"
               data={[
                 { label: 'Compras', value: estado.compras.total, color: 'bg-orange-500' },
                 { label: 'GV + GD', value: estado.costosVariables.total, color: 'bg-purple-500' },
@@ -380,6 +383,7 @@ export function Contabilidad() {
             />
             <StatDistribution
               title="Inventario por País"
+              valueFormat="currency"
               data={[
                 { label: 'USA', value: balance.activos.corriente.inventarios.inventarioUSA.valorPEN, color: 'bg-blue-500' },
                 { label: 'Perú', value: balance.activos.corriente.inventarios.inventarioPeru.valorPEN, color: 'bg-green-500' },

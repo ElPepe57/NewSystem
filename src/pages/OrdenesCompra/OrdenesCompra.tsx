@@ -408,6 +408,13 @@ export const OrdenesCompra: React.FC = () => {
     }
   };
 
+  // Helper: obtener orden fresca del store (evita stale closure)
+  const refreshSelectedOrden = (ordenId: string) => {
+    const freshOrdenes = useOrdenCompraStore.getState().ordenes;
+    const ordenActualizada = freshOrdenes.find(o => o.id === ordenId);
+    if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+  };
+
   // Ver detalles
   const handleViewDetails = (orden: OrdenCompra) => {
     setSelectedOrdenLocal(orden);
@@ -483,8 +490,7 @@ export const OrdenesCompra: React.FC = () => {
           numeroTracking: result.numeroTracking as string || undefined,
           courier: result.courier as string || undefined
         });
-        const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
-        if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+        refreshSelectedOrden(selectedOrden.id);
         toast.success('Orden marcada en tránsito');
       } catch (error: any) {
         toast.error(error.message, 'Error');
@@ -494,8 +500,7 @@ export const OrdenesCompra: React.FC = () => {
     else {
       try {
         await cambiarEstadoOrden(selectedOrden.id, nuevoEstado, user.uid);
-        const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
-        if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+        refreshSelectedOrden(selectedOrden.id);
         toast.success(`Estado actualizado a: ${nuevoEstado}`);
       } catch (error: any) {
         toast.error(error.message, 'Error');
@@ -540,8 +545,7 @@ export const OrdenesCompra: React.FC = () => {
 
       // Recargar órdenes para ver actualización
       await fetchOrdenes();
-      const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
-      if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+      refreshSelectedOrden(selectedOrden.id);
     } catch (error: any) {
       alert(`❌ Error al registrar pago: ${error.message}`);
     } finally {
@@ -566,8 +570,7 @@ export const OrdenesCompra: React.FC = () => {
 
     // Recargar orden actualizada
     await fetchOrdenes();
-    const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
-    if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
+    refreshSelectedOrden(selectedOrden.id);
   };
 
   // Revertir recepciones (limpieza de datos de prueba)
@@ -589,9 +592,7 @@ export const OrdenesCompra: React.FC = () => {
       toast.success(`Recepciones revertidas: ${result.unidadesEliminadas} unidades eliminadas, estado → ${result.estadoRestaurado}`);
       await fetchOrdenes();
       await fetchStats();
-      const ordenActualizada = ordenes.find(o => o.id === selectedOrden.id);
-      if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
-      else setIsDetailsModalOpen(false);
+      refreshSelectedOrden(selectedOrden.id);
     } catch (error: any) {
       toast.error(error.message || 'Error al revertir');
     } finally {

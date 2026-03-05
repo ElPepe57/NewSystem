@@ -21,8 +21,9 @@ import type {
   ModuloAuditoria
 } from '../types/auditoria.types';
 import { useAuthStore } from '../store/authStore';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'audit_logs';
+const COLLECTION_NAME = COLLECTIONS.AUDIT_LOGS;
 
 class AuditoriaService {
   private collectionRef = collection(db, COLLECTION_NAME);

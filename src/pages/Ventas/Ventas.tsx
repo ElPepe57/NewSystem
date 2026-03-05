@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle } from 'lucide-react';
-import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
+import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle } from 'lucide-react';
+import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal, ErrorBoundary } from '../../components/common';
 // Nota: ActionModal aún se usa para cancelar ventas
 import type { PipelineStage } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
@@ -10,12 +10,14 @@ import { VentaCard } from '../../components/modules/venta/VentaCard';
 import { PagoVentaForm } from '../../components/modules/venta/PagoVentaForm';
 import { GastosVentaForm } from '../../components/modules/venta/GastosVentaForm';
 import { ProgramarEntregaModal } from '../../components/modules/venta/ProgramarEntregaModal';
+import { EditarVentaModal } from '../../components/modules/venta/EditarVentaModal';
 import { useVentaStore } from '../../store/ventaStore';
 import { useAuthStore } from '../../store/authStore';
 import { useRentabilidadVentas } from '../../hooks/useRentabilidadVentas';
 import { gastoService } from '../../services/gasto.service';
+import { VentaService } from '../../services/venta.service';
 import { useEntregaStore } from '../../store/entregaStore';
-import type { Venta, VentaFormData, MetodoPago } from '../../types/venta.types';
+import type { Venta, VentaFormData, MetodoPago, AdelantoData, EditarVentaData } from '../../types/venta.types';
 import type { ProgramarEntregaData } from '../../types/entrega.types';
 
 export const Ventas: React.FC = () => {
@@ -38,7 +40,9 @@ export const Ventas: React.FC = () => {
     fetchStats,
     registrarPago,
     eliminarPago,
-    fetchResumenPagos
+    fetchResumenPagos,
+    iniciarSuscripcion: iniciarSuscripcionVentas,
+    detenerSuscripcion: detenerSuscripcionVentas
   } = useVentaStore();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,6 +50,7 @@ export const Ventas: React.FC = () => {
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
   const [isGastosModalOpen, setIsGastosModalOpen] = useState(false);
   const [isEntregaModalOpen, setIsEntregaModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedVenta, setSelectedVenta] = useState<Venta | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
@@ -54,7 +59,16 @@ export const Ventas: React.FC = () => {
   const { datos: rentabilidad, getRentabilidadVenta, loading: loadingRentabilidad, refetch: refetchRentabilidad } = useRentabilidadVentas(ventas);
 
   // Store de entregas
-  const { programarEntrega } = useEntregaStore();
+  const {
+    programarEntrega,
+    iniciarSuscripcion: iniciarSuscripcionEntregas,
+    detenerSuscripcion: detenerSuscripcionEntregas
+  } = useEntregaStore();
+
+  // Exponer corrección de canales en consola para admin
+  useEffect(() => {
+    (window as any).corregirCanalesVentas = () => VentaService.corregirCanalesVentas();
+  }, []);
 
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
@@ -68,6 +82,7 @@ export const Ventas: React.FC = () => {
       confirmada: ventas.filter(v => v.estado === 'confirmada').length,
       asignada: ventas.filter(v => v.estado === 'asignada').length,
       en_entrega: ventas.filter(v => v.estado === 'en_entrega').length,
+      despachada: ventas.filter(v => v.estado === 'despachada').length,
       entregada: ventas.filter(v => v.estado === 'entregada').length,
       cancelada: ventas.filter(v => v.estado === 'cancelada').length
     };
@@ -76,7 +91,8 @@ export const Ventas: React.FC = () => {
       { id: 'cotizacion', label: 'Cotización', count: counts.cotizacion, color: 'gray', icon: <FileText className="h-4 w-4" /> },
       { id: 'confirmada', label: 'Confirmada', count: counts.confirmada, color: 'blue', icon: <CheckCircle className="h-4 w-4" /> },
       { id: 'asignada', label: 'Asignada', count: counts.asignada, color: 'purple', icon: <Package className="h-4 w-4" /> },
-      { id: 'en_entrega', label: 'En Entrega', count: counts.en_entrega, color: 'yellow', icon: <Truck className="h-4 w-4" /> },
+      { id: 'en_entrega', label: 'Programada', count: counts.en_entrega, color: 'yellow', icon: <Clock className="h-4 w-4" /> },
+      { id: 'despachada', label: 'En Camino', count: counts.despachada, color: 'orange', icon: <Truck className="h-4 w-4" /> },
       { id: 'entregada', label: 'Entregada', count: counts.entregada, color: 'green', icon: <CheckCircle className="h-4 w-4" /> },
       { id: 'cancelada', label: 'Cancelada', count: counts.cancelada, color: 'red', icon: <XCircle className="h-4 w-4" /> }
     ];
@@ -88,25 +104,93 @@ export const Ventas: React.FC = () => {
     return ventas.filter(v => v.estado === filtroEstado);
   }, [ventas, filtroEstado]);
 
-  // Cargar datos al montar
+  // Lead Time metrics (solo ventas entregadas con fechas completas)
+  const leadTimeMetrics = useMemo(() => {
+    const entregadas = ventas.filter(v =>
+      v.estado === 'entregada' &&
+      v.fechaCreacion && v.fechaConfirmacion && v.fechaAsignacion && v.fechaEntrega
+    );
+    if (entregadas.length === 0) return null;
+
+    const toMs = (t: any) => (t?.toDate ? t.toDate() : new Date(t)).getTime();
+    const toDays = (ms: number) => ms / (1000 * 60 * 60 * 24);
+
+    const segments = entregadas.map(v => {
+      const total = toDays(toMs(v.fechaEntrega) - toMs(v.fechaCreacion));
+      const cotConf = toDays(toMs(v.fechaConfirmacion) - toMs(v.fechaCreacion));
+      const confAsig = toDays(toMs(v.fechaAsignacion) - toMs(v.fechaConfirmacion));
+      const asigProg = v.fechaEnEntrega
+        ? toDays(toMs(v.fechaEnEntrega) - toMs(v.fechaAsignacion))
+        : toDays(toMs(v.fechaEntrega) - toMs(v.fechaAsignacion));
+      const progDesp = v.fechaDespacho && v.fechaEnEntrega
+        ? toDays(toMs(v.fechaDespacho) - toMs(v.fechaEnEntrega))
+        : 0;
+      const despEntr = v.fechaDespacho
+        ? toDays(toMs(v.fechaEntrega) - toMs(v.fechaDespacho))
+        : v.fechaEnEntrega
+          ? toDays(toMs(v.fechaEntrega) - toMs(v.fechaEnEntrega))
+          : 0;
+      return { total, cotConf, confAsig, asigProg, progDesp, despEntr };
+    });
+
+    const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+    const min = (arr: number[]) => Math.min(...arr);
+    const max = (arr: number[]) => Math.max(...arr);
+
+    return {
+      count: entregadas.length,
+      total: { avg: avg(segments.map(s => s.total)), min: min(segments.map(s => s.total)), max: max(segments.map(s => s.total)) },
+      cotConf: { avg: avg(segments.map(s => s.cotConf)), min: min(segments.map(s => s.cotConf)), max: max(segments.map(s => s.cotConf)) },
+      confAsig: { avg: avg(segments.map(s => s.confAsig)), min: min(segments.map(s => s.confAsig)), max: max(segments.map(s => s.confAsig)) },
+      asigProg: { avg: avg(segments.map(s => s.asigProg)), min: min(segments.map(s => s.asigProg)), max: max(segments.map(s => s.asigProg)) },
+      progDesp: { avg: avg(segments.map(s => s.progDesp)), min: min(segments.map(s => s.progDesp)), max: max(segments.map(s => s.progDesp)) },
+      despEntr: { avg: avg(segments.map(s => s.despEntr)), min: min(segments.map(s => s.despEntr)), max: max(segments.map(s => s.despEntr)) },
+    };
+  }, [ventas]);
+
+  // Cargar datos al montar + suscripción en tiempo real para ventas y entregas
   useEffect(() => {
-    fetchVentas();
+    iniciarSuscripcionVentas();   // Listener en tiempo real para ventas
+    iniciarSuscripcionEntregas(); // Listener en tiempo real para entregas pendientes
     fetchProductosDisponibles();
     fetchStats();
     fetchResumenPagos();
-  }, [fetchVentas, fetchProductosDisponibles, fetchStats, fetchResumenPagos]);
+
+    return () => {
+      detenerSuscripcionVentas();   // Limpiar listener al desmontar
+      detenerSuscripcionEntregas();
+    };
+  }, [iniciarSuscripcionVentas, detenerSuscripcionVentas, iniciarSuscripcionEntregas, detenerSuscripcionEntregas, fetchProductosDisponibles, fetchStats, fetchResumenPagos]);
 
   // Crear venta/cotización
-  const handleCreateVenta = async (data: VentaFormData, esVentaDirecta: boolean) => {
+  const handleCreateVenta = async (data: VentaFormData, esVentaDirecta: boolean, adelanto?: AdelantoData) => {
     if (!user) return;
-    
+
     setIsSubmitting(true);
     try {
+      let ventaId: string;
       if (esVentaDirecta) {
-        await createVenta(data, user.uid);
+        ventaId = await createVenta(data, user.uid);
       } else {
-        await createCotizacion(data, user.uid);
+        ventaId = await createCotizacion(data, user.uid);
       }
+
+      // Si hay adelanto, registrarlo con reserva de stock
+      if (adelanto && adelanto.monto > 0) {
+        try {
+          await VentaService.registrarAdelantoConReserva(ventaId, adelanto, user.uid);
+          toast.success('Adelanto registrado correctamente', 'Adelanto');
+          // Refrescar ventas para ver el estado actualizado
+          await fetchVentas();
+        } catch (adelantoError: any) {
+          console.error('Error al registrar adelanto:', adelantoError);
+          toast.warning(
+            `La venta se creó pero hubo un error al registrar el adelanto: ${adelantoError.message}`,
+            'Adelanto no registrado'
+          );
+        }
+      }
+
       setIsModalOpen(false);
       await fetchProductosDisponibles();
     } catch (error: any) {
@@ -115,6 +199,13 @@ export const Ventas: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Helper: obtener venta fresca del store (evita stale closure)
+  const refreshSelectedVenta = (ventaId: string) => {
+    const freshVentas = useVentaStore.getState().ventas;
+    const ventaActualizada = freshVentas.find(v => v.id === ventaId);
+    if (ventaActualizada) setSelectedVenta(ventaActualizada);
   };
 
   // Ver detalles
@@ -126,11 +217,10 @@ export const Ventas: React.FC = () => {
   // Confirmar cotización
   const handleConfirmar = async () => {
     if (!user || !selectedVenta) return;
-    
+
     try {
       await confirmarCotizacion(selectedVenta.id, user.uid);
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
+      refreshSelectedVenta(selectedVenta.id);
     } catch (error: any) {
       toast.error(error.message, 'Error');
     }
@@ -158,8 +248,7 @@ export const Ventas: React.FC = () => {
 
       toast.success(`Inventario asignado: ${mensaje}`, 'Inventario Asignado');
       
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
+      refreshSelectedVenta(selectedVenta.id);
       
       await fetchProductosDisponibles();
     } catch (error: any) {
@@ -183,8 +272,7 @@ export const Ventas: React.FC = () => {
       await marcarEntregada(selectedVenta.id, user.uid);
       toast.success('Venta entregada. Las unidades ahora están en estado "entregada".', 'Venta Entregada');
 
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
+      refreshSelectedVenta(selectedVenta.id);
     } catch (error: any) {
       toast.error(error.message, 'Error');
     }
@@ -194,15 +282,37 @@ export const Ventas: React.FC = () => {
   const handleCancelar = async () => {
     if (!user || !selectedVenta) return;
 
+    const tienePagos = selectedVenta.pagos && selectedVenta.pagos.length > 0;
+    const montoPagado = selectedVenta.montoPagado || 0;
+
     const result = await openActionModal({
       title: 'Cancelar Venta',
-      description: 'Esta acción liberará el inventario asignado y marcará la venta como cancelada.',
+      description: (
+        <div className="space-y-2">
+          <p>Esta acción liberará el inventario asignado y marcará la venta como cancelada.</p>
+          {tienePagos && (
+            <div className="mt-3 p-3 bg-amber-50 border border-amber-300 rounded-lg">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-amber-800 text-sm">Esta venta tiene pagos registrados</p>
+                  <p className="text-amber-700 text-xs mt-1">
+                    Se han cobrado <span className="font-bold">S/ {montoPagado.toFixed(2)}</span> en {selectedVenta.pagos!.length} pago(s).
+                    Antes de cancelar, elimina los pagos desde los detalles de la venta para revertir los ingresos en Tesorería.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      ),
       variant: 'danger',
       confirmText: 'Cancelar Venta',
       contextInfo: [
         { label: 'Venta', value: selectedVenta.numeroVenta },
         { label: 'Cliente', value: selectedVenta.nombreCliente },
-        { label: 'Estado actual', value: selectedVenta.estado }
+        { label: 'Estado actual', value: selectedVenta.estado },
+        ...(tienePagos ? [{ label: 'Pagos registrados', value: `S/ ${montoPagado.toFixed(2)}` }] : [])
       ],
       fields: [
         {
@@ -221,8 +331,7 @@ export const Ventas: React.FC = () => {
       await cancelarVenta(selectedVenta.id, user.uid, result.motivo as string);
       toast.success('Venta cancelada. El inventario asignado ha sido liberado.', 'Venta Cancelada');
 
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
+      refreshSelectedVenta(selectedVenta.id);
 
       await fetchProductosDisponibles();
     } catch (error: any) {
@@ -267,13 +376,10 @@ export const Ventas: React.FC = () => {
       await registrarPago(selectedVenta.id, datosPago, user.uid);
       setIsPagoModalOpen(false);
 
-      // Actualizar la venta seleccionada
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
-
-      // Recargar datos
+      // Recargar datos primero, luego actualizar seleccionada con datos frescos
       await fetchVentas();
       await fetchResumenPagos();
+      refreshSelectedVenta(selectedVenta.id);
       toast.success('Pago registrado correctamente');
     } catch (error: any) {
       toast.error(error.message, 'Error al registrar pago');
@@ -298,13 +404,97 @@ export const Ventas: React.FC = () => {
       await eliminarPago(selectedVenta.id, pagoId, user.uid);
 
       // Actualizar la venta seleccionada
-      const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-      if (ventaActualizada) setSelectedVenta(ventaActualizada);
+      refreshSelectedVenta(selectedVenta.id);
 
       await fetchResumenPagos();
       toast.success('Pago eliminado');
     } catch (error: any) {
       toast.error(error.message, 'Error');
+    }
+  };
+
+  // Corregir precio de producto
+  const handleCorregirPrecio = async (productoId: string, productoNombre: string, precioActual: number) => {
+    if (!user || !selectedVenta) return;
+
+    const result = await openActionModal({
+      title: 'Corregir Precio de Producto',
+      description: `Corregir el precio unitario de "${productoNombre}". Esto actualizará la venta, pagos, entregas y tesorería.`,
+      variant: 'warning',
+      confirmText: 'Corregir Precio',
+      contextInfo: [
+        { label: 'Venta', value: selectedVenta.numeroVenta },
+        { label: 'Producto', value: productoNombre },
+        { label: 'Precio actual', value: `S/ ${precioActual.toFixed(2)}` }
+      ],
+      fields: [
+        {
+          id: 'nuevoPrecio',
+          label: 'Nuevo precio unitario (S/)',
+          type: 'number',
+          placeholder: precioActual.toFixed(2),
+          required: true
+        }
+      ]
+    });
+
+    if (!result || !result.nuevoPrecio) return;
+
+    const nuevoPrecio = parseFloat(result.nuevoPrecio as string);
+    if (isNaN(nuevoPrecio) || nuevoPrecio <= 0) {
+      toast.error('El precio debe ser un número mayor a 0');
+      return;
+    }
+
+    try {
+      const { cambios } = await VentaService.corregirPrecioProducto(
+        selectedVenta.id,
+        productoId,
+        nuevoPrecio,
+        user.uid
+      );
+
+      // Refrescar datos
+      await fetchVentas();
+      await fetchResumenPagos();
+      refetchRentabilidad();
+
+      // Actualizar la venta seleccionada
+      refreshSelectedVenta(selectedVenta.id);
+
+      toast.success(
+        cambios.join('\n'),
+        'Precio Corregido'
+      );
+    } catch (error: any) {
+      toast.error(error.message, 'Error al corregir precio');
+    }
+  };
+
+  // Editar venta
+  const handleEditarVenta = async (cambios: EditarVentaData) => {
+    if (!user || !selectedVenta) return;
+
+    setIsSubmitting(true);
+    try {
+      const { cambios: log } = await VentaService.editarVenta(
+        selectedVenta.id,
+        cambios,
+        user.uid
+      );
+      setIsEditModalOpen(false);
+
+      await fetchVentas();
+      await fetchResumenPagos();
+      refetchRentabilidad();
+
+      refreshSelectedVenta(selectedVenta.id);
+
+      toast.success(log.join('\n'), 'Venta Actualizada');
+    } catch (error: any) {
+      toast.error(error.message, 'Error al editar venta');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -328,8 +518,9 @@ export const Ventas: React.FC = () => {
       setIsEntregaModalOpen(false);
       toast.success('Entrega programada correctamente');
 
-      // Recargar ventas
+      // Recargar ventas y actualizar seleccionada
       await fetchVentas();
+      refreshSelectedVenta(selectedVenta.id);
     } catch (error: any) {
       toast.error(error.message, 'Error al programar entrega');
     } finally {
@@ -366,6 +557,7 @@ export const Ventas: React.FC = () => {
 
       // Recargar datos incluyendo rentabilidad
       await fetchVentas();
+      if (selectedVenta) refreshSelectedVenta(selectedVenta.id);
       await fetchStats();
       await refetchRentabilidad();
     } catch (error: any) {
@@ -620,6 +812,101 @@ export const Ventas: React.FC = () => {
             </div>
           )}
 
+          {/* KPIs Lead Time */}
+          {leadTimeMetrics && (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <Card padding="md" className="bg-gradient-to-br from-cyan-50 to-teal-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">Lead Time Total</div>
+                    <div className="text-2xl font-bold text-cyan-600 mt-1">
+                      {leadTimeMetrics.total.avg.toFixed(1)}d
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      min {leadTimeMetrics.total.min.toFixed(1)}d · max {leadTimeMetrics.total.max.toFixed(1)}d
+                    </div>
+                  </div>
+                  <Clock className="h-8 w-8 text-cyan-400" />
+                </div>
+              </Card>
+
+              <Card padding="md" className="bg-gradient-to-br from-sky-50 to-cyan-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">Cotización → Confirmada</div>
+                    <div className="text-2xl font-bold text-sky-600 mt-1">
+                      {leadTimeMetrics.cotConf.avg.toFixed(1)}d
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      min {leadTimeMetrics.cotConf.min.toFixed(1)}d · max {leadTimeMetrics.cotConf.max.toFixed(1)}d
+                    </div>
+                  </div>
+                  <Timer className="h-8 w-8 text-sky-400" />
+                </div>
+              </Card>
+
+              <Card padding="md" className="bg-gradient-to-br from-teal-50 to-emerald-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">Confirmada → Asignada</div>
+                    <div className="text-2xl font-bold text-teal-600 mt-1">
+                      {leadTimeMetrics.confAsig.avg.toFixed(1)}d
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      min {leadTimeMetrics.confAsig.min.toFixed(1)}d · max {leadTimeMetrics.confAsig.max.toFixed(1)}d
+                    </div>
+                  </div>
+                  <Zap className="h-8 w-8 text-teal-400" />
+                </div>
+              </Card>
+
+              <Card padding="md" className="bg-gradient-to-br from-amber-50 to-yellow-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">Asignada → Programada</div>
+                    <div className="text-2xl font-bold text-amber-600 mt-1">
+                      {leadTimeMetrics.asigProg.avg.toFixed(1)}d
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      min {leadTimeMetrics.asigProg.min.toFixed(1)}d · max {leadTimeMetrics.asigProg.max.toFixed(1)}d
+                    </div>
+                  </div>
+                  <Package className="h-8 w-8 text-amber-400" />
+                </div>
+              </Card>
+
+              <Card padding="md" className="bg-gradient-to-br from-orange-50 to-amber-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">Programada → En Camino</div>
+                    <div className="text-2xl font-bold text-orange-600 mt-1">
+                      {leadTimeMetrics.progDesp.avg.toFixed(1)}d
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      min {leadTimeMetrics.progDesp.min.toFixed(1)}d · max {leadTimeMetrics.progDesp.max.toFixed(1)}d
+                    </div>
+                  </div>
+                  <Truck className="h-8 w-8 text-orange-400" />
+                </div>
+              </Card>
+
+              <Card padding="md" className="bg-gradient-to-br from-emerald-50 to-green-50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">En Camino → Entregada</div>
+                    <div className="text-2xl font-bold text-emerald-600 mt-1">
+                      {leadTimeMetrics.despEntr.avg.toFixed(1)}d
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      min {leadTimeMetrics.despEntr.min.toFixed(1)}d · max {leadTimeMetrics.despEntr.max.toFixed(1)}d
+                    </div>
+                  </div>
+                  <PackageCheck className="h-8 w-8 text-emerald-400" />
+                </div>
+              </Card>
+            </div>
+          )}
+
           {/* KPIs Cobranza */}
           {resumenPagos && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -759,57 +1046,65 @@ export const Ventas: React.FC = () => {
         size="xl"
       >
         {selectedVenta && (
-          <VentaCard
-            venta={selectedVenta}
-            rentabilidadData={getRentabilidadVenta(selectedVenta.id)}
-            onConfirmar={selectedVenta.estado === 'cotizacion' ? handleConfirmar : undefined}
-            onAsignarInventario={selectedVenta.estado === 'confirmada' ? handleAsignarInventario : undefined}
-            onMarcarEntregada={selectedVenta.estado === 'en_entrega' ? handleMarcarEntregada : undefined}
-            onCancelar={
-              selectedVenta.estado !== 'entregada' && selectedVenta.estado !== 'cancelada'
-                ? handleCancelar
-                : undefined
-            }
-            onRegistrarPago={
-              selectedVenta.estado !== 'cotizacion' &&
-              selectedVenta.estado !== 'cancelada' &&
-              selectedVenta.estadoPago !== 'pagado'
-                ? handleOpenPagoModal
-                : undefined
-            }
-            onEliminarPago={
-              selectedVenta.estado !== 'entregada'
-                ? handleEliminarPago
-                : undefined
-            }
-            onAgregarGastos={
-              selectedVenta.estado !== 'cotizacion' &&
-              selectedVenta.estado !== 'cancelada'
-                ? handleOpenGastosModal
-                : undefined
-            }
-            onProgramarEntrega={
-              (selectedVenta.estado === 'asignada' ||
-               selectedVenta.estado === 'en_entrega' ||
-               selectedVenta.estado === 'entrega_parcial')
-                ? handleOpenEntregaModal
-                : undefined
-            }
-            onEntregaCompletada={async () => {
-              // Refrescar la venta seleccionada para ver el nuevo estado
-              // fetchVentaById no existe, usar el ID directo
-              if (selectedVenta) {
-                const ventaActualizada = ventas.find(v => v.id === selectedVenta.id);
-                if (ventaActualizada) {
-                  setSelectedVenta(ventaActualizada);
-                }
+          <ErrorBoundary
+            fallbackMessage="Error al cargar los detalles de esta venta"
+            onReset={() => setIsDetailsModalOpen(false)}
+          >
+            <VentaCard
+              venta={selectedVenta}
+              rentabilidadData={getRentabilidadVenta(selectedVenta.id)}
+              onConfirmar={selectedVenta.estado === 'cotizacion' ? handleConfirmar : undefined}
+              onAsignarInventario={(selectedVenta.estado === 'confirmada' || selectedVenta.estado === 'reservada') ? handleAsignarInventario : undefined}
+              onMarcarEntregada={(selectedVenta.estado === 'en_entrega' || selectedVenta.estado === 'despachada') ? handleMarcarEntregada : undefined}
+              onCancelar={
+                selectedVenta.estado !== 'entregada' && selectedVenta.estado !== 'cancelada'
+                  ? handleCancelar
+                  : undefined
               }
-              // Refrescar la lista de ventas
-              await fetchVentas();
-              // Refrescar la rentabilidad (invalida cache y recalcula)
-              refetchRentabilidad();
-            }}
-          />
+              onRegistrarPago={
+                selectedVenta.estado !== 'cotizacion' &&
+                selectedVenta.estado !== 'cancelada' &&
+                selectedVenta.estadoPago !== 'pagado'
+                  ? handleOpenPagoModal
+                  : undefined
+              }
+              onEliminarPago={
+                selectedVenta.estado !== 'entregada'
+                  ? handleEliminarPago
+                  : undefined
+              }
+              onAgregarGastos={
+                selectedVenta.estado !== 'cotizacion' &&
+                selectedVenta.estado !== 'cancelada'
+                  ? handleOpenGastosModal
+                  : undefined
+              }
+              onCorregirPrecio={handleCorregirPrecio}
+              onEditarVenta={
+                selectedVenta.estado !== 'entregada' && selectedVenta.estado !== 'cancelada'
+                  ? () => setIsEditModalOpen(true)
+                  : undefined
+              }
+              onProgramarEntrega={
+                (selectedVenta.estado === 'asignada' ||
+                 selectedVenta.estado === 'en_entrega' ||
+                 selectedVenta.estado === 'despachada' ||
+                 selectedVenta.estado === 'entrega_parcial')
+                  ? handleOpenEntregaModal
+                  : undefined
+              }
+              onEntregaCompletada={async () => {
+                // Refrescar la lista de ventas primero
+                await fetchVentas();
+                // Luego actualizar la venta seleccionada con datos frescos
+                if (selectedVenta) {
+                  refreshSelectedVenta(selectedVenta.id);
+                }
+                // Refrescar la rentabilidad (invalida cache y recalcula)
+                refetchRentabilidad();
+              }}
+            />
+          </ErrorBoundary>
         )}
       </Modal>
 
@@ -839,6 +1134,17 @@ export const Ventas: React.FC = () => {
           />
         )}
       </Modal>
+
+      {/* Modal Editar Venta */}
+      {selectedVenta && isEditModalOpen && (
+        <EditarVentaModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSubmit={handleEditarVenta}
+          venta={selectedVenta}
+          loading={isSubmitting}
+        />
+      )}
 
       {/* Modal Programar Entrega */}
       {selectedVenta && isEntregaModalOpen && (

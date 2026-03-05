@@ -189,6 +189,14 @@ export interface Cotizacion {
   emailCliente?: string;
   telefonoCliente?: string;
   direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
   dniRuc?: string;
 
   // Canal
@@ -274,6 +282,14 @@ export interface CotizacionFormData {
   emailCliente?: string;
   telefonoCliente?: string;
   direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
   dniRuc?: string;
   canal: CanalVenta;
   productos: Array<{

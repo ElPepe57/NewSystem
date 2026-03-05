@@ -41,7 +41,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       let profile = await userService.getByUid(uid);
 
-      // Si no existe el perfil, crear uno con rol invitado
+      // Si no existe el perfil, crear uno con rol invitado y activo: false (pendiente de aprobación)
       if (!profile) {
         const user = useAuthStore.getState().user;
         if (user) {
@@ -49,18 +49,24 @@ export const useAuthStore = create<AuthState>((set) => ({
             uid,
             user.email || '',
             user.displayName || user.email || 'Usuario',
-            'invitado'
+            'invitado',
+            undefined,
+            false // activo: false - requiere aprobación del admin
           );
         }
       } else {
-        // Actualizar última conexión
-        await userService.updateLastConnection(uid);
+        // Solo actualizar última conexión si el usuario está activo
+        if (profile.activo) {
+          await userService.updateLastConnection(uid);
+        }
       }
 
       set({ userProfile: profile });
 
-      // Registrar login en auditoría (después de establecer el perfil)
-      await auditoriaService.logLogin(true);
+      // Solo registrar login en auditoría para usuarios activos
+      if (profile?.activo) {
+        await auditoriaService.logLogin(true);
+      }
     } catch (error: any) {
       console.error('Error al obtener perfil de usuario:', error);
       set({ error: error.message });

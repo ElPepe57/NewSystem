@@ -1,56 +1,302 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Regla general: solo usuarios autenticados pueden leer/escribir
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    // ============================================================
+    // FUNCIONES HELPER
+    // ============================================================
+    // Nota: get() al mismo path se cachea dentro de la misma evaluacion.
+    // Roles: admin, gerente, vendedor, comprador, almacenero, finanzas, supervisor, invitado
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    // Tipo de cambio: cualquier usuario autenticado puede leer
-    match /tiposCambio/{fecha} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+    function getUserRole() {
+      return getUserData().role;
     }
 
-    // Productos
-    match /productos/{productoId} {
-      allow read, write: if request.auth != null;
+    function isActive() {
+      return getUserData().activo == true;
     }
 
-    // Unidades
-    match /unidades/{unidadId} {
-      allow read, write: if request.auth != null;
+    function isAdmin() {
+      return request.auth != null && isActive() && getUserRole() == 'admin';
     }
 
-    // Órdenes de Compra
-    match /ordenesCompra/{ordenId} {
-      allow read, write: if request.auth != null;
+    function isActiveUser() {
+      return request.auth != null && isActive();
     }
 
-    // Ventas
-    match /ventas/{ventaId} {
-      allow read, write: if request.auth != null;
+    function hasRole(role) {
+      return isActiveUser() && getUserRole() == role;
     }
 
-    // Gastos
-    match /gastos/{gastoId} {
-      allow read, write: if request.auth != null;
+    function hasAnyRole(roles) {
+      return isActiveUser() && (getUserRole() in roles);
     }
 
-    // Almacenes
-    match /almacenes/{almacenId} {
-      allow read, write: if request.auth != null;
+    // ============================================================
+    // USUARIOS
+    // ============================================================
+    match /users/{userId} {
+      // Cualquier autenticado puede leer su propio perfil; admin y gerente leen todos
+      allow read: if request.auth != null &&
+        (request.auth.uid == userId || hasAnyRole(['admin', 'gerente']));
+
+      // Un usuario puede crear su propio perfil (fallback si Cloud Function no lo creo)
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // Usuario puede actualizar su perfil EXCEPTO role, permisos, activo (eso solo admin)
+      allow update: if request.auth != null && (
+        isAdmin() ||
+        (request.auth.uid == userId &&
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'permisos', 'activo']))
+      );
+
+      allow delete: if isAdmin();
     }
 
-    // Transferencias
-    match /transferencias/{transferenciaId} {
-      allow read, write: if request.auth != null;
+    // ============================================================
+    // FLUJO DE VENTAS (admin + vendedor escriben, todos leen)
+    // ============================================================
+    match /ventas/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor']);
     }
 
-    // Historial CTRU
+    match /cotizaciones/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor']);
+    }
+
+    match /entregas/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor']);
+    }
+
+    match /entregas_parciales/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor']);
+    }
+
+    match /requerimientos/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador']);
+    }
+
+    match /clientes/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor']);
+    }
+
+    match /proveedores/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'comprador']);
+    }
+
+    // ============================================================
+    // INVENTARIO (almacenero + admin escriben, vendedor tambien para reservas/ventas)
+    // ============================================================
+    match /productos/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero', 'comprador']);
+    }
+
+    match /unidades/{docId} {
+      // Vendedor reserva/vende, almacenero recibe, comprador gestiona
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero', 'comprador']);
+    }
+
+    match /almacenes/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero']);
+    }
+
+    match /transferencias/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero', 'comprador']);
+    }
+
+    match /ordenesCompra/{docId} {
+      // Vendedor/comprador crea OC desde requerimientos, almacenero recibe
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero', 'comprador']);
+    }
+
+    // ============================================================
+    // GASTOS (admin, gerente, finanzas, vendedor para GD de entregas)
+    // ============================================================
+    match /gastos/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas', 'vendedor']);
+    }
+
+    // ============================================================
+    // FINANZAS / TESORERIA (admin, gerente, finanzas)
+    // ============================================================
+    match /movimientosTesoreria/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    match /cuentasCaja/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    match /conversionesCambiarias/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    match /aportesCapital/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    match /retirosCapital/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    match /registrosTCTransaccion/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
     match /historialRecalculoCTRU/{docId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
     }
+
+    // ============================================================
+    // DATOS MAESTROS (todos leen, solo admin escribe)
+    // ============================================================
+    match /marcas/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isAdmin();
+    }
+
+    match /categorias/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isAdmin();
+    }
+
+    match /tiposProducto/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isAdmin();
+    }
+
+    match /canalesVenta/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isAdmin();
+    }
+
+    match /etiquetas/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isAdmin();
+    }
+
+    match /competidores/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isAdmin();
+    }
+
+    match /transportistas/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'vendedor']);
+    }
+
+    match /tiposCambio/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isAdmin();
+    }
+
+    // ============================================================
+    // SISTEMA (notificaciones, auditoria, analytics)
+    // ============================================================
+    match /notificaciones/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isActiveUser();
+    }
+
+    match /audit_logs/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow create: if isActiveUser();
+      allow update, delete: if isAdmin();
+    }
+
+    match /movimientos_transportista/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'vendedor']);
+    }
+
+    // ============================================================
+    // COLABORACION (presencia, actividad, chat)
+    // ============================================================
+    match /presencia/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isActiveUser();
+    }
+
+    match /actividad/{docId} {
+      allow read: if isActiveUser();
+      allow create: if isActiveUser();
+      allow update, delete: if isAdmin();
+    }
+
+    match /chat_mensajes/{docId} {
+      allow read: if isActiveUser();
+      allow create: if isActiveUser();
+      allow update, delete: if isAdmin();
+    }
+
+    match /chat_meta/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isActiveUser();
+    }
+
+    match /llamadas/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isActiveUser();
+    }
+
+    // ============================================================
+    // MERCADO LIBRE (admin y gerente gestionan, todos leen estado)
+    // ============================================================
+    match /mlConfig/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente']);
+    }
+
+    match /mlProductMap/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente']);
+    }
+
+    match /mlOrderSync/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente']);
+    }
+
+    match /mlQuestions/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente']);
+    }
+
+    // ============================================================
+    // CONFIGURACION DE EMPRESA
+    // ============================================================
+    match /configuracion/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente']);
+    }
+
+    // ============================================================
+    // SIN REGLA CATCH-ALL
+    // Cualquier coleccion no listada arriba sera DENEGADA por defecto.
+    // ============================================================
   }
 }

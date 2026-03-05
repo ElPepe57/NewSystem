@@ -29,8 +29,9 @@ import { metricasService } from './metricas.service';
 import { tipoProductoService } from './tipoProducto.service';
 import { categoriaService } from './categoria.service';
 import { etiquetaService } from './etiqueta.service';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'productos';
+const COLLECTION_NAME = COLLECTIONS.PRODUCTOS;
 
 export class ProductoService {
   /**

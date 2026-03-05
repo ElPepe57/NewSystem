@@ -18,8 +18,9 @@ import type {
   TransportistaFilters,
   TipoTransportista
 } from '../types/transportista.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'transportistas';
+const COLLECTION_NAME = COLLECTIONS.TRANSPORTISTAS;
 
 /**
  * Genera el siguiente código de transportista automáticamente

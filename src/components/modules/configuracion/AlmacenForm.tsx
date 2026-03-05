@@ -187,7 +187,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
               type="email"
               value={formData.email || ''}
               onChange={handleChange}
-              placeholder="ej: warehouse@businessmn.com"
+              placeholder="ej: almacen@vitaskinperu.com"
             />
           </div>
         </div>

@@ -23,8 +23,9 @@ import type {
   MetricasProveedor,
   ProveedorStats
 } from '../types/ordenCompra.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'proveedores';
+const COLLECTION_NAME = COLLECTIONS.PROVEEDORES;
 
 /**
  * Genera el siguiente código de proveedor automáticamente

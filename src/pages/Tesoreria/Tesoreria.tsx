@@ -22,12 +22,17 @@ import {
   MoreVertical,
   ExternalLink,
   ArrowLeftRight,
-  CreditCard
+  CreditCard,
+  Truck,
+  ShoppingCart,
+  Receipt
 } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { TesoreriaService } from '../../services/tesoreria.service';
 import { cuentasPendientesService } from '../../services/cuentasPendientes.service';
 import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../store/toastStore';
+import { useTesoreriaStore } from '../../store/tesoreriaStore';
 import type {
   MovimientoTesoreria,
   ConversionCambiaria,
@@ -66,17 +71,23 @@ interface TransferenciaEntreCuentas {
 export const Tesoreria: React.FC = () => {
   const user = useAuthStore(state => state.user);
   const userProfile = useAuthStore(state => state.userProfile);
+  const toast = useToastStore();
+  const {
+    movimientos,
+    conversiones,
+    cuentas,
+    stats,
+    loading: loadingStore,
+    fetchAll: storeFetchAll
+  } = useTesoreriaStore();
   const navigate = useNavigate();
 
   const [tabActiva, setTabActiva] = useState<TabActiva>('movimientos');
-  const [loading, setLoading] = useState(true);
+  const [loadingLocal, setLoadingLocal] = useState(true);
+  const loading = loadingStore || loadingLocal;
 
-  // Data
-  const [movimientos, setMovimientos] = useState<MovimientoTesoreria[]>([]);
-  const [conversiones, setConversiones] = useState<ConversionCambiaria[]>([]);
+  // Data local (derivada o de otros servicios)
   const [transferencias, setTransferencias] = useState<TransferenciaEntreCuentas[]>([]);
-  const [cuentas, setCuentas] = useState<CuentaCaja[]>([]);
-  const [stats, setStats] = useState<TesoreriaStats | null>(null);
   const [dashboardPendientes, setDashboardPendientes] = useState<DashboardCuentasPendientes | null>(null);
   const [loadingPendientes, setLoadingPendientes] = useState(false);
 
@@ -167,11 +178,11 @@ export const Tesoreria: React.FC = () => {
     setIsRecalculando(true);
     try {
       const resultado = await TesoreriaService.recalcularEstadisticasCompletas(user.uid);
-      alert(`✅ ${resultado.mensaje}\n\nTiempo: ${resultado.tiempoMs}ms`);
+      toast.success(`${resultado.mensaje} (${resultado.tiempoMs}ms)`, 'Estadísticas recalculadas');
       setStatsOptimizadas(true);
       await loadData();
     } catch (error: any) {
-      alert('Error al recalcular: ' + error.message);
+      toast.error(error.message, 'Error al recalcular');
     } finally {
       setIsRecalculando(false);
     }
@@ -190,43 +201,73 @@ export const Tesoreria: React.FC = () => {
   };
 
   const loadData = async () => {
-    setLoading(true);
+    setLoadingLocal(true);
     try {
-      const [mov, conv, ctas, estadisticas] = await Promise.all([
-        TesoreriaService.getMovimientos(),
-        TesoreriaService.getConversiones(),
-        TesoreriaService.getCuentas(),
-        TesoreriaService.getStats()
-      ]);
-      setMovimientos(mov);
-      setConversiones(conv);
-      setCuentas(ctas);
-      setStats(estadisticas);
+      await storeFetchAll();
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
-      setLoading(false);
+      setLoadingLocal(false);
     }
   };
 
   const loadTransferencias = async () => {
     try {
-      // Filtrar movimientos de tipo transferencia_interna que tienen ambas cuentas
+      // Filtrar movimientos de tipo transferencia_interna
       const movsTrans = movimientos.filter(m =>
-        m.tipo === 'transferencia_interna' &&
-        m.cuentaOrigen &&
-        m.cuentaDestino
+        m.tipo === 'transferencia_interna' && m.estado !== 'anulado'
       );
 
-      // Crear registros de transferencia (cada movimiento ya tiene origen y destino)
-      const transArray: TransferenciaEntreCuentas[] = movsTrans.map(mov => {
+      // Separar SALIDAS y ENTRADAS
+      const salidas = movsTrans.filter(m => m.cuentaOrigen && !m.cuentaDestino);
+      const entradas = movsTrans.filter(m => m.cuentaDestino && !m.cuentaOrigen);
+      // También soportar movimientos legacy que tienen ambas cuentas
+      const completos = movsTrans.filter(m => m.cuentaOrigen && m.cuentaDestino);
+
+      const transArray: TransferenciaEntreCuentas[] = [];
+
+      // Emparejar SALIDA + ENTRADA por monto y fecha cercana
+      const entradasUsadas = new Set<string>();
+
+      for (const salida of salidas) {
+        // Buscar la ENTRADA correspondiente: mismo monto, misma moneda, fecha similar
+        const entrada = entradas.find(e =>
+          !entradasUsadas.has(e.id) &&
+          e.monto === salida.monto &&
+          e.moneda === salida.moneda &&
+          Math.abs(e.fecha.toMillis() - salida.fecha.toMillis()) < 60000 // dentro de 1 min
+        );
+
+        if (entrada) {
+          entradasUsadas.add(entrada.id);
+        }
+
+        const cuentaOrigenData = cuentas.find(c => c.id === salida.cuentaOrigen);
+        const cuentaDestinoData = entrada ? cuentas.find(c => c.id === entrada.cuentaDestino) : null;
+        const fechaDate = salida.fecha.toDate();
+
+        transArray.push({
+          id: salida.id,
+          fecha: fechaDate,
+          cuentaOrigenId: salida.cuentaOrigen || '',
+          cuentaOrigenNombre: cuentaOrigenData?.nombre || 'Cuenta desconocida',
+          cuentaDestinoId: entrada?.cuentaDestino || '',
+          cuentaDestinoNombre: cuentaDestinoData?.nombre || 'Cuenta desconocida',
+          monto: salida.monto,
+          moneda: salida.moneda,
+          concepto: salida.concepto?.replace('[SALIDA] ', '').replace('Transferencia entre cuentas: ', '') || '',
+          creadoPor: salida.creadoPor,
+          creadoEn: salida.fechaCreacion.toDate()
+        });
+      }
+
+      // Agregar movimientos completos (legacy que ya tienen ambas cuentas)
+      for (const mov of completos) {
         const cuentaOrigenData = cuentas.find(c => c.id === mov.cuentaOrigen);
         const cuentaDestinoData = cuentas.find(c => c.id === mov.cuentaDestino);
-        const fechaDate = mov.fecha.toDate();
-
-        return {
+        transArray.push({
           id: mov.id,
-          fecha: fechaDate,
+          fecha: mov.fecha.toDate(),
           cuentaOrigenId: mov.cuentaOrigen || '',
           cuentaOrigenNombre: cuentaOrigenData?.nombre || 'Cuenta desconocida',
           cuentaDestinoId: mov.cuentaDestino || '',
@@ -236,8 +277,8 @@ export const Tesoreria: React.FC = () => {
           concepto: mov.concepto?.replace('Transferencia entre cuentas: ', '') || '',
           creadoPor: mov.creadoPor,
           creadoEn: mov.fechaCreacion.toDate()
-        };
-      });
+        });
+      }
 
       // Ordenar por fecha descendente
       transArray.sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
@@ -271,9 +312,10 @@ export const Tesoreria: React.FC = () => {
         tipoCambio: 3.70,
         metodo: 'efectivo'
       });
+      toast.success('Movimiento registrado');
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error al registrar movimiento');
     } finally {
       setIsSubmitting(false);
     }
@@ -327,9 +369,10 @@ export const Tesoreria: React.FC = () => {
         );
       }
       handleCerrarModalMovimiento();
+      toast.success('Movimiento guardado');
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error al guardar movimiento');
     } finally {
       setIsSubmitting(false);
     }
@@ -361,9 +404,10 @@ export const Tesoreria: React.FC = () => {
     setIsSubmitting(true);
     try {
       await TesoreriaService.eliminarMovimiento(mov.id, user.uid);
+      toast.success('Movimiento anulado');
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error al anular movimiento');
     } finally {
       setIsSubmitting(false);
     }
@@ -415,9 +459,10 @@ export const Tesoreria: React.FC = () => {
         cuentaOrigenId: undefined,
         cuentaDestinoId: undefined
       });
+      toast.success('Conversión registrada');
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error en conversión');
     } finally {
       setIsSubmitting(false);
     }
@@ -446,11 +491,12 @@ export const Tesoreria: React.FC = () => {
         fecha: new Date(),
         tipoCambio: 3.70
       });
+      toast.success('Transferencia realizada');
       // Recargar datos y cargar historial de transferencias
       await loadData();
       await loadTransferencias();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error en transferencia');
     } finally {
       setIsSubmitting(false);
     }
@@ -458,7 +504,7 @@ export const Tesoreria: React.FC = () => {
 
   const handleCrearCuenta = async () => {
     if (!user || !cuentaForm.nombre || !cuentaForm.titular?.trim()) {
-      alert('El nombre y el titular de la cuenta son obligatorios');
+      toast.warning('El nombre y el titular de la cuenta son obligatorios');
       return;
     }
 
@@ -475,9 +521,10 @@ export const Tesoreria: React.FC = () => {
       await TesoreriaService.crearCuenta(formData, user.uid);
       setIsCuentaModalOpen(false);
       setCuentaForm({ moneda: 'PEN', tipo: 'efectivo', saldoInicial: 0, titular: '', esBiMoneda: false, saldoInicialUSD: 0, saldoInicialPEN: 0 });
+      toast.success('Cuenta creada');
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error al crear cuenta');
     } finally {
       setIsSubmitting(false);
     }
@@ -508,7 +555,7 @@ export const Tesoreria: React.FC = () => {
 
   const handleGuardarCuenta = async () => {
     if (!user || !cuentaForm.nombre || !cuentaForm.titular?.trim()) {
-      alert('El nombre y el titular de la cuenta son obligatorios');
+      toast.warning('El nombre y el titular de la cuenta son obligatorios');
       return;
     }
 
@@ -550,9 +597,10 @@ export const Tesoreria: React.FC = () => {
       setIsCuentaModalOpen(false);
       setCuentaEditando(null);
       setCuentaForm({ moneda: 'PEN', tipo: 'efectivo', saldoInicial: 0, titular: '', esBiMoneda: false, saldoInicialUSD: 0, saldoInicialPEN: 0 });
+      toast.success('Cuenta guardada');
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error al guardar cuenta');
     } finally {
       setIsSubmitting(false);
     }
@@ -578,43 +626,106 @@ export const Tesoreria: React.FC = () => {
     return ['ingreso_venta', 'ingreso_anticipo', 'ingreso_otro', 'ajuste_positivo'].includes(tipo);
   };
 
-  // Para conversiones, determinar si es ingreso basándose en cuentaDestino
+  // Para conversiones y transferencias, determinar si es ingreso basándose en cuentaDestino
   const esIngresoMovimiento = (mov: MovimientoTesoreria): boolean => {
-    // Si es un tipo de conversión, es ingreso si tiene cuentaDestino (dinero que entra)
+    // Transferencias internas: ENTRADA tiene cuentaDestino, SALIDA tiene cuentaOrigen
+    if (mov.tipo === 'transferencia_interna') {
+      return !!mov.cuentaDestino && !mov.cuentaOrigen;
+    }
+    // Conversiones: ENTRADA tiene cuentaDestino (dinero que entra), SALIDA tiene cuentaOrigen
     if (mov.tipo === 'conversion_pen_usd' || mov.tipo === 'conversion_usd_pen') {
-      return !!mov.cuentaDestino;
+      return !!mov.cuentaDestino && !mov.cuentaOrigen;
     }
     // Para otros tipos, usar la lógica normal
     return esIngreso(mov.tipo);
   };
 
-  // ============ Saldo Corrido por Movimiento ============
-  const saldosCorridos = useMemo(() => {
-    const balanceMap = new Map<string, number>();
-    const porCuenta: Record<string, MovimientoTesoreria[]> = {};
+  // Determinar si un movimiento es neutro para el saldo global (no cambia patrimonio total)
+  const esMovimientoNeutro = (mov: MovimientoTesoreria): boolean => {
+    return mov.tipo === 'transferencia_interna';
+    // Las conversiones NO son neutras: cambian saldo PEN vs USD
+  };
 
+  // ============ Saldo Corrido por Movimiento ============
+  // Agrupa por cuenta+moneda para calcular saldos correctos
+  // Para cuentas bi-moneda, muestra ambos saldos (PEN y USD) en cada fila
+  const saldosCorridos = useMemo(() => {
+    const balanceMap = new Map<string, { pen: number; usd: number }>();
+
+    // Paso 1: Agrupar movimientos por cuenta+moneda
+    const porCuentaMoneda: Record<string, MovimientoTesoreria[]> = {};
     for (const mov of movimientos) {
       if (mov.estado === 'anulado') continue;
       const cuentaId = esIngresoMovimiento(mov) ? mov.cuentaDestino : mov.cuentaOrigen;
       if (!cuentaId) continue;
-      if (!porCuenta[cuentaId]) porCuenta[cuentaId] = [];
-      porCuenta[cuentaId].push(mov);
+      const key = `${cuentaId}|${mov.moneda}`;
+      if (!porCuentaMoneda[key]) porCuentaMoneda[key] = [];
+      porCuentaMoneda[key].push(mov);
     }
 
-    Object.entries(porCuenta).forEach(([cuentaId, movsGrupo]) => {
+    // Paso 2: Calcular saldo corrido simple por cada track (cuenta+moneda)
+    const saldoSimple = new Map<string, number>();
+    Object.entries(porCuentaMoneda).forEach(([key, movsGrupo]) => {
+      const [cuentaId, moneda] = key.split('|');
       const cuenta = cuentas.find(c => c.id === cuentaId);
       if (!cuenta) return;
-      let saldo = cuenta.saldoPEN ?? cuenta.saldoActual ?? 0;
+
+      let saldo: number;
+      if (cuenta.esBiMoneda) {
+        saldo = moneda === 'USD' ? (cuenta.saldoUSD ?? 0) : (cuenta.saldoPEN ?? 0);
+      } else {
+        saldo = cuenta.saldoActual ?? 0;
+      }
 
       for (const mov of movsGrupo) {
-        balanceMap.set(mov.id, Number(saldo.toFixed(2)));
-        if (esIngresoMovimiento(mov)) {
-          saldo -= mov.monto;
-        } else {
-          saldo += mov.monto;
-        }
+        saldoSimple.set(mov.id, Number(saldo.toFixed(2)));
+        if (esIngresoMovimiento(mov)) saldo -= mov.monto;
+        else saldo += mov.monto;
       }
     });
+
+    // Paso 3: Para cada movimiento, construir el objeto {pen, usd}
+    for (const mov of movimientos) {
+      if (mov.estado === 'anulado') continue;
+      const cuentaId = esIngresoMovimiento(mov) ? mov.cuentaDestino : mov.cuentaOrigen;
+      if (!cuentaId) continue;
+      const cuenta = cuentas.find(c => c.id === cuentaId);
+      if (!cuenta) continue;
+
+      const saldoPropio = saldoSimple.get(mov.id) ?? 0;
+
+      // Verificar si esta cuenta tiene movimientos en la otra moneda (bi-moneda real)
+      const otraMoneda = mov.moneda === 'USD' ? 'PEN' : 'USD';
+      const otraKey = `${cuentaId}|${otraMoneda}`;
+      const tieneOtraMoneda = !!porCuentaMoneda[otraKey] || cuenta.esBiMoneda;
+
+      if (tieneOtraMoneda) {
+        let saldoOtra: number | undefined;
+
+        // Para conversiones: buscar el movimiento par (mismo conversionId, otra moneda, misma cuenta)
+        if (mov.conversionId && porCuentaMoneda[otraKey]) {
+          const movPar = porCuentaMoneda[otraKey].find(m => m.conversionId === mov.conversionId);
+          if (movPar) saldoOtra = saldoSimple.get(movPar.id);
+        }
+
+        // Fallback: usar el saldo actual de la otra moneda
+        if (saldoOtra === undefined) {
+          saldoOtra = otraMoneda === 'USD'
+            ? (cuenta.saldoUSD ?? (cuenta.moneda === 'USD' ? cuenta.saldoActual : 0))
+            : (cuenta.saldoPEN ?? (cuenta.moneda === 'PEN' ? cuenta.saldoActual : 0));
+        }
+
+        balanceMap.set(mov.id, mov.moneda === 'PEN'
+          ? { pen: saldoPropio, usd: saldoOtra }
+          : { pen: saldoOtra, usd: saldoPropio }
+        );
+      } else {
+        balanceMap.set(mov.id, mov.moneda === 'PEN'
+          ? { pen: saldoPropio, usd: 0 }
+          : { pen: 0, usd: saldoPropio }
+        );
+      }
+    }
 
     return balanceMap;
   }, [movimientos, cuentas]);
@@ -634,8 +745,9 @@ export const Tesoreria: React.FC = () => {
     });
 
     // Retroceder: restar todos los movimientos PEN para obtener saldo inicial
+    // Excluir movimientos neutros (transferencias): no cambian el patrimonio global
     movimientos.forEach(mov => {
-      if (mov.estado === 'anulado' || mov.moneda !== 'PEN') return;
+      if (mov.estado === 'anulado' || mov.moneda !== 'PEN' || esMovimientoNeutro(mov)) return;
       if (esIngresoMovimiento(mov)) saldoPEN -= mov.monto;
       else saldoPEN += mov.monto;
     });
@@ -648,7 +760,7 @@ export const Tesoreria: React.FC = () => {
     puntos.push({ fecha: fechaInicial, saldo: Number(saldoPEN.toFixed(2)) });
 
     for (const mov of movsOrdenados) {
-      if (mov.moneda !== 'PEN') continue;
+      if (mov.moneda !== 'PEN' || esMovimientoNeutro(mov)) continue;
       if (esIngresoMovimiento(mov)) saldoPEN += mov.monto;
       else saldoPEN -= mov.monto;
 
@@ -657,6 +769,56 @@ export const Tesoreria: React.FC = () => {
           ? mov.fecha.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
           : '',
         saldo: Number(saldoPEN.toFixed(2))
+      });
+    }
+
+    return puntos;
+  }, [movimientos, cuentas]);
+
+  // ============ Datos para Gráfica de Evolución USD ============
+  const chartEvolucionSaldoUSD = useMemo(() => {
+    const movsOrdenados = [...movimientos]
+      .filter(m => m.estado !== 'anulado')
+      .reverse();
+
+    if (movsOrdenados.length === 0) return [];
+
+    // Calcular saldo USD total actual
+    let saldoUSD = 0;
+    cuentas.filter(c => c.activa).forEach(c => {
+      if (c.esBiMoneda) {
+        saldoUSD += c.saldoUSD || 0;
+      } else if (c.moneda === 'USD') {
+        saldoUSD += c.saldoActual ?? 0;
+      }
+    });
+
+    // Retroceder: restar todos los movimientos USD para obtener saldo inicial
+    movimientos.forEach(mov => {
+      if (mov.estado === 'anulado' || mov.moneda !== 'USD' || esMovimientoNeutro(mov)) return;
+      if (esIngresoMovimiento(mov)) saldoUSD -= mov.monto;
+      else saldoUSD += mov.monto;
+    });
+
+    // Avanzar cronológicamente construyendo puntos
+    const puntos: { fecha: string; saldo: number }[] = [];
+    const movsUSD = movsOrdenados.filter(m => m.moneda === 'USD' && !esMovimientoNeutro(m));
+    if (movsUSD.length === 0) return [];
+
+    const fechaInicial = movsUSD[0].fecha?.toDate?.()
+      ? movsUSD[0].fecha.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
+      : '';
+    puntos.push({ fecha: fechaInicial, saldo: Number(saldoUSD.toFixed(2)) });
+
+    for (const mov of movsUSD) {
+      if (esIngresoMovimiento(mov)) saldoUSD += mov.monto;
+      else saldoUSD -= mov.monto;
+
+      puntos.push({
+        fecha: mov.fecha?.toDate
+          ? mov.fecha.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
+          : '',
+        saldo: Number(saldoUSD.toFixed(2))
       });
     }
 
@@ -678,15 +840,15 @@ export const Tesoreria: React.FC = () => {
       const resultado = await TesoreriaService.recalcularTodosLosSaldos();
 
       if (resultado.errores.length > 0) {
-        alert(`Saldos recalculados con algunos errores:\n\n${resultado.errores.join('\n')}`);
+        toast.warning(`${resultado.cuentasActualizadas} cuenta(s) actualizadas con ${resultado.errores.length} error(es)`, 'Recálculo parcial');
       } else {
-        alert(`✅ ${resultado.cuentasActualizadas} cuenta(s) actualizadas correctamente`);
+        toast.success(`${resultado.cuentasActualizadas} cuenta(s) actualizadas correctamente`, 'Saldos recalculados');
       }
 
       // Recargar datos
       await loadData();
     } catch (error: any) {
-      alert(`Error al recalcular saldos: ${error.message}`);
+      toast.error(error.message, 'Error al recalcular saldos');
     } finally {
       setIsSubmitting(false);
     }
@@ -970,31 +1132,63 @@ export const Tesoreria: React.FC = () => {
             </Button>
           </div>
 
-          {/* Gráfica Evolución de Saldo */}
-          {chartEvolucionSaldo.length > 1 && (
-            <div className="px-4 sm:px-6 pb-4">
-              <h4 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-primary-500" />
-                Evolución de Saldo (PEN)
-              </h4>
-              <div className="h-48 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartEvolucionSaldo}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                    <XAxis dataKey="fecha" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
-                    <YAxis
-                      tick={{ fontSize: 10 }}
-                      tickFormatter={(v: number) => v >= 1000 ? `S/${(v / 1000).toFixed(1)}K` : `S/${v}`}
-                      width={70}
-                    />
-                    <Tooltip
-                      formatter={(value: number) => [`S/ ${value.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`, 'Saldo']}
-                      contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
-                    />
-                    <Line type="monotone" dataKey="saldo" stroke="#10B981" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+          {/* Gráficas Evolución de Saldo */}
+          {(chartEvolucionSaldo.length > 1 || chartEvolucionSaldoUSD.length > 1) && (
+            <div className="px-4 sm:px-6 pb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* PEN */}
+              {chartEvolucionSaldo.length > 1 && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-green-500" />
+                    Evolución de Saldo (PEN)
+                  </h4>
+                  <div className="h-48 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartEvolucionSaldo}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                        <XAxis dataKey="fecha" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                        <YAxis
+                          tick={{ fontSize: 10 }}
+                          tickFormatter={(v: number) => v >= 1000 ? `S/${(v / 1000).toFixed(1)}K` : `S/${v}`}
+                          width={70}
+                        />
+                        <Tooltip
+                          formatter={(value: number) => [`S/ ${value.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`, 'Saldo']}
+                          contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
+                        />
+                        <Line type="monotone" dataKey="saldo" stroke="#10B981" strokeWidth={2} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+              {/* USD */}
+              {chartEvolucionSaldoUSD.length > 1 && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-blue-500" />
+                    Evolución de Saldo (USD)
+                  </h4>
+                  <div className="h-48 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartEvolucionSaldoUSD}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                        <XAxis dataKey="fecha" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                        <YAxis
+                          tick={{ fontSize: 10 }}
+                          tickFormatter={(v: number) => v >= 1000 ? `$${(v / 1000).toFixed(1)}K` : `$${v}`}
+                          width={70}
+                        />
+                        <Tooltip
+                          formatter={(value: number) => [`$ ${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 'Saldo']}
+                          contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
+                        />
+                        <Line type="monotone" dataKey="saldo" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1110,15 +1304,27 @@ export const Tesoreria: React.FC = () => {
                             const cuentaId = esIngresoMovimiento(mov) ? mov.cuentaDestino : mov.cuentaOrigen;
                             const cuenta = cuentaId ? cuentas.find(c => c.id === cuentaId) : null;
                             if (cuenta) {
-                              const saldoMomento = saldosCorridos.get(mov.id);
+                              const saldos = saldosCorridos.get(mov.id);
                               return (
                                 <div className="flex flex-col">
                                   <span className="font-medium text-gray-900 truncate max-w-[120px]" title={cuenta.nombre}>
                                     {cuenta.nombre}
                                   </span>
-                                  <span className="text-xs text-gray-500">
-                                    Saldo: {mov.moneda === 'USD' ? '$' : 'S/'}{(saldoMomento ?? 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                                  </span>
+                                  {saldos && saldos.pen !== 0 && saldos.usd !== 0 ? (
+                                    <div className="flex gap-2 text-xs text-gray-500">
+                                      <span className={mov.moneda === 'PEN' ? 'font-semibold text-gray-700' : ''}>
+                                        S/{saldos.pen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                      </span>
+                                      <span className="text-gray-300">|</span>
+                                      <span className={mov.moneda === 'USD' ? 'font-semibold text-gray-700' : ''}>
+                                        ${saldos.usd.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs text-gray-500">
+                                      Saldo: {mov.moneda === 'USD' ? '$' : 'S/'}{(saldos ? (mov.moneda === 'USD' ? saldos.usd : saldos.pen) : 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                    </span>
+                                  )}
                                 </div>
                               );
                             }
@@ -1829,18 +2035,47 @@ export const Tesoreria: React.FC = () => {
                     <p className="text-sm text-red-600">OC, Gastos y Viajeros pendientes</p>
                   </div>
 
-                  {/* Resumen por tipo */}
+                  {/* Resumen por antigüedad */}
                   <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
+                    <div className="grid grid-cols-4 gap-2 text-xs">
+                      <div className="text-center">
+                        <div className="text-gray-500">0-7 días</div>
+                        <div className="font-bold text-gray-900">S/ {dashboardPendientes.cuentasPorPagar.pendiente0a7dias.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-gray-500">8-15 días</div>
+                        <div className="font-bold text-yellow-600">S/ {dashboardPendientes.cuentasPorPagar.pendiente8a15dias.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-gray-500">16-30 días</div>
+                        <div className="font-bold text-orange-600">S/ {dashboardPendientes.cuentasPorPagar.pendiente16a30dias.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-gray-500">&gt;30 días</div>
+                        <div className="font-bold text-red-600">S/ {dashboardPendientes.cuentasPorPagar.pendienteMas30dias.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Resumen por tipo */}
+                  <div className="px-6 py-2 border-b border-gray-200">
                     <div className="flex flex-wrap gap-2">
                       {dashboardPendientes.cuentasPorPagar.porTipo.map((tipo) => (
-                        <div key={tipo.tipo} className="text-xs px-3 py-1 rounded-full bg-white border border-gray-200">
+                        <div key={tipo.tipo} className={`text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 ${
+                          tipo.tipo === 'orden_compra_por_pagar' ? 'bg-purple-50 border-purple-200 text-purple-800' :
+                          tipo.tipo === 'gasto_por_pagar' ? 'bg-orange-50 border-orange-200 text-orange-800' :
+                          'bg-blue-50 border-blue-200 text-blue-800'
+                        }`}>
+                          {tipo.tipo === 'orden_compra_por_pagar' && <ShoppingCart className="h-3 w-3" />}
+                          {tipo.tipo === 'gasto_por_pagar' && <Receipt className="h-3 w-3" />}
+                          {tipo.tipo === 'viajero_por_pagar' && <Truck className="h-3 w-3" />}
                           <span className="font-medium">{tipo.etiqueta}:</span>
-                          <span className="ml-1 text-gray-600">{tipo.cantidad}</span>
+                          <span>{tipo.cantidad}</span>
                           {tipo.montoUSD > 0 && (
-                            <span className="ml-1 text-blue-600">(${tipo.montoUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })})</span>
+                            <span className="font-semibold">${tipo.montoUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
                           )}
                           {tipo.montoPEN > 0 && (
-                            <span className="ml-1 text-green-600">(S/{tipo.montoPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })})</span>
+                            <span className="font-semibold">S/{tipo.montoPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</span>
                           )}
                         </div>
                       ))}
@@ -1864,18 +2099,21 @@ export const Tesoreria: React.FC = () => {
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="font-medium text-gray-900 group-hover:text-red-700 flex items-center gap-2">
+                                {p.tipo === 'orden_compra_por_pagar' && <ShoppingCart className="h-3.5 w-3.5 text-purple-500" />}
+                                {p.tipo === 'gasto_por_pagar' && <Receipt className="h-3.5 w-3.5 text-orange-500" />}
+                                {p.tipo === 'viajero_por_pagar' && <Truck className="h-3.5 w-3.5 text-blue-500" />}
                                 {p.numeroDocumento}
                                 <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                               </div>
                               <div className="text-sm text-gray-500">{p.contraparteNombre}</div>
                               <div className="flex items-center gap-2 mt-1">
-                                <span className={`px-2 py-0.5 text-xs rounded ${
+                                <span className={`px-2 py-0.5 text-xs rounded inline-flex items-center gap-1 ${
                                   p.tipo === 'orden_compra_por_pagar' ? 'bg-purple-100 text-purple-800' :
                                   p.tipo === 'gasto_por_pagar' ? 'bg-orange-100 text-orange-800' :
                                   'bg-blue-100 text-blue-800'
                                 }`}>
                                   {p.tipo === 'orden_compra_por_pagar' ? 'OC' :
-                                   p.tipo === 'gasto_por_pagar' ? 'Gasto' : 'Viajero'}
+                                   p.tipo === 'gasto_por_pagar' ? 'Gasto' : 'Flete'}
                                 </span>
                                 <span className={`px-2 py-0.5 text-xs rounded ${
                                   p.diasPendiente <= 7 ? 'bg-gray-100 text-gray-600' :
@@ -1886,6 +2124,11 @@ export const Tesoreria: React.FC = () => {
                                   <Clock className="h-3 w-3 inline mr-1" />
                                   {p.diasPendiente} días
                                 </span>
+                                {p.esVencido && (
+                                  <span className="px-2 py-0.5 text-xs rounded bg-red-100 text-red-700 font-semibold">
+                                    Vencido
+                                  </span>
+                                )}
                                 {p.esParcial && (
                                   <span className="px-2 py-0.5 text-xs rounded bg-purple-100 text-purple-800">
                                     Parcial
@@ -1903,10 +2146,21 @@ export const Tesoreria: React.FC = () => {
                                   ≈ S/ {p.montoEquivalentePEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                                 </div>
                               )}
-                              {p.esParcial && (
-                                <div className="text-xs text-gray-500">
-                                  de {p.moneda === 'USD' ? '$ ' : 'S/ '}{p.montoTotal.toLocaleString(p.moneda === 'USD' ? 'en-US' : 'es-PE', { minimumFractionDigits: 2 })}
-                                </div>
+                              {p.esParcial && p.montoTotal > 0 && (
+                                <>
+                                  <div className="text-xs text-gray-500">
+                                    de {p.moneda === 'USD' ? '$ ' : 'S/ '}{p.montoTotal.toLocaleString(p.moneda === 'USD' ? 'en-US' : 'es-PE', { minimumFractionDigits: 2 })}
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                    <div
+                                      className="bg-red-500 h-1.5 rounded-full transition-all"
+                                      style={{ width: `${Math.min(100, (p.montoPagado / p.montoTotal) * 100)}%` }}
+                                    />
+                                  </div>
+                                  <div className="text-xs text-gray-400 mt-0.5">
+                                    {((p.montoPagado / p.montoTotal) * 100).toFixed(0)}% pagado
+                                  </div>
+                                </>
                               )}
                             </div>
                           </div>
@@ -1935,208 +2189,296 @@ export const Tesoreria: React.FC = () => {
         title={movimientoEditando ? `Editar Movimiento ${movimientoEditando.numeroMovimiento}` : 'Nuevo Movimiento'}
         size="lg"
       >
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tipo
-              </label>
-              <select
-                value={movimientoForm.tipo}
-                onChange={(e) =>
-                  setMovimientoForm({ ...movimientoForm, tipo: e.target.value as TipoMovimientoTesoreria })
-                }
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              >
-                <optgroup label="Ingresos">
-                  <option value="ingreso_venta">Ingreso por Venta</option>
-                  <option value="ingreso_anticipo">Anticipo / Adelanto</option>
-                  <option value="ingreso_otro">Otro Ingreso</option>
-                  <option value="aporte_capital">Aporte de Capital (Socio)</option>
-                  <option value="ajuste_positivo">Ajuste Positivo</option>
-                </optgroup>
-                <optgroup label="Egresos">
-                  <option value="pago_orden_compra">Pago Orden de Compra</option>
-                  <option value="pago_viajero">Pago a Viajero</option>
-                  <option value="pago_proveedor_local">Pago Proveedor Local</option>
-                  <option value="gasto_operativo">Gasto Operativo</option>
-                  <option value="retiro_socio">Retiro Socio</option>
-                  <option value="ajuste_negativo">Ajuste Negativo</option>
-                </optgroup>
-              </select>
+        <div className="space-y-5">
+          {/* Sección 1: Tipo y Clasificación */}
+          <div className={`rounded-lg p-4 border ${esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+            <div className="flex items-center gap-2 mb-3">
+              {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria)
+                ? <ArrowUpCircle className="h-4 w-4 text-green-600" />
+                : <ArrowDownCircle className="h-4 w-4 text-red-600" />
+              }
+              <h4 className={`text-sm font-semibold ${esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'text-green-800' : 'text-red-800'}`}>
+                {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'Ingreso' : 'Egreso'}
+              </h4>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Moneda
-              </label>
-              <select
-                value={movimientoForm.moneda}
-                onChange={(e) =>
-                  setMovimientoForm({ ...movimientoForm, moneda: e.target.value as MonedaTesoreria })
-                }
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              >
-                <option value="PEN">PEN (Soles)</option>
-                <option value="USD">USD (Dólares)</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Tipo de movimiento
+                </label>
+                <select
+                  value={movimientoForm.tipo}
+                  onChange={(e) =>
+                    setMovimientoForm({ ...movimientoForm, tipo: e.target.value as TipoMovimientoTesoreria })
+                  }
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                >
+                  <optgroup label="Ingresos">
+                    <option value="ingreso_venta">Ingreso por Venta</option>
+                    <option value="ingreso_anticipo">Anticipo / Adelanto</option>
+                    <option value="ingreso_otro">Otro Ingreso</option>
+                    <option value="aporte_capital">Aporte de Capital (Socio)</option>
+                    <option value="ajuste_positivo">Ajuste Positivo</option>
+                  </optgroup>
+                  <optgroup label="Egresos">
+                    <option value="pago_orden_compra">Pago Orden de Compra</option>
+                    <option value="pago_viajero">Pago a Viajero</option>
+                    <option value="pago_proveedor_local">Pago Proveedor Local</option>
+                    <option value="gasto_operativo">Gasto Operativo</option>
+                    <option value="retiro_socio">Retiro Socio</option>
+                    <option value="ajuste_negativo">Ajuste Negativo</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Fecha
+                </label>
+                <input
+                  type="date"
+                  value={(() => {
+                    if (!movimientoForm.fecha) return new Date().toISOString().split('T')[0];
+                    if (movimientoForm.fecha instanceof Date && !isNaN(movimientoForm.fecha.getTime())) {
+                      return movimientoForm.fecha.toISOString().split('T')[0];
+                    }
+                    return new Date().toISOString().split('T')[0];
+                  })()}
+                  onChange={(e) => {
+                    if (!e.target.value) return;
+                    const [year, month, day] = e.target.value.split('-').map(Number);
+                    const nuevaFecha = new Date(year, month - 1, day, new Date().getHours(), new Date().getMinutes());
+                    if (!isNaN(nuevaFecha.getTime())) {
+                      setMovimientoForm({ ...movimientoForm, fecha: nuevaFecha });
+                    }
+                  }}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* Sección 2: Monto y Moneda */}
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <div className="flex items-center gap-2 mb-3">
+              <DollarSign className="h-4 w-4 text-gray-600" />
+              <h4 className="text-sm font-semibold text-gray-700">Monto</h4>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Moneda
+                </label>
+                <select
+                  value={movimientoForm.moneda}
+                  onChange={(e) =>
+                    setMovimientoForm({ ...movimientoForm, moneda: e.target.value as MonedaTesoreria })
+                  }
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                >
+                  <option value="PEN">PEN (Soles)</option>
+                  <option value="USD">USD (Dólares)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Monto
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                    {movimientoForm.moneda === 'USD' ? '$' : 'S/'}
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={movimientoForm.monto || ''}
+                    onChange={(e) =>
+                      setMovimientoForm({ ...movimientoForm, monto: parseFloat(e.target.value) })
+                    }
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm pl-8"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Tipo de Cambio
+                </label>
+                <input
+                  type="number"
+                  step="0.001"
+                  value={movimientoForm.tipoCambio || ''}
+                  onChange={(e) =>
+                    setMovimientoForm({ ...movimientoForm, tipoCambio: parseFloat(e.target.value) })
+                  }
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  placeholder="3.700"
+                />
+              </div>
+            </div>
+            {/* Equivalente */}
+            {movimientoForm.monto && movimientoForm.tipoCambio ? (
+              <div className="mt-2 text-xs text-gray-500 text-right">
+                Equivale a{' '}
+                <span className="font-medium text-gray-700">
+                  {movimientoForm.moneda === 'USD'
+                    ? `S/ ${(movimientoForm.monto * movimientoForm.tipoCambio).toFixed(2)}`
+                    : `$ ${(movimientoForm.monto / movimientoForm.tipoCambio).toFixed(2)}`
+                  }
+                </span>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Sección 3: Cuenta y Método */}
+          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <div className="flex items-center gap-2 mb-3">
+              <Building2 className="h-4 w-4 text-blue-600" />
+              <h4 className="text-sm font-semibold text-blue-800">Cuenta y Método de Pago</h4>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'Cuenta destino (donde entra el dinero)' : 'Cuenta origen (de donde sale el dinero)'}
+                </label>
+                <select
+                  value={(esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? movimientoForm.cuentaDestino : movimientoForm.cuentaOrigen) || ''}
+                  onChange={(e) => {
+                    const value = e.target.value || undefined;
+                    if (esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria)) {
+                      setMovimientoForm({ ...movimientoForm, cuentaDestino: value });
+                    } else {
+                      setMovimientoForm({ ...movimientoForm, cuentaOrigen: value });
+                    }
+                  }}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                >
+                  <option value="">Seleccionar cuenta...</option>
+                  {cuentas
+                    .filter(c => c.activa && (c.esBiMoneda || c.moneda === movimientoForm.moneda))
+                    .map(cuenta => {
+                      const saldoActual = cuenta.esBiMoneda
+                        ? (movimientoForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
+                        : cuenta.saldoActual;
+                      return (
+                        <option key={cuenta.id} value={cuenta.id}>
+                          {cuenta.nombre} — Saldo: {movimientoForm.moneda === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
+                        </option>
+                      );
+                    })}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Método de pago
+                </label>
+                <select
+                  value={movimientoForm.metodo || 'efectivo'}
+                  onChange={(e) =>
+                    setMovimientoForm({ ...movimientoForm, metodo: e.target.value as any })
+                  }
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                >
+                  <option value="efectivo">Efectivo</option>
+                  <option value="transferencia_bancaria">Transferencia Bancaria</option>
+                  <option value="yape">Yape</option>
+                  <option value="plin">Plin</option>
+                  <option value="mercado_pago">MercadoPago</option>
+                  <option value="tarjeta">Tarjeta Débito</option>
+                  <option value="tarjeta_credito">Tarjeta Crédito</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="zelle">Zelle</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+            </div>
+
+            {movimientoEditando && (
+              <div className="mt-3 bg-white/60 rounded p-2 text-xs text-orange-600">
+                * Al cambiar cuenta/monto/moneda se ajustarán automáticamente los saldos
+              </div>
+            )}
+          </div>
+
+          {/* Sección 4: Detalle */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-gray-500" />
+              <h4 className="text-sm font-semibold text-gray-700">Detalle</h4>
+            </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Monto
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Concepto
               </label>
               <input
-                type="number"
-                step="0.01"
-                value={movimientoForm.monto || ''}
+                type="text"
+                value={movimientoForm.concepto || ''}
                 onChange={(e) =>
-                  setMovimientoForm({ ...movimientoForm, monto: parseFloat(e.target.value) })
+                  setMovimientoForm({ ...movimientoForm, concepto: e.target.value })
                 }
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                placeholder="0.00"
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                placeholder="Descripción del movimiento"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tipo de Cambio
-              </label>
-              <input
-                type="number"
-                step="0.001"
-                value={movimientoForm.tipoCambio || ''}
-                onChange={(e) =>
-                  setMovimientoForm({ ...movimientoForm, tipoCambio: parseFloat(e.target.value) })
-                }
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                placeholder="3.700"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Referencia
+                </label>
+                <input
+                  type="text"
+                  value={movimientoForm.referencia || ''}
+                  onChange={(e) =>
+                    setMovimientoForm({ ...movimientoForm, referencia: e.target.value })
+                  }
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  placeholder="N° de documento, factura, etc."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Notas (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={movimientoForm.notas || ''}
+                  onChange={(e) =>
+                    setMovimientoForm({ ...movimientoForm, notas: e.target.value })
+                  }
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  placeholder="Notas adicionales"
+                />
+              </div>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Concepto
-            </label>
-            <input
-              type="text"
-              value={movimientoForm.concepto || ''}
-              onChange={(e) =>
-                setMovimientoForm({ ...movimientoForm, concepto: e.target.value })
-              }
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              placeholder="Descripción del movimiento"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Referencia
-            </label>
-            <input
-              type="text"
-              value={movimientoForm.referencia || ''}
-              onChange={(e) =>
-                setMovimientoForm({ ...movimientoForm, referencia: e.target.value })
-              }
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              placeholder="N° de documento, factura, etc."
-            />
-          </div>
-
-          {/* Selector de cuenta origen/destino cuando se edita */}
-          {movimientoEditando && (
-            <div className="space-y-4 pt-2 border-t border-gray-200">
-              <h4 className="text-sm font-medium text-gray-700">Cuenta asociada</h4>
-
-              {/* Selector de cuenta origen (para egresos) */}
-              {!esIngresoMovimiento(movimientoEditando) && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Cuenta origen (de donde sale el dinero)
-                  </label>
-                  <select
-                    value={movimientoForm.cuentaOrigen || ''}
-                    onChange={(e) =>
-                      setMovimientoForm({ ...movimientoForm, cuentaOrigen: e.target.value || undefined })
-                    }
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                  >
-                    <option value="">Sin cuenta asociada</option>
-                    {cuentas
-                      .filter(c => c.activa && (c.esBiMoneda || c.moneda === movimientoForm.moneda))
-                      .map(cuenta => {
-                        const saldoActual = cuenta.esBiMoneda
-                          ? (movimientoForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
-                          : cuenta.saldoActual;
-                        return (
-                          <option key={cuenta.id} value={cuenta.id}>
-                            {cuenta.nombre} - Saldo: {movimientoForm.moneda === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
-                          </option>
-                        );
-                      })}
-                  </select>
-                </div>
-              )}
-
-              {/* Selector de cuenta destino (para ingresos) */}
-              {esIngresoMovimiento(movimientoEditando) && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Cuenta destino (donde entra el dinero)
-                  </label>
-                  <select
-                    value={movimientoForm.cuentaDestino || ''}
-                    onChange={(e) =>
-                      setMovimientoForm({ ...movimientoForm, cuentaDestino: e.target.value || undefined })
-                    }
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                  >
-                    <option value="">Sin cuenta asociada</option>
-                    {cuentas
-                      .filter(c => c.activa && (c.esBiMoneda || c.moneda === movimientoForm.moneda))
-                      .map(cuenta => {
-                        const saldoActual = cuenta.esBiMoneda
-                          ? (movimientoForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
-                          : cuenta.saldoActual;
-                        return (
-                          <option key={cuenta.id} value={cuenta.id}>
-                            {cuenta.nombre} - Saldo: {movimientoForm.moneda === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
-                          </option>
-                        );
-                      })}
-                  </select>
-                </div>
-              )}
-
-              {/* Info de documentos relacionados */}
-              <div className="bg-gray-50 rounded-lg p-3 text-sm">
-                <div className="grid grid-cols-2 gap-2 text-gray-600">
-                  {movimientoEditando.ordenCompraNumero && (
-                    <div>
-                      <span className="font-medium">OC:</span> {movimientoEditando.ordenCompraNumero}
-                    </div>
-                  )}
-                  {movimientoEditando.ventaNumero && (
-                    <div>
-                      <span className="font-medium">Venta:</span> {movimientoEditando.ventaNumero}
-                    </div>
-                  )}
-                  {movimientoEditando.gastoNumero && (
-                    <div>
-                      <span className="font-medium">Gasto:</span> {movimientoEditando.gastoNumero}
-                    </div>
-                  )}
-                </div>
-                <p className="text-xs text-orange-600 mt-2">
-                  * Al cambiar cuenta/monto/moneda se ajustarán automáticamente los saldos
-                </p>
+          {/* Info de documentos relacionados (solo en edición) */}
+          {movimientoEditando && (movimientoEditando.ordenCompraNumero || movimientoEditando.ventaNumero || movimientoEditando.gastoNumero) && (
+            <div className="bg-gray-50 rounded-lg p-3 text-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <ExternalLink className="h-3.5 w-3.5 text-gray-500" />
+                <span className="text-xs font-medium text-gray-600">Documentos relacionados</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-gray-600 text-xs">
+                {movimientoEditando.ordenCompraNumero && (
+                  <div className="bg-white rounded px-2 py-1">
+                    <span className="font-medium">OC:</span> {movimientoEditando.ordenCompraNumero}
+                  </div>
+                )}
+                {movimientoEditando.ventaNumero && (
+                  <div className="bg-white rounded px-2 py-1">
+                    <span className="font-medium">Venta:</span> {movimientoEditando.ventaNumero}
+                  </div>
+                )}
+                {movimientoEditando.gastoNumero && (
+                  <div className="bg-white rounded px-2 py-1">
+                    <span className="font-medium">Gasto:</span> {movimientoEditando.gastoNumero}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-2 border-t border-gray-200">
             <Button variant="ghost" onClick={handleCerrarModalMovimiento}>
               Cancelar
             </Button>

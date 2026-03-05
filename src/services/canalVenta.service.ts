@@ -18,8 +18,9 @@ import type {
   EstadoCanalVenta
 } from '../types/canalVenta.types';
 import { CANALES_SISTEMA } from '../types/canalVenta.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'canalesVenta';
+const COLLECTION_NAME = COLLECTIONS.CANALES_VENTA;
 
 /**
  * Genera el siguiente código de canal automáticamente

@@ -4,12 +4,33 @@ import type { Unidad } from '../types/unidad.types';
  * Obtener el CTRU (Costo Total Real por Unidad) de una unidad.
  * Fuente única de verdad para el cálculo de CTRU.
  *
- * Prioridad:
- * 1. ctruDinamico (incluye gastos GA/GO prorrateados)
- * 2. ctruInicial (costo base al momento de recepción)
- * 3. Cálculo manual: (costoUnitarioUSD + costoFleteUSD) × TC
+ * IMPORTANTE: ctruDinamico y ctruInicial pueden haber sido calculados ANTES
+ * de que la transferencia asignara costoFleteUSD. Cuando la unidad tiene
+ * costoFleteUSD, usamos getCostoBasePEN() + costoGAGOAsignado para
+ * garantizar que el flete esté incluido.
  */
-export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra'>): number {
+export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra'> & { costoGAGOAsignado?: number }): number {
+  const costoFleteUSD = unidad.costoFleteUSD || 0;
+
+  // Si la unidad tiene flete, verificar que ctruDinamico/ctruInicial lo incluyan
+  if (costoFleteUSD > 0) {
+    const costoBase = getCostoBasePEN(unidad);
+    const gagoAsignado = unidad.costoGAGOAsignado || 0;
+
+    // Si ctruDinamico existe y es mayor que costoBase, puede que incluya GA/GO correctamente
+    // Pero si ctruDinamico ≈ ctruInicial (sin flete) + GA/GO, está incorrecto
+    // Recalculamos: costoBase (con flete) + GA/GO asignado
+    if (unidad.ctruDinamico && unidad.ctruDinamico > 0) {
+      const costoBaseConFlete = costoBase;
+      const ctruRecalculado = costoBaseConFlete + gagoAsignado;
+      // Usar el mayor: puede que ctruDinamico ya esté correcto
+      return Math.max(unidad.ctruDinamico, ctruRecalculado);
+    }
+
+    return costoBase;
+  }
+
+  // Sin flete: usar valores almacenados normalmente
   if (unidad.ctruDinamico && unidad.ctruDinamico > 0) {
     return unidad.ctruDinamico;
   }
@@ -20,7 +41,7 @@ export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'c
 
   // Fallback: cálculo manual
   const tc = getTC(unidad);
-  const costoTotalUSD = (unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0);
+  const costoTotalUSD = (unidad.costoUnitarioUSD || 0);
   return costoTotalUSD * tc;
 }
 
@@ -36,13 +57,46 @@ export function getTC(unidad: Pick<Unidad, 'tcPago' | 'tcCompra'>): number {
 /**
  * Calcular el costo base (sin GA/GO) de una unidad en PEN.
  * Usado para distribución proporcional de gastos.
+ *
+ * IMPORTANTE: ctruInicial puede haber sido calculado ANTES de que la transferencia
+ * asignara el costoFleteUSD. En ese caso, ctruInicial no incluye el flete.
+ * Siempre recalculamos: (costoUnitarioUSD + costoFleteUSD) × TC
+ * y usamos el mayor entre ese valor y ctruInicial para garantizar que el flete
+ * esté incluido.
  */
 export function getCostoBasePEN(unidad: Pick<Unidad, 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra'>): number {
+  const tc = getTC(unidad);
+  const costoFleteUSD = unidad.costoFleteUSD || 0;
+  const costoCalculado = ((unidad.costoUnitarioUSD || 0) + costoFleteUSD) * tc;
+
+  // Si la unidad tiene flete asignado, siempre usar el cálculo que lo incluye
+  // ya que ctruInicial pudo haberse calculado antes de la transferencia
+  if (costoFleteUSD > 0) {
+    return costoCalculado;
+  }
+
+  // Sin flete: preferir ctruInicial si existe (puede incluir otros ajustes)
   if (unidad.ctruInicial && unidad.ctruInicial > 0) {
     return unidad.ctruInicial;
   }
 
-  const tc = getTC(unidad);
-  const costoTotalUSD = (unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0);
-  return costoTotalUSD * tc;
+  return costoCalculado;
+}
+
+/**
+ * Calcular la asignación proporcional de GA/GO para una unidad.
+ * Fuente única de verdad para esta fórmula — usada por ctru.service (Firestore)
+ * y ctruStore (analytics client-side).
+ *
+ * Fórmula: costoGAGO_unidad = totalGAGO × (costoBase_unidad / costoBase_total_vendidas)
+ *
+ * Solo se aplica a unidades vendidas. Las unidades activas reciben 0.
+ */
+export function calcularGAGOProporcional(
+  costoBaseUnidad: number,
+  costoBaseTotalVendidas: number,
+  totalGAGO: number
+): number {
+  if (costoBaseTotalVendidas <= 0 || totalGAGO <= 0) return 0;
+  return totalGAGO * (costoBaseUnidad / costoBaseTotalVendidas);
 }

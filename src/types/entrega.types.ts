@@ -68,6 +68,8 @@ export interface Entrega extends BaseEntity {
   // Dirección
   direccionEntrega: string;
   distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
   referencia?: string;
   coordenadas?: {
     lat: number;
@@ -123,6 +125,10 @@ export interface Entrega extends BaseEntity {
 
   // Observaciones
   observaciones?: string;
+
+  // Recuperación de operaciones secundarias fallidas
+  _secondaryErrors?: string[];
+  _needsRecovery?: boolean;
 }
 
 /**
@@ -142,7 +148,13 @@ export interface ProgramarEntregaData {
   // Dirección
   direccionEntrega: string;
   distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
   referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
 
   // Programación
   fechaProgramada: Date;
@@ -175,6 +187,7 @@ export interface ResultadoEntregaData {
   cobroRealizado?: boolean;
   montoRecaudado?: number;
   metodoPagoRecibido?: MetodoPago;
+  cuentaDestinoId?: string; // Cuenta de tesorería donde se registra el cobro
 
   // Si fallida
   motivoFallo?: MotivoFallo;

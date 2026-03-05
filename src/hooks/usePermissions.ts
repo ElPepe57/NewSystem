@@ -12,10 +12,14 @@ export function usePermissions() {
     isActive: userProfile?.activo ?? false,
     role: userProfile?.role as UserRole | null,
 
-    // Verificaciones de rol
+    // Verificaciones de rol (8 roles)
     isAdmin: userProfile?.role === 'admin',
+    isGerente: userProfile?.role === 'gerente',
     isVendedor: userProfile?.role === 'vendedor',
+    isComprador: userProfile?.role === 'comprador',
     isAlmacenero: userProfile?.role === 'almacenero',
+    isFinanzas: userProfile?.role === 'finanzas',
+    isSupervisor: userProfile?.role === 'supervisor',
     isInvitado: userProfile?.role === 'invitado',
 
     // Verificar permiso específico
@@ -25,14 +29,51 @@ export function usePermissions() {
     hasAnyPermiso: (permisos: string[]) => userService.hasAnyPermiso(userProfile, permisos),
     hasAllPermisos: (permisos: string[]) => userService.hasAllPermisos(userProfile, permisos),
 
-    // Permisos específicos pre-calculados
+    // === Permisos pre-calculados: General ===
     canViewDashboard: userService.hasPermiso(userProfile, PERMISOS.VER_DASHBOARD),
+
+    // === Permisos pre-calculados: Ventas ===
     canViewVentas: userService.hasPermiso(userProfile, PERMISOS.VER_VENTAS),
     canCreateVenta: userService.hasPermiso(userProfile, PERMISOS.CREAR_VENTA),
     canEditVenta: userService.hasPermiso(userProfile, PERMISOS.EDITAR_VENTA),
+    canConfirmVenta: userService.hasPermiso(userProfile, PERMISOS.CONFIRMAR_VENTA),
+    canCancelVenta: userService.hasPermiso(userProfile, PERMISOS.CANCELAR_VENTA),
+
+    // === Permisos pre-calculados: Cotizaciones ===
+    canViewCotizaciones: userService.hasPermiso(userProfile, PERMISOS.VER_COTIZACIONES),
+    canCreateCotizacion: userService.hasPermiso(userProfile, PERMISOS.CREAR_COTIZACION),
+    canValidateCotizacion: userService.hasPermiso(userProfile, PERMISOS.VALIDAR_COTIZACION),
+
+    // === Permisos pre-calculados: Entregas ===
+    canViewEntregas: userService.hasPermiso(userProfile, PERMISOS.VER_ENTREGAS),
+    canProgramEntrega: userService.hasPermiso(userProfile, PERMISOS.PROGRAMAR_ENTREGA),
+    canRegisterEntrega: userService.hasPermiso(userProfile, PERMISOS.REGISTRAR_ENTREGA),
+
+    // === Permisos pre-calculados: Compras ===
+    canViewRequerimientos: userService.hasPermiso(userProfile, PERMISOS.VER_REQUERIMIENTOS),
+    canCreateRequerimiento: userService.hasPermiso(userProfile, PERMISOS.CREAR_REQUERIMIENTO),
+    canApproveRequerimiento: userService.hasPermiso(userProfile, PERMISOS.APROBAR_REQUERIMIENTO),
+    canViewOC: userService.hasPermiso(userProfile, PERMISOS.VER_ORDENES_COMPRA),
+    canCreateOC: userService.hasPermiso(userProfile, PERMISOS.CREAR_OC),
+    canReceiveOC: userService.hasPermiso(userProfile, PERMISOS.RECIBIR_OC),
+
+    // === Permisos pre-calculados: Inventario ===
     canViewInventario: userService.hasPermiso(userProfile, PERMISOS.VER_INVENTARIO),
     canManageInventario: userService.hasPermiso(userProfile, PERMISOS.GESTIONAR_INVENTARIO),
-    canViewFinanzas: userService.hasPermiso(userProfile, PERMISOS.VER_FINANZAS),
+    canTransferUnidades: userService.hasPermiso(userProfile, PERMISOS.TRANSFERIR_UNIDADES),
+
+    // === Permisos pre-calculados: Finanzas ===
+    canViewGastos: userService.hasPermiso(userProfile, PERMISOS.VER_GASTOS),
+    canCreateGasto: userService.hasPermiso(userProfile, PERMISOS.CREAR_GASTO),
+    canViewTesoreria: userService.hasPermiso(userProfile, PERMISOS.VER_TESORERIA),
+    canManageTesoreria: userService.hasPermiso(userProfile, PERMISOS.GESTIONAR_TESORERIA),
+    canViewReportes: userService.hasPermiso(userProfile, PERMISOS.VER_REPORTES),
+    canViewCTRU: userService.hasPermiso(userProfile, PERMISOS.VER_CTRU),
+
+    // === Permisos pre-calculados: Administración ===
+    canManageUsers: userService.hasPermiso(userProfile, PERMISOS.GESTIONAR_USUARIOS),
+    canManageConfig: userService.hasPermiso(userProfile, PERMISOS.GESTIONAR_CONFIGURACION),
+    canViewAuditoria: userService.hasPermiso(userProfile, PERMISOS.VER_AUDITORIA),
     isFullAdmin: userService.hasPermiso(userProfile, PERMISOS.ADMIN_TOTAL),
 
     // Datos del perfil

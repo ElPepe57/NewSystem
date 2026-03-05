@@ -1,11 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { gastoService } from '../services/gasto.service';
+import { unidadService } from '../services/unidad.service';
+import { getCostoBasePEN } from '../utils/ctru.utils';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
+import type { Unidad } from '../types/unidad.types';
 
 // Cache global de gastos para evitar múltiples consultas
 let gastosCache: { data: Gasto[] | null; timestamp: number } = { data: null, timestamp: 0 };
 const CACHE_TTL = 30000; // 30 segundos
+
+// Cache global de unidades vendidas para consistencia con CTRU
+let unidadesVendidasCache: { data: Unidad[] | null; timestamp: number } = { data: null, timestamp: 0 };
 
 /**
  * Desglose de costos y gastos por producto individual
@@ -120,10 +126,32 @@ async function getGastosConCache(): Promise<Gasto[]> {
 }
 
 /**
+ * Obtener unidades vinculadas a ventas con cache.
+ * Incluye vendidas + reservadas/asignadas que ya tienen ventaId.
+ * Las vendidas se usan para prorrateo GA/GO (consistente con CTRU),
+ * las reservadas/asignadas se usan para calcular costoBase de ventas en proceso.
+ */
+async function getUnidadesVendidasConCache(): Promise<Unidad[]> {
+  const now = Date.now();
+  if (unidadesVendidasCache.data && (now - unidadesVendidasCache.timestamp) < CACHE_TTL) {
+    return unidadesVendidasCache.data;
+  }
+
+  const todasUnidades = await unidadService.getAll();
+  // Incluir vendidas + cualquier unidad que tenga ventaId (asignada a una venta)
+  const conVenta = todasUnidades.filter(u =>
+    u.estado === 'vendida' || (u as any).ventaId
+  );
+  unidadesVendidasCache = { data: conVenta, timestamp: now };
+  return conVenta;
+}
+
+/**
  * Invalidar cache de gastos (llamar después de crear/editar gastos)
  */
 export function invalidarCacheGastos() {
   gastosCache = { data: null, timestamp: 0 };
+  unidadesVendidasCache = { data: null, timestamp: 0 };
 }
 
 /**
@@ -147,7 +175,7 @@ export function useRentabilidadVentas(ventas: Venta[]) {
 
   const calcularRentabilidad = useCallback(async (forceRefresh = false) => {
     // Crear hash simple de ventas para detectar cambios reales
-    const ventasHash = ventas.map(v => `${v.id}-${v.estado}`).join('|');
+    const ventasHash = ventas.map(v => `${v.id}-${v.estado}-${v.totalPEN}`).join('|');
 
     // Si no hay cambios y no es refresh forzado, no recalcular
     if (!forceRefresh && ventasHash === lastVentasHashRef.current && datos) {
@@ -164,55 +192,66 @@ export function useRentabilidadVentas(ventas: Venta[]) {
     setError(null);
 
     try {
-      // 1. Obtener gastos con cache
-      const todosLosGastos = await getGastosConCache();
+      // 1. Obtener gastos y unidades con venta vinculada (vendidas + asignadas)
+      const [todosLosGastos, unidadesConVenta] = await Promise.all([
+        getGastosConCache(),
+        getUnidadesVendidasConCache()
+      ]);
 
       const gastosGAGO = todosLosGastos.filter(
-        g => g.esProrrateable && (g.categoria === 'GA' || g.categoria === 'GO')
+        g => g.categoria === 'GA' || g.categoria === 'GO'
       );
       const totalGastosGAGO = gastosGAGO.reduce((sum, g) => sum + g.montoPEN, 0);
 
-      // 2. Primera pasada: Calcular costo base total para prorrateo proporcional
-      let totalCostoBaseParaProrrateo = 0;
-      let totalUnidadesVendidas = 0;
+      // 2. Calcular costo base total desde UNIDADES VENDIDAS (consistente con CTRU)
+      // GA/GO se prorratean SOLO entre vendidas (no asignadas/reservadas)
+      const soloVendidas = unidadesConVenta.filter(u => u.estado === 'vendida');
+      const costoBaseTotalUnidades = soloVendidas.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
 
+      let totalUnidadesVendidasCount = 0;
       for (const venta of ventas) {
         if (venta.estado !== 'cotizacion' && venta.estado !== 'cancelada') {
-          const costoBase = venta.costoTotalPEN || 0;
-          if (costoBase > 0) {
-            totalCostoBaseParaProrrateo += costoBase;
-          }
           const cantidadUnidades = venta.productos.reduce((sum, p) => sum + p.cantidad, 0);
-          totalUnidadesVendidas += cantidadUnidades;
+          totalUnidadesVendidasCount += cantidadUnidades;
         }
       }
 
-      const baseUnidades = totalUnidadesVendidas > 0 ? totalUnidadesVendidas : 1;
-      const baseCostoTotal = totalCostoBaseParaProrrateo > 0 ? totalCostoBaseParaProrrateo : 1;
+      const baseUnidades = totalUnidadesVendidasCount > 0 ? totalUnidadesVendidasCount : 1;
+      const baseCostoTotal = costoBaseTotalUnidades > 0 ? costoBaseTotalUnidades : 1;
       const impactoPorUnidad = totalGastosGAGO / baseUnidades;
 
       // 3. Agrupar gastos GV y GD por ventaId (una sola pasada)
       const gastosGVPorVenta = new Map<string, number>();
       const gastosGDPorVenta = new Map<string, number>();
-
-      // Debug: contar gastos GD encontrados
-      const gastosGDEncontrados = todosLosGastos.filter(g => g.categoria === 'GD');
-      if (gastosGDEncontrados.length > 0) {
-        console.log(`[Rentabilidad] Gastos GD encontrados: ${gastosGDEncontrados.length}`);
-        gastosGDEncontrados.forEach(g => {
-          console.log(`  - ${g.numeroGasto}: ventaId=${g.ventaId}, monto=${g.montoPEN}`);
-        });
-      }
+      let gastosGVSinVenta = 0;
+      let gastosGDSinVenta = 0;
 
       for (const gasto of todosLosGastos) {
-        if (!gasto.ventaId) continue;
-
         if (gasto.categoria === 'GV') {
-          const actual = gastosGVPorVenta.get(gasto.ventaId) || 0;
-          gastosGVPorVenta.set(gasto.ventaId, actual + gasto.montoPEN);
+          if (gasto.ventaId) {
+            const actual = gastosGVPorVenta.get(gasto.ventaId) || 0;
+            gastosGVPorVenta.set(gasto.ventaId, actual + gasto.montoPEN);
+          } else {
+            gastosGVSinVenta += gasto.montoPEN;
+          }
         } else if (gasto.categoria === 'GD') {
-          const actual = gastosGDPorVenta.get(gasto.ventaId) || 0;
-          gastosGDPorVenta.set(gasto.ventaId, actual + gasto.montoPEN);
+          if (gasto.ventaId) {
+            const actual = gastosGDPorVenta.get(gasto.ventaId) || 0;
+            gastosGDPorVenta.set(gasto.ventaId, actual + gasto.montoPEN);
+          } else {
+            gastosGDSinVenta += gasto.montoPEN;
+          }
+        }
+      }
+
+      // 3b. Mapear unidades por ventaId para calcular costoBase
+      // Incluye vendidas + asignadas/reservadas (que tienen ventaId)
+      const unidadesPorVenta = new Map<string, Unidad[]>();
+      for (const u of unidadesConVenta) {
+        const vId = u.ventaId || (u as any).reservadaPara;
+        if (vId) {
+          if (!unidadesPorVenta.has(vId)) unidadesPorVenta.set(vId, []);
+          unidadesPorVenta.get(vId)!.push(u);
         }
       }
 
@@ -231,7 +270,12 @@ export function useRentabilidadVentas(ventas: Venta[]) {
           continue;
         }
 
-        const costoBase = venta.costoTotalPEN || 0;
+        // Calcular costoBase desde unidades (consistente con CTRU)
+        const unidadesDeEstaVenta = unidadesPorVenta.get(venta.id) || [];
+        const costoBaseDesdeUnidades = unidadesDeEstaVenta.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
+        const costoBase = costoBaseDesdeUnidades > 0 ? costoBaseDesdeUnidades : (venta.costoTotalPEN || 0);
+
+
         if (costoBase === 0) continue;
 
         // GV: Gastos de Venta
@@ -264,28 +308,52 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         const margenNeto = venta.totalPEN > 0 ? (utilidadNeta / venta.totalPEN) * 100 : 0;
 
         // Desglose por producto
+        // Agrupar unidades de esta venta por productoId para calcular costoBase real (con flete)
+        const unidadesPorProducto = new Map<string, Unidad[]>();
+        for (const u of unidadesDeEstaVenta) {
+          const pid = u.productoId;
+          if (pid) {
+            if (!unidadesPorProducto.has(pid)) unidadesPorProducto.set(pid, []);
+            unidadesPorProducto.get(pid)!.push(u);
+          }
+        }
+
         const desgloseProductos: DesgloseProducto[] = [];
 
+        // Envío cobrado al cliente: se distribuye proporcionalmente como ingreso por producto
+        const envioCobrado = !venta.incluyeEnvio ? (venta.costoEnvio || 0) : 0;
+        const sumSubtotales = venta.productos.reduce((s, p) => s + (p.subtotal || 0), 0);
+
         for (const producto of venta.productos) {
-          const costoBaseProducto = producto.costoTotalUnidades || 0;
+          // Calcular costoBase desde unidades reales (incluye flete), fallback a campo guardado
+          const unidadesDelProducto = unidadesPorProducto.get(producto.productoId) || [];
+          const costoBaseDesdeUnidadesProducto = unidadesDelProducto.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
+          const costoBaseProducto = costoBaseDesdeUnidadesProducto > 0
+            ? costoBaseDesdeUnidadesProducto
+            : (producto.costoTotalUnidades || 0);
           const subtotalProducto = producto.subtotal || 0;
 
           if (subtotalProducto > 0) {
-            const proporcionVenta = subtotalProducto / venta.totalPEN;
+            // Distribuir envío cobrado proporcionalmente al precio de cada producto
+            const proporcionEnvio = sumSubtotales > 0 ? subtotalProducto / sumSubtotales : 0;
+            const envioProducto = envioCobrado * proporcionEnvio;
+            const ventaAjustada = subtotalProducto + envioProducto;
+
+            const proporcionVenta = ventaAjustada / venta.totalPEN;
             const proporcionCosto = costoBase > 0 ? costoBaseProducto / costoBase : 0;
 
             const costoGVGDProducto = gastosGVGD * proporcionVenta;
             const costoGAGOProducto = costoGAGO * proporcionCosto;
             const costoTotalProducto = costoBaseProducto + costoGVGDProducto + costoGAGOProducto;
 
-            const utilidadBrutaProducto = subtotalProducto - costoBaseProducto - costoGVGDProducto;
-            const utilidadNetaProducto = subtotalProducto - costoTotalProducto;
+            const utilidadBrutaProducto = ventaAjustada - costoBaseProducto - costoGVGDProducto;
+            const utilidadNetaProducto = ventaAjustada - costoTotalProducto;
 
-            const margenBrutoProducto = subtotalProducto > 0
-              ? (utilidadBrutaProducto / subtotalProducto) * 100
+            const margenBrutoProducto = ventaAjustada > 0
+              ? (utilidadBrutaProducto / ventaAjustada) * 100
               : 0;
-            const margenNetoProducto = subtotalProducto > 0
-              ? (utilidadNetaProducto / subtotalProducto) * 100
+            const margenNetoProducto = ventaAjustada > 0
+              ? (utilidadNetaProducto / ventaAjustada) * 100
               : 0;
 
             desgloseProductos.push({
@@ -293,7 +361,7 @@ export function useRentabilidadVentas(ventas: Venta[]) {
               sku: producto.sku,
               nombre: `${producto.marca} ${producto.nombreComercial} ${producto.presentacion}`,
               cantidad: producto.cantidad,
-              precioVenta: subtotalProducto,
+              precioVenta: ventaAjustada,
               proporcionVenta: proporcionVenta * 100,
               costoBase: costoBaseProducto,
               proporcionCosto: proporcionCosto * 100,
@@ -332,6 +400,11 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         totalGastosGDSum += gastosGD;
         totalUtilidadNeta += utilidadNeta;
       }
+
+      // Sumar GV/GD no vinculados a ventas específicas (para que el total sea real)
+      totalGastosGVSum += gastosGVSinVenta;
+      totalGastosGDSum += gastosGDSinVenta;
+      totalUtilidadNeta -= (gastosGVSinVenta + gastosGDSinVenta);
 
       // 5. Calcular promedios
       const margenBrutoPromedio = totalVentas > 0

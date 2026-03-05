@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // Layouts y Auth
 import { MainLayout } from './components/layout/MainLayout';
 import { Login } from './pages/Auth/Login';
+import { Register } from './pages/Auth/Register';
+import { PendingApproval } from './pages/Auth/PendingApproval';
 
 // Páginas principales
 import { Dashboard } from './pages/Dashboard';
@@ -31,6 +33,11 @@ import { Usuarios } from './pages/Usuarios/Usuarios';
 import { Auditoria } from './pages/Auditoria/Auditoria';
 import { Contabilidad } from './pages/Contabilidad/Contabilidad';
 import { ProductosIntel } from './pages/ProductosIntel/ProductosIntel';
+import { MiPerfil } from './pages/Perfil/MiPerfil';
+import { TestPDF } from './pages/TestPDF/TestPDF';
+
+// Mercado Libre
+import { MercadoLibre } from './pages/MercadoLibre/MercadoLibre';
 
 // Utilidades
 import { MigracionProductos } from './pages/Migracion/MigracionProductos';
@@ -56,6 +63,7 @@ const queryClient = new QueryClient({
 // Componente de Ruta Protegida
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const user = useAuthStore(state => state.user);
+  const userProfile = useAuthStore(state => state.userProfile);
   const loading = useAuthStore(state => state.loading);
 
   if (loading) {
@@ -68,6 +76,20 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Si el perfil aún no carga, mostrar spinner
+  if (!userProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  // Si el usuario no está activo, redirigir a pantalla de espera
+  if (!userProfile.activo) {
+    return <Navigate to="/pending-approval" replace />;
   }
 
   return <>{children}</>;
@@ -96,6 +118,8 @@ function App() {
         <Routes>
           {/* Rutas Públicas */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/pending-approval" element={<PendingApproval />} />
 
           {/* Rutas Protegidas */}
           <Route
@@ -138,8 +162,15 @@ function App() {
             <Route path="auditoria" element={<Auditoria />} />
             <Route path="configuracion" element={<Configuracion />} />
 
+            {/* Mercado Libre */}
+            <Route path="mercado-libre" element={<MercadoLibre />} />
+
+            {/* Perfil */}
+            <Route path="perfil" element={<MiPerfil />} />
+
             {/* Utilidades */}
             <Route path="migracion" element={<MigracionProductos />} />
+            <Route path="test-pdf" element={<TestPDF />} />
           </Route>
 
           {/* Ruta Catch-all */}

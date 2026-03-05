@@ -24,8 +24,9 @@ import type {
   EstadoCategoria,
   NivelCategoria
 } from '../types/categoria.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'categorias';
+const COLLECTION_NAME = COLLECTIONS.CATEGORIAS;
 
 /**
  * Normalizar texto para busqueda y slug

@@ -48,11 +48,35 @@ import { tesoreriaService } from './tesoreria.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { stockDisponibilidadService } from './stockDisponibilidad.service';
 import { expectativaService } from './expectativa.service';
+import { actividadService } from './actividad.service';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'cotizaciones';
-const VENTAS_COLLECTION = 'ventas';
+const COLLECTION_NAME = COLLECTIONS.COTIZACIONES;
+const VENTAS_COLLECTION = COLLECTIONS.VENTAS;
+
+// Mapeo legacy de canales a nombres legibles
+const LEGACY_CANAL_NAMES: Record<string, string> = {
+  mercado_libre: 'Mercado Libre',
+  mercadolibre: 'Mercado Libre',
+  directo: 'Directo',
+  otro: 'Otro'
+};
 
 export class CotizacionService {
+
+  /** Resolver nombre de canal desde ID o valor legacy */
+  private static async resolverCanalNombre(canal: string): Promise<string | undefined> {
+    if (!canal) return undefined;
+    // Legacy values
+    if (LEGACY_CANAL_NAMES[canal]) return LEGACY_CANAL_NAMES[canal];
+    // Try Firestore lookup
+    try {
+      const canalDoc = await getDoc(doc(db, 'canalesVenta', canal));
+      if (canalDoc.exists()) return canalDoc.data().nombre;
+    } catch { /* ignore */ }
+    return canal; // fallback: return raw value
+  }
+
   // ========== CRUD BÁSICO ==========
 
   /**
@@ -376,6 +400,11 @@ export class CotizacionService {
       if (data.emailCliente) nuevaCotizacion.emailCliente = data.emailCliente;
       if (data.telefonoCliente) nuevaCotizacion.telefonoCliente = data.telefonoCliente;
       if (data.direccionEntrega) nuevaCotizacion.direccionEntrega = data.direccionEntrega;
+      if (data.distrito) nuevaCotizacion.distrito = data.distrito;
+      if (data.provincia) nuevaCotizacion.provincia = data.provincia;
+      if (data.codigoPostal) nuevaCotizacion.codigoPostal = data.codigoPostal;
+      if (data.referencia) nuevaCotizacion.referencia = data.referencia;
+      if (data.coordenadas) nuevaCotizacion.coordenadas = data.coordenadas;
       if (data.dniRuc) nuevaCotizacion.dniRuc = data.dniRuc;
       if (data.observaciones) nuevaCotizacion.observaciones = data.observaciones;
 
@@ -420,12 +449,20 @@ export class CotizacionService {
       if (data.emailCliente !== undefined) updates.emailCliente = data.emailCliente;
       if (data.telefonoCliente !== undefined) updates.telefonoCliente = data.telefonoCliente;
       if (data.direccionEntrega !== undefined) updates.direccionEntrega = data.direccionEntrega;
+      if (data.distrito !== undefined) updates.distrito = data.distrito;
+      if (data.provincia !== undefined) updates.provincia = data.provincia;
+      if (data.codigoPostal !== undefined) updates.codigoPostal = data.codigoPostal;
+      if (data.referencia !== undefined) updates.referencia = data.referencia;
+      if (data.coordenadas !== undefined) updates.coordenadas = data.coordenadas;
       if (data.dniRuc !== undefined) updates.dniRuc = data.dniRuc;
       if (data.canal !== undefined) updates.canal = data.canal;
-      if (data.descuento !== undefined) updates.descuento = data.descuento;
-      if (data.costoEnvio !== undefined) updates.costoEnvio = data.costoEnvio;
+      if (data.clienteId !== undefined) updates.clienteId = data.clienteId;
+      // Numeric fields: always update (0 is a valid value)
+      if (data.descuento != null) updates.descuento = data.descuento;
+      if (data.costoEnvio != null) updates.costoEnvio = data.costoEnvio;
       if (data.incluyeEnvio !== undefined) updates.incluyeEnvio = data.incluyeEnvio;
       if (data.observaciones !== undefined) updates.observaciones = data.observaciones;
+      if (data.diasVigencia !== undefined) updates.diasVigencia = data.diasVigencia;
 
       // Si se actualizan productos, recalcular totales
       if (data.productos) {
@@ -523,6 +560,15 @@ export class CotizacionService {
         ultimaEdicion: serverTimestamp(),
         editadoPor: userId
       });
+
+      // Broadcast actividad (fire-and-forget)
+      actividadService.registrar({
+        tipo: 'cotizacion_validada',
+        mensaje: `Cotización ${cotizacion.numeroCotizacion || id} validada - ${cotizacion.nombreCliente}`,
+        userId,
+        displayName: userId,
+        metadata: { entidadId: id, entidadTipo: 'cotizacion', monto: cotizacion.totalPEN, moneda: 'PEN' }
+      }).catch(() => {});
     } catch (error: any) {
       console.error('Error al validar cotización:', error);
       throw new Error(error.message || 'Error al validar cotización');
@@ -928,19 +974,35 @@ export class CotizacionService {
 
       // ============================================================
       // NUEVO: Generar requerimiento automático si hay faltantes
+      // (con verificación anti-duplicados)
       // ============================================================
       const requerimientosGenerados: Array<{ id: string; numero: string }> = [];
 
       if (productosParaRequerimiento.length > 0) {
         try {
-          const requerimiento = await expectativaService.crearRequerimientoDesdeCotizacion(
-            id,
-            cotizacion.numeroCotizacion,
-            cotizacion.nombreCliente,
-            productosParaRequerimiento,
-            userId
+          // Verificar si ya existe un requerimiento para esta cotización
+          const reqsExistentes = await expectativaService.getRequerimientos();
+          const reqExistente = reqsExistentes.find(r =>
+            r.ventaRelacionadaId === id &&
+            r.estado !== 'cancelado'
           );
-          requerimientosGenerados.push(requerimiento);
+
+          if (reqExistente) {
+            // Ya existe — reutilizar en vez de crear duplicado
+            requerimientosGenerados.push({
+              id: reqExistente.id!,
+              numero: reqExistente.numeroRequerimiento
+            });
+          } else {
+            const requerimiento = await expectativaService.crearRequerimientoDesdeCotizacion(
+              id,
+              cotizacion.numeroCotizacion,
+              cotizacion.nombreCliente,
+              productosParaRequerimiento,
+              userId
+            );
+            requerimientosGenerados.push(requerimiento);
+          }
         } catch (reqError) {
           console.warn('No se pudo crear requerimiento automático:', reqError);
           // No lanzamos error para no interrumpir el flujo principal
@@ -1129,8 +1191,14 @@ export class CotizacionService {
         emailCliente: cotizacion.emailCliente,
         telefonoCliente: cotizacion.telefonoCliente,
         direccionEntrega: cotizacion.direccionEntrega,
+        distrito: cotizacion.distrito,
+        provincia: cotizacion.provincia,
+        codigoPostal: cotizacion.codigoPostal,
+        referencia: cotizacion.referencia,
+        coordenadas: cotizacion.coordenadas,
         dniRuc: cotizacion.dniRuc,
         canal: cotizacion.canal,
+        canalNombre: await this.resolverCanalNombre(cotizacion.canal),
         productos: cotizacion.productos.map(p => ({
           productoId: p.productoId,
           cantidad: p.cantidad,

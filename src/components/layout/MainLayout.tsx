@@ -1,16 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { CollaborationPanel } from './CollaborationPanel';
+import { DailyCallModal } from './DailyCallModal';
+import { IncomingCallModal } from './IncomingCallModal';
 import { useNotificacionesAutoInit } from '../../hooks';
+import { useCollaborationInit } from '../../hooks/useCollaborationInit';
+import { useAuthStore } from '../../store/authStore';
+import { AuthService } from '../../services/auth.service';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 
 export const MainLayout: React.FC = () => {
   // Inicializar sistema de notificaciones automáticas
   useNotificacionesAutoInit();
 
+  // Inicializar sistema de colaboración (presencia, actividad, chat)
+  useCollaborationInit();
+
   // Estado para controlar sidebar en móvil
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const logout = useAuthStore(state => state.logout);
+  const userProfile = useAuthStore(state => state.userProfile);
+  const lastForceLogout = useRef<number | null>(null);
+
+  // Listener para desconexión forzada
+  useEffect(() => {
+    if (!userProfile?.uid) return;
+
+    const userRef = doc(db, 'users', userProfile.uid);
+    const unsubscribe = onSnapshot(userRef, (snapshot) => {
+      const data = snapshot.data();
+      if (!data?.forceLogoutAt) return;
+
+      const forceLogoutTime = data.forceLogoutAt?.toMillis?.() || 0;
+
+      // Solo actuar si es un nuevo forceLogout (posterior al login)
+      if (lastForceLogout.current === null) {
+        // Primera vez que leemos, guardar referencia
+        lastForceLogout.current = forceLogoutTime;
+        return;
+      }
+
+      if (forceLogoutTime > lastForceLogout.current) {
+        // Desconexión forzada detectada
+        lastForceLogout.current = forceLogoutTime;
+        alert('Tu sesión ha sido terminada por un administrador.');
+        logout();
+        AuthService.logout();
+        navigate('/login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [userProfile?.uid]);
 
   // Cerrar sidebar cuando cambia la ruta (navegación en móvil)
   useEffect(() => {
@@ -39,7 +85,7 @@ export const MainLayout: React.FC = () => {
       {/* Sidebar - responsive */}
       <div
         className={`
-          fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
+          fixed inset-y-0 left-0 z-50 w-64 h-full transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
@@ -56,6 +102,15 @@ export const MainLayout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Panel de Colaboración (derecha) */}
+      <CollaborationPanel />
+
+      {/* Modal de videollamada Daily.co */}
+      <DailyCallModal />
+
+      {/* Modal de llamada entrante */}
+      <IncomingCallModal />
     </div>
   );
 };

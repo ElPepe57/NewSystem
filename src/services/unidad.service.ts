@@ -25,8 +25,9 @@ import type {
   MovimientoUnidad,
   TipoMovimiento
 } from '../types/unidad.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'unidades';
+const COLLECTION_NAME = COLLECTIONS.UNIDADES;
 
 export const unidadService = {
   /**
@@ -136,6 +137,73 @@ export const unidadService = {
     }
 
     let unidades = await this.buscar(filtros);
+
+    // Filtrar unidades que tienen reserva activa para otra venta/cotización.
+    // Una unidad disponible_peru puede tener reservadaPara/reservadoPara si:
+    // 1. Un cliente pagó adelanto y se le reservó stock (reserva legítima)
+    // 2. Datos residuales de una operación anterior que no limpió el campo (huérfano)
+    // Verificamos si la referencia apunta a una venta/cotización activa con reserva vigente.
+    const unidadesConReserva = unidades.filter(u => {
+      const ext = u as any;
+      return ext.reservadaPara || ext.reservadoPara;
+    });
+
+    if (unidadesConReserva.length > 0) {
+      // Verificar cuáles reservas son legítimas (venta activa con stockReservado)
+      const { VentaService } = await import('./venta.service');
+      const idsReserva = new Set<string>();
+
+      for (const u of unidadesConReserva) {
+        const ext = u as any;
+        const refId = ext.reservadaPara || ext.reservadoPara;
+        if (refId) idsReserva.add(refId);
+      }
+
+      // Verificar cada referencia
+      const reservasActivas = new Set<string>();
+      for (const refId of idsReserva) {
+        try {
+          const venta = await VentaService.getById(refId);
+          if (venta && venta.estado === 'reservada' && venta.stockReservado?.activo) {
+            reservasActivas.add(refId);
+            console.log(`[FEFO] Reserva activa encontrada: ${refId} (${venta.numeroVenta})`);
+          } else if (venta) {
+            console.warn(`[FEFO] Unidad referencia a ${venta.numeroVenta} (estado: ${venta.estado}) - reserva NO activa, campo huérfano`);
+          } else {
+            console.warn(`[FEFO] Referencia ${refId} no encontrada como venta, verificando cotización...`);
+            // Podría ser una cotización
+            try {
+              const { CotizacionService } = await import('./cotizacion.service');
+              const cot = await CotizacionService.getById(refId);
+              if (cot && (cot as any).stockReservado?.activo) {
+                reservasActivas.add(refId);
+                console.log(`[FEFO] Reserva activa en cotización: ${refId}`);
+              } else {
+                console.warn(`[FEFO] Referencia ${refId} es cotización sin reserva activa - campo huérfano`);
+              }
+            } catch {
+              console.warn(`[FEFO] Referencia ${refId} no encontrada - campo huérfano`);
+            }
+          }
+        } catch {
+          console.warn(`[FEFO] Error verificando referencia ${refId} - tratando como huérfano`);
+        }
+      }
+
+      // Solo excluir unidades con reservas genuinamente activas
+      unidades = unidades.filter(u => {
+        const ext = u as any;
+        const refId = ext.reservadaPara || ext.reservadoPara;
+        if (!refId) return true; // Sin referencia = disponible
+        if (reservasActivas.has(refId)) {
+          console.log(`[FEFO] Excluyendo unidad ${u.id} - reservada activamente para ${refId}`);
+          return false; // Reserva legítima, excluir
+        }
+        // Reserva huérfana - la unidad está disponible
+        console.warn(`[FEFO] Unidad ${u.id} tiene reserva huérfana (${refId}), incluyendo en FEFO`);
+        return true;
+      });
+    }
 
     // Ordenar por fecha de vencimiento (más próximo primero)
     unidades.sort((a, b) =>
@@ -741,7 +809,7 @@ export const unidadService = {
               tipo: 'ajuste',
               fecha: Timestamp.now(),
               usuarioId: 'sistema',
-              observaciones: `Sincronización automática: venta ${unidad.ventaId || 'N/A'} eliminada. Estado anterior: ${estadoActual}`
+              observaciones: `Sincronización automática: venta ${unidad.ventaNumero || unidad.ventaId || 'N/A'} eliminada. Estado anterior: ${estadoActual}`
             };
 
             batch.update(docRef, {
@@ -823,6 +891,23 @@ export const unidadService = {
         console.error(`Error confirmando venta unidad ${unidadId}:`, error);
         errores++;
       }
+    }
+
+    // Trigger redistribución GA/GO post-venta (fire-and-forget, no bloqueante)
+    if (exitos > 0) {
+      import('./ctru.service').then(({ ctruService }) => {
+        ctruService.recalcularCTRUDinamicoSafe()
+          .then(result => {
+            if (result) {
+              console.log(`[CTRU] Auto-recalculo post-venta: ${result.unidadesActualizadas} vendidas actualizadas`);
+            } else {
+              console.log('[CTRU] Auto-recalculo post-venta encolado (otro en ejecución)');
+            }
+          })
+          .catch(error => {
+            console.error('[CTRU] Error en auto-recalculo post-venta (no bloqueante):', error);
+          });
+      });
     }
 
     return { exitos, errores };
@@ -987,11 +1072,26 @@ export const unidadService = {
   async reservarUnidadesParaCotizacion(params: {
     ordenCompraId: string;
     cotizacionId: string;
+    cotizacionNumero?: string;
     requerimientoId: string;
     productos: Array<{ productoId: string; cantidad: number }>;
     userId: string;
   }): Promise<{ totalReservadas: number; detalles: Array<{ productoId: string; reservadas: number; faltantes: number }> }> {
     const { ordenCompraId, cotizacionId, requerimientoId, productos, userId } = params;
+    let { cotizacionNumero } = params;
+
+    // Si no se proporcionó el número de cotización, buscarlo en Firestore
+    if (!cotizacionNumero && cotizacionId) {
+      try {
+        const cotDoc = await getDoc(doc(db, 'cotizaciones', cotizacionId));
+        if (cotDoc.exists()) {
+          cotizacionNumero = cotDoc.data().numeroCotizacion || undefined;
+        }
+      } catch {
+        // Non-critical, usará el ID como fallback
+      }
+    }
+
     let totalReservadas = 0;
     const detalles: Array<{ productoId: string; reservadas: number; faltantes: number }> = [];
 
@@ -1028,7 +1128,7 @@ export const unidadService = {
             tipo: 'reserva' as TipoMovimiento,
             fecha: Timestamp.now(),
             usuarioId: userId,
-            observaciones: `Reserva retroactiva para cotización ${cotizacionId}`
+            observaciones: `Reserva retroactiva para cotización ${cotizacionNumero || cotizacionId}`
           };
 
           batch.update(docRef, {

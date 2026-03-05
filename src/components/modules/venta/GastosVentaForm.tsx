@@ -36,16 +36,17 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
   const [nuevosGastos, setNuevosGastos] = useState<GastoItem[]>([]);
 
   // Estado del formulario para agregar un nuevo item
-  // NOTA: Solo GV (Gasto de Venta) - GD ahora se gestiona en Transportistas
-  const [nuevaCategoria] = useState<CategoriaGasto>('GV');
+  const [nuevaCategoria, setNuevaCategoria] = useState<CategoriaGasto>('GV');
   const [nuevoTipo, setNuevoTipo] = useState<TipoGasto>('comision_ml');
   const [nuevoMonto, setNuevoMonto] = useState<string>('');
   const [nuevaDescripcion, setNuevaDescripcion] = useState<string>('');
 
-  // Tipos disponibles para Gastos de Venta (GV)
-  // NOTA: GD (Gasto de Distribución) ahora se gestiona en el módulo de Transportistas
-  const tiposGastoVenta: TipoGasto[] = ['comision_ml', 'marketing', 'otros'];
-  const tiposDisponibles = tiposGastoVenta;
+  // Tipos disponibles según categoría seleccionada
+  const tiposPorCategoria: Record<string, TipoGasto[]> = {
+    GV: ['comision_ml', 'marketing', 'otros'],
+    GD: ['delivery', 'empaque', 'otros']
+  };
+  const tiposDisponibles = tiposPorCategoria[nuevaCategoria] || ['otros'];
 
   // Cargar gastos existentes
   useEffect(() => {
@@ -201,21 +202,46 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
         <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
           <Plus className="h-5 w-5" />
-          Agregar nuevo gasto de venta
+          Agregar nuevo gasto
         </h4>
 
-        {/* Info de Gastos de Venta */}
-        <div className="p-3 rounded-lg border mb-4 bg-purple-50 border-purple-200">
+        {/* Selector de categoría */}
+        <div className="flex gap-2 mb-4">
+          {CATEGORIAS_GASTO_VENTA.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setNuevaCategoria(cat)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                nuevaCategoria === cat
+                  ? getCategoriaColor(cat)
+                  : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              {cat === 'GV' ? 'Gasto de Venta (GV)' : 'Distribución (GD)'}
+            </button>
+          ))}
+        </div>
+
+        <div className={`p-3 rounded-lg border mb-4 ${nuevaCategoria === 'GD' ? 'bg-blue-50 border-blue-200' : 'bg-purple-50 border-purple-200'}`}>
           <div className="flex items-start gap-2">
-            <Info className="h-4 w-4 flex-shrink-0 text-purple-600 mt-0.5" />
+            <Info className={`h-4 w-4 flex-shrink-0 mt-0.5 ${nuevaCategoria === 'GD' ? 'text-blue-600' : 'text-purple-600'}`} />
             <div>
-              <p className="text-sm font-medium text-purple-800">Gastos de Venta (GV)</p>
-              <p className="text-xs text-purple-600 mt-0.5">
-                Comisiones, pasarelas de pago, fees de plataformas, marketing directo
-              </p>
-              <p className="text-xs text-gray-500 mt-1 italic">
-                Los gastos de distribución (delivery, flete) se gestionan en el módulo de Transportistas
-              </p>
+              {nuevaCategoria === 'GV' ? (
+                <>
+                  <p className="text-sm font-medium text-purple-800">Gastos de Venta (GV)</p>
+                  <p className="text-xs text-purple-600 mt-0.5">
+                    Comisiones, pasarelas de pago, fees de plataformas, marketing directo
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-blue-800">Gastos de Distribución (GD)</p>
+                  <p className="text-xs text-blue-600 mt-0.5">
+                    Costos adicionales de transporte, recargos, empaque extra
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -235,7 +261,6 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
                   {TIPOS_GASTO_LABELS[tipo]}
                 </option>
               ))}
-              <option value="otros">Otros</option>
             </select>
           </div>
 

@@ -273,7 +273,7 @@ export const recompraService = {
 
     return encodeURIComponent(
       `¡Hola! 👋\n\n` +
-      `Te escribimos de BusinessMN. Notamos que compraste ${alerta.productoNombre} ` +
+      `Te escribimos de Vita Skin Peru. Notamos que compraste ${alerta.productoNombre} ` +
       `hace ${alerta.diasDesdeCompra} días.\n\n` +
       `Basado en el consumo promedio, estimamos que podrías necesitar reponerlo ${diasTexto}.\n\n` +
       `¿Te gustaría que te preparemos un pedido? 🛒\n\n` +

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { ShoppingCart, User, Calendar, DollarSign, TrendingUp, Package, Truck, CreditCard, Trash2, Calculator, Receipt, FileText, Link2, ClipboardList, PieChart, MapPin } from 'lucide-react';
+import { ShoppingCart, User, Calendar, DollarSign, TrendingUp, Package, Truck, CreditCard, Trash2, Calculator, Receipt, FileText, Link2, ClipboardList, PieChart, MapPin, Pencil, Clock } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
 import type { TimelineStep, NextAction } from '../../common';
 import type { Venta, EstadoVenta, EstadoPago } from '../../../types/venta.types';
@@ -26,6 +26,10 @@ interface VentaCardProps {
   onProgramarEntrega?: () => void;
   /** Callback cuando cambian los datos de entregas/gastos - para refrescar rentabilidad */
   onEntregaCompletada?: () => void;
+  /** Handler para corregir precio de un producto */
+  onCorregirPrecio?: (productoId: string, productoNombre: string, precioActual: number) => void;
+  /** Handler para editar la venta completa */
+  onEditarVenta?: () => void;
 }
 
 const estadoLabels: Record<EstadoVenta, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
@@ -34,7 +38,8 @@ const estadoLabels: Record<EstadoVenta, { label: string; variant: 'success' | 'w
   confirmada: { label: 'Confirmada', variant: 'info' },
   parcial: { label: 'Parcial', variant: 'warning' },
   asignada: { label: 'Asignada', variant: 'warning' },
-  en_entrega: { label: 'En Entrega', variant: 'warning' },
+  en_entrega: { label: 'Programada', variant: 'warning' },
+  despachada: { label: 'En Camino', variant: 'info' },
   entrega_parcial: { label: 'Entrega Parcial', variant: 'warning' },
   entregada: { label: 'Entregada', variant: 'success' },
   cancelada: { label: 'Cancelada', variant: 'danger' },
@@ -96,7 +101,9 @@ export const VentaCard: React.FC<VentaCardProps> = ({
   onEliminarPago,
   onAgregarGastos,
   onProgramarEntrega,
-  onEntregaCompletada
+  onEntregaCompletada,
+  onCorregirPrecio,
+  onEditarVenta
 }) => {
   const [documentosRelacionados, setDocumentosRelacionados] = useState<{
     requerimientos: Requerimiento[];
@@ -123,11 +130,15 @@ export const VentaCard: React.FC<VentaCardProps> = ({
         // Buscar requerimientos asociados a esta venta
         const todosRequerimientos = await requerimientoService.getAll();
         const requerimientosVenta = todosRequerimientos.filter(r => {
+          // Match por ventaId directo
           if (r.ventaId === venta.id) return true;
-          // Solo comparar cotizacionId/ventaRelacionadaId si la venta tiene cotizacionOrigenId
+          // Match por ventaRelacionadaId === ID de esta venta
+          // (requerimientos creados desde panel "Cotizaciones con Faltante" usan el ID de la venta)
+          if (r.ventaRelacionadaId === venta.id) return true;
+          // Match por cotización origen
           if (!venta.cotizacionOrigenId) return false;
           return r.cotizacionId === venta.cotizacionOrigenId
-            || (r as any).ventaRelacionadaId === venta.cotizacionOrigenId;
+            || r.ventaRelacionadaId === venta.cotizacionOrigenId;
         });
 
         // Buscar órdenes de compra asociadas a los requerimientos
@@ -158,29 +169,35 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
   const formatDate = (timestamp: any) => {
     if (!timestamp) return '-';
-    const date = timestamp.toDate();
-    return date.toLocaleString('es-PE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    try {
+      const date = typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp);
+      if (isNaN(date.getTime())) return '-';
+      return date.toLocaleString('es-PE', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '-';
+    }
   };
 
   // Recalcular costos si están en USD (datos legacy)
-  const costoTotalPENCorregido = venta.productos.reduce((sum, prod) => {
+  const costoTotalPENCorregido = (venta.productos || []).reduce((sum, prod) => {
     if (!prod.costoTotalUnidades) return sum;
     return sum + convertirCostoSiEsUSD(
       prod.costoTotalUnidades,
       prod.cantidad,
-      prod.subtotal
+      prod.subtotal || 0
     );
   }, 0);
 
-  const utilidadCorregida = venta.totalPEN - costoTotalPENCorregido;
-  const margenCorregido = venta.totalPEN > 0
-    ? (utilidadCorregida / venta.totalPEN) * 100
+  const totalPEN = venta.totalPEN || 0;
+  const utilidadCorregida = totalPEN - costoTotalPENCorregido;
+  const margenCorregido = totalPEN > 0
+    ? (utilidadCorregida / totalPEN) * 100
     : 0;
 
   // Cargar gastos directos de esta venta
@@ -200,14 +217,35 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
   const estadoInfo = estadoLabels[venta.estado];
 
+  // Calcular días entre dos Timestamps
+  const daysBetween = (a?: any, b?: any): string | undefined => {
+    if (!a || !b) return undefined;
+    try {
+      const dateA = typeof a.toDate === 'function' ? a.toDate() : new Date(a);
+      const dateB = typeof b.toDate === 'function' ? b.toDate() : new Date(b);
+      if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) return undefined;
+      const diffMs = dateB.getTime() - dateA.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      if (diffDays < 1) {
+        const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+        return diffHours <= 0 ? '< 1h' : `${diffHours}h`;
+      }
+      return `${Math.round(diffDays)}d`;
+    } catch {
+      return undefined;
+    }
+  };
+
   // Generar pasos del timeline
   const timelineSteps: TimelineStep[] = useMemo(() => {
     const estadoIndex: Record<string, number> = {
       'cotizacion': 0,
       'confirmada': 1,
+      'reservada': 1,
       'asignada': 2,
       'en_entrega': 3,
-      'entregada': 4,
+      'despachada': 4,
+      'entregada': 5,
       'cancelada': -1
     };
 
@@ -219,30 +257,42 @@ export const VentaCard: React.FC<VentaCardProps> = ({
         id: 'cotizacion',
         label: 'Cotización',
         date: venta.fechaCreacion,
-        status: isCancelled ? 'skipped' : currentIndex >= 0 ? 'completed' : 'pending'
+        status: isCancelled ? 'skipped' : currentIndex >= 0 ? 'completed' : 'pending',
+        durationLabel: daysBetween(venta.fechaCreacion, venta.fechaConfirmacion)
       },
       {
         id: 'confirmada',
         label: 'Confirmada',
         date: venta.fechaConfirmacion,
-        status: isCancelled ? 'skipped' : currentIndex > 1 ? 'completed' : currentIndex === 1 ? 'current' : 'pending'
+        status: isCancelled ? 'skipped' : currentIndex > 1 ? 'completed' : currentIndex === 1 ? 'current' : 'pending',
+        durationLabel: daysBetween(venta.fechaConfirmacion, venta.fechaAsignacion)
       },
       {
         id: 'asignada',
         label: 'Asignada',
         date: venta.fechaAsignacion,
-        status: isCancelled ? 'skipped' : currentIndex > 2 ? 'completed' : currentIndex === 2 ? 'current' : 'pending'
+        status: isCancelled ? 'skipped' : currentIndex > 2 ? 'completed' : currentIndex === 2 ? 'current' : 'pending',
+        durationLabel: daysBetween(venta.fechaAsignacion, venta.fechaEnEntrega)
       },
       {
         id: 'en_entrega',
-        label: 'En Entrega',
-        status: isCancelled ? 'skipped' : currentIndex > 3 ? 'completed' : currentIndex === 3 ? 'current' : 'pending'
+        label: 'Programada',
+        date: venta.fechaEnEntrega,
+        status: isCancelled ? 'skipped' : currentIndex > 3 ? 'completed' : currentIndex === 3 ? 'current' : 'pending',
+        durationLabel: daysBetween(venta.fechaEnEntrega, venta.fechaDespacho)
+      },
+      {
+        id: 'despachada',
+        label: 'En Camino',
+        date: venta.fechaDespacho,
+        status: isCancelled ? 'skipped' : currentIndex > 4 ? 'completed' : currentIndex === 4 ? 'current' : 'pending',
+        durationLabel: daysBetween(venta.fechaDespacho, venta.fechaEntrega)
       },
       {
         id: 'entregada',
         label: 'Entregada',
         date: venta.fechaEntrega,
-        status: isCancelled ? 'skipped' : currentIndex === 4 ? 'completed' : 'pending'
+        status: isCancelled ? 'skipped' : currentIndex === 5 ? 'completed' : 'pending'
       }
     ];
   }, [venta]);
@@ -266,19 +316,27 @@ export const VentaCard: React.FC<VentaCardProps> = ({
         onClick: onAsignarInventario,
         variant: 'primary'
       },
+      reservada: {
+        label: 'Asignar Inventario',
+        description: 'Asigna unidades del inventario usando FEFO',
+        buttonText: onAsignarInventario ? 'Asignar' : undefined,
+        onClick: onAsignarInventario,
+        variant: 'primary'
+      },
       asignada: {
         label: 'Programar Entrega',
-        description: 'Programa la entrega con transportista y fecha',
-        buttonText: onProgramarEntrega ? 'Programar' : undefined,
-        onClick: onProgramarEntrega,
+        description: 'Programa la entrega con transportista y fecha en la seccion de abajo',
         variant: 'warning'
       },
       en_entrega: {
-        label: 'Confirmar Entrega',
-        description: 'Confirma que el cliente recibió el pedido',
-        buttonText: onMarcarEntregada ? 'Entregado' : undefined,
-        onClick: onMarcarEntregada,
-        variant: 'success'
+        label: 'Entrega Programada',
+        description: 'Despacha el producto al transportista en la seccion de abajo',
+        variant: 'warning'
+      },
+      despachada: {
+        label: 'En Camino',
+        description: 'El transportista tiene el producto. Marca la entrega abajo',
+        variant: 'info'
       }
     };
 
@@ -299,7 +357,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {venta.estado !== 'cotizacion' && venta.estado !== 'cancelada' && venta.estadoPago && (
+          {venta.estado !== 'cotizacion' && venta.estado !== 'cancelada' && venta.estadoPago && estadoPagoLabels[venta.estadoPago] && (
             <Badge variant={estadoPagoLabels[venta.estadoPago].variant} size="lg">
               {estadoPagoLabels[venta.estadoPago].label}
             </Badge>
@@ -319,6 +377,15 @@ export const VentaCard: React.FC<VentaCardProps> = ({
           showDates={true}
           compact={false}
         />
+        {/* Lead Time Total para ventas entregadas */}
+        {venta.estado === 'entregada' && venta.fechaCreacion && venta.fechaEntrega && (
+          <div className="mt-2 pt-2 border-t border-gray-200 flex items-center justify-end gap-1">
+            <Clock className="h-3.5 w-3.5 text-gray-400" />
+            <span className="text-xs text-gray-500">
+              Lead time total: <span className="font-semibold text-gray-700">{daysBetween(venta.fechaCreacion, venta.fechaEntrega)}</span>
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Trazabilidad - Documentos Relacionados */}
@@ -439,7 +506,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">Subtotal:</span>
-              <span className="font-semibold">S/ {venta.subtotalPEN.toFixed(2)}</span>
+              <span className="font-semibold">S/ {(venta.subtotalPEN || 0).toFixed(2)}</span>
             </div>
             {venta.descuento && venta.descuento > 0 && (
               <div className="flex justify-between text-sm">
@@ -460,7 +527,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             <div className="border-t border-primary-200 pt-2">
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-900">Total:</span>
-                <span className="text-xl font-bold text-primary-600">S/ {venta.totalPEN.toFixed(2)}</span>
+                <span className="text-xl font-bold text-primary-600">S/ {(venta.totalPEN || 0).toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -517,7 +584,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600 font-medium">1. Precio de Venta:</span>
                 <span className="font-semibold text-gray-900">
-                  S/ {venta.totalPEN.toFixed(2)}
+                  S/ {(venta.totalPEN || 0).toFixed(2)}
                 </span>
               </div>
 
@@ -706,7 +773,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
       )}
 
       {/* Entregas - Solo para ventas asignadas o posteriores */}
-      {(venta.estado === 'asignada' || venta.estado === 'en_entrega' || venta.estado === 'entregada' || venta.estado === 'entrega_parcial') && (
+      {(venta.estado === 'asignada' || venta.estado === 'en_entrega' || venta.estado === 'despachada' || venta.estado === 'entregada' || venta.estado === 'entrega_parcial') && (
         <div className="bg-indigo-50 p-4 rounded-lg">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
@@ -743,7 +810,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="bg-white p-3 rounded-lg">
               <div className="text-xs text-gray-500 mb-1">Total Venta</div>
-              <div className="text-lg font-bold text-gray-900">S/ {venta.totalPEN.toFixed(2)}</div>
+              <div className="text-lg font-bold text-gray-900">S/ {(venta.totalPEN || 0).toFixed(2)}</div>
             </div>
             <div className="bg-white p-3 rounded-lg">
               <div className="text-xs text-gray-500 mb-1">Cobrado</div>
@@ -787,7 +854,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                           {pago.referencia || '-'}
                         </td>
                         <td className="px-3 py-2 text-sm font-semibold text-success-600 text-right">
-                          S/ {pago.monto.toFixed(2)}
+                          S/ {(pago.monto || 0).toFixed(2)}
                         </td>
                         {onEliminarPago && venta.estado !== 'entregada' && (
                           <td className="px-3 py-2 text-center">
@@ -854,8 +921,10 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                       <div className="text-xs text-gray-500">{producto.sku}</div>
                     </td>
                     <td className="px-4 py-3 text-right text-sm text-gray-900">{producto.cantidad}</td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-900">S/ {producto.precioUnitario.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">S/ {producto.subtotal.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      S/ {(producto.precioUnitario || 0).toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">S/ {(producto.subtotal || 0).toFixed(2)}</td>
                     {venta.estado !== 'cotizacion' && venta.estado !== 'confirmada' && (
                       <>
                         <td className="px-4 py-3 text-right text-sm text-gray-900">
@@ -876,6 +945,20 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             </tbody>
           </table>
         </div>
+        {onCorregirPrecio && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {venta.productos.map((producto) => (
+              <button
+                key={producto.productoId}
+                onClick={() => onCorregirPrecio(producto.productoId, `${producto.marca} ${producto.nombreComercial}`, producto.precioUnitario)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md hover:bg-amber-100 transition-colors"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Corregir precio: {producto.marca} {producto.nombreComercial}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Observaciones */}
@@ -890,6 +973,12 @@ export const VentaCard: React.FC<VentaCardProps> = ({
       {venta.estado !== 'entregada' && venta.estado !== 'cancelada' && (
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="flex items-center space-x-3">
+            {onEditarVenta && (
+              <Button variant="outline" onClick={onEditarVenta}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Editar Venta
+              </Button>
+            )}
             {venta.estado === 'cotizacion' && onConfirmar && (
               <Button variant="primary" onClick={onConfirmar}>
                 Confirmar Venta
@@ -903,18 +992,6 @@ export const VentaCard: React.FC<VentaCardProps> = ({
               </Button>
             )}
             
-            {venta.estado === 'asignada' && onProgramarEntrega && (
-              <Button variant="primary" onClick={onProgramarEntrega}>
-                <Truck className="h-4 w-4 mr-2" />
-                Programar Entrega
-              </Button>
-            )}
-            
-            {venta.estado === 'en_entrega' && onMarcarEntregada && (
-              <Button variant="success" onClick={onMarcarEntregada}>
-                Marcar como Entregada
-              </Button>
-            )}
           </div>
           
           {onCancelar && (

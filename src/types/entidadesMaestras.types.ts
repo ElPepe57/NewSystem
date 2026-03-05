@@ -17,7 +17,8 @@ import type { Timestamp } from 'firebase/firestore';
 // ===============================================
 
 export type TipoCliente = 'persona' | 'empresa';
-export type CanalOrigen = 'whatsapp' | 'facebook' | 'instagram' | 'mercadolibre' | 'referido' | 'web' | 'otro';
+/** Canal de origen dinámico - ahora usa IDs/códigos de CanalVenta desde Maestros */
+export type CanalOrigen = string;
 export type EstadoCliente = 'activo' | 'inactivo' | 'potencial';
 
 // ========== CRM - CLASIFICACIÓN ABC ==========
@@ -108,7 +109,8 @@ export interface Cliente {
   direccionPrincipal?: string; // Snapshot de dirección principal para display rápido
 
   // Origen y marketing
-  canalOrigen: CanalOrigen;   // Cómo llegó el cliente
+  canalOrigen: CanalOrigen;   // Cómo llegó el cliente (estático, nunca cambia)
+  canalPrincipalActual?: string; // Canal más usado recientemente (auto-calculado)
   referidoPor?: string;       // Si fue referido, por quién
 
   // Estado
@@ -156,6 +158,8 @@ export interface ClienteSnapshot {
   telefono?: string;
   email?: string;
   dniRuc?: string;
+  canalOrigen?: string;
+  canalPrincipalActual?: string;
 }
 
 /**
@@ -312,7 +316,7 @@ export interface ClienteStats {
   }>;
 
   // Por canal
-  clientesPorCanal: Record<CanalOrigen, number>;
+  clientesPorCanal: Record<string, number>;
 
   // ========== CRM - Clasificación ABC ==========
   clientesPorClasificacion?: Record<ClasificacionABC, number>;

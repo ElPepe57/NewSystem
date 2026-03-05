@@ -23,8 +23,9 @@ import type {
   HistorialEvaluacionAlmacen,
   MetricasOperativasAlmacen
 } from '../types/almacen.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'almacenes';
+const COLLECTION_NAME = COLLECTIONS.ALMACENES;
 
 /**
  * Genera el siguiente código de almacén automáticamente según el tipo
@@ -286,21 +287,29 @@ export const almacenService = {
   // ============================================
 
   async create(data: AlmacenFormData, userId: string): Promise<string> {
+    // Validar campos requeridos antes de enviar a Firestore
+    if (!data.nombre?.trim()) {
+      throw new Error('El nombre del almacén es requerido');
+    }
+    if (!data.direccion?.trim()) {
+      throw new Error('La dirección es requerida');
+    }
+
     // Siempre generar código automático según el tipo
     const codigo = await generarCodigoAlmacen(data.tipo);
 
     const now = Timestamp.now();
 
-    // Construir objeto base sin campos undefined
+    // Construir objeto base — usar fallbacks para evitar undefined en Firestore
     const newAlmacen: Record<string, unknown> = {
       codigo,
       nombre: data.nombre,
-      pais: data.pais,
-      tipo: data.tipo,
-      estadoAlmacen: data.estadoAlmacen,
+      pais: data.pais || 'USA',
+      tipo: data.tipo || 'viajero',
+      estadoAlmacen: data.estadoAlmacen || 'activo',
       direccion: data.direccion,
-      ciudad: data.ciudad,
-      esViajero: data.esViajero,
+      ciudad: data.ciudad || '',
+      esViajero: data.esViajero ?? true,
       // Métricas iniciales en 0
       totalUnidadesRecibidas: 0,
       totalUnidadesEnviadas: 0,
@@ -779,7 +788,7 @@ export const almacenService = {
         codigoPostal: '15001',
         contacto: 'Juan Pérez',
         telefono: '+51 1 234-5678',
-        email: 'almacen@businessmn.com',
+        email: 'almacen@vitaskinperu.com',
         capacidadUnidades: 1000,
         esViajero: false,
         notas: 'Almacén principal para ventas en Perú'

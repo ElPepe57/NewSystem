@@ -330,7 +330,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
         <KPICard
           label="Precio Sugerido"
           value={`S/ ${(producto.precioSugerido || 0).toFixed(2)}`}
-          subtext={`Margen: ${producto.margenObjetivo}%`}
+          subtext={`Margen: ${producto.margenObjetivo != null ? `${producto.margenObjetivo}%` : 'No definido'}`}
           bgColor="bg-warning-500"
           textColor="text-warning-900"
         />

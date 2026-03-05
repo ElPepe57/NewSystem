@@ -22,8 +22,9 @@ import type {
   MarcaStats,
   DuplicadoEncontrado
 } from '../types/entidadesMaestras.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'marcas';
+const COLLECTION_NAME = COLLECTIONS.MARCAS;
 
 /**
  * Normalizar texto para búsqueda y comparación

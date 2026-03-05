@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { X, Plus, Trash2, Search, AlertTriangle, Package, TrendingUp, Info, PlusCircle, User, Star, ShoppingBag, History, Download, FileText, MapPin, Truck, Clock, ShoppingCart } from 'lucide-react';
-import { Modal, Input, Select, Button, Badge } from '../../components/common';
+import { Modal, Input, Select, Button, Badge, GoogleMapsAddressInput } from '../../components/common';
+import type { AddressData } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
 import { CanalAutocomplete } from '../../components/modules/canalVenta/CanalAutocomplete';
@@ -64,7 +65,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
   const modoDuplicacion = !!cotizacionEditar && !cotizacionEditar.id;
   const { fetchProductosDisponibles, productosDisponibles } = useVentaStore();
   const { productos, fetchProductos, createProducto } = useProductoStore();
-  const { canales, canalesActivos, fetchCanales, fetchCanalesActivos } = useCanalVentaStore();
+  const { canales, canalesActivos, fetchCanales, fetchCanalesActivos, getById: getCanalById } = useCanalVentaStore();
 
   // Estado para mostrar modal de éxito con opción de PDF
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -87,13 +88,22 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
     nombreCliente: '',
     telefonoCliente: '',
     emailCliente: '',
-    direccionEntrega: '',
     dniRuc: '',
-    canal: 'directo' as CanalVenta,
+    canal: '' as CanalVenta,
     descuento: 0,
     costoEnvio: 0,
     incluyeEnvio: true,
     observaciones: ''
+  });
+
+  // Dirección con Google Maps
+  const [addressData, setAddressData] = useState<AddressData>({
+    direccion: '',
+    distrito: '',
+    provincia: '',
+    codigoPostal: '',
+    referencia: '',
+    coordenadas: null,
   });
 
   const [lineas, setLineas] = useState<ProductoLinea[]>([]);
@@ -136,8 +146,19 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               segmento: clienteCompleto.segmento
             });
             // Autocompletar dirección principal si existe
-            if (clienteCompleto.direccionPrincipal && !formData.direccionEntrega) {
-              setFormData(prev => ({ ...prev, direccionEntrega: clienteCompleto.direccionPrincipal || '' }));
+            if (clienteCompleto.direccionPrincipal && !addressData.direccion) {
+              setAddressData(prev => ({ ...prev, direccion: clienteCompleto.direccionPrincipal || '' }));
+            }
+
+            // Auto-llenar canal: prioridad canal principal > canal origen
+            const canalAutoId = clienteCompleto.canalPrincipalActual || clienteCompleto.canalOrigen;
+            if (canalAutoId) {
+              const canalObj = await getCanalById(canalAutoId);
+              if (canalObj) {
+                setFormData(prev => ({ ...prev, canal: canalObj.id as CanalVenta }));
+              } else {
+                setFormData(prev => ({ ...prev, canal: canalAutoId as CanalVenta }));
+              }
             }
           }
         } catch (error) {
@@ -170,7 +191,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         telefono: data.telefono,
         dniRuc: data.dniRuc,
         tipoCliente: data.tipoCliente || 'persona',
-        canalOrigen: data.canalOrigen || 'whatsapp'
+        canalOrigen: data.canalOrigen || ''
       };
 
       const clienteId = await clienteService.create(clienteData, user.uid);
@@ -204,13 +225,22 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         nombreCliente: cotizacionEditar.nombreCliente,
         telefonoCliente: cotizacionEditar.telefonoCliente || '',
         emailCliente: cotizacionEditar.emailCliente || '',
-        direccionEntrega: cotizacionEditar.direccionEntrega || '',
         dniRuc: cotizacionEditar.dniRuc || '',
         canal: cotizacionEditar.canal,
         descuento: cotizacionEditar.descuento || 0,
         costoEnvio: cotizacionEditar.costoEnvio || 0,
         incluyeEnvio: cotizacionEditar.incluyeEnvio,
         observaciones: cotizacionEditar.observaciones || ''
+      });
+
+      // Cargar dirección con datos de Google Maps
+      setAddressData({
+        direccion: cotizacionEditar.direccionEntrega || '',
+        distrito: cotizacionEditar.distrito || '',
+        provincia: cotizacionEditar.provincia || '',
+        codigoPostal: cotizacionEditar.codigoPostal || '',
+        referencia: cotizacionEditar.referencia || '',
+        coordenadas: cotizacionEditar.coordenadas || null,
       });
 
       // Cargar líneas de productos
@@ -454,7 +484,12 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         nombreCliente: formData.nombreCliente,
         telefonoCliente: formData.telefonoCliente || undefined,
         emailCliente: formData.emailCliente || undefined,
-        direccionEntrega: formData.direccionEntrega || undefined,
+        direccionEntrega: addressData.direccion || undefined,
+        distrito: addressData.distrito || undefined,
+        provincia: addressData.provincia || undefined,
+        codigoPostal: addressData.codigoPostal || undefined,
+        referencia: addressData.referencia || undefined,
+        coordenadas: addressData.coordenadas || undefined,
         dniRuc: formData.dniRuc || undefined,
         canal: formData.canal,
         productos: lineas.map(l => ({
@@ -462,8 +497,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
           cantidad: l.cantidad,
           precioUnitario: l.precioUnitario
         })),
-        descuento: formData.descuento || undefined,
-        costoEnvio: formData.costoEnvio || undefined,
+        descuento: formData.descuento ?? 0,
+        costoEnvio: formData.costoEnvio ?? 0,
         incluyeEnvio: formData.incluyeEnvio,
         observaciones: formData.observaciones || undefined,
         diasVigencia: 7 // 7 días de vigencia por defecto
@@ -695,13 +730,21 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               onChange={(canalId) => setFormData({ ...formData, canal: canalId as CanalVenta })}
               placeholder="Buscar o crear canal..."
             />
+          </div>
 
-            <Input
-              label="Dirección de Entrega"
-              value={formData.direccionEntrega}
-              onChange={(e) => setFormData({ ...formData, direccionEntrega: e.target.value })}
-              placeholder="Av. Principal 123, Lima"
-            />
+          {/* Dirección de Entrega con Google Maps */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <MapPin className="inline h-4 w-4 mr-1" />
+              Dirección de Entrega
+            </label>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <GoogleMapsAddressInput
+                value={addressData}
+                onChange={setAddressData}
+                initialAddress={cotizacionEditar?.direccionEntrega}
+              />
+            </div>
           </div>
         </div>
 

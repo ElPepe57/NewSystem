@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2 } from 'lucide-react';
 import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
@@ -22,12 +22,14 @@ export const Gastos: React.FC = () => {
   const {
     gastos, stats, loading,
     fetchGastos, fetchGastosMes, buscarGastos,
-    fetchStats, setViewMode: storeSetViewMode, reloadCurrentView
+    fetchStats, setViewMode: storeSetViewMode, reloadCurrentView,
+    fetchGastosPendientesYParciales, eliminarGasto
   } = useGastoStore();
 
   const [showModal, setShowModal] = useState(false);
   const [showPagoModal, setShowPagoModal] = useState(false);
   const [gastoParaPago, setGastoParaPago] = useState<Gasto | null>(null);
+  const [gastoParaEditar, setGastoParaEditar] = useState<Gasto | null>(null);
   const [filtros, setFiltros] = useState({
     claseGasto: '' as ClaseGasto | '',
     tipo: '' as TipoGasto | '',
@@ -54,7 +56,7 @@ export const Gastos: React.FC = () => {
     if (viewMode === 'all') {
       fetchGastos();
     } else if (viewMode === 'pending') {
-      buscarGastos({ estado: 'pendiente' });
+      fetchGastosPendientesYParciales();
     } else {
       fetchGastosMes(selectedMonth, selectedYear);
     }
@@ -174,6 +176,7 @@ export const Gastos: React.FC = () => {
   const getEstadoBadge = (estado: EstadoGasto) => {
     const badges = {
       'pendiente': { variant: 'warning' as const, label: 'Pendiente' },
+      'parcial': { variant: 'info' as const, label: 'Parcial' },
       'pagado': { variant: 'success' as const, label: 'Pagado' },
       'cancelado': { variant: 'danger' as const, label: 'Cancelado' }
     };
@@ -206,17 +209,43 @@ export const Gastos: React.FC = () => {
     if (!confirmed) return;
 
     try {
-      const resultado = await ctruService.recalcularCTRUDinamico();
-      toast.success(
-        `${resultado.unidadesActualizadas} unidades actualizadas, ${resultado.gastosAplicados} gastos aplicados. Impacto: ${formatCurrency(resultado.impactoPorUnidad)}/unidad`,
-        'CTRU Recalculado'
-      );
+      const resultado = await ctruService.recalcularCTRUDinamicoSafe();
+      if (resultado) {
+        toast.success(
+          `${resultado.unidadesActualizadas} unidades actualizadas, ${resultado.gastosAplicados} gastos aplicados. Impacto: ${formatCurrency(resultado.impactoPorUnidad)}/unidad`,
+          'CTRU Recalculado'
+        );
+      } else {
+        toast.info('Recálculo CTRU encolado (otro en ejecución)', 'CTRU');
+      }
 
       await reloadCurrentView();
       await fetchStats();
     } catch (error: any) {
       toast.error(error.message, 'Error al recalcular CTRU');
     }
+  };
+
+  const handleEliminarGasto = async (gasto: Gasto) => {
+    const confirmed = await confirm({
+      title: 'Eliminar Gasto',
+      message: `¿Está seguro de eliminar el gasto ${gasto.numeroGasto}? "${gasto.descripcion}"\n\nEsta acción no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
+
+    try {
+      await eliminarGasto(gasto.id);
+      toast.success(`Gasto ${gasto.numeroGasto} eliminado`, 'Gasto eliminado');
+    } catch (error: any) {
+      toast.error(error.message, 'Error al eliminar');
+    }
+  };
+
+  const handleEditarGasto = (gasto: Gasto) => {
+    setGastoParaEditar(gasto);
+    setShowModal(true);
   };
 
   const limpiarFiltros = () => {
@@ -282,7 +311,7 @@ export const Gastos: React.FC = () => {
             <TrendingUp className="h-4 w-4 mr-2" />
             Recalcular CTRU
           </Button>
-          <Button onClick={() => setShowModal(true)}>
+          <Button onClick={() => { setGastoParaEditar(null); setShowModal(true); }}>
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Gasto
           </Button>
@@ -580,6 +609,7 @@ export const Gastos: React.FC = () => {
               options={[
                 { value: '', label: 'Todos' },
                 { value: 'pendiente', label: 'Pendiente' },
+                { value: 'parcial', label: 'Parcial' },
                 { value: 'pagado', label: 'Pagado' },
                 { value: 'cancelado', label: 'Cancelado' }
               ]}
@@ -733,6 +763,19 @@ export const Gastos: React.FC = () => {
                             ${gasto.montoOriginal.toFixed(2)} USD
                           </div>
                         )}
+                        {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
+                          <div className="mt-1">
+                            <div className="w-full bg-gray-200 rounded-full h-1.5">
+                              <div
+                                className="bg-primary-500 h-1.5 rounded-full transition-all"
+                                style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
+                              />
+                            </div>
+                            <div className="text-xs text-primary-600 mt-0.5">
+                              {((gasto.montoPagado / gasto.montoPEN) * 100).toFixed(0)}% pagado
+                            </div>
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="text-sm text-gray-900">
@@ -752,23 +795,51 @@ export const Gastos: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {gasto.estado === 'pendiente' && (
+                        <div className="flex items-center justify-center gap-1">
+                          {/* Pagar: para gastos pendientes o con pagos parciales */}
+                          {(gasto.estado === 'pendiente' || gasto.estado === 'parcial') && (
+                            <button
+                              onClick={() => {
+                                setGastoParaPago(gasto);
+                                setShowPagoModal(true);
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
+                              title={gasto.estado === 'pendiente' ? 'Registrar pago' : 'Registrar pago parcial'}
+                            >
+                              <CreditCard className="h-3.5 w-3.5" />
+                              Pagar
+                            </button>
+                          )}
+                          {/* Editar: siempre visible */}
                           <button
-                            onClick={() => {
-                              setGastoParaPago(gasto);
-                              setShowPagoModal(true);
-                            }}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
-                            title="Registrar pago"
+                            onClick={() => handleEditarGasto(gasto)}
+                            className="inline-flex items-center p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Editar gasto"
                           >
-                            <CreditCard className="h-4 w-4" />
-                            Pagar
+                            <Pencil className="h-4 w-4" />
                           </button>
+                          {/* Eliminar: solo pendiente/cancelado sin pagos */}
+                          {(gasto.estado === 'pendiente' || gasto.estado === 'cancelado') && !gasto.pagos?.length && (
+                            <button
+                              onClick={() => handleEliminarGasto(gasto)}
+                              className="inline-flex items-center p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Eliminar gasto"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                        {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {formatCurrency(gasto.montoPagado)} / {formatCurrency(gasto.montoPEN)}
+                          </div>
                         )}
                         {gasto.estado === 'pagado' && (
-                          <span className="text-xs text-gray-400">
-                            {gasto.metodoPago || '-'}
-                          </span>
+                          <div className="text-xs text-gray-400 mt-1">
+                            {gasto.pagos && gasto.pagos.length > 1
+                              ? `${gasto.pagos.length} pagos`
+                              : gasto.metodoPago || '-'}
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -794,7 +865,7 @@ export const Gastos: React.FC = () => {
                 },
                 {
                   label: 'Pendientes',
-                  value: gastosFiltrados.filter(g => g.estado === 'pendiente').length,
+                  value: gastosFiltrados.filter(g => g.estado === 'pendiente' || g.estado === 'parcial').length,
                   icon: 'file',
                   variant: 'warning'
                 }
@@ -804,8 +875,16 @@ export const Gastos: React.FC = () => {
         )}
       </Card>
 
-      {/* Modal Formulario Nuevo Gasto */}
-      {showModal && <GastoForm onClose={() => setShowModal(false)} />}
+      {/* Modal Formulario Nuevo/Editar Gasto */}
+      {showModal && (
+        <GastoForm
+          gastoEditar={gastoParaEditar}
+          onClose={() => {
+            setShowModal(false);
+            setGastoParaEditar(null);
+          }}
+        />
+      )}
 
       {/* Modal Formulario Pago de Gasto */}
       {showPagoModal && gastoParaPago && (

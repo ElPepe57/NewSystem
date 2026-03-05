@@ -291,7 +291,7 @@ export class ReporteService {
     try {
       const ventas = await VentaService.getAll();
       // Incluir todas las ventas válidas (no cotizaciones ni canceladas)
-      const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada', 'reservada'];
+      const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada', 'reservada'];
       let ventasValidas = ventas.filter(v => estadosValidos.includes(v.estado));
 
       // Filtrar por rango si se proporciona
@@ -348,7 +348,7 @@ export class ReporteService {
     try {
       const ventas = await VentaService.getAll();
       // Incluir todas las ventas válidas (no cotizaciones ni canceladas)
-      const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada', 'reservada'];
+      const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada', 'reservada'];
       const ventasValidas = ventas.filter(v => estadosValidos.includes(v.estado));
 
       const hoy = new Date();

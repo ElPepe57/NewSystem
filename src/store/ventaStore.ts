@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { Unsubscribe } from 'firebase/firestore';
 import type {
   Venta,
   VentaFormData,
@@ -33,6 +34,11 @@ interface VentaState {
   loading: boolean;
   error: string | null;
   selectedVenta: Venta | null;
+
+  // Suscripción en tiempo real
+  unsubscribeVentas: Unsubscribe | null;
+  iniciarSuscripcion: () => void;
+  detenerSuscripcion: () => void;
 
   // Actions
   fetchVentas: () => Promise<void>;
@@ -96,7 +102,27 @@ export const useVentaStore = create<VentaState>((set, get) => ({
   loading: false,
   error: null,
   selectedVenta: null,
-  
+  unsubscribeVentas: null,
+
+  iniciarSuscripcion: () => {
+    const { unsubscribeVentas } = get();
+    if (unsubscribeVentas) return; // Ya hay una suscripción activa
+
+    const unsub = VentaService.suscribirVentas((ventas) => {
+      set({ ventas, loading: false });
+    });
+
+    set({ unsubscribeVentas: unsub });
+  },
+
+  detenerSuscripcion: () => {
+    const { unsubscribeVentas } = get();
+    if (unsubscribeVentas) {
+      unsubscribeVentas();
+      set({ unsubscribeVentas: null });
+    }
+  },
+
   fetchVentas: async () => {
     set({ loading: true, error: null });
     try {
@@ -309,6 +335,7 @@ export const useVentaStore = create<VentaState>((set, get) => ({
       await VentaService.cancelar(id, userId, motivo);
       await get().fetchVentas();
       await get().fetchStats();
+      await get().fetchResumenPagos();
       await get().fetchProductosDisponibles();
       
       if (get().selectedVenta?.id === id) {

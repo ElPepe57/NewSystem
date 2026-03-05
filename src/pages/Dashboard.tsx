@@ -1140,7 +1140,8 @@ export const Dashboard: React.FC = () => {
                       <Badge
                         variant={
                           venta.estado === 'entregada' ? 'success' :
-                          venta.estado === 'en_entrega' ? 'info' :
+                          venta.estado === 'despachada' ? 'info' :
+                          venta.estado === 'en_entrega' ? 'warning' :
                           venta.estado === 'confirmada' ? 'warning' :
                           'default'
                         }

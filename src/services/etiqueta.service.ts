@@ -22,8 +22,9 @@ import type {
   TipoEtiqueta,
   EstadoEtiqueta
 } from '../types/etiqueta.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'etiquetas';
+const COLLECTION_NAME = COLLECTIONS.ETIQUETAS;
 
 /**
  * Normalizar texto para busqueda y slug
@@ -234,6 +235,10 @@ export const etiquetaService = {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
 
+      // Obtener etiqueta actual para detectar cambio de nombre
+      const etiquetaActual = await this.getById(id);
+      const nombreAnterior = etiquetaActual?.nombre;
+
       const updateData: Record<string, any> = {
         actualizadoPor: userId,
         fechaActualizacion: Timestamp.now()
@@ -259,6 +264,18 @@ export const etiquetaService = {
       if (data.ordenDisplay !== undefined) updateData.ordenDisplay = data.ordenDisplay;
 
       await updateDoc(docRef, updateData);
+
+      // Propagar cambio de nombre a clientes
+      if (data.nombre !== undefined && nombreAnterior && nombreAnterior !== data.nombre.trim()) {
+        await this.propagarCambiosAClientes(nombreAnterior, data.nombre.trim());
+      }
+
+      // Propagar cambios (nombre, colores, icono) a productos
+      const camposProducto = ['nombre', 'colorFondo', 'colorTexto', 'colorBorde', 'icono', 'tipo'];
+      const cambioAfectaProductos = camposProducto.some(campo => (data as any)[campo] !== undefined);
+      if (cambioAfectaProductos) {
+        await this.propagarCambiosAProductos(id);
+      }
     } catch (error: any) {
       console.error('Error al actualizar etiqueta:', error);
       throw new Error(error.message || 'Error al actualizar etiqueta');
@@ -439,6 +456,51 @@ export const etiquetaService = {
     } catch (error: any) {
       console.error('Error al obtener estadisticas:', error);
       throw new Error('Error al obtener estadisticas');
+    }
+  },
+
+  /**
+   * Propagar cambio de nombre a clientes cuando cambia la etiqueta
+   */
+  async propagarCambiosAClientes(nombreAnterior: string, nombreNuevo: string): Promise<number> {
+    try {
+      if (nombreAnterior === nombreNuevo) return 0;
+
+      const clientesRef = collection(db, COLLECTIONS.CLIENTES);
+      const q = query(clientesRef, where('etiquetas', 'array-contains', nombreAnterior));
+      const clientesSnap = await getDocs(q);
+
+      if (clientesSnap.empty) return 0;
+
+      let batch = writeBatch(db);
+      let actualizados = 0;
+      let enBatch = 0;
+
+      for (const docSnap of clientesSnap.docs) {
+        const data = docSnap.data();
+        const etiquetas = (data.etiquetas || []) as string[];
+        const nuevasEtiquetas = etiquetas.map(e =>
+          e === nombreAnterior ? nombreNuevo : e
+        );
+        batch.update(docSnap.ref, { etiquetas: nuevasEtiquetas });
+        actualizados++;
+        enBatch++;
+
+        if (enBatch >= 499) {
+          await batch.commit();
+          batch = writeBatch(db);
+          enBatch = 0;
+        }
+      }
+
+      if (enBatch > 0) {
+        await batch.commit();
+      }
+
+      return actualizados;
+    } catch (error: any) {
+      console.error('Error al propagar cambios a clientes:', error);
+      return 0;
     }
   },
 

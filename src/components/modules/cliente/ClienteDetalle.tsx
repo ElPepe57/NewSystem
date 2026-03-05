@@ -26,6 +26,7 @@ import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../com
 import { VentaService } from '../../../services/venta.service';
 import type { Cliente } from '../../../types/entidadesMaestras.types';
 import type { Venta } from '../../../types/venta.types';
+import { useCanalVentaStore } from '../../../store/canalVentaStore';
 
 interface ClienteDetalleProps {
   cliente: Cliente;
@@ -61,6 +62,12 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
   const [tabActiva, setTabActiva] = useState<TabActiva>('info');
   const [historial, setHistorial] = useState<HistorialCliente | null>(null);
   const [loading, setLoading] = useState(false);
+  const { canales } = useCanalVentaStore();
+
+  const resolverNombreCanal = (canalOrigen: string) => {
+    const canal = canales.find(c => c.id === canalOrigen || c.codigo === canalOrigen || c.nombre.toLowerCase() === canalOrigen.toLowerCase());
+    return canal?.nombre || canalOrigen.replace('_', ' ');
+  };
 
   // Registrar modal abierto
   useLayoutEffect(() => {
@@ -103,7 +110,8 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
       'cotizacion': { variant: 'default', label: 'Cotización' },
       'confirmada': { variant: 'info', label: 'Confirmada' },
       'asignada': { variant: 'info', label: 'Asignada' },
-      'en_entrega': { variant: 'warning', label: 'En Entrega' },
+      'en_entrega': { variant: 'warning', label: 'Programada' },
+      'despachada': { variant: 'info', label: 'En Camino' },
       'entregada': { variant: 'success', label: 'Entregada' },
       'cancelada': { variant: 'danger', label: 'Cancelada' }
     };
@@ -353,7 +361,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                       <div className="space-y-3">
                         <div className="flex items-center text-sm">
                           <span className="text-gray-500 w-24">Canal:</span>
-                          <span className="text-gray-900 capitalize">{cliente.canalOrigen.replace('_', ' ')}</span>
+                          <span className="text-gray-900 capitalize">{resolverNombreCanal(cliente.canalOrigen)}</span>
                         </div>
                         {cliente.segmento && (
                           <div className="flex items-center text-sm">

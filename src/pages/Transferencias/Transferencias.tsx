@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   ArrowRightLeft,
   Plane,
@@ -54,7 +55,9 @@ export const Transferencias: React.FC = () => {
     enviarTransferencia,
     registrarRecepcion,
     cancelarTransferencia,
-    registrarPagoViajero
+    registrarPagoViajero,
+    actualizarFlete,
+    reconciliarPagoViajero
   } = useTransferenciaStore();
 
   const { getTCDelDia } = useTipoCambioStore();
@@ -75,6 +78,8 @@ export const Transferencias: React.FC = () => {
   const [transferenciaParaRecepcion, setTransferenciaParaRecepcion] = useState<Transferencia | null>(null);
   const [transferenciaParaPago, setTransferenciaParaPago] = useState<Transferencia | null>(null);
   const [selectedTransferencia, setSelectedTransferencia] = useState<Transferencia | null>(null);
+  const [showEditFleteModal, setShowEditFleteModal] = useState(false);
+  const [transferenciaParaFlete, setTransferenciaParaFlete] = useState<Transferencia | null>(null);
   const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes'>('todas');
   const [filtroTipo, setFiltroTipo] = useState<TipoTransferencia | 'todas'>('todas');
   const [filtroEstado, setFiltroEstado] = useState<EstadoTransferencia | 'todas'>('todas');
@@ -84,6 +89,9 @@ export const Transferencias: React.FC = () => {
 
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
+
+  // Deep-link: abrir detalle desde query param (ej. desde Tesorería CxP)
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     fetchTransferencias();
@@ -98,6 +106,19 @@ export const Transferencias: React.FC = () => {
     // Cargar cuentas de tesorería
     tesoreriaService.getCuentas().then(setCuentasTesoreria).catch(console.error);
   }, [fetchTransferencias, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia]);
+
+  // Abrir transferencia por query param (deep link desde Tesorería)
+  useEffect(() => {
+    const transferenciaId = searchParams.get('transferenciaId');
+    if (transferenciaId && transferencias.length > 0) {
+      const found = transferencias.find(t => t.id === transferenciaId);
+      if (found) {
+        setSelectedTransferencia(found);
+        // Limpiar el query param para no re-abrir al navegar
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [searchParams, transferencias, setSearchParams]);
 
   // Pipeline stages para visualización
   const pipelineStages: PipelineStage[] = useMemo(() => {
@@ -307,24 +328,58 @@ export const Transferencias: React.FC = () => {
           </div>
         </div>
 
-        {/* Métricas */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{transferencia.totalUnidades}</div>
-            <div className="text-xs text-gray-500">Unidades</div>
+        {/* Productos */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-500 uppercase">
+              {transferencia.productosSummary.length} producto{transferencia.productosSummary.length !== 1 ? 's' : ''} · {transferencia.totalUnidades} unidades
+            </span>
+            {transferencia.costoFleteTotal != null && transferencia.costoFleteTotal > 0 ? (
+              <span className="text-xs font-medium text-green-600">Flete: ${transferencia.costoFleteTotal.toFixed(2)}</span>
+            ) : transferencia.tipo === 'usa_peru' ? (
+              <span className="text-xs text-amber-500">Sin flete</span>
+            ) : null}
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{transferencia.productosSummary.length}</div>
-            <div className="text-xs text-gray-500">Productos</div>
-          </div>
-          {transferencia.costoFleteTotal && (
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                ${transferencia.costoFleteTotal.toFixed(0)}
+          <div className="space-y-1">
+            {transferencia.productosSummary.slice(0, 4).map(producto => {
+              // Calcular flete por unidad desde las unidades de la transferencia
+              const unidadesProducto = transferencia.unidades.filter(u => u.productoId === producto.productoId);
+              const fleteUnitario = unidadesProducto.length > 0 ? unidadesProducto[0].costoFleteUSD : 0;
+              // Buscar lotes únicos
+              const lotes = [...new Set(unidadesProducto.map(u => u.lote).filter(Boolean))];
+
+              return (
+                <div key={producto.productoId} className="flex items-center justify-between py-1.5 px-2 bg-gray-50 rounded text-sm">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-medium text-gray-900 truncate">{producto.nombre}</span>
+                      <span className="text-xs text-gray-400 flex-shrink-0">×{producto.cantidad}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <span>{producto.sku}</span>
+                      {lotes.length > 0 && (
+                        <>
+                          <span className="text-gray-300">·</span>
+                          <span>Lote{lotes.length > 1 ? 's' : ''}: {lotes.slice(0, 2).join(', ')}{lotes.length > 2 ? ` +${lotes.length - 2}` : ''}</span>
+                        </>
+                      )}
+                      {fleteUnitario > 0 && (
+                        <>
+                          <span className="text-gray-300">·</span>
+                          <span className="text-green-600">Flete: ${fleteUnitario.toFixed(2)}/u</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {transferencia.productosSummary.length > 4 && (
+              <div className="text-xs text-gray-400 text-center py-1">
+                +{transferencia.productosSummary.length - 4} productos más
               </div>
-              <div className="text-xs text-gray-500">Flete</div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Estado específico */}
@@ -391,7 +446,7 @@ export const Transferencias: React.FC = () => {
 
   // Formulario de creación con selector de unidades
   const CreateTransferenciaModal = () => {
-    const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Config, 2: Unidades, 3: Flete
+    const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Config, 2: Unidades, 3: Confirmar
     const [formData, setFormData] = useState<Partial<TransferenciaFormData>>({
       tipo: 'usa_peru',
       unidadesIds: []
@@ -401,6 +456,8 @@ export const Transferencias: React.FC = () => {
     const [loadingUnidades, setLoadingUnidades] = useState(false);
     // Costo de flete POR UNIDAD por producto: { [productoId]: costoFleteUnitario }
     const [costoFleteUnitarioPorProducto, setCostoFleteUnitarioPorProducto] = useState<Record<string, number>>({});
+    // Toggle para agregar flete ahora o después
+    const [agregarFleteAhora, setAgregarFleteAhora] = useState(false);
     // Estado para controlar qué productos están expandidos
     const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
     // Cantidad rápida a seleccionar por producto
@@ -561,8 +618,8 @@ export const Transferencias: React.FC = () => {
         const dataFinal: TransferenciaFormData = {
           ...formData as TransferenciaFormData,
           unidadesIds: unidadesSeleccionadas,
-          // Pasar el costo TOTAL por producto (unitario × cantidad)
-          costoFletePorProducto: costoFleteTotalPorProducto
+          // Solo pasar flete si el usuario eligió agregarlo ahora
+          costoFletePorProducto: agregarFleteAhora ? costoFleteTotalPorProducto : {}
         };
         await crearTransferencia(dataFinal, user.uid);
         setShowCreateModal(false);
@@ -570,6 +627,7 @@ export const Transferencias: React.FC = () => {
         setFormData({ tipo: 'usa_peru', unidadesIds: [] });
         setUnidadesSeleccionadas([]);
         setCostoFleteUnitarioPorProducto({});
+        setAgregarFleteAhora(false);
         setProductosExpandidos(new Set());
         setCantidadRapida({});
       } catch (error: unknown) {
@@ -799,7 +857,41 @@ export const Transferencias: React.FC = () => {
                             />
                             <div className="min-w-0 flex-1">
                               <h4 className="font-medium text-gray-900 truncate">{grupo.nombre}</h4>
-                              <p className="text-xs text-gray-500">{grupo.sku}</p>
+                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                                <span className="text-xs text-gray-500">{grupo.sku}</span>
+                                <span className="text-xs text-gray-300">·</span>
+                                <span className="text-xs text-green-600 font-medium">
+                                  ${grupo.unidades[0]?.costoUnitarioUSD.toFixed(2)}/u
+                                </span>
+                                <span className="text-xs text-gray-300">·</span>
+                                <span className="text-xs text-gray-500">
+                                  Total: ${grupo.unidades.reduce((s, u) => s + u.costoUnitarioUSD, 0).toFixed(2)}
+                                </span>
+                                {(() => {
+                                  const fechas = grupo.unidades
+                                    .map(u => u.fechaVencimiento?.toDate?.())
+                                    .filter(Boolean)
+                                    .sort((a, b) => a!.getTime() - b!.getTime());
+                                  if (fechas.length === 0) return null;
+                                  const proximaVencer = fechas[0]!;
+                                  const diasRestantes = Math.ceil((proximaVencer.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                                  return (
+                                    <>
+                                      <span className="text-xs text-gray-300">·</span>
+                                      <span className={`text-xs ${diasRestantes < 90 ? 'text-red-600 font-medium' : diasRestantes < 180 ? 'text-amber-600' : 'text-gray-500'}`}>
+                                        Vence: {proximaVencer.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        {diasRestantes < 180 && ` (${diasRestantes}d)`}
+                                      </span>
+                                    </>
+                                  );
+                                })()}
+                                {grupo.unidades[0]?.ordenCompraNumero && (
+                                  <>
+                                    <span className="text-xs text-gray-300">·</span>
+                                    <span className="text-xs text-blue-600">{grupo.unidades[0].ordenCompraNumero}</span>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
 
@@ -909,10 +1001,25 @@ export const Transferencias: React.FC = () => {
                                       #{idx + 1}
                                     </span>
                                     <span className="text-sm text-gray-900">Lote: {unidad.lote}</span>
+                                    {unidad.ordenCompraNumero && (
+                                      <span className="text-xs text-blue-600">{unidad.ordenCompraNumero}</span>
+                                    )}
                                   </div>
-                                  <p className="text-xs text-gray-500">
-                                    Vence: {unidad.fechaVencimiento?.toDate?.().toLocaleDateString('es-PE') || 'N/A'}
-                                  </p>
+                                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                                    <span>
+                                      Vence: {unidad.fechaVencimiento?.toDate?.().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) || 'N/A'}
+                                    </span>
+                                    {(() => {
+                                      const fecha = unidad.fechaVencimiento?.toDate?.();
+                                      if (!fecha) return null;
+                                      const dias = Math.ceil((fecha.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                                      if (dias < 90) return <span className="text-red-600 font-medium">({dias}d)</span>;
+                                      if (dias < 180) return <span className="text-amber-600">({dias}d)</span>;
+                                      return null;
+                                    })()}
+                                    <span className="text-gray-300">·</span>
+                                    <span>Recibida: {unidad.fechaRecepcion?.toDate?.().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }) || 'N/A'}</span>
+                                  </div>
                                 </div>
                               </div>
                               <span className="text-sm font-medium text-gray-900">${unidad.costoUnitarioUSD.toFixed(2)}</span>
@@ -937,13 +1044,13 @@ export const Transferencias: React.FC = () => {
                 onClick={() => setStep(3)}
                 disabled={!canProceedToStep3}
               >
-                Siguiente: Costo de Flete
+                Siguiente: Confirmar
               </Button>
             </div>
           </div>
         )}
 
-        {/* Step 3: Costo de flete y confirmación */}
+        {/* Step 3: Confirmación (flete opcional) */}
         {step === 3 && (
           <div className="space-y-6">
             {/* Resumen de la transferencia */}
@@ -969,80 +1076,113 @@ export const Transferencias: React.FC = () => {
               </div>
             </div>
 
-            {/* Costo de flete por producto (solo para USA → Perú) */}
+            {/* Toggle de flete (solo para USA → Perú) */}
             {formData.tipo === 'usa_peru' && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <Calculator className="h-5 w-5 text-blue-600 mr-2" />
-                    <h4 className="font-medium text-blue-900">Costo de Flete por Producto</h4>
+              <div>
+                <label className="flex items-center gap-3 cursor-pointer select-none mb-3">
+                  <input
+                    type="checkbox"
+                    checked={agregarFleteAhora}
+                    onChange={(e) => {
+                      setAgregarFleteAhora(e.target.checked);
+                      if (!e.target.checked) {
+                        setCostoFleteUnitarioPorProducto({});
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-900">Agregar costo de flete ahora</span>
+                    <p className="text-xs text-gray-500">Puedes agregar o editar el flete después desde el detalle de la transferencia</p>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-blue-700">${costoFleteTotal.toFixed(2)}</div>
-                    <div className="text-xs text-blue-600">Total Flete</div>
-                  </div>
-                </div>
+                </label>
 
-                {/* Lista de productos con input de flete */}
-                <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {productosConUnidadesSeleccionadas.map((producto) => (
-                    <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-blue-100">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-gray-900 truncate">{producto.nombre}</h5>
-                          <p className="text-xs text-gray-500">{producto.sku}</p>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
-                            <span>{producto.unidades} unidades</span>
-                            <span>•</span>
-                            <span>Mercancía: ${producto.costoMercancia.toFixed(2)}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex-shrink-0 w-40">
-                          <label className="block text-xs text-gray-500 mb-1">Flete por unidad (USD)</label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
-                            <input
-                              type="number"
-                              value={costoFleteUnitarioPorProducto[producto.productoId] || ''}
-                              onChange={(e) => {
-                                const valor = parseFloat(e.target.value) || 0;
-                                setCostoFleteUnitarioPorProducto(prev => ({
-                                  ...prev,
-                                  [producto.productoId]: valor
-                                }));
-                              }}
-                              className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
-                              placeholder="0.00"
-                              step="0.01"
-                              min="0"
-                            />
-                          </div>
-                          {(costoFleteUnitarioPorProducto[producto.productoId] || 0) > 0 && (
-                            <div className="text-xs text-blue-600 mt-1 text-right">
-                              Total: ${costoFleteTotalPorProducto[producto.productoId]?.toFixed(2) || '0.00'}
-                            </div>
-                          )}
-                        </div>
+                {agregarFleteAhora && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center">
+                        <Calculator className="h-5 w-5 text-blue-600 mr-2" />
+                        <h4 className="font-medium text-blue-900">Costo de Flete por Producto</h4>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-blue-700">${costoFleteTotal.toFixed(2)}</div>
+                        <div className="text-xs text-blue-600">Total Flete</div>
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* Resumen de costos */}
-                {costoFleteTotal > 0 && (
-                  <div className="mt-4 pt-3 border-t border-blue-200">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Total mercancía:</span>
-                      <span className="font-medium">${resumenSeleccion.costoTotal.toFixed(2)}</span>
+                    {/* Lista de productos con input de flete */}
+                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                      {productosConUnidadesSeleccionadas.map((producto) => (
+                        <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-blue-100">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-medium text-gray-900 truncate">{producto.nombre}</h5>
+                              <p className="text-xs text-gray-500">{producto.sku}</p>
+                              <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                                <span>{producto.unidades} unidades</span>
+                                <span>•</span>
+                                <span>Mercancía: ${producto.costoMercancia.toFixed(2)}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex-shrink-0 w-40">
+                              <label className="block text-xs text-gray-500 mb-1">Flete por unidad (USD)</label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
+                                <input
+                                  type="number"
+                                  value={costoFleteUnitarioPorProducto[producto.productoId] || ''}
+                                  onChange={(e) => {
+                                    const valor = parseFloat(e.target.value) || 0;
+                                    setCostoFleteUnitarioPorProducto(prev => ({
+                                      ...prev,
+                                      [producto.productoId]: valor
+                                    }));
+                                  }}
+                                  className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                  placeholder="0.00"
+                                  step="0.01"
+                                  min="0"
+                                />
+                              </div>
+                              {(costoFleteUnitarioPorProducto[producto.productoId] || 0) > 0 && (
+                                <div className="text-xs text-blue-600 mt-1 text-right">
+                                  Total: ${costoFleteTotalPorProducto[producto.productoId]?.toFixed(2) || '0.00'}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex items-center justify-between text-sm mt-1">
-                      <span className="text-gray-600">Total flete:</span>
-                      <span className="font-medium">${costoFleteTotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-base mt-2 pt-2 border-t border-blue-200">
-                      <span className="font-medium text-gray-900">Costo total transferencia:</span>
-                      <span className="font-bold text-blue-700">${(resumenSeleccion.costoTotal + costoFleteTotal).toFixed(2)}</span>
+
+                    {/* Resumen de costos */}
+                    {costoFleteTotal > 0 && (
+                      <div className="mt-4 pt-3 border-t border-blue-200">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Total mercancía:</span>
+                          <span className="font-medium">${resumenSeleccion.costoTotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm mt-1">
+                          <span className="text-gray-600">Total flete:</span>
+                          <span className="font-medium">${costoFleteTotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-base mt-2 pt-2 border-t border-blue-200">
+                          <span className="font-medium text-gray-900">Costo total transferencia:</span>
+                          <span className="font-bold text-blue-700">${(resumenSeleccion.costoTotal + costoFleteTotal).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!agregarFleteAhora && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-amber-700">
+                        La transferencia se creará sin costo de flete. Podrás agregarlo en cualquier momento desde el detalle de la transferencia.
+                      </p>
                     </div>
                   </div>
                 )}
@@ -1354,10 +1494,18 @@ export const Transferencias: React.FC = () => {
     const monedaFleteOriginal = transferencia.monedaFlete || 'USD';
     const tieneFleteDefinido = fleteUSD > 0;
 
+    // Pagos anteriores (backward compat)
+    const pagosAnteriores = transferencia.pagosViajero && transferencia.pagosViajero.length > 0
+      ? transferencia.pagosViajero
+      : (transferencia.pagoViajero ? [transferencia.pagoViajero] : []);
+    const montoPagadoUSD = pagosAnteriores.reduce((sum, p) => sum + p.montoUSD, 0);
+    const montoPendienteUSD = fleteUSD - montoPagadoUSD;
+    const tienePagosAnteriores = pagosAnteriores.length > 0;
+
     const [formData, setFormData] = useState({
       fechaPago: new Date().toISOString().split('T')[0],
       monedaPago: monedaFleteOriginal as 'USD' | 'PEN',
-      montoOriginal: fleteUSD,
+      montoOriginal: montoPendienteUSD > 0 ? montoPendienteUSD : fleteUSD,
       tipoCambio: tipoCambioActual?.tasaVenta || 3.75,
       metodoPago: 'transferencia_bancaria' as MetodoTesoreria,
       cuentaOrigenId: '',
@@ -1395,8 +1543,9 @@ export const Transferencias: React.FC = () => {
     }, [cuentasFiltradas]);
 
     // Actualizar monto cuando cambia la moneda (convertir automáticamente)
+    const montoBaseUSD = montoPendienteUSD > 0 ? montoPendienteUSD : fleteUSD;
     const handleMonedaChange = (nuevaMoneda: 'USD' | 'PEN') => {
-      const nuevoMonto = nuevaMoneda === 'USD' ? fleteUSD : fleteUSD * formData.tipoCambio;
+      const nuevoMonto = nuevaMoneda === 'USD' ? montoBaseUSD : montoBaseUSD * formData.tipoCambio;
       setFormData(prev => ({ ...prev, monedaPago: nuevaMoneda, montoOriginal: nuevoMonto }));
     };
 
@@ -1411,8 +1560,9 @@ export const Transferencias: React.FC = () => {
     const saldoInsuficiente = cuentaSeleccionada && saldoDespues < 0;
 
     // Validaciones inteligentes
-    const montoDiferenteAlFlete = tieneFleteDefinido && Math.abs(montoUSD - fleteUSD) > 0.01;
-    const montoPagaMasFlete = tieneFleteDefinido && montoUSD > fleteUSD + 0.01;
+    const montoReferenciaUSD = montoPendienteUSD > 0 ? montoPendienteUSD : fleteUSD;
+    const montoDiferenteAlFlete = tieneFleteDefinido && Math.abs(montoUSD - montoReferenciaUSD) > 0.01;
+    const montoPagaMasFlete = tieneFleteDefinido && montoUSD > montoReferenciaUSD + 0.01;
 
     const handleSubmit = async () => {
       if (formData.montoOriginal <= 0) {
@@ -1425,14 +1575,14 @@ export const Transferencias: React.FC = () => {
       }
       if (montoPagaMasFlete) {
         const confirmar = await confirmPago({
-          title: 'Pago Mayor al Flete',
+          title: 'Pago Mayor al Pendiente',
           message: (
             <div className="space-y-2">
-              <p>Estas pagando mas del flete acordado:</p>
+              <p>Estas pagando mas del monto pendiente:</p>
               <div className="bg-amber-50 p-3 rounded-lg text-sm">
-                <div className="flex justify-between"><span>Flete acordado:</span><span>${fleteUSD.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span>Pendiente:</span><span>${montoReferenciaUSD.toFixed(2)}</span></div>
                 <div className="flex justify-between"><span>Monto a pagar:</span><span>${montoUSD.toFixed(2)}</span></div>
-                <div className="flex justify-between font-medium text-amber-700"><span>Diferencia:</span><span>+${(montoUSD - fleteUSD).toFixed(2)}</span></div>
+                <div className="flex justify-between font-medium text-amber-700"><span>Diferencia:</span><span>+${(montoUSD - montoReferenciaUSD).toFixed(2)}</span></div>
               </div>
             </div>
           ),
@@ -1512,12 +1662,52 @@ export const Transferencias: React.FC = () => {
                 <div className="text-3xl font-bold text-blue-700">
                   ${fleteUSD.toFixed(2)}
                 </div>
+                {montoPagadoUSD > 0 && (
+                  <div className="text-sm text-green-600 font-medium">
+                    Pagado: ${montoPagadoUSD.toFixed(2)} | Pendiente: ${montoPendienteUSD.toFixed(2)}
+                  </div>
+                )}
                 <div className="text-sm text-blue-500">
                   ≈ S/ {(fleteUSD * formData.tipoCambio).toFixed(2)} • ${costoPorUnidad.toFixed(2)}/ud
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Pagos anteriores */}
+          {tienePagosAnteriores && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <div className="text-xs text-green-600 uppercase tracking-wide mb-2 font-semibold">
+                Pagos Anteriores ({pagosAnteriores.length})
+              </div>
+              {pagosAnteriores.map((pago, idx) => (
+                <div key={pago.id} className="flex justify-between items-center text-sm py-1.5 border-b border-green-100 last:border-0">
+                  <div>
+                    <span className="font-medium text-gray-900">Pago {idx + 1}</span>
+                    <span className="text-gray-500 ml-2">
+                      {pago.fecha?.toDate?.() ? pago.fecha.toDate().toLocaleDateString('es-PE') : ''}
+                    </span>
+                    <span className="text-gray-400 ml-2 text-xs capitalize">
+                      {pago.metodoPago?.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                  <span className="font-semibold text-green-700">
+                    ${pago.montoUSD.toFixed(2)} USD
+                  </span>
+                </div>
+              ))}
+              <div className="flex justify-between items-center text-sm font-bold pt-2 mt-1 border-t border-green-300">
+                <span>Pendiente</span>
+                <span className="text-amber-700">${montoPendienteUSD.toFixed(2)} USD</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div
+                  className="bg-green-500 h-2 rounded-full transition-all"
+                  style={{ width: `${Math.min(100, (montoPagadoUSD / fleteUSD) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Advertencia si no hay flete definido */}
           {!tieneFleteDefinido && (
@@ -1634,11 +1824,13 @@ export const Transferencias: React.FC = () => {
               </div>
             </div>
 
-            {/* Advertencia de diferencia con flete */}
-            {montoDiferenteAlFlete && !montoPagaMasFlete && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-sm text-blue-700 flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
-                Monto difiere del flete acordado (${fleteUSD.toFixed(2)}) por ${Math.abs(montoUSD - fleteUSD).toFixed(2)}
+            {/* Info de pago parcial */}
+            {montoDiferenteAlFlete && !montoPagaMasFlete && montoUSD > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-sm text-amber-700 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 flex-shrink-0" />
+                <span>
+                  Pago parcial: quedará pendiente <strong>${(montoReferenciaUSD - montoUSD).toFixed(2)} USD</strong> de ${montoReferenciaUSD.toFixed(2)}
+                </span>
               </div>
             )}
             {montoPagaMasFlete && (
@@ -1800,6 +1992,151 @@ export const Transferencias: React.FC = () => {
 
           {/* Dialogo de Confirmacion */}
           <ConfirmDialog {...pagoDialogProps} />
+        </div>
+      </Modal>
+    );
+  };
+
+  // Modal para editar/agregar flete a una transferencia existente
+  const EditFleteModal = ({
+    transferencia,
+    onClose,
+    onConfirm
+  }: {
+    transferencia: Transferencia;
+    onClose: () => void;
+    onConfirm: (costoFletePorProducto: Record<string, number>) => Promise<void>;
+  }) => {
+    const [submitting, setSubmitting] = useState(false);
+    // Inicializar con los costos existentes (flete total por producto)
+    const [fletesPorProducto, setFletesPorProducto] = useState<Record<string, number>>(() => {
+      const initial: Record<string, number> = {};
+      // Calcular flete total actual por producto desde las unidades
+      for (const producto of transferencia.productosSummary) {
+        const unidadesProducto = transferencia.unidades.filter(u => u.productoId === producto.productoId);
+        const fleteTotal = unidadesProducto.reduce((sum, u) => sum + (u.costoFleteUSD || 0), 0);
+        if (fleteTotal > 0) {
+          initial[producto.productoId] = fleteTotal;
+        }
+      }
+      return initial;
+    });
+
+    const totalFlete = Object.values(fletesPorProducto).reduce((sum, v) => sum + (v || 0), 0);
+
+    const handleSubmit = async () => {
+      setSubmitting(true);
+      try {
+        await onConfirm(fletesPorProducto);
+      } catch {
+        setSubmitting(false);
+      }
+    };
+
+    return (
+      <Modal
+        isOpen={true}
+        onClose={onClose}
+        title={`Flete - ${transferencia.numeroTransferencia}`}
+        size="lg"
+      >
+        <div className="space-y-4">
+          {/* Info de la transferencia */}
+          <div className="bg-gray-50 rounded-lg p-3 text-sm">
+            <div className="grid grid-cols-2 gap-2">
+              <div><span className="text-gray-500">Destino:</span> <span className="font-medium">{transferencia.almacenDestinoNombre}</span></div>
+              <div><span className="text-gray-500">Unidades:</span> <span className="font-medium">{transferencia.totalUnidades}</span></div>
+              {transferencia.viajeroNombre && (
+                <div><span className="text-gray-500">Viajero:</span> <span className="font-medium">{transferencia.viajeroNombre}</span></div>
+              )}
+              <div>
+                <span className="text-gray-500">Flete actual:</span>{' '}
+                <span className="font-medium">
+                  {transferencia.costoFleteTotal && transferencia.costoFleteTotal > 0
+                    ? `$${transferencia.costoFleteTotal.toFixed(2)}`
+                    : 'Sin flete'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Flete por producto */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-medium text-gray-700">Costo de Flete por Producto</h4>
+              <div className="text-lg font-bold text-blue-700">${totalFlete.toFixed(2)}</div>
+            </div>
+
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {transferencia.productosSummary.map((producto) => {
+                const unidadesCount = producto.cantidad;
+                const fleteTotalProducto = fletesPorProducto[producto.productoId] || 0;
+                const fletePorUnidad = unidadesCount > 0 ? fleteTotalProducto / unidadesCount : 0;
+
+                return (
+                  <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h5 className="font-medium text-gray-900 truncate">{producto.nombre}</h5>
+                        <p className="text-xs text-gray-500">{producto.sku} &middot; {producto.cantidad} unidades</p>
+                      </div>
+                      <div className="flex-shrink-0 w-40">
+                        <label className="block text-xs text-gray-500 mb-1">Flete total producto (USD)</label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
+                          <input
+                            type="number"
+                            value={fletesPorProducto[producto.productoId] || ''}
+                            onChange={(e) => {
+                              const valor = parseFloat(e.target.value) || 0;
+                              setFletesPorProducto(prev => ({
+                                ...prev,
+                                [producto.productoId]: valor
+                              }));
+                            }}
+                            className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            placeholder="0.00"
+                            step="0.01"
+                            min="0"
+                          />
+                        </div>
+                        {fletePorUnidad > 0 && (
+                          <div className="text-xs text-blue-600 mt-1 text-right">
+                            ${fletePorUnidad.toFixed(2)} / unidad
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {(transferencia.estado === 'recibida_completa' || transferencia.estado === 'recibida_parcial') && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-amber-700">
+                  Esta transferencia ya fue recibida. Al actualizar el flete, se recalculará el CTRU de las unidades afectadas.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Botones */}
+          <div className="flex justify-end space-x-3 pt-2 border-t">
+            <Button variant="secondary" onClick={onClose} disabled={submitting}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={submitting}
+            >
+              {submitting ? 'Guardando...' : 'Guardar Flete'}
+            </Button>
+          </div>
         </div>
       </Modal>
     );
@@ -2067,17 +2404,87 @@ export const Transferencias: React.FC = () => {
 
             {/* Resumen de productos */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Productos ({selectedTransferencia.totalUnidades} unidades)</h4>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {selectedTransferencia.productosSummary.map(producto => (
-                  <div key={producto.productoId} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <div>
-                      <div className="font-medium text-gray-900">{producto.nombre}</div>
-                      <div className="text-xs text-gray-500">{producto.sku}</div>
+              <h4 className="text-sm font-medium text-gray-700 mb-3">
+                Productos ({selectedTransferencia.productosSummary.length}) · {selectedTransferencia.totalUnidades} unidades
+              </h4>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {selectedTransferencia.productosSummary.map(producto => {
+                  const unidadesProducto = selectedTransferencia.unidades.filter(u => u.productoId === producto.productoId);
+                  const fleteUnitario = unidadesProducto.length > 0 ? unidadesProducto[0].costoFleteUSD : 0;
+                  const fleteTotalProducto = unidadesProducto.reduce((sum, u) => sum + (u.costoFleteUSD || 0), 0);
+                  const lotes = [...new Set(unidadesProducto.map(u => u.lote).filter(Boolean))];
+                  // Obtener vencimientos
+                  const vencimientos = unidadesProducto
+                    .map(u => u.fechaVencimiento?.toDate?.())
+                    .filter(Boolean)
+                    .sort((a, b) => a!.getTime() - b!.getTime());
+                  const proximoVencer = vencimientos[0];
+                  // Contar estados
+                  const recibidas = unidadesProducto.filter(u => u.estadoTransferencia === 'recibida').length;
+                  const faltantes = unidadesProducto.filter(u => u.estadoTransferencia === 'faltante').length;
+                  const danadas = unidadesProducto.filter(u => u.estadoTransferencia === 'danada').length;
+
+                  return (
+                    <div key={producto.productoId} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900 truncate">{producto.nombre}</div>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-gray-500">
+                            <span>{producto.sku}</span>
+                            {lotes.length > 0 && (
+                              <>
+                                <span className="text-gray-300">·</span>
+                                <span>Lote{lotes.length > 1 ? 's' : ''}: {lotes.join(', ')}</span>
+                              </>
+                            )}
+                            {proximoVencer && (() => {
+                              const dias = Math.ceil((proximoVencer.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                              return (
+                                <>
+                                  <span className="text-gray-300">·</span>
+                                  <span className={dias < 90 ? 'text-red-600 font-medium' : dias < 180 ? 'text-amber-600' : ''}>
+                                    Vence: {proximoVencer.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                    {dias < 180 && ` (${dias}d)`}
+                                  </span>
+                                </>
+                              );
+                            })()}
+                          </div>
+                          {/* Flete info */}
+                          {fleteUnitario > 0 && (
+                            <div className="text-xs text-green-600 mt-1">
+                              Flete: ${fleteUnitario.toFixed(2)}/u · Total flete: ${fleteTotalProducto.toFixed(2)}
+                            </div>
+                          )}
+                          {/* Estado de recepción si aplica */}
+                          {(selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') && (
+                            <div className="flex items-center gap-2 mt-1">
+                              {recibidas > 0 && (
+                                <span className="text-xs text-green-600 flex items-center gap-0.5">
+                                  <CheckCircle className="h-3 w-3" /> {recibidas} recibida{recibidas > 1 ? 's' : ''}
+                                </span>
+                              )}
+                              {faltantes > 0 && (
+                                <span className="text-xs text-red-600 flex items-center gap-0.5">
+                                  <AlertTriangle className="h-3 w-3" /> {faltantes} faltante{faltantes > 1 ? 's' : ''}
+                                </span>
+                              )}
+                              {danadas > 0 && (
+                                <span className="text-xs text-amber-600 flex items-center gap-0.5">
+                                  <XCircle className="h-3 w-3" /> {danadas} dañada{danadas > 1 ? 's' : ''}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-lg font-bold text-gray-900">{producto.cantidad}</div>
+                          <div className="text-xs text-gray-500">unid.</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-lg font-semibold text-gray-900">{producto.cantidad}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -2096,7 +2503,7 @@ export const Transferencias: React.FC = () => {
                   <div className="text-xs text-gray-500 uppercase mb-1">Fecha Salida</div>
                   <div className="text-gray-900">
                     {selectedTransferencia.fechaSalida.toDate().toLocaleDateString('es-PE', {
-                      day: '2-digit', month: 'long', year: 'numeric'
+                      day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}
                   </div>
                 </div>
@@ -2106,7 +2513,7 @@ export const Transferencias: React.FC = () => {
                   <div className="text-xs text-gray-500 uppercase mb-1">Fecha Llegada</div>
                   <div className="text-gray-900">
                     {selectedTransferencia.fechaLlegadaReal.toDate().toLocaleDateString('es-PE', {
-                      day: '2-digit', month: 'long', year: 'numeric'
+                      day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}
                   </div>
                 </div>
@@ -2120,6 +2527,84 @@ export const Transferencias: React.FC = () => {
                 <div className="font-medium text-gray-900">{selectedTransferencia.numeroTracking}</div>
               </div>
             )}
+
+            {/* Costo de Flete (solo USA → Perú) */}
+            {selectedTransferencia.tipo === 'usa_peru' && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-gray-500 uppercase mb-1">Costo de Flete</div>
+                    {selectedTransferencia.costoFleteTotal && selectedTransferencia.costoFleteTotal > 0 ? (
+                      <div className="font-semibold text-blue-700">${selectedTransferencia.costoFleteTotal.toFixed(2)} USD</div>
+                    ) : (
+                      <div className="text-sm text-amber-600">Sin flete asignado</div>
+                    )}
+                  </div>
+                  {selectedTransferencia.estado !== 'cancelada' && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setTransferenciaParaFlete(selectedTransferencia);
+                        setShowEditFleteModal(true);
+                      }}
+                    >
+                      <DollarSign className="h-4 w-4 mr-1" />
+                      {selectedTransferencia.costoFleteTotal && selectedTransferencia.costoFleteTotal > 0 ? 'Editar Flete' : 'Agregar Flete'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Historial de Pagos al Viajero */}
+            {selectedTransferencia.tipo === 'usa_peru' && (() => {
+              const pagos = selectedTransferencia.pagosViajero && selectedTransferencia.pagosViajero.length > 0
+                ? selectedTransferencia.pagosViajero
+                : (selectedTransferencia.pagoViajero ? [selectedTransferencia.pagoViajero] : []);
+              if (pagos.length === 0) return null;
+              const totalPagadoUSD = selectedTransferencia.montoPagadoUSD || pagos.reduce((s, p) => s + p.montoUSD, 0);
+              const fleteTotal = selectedTransferencia.costoFleteTotal || 0;
+              return (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="text-xs text-green-600 uppercase mb-2 font-semibold">
+                    Historial de Pagos ({pagos.length})
+                  </div>
+                  {pagos.map((pago, idx) => (
+                    <div key={pago.id} className="flex justify-between items-center text-sm py-1.5 border-b border-green-100 last:border-0">
+                      <div>
+                        <span className="font-medium text-gray-900">Pago {idx + 1}</span>
+                        <span className="text-gray-500 ml-2">
+                          {pago.fecha?.toDate?.() ? pago.fecha.toDate().toLocaleDateString('es-PE') : ''}
+                        </span>
+                        <span className="text-gray-400 ml-2 text-xs capitalize">
+                          {pago.metodoPago?.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                      <div className="text-right flex items-center gap-2">
+                        <span className="font-semibold text-green-700">${pago.montoUSD.toFixed(2)}</span>
+                        {pago.errorTesoreria && (
+                          <span className="text-xs text-red-500 bg-red-50 px-1.5 py-0.5 rounded">Sin sync</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {fleteTotal > 0 && (
+                    <div className="mt-2">
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Pagado: ${totalPagadoUSD.toFixed(2)}</span>
+                        <span>Total: ${fleteTotal.toFixed(2)}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-green-500 h-2 rounded-full transition-all"
+                          style={{ width: `${Math.min(100, (totalPagadoUSD / fleteTotal) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Notas */}
             {selectedTransferencia.notas && (
@@ -2158,15 +2643,45 @@ export const Transferencias: React.FC = () => {
                selectedTransferencia.estadoPagoViajero !== 'pagado' && (
                 <Button variant="success" onClick={() => handleAbrirPagoViajero(selectedTransferencia)}>
                   <Banknote className="h-4 w-4 mr-2" />
-                  Registrar Pago Viajero
+                  {selectedTransferencia.estadoPagoViajero === 'parcial'
+                    ? 'Registrar Pago Adicional'
+                    : 'Registrar Pago Viajero'}
                 </Button>
               )}
-              {/* Badge si ya está pagado */}
-              {selectedTransferencia.estadoPagoViajero === 'pagado' && (
-                <Badge variant="success">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Pago Registrado
+              {/* Badge parcial */}
+              {selectedTransferencia.estadoPagoViajero === 'parcial' && (
+                <Badge variant="warning">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Pago Parcial ({((selectedTransferencia.montoPagadoUSD || 0) / (selectedTransferencia.costoFleteTotal || 1) * 100).toFixed(0)}%)
                 </Badge>
+              )}
+              {/* Badge + Botón reconciliar si ya está pagado */}
+              {selectedTransferencia.estadoPagoViajero === 'pagado' && (
+                <>
+                  <Badge variant="success">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Pago Registrado
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={async () => {
+                      if (!user) return;
+                      try {
+                        await reconciliarPagoViajero(selectedTransferencia.id, user.uid);
+                        setSelectedTransferencia(null);
+                        alert('Pago sincronizado correctamente en Tesorería');
+                      } catch (error) {
+                        const msg = error instanceof Error ? error.message : 'Error desconocido';
+                        alert(msg);
+                      }
+                    }}
+                    title="Verificar y sincronizar el movimiento en Tesorería"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Sincronizar
+                  </Button>
+                </>
               )}
             </div>
           </div>
@@ -2209,6 +2724,30 @@ export const Transferencias: React.FC = () => {
             setShowPagoModal(false);
             setTransferenciaParaPago(null);
             alert('✅ Pago al viajero registrado correctamente');
+          }}
+        />
+      )}
+
+      {/* Modal de Editar Flete */}
+      {showEditFleteModal && transferenciaParaFlete && (
+        <EditFleteModal
+          transferencia={transferenciaParaFlete}
+          onClose={() => {
+            setShowEditFleteModal(false);
+            setTransferenciaParaFlete(null);
+          }}
+          onConfirm={async (costoFletePorProducto: Record<string, number>) => {
+            if (!user) return;
+            try {
+              await actualizarFlete(transferenciaParaFlete.id, costoFletePorProducto, user.uid);
+              setShowEditFleteModal(false);
+              setTransferenciaParaFlete(null);
+              setSelectedTransferencia(null);
+              alert('Flete actualizado correctamente');
+            } catch (error) {
+              const message = error instanceof Error ? error.message : 'Error desconocido';
+              alert('Error: ' + message);
+            }
           }}
         />
       )}

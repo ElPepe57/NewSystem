@@ -30,8 +30,10 @@ import type {
 } from '../types/expectativa.types';
 import type { Venta } from '../types/venta.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
+import { actividadService } from './actividad.service';
+import { COLLECTIONS } from '../config/collections';
 
-const REQUERIMIENTOS_COLLECTION = 'requerimientos';
+const REQUERIMIENTOS_COLLECTION = COLLECTIONS.REQUERIMIENTOS;
 
 /**
  * Servicio de Expectativa vs Realidad
@@ -74,6 +76,18 @@ export const expectativaService = {
     data: RequerimientoFormData,
     userId: string
   ): Promise<string> {
+    // Verificar duplicados si viene de una cotización
+    if (data.ventaRelacionadaId) {
+      const reqsExistentes = await this.getRequerimientos();
+      const reqExistente = reqsExistentes.find(r =>
+        r.ventaRelacionadaId === data.ventaRelacionadaId &&
+        r.estado !== 'cancelado'
+      );
+      if (reqExistente) {
+        throw new Error(`Ya existe el requerimiento ${reqExistente.numeroRequerimiento} para esta cotización`);
+      }
+    }
+
     const numeroRequerimiento = await this.generateNumeroRequerimiento();
 
     // Obtener TC actual para la expectativa
@@ -191,6 +205,16 @@ export const expectativaService = {
     }
 
     const docRef = await addDoc(collection(db, REQUERIMIENTOS_COLLECTION), requerimiento);
+
+    // Broadcast actividad (fire-and-forget)
+    actividadService.registrar({
+      tipo: 'requerimiento_creado',
+      mensaje: `Requerimiento ${numeroRequerimiento} creado - ${data.productos.length} producto(s)`,
+      userId,
+      displayName: userId,
+      metadata: { entidadId: docRef.id, entidadTipo: 'requerimiento' }
+    }).catch(() => {});
+
     return docRef.id;
   },
 
@@ -215,6 +239,17 @@ export const expectativaService = {
     }>,
     userId: string
   ): Promise<{ id: string; numero: string }> {
+    // Red de seguridad: verificar duplicados antes de crear
+    const reqsExistentes = await this.getRequerimientos();
+    const reqExistente = reqsExistentes.find(r =>
+      r.ventaRelacionadaId === cotizacionId &&
+      r.estado !== 'cancelado'
+    );
+    if (reqExistente) {
+      console.warn(`Requerimiento ${reqExistente.numeroRequerimiento} ya existe para cotización ${cotizacionId}, reutilizando.`);
+      return { id: reqExistente.id!, numero: reqExistente.numeroRequerimiento };
+    }
+
     const formData: RequerimientoFormData = {
       origen: 'venta_pendiente',
       ventaRelacionadaId: cotizacionId,
@@ -307,6 +342,17 @@ export const expectativaService = {
     }
 
     await updateDoc(doc(db, REQUERIMIENTOS_COLLECTION, requerimientoId), updateData);
+
+    // Broadcast actividad for approval (fire-and-forget)
+    if (nuevoEstado === 'aprobado') {
+      actividadService.registrar({
+        tipo: 'requerimiento_aprobado',
+        mensaje: `Requerimiento ${requerimientoId} aprobado`,
+        userId,
+        displayName: userId,
+        metadata: { entidadId: requerimientoId, entidadTipo: 'requerimiento' }
+      }).catch(() => {});
+    }
   },
 
   /**
@@ -896,6 +942,15 @@ export const expectativaService = {
       if (reqExistente) reqYaVinculadoAEstaOC = true;
     }
 
+    // Si tampoco, buscar CUALQUIER requerimiento no cancelado para esta cotización
+    // (puede estar vinculado a otra OC — evita crear duplicado)
+    if (!reqExistente) {
+      reqExistente = reqsExistentes.find(r =>
+        r.ventaRelacionadaId === cotizacionId &&
+        r.estado !== 'cancelado'
+      );
+    }
+
     if (reqExistente) {
       // Reutilizar el requerimiento existente
       requerimientoId = reqExistente.id!;
@@ -973,7 +1028,7 @@ export const expectativaService = {
     }
 
     // 3. Actualizar la OC con el requerimientoId (solo si no estaba ya vinculado)
-    const ORDENES_COLLECTION = 'ordenesCompra';
+    const ORDENES_COLLECTION = COLLECTIONS.ORDENES_COMPRA;
     const ordenRef = doc(db, ORDENES_COLLECTION, ordenCompraId);
 
     if (!reqYaVinculadoAEstaOC) {
@@ -1010,6 +1065,7 @@ export const expectativaService = {
     const reservaResult = await unidadService.reservarUnidadesParaCotizacion({
       ordenCompraId,
       cotizacionId,
+      cotizacionNumero,
       requerimientoId,
       productos: productos.map(p => ({
         productoId: p.productoId,
@@ -1022,7 +1078,7 @@ export const expectativaService = {
     await this.actualizarEstado(requerimientoId, 'completado', userId);
 
     // 6. Actualizar cotización/venta con el requerimiento generado
-    const VENTAS_COLLECTION = 'ventas';
+    const VENTAS_COLLECTION = COLLECTIONS.VENTAS;
     try {
       const ventaRef = doc(db, VENTAS_COLLECTION, cotizacionId);
       const ventaSnap = await getDoc(ventaRef);

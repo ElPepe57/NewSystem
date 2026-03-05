@@ -20,8 +20,9 @@ import type {
   TipoProductoStats,
   EstadoTipoProducto
 } from '../types/tipoProducto.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'tiposProducto';
+const COLLECTION_NAME = COLLECTIONS.TIPOS_PRODUCTO;
 
 /**
  * Normalizar texto para busqueda y slug

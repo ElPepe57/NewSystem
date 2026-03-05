@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generar PDF Muestra</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+</head>
+<body>
+<h2>Generando PDF de muestra...</h2>
+<script>
+async function generateQRCode(data) {
+  try {
+    return await QRCode.toDataURL(data, { width: 150, margin: 1, color: { dark: '#000000', light: '#ffffff' } });
+  } catch (e) { console.error(e); return ''; }
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+async function generarPDF() {
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const usableHeight = 140;
+  const m = 8;
+  const innerW = pageWidth - m * 2;
+
+  const negro = [0, 0, 0];
+  const gris = [107, 114, 128];
+  const grisSuave = [156, 163, 175];
+  const verde = [22, 163, 74];
+  const rojo = [220, 38, 38];
+  const ambar = [217, 119, 6];
+  const azul = [37, 99, 235];
+
+  const empresa = { nombre: 'Vita Skin Peru', ruc: '20123456789', direccion: 'Lima, Peru', telefono: '999 999 999' };
+  const qrPago = { url: 'https://yape.pe/vitaskinperu', cuenta: '999 999 999', banco: 'Yape/Plin' };
+
+  // Datos de muestra
+  const entrega = {
+    codigo: 'ENT-2026-015',
+    numeroVenta: 'VT-2026-041',
+    numeroEntrega: 1,
+    totalEntregas: 1,
+    nombreCliente: 'Ruth Cavero Contreras',
+    telefonoCliente: '951234567',
+    nombreTransportista: 'Shalom - Av Lima Cuadra 38',
+    direccionEntrega: 'Pje. San Felipe lt. 1, Piura 20009',
+    distrito: 'Piura',
+    provincia: 'Piura',
+    codigoPostal: '20009',
+    referencia: 'Frente al parque central, casa celeste con rejas negras',
+    coordenadas: { lat: -5.1813, lng: -80.6317 },
+    fechaProgramada: '01-Mar-2026',
+    horaProgramada: '08:00-12:00',
+    productos: [
+      { marca: 'Horbaach', nombreComercial: 'Melena de Leon', cantidad: 1, subtotal: 45.00 },
+    ],
+    cantidadItems: 1,
+    subtotalPEN: 45.00,
+    cobroPendiente: true,
+    montoPorCobrar: 25.00,
+    metodoPagoEsperado: 'yape',
+    observaciones: 'Llamar antes de llegar al destino'
+  };
+
+  // ===================== HEADER =====================
+  doc.setFillColor(245, 245, 245);
+  doc.rect(m, m, innerW, 14, 'F');
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.3);
+  doc.rect(m, m, innerW, 14, 'S');
+
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...negro);
+  doc.text(empresa.nombre.toUpperCase(), m + 4, m + 6);
+
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...gris);
+  doc.text(`${empresa.direccion} | Tel: ${empresa.telefono}`, m + 4, m + 11);
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...negro);
+  doc.text(entrega.codigo, m + innerW - 4, m + 6, { align: 'right' });
+
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...gris);
+  doc.text(`${entrega.numeroVenta} | Entrega ${entrega.numeroEntrega}/${entrega.totalEntregas}`, m + innerW - 4, m + 11, { align: 'right' });
+
+  // ===================== FECHA =====================
+  const fechaY = m + 16;
+  doc.setFillColor(234, 179, 8);
+  doc.rect(m, fechaY, innerW, 10, 'F');
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(m, fechaY, innerW, 10, 'S');
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...negro);
+  doc.text('FECHA ENTREGA:', m + 4, fechaY + 6);
+
+  doc.setFontSize(11);
+  doc.text(`${entrega.fechaProgramada}  |  Horario: ${entrega.horaProgramada}`, m + 45, fechaY + 7);
+
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(80, 80, 80);
+  const fechaImpresion = new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  doc.text(`Impreso: ${fechaImpresion}`, m + innerW - 4, fechaY + 6, { align: 'right' });
+
+  // ===================== CUERPO 3 COLUMNAS =====================
+  const bodyY = fechaY + 12;
+  const bodyH = usableHeight - bodyY + m;
+  const col1W = 115;
+  const col2W = 75;
+  const col3W = innerW - col1W - col2W;
+
+  // --- COL 1: DIRECCION + QR MAPS ---
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.3);
+  doc.rect(m, bodyY, col1W, bodyH, 'S');
+
+  const qrMapsSize = 28;
+  const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${entrega.coordenadas.lat},${entrega.coordenadas.lng}`;
+  const qrMapsData = await generateQRCode(mapsUrl);
+  if (qrMapsData) {
+    doc.addImage(qrMapsData, 'PNG', m + 3, bodyY + 3, qrMapsSize, qrMapsSize);
+  }
+
+  // Distrito grande
+  const distritoX = m + qrMapsSize + 7;
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...negro);
+  doc.text(entrega.distrito.toUpperCase(), distritoX, bodyY + 12);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...gris);
+  doc.text(entrega.provincia.toUpperCase(), distritoX, bodyY + 18);
+
+  // Label QR
+  doc.setFontSize(5);
+  doc.setTextColor(...azul);
+  doc.setFont('helvetica', 'bold');
+  doc.text('GOOGLE MAPS', m + 3 + qrMapsSize / 2, bodyY + qrMapsSize + 6, { align: 'center' });
+
+  // Separador
+  let infoY = bodyY + qrMapsSize + 10;
+  doc.setDrawColor(220, 220, 220);
+  doc.line(m + 3, infoY - 2, m + col1W - 3, infoY - 2);
+
+  // Direccion
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...gris);
+  doc.text('Direccion:', m + 4, infoY + 2);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...negro);
+  const dirLines = doc.splitTextToSize(entrega.direccionEntrega, col1W - 10);
+  doc.text(dirLines.slice(0, 2), m + 4, infoY + 6);
+  infoY += 6 + (Math.min(dirLines.length, 2) * 3.5);
+
+  // Referencia
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...verde);
+  doc.text('Ref:', m + 4, infoY + 2);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...negro);
+  const refLines = doc.splitTextToSize(entrega.referencia, col1W - 18);
+  doc.text(refLines.slice(0, 2), m + 14, infoY + 2);
+  infoY += 2 + (Math.min(refLines.length, 2) * 3.5);
+
+  // CP
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...gris);
+  doc.text(`C.P.: ${entrega.codigoPostal}`, m + 4, infoY + 2);
+  infoY += 5;
+
+  // Separador
+  doc.setDrawColor(220, 220, 220);
+  doc.line(m + 3, infoY, m + col1W - 3, infoY);
+  infoY += 3;
+
+  // Destinatario
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...gris);
+  doc.text('Destinatario:', m + 4, infoY + 2);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...negro);
+  doc.text(entrega.nombreCliente, m + 4, infoY + 7);
+
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...gris);
+  doc.text(`Tel: ${entrega.telefonoCliente}`, m + 4, infoY + 11);
+
+  // Transportista
+  const transY = bodyY + bodyH - 8;
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...gris);
+  doc.text('TRANSPORTISTA:', m + 4, transY);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...negro);
+  doc.text(entrega.nombreTransportista, m + 32, transY);
+
+  // --- COL 2: PRODUCTOS ---
+  const col2X = m + col1W;
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(col2X, bodyY, col2W, bodyH, 'S');
+
+  doc.setFillColor(245, 245, 245);
+  doc.rect(col2X, bodyY, col2W, 7, 'F');
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...negro);
+  doc.text(`PRODUCTOS (${entrega.cantidadItems} items)`, col2X + 3, bodyY + 5);
+
+  let prodY = bodyY + 12;
+  for (const prod of entrega.productos) {
+    doc.setFontSize(6.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...negro);
+    const prodNombre = `${prod.marca} ${prod.nombreComercial}`;
+    doc.text(`${prod.cantidad}x ${prodNombre}`, col2X + 3, prodY);
+    doc.setTextColor(...gris);
+    doc.text(`S/${prod.subtotal.toFixed(2)}`, col2X + col2W - 3, prodY, { align: 'right' });
+    prodY += 4.5;
+  }
+
+  // Total
+  const totalY = bodyY + bodyH - 12;
+  doc.setDrawColor(220, 220, 220);
+  doc.line(col2X + 3, totalY, col2X + col2W - 3, totalY);
+
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...gris);
+  doc.text('VALOR VENTA:', col2X + 3, totalY + 5);
+
+  doc.setFontSize(10);
+  doc.setTextColor(...negro);
+  doc.text(`S/ ${entrega.subtotalPEN.toFixed(2)}`, col2X + col2W - 3, totalY + 5, { align: 'right' });
+
+  // Observaciones
+  doc.setFontSize(5.5);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(...ambar);
+  const obsLines = doc.splitTextToSize(`Obs: ${entrega.observaciones}`, col2W - 6);
+  doc.text(obsLines.slice(0, 2), col2X + 3, totalY + 9);
+
+  // --- COL 3: PAGO ---
+  const col3X = col2X + col2W;
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(col3X, bodyY, col3W, bodyH, 'S');
+
+  // Titulo con fondo
+  doc.setFillColor(254, 243, 199); // amber-50
+  doc.rect(col3X, bodyY, col3W, 7, 'F');
+
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...ambar);
+  doc.text('ESTADO DE PAGO', col3X + 3, bodyY + 5);
+
+  const col3Center = col3X + col3W / 2;
+  let payY = bodyY + 13;
+
+  // Estado
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...rojo);
+  doc.text('COBRO PENDIENTE', col3Center, payY, { align: 'center' });
+  payY += 7;
+
+  // Monto
+  doc.setFontSize(16);
+  doc.setTextColor(...negro);
+  doc.text(`S/ ${entrega.montoPorCobrar.toFixed(2)}`, col3Center, payY, { align: 'center' });
+  payY += 5;
+
+  // Metodo
+  doc.setFontSize(7);
+  doc.setTextColor(...gris);
+  doc.text('Metodo: Yape', col3Center, payY, { align: 'center' });
+  payY += 6;
+
+  // QR Pago
+  const qrPayData = await generateQRCode(qrPago.url);
+  if (qrPayData) {
+    const qrPaySize = 30;
+    doc.addImage(qrPayData, 'PNG', col3Center - qrPaySize / 2, payY, qrPaySize, qrPaySize);
+    payY += qrPaySize + 3;
+  }
+
+  // Yape/Plin
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...ambar);
+  doc.text('Yape / Plin', col3Center, payY, { align: 'center' });
+  payY += 4;
+
+  doc.setFontSize(9);
+  doc.setTextColor(...negro);
+  doc.text(qrPago.cuenta, col3Center, payY, { align: 'center' });
+
+  // Guardar
+  doc.save('muestra-guia-transportista.pdf');
+  document.body.innerHTML = '<h2 style="color:green">PDF generado! Revisa tu carpeta de descargas.</h2>';
+}
+
+generarPDF();
+</script>
+</body>
+</html>

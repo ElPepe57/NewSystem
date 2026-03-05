@@ -24,8 +24,9 @@ import type {
   NotificationCounts,
   AccionNotificacion
 } from '../types/notification.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'notificaciones';
+const COLLECTION_NAME = COLLECTIONS.NOTIFICACIONES;
 
 /**
  * Servicio para gestionar notificaciones del sistema

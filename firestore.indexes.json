@@ -36,6 +36,15 @@
       "collectionGroup": "unidades",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "productoId", "order": "ASCENDING" },
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "fechaVencimiento", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "unidades",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "almacenActualId", "order": "ASCENDING" },
         { "fieldPath": "estado", "order": "ASCENDING" }
       ]
@@ -70,6 +79,22 @@
       "fields": [
         { "fieldPath": "tipo", "order": "ASCENDING" },
         { "fieldPath": "fechaCreacion", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "chat_mensajes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "canalId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "llamadas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "participantes", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "estado", "order": "ASCENDING" }
       ]
     }
   ],

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard, ChevronDown, ChevronUp, Clock, RotateCcw } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
 import type { TimelineStep, NextAction } from '../../common';
-import type { OrdenCompra, EstadoOrden, EstadoPago } from '../../../types/ordenCompra.types';
+import type { OrdenCompra, EstadoOrden, EstadoPagoOC } from '../../../types/ordenCompra.types';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
@@ -21,7 +21,7 @@ const estadoLabels: Record<EstadoOrden, { label: string; variant: 'success' | 'w
   cancelada: { label: 'Cancelada', variant: 'danger' }
 };
 
-const estadoPagoLabels: Record<EstadoPago, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
+const estadoPagoLabels: Record<EstadoPagoOC, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
   pendiente: { label: 'Pendiente de Pago', variant: 'danger' },
   pago_parcial: { label: 'Pago Parcial', variant: 'warning' },
   pagada: { label: 'Pagada', variant: 'success' }

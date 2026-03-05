@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, PieChart, ChevronDown, ChevronUp, Package, DollarSign, Percent, Info, Truck } from 'lucide-react';
 import { Badge, Pagination, usePagination } from '../../common';
-import type { Venta, EstadoVenta, CanalVenta } from '../../../types/venta.types';
+import type { Venta, EstadoVenta } from '../../../types/venta.types';
 import { useRentabilidadVentas, type RentabilidadVenta, type DatosRentabilidadGlobal } from '../../../hooks/useRentabilidadVentas';
+import { useCanalVentaStore } from '../../../store/canalVentaStore';
 
 interface VentaTableProps {
   ventas: Venta[];
@@ -20,7 +21,8 @@ const estadoLabels: Record<EstadoVenta, { label: string; variant: 'success' | 'w
   confirmada: { label: 'Confirmada', variant: 'info' },
   parcial: { label: 'Parcial', variant: 'warning' },
   asignada: { label: 'Asignada', variant: 'warning' },
-  en_entrega: { label: 'En Entrega', variant: 'warning' },
+  en_entrega: { label: 'Programada', variant: 'warning' },
+  despachada: { label: 'En Camino', variant: 'info' },
   entrega_parcial: { label: 'Entrega Parcial', variant: 'warning' },
   entregada: { label: 'Entregada', variant: 'success' },
   cancelada: { label: 'Cancelada', variant: 'danger' },
@@ -28,11 +30,22 @@ const estadoLabels: Record<EstadoVenta, { label: string; variant: 'success' | 'w
   devolucion_parcial: { label: 'Dev. Parcial', variant: 'warning' }
 };
 
-const canalLabels: Record<CanalVenta, string> = {
-  mercado_libre: 'ML',
+// Legacy canal mapping (for ventas created before CanalVenta entities)
+const LEGACY_CANAL_LABELS: Record<string, string> = {
+  mercado_libre: 'Mercado Libre',
+  mercadolibre: 'Mercado Libre',
   directo: 'Directo',
   otro: 'Otro'
 };
+
+/** Resolver nombre del canal de una venta */
+function resolveCanalLabel(venta: Venta, canales: { id: string; codigo: string; nombre: string }[]): string {
+  if (venta.canalNombre) return venta.canalNombre;
+  if (LEGACY_CANAL_LABELS[venta.canal]) return LEGACY_CANAL_LABELS[venta.canal];
+  const canalObj = canales.find(c => c.id === venta.canal || c.codigo === venta.canal);
+  if (canalObj) return canalObj.nombre;
+  return venta.canal || '-';
+}
 
 // Componente de desglose expandible
 interface DesgloseVentaProps {
@@ -255,6 +268,8 @@ const VentaCard: React.FC<{
   onView: (venta: Venta) => void;
   onDelete?: (venta: Venta) => void;
 }> = ({ venta, onView, onDelete }) => {
+  const canales = useCanalVentaStore(s => s.canales);
+  const getCanalLabel = (v: Venta) => resolveCanalLabel(v, canales);
   const estadoInfo = estadoLabels[venta.estado];
 
   const formatDate = (timestamp: any) => {
@@ -272,7 +287,7 @@ const VentaCard: React.FC<{
             <Badge variant={estadoInfo.variant} size="sm">{estadoInfo.label}</Badge>
           </div>
           <div className="font-medium text-gray-900 text-sm truncate mt-1">{venta.nombreCliente}</div>
-          <div className="text-xs text-gray-500">{formatDate(venta.fechaCreacion)} - {canalLabels[venta.canal]}</div>
+          <div className="text-xs text-gray-500">{formatDate(venta.fechaCreacion)} - {getCanalLabel(venta)}</div>
         </div>
         <div className="text-right">
           <div className="font-bold text-gray-900">S/ {venta.totalPEN.toFixed(2)}</div>
@@ -308,6 +323,15 @@ export const VentaTable: React.FC<VentaTableProps> = ({
   onRegistrarAdelanto,
   loading = false
 }) => {
+  // Canales de venta (para resolver IDs → nombres)
+  const { canales, fetchCanales, initialized: canalesInitialized } = useCanalVentaStore();
+
+  useEffect(() => {
+    if (!canalesInitialized) fetchCanales();
+  }, [canalesInitialized, fetchCanales]);
+
+  const getCanalLabel = (v: Venta) => resolveCanalLabel(v, canales);
+
   // Estado para filas expandidas
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
@@ -485,7 +509,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Badge variant="info" size="sm">
-                    {canalLabels[venta.canal]}
+                    {getCanalLabel(venta)}
                   </Badge>
                 </td>
                 

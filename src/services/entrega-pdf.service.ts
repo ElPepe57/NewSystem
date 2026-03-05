@@ -16,7 +16,7 @@ interface EmpresaConfig {
 
 // Configuración de la empresa (podría venir de configuración)
 const EMPRESA_CONFIG: EmpresaConfig = {
-  nombre: 'BusinessMN',
+  nombre: 'Vita Skin Peru',
   ruc: '20XXXXXXXXX',
   direccion: 'Lima, Perú',
   telefono: '+51 999 999 999',
@@ -38,6 +38,24 @@ function generarQRUrl(texto: string, tamaño: number = 200): string {
 function generarDatosQRPago(monto: number, referencia: string): string {
   // Formato simple para Yape/Plin
   return `Pago: S/${monto.toFixed(2)} - Ref: ${referencia} - Tel: ${EMPRESA_CONFIG.qrTelefono}`;
+}
+
+/**
+ * Genera una URL de Google Maps para navegación directa
+ */
+function generarGoogleMapsUrl(entrega: Entrega): string | null {
+  if (entrega.coordenadas?.lat && entrega.coordenadas?.lng) {
+    // Link directo a Google Maps con coordenadas — abre navegación
+    return `https://www.google.com/maps/dir/?api=1&destination=${entrega.coordenadas.lat},${entrega.coordenadas.lng}`;
+  }
+  // Fallback: buscar por dirección
+  if (entrega.direccionEntrega) {
+    const query = [entrega.direccionEntrega, entrega.distrito, 'Peru']
+      .filter(Boolean)
+      .join(', ');
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  }
+  return null;
 }
 
 /**
@@ -143,15 +161,35 @@ function generarHTMLGuiaTransportista(entrega: Entrega): string {
         <div class="section">
           <div class="section-title">Cliente</div>
           <div class="info-box" style="background: #f0f9ff;">
-            <div style="font-size: 18px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">
-              ${entrega.nombreCliente}
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div style="flex: 1;">
+                <div style="font-size: 18px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">
+                  ${entrega.nombreCliente}
+                </div>
+                ${entrega.telefonoCliente ? `<div style="color: #3b82f6; margin-bottom: 4px;">Tel: ${entrega.telefonoCliente}</div>` : ''}
+                <div style="font-size: 14px; color: #1f2937; margin-top: 8px;">
+                  <strong>Dirección:</strong> ${entrega.direccionEntrega}
+                </div>
+                ${entrega.distrito ? `<div style="font-size: 14px; color: #6b7280;">Distrito: ${entrega.distrito}</div>` : ''}
+                ${entrega.provincia ? `<div style="font-size: 14px; color: #6b7280;">Provincia: ${entrega.provincia}</div>` : ''}
+                ${entrega.codigoPostal ? `<div style="font-size: 14px; color: #6b7280;">C.P.: ${entrega.codigoPostal}</div>` : ''}
+                ${entrega.referencia ? `<div style="font-size: 14px; color: #059669; margin-top: 4px;"><strong>Ref:</strong> ${entrega.referencia}</div>` : ''}
+              </div>
+              ${(() => {
+                const mapsUrl = generarGoogleMapsUrl(entrega);
+                if (!mapsUrl) return '';
+                return `
+                  <div style="text-align: center; margin-left: 16px; flex-shrink: 0;">
+                    <img src="${generarQRUrl(mapsUrl, 110)}"
+                         alt="QR Google Maps"
+                         style="width: 110px; height: 110px; border: 2px solid #3b82f6; border-radius: 6px;" />
+                    <div style="font-size: 10px; color: #3b82f6; margin-top: 4px; font-weight: bold;">
+                      Google Maps
+                    </div>
+                  </div>
+                `;
+              })()}
             </div>
-            ${entrega.telefonoCliente ? `<div style="color: #3b82f6; margin-bottom: 4px;">Tel: ${entrega.telefonoCliente}</div>` : ''}
-            <div style="font-size: 14px; color: #1f2937; margin-top: 8px;">
-              <strong>Dirección:</strong> ${entrega.direccionEntrega}
-            </div>
-            ${entrega.distrito ? `<div style="font-size: 14px; color: #6b7280;">Distrito: ${entrega.distrito}</div>` : ''}
-            ${entrega.referencia ? `<div style="font-size: 14px; color: #6b7280;">Referencia: ${entrega.referencia}</div>` : ''}
           </div>
         </div>
 

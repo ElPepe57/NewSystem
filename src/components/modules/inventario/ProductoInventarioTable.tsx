@@ -29,6 +29,8 @@ export interface ProductoConUnidades {
   enTransitoPeru: number;
   disponiblePeru: number;
   reservada: number;
+  reservadaUSA: number;
+  reservadaPeru: number;
   vendida: number;
   problemas: number; // vencida + danada
   // Totales
@@ -50,7 +52,7 @@ interface ProductoInventarioTableProps {
 }
 
 // Configuración de ordenamiento
-type SortKey = 'sku' | 'nombre' | 'usa' | 'transito' | 'peru' | 'reservadas' | 'total' | 'valor' | 'vencer';
+type SortKey = 'sku' | 'nombre' | 'usa' | 'transito' | 'peru' | 'resUsa' | 'resPeru' | 'vendidas' | 'total' | 'valor' | 'vencer';
 type SortDirection = 'asc' | 'desc';
 
 interface SortConfig {
@@ -76,7 +78,9 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
       case 'usa': return producto.recibidaUSA;
       case 'transito': return producto.enTransitoUSA + producto.enTransitoPeru;
       case 'peru': return producto.disponiblePeru;
-      case 'reservadas': return producto.reservada;
+      case 'resUsa': return producto.reservadaUSA;
+      case 'resPeru': return producto.reservadaPeru;
+      case 'vendidas': return producto.vendida;
       case 'total': return producto.totalUnidades;
       case 'valor': return producto.valorTotalUSD;
       case 'vencer': return producto.proximasAVencer30Dias;
@@ -205,6 +209,8 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
           return u.estado === 'disponible_peru';
         case 'reservada':
           return u.estado === 'reservada';
+        case 'vendida':
+          return u.estado === 'vendida';
         case 'problemas':
           return u.estado === 'vencida' || u.estado === 'danada';
         default:
@@ -274,7 +280,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
         <div className="flex items-center gap-2 text-sm text-gray-600 bg-primary-50 px-3 py-2 rounded-lg">
           <ArrowUpDown className="h-4 w-4 text-primary-600" />
           <span>
-            Ordenado por <strong>{sortConfig.key === 'sku' ? 'SKU' : sortConfig.key === 'nombre' ? 'Nombre' : sortConfig.key === 'usa' ? 'USA' : sortConfig.key === 'transito' ? 'Tránsito' : sortConfig.key === 'peru' ? 'Perú' : sortConfig.key === 'reservadas' ? 'Reservadas' : sortConfig.key === 'total' ? 'Total' : sortConfig.key === 'valor' ? 'Valor' : 'Por Vencer'}</strong>
+            Ordenado por <strong>{sortConfig.key === 'sku' ? 'SKU' : sortConfig.key === 'nombre' ? 'Nombre' : sortConfig.key === 'usa' ? 'USA' : sortConfig.key === 'transito' ? 'Tránsito' : sortConfig.key === 'peru' ? 'Perú' : sortConfig.key === 'resUsa' ? 'Res. USA' : sortConfig.key === 'resPeru' ? 'Res. Perú' : sortConfig.key === 'vendidas' ? 'Vendidas' : sortConfig.key === 'total' ? 'Total' : sortConfig.key === 'valor' ? 'Valor' : 'Por Vencer'}</strong>
             {' '}({sortConfig.direction === 'asc' ? 'ascendente' : 'descendente'})
           </span>
           <button
@@ -312,7 +318,9 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
               <SortableHeader sortKey="usa">USA</SortableHeader>
               <SortableHeader sortKey="transito">Tránsito</SortableHeader>
               <SortableHeader sortKey="peru">Perú</SortableHeader>
-              <SortableHeader sortKey="reservadas">Reserv.</SortableHeader>
+              <SortableHeader sortKey="resUsa">Res. USA</SortableHeader>
+              <SortableHeader sortKey="resPeru">Res. Perú</SortableHeader>
+              <SortableHeader sortKey="vendidas">Vendidas</SortableHeader>
               <SortableHeader sortKey="total">Total</SortableHeader>
               <th
                 className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
@@ -406,10 +414,24 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
                       </div>
                     </td>
 
-                    {/* Reservadas */}
+                    {/* Reservadas USA */}
                     <td className="px-4 py-4 text-center">
                       <div className="text-sm font-medium text-purple-600">
-                        {producto.reservada}
+                        {producto.reservadaUSA}
+                      </div>
+                    </td>
+
+                    {/* Reservadas Perú */}
+                    <td className="px-4 py-4 text-center">
+                      <div className="text-sm font-medium text-purple-500">
+                        {producto.reservadaPeru}
+                      </div>
+                    </td>
+
+                    {/* Vendidas */}
+                    <td className="px-4 py-4 text-center">
+                      <div className="text-sm font-medium text-emerald-600">
+                        {producto.vendida}
                       </div>
                     </td>
 
@@ -460,7 +482,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
                   {/* Fila expandida con desglose de unidades */}
                   {isExpanded && (
                     <tr>
-                      <td colSpan={9} className="px-0 py-0">
+                      <td colSpan={12} className="px-0 py-0">
                         <div className="bg-gray-50 border-t border-b border-gray-200">
                           <UnidadesDesglose
                             unidades={unidadesFiltradas}

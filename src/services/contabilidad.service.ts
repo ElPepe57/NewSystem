@@ -163,10 +163,13 @@ async function getPagosViajerosPendientes(tc: number): Promise<number> {
 
       if (costoFlete > 0 && !estaPagado && estaRecibida) {
         const moneda = transferencia.monedaFlete || 'USD';
+        // Restar pagos parciales ya realizados
+        const montoPagadoUSD = transferencia.montoPagadoUSD || 0;
+        const montoPendienteUSD = costoFlete - montoPagadoUSD;
         if (moneda === 'USD') {
-          totalPendiente += costoFlete * tc;
+          totalPendiente += montoPendienteUSD * tc;
         } else {
-          totalPendiente += costoFlete;
+          totalPendiente += montoPendienteUSD;
         }
       }
     });

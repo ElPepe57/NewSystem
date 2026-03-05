@@ -29,8 +29,9 @@ import type {
   AnalisisRFM,
   HistorialClasificacion
 } from '../types/entidadesMaestras.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'clientes';
+const COLLECTION_NAME = COLLECTIONS.CLIENTES;
 
 /**
  * Normalizar texto para búsqueda
@@ -522,8 +523,57 @@ export const clienteService = {
       nombre: cliente.nombre,
       telefono: cliente.telefono,
       email: cliente.email,
-      dniRuc: cliente.dniRuc
+      dniRuc: cliente.dniRuc,
+      canalOrigen: cliente.canalOrigen,
+      canalPrincipalActual: cliente.canalPrincipalActual
     };
+  },
+
+  /**
+   * Calcular y actualizar el canal principal actual de un cliente
+   * basado en la frecuencia de canales en sus últimas ventas
+   */
+  async calcularCanalPrincipal(clienteId: string): Promise<string | null> {
+    try {
+      const ventasRef = collection(db, 'ventas');
+      const q = query(
+        ventasRef,
+        where('cliente.clienteId', '==', clienteId),
+        where('estado', 'in', ['confirmada', 'en_proceso', 'entregada', 'completada']),
+        orderBy('fechaCreacion', 'desc'),
+        limit(10)
+      );
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) return null;
+
+      // Contar frecuencia de cada canal
+      const conteoCanales: Record<string, number> = {};
+      snapshot.docs.forEach(doc => {
+        const canal = doc.data().canal;
+        if (canal) {
+          conteoCanales[canal] = (conteoCanales[canal] || 0) + 1;
+        }
+      });
+
+      if (Object.keys(conteoCanales).length === 0) return null;
+
+      // Encontrar el canal más frecuente
+      const canalPrincipal = Object.entries(conteoCanales)
+        .sort((a, b) => b[1] - a[1])[0][0];
+
+      // Actualizar en Firestore
+      const clienteRef = doc(db, COLLECTION_NAME, clienteId);
+      await updateDoc(clienteRef, {
+        canalPrincipalActual: canalPrincipal,
+        fechaActualizacion: serverTimestamp()
+      });
+
+      return canalPrincipal;
+    } catch (error) {
+      logger.error('Error calculando canal principal:', error);
+      return null;
+    }
   },
 
   /**

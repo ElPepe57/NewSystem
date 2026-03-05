@@ -35,9 +35,11 @@ import { ExpectativaService } from './expectativa.service';
 import { tesoreriaService } from './tesoreria.service';
 import { ctruService } from './ctru.service';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
+import { actividadService } from './actividad.service';
+import { COLLECTIONS } from '../config/collections';
 
-const ORDENES_COLLECTION = 'ordenesCompra';
-const PROVEEDORES_COLLECTION = 'proveedores';
+const ORDENES_COLLECTION = COLLECTIONS.ORDENES_COMPRA;
+const PROVEEDORES_COLLECTION = COLLECTIONS.PROVEEDORES;
 
 export class OrdenCompraService {
   // ========================================
@@ -359,6 +361,15 @@ export class OrdenCompraService {
           requerimientoNumero: nuevaOrden.requerimientoNumeros[0]
         });
       }
+
+      // Broadcast actividad (fire-and-forget)
+      actividadService.registrar({
+        tipo: 'oc_creada',
+        mensaje: `OC ${numeroOrden} creada - ${proveedor.nombre} por $${totalUSD.toFixed(2)}`,
+        userId,
+        displayName: userId,
+        metadata: { entidadId: docRef.id, entidadTipo: 'ordenCompra', monto: totalUSD, moneda: 'USD' }
+      }).catch(() => {});
 
       return {
         id: docRef.id,
@@ -1020,6 +1031,15 @@ export class OrdenCompraService {
 
       // Log resumen
       logger.success(`OC ${orden.numeroOrden} - Recepción #${recepcionNumero}: ${totalUnidadesRecepcion} unidades (${unidadesReservadas.length} reservadas, ${unidadesDisponibles.length} disponibles)${esRecepcionFinal ? ' - RECEPCIÓN FINAL' : ''}`);
+
+      // Broadcast actividad (fire-and-forget)
+      actividadService.registrar({
+        tipo: 'oc_recibida',
+        mensaje: `OC ${orden.numeroOrden} - Recepción #${recepcionNumero}: ${totalUnidadesRecepcion} unidades${esRecepcionFinal ? ' (FINAL)' : ''}`,
+        userId,
+        displayName: userId,
+        metadata: { entidadId: id, entidadTipo: 'ordenCompra' }
+      }).catch(() => {});
 
       return {
         recepcionId,

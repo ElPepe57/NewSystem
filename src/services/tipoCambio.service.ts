@@ -13,8 +13,9 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { TipoCambio, TipoCambioFormData, TipoCambioFiltros, SunatTCResponse } from '../types/tipoCambio.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'tiposCambio';
+const COLLECTION_NAME = COLLECTIONS.TIPOS_CAMBIO;
 
 /**
  * Servicio para gestionar Tipos de Cambio

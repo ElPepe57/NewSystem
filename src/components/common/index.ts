@@ -108,3 +108,10 @@ export type { StatusTimelineProps, TimelineStep, NextAction } from './StatusTime
 // Action Modal
 export { ActionModal, useActionModal, GlobalActionModal, useGlobalActionModal } from './ActionModal';
 export type { ActionModalProps, ActionModalField, ActionModalVariant, UseActionModalOptions } from './ActionModal';
+
+// Google Maps Address Input
+export { GoogleMapsAddressInput } from './GoogleMapsAddressInput';
+export type { AddressData } from './GoogleMapsAddressInput';
+
+// Error Boundary
+export { ErrorBoundary } from './ErrorBoundary';
