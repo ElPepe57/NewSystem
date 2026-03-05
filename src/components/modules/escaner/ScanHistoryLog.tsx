@@ -6,12 +6,14 @@ interface ScanHistoryLogProps {
   history: ScanResult[];
   onClear: () => void;
   onSelectItem: (result: ScanResult) => void;
+  onDeleteItem?: (result: ScanResult) => void;
 }
 
 export const ScanHistoryLog: React.FC<ScanHistoryLogProps> = ({
   history,
   onClear,
-  onSelectItem
+  onSelectItem,
+  onDeleteItem
 }) => {
   if (history.length === 0) return null;
 
@@ -63,11 +65,13 @@ export const ScanHistoryLog: React.FC<ScanHistoryLogProps> = ({
       {/* List - taller touch targets on mobile */}
       <div className="max-h-48 sm:max-h-60 overflow-y-auto divide-y divide-gray-100">
         {history.map((result, index) => (
-          <button
+          <div
             key={`${result.barcode}-${index}`}
-            type="button"
+            role="button"
+            tabIndex={0}
             onClick={() => onSelectItem(result)}
-            className="w-full px-3 py-3 sm:px-4 sm:py-2.5 flex items-center gap-2.5 sm:gap-3 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left"
+            onKeyDown={(e) => { if (e.key === 'Enter') onSelectItem(result); }}
+            className="w-full px-3 py-3 sm:px-4 sm:py-2.5 flex items-center gap-2.5 sm:gap-3 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left cursor-pointer"
           >
             {getStatusIcon(result.status)}
             <div className="flex-1 min-w-0">
@@ -90,7 +94,16 @@ export const ScanHistoryLog: React.FC<ScanHistoryLogProps> = ({
             <span className="text-[10px] sm:text-xs text-gray-400 flex-shrink-0 tabular-nums">
               {formatTime(result.timestamp)}
             </span>
-          </button>
+            {onDeleteItem && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onDeleteItem(result); }}
+                className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
         ))}
       </div>
     </div>

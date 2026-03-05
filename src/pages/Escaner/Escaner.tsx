@@ -1,17 +1,21 @@
-import React, { useState, useCallback } from 'react';
-import { ScanLine, Plus, Search, ToggleLeft, ToggleRight } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { ScanLine, Plus, Search, ToggleLeft, ToggleRight, Link2 } from 'lucide-react';
 import { GradientHeader } from '../../components/common';
 import { BarcodeScanner } from '../../components/common/BarcodeScanner';
 import { ProductoResultCard } from '../../components/modules/escaner/ProductoResultCard';
 import { ScanHistoryLog } from '../../components/modules/escaner/ScanHistoryLog';
+import { VincularUPCModal } from '../../components/modules/escaner/VincularUPCModal';
 import { ProductoService } from '../../services/producto.service';
 import { barcodeLookupService } from '../../services/barcodeLookup.service';
+import { scanHistoryService } from '../../services/scanHistory.service';
 import { useToastStore } from '../../store/toastStore';
+import { useAuthStore } from '../../store/authStore';
 import type { Producto } from '../../types/producto.types';
 import type { ScanResult, ExternalProductInfo } from '../../types/escaner.types';
 
 export const Escaner: React.FC = () => {
   const toast = useToastStore();
+  const { user } = useAuthStore();
 
   const [currentResult, setCurrentResult] = useState<Producto | null>(null);
   const [scanHistory, setScanHistory] = useState<ScanResult[]>([]);
@@ -19,6 +23,30 @@ export const Escaner: React.FC = () => {
   const [continuousMode, setContinuousMode] = useState(false);
   const [notFoundBarcode, setNotFoundBarcode] = useState('');
   const [externalInfo, setExternalInfo] = useState<ExternalProductInfo | null>(null);
+  const [showVincularModal, setShowVincularModal] = useState(false);
+
+  // Load persisted history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const records = await scanHistoryService.getRecent(50);
+        const mapped: ScanResult[] = records.map(r => ({
+          barcode: r.barcode,
+          format: r.format,
+          timestamp: r.timestamp?.toDate?.() || new Date(),
+          status: r.status,
+          productoId: r.productoId,
+          productoNombre: r.productoNombre,
+          productoSKU: r.productoSKU,
+          firestoreId: r.id,
+        }));
+        setScanHistory(mapped);
+      } catch {
+        // Silently fail - in-memory fallback
+      }
+    };
+    loadHistory();
+  }, []);
 
   const handleBarcodeScan = useCallback(async (barcode: string, format?: string) => {
     if (isSearching) return;
@@ -38,6 +66,23 @@ export const Escaner: React.FC = () => {
         productoSKU: producto?.sku,
       };
 
+      // Persist to Firestore
+      if (user?.uid) {
+        try {
+          const docId = await scanHistoryService.save({
+            barcode,
+            format: format || 'UNKNOWN',
+            status: producto ? 'found' : 'not_found',
+            productoId: producto?.id,
+            productoNombre: result.productoNombre,
+            productoSKU: producto?.sku,
+            userId: user.uid,
+            source: 'escaner',
+          });
+          result.firestoreId = docId;
+        } catch { /* silent */ }
+      }
+
       setScanHistory(prev => [result, ...prev]);
 
       if (producto) {
@@ -55,18 +100,51 @@ export const Escaner: React.FC = () => {
         }
       }
     } catch (error) {
-      const result: ScanResult = {
+      const errResult: ScanResult = {
         barcode,
         format: format || 'UNKNOWN',
         timestamp: new Date(),
         status: 'error'
       };
-      setScanHistory(prev => [result, ...prev]);
+      if (user?.uid) {
+        try {
+          const docId = await scanHistoryService.save({
+            barcode, format: format || 'UNKNOWN', status: 'error',
+            userId: user.uid, source: 'escaner',
+          });
+          errResult.firestoreId = docId;
+        } catch { /* silent */ }
+      }
+      setScanHistory(prev => [errResult, ...prev]);
       toast.error('Error al buscar producto');
     } finally {
       setIsSearching(false);
     }
-  }, [isSearching, toast]);
+  }, [isSearching, toast, user]);
+
+  const handleClearHistory = useCallback(async () => {
+    setScanHistory([]);
+    try { await scanHistoryService.deleteAll(); } catch { /* silent */ }
+  }, []);
+
+  const handleDeleteHistoryItem = useCallback(async (result: ScanResult) => {
+    setScanHistory(prev => prev.filter(r => r !== result));
+    if (result.firestoreId) {
+      try { await scanHistoryService.deleteOne(result.firestoreId); } catch { /* silent */ }
+    }
+  }, []);
+
+  const handleVincularLinked = useCallback((producto: Producto) => {
+    setCurrentResult(producto);
+    setNotFoundBarcode('');
+    setExternalInfo(null);
+    // Update history: mark the last not_found for this barcode as found
+    setScanHistory(prev => prev.map(r =>
+      r.barcode === producto.codigoUPC && r.status === 'not_found'
+        ? { ...r, status: 'found' as const, productoId: producto.id, productoNombre: `${producto.marca} ${producto.nombreComercial}`, productoSKU: producto.sku }
+        : r
+    ));
+  }, []);
 
   const handleScanAgain = () => {
     setCurrentResult(null);
@@ -150,14 +228,16 @@ export const Escaner: React.FC = () => {
                 externalInfo={externalInfo}
                 isSearching={isSearching}
                 onScanAgain={handleScanAgain}
+                onVincular={() => setShowVincularModal(true)}
               />
             </div>
 
             {/* Scan history */}
             <ScanHistoryLog
               history={scanHistory}
-              onClear={() => setScanHistory([])}
+              onClear={handleClearHistory}
               onSelectItem={handleHistorySelect}
+              onDeleteItem={handleDeleteHistoryItem}
             />
           </div>
 
@@ -173,10 +253,19 @@ export const Escaner: React.FC = () => {
               externalInfo={externalInfo}
               isSearching={isSearching}
               onScanAgain={handleScanAgain}
+              onVincular={() => setShowVincularModal(true)}
             />
           </div>
         </div>
       </div>
+
+      {/* Vincular UPC Modal */}
+      <VincularUPCModal
+        isOpen={showVincularModal}
+        onClose={() => setShowVincularModal(false)}
+        barcode={notFoundBarcode}
+        onLinked={handleVincularLinked}
+      />
     </div>
   );
 };
@@ -188,7 +277,8 @@ const ResultSection: React.FC<{
   externalInfo: ExternalProductInfo | null;
   isSearching: boolean;
   onScanAgain: () => void;
-}> = ({ currentResult, notFoundBarcode, externalInfo, isSearching, onScanAgain }) => (
+  onVincular: () => void;
+}> = ({ currentResult, notFoundBarcode, externalInfo, isSearching, onScanAgain, onVincular }) => (
   <>
     {/* Product found */}
     {currentResult && (
@@ -240,6 +330,14 @@ const ResultSection: React.FC<{
           )}
 
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
+            <button
+              type="button"
+              onClick={onVincular}
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Link2 className="h-4 w-4" />
+              Vincular a Producto
+            </button>
             <button
               type="button"
               onClick={() => {

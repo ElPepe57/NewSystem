@@ -51,6 +51,9 @@ export const COLLECTIONS = {
   MOVIMIENTOS_TRANSPORTISTA: 'movimientos_transportista',
   HISTORIAL_CTRU: 'historialRecalculoCTRU',
 
+  // === Escáner ===
+  SCAN_HISTORY: 'scanHistory',
+
   // === Colaboración ===
   PRESENCIA: 'presencia',
   ACTIVIDAD: 'actividad',

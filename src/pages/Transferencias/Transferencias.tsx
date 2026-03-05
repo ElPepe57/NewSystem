@@ -17,9 +17,12 @@ import {
   DollarSign,
   Minus,
   CreditCard,
-  Banknote
+  Banknote,
+  ScanLine,
+  X as XIcon
 } from "lucide-react";
 import { Button, Card, Badge, Modal, Select, Input, useConfirmDialog, ConfirmDialog, PipelineHeader, GradientHeader, StatCard, StatDistribution } from "../../components/common";
+import { BarcodeScanner } from "../../components/common/BarcodeScanner";
 import type { PipelineStage } from "../../components/common";
 import { FileText, Send, CheckCircle2, XOctagon, RefreshCw } from "lucide-react";
 import { useTransferenciaStore } from "../../store/transferenciaStore";
@@ -462,6 +465,8 @@ export const Transferencias: React.FC = () => {
     const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
     // Cantidad rápida a seleccionar por producto
     const [cantidadRapida, setCantidadRapida] = useState<Record<string, number>>({});
+    // Scanner inline en paso 2
+    const [showScanner, setShowScanner] = useState(false);
 
     // Cargar unidades cuando se selecciona almacén origen
     const handleSelectOrigen = async (almacenId: string) => {
@@ -503,6 +508,30 @@ export const Transferencias: React.FC = () => {
         setUnidadesSeleccionadas(prev => prev.filter(id => !idsDelProducto.includes(id)));
       } else {
         setUnidadesSeleccionadas(prev => [...new Set([...prev, ...idsDelProducto])]);
+      }
+    };
+
+    // Handler de escaneo en paso 2
+    const handleBarcodeScan = async (barcode: string) => {
+      setShowScanner(false);
+      // Primero buscar por SKU en unidades agrupadas
+      let productoId = Object.keys(unidadesAgrupadas).find(pid =>
+        unidadesAgrupadas[pid].sku === barcode
+      );
+      // Si no, buscar por UPC via Firestore
+      if (!productoId) {
+        try {
+          const { ProductoService } = await import('../../services/producto.service');
+          const producto = await ProductoService.getByCodigoUPC(barcode);
+          if (producto && unidadesAgrupadas[producto.id]) {
+            productoId = producto.id;
+          }
+        } catch { /* silent */ }
+      }
+      if (productoId) {
+        toggleProducto(productoId);
+      } else {
+        alert(`Codigo ${barcode} no encontrado en unidades disponibles`);
       }
     };
 
@@ -822,6 +851,33 @@ export const Transferencias: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Scanner inline */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowScanner(!showScanner)}
+                className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm border rounded-lg transition-colors ${
+                  showScanner
+                    ? 'bg-primary-50 border-primary-300 text-primary-700'
+                    : 'bg-white border-gray-300 text-gray-600 hover:text-primary-600 hover:border-primary-300'
+                }`}
+              >
+                <ScanLine className="h-4 w-4" />
+                Escanear producto
+              </button>
+            </div>
+            {showScanner && (
+              <div className="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-gray-500">Escanear para seleccionar producto</span>
+                  <button type="button" onClick={() => setShowScanner(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded">
+                    <XIcon className="h-4 w-4" />
+                  </button>
+                </div>
+                <BarcodeScanner onScan={handleBarcodeScan} mode="both" compact placeholder="Escanear o escribir UPC/SKU..." />
+              </div>
+            )}
 
             {/* Lista de unidades agrupadas por producto */}
             {loadingUnidades ? (

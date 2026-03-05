@@ -1,8 +1,11 @@
 // ========== SCANNER TYPES ==========
+import type { Timestamp } from 'firebase/firestore';
 
 export type ScannerMode = 'camera' | 'manual';
 
 export type ScanResultStatus = 'found' | 'not_found' | 'error';
+
+export type ScanSource = 'escaner' | 'venta' | 'cotizacion' | 'transferencia' | 'recepcion';
 
 export interface ScanResult {
   barcode: string;
@@ -12,6 +15,20 @@ export interface ScanResult {
   productoId?: string;
   productoNombre?: string;
   productoSKU?: string;
+  firestoreId?: string;
+}
+
+export interface ScanResultFirestore {
+  id: string;
+  barcode: string;
+  format: string;
+  timestamp: Timestamp;
+  status: ScanResultStatus;
+  productoId?: string;
+  productoNombre?: string;
+  productoSKU?: string;
+  userId: string;
+  source: ScanSource;
 }
 
 export interface ExternalProductInfo {

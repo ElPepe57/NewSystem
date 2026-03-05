@@ -96,6 +96,14 @@
         { "fieldPath": "participantes", "arrayConfig": "CONTAINS" },
         { "fieldPath": "estado", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "entregas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "fechaProgramada", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
