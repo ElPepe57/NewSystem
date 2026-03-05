@@ -36,6 +36,9 @@ import { ProductosIntel } from './pages/ProductosIntel/ProductosIntel';
 import { MiPerfil } from './pages/Perfil/MiPerfil';
 import { TestPDF } from './pages/TestPDF/TestPDF';
 
+// Escaner
+import { Escaner } from './pages/Escaner/Escaner';
+
 // Mercado Libre
 import { MercadoLibre } from './pages/MercadoLibre/MercadoLibre';
 
@@ -140,6 +143,7 @@ function App() {
             <Route path="almacenes" element={<Almacenes />} />
             <Route path="transferencias" element={<Transferencias />} />
             <Route path="unidades" element={<Unidades />} />
+            <Route path="escaner" element={<Escaner />} />
 
             {/* Comercial */}
             <Route path="compras" element={<OrdenesCompra />} />

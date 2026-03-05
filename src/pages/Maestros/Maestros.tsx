@@ -1570,7 +1570,7 @@ export const Maestros: React.FC = () => {
         size="lg"
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Nombre Completo *
@@ -1712,7 +1712,7 @@ export const Maestros: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Tipo de Marca
@@ -1815,7 +1815,7 @@ export const Maestros: React.FC = () => {
         size="lg"
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Nombre del Proveedor *
@@ -1941,7 +1941,7 @@ export const Maestros: React.FC = () => {
         size="lg"
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Código (solo lectura en edición) y Nombre */}
             {editingAlmacen && (
               <div>
@@ -2206,7 +2206,7 @@ export const Maestros: React.FC = () => {
         size="lg"
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Nombre */}
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">

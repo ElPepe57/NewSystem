@@ -466,7 +466,7 @@ export function Contabilidad() {
                 <CircleDollarSign className="w-5 h-5" />
                 Acumulado {anio}
               </h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <div>
                   <div className="text-sm text-indigo-600">Ventas Acumuladas</div>
                   <div className="text-2xl font-bold text-indigo-900">{formatCurrency(acumuladoVentas)}</div>
@@ -740,7 +740,7 @@ export function Contabilidad() {
       {!loading && tabActiva === 'tendencias' && (
         <div className="space-y-6">
           {/* Resumen de tendencia */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             <div className="bg-white rounded-lg border p-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-green-100 rounded-lg">

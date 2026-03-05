@@ -29,7 +29,8 @@ import {
   X,
   BookOpen,
   Zap,
-  Droplets
+  Droplets,
+  ScanLine
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
@@ -65,6 +66,7 @@ const menuGroups: MenuGroup[] = [
       { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Box, label: 'Unidades', path: '/unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
       { icon: ArrowRightLeft, label: 'Transferencias', path: '/transferencias', permiso: PERMISOS.TRANSFERIR_UNIDADES },
+      { icon: ScanLine, label: 'Escaner', path: '/escaner', permiso: PERMISOS.VER_INVENTARIO },
     ]
   },
   {

@@ -1363,7 +1363,7 @@ export const Dashboard: React.FC = () => {
       {/* Quick Actions */}
       <Card padding="sm" className="lg:hidden">
         <h3 className="text-base font-semibold text-gray-900 mb-3">Acciones Rápidas</h3>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
           <Link to="/productos" className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50 text-center">
             <Package className="h-5 w-5 mx-auto mb-1 text-primary-600" />
             <div className="text-[10px] font-medium text-gray-700">Producto</div>

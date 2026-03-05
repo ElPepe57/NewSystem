@@ -355,8 +355,8 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto">
       {/* Header con info del producto */}
-      <div className="bg-gray-50 -mx-6 -mt-6 px-6 py-4 border-b sticky top-0 z-10">
-        <div className="flex items-center justify-between">
+      <div className="bg-gray-50 -mx-6 -mt-6 px-4 sm:px-6 py-3 sm:py-4 border-b sticky top-0 z-10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <h3 className="font-semibold text-gray-900">
               {producto.marca} - {producto.nombreComercial}
@@ -366,7 +366,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
               {producto.subgrupo && ` > ${producto.subgrupo}`}
             </p>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <p className="text-xs text-gray-500">TC Actual</p>
             <p className="font-bold text-primary-600">S/ {tipoCambio.toFixed(2)}</p>
           </div>
@@ -571,7 +571,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
               </h4>
 
               <div className="space-y-3">
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   {(['importar', 'investigar_mas', 'descartar'] as const).map((rec) => (
                     <button
                       key={rec}
@@ -683,7 +683,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
             {getPuntuacionLabel(calculos.puntuacion)}
           </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
               <p className="text-xs text-gray-600">Mejor Precio USA</p>
               <p className="text-lg font-bold">${calculos.mejorPrecioUSAConImpuesto.toFixed(2)}</p>
@@ -721,7 +721,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
           {calculos.impuestoMejorProveedor > 0 && (
             <div className="mt-3 p-3 bg-white bg-opacity-60 rounded-lg">
               <p className="text-sm font-medium text-gray-700 mb-2">Desglose Costo USA:</p>
-              <div className="grid grid-cols-4 gap-2 text-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs sm:text-sm">
                 <div>
                   <span className="text-gray-500">Producto:</span>
                   <span className="ml-1 font-medium">${calculos.mejorPrecioUSASinImpuesto.toFixed(2)}</span>
@@ -749,7 +749,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                 <TrendingUp className="h-4 w-4 mr-2" />
                 Rendimiento de Inversión
               </h5>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div className="bg-white bg-opacity-60 p-3 rounded-lg text-center">
                   <p className="text-xs text-gray-600 mb-1">Ganancia/Unidad</p>
                   <p className={`text-xl font-bold ${calculos.gananciaUnidad > 0 ? 'text-green-600' : 'text-red-600'}`}>

@@ -337,7 +337,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
   return (
     <div className="space-y-4">
       {/* Header con estadísticas */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
         <div className="flex items-center gap-2">
           <Store className="h-5 w-5 text-orange-600" />
           <h4 className="font-medium text-gray-900">Competencia Perú</h4>
@@ -349,7 +349,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
           )}
         </div>
         {competidores.length > 0 && (
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
             <span className="text-gray-500">
               Min: <span className="font-medium text-green-600">S/{min.toFixed(2)}</span>
             </span>
@@ -374,12 +374,12 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
           >
             {/* Fila compacta */}
             <div
-              className="p-3 flex items-center gap-3 cursor-pointer"
+              className="p-2 sm:p-3 flex items-center gap-2 sm:gap-3 cursor-pointer"
               onClick={() => setExpandedId(expandedId === competidor.id ? null : competidor.id)}
             >
               <span className="text-sm font-medium text-gray-400 w-6">#{index + 1}</span>
 
-              <div className="flex-1 grid grid-cols-4 gap-3">
+              <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-3">
                 <div className="flex items-center gap-2">
                   {competidor.esLiderCategoria && (
                     <Crown className="h-4 w-4 text-yellow-500" />

@@ -69,7 +69,7 @@ export const CTRUDashboard: React.FC = () => {
       />
 
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 bg-white border-b shadow-sm px-6 py-3">
+      <div className="sticky top-0 z-10 bg-white border-b shadow-sm px-3 sm:px-6 py-2 sm:py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-1">
             {tabs.map((tab) => (

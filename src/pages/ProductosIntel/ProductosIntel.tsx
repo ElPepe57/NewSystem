@@ -121,9 +121,9 @@ export const ProductosIntel: React.FC = () => {
       {/* Toolbar */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             {/* Tabs */}
-            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 overflow-x-auto scrollbar-hide">
               {tabs.map(tab => {
                 const Icon = tab.icon;
                 const isActive = tabActiva === tab.key;
@@ -132,7 +132,7 @@ export const ProductosIntel: React.FC = () => {
                     key={tab.key}
                     onClick={() => setTabActiva(tab.key as TabActiva)}
                     className={`
-                      flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors
+                      flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap
                       ${isActive
                         ? 'bg-white text-blue-600 shadow-sm'
                         : 'text-gray-600 hover:text-gray-900'}
@@ -204,7 +204,7 @@ export const ProductosIntel: React.FC = () => {
         {tabActiva === 'dashboard' && (
           <div className="space-y-6">
             {/* KPIs principales */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <Card className="p-4">
                 <div className="flex items-center justify-between">
                   <div>

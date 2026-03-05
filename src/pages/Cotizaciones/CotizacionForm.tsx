@@ -656,7 +656,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-center">
                 <div>
                   <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold text-blue-700">
                     <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />

@@ -602,7 +602,7 @@ export const Ventas: React.FC = () => {
       {/* KPIs */}
       {stats && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <Card padding="md">
               <div className="flex items-center justify-between">
                 <div>
@@ -660,7 +660,7 @@ export const Ventas: React.FC = () => {
 
           {/* KPIs Rentabilidad - Utilidad Bruta vs Neta */}
           {(stats.utilidadTotalPEN > 0 || (rentabilidad && rentabilidad.totalUtilidadNeta !== 0)) && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               {/* Utilidad Bruta */}
               <Card padding="md">
                 <div className="text-sm text-gray-600">Utilidad Bruta</div>
@@ -728,7 +728,7 @@ export const Ventas: React.FC = () => {
 
           {/* KPIs de Eficiencia de Inversión */}
           {rentabilidad && rentabilidad.totalVentas > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               {/* Multiplicador de Ventas - igual que Dashboard */}
               <Card padding="md" className="bg-gradient-to-br from-blue-50 to-indigo-50">
                 <div className="flex items-center justify-between">
@@ -814,7 +814,7 @@ export const Ventas: React.FC = () => {
 
           {/* KPIs Lead Time */}
           {leadTimeMetrics && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
               <Card padding="md" className="bg-gradient-to-br from-cyan-50 to-teal-50">
                 <div className="flex items-center justify-between">
                   <div>
@@ -909,7 +909,7 @@ export const Ventas: React.FC = () => {
 
           {/* KPIs Cobranza */}
           {resumenPagos && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               <Card padding="md" className="bg-green-50">
                 <div className="flex items-center justify-between">
                   <div>

@@ -7,7 +7,9 @@ import {
   updateDoc,
   Timestamp,
   serverTimestamp,
-  increment
+  increment,
+  query,
+  where
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type {
@@ -84,6 +86,32 @@ export class ProductoService {
     } catch (error: any) {
       console.error('Error al obtener producto:', error);
       throw new Error('Error al cargar producto');
+    }
+  }
+
+  /**
+   * Buscar producto por codigo UPC/EAN (para escaner de codigo de barras)
+   */
+  static async getByCodigoUPC(codigoUPC: string): Promise<Producto | null> {
+    try {
+      if (!codigoUPC || codigoUPC.trim() === '') return null;
+
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('codigoUPC', '==', codigoUPC.trim())
+      );
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) return null;
+
+      const docSnap = snapshot.docs[0];
+      return {
+        id: docSnap.id,
+        ...docSnap.data()
+      } as Producto;
+    } catch (error: any) {
+      console.error('Error buscando producto por UPC:', error);
+      throw new Error('Error al buscar producto por codigo de barras');
     }
   }
 

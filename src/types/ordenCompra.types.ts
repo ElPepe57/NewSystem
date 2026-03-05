@@ -118,6 +118,7 @@ export interface ProductoOrden {
   marca: string;
   nombreComercial: string;
   presentacion: string;
+  codigoUPC?: string;       // Codigo UPC/EAN para escaneo en recepcion
   cantidad: number;
   costoUnitario: number;    // Precio por unidad en USD
   subtotal: number;         // cantidad × costoUnitario

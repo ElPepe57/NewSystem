@@ -1443,12 +1443,12 @@ export const Cotizaciones: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cotización</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Cotización</th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -1456,7 +1456,7 @@ export const Cotizaciones: React.FC = () => {
                   const requiereStock = item.productos.some(p => p.requiereStock);
                   return (
                   <tr key={item.id} className={`hover:bg-gray-50 ${item.estado === 'rechazada' || item.estado === 'vencida' ? 'bg-red-50' : ''}`}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-primary-600">{item.numeroCotizacion}</span>
                         {requiereStock && (
@@ -1465,7 +1465,7 @@ export const Cotizaciones: React.FC = () => {
                       </div>
                       <div className="text-xs text-gray-500">{item.productos.length} producto(s)</div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
                       <div className="text-sm font-medium text-gray-900">{item.nombreCliente}</div>
                       {item.telefonoCliente && (
                         <div className="text-xs text-gray-500 flex items-center gap-1">
@@ -1474,7 +1474,7 @@ export const Cotizaciones: React.FC = () => {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                       <div className="flex flex-col gap-1">
                         <Badge variant={
                           item.estado === 'nueva' ? 'default' :
@@ -1515,13 +1515,13 @@ export const Cotizaciones: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
                       <span className="text-sm font-medium text-gray-900">{formatCurrency(item.totalPEN)}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                       <span className="text-sm text-gray-900">{formatFecha(item.fechaCreacion)}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-1">
                         <button onClick={() => handleVerDetalles(item)} className="p-1.5 text-gray-400 hover:text-primary-600" title="Ver">
                           <Eye className="h-4 w-4" />

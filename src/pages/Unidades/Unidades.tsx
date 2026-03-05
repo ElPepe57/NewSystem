@@ -58,7 +58,9 @@ export const Unidades: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [sincronizando, setSincronizando] = useState(false);
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
-  const [vistaActual, setVistaActual] = useState<VistaUnidades>('tabla');
+  const [vistaActual, setVistaActual] = useState<VistaUnidades>(
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'cards' : 'tabla'
+  );
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -372,7 +374,7 @@ export const Unidades: React.FC = () => {
       />
 
       {/* StatCards interactivos */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
         <StatCard
           label="Total Unidades"
           value={unidadesStats.total}
@@ -451,7 +453,7 @@ export const Unidades: React.FC = () => {
       <Card padding="md">
         <div className="space-y-4">
           {/* Barra de búsqueda y toggle */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <div className="flex-1">
               <SearchInput
                 value={busqueda}
@@ -462,7 +464,7 @@ export const Unidades: React.FC = () => {
 
             {/* Toggle de vista */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">Vista:</span>
+              <span className="text-sm text-gray-500 hidden sm:inline">Vista:</span>
               <div className="flex rounded-lg border border-gray-300 overflow-hidden">
                 <button
                   onClick={() => setVistaActual('cards')}
@@ -490,7 +492,7 @@ export const Unidades: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <Select
               label="Producto"
               value={filtros.productoId}
@@ -636,25 +638,25 @@ export const Unidades: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Producto
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Lote
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Vencimiento
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Almacén
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Estado
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase">
                       Costo USD
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
                       Acciones
                     </th>
                   </tr>
@@ -668,7 +670,7 @@ export const Unidades: React.FC = () => {
 
                     return (
                       <tr key={unidad.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
                           <div>
                             <div className="text-sm font-medium text-gray-900">
                               {unidad.productoSKU || '-'}
@@ -676,10 +678,10 @@ export const Unidades: React.FC = () => {
                             <div className="text-sm text-gray-500">{unidad.productoNombre || '-'}</div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{unidad.lote || '-'}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
                             {formatFecha(unidad.fechaVencimiento)}
                           </div>
@@ -689,18 +691,18 @@ export const Unidades: React.FC = () => {
                               : `${diasVencer} días`}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
                             {unidad.pais === 'USA' ? '🇺🇸' : '🇵🇪'} {unidad.almacenNombre || '-'}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm text-gray-900">
                           {formatCurrency(unidad.costoUnitarioUSD || 0)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                           <button
                             onClick={() => setUnidadSeleccionada(unidad)}
                             className="p-1.5 text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg transition-colors"

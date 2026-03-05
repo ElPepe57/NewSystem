@@ -271,7 +271,7 @@ export const Reportes: React.FC = () => {
           {/* KPIs Principales */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Resumen Ejecutivo</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               <Card padding="md">
                 <div className="flex items-center justify-between">
                   <div>
@@ -352,7 +352,7 @@ export const Reportes: React.FC = () => {
           </div>
 
           {/* KPIs Secundarios */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             <Card padding="md">
               <div className="text-sm text-gray-600 mb-2">Ventas por Período</div>
               <div className="space-y-2">
@@ -443,7 +443,7 @@ export const Reportes: React.FC = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
             {/* Ventas Brutas */}
             <div className="bg-white p-4 rounded-lg border border-gray-200">
               <div className="text-sm text-gray-600 mb-1">Ventas Brutas</div>
@@ -559,7 +559,7 @@ export const Reportes: React.FC = () => {
 
       {/* Ventas por Canal */}
       {ventasPorCanal && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           <Card padding="md">
             <div className="flex items-center justify-between mb-2">
               <div className="text-sm text-gray-600">Mercado Libre</div>

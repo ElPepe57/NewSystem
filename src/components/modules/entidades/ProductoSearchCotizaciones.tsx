@@ -12,8 +12,10 @@ import {
   Plane,
   ChevronRight,
   Info,
-  Truck
+  Truck,
+  ScanLine
 } from 'lucide-react';
+import { BarcodeScanner } from '../../common/BarcodeScanner';
 import type { ProductoDisponible } from '../../../types/venta.types';
 
 /**
@@ -80,6 +82,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 300 });
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [showScanner, setShowScanner] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -289,6 +292,23 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
     }
   };
 
+  // Handler de escaneo de codigo de barras
+  const handleBarcodeScan = useCallback((barcode: string) => {
+    setShowScanner(false);
+    const productosArr = Array.isArray(productos) ? productos : [];
+    // Buscar por codigoUPC o SKU
+    const found = productosArr.find(
+      p => (p as any).codigoUPC === barcode || p.sku === barcode
+    );
+    if (found) {
+      handleSelectProducto(found);
+    } else {
+      // Poner el barcode en el input como fallback de búsqueda
+      setInputValue(barcode);
+      setIsOpen(true);
+    }
+  }, [productos]);
+
   // Colores según disponibilidad
   const getDisponibilidadStyle = (fuente: 'peru' | 'usa_viajero' | 'usa_almacen' | 'virtual') => {
     switch (fuente) {
@@ -306,48 +326,88 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       {/* Input principal */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Package className="h-5 w-5 text-gray-400" />
+      <div className="relative flex gap-2">
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Package className="h-5 w-5 text-gray-400" />
+          </div>
+
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={() => inputValue.length >= 1 && setIsOpen(true)}
+            onClick={() => !isOpen && inputValue.length >= 1 && setIsOpen(true)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            disabled={disabled}
+            required={required}
+            className={`
+              block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
+              focus:ring-primary-500 focus:border-primary-500
+              ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+              ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
+            `}
+          />
+
+          {/* Indicador */}
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+            {value ? (
+              <div className="flex items-center space-x-1">
+                <Check className="h-4 w-4 text-green-500" />
+                {!disabled && (
+                  <button type="button" onClick={handleClear} className="text-gray-400 hover:text-gray-600">
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            ) : inputValue && !disabled ? (
+              <button type="button" onClick={handleClear} className="text-gray-400 hover:text-gray-600">
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
+          </div>
         </div>
 
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={() => inputValue.length >= 1 && setIsOpen(true)}
-          onClick={() => !isOpen && inputValue.length >= 1 && setIsOpen(true)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={disabled}
-          required={required}
-          className={`
-            block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
-            focus:ring-primary-500 focus:border-primary-500
-            ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-            ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
-          `}
-        />
+        {/* Boton escanear - touch friendly */}
+        {!disabled && !value && (
+          <button
+            type="button"
+            onClick={() => setShowScanner(!showScanner)}
+            title="Escanear codigo de barras"
+            className={`px-3 py-2 border rounded-md shadow-sm transition-colors flex-shrink-0 ${
+              showScanner
+                ? 'bg-primary-50 border-primary-300 text-primary-700'
+                : 'bg-white border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300 active:bg-gray-50'
+            }`}
+          >
+            <ScanLine className="h-5 w-5" />
+          </button>
+        )}
+      </div>
 
-        {/* Indicador */}
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-          {value ? (
-            <div className="flex items-center space-x-1">
-              <Check className="h-4 w-4 text-green-500" />
-              {!disabled && (
-                <button type="button" onClick={handleClear} className="text-gray-400 hover:text-gray-600">
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          ) : inputValue && !disabled ? (
-            <button type="button" onClick={handleClear} className="text-gray-400 hover:text-gray-600">
+      {/* Scanner popover - fullwidth on mobile */}
+      {showScanner && !disabled && !value && (
+        <div className="mt-2 p-3 sm:p-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 relative">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-500">Escanear codigo de barras</span>
+            <button
+              type="button"
+              onClick={() => setShowScanner(false)}
+              className="p-1 text-gray-400 hover:text-gray-600 active:bg-gray-100 rounded"
+            >
               <X className="h-4 w-4" />
             </button>
-          ) : null}
+          </div>
+          <BarcodeScanner
+            onScan={handleBarcodeScan}
+            mode="both"
+            compact
+            placeholder="Escanear o escribir UPC..."
+          />
         </div>
-      </div>
+      )}
 
       {/* Dropdown */}
       {isOpen && (

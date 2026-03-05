@@ -1331,7 +1331,7 @@ export const Transferencias: React.FC = () => {
           </div>
 
           {/* Resumen */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
             <div className="text-center p-3 bg-blue-50 rounded-lg">
               <div className="text-2xl font-bold text-blue-700">{resumen.total}</div>
               <div className="text-xs text-blue-600">Esperadas</div>

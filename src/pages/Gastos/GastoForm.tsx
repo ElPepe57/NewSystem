@@ -757,7 +757,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
               {/* Método de Pago */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {[
                     { value: 'efectivo', label: 'Efectivo', icon: '💵' },
                     { value: 'transferencia_bancaria', label: 'Transferencia', icon: '🏦' },

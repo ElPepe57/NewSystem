@@ -931,7 +931,7 @@ export const Tesoreria: React.FC = () => {
               <div className="text-3xl font-bold text-green-700 mb-3">
                 S/ {stats.saldoTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
               </div>
-              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-green-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-green-200">
                 <div>
                   <div className="flex items-center text-xs text-gray-500 mb-1">
                     <ArrowUpCircle className="h-3 w-3 mr-1 text-green-500" />
@@ -970,7 +970,7 @@ export const Tesoreria: React.FC = () => {
               <div className="text-3xl font-bold text-blue-700 mb-3">
                 $ {stats.saldoTotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
-              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-blue-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-blue-200">
                 <div>
                   <div className="flex items-center text-xs text-gray-500 mb-1">
                     <ArrowUpCircle className="h-3 w-3 mr-1 text-green-500" />
@@ -1196,31 +1196,31 @@ export const Tesoreria: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Fecha
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Tipo
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Doc.
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Cuenta
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Concepto
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-green-700 uppercase bg-green-50">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-green-700 uppercase bg-green-50">
                     Soles (S/)
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-blue-700 uppercase bg-blue-50">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-blue-700 uppercase bg-blue-50">
                     Dólares ($)
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase">
                     TC
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
                     Acciones
                   </th>
                 </tr>
@@ -1244,10 +1244,10 @@ export const Tesoreria: React.FC = () => {
                         key={mov.id}
                         className={`hover:bg-gray-50 ${mov.estado === 'anulado' ? 'opacity-50 bg-gray-100' : ''}`}
                       >
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(mov.fecha)}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">
                           <div className="flex flex-col gap-1">
                             <span
                               className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -1269,7 +1269,7 @@ export const Tesoreria: React.FC = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm">
                           {mov.ordenCompraNumero ? (
                             <span className="inline-flex items-center px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs font-medium">
                               {mov.ordenCompraNumero}
@@ -1299,7 +1299,7 @@ export const Tesoreria: React.FC = () => {
                           )}
                         </td>
                         {/* Columna de Cuenta */}
-                        <td className="px-4 py-3 whitespace-nowrap text-sm">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm">
                           {(() => {
                             const cuentaId = esIngresoMovimiento(mov) ? mov.cuentaDestino : mov.cuentaOrigen;
                             const cuenta = cuentaId ? cuentas.find(c => c.id === cuentaId) : null;
@@ -1331,11 +1331,11 @@ export const Tesoreria: React.FC = () => {
                             return <span className="text-gray-400">-</span>;
                           })()}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate" title={mov.concepto}>
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 max-w-xs truncate" title={mov.concepto}>
                           {mov.concepto || '-'}
                         </td>
                         {/* Columna Soles */}
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-medium bg-green-50/30">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right font-medium bg-green-50/30">
                           {mov.moneda === 'PEN' ? (
                             <span className={esIngresoPEN ? 'text-green-600' : 'text-red-600'}>
                               {esIngresoPEN ? '+' : '-'} S/ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
@@ -1345,7 +1345,7 @@ export const Tesoreria: React.FC = () => {
                           )}
                         </td>
                         {/* Columna Dólares */}
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-medium bg-blue-50/30">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right font-medium bg-blue-50/30">
                           {mov.moneda === 'USD' ? (
                             <span className={esIngresoUSD ? 'text-green-600' : 'text-red-600'}>
                               {esIngresoUSD ? '+' : '-'} $ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
@@ -1354,10 +1354,10 @@ export const Tesoreria: React.FC = () => {
                             <span className="text-gray-300">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-500">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right text-gray-500">
                           {mov.tipoCambio.toFixed(3)}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-center">
+                        <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-center">
                           {mov.estado !== 'anulado' && userProfile?.role === 'admin' && (
                             <div className="flex justify-center gap-1">
                               <button
@@ -2201,7 +2201,7 @@ export const Tesoreria: React.FC = () => {
                 {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'Ingreso' : 'Egreso'}
               </h4>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
                   Tipo de movimiento
@@ -2263,7 +2263,7 @@ export const Tesoreria: React.FC = () => {
               <DollarSign className="h-4 w-4 text-gray-600" />
               <h4 className="text-sm font-semibold text-gray-700">Monto</h4>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
                   Moneda
@@ -2335,7 +2335,7 @@ export const Tesoreria: React.FC = () => {
               <Building2 className="h-4 w-4 text-blue-600" />
               <h4 className="text-sm font-semibold text-blue-800">Cuenta y Método de Pago</h4>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
                   {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'Cuenta destino (donde entra el dinero)' : 'Cuenta origen (de donde sale el dinero)'}
@@ -2419,7 +2419,7 @@ export const Tesoreria: React.FC = () => {
                 placeholder="Descripción del movimiento"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
                   Referencia
@@ -2501,7 +2501,7 @@ export const Tesoreria: React.FC = () => {
         size="lg"
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Moneda Origen
@@ -2539,7 +2539,7 @@ export const Tesoreria: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Tipo de Cambio
@@ -2581,7 +2581,7 @@ export const Tesoreria: React.FC = () => {
               Selecciona las cuentas para registrar automáticamente los movimientos de tesorería
             </p>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   <ArrowUpCircle className="inline h-4 w-4 mr-1 text-red-500" />
@@ -2760,7 +2760,7 @@ export const Tesoreria: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Moneda
@@ -2798,7 +2798,7 @@ export const Tesoreria: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 <ArrowUpCircle className="inline h-4 w-4 mr-1 text-red-500" />
@@ -2987,7 +2987,7 @@ export const Tesoreria: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {cuentaForm.esBiMoneda ? 'Moneda Principal' : 'Moneda'}
@@ -3026,7 +3026,7 @@ export const Tesoreria: React.FC = () => {
           </div>
 
           {(cuentaForm.tipo === 'banco' || cuentaForm.tipo === 'credito') && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Banco
@@ -3072,7 +3072,7 @@ export const Tesoreria: React.FC = () => {
           {/* Saldos Iniciales - Solo para creación */}
           {!cuentaEditando && (
             cuentaForm.esBiMoneda ? (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Saldo Inicial PEN
@@ -3134,7 +3134,7 @@ export const Tesoreria: React.FC = () => {
             cuentaForm.esBiMoneda ? (
               <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-gray-200">
                 <p className="text-sm font-medium text-gray-700 mb-3">Saldos actuales:</p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="text-center">
                     <span className="text-sm text-gray-500">PEN</span>
                     <p className="text-xl font-bold text-green-600">
