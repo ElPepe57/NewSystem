@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link2, Search, AlertTriangle } from 'lucide-react';
 import { Modal, Button } from '../../common';
 import { ProductoService } from '../../../services/producto.service';
@@ -20,10 +20,17 @@ export const VincularUPCModal: React.FC<VincularUPCModalProps> = ({
   onLinked,
 }) => {
   const toast = useToastStore();
-  const { productos } = useProductoStore();
+  const { productos, fetchProductos } = useProductoStore();
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Producto | null>(null);
   const [saving, setSaving] = useState(false);
+
+  // Load products if store is empty when modal opens
+  useEffect(() => {
+    if (isOpen && productos.length === 0) {
+      fetchProductos();
+    }
+  }, [isOpen, productos.length, fetchProductos]);
 
   const filtered = useMemo(() => {
     if (!search || search.length < 2) return [];

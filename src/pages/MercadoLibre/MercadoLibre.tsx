@@ -448,6 +448,18 @@ const ProductosTab: React.FC<{
   const [search, setSearch] = useState('');
   const [vinculandoPM, setVinculandoPM] = useState<MLProductMap | null>(null);
   const { vincularProducto, desvincularProducto } = useMercadoLibreStore();
+  const { productos, fetchProductos } = useProductoStore();
+
+  useEffect(() => {
+    if (productos.length === 0) fetchProductos();
+  }, [productos.length, fetchProductos]);
+
+  // Mapa de productoId → stockPeru (ML solo vende desde Perú)
+  const stockERPMap = useMemo(() => {
+    const map = new Map<string, number>();
+    productos.forEach(p => map.set(p.id, p.stockPeru ?? 0));
+    return map;
+  }, [productos]);
 
   const filteredGroups = useMemo(() => {
     return productGroups.filter((g) => {
@@ -574,6 +586,7 @@ const ProductosTab: React.FC<{
                 <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">SKU ML</th>
                 <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Precio</th>
                 <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Stock ML</th>
+                <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Stock ERP</th>
                 <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Producto ERP</th>
                 <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Estado</th>
                 <th className="text-right text-xs font-medium text-gray-500 uppercase px-4 py-3">Acciones</th>
@@ -584,6 +597,7 @@ const ProductosTab: React.FC<{
                 <ProductGroupRow
                   key={group.groupKey}
                   group={group}
+                  stockERP={group.productoId ? stockERPMap.get(group.productoId) : undefined}
                   onVincular={handleVincular}
                   onDesvincular={handleDesvincular}
                 />
@@ -610,9 +624,10 @@ const ProductosTab: React.FC<{
 // ---- PRODUCT GROUP ROW (agrupado por SKU) ----
 const ProductGroupRow: React.FC<{
   group: MLProductGroup;
+  stockERP?: number;
   onVincular: (pm: MLProductMap) => void;
   onDesvincular: (pm: MLProductMap) => void;
-}> = ({ group, onVincular, onDesvincular }) => {
+}> = ({ group, stockERP, onVincular, onDesvincular }) => {
   const [expanded, setExpanded] = useState(false);
   const hasMultiple = group.listings.length > 1;
   const primaryListing = group.listings[0];
@@ -662,6 +677,20 @@ const ProductGroupRow: React.FC<{
         <td className="px-4 py-3 text-sm text-gray-600">{group.mlSku || '—'}</td>
         <td className="px-4 py-3 text-sm font-medium">{priceDisplay}</td>
         <td className="px-4 py-3 text-sm">{group.stockML}</td>
+        <td className="px-4 py-3 text-sm">
+          {group.vinculado ? (
+            stockERP !== undefined && stockERP !== group.stockML ? (
+              <span className="inline-flex items-center gap-1 text-orange-700 font-medium">
+                {stockERP}
+                <AlertTriangle className="w-3 h-3" />
+              </span>
+            ) : (
+              <span className="text-gray-600">{stockERP ?? '—'}</span>
+            )
+          ) : (
+            <span className="text-gray-300">—</span>
+          )}
+        </td>
         <td className="px-4 py-3">
           {group.vinculado ? (
             <div>
@@ -818,7 +847,7 @@ const ListingSubRow: React.FC<{ listing: MLProductMap }> = ({ listing }) => {
         )}
       </td>
       <td className="px-4 py-2 text-xs text-gray-500">{listing.mlAvailableQuantity}</td>
-      <td className="px-4 py-2" colSpan={2}></td>
+      <td className="px-4 py-2" colSpan={3}></td>
       <td className="px-4 py-2">
         <div className="flex items-center justify-end">
           <a

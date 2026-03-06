@@ -404,6 +404,7 @@ export const entregaService = {
     if (data.horaProgramada) newEntrega.horaProgramada = data.horaProgramada;
     if (data.observaciones) newEntrega.observaciones = data.observaciones;
     if (data.coordenadas) newEntrega.coordenadas = data.coordenadas;
+    if (data.costoEnvio && data.costoEnvio > 0) newEntrega.costoEnvio = data.costoEnvio;
 
     const docRef = await addDoc(collection(db, COLLECTION_NAME), newEntrega);
 
@@ -671,6 +672,15 @@ export const entregaService = {
           secondaryErrors.push(`sync_stock_${productoId}: ${error}`);
         }
       }
+
+      // B2.5. Sincronizar stock hacia Mercado Libre (fire-and-forget)
+      import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
+        for (const productoId of productosAfectados) {
+          mercadoLibreService.syncStock(productoId)
+            .then(r => { if (r.synced > 0) console.log(`[ML Sync] Post-entrega: ${productoId} → ${r.synced} pubs actualizadas`); })
+            .catch(e => console.error(`[ML Sync] Error post-entrega ${productoId}:`, e));
+        }
+      });
 
       // B3. Crear gasto GD solo si no se creó al programar (backwards compat)
       let gastoId: string | undefined = entrega.gastoDistribucionId;

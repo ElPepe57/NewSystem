@@ -935,8 +935,9 @@ export const unidadService = {
           continue;
         }
 
-        // Solo liberar si está reservada o en un estado que permita liberación
-        if (unidad.estado !== 'reservada' && unidad.estado !== 'disponible_peru') {
+        // Solo liberar si está en un estado que permita liberación
+        const estadosLiberables = ['reservada', 'disponible_peru', 'asignada_pedido'];
+        if (!estadosLiberables.includes(unidad.estado)) {
           console.warn(`Unidad ${unidadId} tiene estado ${unidad.estado}, no se puede liberar`);
           errores++;
           continue;
@@ -956,10 +957,12 @@ export const unidadService = {
 
         await updateDoc(docRef, {
           estado: estadoLiberado,
-          // Limpiar datos de reserva/venta
+          // Limpiar datos de reserva/venta/asignación
           reservadaPara: deleteField(),
           fechaReserva: deleteField(),
           reservaVigenciaHasta: deleteField(),
+          ventaId: deleteField(),
+          fechaAsignacion: deleteField(),
           movimientos: [...unidad.movimientos, movimientoLiberacion],
           actualizadoPor: userId,
           fechaActualizacion: Timestamp.now()

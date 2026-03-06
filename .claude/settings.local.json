@@ -113,7 +113,14 @@
       "Bash(pushd \"C:\\\\Users\\\\josel\\\\bmn-suplementos-3\")",
       "Bash(pkill -f \"firebase.*emulators\")",
       "Bash(pkill -f \"cloud-firestore-emulator\")",
-      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"\" node -e \":*)"
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"\" node -e \":*)",
+      "WebFetch(domain:go-upc.com)",
+      "WebFetch(domain:openfoodfacts.github.io)",
+      "WebFetch(domain:devs.upcitemdb.com)",
+      "WebFetch(domain:world.openfoodfacts.org)",
+      "WebFetch(domain:www.barcodelookup.com)",
+      "Bash(git status -u)",
+      "Bash(npm audit)"
     ],
     "deny": [],
     "ask": []

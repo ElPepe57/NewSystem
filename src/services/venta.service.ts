@@ -686,6 +686,19 @@ export class VentaService {
 
       await batch.commit();
 
+      // Sincronizar stock de productos afectados
+      const productosAfectados = [...new Set(venta.productos.map(p => p.productoId))];
+      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
+
+      // Sincronizar ML (fire-and-forget)
+      import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
+        for (const pid of productosAfectados) {
+          mercadoLibreService.syncStock(pid).catch(e =>
+            console.error(`[ML Sync] Error post-asignación ${pid}:`, e)
+          );
+        }
+      });
+
       return resultados;
     } catch (error: any) {
       console.error('Error al asignar inventario:', error);
@@ -1316,15 +1329,22 @@ export class VentaService {
       }
 
       const batch = writeBatch(db);
+      const productosAfectados = new Set<string>();
 
-      // Si tiene inventario asignado, liberarlo
+      // Si tiene inventario asignado, liberarlo (con estado correcto por país)
       if (venta.estado === 'asignada' || venta.estado === 'en_entrega' || venta.estado === 'despachada') {
         for (const producto of venta.productos) {
           if (producto.unidadesAsignadas) {
+            productosAfectados.add(producto.productoId);
             for (const unidadId of producto.unidadesAsignadas) {
+              // Leer unidad para determinar estado correcto según país
+              const unidadSnap = await getDoc(doc(db, 'unidades', unidadId));
+              const unidadData = unidadSnap.data();
+              const estadoLiberado = unidadData?.pais === 'USA' ? 'recibida_usa' : 'disponible_peru';
+
               const unidadRef = doc(db, 'unidades', unidadId);
               batch.update(unidadRef, {
-                estado: 'disponible_peru',
+                estado: estadoLiberado,
                 ventaId: null,
                 fechaAsignacion: null
               });
@@ -1336,10 +1356,15 @@ export class VentaService {
       // Si tiene stock reservado, liberar unidades reservadas
       if (venta.estado === 'reservada' && venta.stockReservado?.productosReservados) {
         for (const prod of venta.stockReservado.productosReservados) {
+          productosAfectados.add(prod.productoId);
           for (const unidadId of prod.unidadesReservadas) {
+            const unidadSnap = await getDoc(doc(db, 'unidades', unidadId));
+            const unidadData = unidadSnap.data();
+            const estadoLiberado = unidadData?.pais === 'USA' ? 'recibida_usa' : 'disponible_peru';
+
             const unidadRef = doc(db, 'unidades', unidadId);
             batch.update(unidadRef, {
-              estado: 'disponible_peru',
+              estado: estadoLiberado,
               reservadoPara: null,
               fechaReserva: null
             });
@@ -1365,6 +1390,20 @@ export class VentaService {
       batch.update(ventaRef, updates);
 
       await batch.commit();
+
+      // Sincronizar stock de productos afectados
+      if (productosAfectados.size > 0) {
+        await inventarioService.sincronizarStockProductos_batch([...productosAfectados]);
+
+        // ML sync (fire-and-forget)
+        import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
+          for (const pid of productosAfectados) {
+            mercadoLibreService.syncStock(pid).catch(e =>
+              console.error(`[ML Sync] Error post-cancelación ${pid}:`, e)
+            );
+          }
+        });
+      }
 
       // Broadcast actividad (fire-and-forget)
       actividadService.registrar({

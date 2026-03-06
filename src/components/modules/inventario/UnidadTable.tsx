@@ -15,6 +15,7 @@ const estadoLabels: Record<EstadoUnidad, { label: string; variant: 'success' | '
   en_transito_peru: { label: 'En Tránsito a Perú', variant: 'warning' },
   disponible_peru: { label: 'Disponible', variant: 'success' },
   reservada: { label: 'Reservada', variant: 'warning' },
+  asignada_pedido: { label: 'Asignada a Pedido', variant: 'warning' },
   vendida: { label: 'Vendida', variant: 'default' },
   vencida: { label: 'Vencida', variant: 'danger' },
   danada: { label: 'Dañada', variant: 'danger' }

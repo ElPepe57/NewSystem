@@ -12,6 +12,7 @@ export type EstadoUnidad =
   // Estados en Perú
   | 'disponible_peru'     // Disponible para venta en Perú
   | 'reservada'           // Reservada en una cotización/orden
+  | 'asignada_pedido'     // Asignada a un pedido/venta (pendiente de entrega)
   | 'vendida'             // Vendida y entregada
   // Estados especiales
   | 'vencida'             // Producto vencido

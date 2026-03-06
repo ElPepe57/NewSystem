@@ -17,11 +17,11 @@ interface EmpresaConfig {
 // Configuración de la empresa (podría venir de configuración)
 const EMPRESA_CONFIG: EmpresaConfig = {
   nombre: 'Vita Skin Peru',
-  ruc: '20XXXXXXXXX',
+  ruc: '10471520590',
   direccion: 'Lima, Perú',
-  telefono: '+51 999 999 999',
-  qrCuenta: '999999999', // Número de cuenta/teléfono para pagos
-  qrTelefono: '+51 999 999 999'
+  telefono: '988 681 245',
+  qrCuenta: '988681245',
+  qrTelefono: '988 681 245'
 };
 
 /**

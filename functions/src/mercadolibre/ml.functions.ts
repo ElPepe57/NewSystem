@@ -513,15 +513,16 @@ export const mlsyncstock = functions.https.onCall(async (data, context) => {
     return { synced: 0, errors: 0, details: [] };
   }
 
-  // Obtener stock ERP para cada productoId unico
+  // Calcular stock real para cada productoId (solo disponible_peru — ML vende desde Perú)
   const productoIds = [...new Set(mapQuery.docs.map((d) => d.data().productoId as string))];
   const stockMap = new Map<string, number>();
 
   for (const pid of productoIds) {
-    const prodDoc = await db.collection("productos").doc(pid).get();
-    if (prodDoc.exists) {
-      stockMap.set(pid, prodDoc.data()?.stockDisponible || 0);
-    }
+    const disponiblesSnap = await db.collection("unidades")
+      .where("productoId", "==", pid)
+      .where("estado", "==", "disponible_peru")
+      .get();
+    stockMap.set(pid, disponiblesSnap.size);
   }
 
   const { updateItemStock } = await import("./ml.api");

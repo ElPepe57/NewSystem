@@ -331,6 +331,33 @@ export const Inventario: React.FC = () => {
       }
     });
 
+    // Incluir productos 100% vendidos que no tienen unidades activas
+    Object.entries(vendidasPorProducto).forEach(([productoId, cantVendidas]) => {
+      if (!grupos[productoId]) {
+        const producto = productos.find(p => p.id === productoId);
+        if (producto) {
+          grupos[productoId] = {
+            productoId,
+            sku: producto.sku,
+            nombre: producto.nombreComercial,
+            marca: producto.marca,
+            grupo: producto.grupo,
+            unidades: [],
+            recibidaUSA: 0, enTransitoUSA: 0, enTransitoPeru: 0,
+            disponiblePeru: 0, reservada: 0, reservadaUSA: 0, reservadaPeru: 0,
+            vendida: cantVendidas,
+            problemas: 0,
+            totalUnidades: 0,
+            totalDisponibles: 0,
+            valorTotalUSD: 0,
+            costoPromedioUSD: 0,
+            proximasAVencer30Dias: 0,
+            stockCritico: false
+          };
+        }
+      }
+    });
+
     // Enriquecer con datos del producto (marca, grupo) y asignar vendidas
     Object.values(grupos).forEach(grupo => {
       const producto = productos.find(p => p.id === grupo.productoId);

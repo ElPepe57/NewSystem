@@ -272,6 +272,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
       montoPorCobrar: cobroPendiente ? montoPorCobrar : undefined,
       metodoPagoEsperado: cobroPendiente ? metodoPagoEsperado : undefined,
       costoTransportista,
+      costoEnvio: (!venta.incluyeEnvio && venta.costoEnvio && venta.costoEnvio > 0) ? venta.costoEnvio : undefined,
       observaciones: observaciones || undefined
     };
 

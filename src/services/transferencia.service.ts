@@ -514,14 +514,20 @@ export const transferenciaService = {
       transferencia.totalUnidades
     );
 
-    // Para transferencias USA→Perú: sincronizar stock de productos afectados
-    if (transferencia.tipo === 'usa_peru') {
-      // Obtener productos únicos afectados
-      const productosAfectados = [...new Set(transferencia.unidades.map(u => u.productoId))];
-      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
-    }
-
     await batch.commit();
+
+    // Sincronizar stock de productos afectados (después del commit para reflejar cambios reales)
+    const productosAfectados = [...new Set(transferencia.unidades.map(u => u.productoId))];
+    await inventarioService.sincronizarStockProductos_batch(productosAfectados);
+
+    // ML sync (fire-and-forget)
+    import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
+      for (const pid of productosAfectados) {
+        mercadoLibreService.syncStock(pid).catch(e =>
+          console.error(`[ML Sync] Error post-envío transferencia ${pid}:`, e)
+        );
+      }
+    });
   },
 
   // ============================================

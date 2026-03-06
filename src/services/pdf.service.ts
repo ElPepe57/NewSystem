@@ -33,16 +33,16 @@ export interface PDFTableOptions {
 // Configuración de empresa por defecto
 const EMPRESA_DEFAULT = {
   nombre: 'Vita Skin Peru',
-  ruc: '20123456789',
+  ruc: '10471520590',
   direccion: 'Lima, Perú',
-  telefono: '999 999 999'
+  telefono: '988 681 245'
 };
 
-// QR de pagos por defecto (Yape — EMVCo data)
+// QR de pagos por defecto (Yape/Plin — EMVCo data)
 const QR_PAGO_DEFAULT = {
   url: '0002010102113944yJlhCWXwbmNAG5tdU5sXiqhg1luDoH+qH9NBnWE7Vqc=5204561153036045802PE5906YAPERO6004Lima6304E36D',
   cuenta: '988 681 245',
-  banco: 'Yape'
+  banco: 'Yape/Plin'
 };
 
 class PDFService {
@@ -656,63 +656,63 @@ class PDFService {
     let y = y0;
 
     // ═══════════════════════════════════════════
-    // 1. HEADER (9mm) — fondo teal oscuro (marca)
+    // 1. HEADER (10mm) — fondo teal oscuro (marca)
     // ═══════════════════════════════════════════
-    const headerH = 9;
+    const headerH = 10;
     doc.setFillColor(...tealDarkBg);
     doc.rect(innerL, y + b, innerW, headerH - b, 'F');
 
     // Empresa (blanco sobre teal)
-    doc.setFontSize(7.5);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(255, 255, 255);
-    doc.text(empresa.nombre.toUpperCase(), x0 + pad, y + 4.2);
+    doc.text(empresa.nombre.toUpperCase(), x0 + pad, y + 4.5);
 
-    doc.setFontSize(4);
+    doc.setFontSize(5.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(200, 230, 220);
-    doc.text(`${empresa.direccion}  ·  ${empresa.telefono}`, x0 + pad, y + 7.5);
+    doc.text(`RUC: ${empresa.ruc}  ·  Tel: ${empresa.telefono}`, x0 + pad, y + 8.2);
 
     // Código entrega (derecha, blanco)
-    doc.setFontSize(6.5);
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(255, 255, 255);
-    doc.text(entrega.codigo, x0 + W - pad, y + 4.2, { align: 'right' });
+    doc.text(entrega.codigo, x0 + W - pad, y + 4.5, { align: 'right' });
 
-    doc.setFontSize(4);
+    doc.setFontSize(5.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(200, 230, 220);
     doc.text(
       `${entrega.numeroVenta}  ·  ${entrega.numeroEntrega}${entrega.totalEntregas ? '/' + entrega.totalEntregas : ''}`,
-      x0 + W - pad, y + 7.5, { align: 'right' }
+      x0 + W - pad, y + 8.2, { align: 'right' }
     );
 
     y += headerH;
     sep(y);
 
     // ═══════════════════════════════════════════
-    // 2. BARRA FECHA (5.5mm) — teal claro (marca)
+    // 2. BARRA FECHA (6.5mm) — teal claro (marca)
     // ═══════════════════════════════════════════
-    const fechaH = 5.5;
+    const fechaH = 6.5;
     doc.setFillColor(...tealBg);
     doc.rect(innerL, y, innerW, fechaH, 'F');
 
     const fechaStr = this.formatTimestamp(entrega.fechaProgramada);
     const horaStr = entrega.horaProgramada || '';
 
-    doc.setFontSize(5);
+    doc.setFontSize(6.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...teal);
-    doc.text('ENTREGA:', x0 + pad, y + 3.6);
+    doc.text('ENTREGA:', x0 + pad, y + 4.2);
 
-    doc.setFontSize(7);
+    doc.setFontSize(8.5);
     doc.setTextColor(...negro);
-    doc.text(fechaStr, x0 + 20, y + 3.6);
+    doc.text(fechaStr, x0 + 22, y + 4.2);
 
     if (horaStr) {
-      doc.setFontSize(5.5);
+      doc.setFontSize(7);
       doc.setTextColor(...teal);
-      doc.text(horaStr, x0 + W - pad, y + 3.6, { align: 'right' });
+      doc.text(horaStr, x0 + W - pad, y + 4.2, { align: 'right' });
     }
 
     y += fechaH;
@@ -742,7 +742,7 @@ class PDFService {
           const qrY = y + 2;
           doc.addImage(qrMapsData, 'PNG', qrX, qrY, qrSize, qrSize);
 
-          doc.setFontSize(3.5);
+          doc.setFontSize(5);
           doc.setFont('helvetica', 'bold');
           doc.setTextColor(...teal);
           doc.text('GOOGLE MAPS', x0 + qrColW / 2, qrY + qrSize + 2.5, { align: 'center' });
@@ -754,13 +754,19 @@ class PDFService {
     const dp = 3.5;
     let dY = y + 1;
 
-    // Distrito
+    // Distrito — auto-reduce font for long names
     const distritoDisplay = (entrega.distrito || 'Sin distrito').toUpperCase();
-    doc.setFontSize(12);
+    const distritoMaxW = dirColW - dp * 2;
+    let distritoFontSize = 13;
     doc.setFont('helvetica', 'bold');
+    doc.setFontSize(distritoFontSize);
+    while (distritoFontSize > 8 && doc.getTextWidth(distritoDisplay) > distritoMaxW) {
+      distritoFontSize -= 0.5;
+      doc.setFontSize(distritoFontSize);
+    }
     doc.setTextColor(...negro);
     doc.text(distritoDisplay, dirColX + dp, dY + 5);
-    dY += 7;
+    dY += 7.5;
 
     // Provincia + C.P. en una línea
     const infoLine = [
@@ -768,7 +774,7 @@ class PDFService {
       entrega.codigoPostal ? `C.P. ${entrega.codigoPostal}` : null
     ].filter(Boolean).join('  ·  ');
     if (infoLine) {
-      doc.setFontSize(5);
+      doc.setFontSize(6);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...grisSuave);
       doc.text(infoLine, dirColX + dp, dY);
@@ -777,22 +783,22 @@ class PDFService {
 
     // Dirección
     dY += 0.5;
-    doc.setFontSize(6);
+    doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...grisOscuro);
     const dirMaxW = dirColW - dp - 2;
     const dirLines = doc.splitTextToSize(entrega.direccionEntrega, dirMaxW);
     doc.text(dirLines.slice(0, 2), dirColX + dp, dY);
-    dY += Math.min(dirLines.length, 2) * 2.8;
+    dY += Math.min(dirLines.length, 2) * 3;
 
     // Referencia
     if (entrega.referencia) {
       dY += 1.5;
-      doc.setFontSize(4.5);
+      doc.setFontSize(6);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...tealMed);
       doc.text('Ref:', dirColX + dp, dY);
-      doc.setFontSize(5);
+      doc.setFontSize(6.5);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...grisOscuro);
       const refLines = doc.splitTextToSize(entrega.referencia, dirMaxW - 7);
@@ -807,21 +813,21 @@ class PDFService {
     // ═══════════════════════════════════════════
     y += 1;
 
-    doc.setFontSize(4);
+    doc.setFontSize(5.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...tealMed);
     doc.text('DESTINATARIO', x0 + pad, y + 2.5);
 
-    doc.setFontSize(8);
+    doc.setFontSize(9.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...negro);
-    doc.text(entrega.nombreCliente, x0 + pad, y + 6.5);
+    doc.text(entrega.nombreCliente, x0 + pad, y + 7);
 
     if (entrega.telefonoCliente) {
-      doc.setFontSize(5.5);
+      doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...gris);
-      doc.text(`Tel: ${entrega.telefonoCliente}`, x0 + pad, y + 10);
+      doc.text(`Tel: ${entrega.telefonoCliente}`, x0 + pad, y + 10.5);
     }
 
     y += 11.5;
@@ -849,54 +855,84 @@ class PDFService {
     doc.rect(innerL, subColY, subCol1W - b, shH, 'F');
     sep(subColY + shH);
 
-    doc.setFontSize(4.5);
+    doc.setFontSize(6);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...teal);
-    doc.text(`PRODUCTOS (${entrega.cantidadItems})`, x0 + pad, subColY + 3.3);
+    doc.text(`PRODUCTOS (${entrega.cantidadItems})`, x0 + pad, subColY + 3.5);
 
     // Lista de productos
-    let prodY = subColY + shH + 3;
+    let prodY = subColY + shH + 3.5;
     for (const prod of entrega.productos.slice(0, 5)) {
-      doc.setFontSize(5.5);
+      doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...negro);
       const nombre = `${prod.marca} ${prod.nombreComercial}`;
-      const corto = nombre.length > 18 ? nombre.substring(0, 18) + '..' : nombre;
+      const corto = nombre.length > 16 ? nombre.substring(0, 16) + '..' : nombre;
       doc.text(`${prod.cantidad}x ${corto}`, x0 + pad, prodY);
 
       doc.setTextColor(...gris);
-      doc.setFontSize(5);
+      doc.setFontSize(6.5);
       doc.text(`S/${prod.subtotal.toFixed(0)}`, x0 + subCol1W - 3, prodY, { align: 'right' });
-      prodY += 3.5;
+      prodY += 4;
     }
     if (entrega.productos.length > 5) {
-      doc.setFontSize(4);
+      doc.setFontSize(5.5);
       doc.setTextColor(...grisSuave);
       doc.text(`+${entrega.productos.length - 5} más...`, x0 + pad, prodY);
     }
 
-    // Total
-    const totalY = bottomEdge - 9;
+    // Total section — infer envío from cobro if costoEnvio not stored
+    let envioEfectivo = entrega.costoEnvio || 0;
+    if (!envioEfectivo && entrega.cobroPendiente && entrega.montoPorCobrar && entrega.montoPorCobrar > entrega.subtotalPEN) {
+      envioEfectivo = entrega.montoPorCobrar - entrega.subtotalPEN;
+    }
+    const tieneEnvio = envioEfectivo > 0;
+    const totalGeneral = entrega.subtotalPEN + envioEfectivo;
+    const totalBlockH = tieneEnvio ? 16 : 10;
+    const totalY = bottomEdge - totalBlockH;
     doc.setDrawColor(...grisLinea);
     doc.setLineWidth(0.15);
     doc.line(x0 + pad, totalY, x0 + subCol1W - 3, totalY);
 
-    doc.setFontSize(4.5);
+    let tY = totalY + 3.5;
+
+    // Subtotal productos
+    doc.setFontSize(5.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...grisSuave);
+    doc.text('Productos', x0 + pad, tY);
+    doc.setFontSize(7);
+    doc.setTextColor(...grisOscuro);
+    doc.text(`S/ ${entrega.subtotalPEN.toFixed(2)}`, x0 + subCol1W - 3, tY, { align: 'right' });
+
+    if (tieneEnvio) {
+      tY += 3.5;
+      doc.setFontSize(5.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...grisSuave);
+      doc.text('Envío', x0 + pad, tY);
+      doc.setFontSize(7);
+      doc.setTextColor(...grisOscuro);
+      doc.text(`S/ ${envioEfectivo.toFixed(2)}`, x0 + subCol1W - 3, tY, { align: 'right' });
+    }
+
+    tY += 3.5;
+    doc.setFontSize(6);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...grisSuave);
-    doc.text('VALOR VENTA', x0 + pad, totalY + 3.5);
-
-    doc.setFontSize(8.5);
+    doc.text('TOTAL', x0 + pad, tY);
+    doc.setFontSize(10);
     doc.setTextColor(...negro);
-    doc.text(`S/ ${entrega.subtotalPEN.toFixed(2)}`, x0 + subCol1W - 3, totalY + 3.5, { align: 'right' });
+    doc.text(`S/ ${totalGeneral.toFixed(2)}`, x0 + subCol1W - 3, tY, { align: 'right' });
 
     // Observaciones
     if (entrega.observaciones) {
-      doc.setFontSize(4);
+      doc.setFontSize(5);
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(...ambar);
-      const obsLines = doc.splitTextToSize(`Obs: ${entrega.observaciones}`, subCol1W - pad * 2);
-      doc.text(obsLines.slice(0, 1), x0 + pad, totalY + 7.5);
+      const obsMaxW = subCol1W - pad * 2;
+      const obsLines = doc.splitTextToSize(`Obs: ${entrega.observaciones}`, obsMaxW);
+      doc.text(obsLines.slice(0, 2), x0 + pad, tY + 4);
     }
 
     // ── PAGO ──
@@ -909,35 +945,54 @@ class PDFService {
     doc.rect(pX, subColY, subCol2W - b, shH, 'F');
     // reutilizar la línea sep ya dibujada en subColY+shH
 
-    doc.setFontSize(4.5);
+    doc.setFontSize(6);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...(tieneCobro ? ambar : teal));
     doc.text(
       tieneCobro ? 'COBRO PENDIENTE' : 'PAGADO',
-      pX + subCol2W / 2, subColY + 3.3, { align: 'center' }
+      pX + subCol2W / 2, subColY + 3.5, { align: 'center' }
     );
 
     const pCenter = pX + subCol2W / 2;
     const pagoAreaH = subColH - shH;
 
     if (tieneCobro) {
+      // Calcular adelanto pagado
+      const adelanto = totalGeneral - entrega.montoPorCobrar!;
+      const tieneAdelanto = adelanto > 0.5; // Tolerancia para redondeos
+
       // Centrar todo el bloque verticalmente
       const qrPaySize = 25;
-      const blockH = 5 + 3 + qrPaySize + 3 + 3; // monto + metodo + qr + label + phone
+      const adelantoLineH = tieneAdelanto ? 10 : 0;
+      const blockH = 5 + adelantoLineH + 3 + qrPaySize + 3 + 3;
       const pStart = subColY + shH + (pagoAreaH - blockH) / 2;
       let pY = pStart;
 
-      // Monto
-      doc.setFontSize(14);
+      // Adelanto pagado (si existe)
+      if (tieneAdelanto) {
+        doc.setFontSize(5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...teal);
+        doc.text(`Adelanto pagado: S/ ${adelanto.toFixed(2)}`, pCenter, pY, { align: 'center' });
+        pY += 4;
+
+        doc.setFontSize(5);
+        doc.setTextColor(...gris);
+        doc.text('Saldo por cobrar:', pCenter, pY, { align: 'center' });
+        pY += 5;
+      }
+
+      // Monto por cobrar
+      doc.setFontSize(15);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...rojo);
       doc.text(`S/ ${entrega.montoPorCobrar!.toFixed(2)}`, pCenter, pY, { align: 'center' });
-      pY += 4;
+      pY += 4.5;
 
       // Método
       const metodoLabel: Record<string, string> = { efectivo: 'Efectivo', yape: 'Yape', plin: 'Plin', transferencia: 'Transf.' };
       const metodo = entrega.metodoPagoEsperado || 'efectivo';
-      doc.setFontSize(5);
+      doc.setFontSize(6.5);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...gris);
       doc.text(`Método: ${metodoLabel[metodo] || metodo}`, pCenter, pY, { align: 'center' });
@@ -957,13 +1012,13 @@ class PDFService {
       }
 
       // Label + cuenta
-      doc.setFontSize(5);
+      doc.setFontSize(6.5);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...ambar);
-      doc.text('Yape / Plin', pCenter, pY, { align: 'center' });
-      pY += 3;
+      doc.text('YAPE / PLIN', pCenter, pY, { align: 'center' });
+      pY += 3.5;
 
-      doc.setFontSize(7.5);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...negro);
       doc.text(qrPago.cuenta, pCenter, pY, { align: 'center' });
@@ -971,12 +1026,12 @@ class PDFService {
     } else {
       const midY = subColY + shH + pagoAreaH / 2;
 
-      doc.setFontSize(16);
+      doc.setFontSize(18);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...teal);
       doc.text('PAGADO', pCenter, midY - 1, { align: 'center' });
 
-      doc.setFontSize(5);
+      doc.setFontSize(6.5);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...gris);
       doc.text('Sin cobro pendiente', pCenter, midY + 5, { align: 'center' });
@@ -990,20 +1045,20 @@ class PDFService {
     // ═══════════════════════════════════════════
     const fY = bottomEdge;
 
-    doc.setFontSize(4.5);
+    doc.setFontSize(5.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...grisSuave);
     doc.text('Transp:', x0 + pad, fY + 3.5);
 
-    doc.setFontSize(4.5);
+    doc.setFontSize(5.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...grisOscuro);
-    const transCorto = entrega.nombreTransportista.length > 26
-      ? entrega.nombreTransportista.substring(0, 26) + '..'
+    const transCorto = entrega.nombreTransportista.length > 24
+      ? entrega.nombreTransportista.substring(0, 24) + '..'
       : entrega.nombreTransportista;
-    doc.text(transCorto, x0 + 15, fY + 3.5);
+    doc.text(transCorto, x0 + 17, fY + 3.5);
 
-    doc.setFontSize(3.5);
+    doc.setFontSize(4.5);
     doc.setTextColor(...grisSuave);
     const fechaImpresion = new Date().toLocaleDateString('es-PE', {
       day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -1039,53 +1094,54 @@ class PDFService {
 
     // === CABECERA ===
     doc.setFillColor(...this.successColor);
-    doc.rect(0, 0, pageWidth, 30, 'F');
+    doc.rect(0, 0, pageWidth, 32, 'F');
 
-    doc.setFontSize(18);
+    doc.setFontSize(20);
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.text('CARGO DE ENTREGA', pageWidth / 2, 12, { align: 'center' });
+    doc.text('CARGO DE ENTREGA', pageWidth / 2, 13, { align: 'center' });
 
-    doc.setFontSize(12);
-    doc.text(entrega.codigo, pageWidth / 2, 22, { align: 'center' });
+    doc.setFontSize(14);
+    doc.text(entrega.codigo, pageWidth / 2, 24, { align: 'center' });
 
     // === DATOS DE EMPRESA ===
-    let y = 40;
-    doc.setFontSize(12);
+    let y = 42;
+    doc.setFontSize(14);
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'bold');
     doc.text(empresa.nombre, 14, y);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.text(`RUC: ${empresa.ruc}`, 14, y + 6);
-    doc.text(empresa.direccion, 14, y + 11);
-    doc.text(`Tel: ${empresa.telefono}`, 14, y + 16);
+    doc.setFontSize(10);
+    doc.text(`RUC: ${empresa.ruc}`, 14, y + 7);
+    doc.text(empresa.direccion, 14, y + 13);
+    doc.text(`Tel: ${empresa.telefono}`, 14, y + 19);
 
     // Fecha
-    doc.setFontSize(10);
-    doc.text(`Fecha: ${this.formatTimestamp(entrega.fechaProgramada)}`, pageWidth - 14, y + 6, { align: 'right' });
-    doc.text(`Venta: ${entrega.numeroVenta}`, pageWidth - 14, y + 12, { align: 'right' });
+    doc.setFontSize(11);
+    doc.text(`Fecha: ${this.formatTimestamp(entrega.fechaProgramada)}`, pageWidth - 14, y + 7, { align: 'right' });
+    doc.text(`Venta: ${entrega.numeroVenta}`, pageWidth - 14, y + 14, { align: 'right' });
 
     // === DATOS DEL CLIENTE ===
-    y = 68;
+    y = 72;
     doc.setFillColor(240, 253, 244); // green-50
-    doc.rect(14, y, pageWidth - 28, 22, 'F');
+    doc.rect(14, y, pageWidth - 28, 24, 'F');
     doc.setDrawColor(...this.successColor);
     doc.setLineWidth(0.5);
-    doc.rect(14, y, pageWidth - 28, 22, 'S');
+    doc.rect(14, y, pageWidth - 28, 24, 'S');
 
-    doc.setFontSize(10);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 0, 0);
-    doc.text('DATOS DEL CLIENTE', 20, y + 7);
+    doc.text('DATOS DEL CLIENTE', 20, y + 8);
 
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Cliente: ${entrega.nombreCliente}`, 20, y + 14);
-    doc.text(`Dirección: ${entrega.direccionEntrega}${entrega.distrito ? ` - ${entrega.distrito}` : ''}`, 20, y + 19);
+    doc.text(`Cliente: ${entrega.nombreCliente}`, 20, y + 15);
+    doc.text(`Dirección: ${entrega.direccionEntrega}${entrega.distrito ? ` - ${entrega.distrito}` : ''}`, 20, y + 21);
 
     // === DETALLE DE PRODUCTOS ===
-    y = 98;
-    doc.setFontSize(11);
+    y = 104;
+    doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
     doc.text('PRODUCTOS ENTREGADOS', 14, y);
 
@@ -1099,7 +1155,7 @@ class PDFService {
         `S/ ${prod.subtotal.toFixed(2)}`
       ]),
       foot: [[
-        { content: 'TOTAL', colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
+        { content: 'Subtotal Productos', colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
         { content: `S/ ${entrega.subtotalPEN.toFixed(2)}`, styles: { halign: 'right', fontStyle: 'bold' } }
       ]],
       theme: 'grid',
@@ -1121,28 +1177,79 @@ class PDFService {
       margin: { left: 14, right: 14 }
     });
 
-    y = (doc as any).lastAutoTable.finalY + 10;
+    y = (doc as any).lastAutoTable.finalY + 6;
+
+    // === DESGLOSE DE TOTALES ===
+    let envioEfectivoCargo = entrega.costoEnvio || 0;
+    if (!envioEfectivoCargo && entrega.cobroPendiente && entrega.montoPorCobrar && entrega.montoPorCobrar > entrega.subtotalPEN) {
+      envioEfectivoCargo = entrega.montoPorCobrar - entrega.subtotalPEN;
+    }
+    const tieneEnvioCargo = envioEfectivoCargo > 0;
+    const totalGeneralCargo = entrega.subtotalPEN + envioEfectivoCargo;
+
+    if (tieneEnvioCargo) {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(80, 80, 80);
+      doc.text('Productos:', pageWidth - 75, y);
+      doc.text(`S/ ${entrega.subtotalPEN.toFixed(2)}`, pageWidth - 15, y, { align: 'right' });
+      y += 6;
+      doc.text('Envío:', pageWidth - 75, y);
+      doc.text(`S/ ${envioEfectivoCargo.toFixed(2)}`, pageWidth - 15, y, { align: 'right' });
+      y += 3;
+    }
+
+    // Total general box
+    doc.setFillColor(232, 245, 241); // teal bg
+    doc.roundedRect(pageWidth - 80, y, 66, 10, 2, 2, 'F');
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 107, 90);
+    doc.text('TOTAL:', pageWidth - 75, y + 7);
+    doc.text(`S/ ${totalGeneralCargo.toFixed(2)}`, pageWidth - 15, y + 7, { align: 'right' });
+    y += 16;
 
     // === INFORMACIÓN DE PAGO ===
     if (entrega.cobroPendiente && entrega.montoPorCobrar) {
-      doc.setFillColor(254, 249, 195); // yellow-100
-      doc.rect(14, y, pageWidth - 28, 50, 'F');
-      doc.setDrawColor(...this.warningColor);
-      doc.rect(14, y, pageWidth - 28, 50, 'S');
+      // Calculate adelanto
+      const adelantoCargo = totalGeneralCargo - entrega.montoPorCobrar;
+      const tieneAdelantoCargo = adelantoCargo > 0.5;
+      const pagoBoxH = tieneAdelantoCargo ? 60 : 50;
 
-      doc.setFontSize(11);
+      doc.setFillColor(254, 249, 195); // yellow-100
+      doc.rect(14, y, pageWidth - 28, pagoBoxH, 'F');
+      doc.setDrawColor(...this.warningColor);
+      doc.rect(14, y, pageWidth - 28, pagoBoxH, 'S');
+
+      let pagoY = y + 10;
+
+      doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...this.warningColor);
-      doc.text('PAGO PENDIENTE', 20, y + 10);
+      doc.text('PAGO PENDIENTE', 20, pagoY);
 
-      doc.setFontSize(16);
+      if (tieneAdelantoCargo) {
+        pagoY += 8;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(34, 139, 34);
+        doc.text(`Adelanto pagado: S/ ${adelantoCargo.toFixed(2)}`, 20, pagoY);
+        pagoY += 6;
+        doc.setFontSize(10);
+        doc.setTextColor(80, 80, 80);
+        doc.text('Saldo por cobrar:', 20, pagoY);
+        pagoY += 2;
+      }
+
+      doc.setFontSize(18);
       doc.setTextColor(0, 0, 0);
-      doc.text(`S/ ${entrega.montoPorCobrar.toFixed(2)}`, 20, y + 22);
+      doc.text(`S/ ${entrega.montoPorCobrar.toFixed(2)}`, 20, pagoY + (tieneAdelantoCargo ? 5 : 13));
 
-      doc.setFontSize(9);
+      const infoY = pagoY + (tieneAdelantoCargo ? 13 : 23);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.text('Puede pagar con Yape o Plin escaneando el código QR', 20, y + 32);
-      doc.text(`o al número: ${qrPago.cuenta}`, 20, y + 38);
+      doc.text('Puede pagar con Yape o Plin escaneando el código QR', 20, infoY);
+      doc.text(`o al número: ${qrPago.cuenta}`, 20, infoY + 7);
 
       // QR de pago
       if (qrPago?.url) {
@@ -1166,12 +1273,12 @@ class PDFService {
         }
       }
 
-      y += 55;
+      y += pagoBoxH + 5;
     }
 
     // === DECLARACIÓN DE CONFORMIDAD ===
     y += 5;
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'normal');
     const declaracion = 'Declaro haber recibido los productos arriba detallados en buen estado y conforme a mi pedido.';
@@ -1183,7 +1290,7 @@ class PDFService {
     doc.setLineWidth(0.3);
     doc.line(14, y + 20, 90, y + 20);
 
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     doc.text('Nombre: _______________________', 14, y + 28);
     doc.text('DNI: _______________________', 14, y + 35);
     doc.text('Fecha: _______________________', 14, y + 42);
@@ -1192,7 +1299,7 @@ class PDFService {
     doc.text('Firma:', 95, y + 5);
 
     // === PIE DE PÁGINA ===
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.setTextColor(...this.secondaryColor);
     doc.text(`${empresa.nombre} - Gracias por su preferencia`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
 

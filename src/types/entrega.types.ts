@@ -167,6 +167,7 @@ export interface ProgramarEntregaData {
 
   // Costo
   costoTransportista: number;
+  costoEnvio?: number;
 
   observaciones?: string;
 }

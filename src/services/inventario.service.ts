@@ -1018,6 +1018,7 @@ export const inventarioService = {
             stockTransito++;
             break;
           case 'reservada':
+          case 'asignada_pedido':
             stockReservado++;
             if (unidad.pais === 'USA') {
               stockUSA++;

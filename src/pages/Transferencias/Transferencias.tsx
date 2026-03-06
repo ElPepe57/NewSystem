@@ -26,6 +26,7 @@ import { BarcodeScanner } from "../../components/common/BarcodeScanner";
 import type { PipelineStage } from "../../components/common";
 import { FileText, Send, CheckCircle2, XOctagon, RefreshCw } from "lucide-react";
 import { useTransferenciaStore } from "../../store/transferenciaStore";
+import { useProductoStore } from "../../store/productoStore";
 import { useAlmacenStore } from "../../store/almacenStore";
 import { useAuthStore } from "../../store/authStore";
 import { unidadService } from "../../services/unidad.service";
@@ -74,6 +75,13 @@ export const Transferencias: React.FC = () => {
     fetchAlmacenesPeru,
     fetchViajeros
   } = useAlmacenStore();
+
+  const { productos: todosProductos } = useProductoStore();
+  const productosMapGlobal = useMemo(() => {
+    const map = new Map<string, typeof todosProductos[0]>();
+    todosProductos.forEach(p => map.set(p.id, p));
+    return map;
+  }, [todosProductos]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRecepcionModal, setShowRecepcionModal] = useState(false);
@@ -351,13 +359,23 @@ export const Transferencias: React.FC = () => {
               // Buscar lotes únicos
               const lotes = [...new Set(unidadesProducto.map(u => u.lote).filter(Boolean))];
 
+              const pFull = productosMapGlobal.get(producto.productoId);
               return (
                 <div key={producto.productoId} className="flex items-center justify-between py-1.5 px-2 bg-gray-50 rounded text-sm">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-medium text-gray-900 truncate">{producto.nombre}</span>
+                      <span className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</span>
                       <span className="text-xs text-gray-400 flex-shrink-0">×{producto.cantidad}</span>
                     </div>
+                    {pFull && (
+                      <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                        {pFull.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
+                        {pFull.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
+                        {pFull.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
+                        {pFull.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
+                        {pFull.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
+                      </div>
+                    )}
                     <div className="flex items-center gap-1.5 text-xs text-gray-500">
                       <span>{producto.sku}</span>
                       {lotes.length > 0 && (
@@ -1168,13 +1186,23 @@ export const Transferencias: React.FC = () => {
 
                     {/* Lista de productos con input de flete */}
                     <div className="space-y-3 max-h-64 overflow-y-auto">
-                      {productosConUnidadesSeleccionadas.map((producto) => (
+                      {productosConUnidadesSeleccionadas.map((producto) => {
+                        const pFull = productosMapGlobal.get(producto.productoId);
+                        return (
                         <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-blue-100">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 min-w-0">
-                              <h5 className="font-medium text-gray-900 truncate">{producto.nombre}</h5>
-                              <p className="text-xs text-gray-500">{producto.sku}</p>
+                              <h5 className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</h5>
+                              <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                                {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
+                                {pFull?.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
+                                {pFull?.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
+                                {pFull?.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
+                                {pFull?.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
+                              </div>
                               <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                                <span>{producto.sku}</span>
+                                <span>•</span>
                                 <span>{producto.unidades} unidades</span>
                                 <span>•</span>
                                 <span>Mercancía: ${producto.costoMercancia.toFixed(2)}</span>
@@ -1209,7 +1237,8 @@ export const Transferencias: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                      ))}
+                      );
+                      })}
                     </div>
 
                     {/* Resumen de costos */}
@@ -2063,6 +2092,13 @@ export const Transferencias: React.FC = () => {
     onClose: () => void;
     onConfirm: (costoFletePorProducto: Record<string, number>) => Promise<void>;
   }) => {
+    const { productos } = useProductoStore();
+    const productosMap = useMemo(() => {
+      const map = new Map<string, typeof productos[0]>();
+      productos.forEach(p => map.set(p.id, p));
+      return map;
+    }, [productos]);
+
     const [submitting, setSubmitting] = useState(false);
     // Inicializar con los costos existentes (flete total por producto)
     const [fletesPorProducto, setFletesPorProducto] = useState<Record<string, number>>(() => {
@@ -2128,13 +2164,33 @@ export const Transferencias: React.FC = () => {
                 const unidadesCount = producto.cantidad;
                 const fleteTotalProducto = fletesPorProducto[producto.productoId] || 0;
                 const fletePorUnidad = unidadesCount > 0 ? fleteTotalProducto / unidadesCount : 0;
+                const productoFull = productosMap.get(producto.productoId);
 
                 return (
                   <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-gray-200">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <h5 className="font-medium text-gray-900 truncate">{producto.nombre}</h5>
-                        <p className="text-xs text-gray-500">{producto.sku} &middot; {producto.cantidad} unidades</p>
+                        <h5 className="font-medium text-gray-900 truncate">
+                          {productoFull?.nombreComercial || producto.nombre}
+                        </h5>
+                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+                          {productoFull?.marca && (
+                            <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{productoFull.marca}</span>
+                          )}
+                          {productoFull?.presentacion && (
+                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded capitalize">{productoFull.presentacion.replace('_', ' ')}</span>
+                          )}
+                          {productoFull?.dosaje && (
+                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{productoFull.dosaje}</span>
+                          )}
+                          {productoFull?.contenido && (
+                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{productoFull.contenido}</span>
+                          )}
+                          {productoFull?.sabor && (
+                            <span className="text-xs text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">{productoFull.sabor}</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">{producto.sku} &middot; {producto.cantidad} unidades</p>
                       </div>
                       <div className="flex-shrink-0 w-40">
                         <label className="block text-xs text-gray-500 mb-1">Flete total producto (USD)</label>
@@ -2480,11 +2536,19 @@ export const Transferencias: React.FC = () => {
                   const faltantes = unidadesProducto.filter(u => u.estadoTransferencia === 'faltante').length;
                   const danadas = unidadesProducto.filter(u => u.estadoTransferencia === 'danada').length;
 
+                  const pFull = productosMapGlobal.get(producto.productoId);
                   return (
                     <div key={producto.productoId} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900 truncate">{producto.nombre}</div>
+                          <div className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</div>
+                          <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                            {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
+                            {pFull?.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
+                            {pFull?.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
+                            {pFull?.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
+                            {pFull?.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
+                          </div>
                           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-gray-500">
                             <span>{producto.sku}</span>
                             {lotes.length > 0 && (

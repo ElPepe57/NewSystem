@@ -25,6 +25,7 @@ const estadoConfig: Record<EstadoUnidad, { label: string; variant: 'success' | '
   'en_transito_peru': { label: 'Tránsito Perú', variant: 'warning', color: 'bg-amber-100 text-amber-800' },
   'disponible_peru': { label: 'Disponible', variant: 'success', color: 'bg-green-100 text-green-800' },
   'reservada': { label: 'Reservada', variant: 'default', color: 'bg-purple-100 text-purple-800' },
+  'asignada_pedido': { label: 'Asignada a Pedido', variant: 'warning', color: 'bg-indigo-100 text-indigo-800' },
   'vendida': { label: 'Vendida', variant: 'default', color: 'bg-gray-100 text-gray-800' },
   'vencida': { label: 'Vencida', variant: 'danger', color: 'bg-red-100 text-red-800' },
   'danada': { label: 'Dañada', variant: 'danger', color: 'bg-red-100 text-red-800' }
