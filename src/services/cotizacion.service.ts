@@ -396,8 +396,27 @@ export class CotizacionService {
         if (derivedLineaNegocioNombre) nuevaCotizacion.lineaNegocioNombre = derivedLineaNegocioNombre;
       }
 
+      // Auto-crear o vincular cliente en Maestros si no viene clienteId
+      let clienteIdFinal = data.clienteId;
+      if (!clienteIdFinal && data.nombreCliente) {
+        try {
+          const { clienteService } = await import('./cliente.service');
+          const { cliente } = await clienteService.getOrCreate({
+            nombre: data.nombreCliente.trim(),
+            tipoCliente: 'persona',
+            telefono: data.telefonoCliente || undefined,
+            email: data.emailCliente || undefined,
+            dniRuc: data.dniRuc || undefined,
+            canalOrigen: data.canal || 'directo',
+          }, userId);
+          clienteIdFinal = cliente.id;
+        } catch (clienteError) {
+          console.warn('[crearCotizacion] Error auto-creando cliente en Maestros:', clienteError);
+        }
+      }
+
       // Agregar campos opcionales
-      if (data.clienteId) nuevaCotizacion.clienteId = data.clienteId;
+      if (clienteIdFinal) nuevaCotizacion.clienteId = clienteIdFinal;
       if (descuento > 0) nuevaCotizacion.descuento = descuento;
       if (costoEnvio > 0) nuevaCotizacion.costoEnvio = costoEnvio;
       if (data.emailCliente) nuevaCotizacion.emailCliente = data.emailCliente;
@@ -1212,6 +1231,27 @@ export class CotizacionService {
         incluyeEnvio: cotizacion.incluyeEnvio,
         observaciones: `Creada desde cotización ${cotizacion.numeroCotizacion}. ${cotizacion.observaciones || ''}`
       };
+
+      // Verificar si algún producto tiene precio por debajo del CTRU
+      // Si es así, marcar la venta como ventaBajoCosto (el aprobador es quien confirma)
+      try {
+        const productosConCtru = await Promise.all(
+          cotizacion.productos.map(async (p) => {
+            const producto = await ProductoService.getById(p.productoId);
+            return { precioUnitario: p.precioUnitario, ctruPromedio: producto?.ctruPromedio || 0 };
+          })
+        );
+        const hayBajoCosto = productosConCtru.some(
+          p => p.ctruPromedio > 0 && p.precioUnitario < p.ctruPromedio
+        );
+        if (hayBajoCosto) {
+          ventaData.ventaBajoCosto = true;
+          ventaData.aprobadoPor = userId;
+        }
+      } catch (ctruError) {
+        console.warn('[confirmar] Error verificando CTRU:', ctruError);
+        // No bloquear la confirmación si falla la consulta de CTRU
+      }
 
       // Determinar si ya tiene stock reservado (físico o virtual)
       // Si tiene reserva, NO validamos stock al crear venta (ya está comprometido)

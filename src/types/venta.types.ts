@@ -368,6 +368,10 @@ export interface Venta {
   // ========== Pre-Venta con Bloqueo de Stock ==========
   stockReservado?: StockReservado;   // Si hay reserva activa por adelanto
 
+  // Control de venta bajo costo
+  ventaBajoCosto?: boolean;       // true si algún producto tiene precio < CTRU
+  aprobadoBajoCostoPor?: string;  // UID del admin/gerente que aprobó
+
   // Auditoría
   creadoPor: string;
   ultimaEdicion?: Timestamp;
@@ -410,6 +414,10 @@ export interface VentaFormData {
 
   mercadoLibreId?: string;
   observaciones?: string;
+
+  // Control de venta bajo costo
+  ventaBajoCosto?: boolean;       // true si algún producto tiene precio < CTRU
+  aprobadoPor?: string;           // UID del admin/gerente que aprobó
 }
 
 export interface AsignacionUnidad {

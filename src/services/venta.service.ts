@@ -372,10 +372,29 @@ export class VentaService {
       // Generar número de venta
       const numeroVenta = await this.generateNumeroVenta();
       
+      // Auto-crear o vincular cliente en Maestros si no viene clienteId
+      let clienteIdFinal = data.clienteId;
+      if (!clienteIdFinal && data.nombreCliente) {
+        try {
+          const { clienteService } = await import('./cliente.service');
+          const { cliente } = await clienteService.getOrCreate({
+            nombre: data.nombreCliente.trim(),
+            tipoCliente: 'persona',
+            telefono: data.telefonoCliente || undefined,
+            email: data.emailCliente || undefined,
+            dniRuc: data.dniRuc || undefined,
+            canalOrigen: data.canal || 'directo',
+          }, userId);
+          clienteIdFinal = cliente.id;
+        } catch (clienteError) {
+          console.warn('[crear] Error auto-creando cliente en Maestros:', clienteError);
+        }
+      }
+
       const nuevaVenta: any = {
         numeroVenta,
         nombreCliente: data.nombreCliente,
-        ...(data.clienteId && { clienteId: data.clienteId }),
+        ...(clienteIdFinal && { clienteId: clienteIdFinal }),
         canal: data.canal,
         ...(data.canalNombre && { canalNombre: data.canalNombre }),
         productos: productosVenta,
@@ -408,6 +427,10 @@ export class VentaService {
       if (data.dniRuc) nuevaVenta.dniRuc = data.dniRuc;
       if (data.mercadoLibreId) nuevaVenta.mercadoLibreId = data.mercadoLibreId;
       if (data.observaciones) nuevaVenta.observaciones = data.observaciones;
+      if (data.ventaBajoCosto) {
+        nuevaVenta.ventaBajoCosto = true;
+        if (data.aprobadoPor) nuevaVenta.aprobadoBajoCostoPor = data.aprobadoPor;
+      }
 
       // Auto-inherited lineaNegocioId from products
       if (derivedLineaNegocioId) {
@@ -550,9 +573,14 @@ export class VentaService {
         metadata: { entidadId: id, entidadTipo: 'venta', monto: venta.totalPEN, moneda: 'PEN' }
       }).catch(() => {});
 
-      // Recalcular canal principal del cliente (fire & forget)
+      // Actualizar métricas y canal principal del cliente (fire & forget)
       if (venta.clienteId) {
         import('./cliente.service').then(({ clienteService }) => {
+          const productoIds = venta.productos?.map((p: any) => p.productoId).filter(Boolean) || [];
+          clienteService.actualizarMetricasPorVenta(venta.clienteId!, {
+            montoVenta: venta.totalPEN || 0,
+            productoIds,
+          }).catch((err: any) => console.warn('[confirmarVenta] Error actualizando métricas cliente:', err));
           clienteService.calcularCanalPrincipal(venta.clienteId!).catch(() => {});
         });
       }

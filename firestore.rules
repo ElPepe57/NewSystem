@@ -62,7 +62,16 @@ service cloud.firestore {
     // ============================================================
     match /ventas/{docId} {
       allow read: if isActiveUser();
-      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor']);
+      // Vendedor puede escribir, pero NO puede crear ventas bajo costo (solo admin/gerente)
+      allow create: if hasAnyRole(['admin', 'gerente', 'vendedor']) &&
+        (!request.resource.data.get('ventaBajoCosto', false) ||
+         hasAnyRole(['admin', 'gerente']));
+      allow update: if hasAnyRole(['admin', 'gerente', 'vendedor']) &&
+        // Si se marca ventaBajoCosto en update, solo admin/gerente
+        (!request.resource.data.get('ventaBajoCosto', false) ||
+         resource.data.get('ventaBajoCosto', false) == true ||
+         hasAnyRole(['admin', 'gerente']));
+      allow delete: if hasAnyRole(['admin', 'gerente']);
     }
 
     match /cotizaciones/{docId} {

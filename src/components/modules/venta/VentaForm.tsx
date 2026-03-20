@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2, AlertCircle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight, Boxes, Calendar, DollarSign, Lock, MapPin } from 'lucide-react';
+import { Plus, Trash2, AlertCircle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight, Boxes, Calendar, DollarSign, Lock, MapPin, ShieldAlert } from 'lucide-react';
 import { Button, Input, Select, Modal, Stepper, useStepper, StepContent, GoogleMapsAddressInput } from '../../common';
 import type { AddressData } from '../../common';
 import type { Step } from '../../common/Stepper';
@@ -280,6 +280,32 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   // Si incluyeEnvio = false, el cliente paga el costo de envío
   const totalPEN = subtotalPEN - descuento + (incluyeEnvio ? 0 : costoEnvio);
 
+  // Detección de venta bajo costo (precio < CTRU)
+  const productosBajoCosto = useMemo(() => {
+    return productos.filter(item =>
+      item.productoId &&
+      item.precioUnitario > 0 &&
+      item.snapshot?.ctruPromedio &&
+      item.precioUnitario < item.snapshot.ctruPromedio
+    ).map(item => ({
+      nombre: item.snapshot?.nombreComercial || item.snapshot?.sku || item.productoId,
+      precioUnitario: item.precioUnitario,
+      ctruPromedio: item.snapshot!.ctruPromedio!,
+      perdidaUnitaria: item.snapshot!.ctruPromedio! - item.precioUnitario,
+      cantidad: item.cantidad,
+    }));
+  }, [productos]);
+
+  const hayVentaBajoCosto = productosBajoCosto.length > 0;
+  const [aprobacionBajoCosto, setAprobacionBajoCosto] = useState(false);
+  const { userProfile } = useAuthStore();
+  const esAdminOGerente = userProfile?.role === 'admin' || userProfile?.role === 'gerente';
+
+  // Reset aprobación cuando cambia la cantidad de productos bajo costo
+  useEffect(() => {
+    setAprobacionBajoCosto(false);
+  }, [productosBajoCosto.length]);
+
   // Agregar producto
   const handleAddProducto = () => {
     setProductos([...productos, { productoId: '', cantidad: 1, precioUnitario: 0, snapshot: null }]);
@@ -365,7 +391,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
     submitForm(true);
   };
 
-  const submitForm = (esVentaDirecta: boolean) => {
+  const submitForm = async (esVentaDirecta: boolean) => {
     // Validar que haya al menos un producto válido
     const productosValidos = productos.filter(p =>
       p.productoId && p.cantidad > 0 && p.precioUnitario > 0
@@ -373,6 +399,12 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
     if (productosValidos.length === 0) {
       toast.warning('Debes agregar al menos un producto con cantidad y precio válidos');
+      return;
+    }
+
+    // Validar nombre del cliente
+    if (!nombreCliente.trim()) {
+      toast.warning('Debes ingresar el nombre del cliente');
       return;
     }
 
@@ -388,6 +420,22 @@ export const VentaForm: React.FC<VentaFormProps> = ({
       }
     }
 
+    // Validar venta bajo costo — requiere aprobación de admin/gerente
+    if (hayVentaBajoCosto) {
+      if (!esAdminOGerente) {
+        toast.error('Esta venta tiene productos por debajo del costo. Requiere aprobación de un Administrador o Gerente.');
+        return;
+      }
+      if (!aprobacionBajoCosto) {
+        toast.warning('Debes aprobar la venta bajo costo antes de continuar');
+        return;
+      }
+    }
+
+    // Si hay cliente seleccionado del maestro, usar su ID
+    // Si no, el service se encarga de auto-crear via getOrCreate (defensa única, sin duplicar)
+    const clienteId = clienteSeleccionado?.clienteId;
+
     const data: VentaFormData = {
       nombreCliente,
       canal,
@@ -396,9 +444,8 @@ export const VentaForm: React.FC<VentaFormProps> = ({
       observaciones
     };
 
-    // Vincular cliente del maestro si está seleccionado
-    if (clienteSeleccionado?.clienteId) {
-      data.clienteId = clienteSeleccionado.clienteId;
+    if (clienteId) {
+      data.clienteId = clienteId;
     }
 
     if (emailCliente) data.emailCliente = emailCliente;
@@ -414,6 +461,16 @@ export const VentaForm: React.FC<VentaFormProps> = ({
     if (costoEnvio > 0) data.costoEnvio = costoEnvio;
     data.incluyeEnvio = incluyeEnvio;
     if ((canalNombre.toLowerCase().includes('mercado libre') || canal === 'mercado_libre') && mercadoLibreId) data.mercadoLibreId = mercadoLibreId;
+
+    // Marcar venta bajo costo si fue aprobada
+    if (hayVentaBajoCosto && aprobacionBajoCosto) {
+      if (!user?.uid) {
+        toast.error('Sesión expirada. Por favor recarga la página.');
+        return;
+      }
+      data.ventaBajoCosto = true;
+      data.aprobadoPor = user.uid;
+    }
 
     // Preparar datos del adelanto si corresponde
     let adelantoData: AdelantoData | undefined;
@@ -647,6 +704,17 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                           )}
                         </div>
                       </div>
+
+                      {/* Alerta: venta bajo costo */}
+                      {item.productoId && item.precioUnitario > 0 && item.snapshot?.ctruPromedio && item.precioUnitario < item.snapshot.ctruPromedio && (
+                        <div className="flex items-start gap-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                          <ShieldAlert className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                          <div className="text-xs text-red-700">
+                            <span className="font-semibold">Venta bajo costo:</span> Precio S/ {item.precioUnitario.toFixed(2)} está por debajo del CTRU S/ {item.snapshot.ctruPromedio.toFixed(2)}.
+                            Pérdida de S/ {((item.snapshot.ctruPromedio - item.precioUnitario) * item.cantidad).toFixed(2)} en esta línea.
+                          </div>
+                        </div>
+                      )}
 
                       {/* Precios rápidos de investigación si está disponible */}
                       {tieneInvestigacion && item.productoId && (
@@ -1172,6 +1240,61 @@ export const VentaForm: React.FC<VentaFormProps> = ({
               <p className="text-sm text-gray-600">{observaciones}</p>
             </div>
           )}
+
+          {/* Alerta de venta bajo costo con flujo de aprobación */}
+          {hayVentaBajoCosto && (
+            <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <ShieldAlert className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h5 className="font-semibold text-red-800 text-base">
+                    Venta por debajo del costo
+                  </h5>
+                  <p className="text-sm text-red-700 mt-1">
+                    {productosBajoCosto.length === 1 ? 'Un producto tiene' : `${productosBajoCosto.length} productos tienen`} precio
+                    inferior al CTRU (Costo Total Real por Unidad). Esta venta generará pérdida.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white/60 rounded-md p-3 space-y-1">
+                {productosBajoCosto.map((p, i) => (
+                  <div key={i} className="flex justify-between text-sm">
+                    <span className="text-red-800 font-medium truncate mr-2">{p.nombre}</span>
+                    <span className="text-red-600 whitespace-nowrap">
+                      S/ {p.precioUnitario.toFixed(2)} vs CTRU S/ {p.ctruPromedio.toFixed(2)}
+                      {p.cantidad > 1 && ` (×${p.cantidad} = -S/ ${(p.perdidaUnitaria * p.cantidad).toFixed(2)})`}
+                    </span>
+                  </div>
+                ))}
+                <div className="border-t border-red-200 pt-1 mt-1 flex justify-between font-semibold text-sm text-red-800">
+                  <span>Pérdida total estimada:</span>
+                  <span>- S/ {productosBajoCosto.reduce((sum, p) => sum + p.perdidaUnitaria * p.cantidad, 0).toFixed(2)}</span>
+                </div>
+              </div>
+
+              {esAdminOGerente ? (
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={aprobacionBajoCosto}
+                    onChange={(e) => setAprobacionBajoCosto(e.target.checked)}
+                    className="w-4 h-4 text-red-600 border-red-300 rounded focus:ring-red-500"
+                  />
+                  <span className="text-sm font-medium text-red-800">
+                    Apruebo esta venta bajo costo como {userProfile?.role === 'admin' ? 'Administrador' : 'Gerente'}
+                  </span>
+                </label>
+              ) : (
+                <div className="flex items-center gap-2 p-2 bg-red-100 rounded-md">
+                  <Lock className="h-4 w-4 text-red-600" />
+                  <span className="text-sm font-medium text-red-800">
+                    Requiere aprobación de un Administrador o Gerente para proceder
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </StepContent>
 
@@ -1220,6 +1343,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                 variant="secondary"
                 onClick={handleSubmitCotizacion}
                 loading={loading}
+                disabled={hayVentaBajoCosto && (!esAdminOGerente || !aprobacionBajoCosto)}
                 className="w-full sm:w-auto"
               >
                 <span className="hidden sm:inline">Guardar como Cotización</span>
@@ -1230,6 +1354,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                 variant="primary"
                 onClick={handleSubmitVenta}
                 loading={loading}
+                disabled={hayVentaBajoCosto && (!esAdminOGerente || !aprobacionBajoCosto)}
                 className="w-full sm:w-auto"
               >
                 <CheckCircle className="h-4 w-4 mr-1" />

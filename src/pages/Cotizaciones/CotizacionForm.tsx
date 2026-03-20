@@ -504,9 +504,11 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         diasVigencia: 7 // 7 días de vigencia por defecto
       };
 
-      // Vincular cliente del CRM si está seleccionado
-      if (clienteSeleccionado?.clienteId) {
-        data.clienteId = clienteSeleccionado.clienteId;
+      // Si hay cliente seleccionado del maestro, usar su ID
+      // Si no, el service se encarga de auto-crear via getOrCreate (defensa única, sin duplicar)
+      const clienteId = clienteSeleccionado?.clienteId;
+      if (clienteId) {
+        data.clienteId = clienteId;
       }
 
       if (modoEdicion && cotizacionEditar) {
