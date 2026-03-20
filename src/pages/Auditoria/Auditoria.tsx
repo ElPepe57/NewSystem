@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { formatFecha, formatFechaRelativa } from '../../utils/dateFormatters';
 import {
   Activity,
   Search,
@@ -144,33 +145,6 @@ export const Auditoria: React.FC = () => {
     }
   };
 
-  const formatFecha = (timestamp: any) => {
-    if (!timestamp?.toDate) return '-';
-    const fecha = timestamp.toDate();
-    return fecha.toLocaleString('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatFechaRelativa = (timestamp: any) => {
-    if (!timestamp?.toDate) return '-';
-    const fecha = timestamp.toDate();
-    const ahora = new Date();
-    const diffMs = ahora.getTime() - fecha.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Ahora';
-    if (diffMins < 60) return `Hace ${diffMins}m`;
-    if (diffHours < 24) return `Hace ${diffHours}h`;
-    if (diffDays < 7) return `Hace ${diffDays}d`;
-    return fecha.toLocaleDateString('es-PE');
-  };
 
   const clearFilters = () => {
     setSearchTerm('');

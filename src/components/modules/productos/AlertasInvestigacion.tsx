@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatFechaRelativa as formatFecha } from '../../../utils/dateFormatters';
 import {
   AlertTriangle,
   AlertCircle,
@@ -74,18 +75,6 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
     }
   };
 
-  const formatFecha = (fecha: Timestamp) => {
-    const date = fecha?.toDate?.() || new Date();
-    const ahora = new Date();
-    const diff = ahora.getTime() - date.getTime();
-    const horas = Math.floor(diff / (1000 * 60 * 60));
-    const dias = Math.floor(horas / 24);
-
-    if (horas < 1) return 'Hace menos de 1 hora';
-    if (horas < 24) return `Hace ${horas} hora${horas > 1 ? 's' : ''}`;
-    if (dias < 7) return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
-    return date.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
-  };
 
   const getTipoLabel = (tipo: AlertaInvestigacion['tipo']) => {
     switch (tipo) {

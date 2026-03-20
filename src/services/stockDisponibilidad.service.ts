@@ -2,9 +2,10 @@ import { Timestamp } from 'firebase/firestore';
 import { inventarioService } from './inventario.service';
 import { almacenService } from './almacen.service';
 import { unidadService } from './unidad.service';
-import type { Almacen } from '../types/almacen.types';
+import type { Almacen, PaisAlmacen } from '../types/almacen.types';
 import type { InventarioProducto } from '../types/inventario.types';
 import type { Unidad } from '../types/unidad.types';
+import { esPaisOrigen, esEstadoEnOrigen } from '../utils/multiOrigen.helpers';
 import type {
   FuenteStock,
   EstadoDisponibilidad,
@@ -67,12 +68,11 @@ export const stockDisponibilidadService = {
 
     // Obtener inventario completo
     const inventarioCompleto = await inventarioService.getInventarioAgregado();
-    const almacenesUSA = await almacenService.getAlmacenesUSA();
-    const almacenesPeru = await almacenService.getAlmacenesPeru();
+    const todosAlmacenes = await almacenService.getAll();
 
     // Mapear almacenes por ID
     const almacenesMap = new Map<string, Almacen>();
-    [...almacenesUSA, ...almacenesPeru].forEach(a => almacenesMap.set(a.id, a));
+    todosAlmacenes.forEach(a => almacenesMap.set(a.id, a));
 
     for (const item of request.productos) {
       const disponibilidad = await this.getDisponibilidadProducto(
@@ -148,12 +148,9 @@ export const stockDisponibilidadService = {
     // Si no hay almacenes mapeados, obtenerlos
     let almacenes = almacenesMap;
     if (!almacenes) {
-      const [almacenesUSA, almacenesPeru] = await Promise.all([
-        almacenService.getAlmacenesUSA(),
-        almacenService.getAlmacenesPeru()
-      ]);
+      const todosAlmacenes = await almacenService.getAll();
       almacenes = new Map<string, Almacen>();
-      [...almacenesUSA, ...almacenesPeru].forEach(a => almacenes!.set(a.id, a));
+      todosAlmacenes.forEach(a => almacenes!.set(a.id, a));
     }
 
     // Construir disponibilidad por almacén
@@ -161,18 +158,22 @@ export const stockDisponibilidadService = {
     let totalDisponible = 0;
     let totalReservado = 0;
     let disponiblePeru = 0;
-    let disponibleUSA = 0;
+    let disponibleOrigen = 0;
 
     for (const inv of inventarioProducto) {
       const almacen = almacenes.get(inv.almacenId);
       if (!almacen) continue;
 
       // Obtener unidades disponibles para este almacén
-      const unidadesDisponibles = await unidadService.buscar({
+      // For origin countries, fetch all units and filter by esEstadoEnOrigen (handles legacy + generic)
+      const unidadesAlmacen = await unidadService.buscar({
         productoId,
         almacenId: inv.almacenId,
-        estado: inv.pais === 'Peru' ? 'disponible_peru' : 'recibida_usa'
+        ...(inv.pais === 'Peru' ? { estado: 'disponible_peru' as any } : {})
       });
+      const unidadesDisponibles = inv.pais === 'Peru'
+        ? unidadesAlmacen
+        : unidadesAlmacen.filter(u => esEstadoEnOrigen(u.estado));
 
       // Calcular unidades libres (nunca negativo)
       const unidadesLibresCalc = Math.max(0, inv.disponibles - inv.reservadas);
@@ -181,7 +182,7 @@ export const stockDisponibilidadService = {
         almacenId: inv.almacenId,
         almacenNombre: inv.almacenNombre,
         almacenCodigo: almacen.codigo,
-        pais: inv.pais,
+        pais: inv.pais as PaisAlmacen,
         esViajero: almacen.esViajero,
         unidadesDisponibles: inv.disponibles,
         unidadesReservadas: inv.reservadas,
@@ -204,8 +205,8 @@ export const stockDisponibilidadService = {
         );
         // Sumar días de viaje estimados (3 días promedio)
         disponibilidadAlmacen.tiempoEstimadoLlegadaDias = Math.max(0, diasHastaViaje) + 3;
-      } else if (inv.pais === 'USA') {
-        // Almacén USA sin viaje programado: estimar 15 días
+      } else if (esPaisOrigen(inv.pais)) {
+        // Almacén origen sin viaje programado: estimar 15 días
         disponibilidadAlmacen.tiempoEstimadoLlegadaDias = 15;
       } else {
         // Perú: disponible inmediatamente
@@ -213,7 +214,7 @@ export const stockDisponibilidadService = {
       }
 
       // Estimar costo de flete para USA
-      if (inv.pais === 'USA') {
+      if (esPaisOrigen(inv.pais)) {
         disponibilidadAlmacen.costoFleteEstimadoUSD = almacen.costoPromedioFlete || 5;
       }
 
@@ -224,10 +225,10 @@ export const stockDisponibilidadService = {
       totalDisponible += inv.disponibles;
       totalReservado += inv.reservadas;
 
-      if (inv.pais === 'Peru') {
+      if (inv.pais === 'Peru' || inv.pais === 'Peru_local') {
         disponiblePeru += libres;
       } else {
-        disponibleUSA += libres;
+        disponibleOrigen += libres;
       }
     }
 
@@ -241,7 +242,7 @@ export const stockDisponibilidadService = {
     });
 
     // Determinar estado de disponibilidad
-    const totalLibre = disponiblePeru + disponibleUSA;
+    const totalLibre = disponiblePeru + disponibleOrigen;
     let estadoDisponibilidad: EstadoDisponibilidad;
 
     if (totalLibre >= cantidadRequerida) {
@@ -265,7 +266,7 @@ export const stockDisponibilidadService = {
       totalReservado,
       totalLibre,
       disponiblePeru,
-      disponibleUSA,
+      disponibleUSA: disponibleOrigen,
       requiereCompra: totalLibre < cantidadRequerida,
       almacenes: disponibilidadAlmacenes
     };
@@ -341,11 +342,11 @@ export const stockDisponibilidadService = {
           fuentePrincipal = 'peru';
           razon = 'Stock disponible en Perú (entrega inmediata)';
         } else if (almacen.esViajero && almacen.viajeroProximoViaje) {
-          fuentePrincipal = 'usa_viajero';
-          razon = `Stock en USA con ${almacen.viajeroNombre}, viaje próximo en ${almacen.tiempoEstimadoLlegadaDias} días`;
+          fuentePrincipal = 'origen_viajero';
+          razon = `Stock en origen con ${almacen.viajeroNombre}, viaje próximo en ${almacen.tiempoEstimadoLlegadaDias} días`;
         } else {
-          fuentePrincipal = 'usa_almacen';
-          razon = `Stock en almacén USA, tiempo estimado ${almacen.tiempoEstimadoLlegadaDias} días`;
+          fuentePrincipal = 'origen_almacen';
+          razon = `Stock en almacén origen, tiempo estimado ${almacen.tiempoEstimadoLlegadaDias} días`;
         }
       }
     }
@@ -364,11 +365,11 @@ export const stockDisponibilidadService = {
     // Generar alternativas
     const alternativas: RecomendacionStock['alternativas'] = [];
 
-    if (fuentePrincipal === 'peru' && almacenes.some(a => a.pais === 'USA' && a.unidadesLibres > 0)) {
-      const almacenUSA = almacenes.find(a => a.pais === 'USA' && a.unidadesLibres > 0);
+    if (fuentePrincipal === 'peru' && almacenes.some(a => esPaisOrigen(a.pais) && a.unidadesLibres > 0)) {
+      const almacenUSA = almacenes.find(a => esPaisOrigen(a.pais) && a.unidadesLibres > 0);
       if (almacenUSA) {
         alternativas.push({
-          fuente: almacenUSA.esViajero ? 'usa_viajero' : 'usa_almacen',
+          fuente: almacenUSA.esViajero ? 'origen_viajero' : 'origen_almacen',
           razon: `Alternativa desde USA (${almacenUSA.almacenNombre})`,
           tiempoAdicionalDias: almacenUSA.tiempoEstimadoLlegadaDias || 10,
           costoAdicionalUSD: almacenUSA.costoFleteEstimadoUSD
@@ -413,7 +414,7 @@ export const stockDisponibilidadService = {
       const reservasPorAlmacen: ReservaAlmacen[] = [];
       let cantidadRestante = cantidadRequerida;
       let cantidadPeru = 0;
-      let cantidadUSA = 0;
+      let cantidadOrigen = 0;
 
       // Reservar desde almacenes recomendados
       if (disponibilidad.recomendacion) {
@@ -454,10 +455,10 @@ export const stockDisponibilidadService = {
 
           // Actualizar contadores
           cantidadRestante -= cantidadReservar;
-          if (almacenInfo.pais === 'Peru') {
+          if (almacenInfo.pais === 'Peru' || almacenInfo.pais === 'Peru_local') {
             cantidadPeru += cantidadReservar;
           } else {
-            cantidadUSA += cantidadReservar;
+            cantidadOrigen += cantidadReservar;
           }
 
           tiempoMaximo = Math.max(
@@ -477,13 +478,13 @@ export const stockDisponibilidadService = {
         cantidadTotal: cantidadRequerida,
         reservasPorAlmacen,
         cantidadPeru,
-        cantidadUSA,
+        cantidadUSA: cantidadOrigen,
         cantidadVirtual
       });
 
       totalUnidades += cantidadRequerida;
       unidadesPeru += cantidadPeru;
-      unidadesUSA += cantidadUSA;
+      unidadesUSA += cantidadOrigen;
       unidadesVirtual += cantidadVirtual;
     }
 
@@ -525,7 +526,7 @@ export const stockDisponibilidadService = {
       for (const reservaAlmacen of producto.reservasPorAlmacen) {
         for (const unidadId of reservaAlmacen.unidadesIds) {
           // Restaurar estado según ubicación
-          const nuevoEstado = reservaAlmacen.pais === 'Peru' ? 'disponible_peru' : 'recibida_usa';
+          const nuevoEstado = (reservaAlmacen.pais === 'Peru' || reservaAlmacen.pais === 'Peru_local') ? 'disponible_peru' : 'recibida_origen';
           await unidadService.actualizarEstado(
             unidadId,
             nuevoEstado as any,

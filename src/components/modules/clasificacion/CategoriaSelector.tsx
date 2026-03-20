@@ -9,6 +9,7 @@ interface CategoriaSelectorProps {
   onChange: (categoriaIds: string[], snapshots: CategoriaSnapshot[]) => void;
   categoriaPrincipalId?: string;     // ID de la categoria principal
   onCategoriaPrincipalChange?: (categoriaId: string | undefined) => void;
+  lineaNegocioId?: string;           // Filtrar por linea de negocio
   maxCategorias?: number;            // Maximo de categorias (default 5)
   required?: boolean;
   disabled?: boolean;
@@ -21,6 +22,7 @@ export function CategoriaSelector({
   onChange,
   categoriaPrincipalId,
   onCategoriaPrincipalChange,
+  lineaNegocioId,
   maxCategorias = 5,
   required = false,
   disabled = false,
@@ -70,9 +72,17 @@ export function CategoriaSelector({
   // Obtener categorias seleccionadas
   const categoriasSeleccionadas = categoriasActivas.filter(c => value.includes(c.id));
 
-  // Filtrar categorias por busqueda
+  // Helper para filtrar por linea de negocio
+  const matchesLinea = (item: any) => {
+    if (!lineaNegocioId) return true;
+    const lineaIds = item.lineaNegocioIds as string[] | undefined;
+    return !lineaIds || lineaIds.length === 0 || lineaIds.includes(lineaNegocioId);
+  };
+
+  // Filtrar categorias por busqueda y linea
   const categoriasFiltradas = searchTerm
     ? categoriasActivas.filter(c => {
+        if (!matchesLinea(c)) return false;
         const term = searchTerm.toLowerCase();
         return (
           c.nombre.toLowerCase().includes(term) ||
@@ -81,6 +91,14 @@ export function CategoriaSelector({
         );
       })
     : null;
+
+  // Filter arbol by linea de negocio
+  const arbolFiltrado = lineaNegocioId
+    ? arbol.filter(padre => matchesLinea(padre)).map(padre => ({
+        ...padre,
+        hijos: padre.hijos.filter((hijo: any) => matchesLinea(hijo))
+      }))
+    : arbol;
 
   // Mostrar opcion de crear si no hay coincidencia exacta
   useEffect(() => {
@@ -139,7 +157,10 @@ export function CategoriaSelector({
         categoriaPadreId: cat.categoriaPadreId,
         categoriaPadreNombre: cat.categoriaPadreNombre,
         icono: cat.icono,
-        color: cat.color
+        color: cat.color,
+        ...(cat.margenMinimo !== undefined ? { margenMinimo: cat.margenMinimo } : {}),
+        ...(cat.margenObjetivo !== undefined ? { margenObjetivo: cat.margenObjetivo } : {}),
+        ...(cat.margenMaximo !== undefined ? { margenMaximo: cat.margenMaximo } : {})
       };
     });
 
@@ -168,7 +189,10 @@ export function CategoriaSelector({
         slug: nuevaCategoria.slug,
         nivel: nuevaCategoria.nivel,
         icono: nuevaCategoria.icono,
-        color: nuevaCategoria.color
+        color: nuevaCategoria.color,
+        ...(nuevaCategoria.margenMinimo !== undefined ? { margenMinimo: nuevaCategoria.margenMinimo } : {}),
+        ...(nuevaCategoria.margenObjetivo !== undefined ? { margenObjetivo: nuevaCategoria.margenObjetivo } : {}),
+        ...(nuevaCategoria.margenMaximo !== undefined ? { margenMaximo: nuevaCategoria.margenMaximo } : {})
       };
       onChange([...value, nuevaCategoria.id], [...categoriasSeleccionadas.map(c => ({
         categoriaId: c.id,
@@ -179,7 +203,10 @@ export function CategoriaSelector({
         categoriaPadreId: c.categoriaPadreId,
         categoriaPadreNombre: c.categoriaPadreNombre,
         icono: c.icono,
-        color: c.color
+        color: c.color,
+        ...(c.margenMinimo !== undefined ? { margenMinimo: c.margenMinimo } : {}),
+        ...(c.margenObjetivo !== undefined ? { margenObjetivo: c.margenObjetivo } : {}),
+        ...(c.margenMaximo !== undefined ? { margenMaximo: c.margenMaximo } : {})
       })), snapshot]);
       setSearchTerm('');
     } catch (error) {
@@ -203,7 +230,10 @@ export function CategoriaSelector({
         categoriaPadreId: c.categoriaPadreId,
         categoriaPadreNombre: c.categoriaPadreNombre,
         icono: c.icono,
-        color: c.color
+        color: c.color,
+        ...(c.margenMinimo !== undefined ? { margenMinimo: c.margenMinimo } : {}),
+        ...(c.margenObjetivo !== undefined ? { margenObjetivo: c.margenObjetivo } : {}),
+        ...(c.margenMaximo !== undefined ? { margenMaximo: c.margenMaximo } : {})
       }));
 
     if (categoriaId === categoriaPrincipalId) {
@@ -429,9 +459,9 @@ export function CategoriaSelector({
                     )
                   )
                 ) : (
-                  // Mostrar arbol completo
-                  arbol.length > 0 ? (
-                    arbol.map(padre => renderCategoriaPadre(padre))
+                  // Mostrar arbol completo (filtrado por linea si aplica)
+                  arbolFiltrado.length > 0 ? (
+                    arbolFiltrado.map(padre => renderCategoriaPadre(padre))
                   ) : (
                     <div className="px-4 py-3 text-center text-gray-500">
                       No hay categorias creadas

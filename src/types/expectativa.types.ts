@@ -6,7 +6,10 @@ export type {
   TipoSolicitante,
   Requerimiento,
   RequerimientoFormData,
-  RequerimientoFiltros
+  RequerimientoFiltros,
+  OrdenCompraRef,
+  OCCoverage,
+  ProductoRequerimiento
 } from './requerimiento.types';
 
 /**

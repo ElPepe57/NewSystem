@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Tag } from 'lucide-react';
 import { Button, Input, Modal, Select } from '../../common';
 import { useEtiquetaStore } from '../../../store/etiquetaStore';
+import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { useAuthStore } from '../../../store/authStore';
 import type { Etiqueta, EtiquetaFormData, TipoEtiqueta } from '../../../types/etiqueta.types';
 
@@ -52,6 +53,16 @@ export function EtiquetaForm({
 }: EtiquetaFormProps) {
   const { user } = useAuthStore();
   const { create, update, loading, error, clearError } = useEtiquetaStore();
+  const { lineasActivas, fetchLineasActivas } = useLineaNegocioStore();
+
+  const [selectedLineas, setSelectedLineas] = useState<string[]>([]);
+
+  // Cargar lineas activas
+  useEffect(() => {
+    if (lineasActivas.length === 0) {
+      fetchLineasActivas();
+    }
+  }, []);
 
   const [formData, setFormData] = useState<EtiquetaFormData>({
     nombre: '',
@@ -73,6 +84,7 @@ export function EtiquetaForm({
         colorTexto: etiqueta.colorTexto || COLORES_PRESET[etiqueta.tipo][0].texto,
         colorBorde: etiqueta.colorBorde || COLORES_PRESET[etiqueta.tipo][0].borde
       });
+      setSelectedLineas(etiqueta.lineaNegocioIds || []);
     } else {
       setFormData({
         nombre: '',
@@ -82,6 +94,7 @@ export function EtiquetaForm({
         colorTexto: COLORES_PRESET[tipoInicial][0].texto,
         colorBorde: COLORES_PRESET[tipoInicial][0].borde
       });
+      setSelectedLineas([]);
     }
     clearError();
   }, [etiqueta, tipoInicial, isOpen]);
@@ -120,15 +133,25 @@ export function EtiquetaForm({
     }));
   };
 
+  const toggleLinea = (lineaId: string) => {
+    setSelectedLineas(prev =>
+      prev.includes(lineaId)
+        ? prev.filter(id => id !== lineaId)
+        : [...prev, lineaId]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
+    const dataToSave = { ...formData, lineaNegocioIds: selectedLineas };
+
     try {
       if (etiqueta) {
-        await update(etiqueta.id, formData, user.uid);
+        await update(etiqueta.id, dataToSave, user.uid);
       } else {
-        await create(formData, user.uid);
+        await create(dataToSave, user.uid);
       }
       onSuccess?.();
       onClose();
@@ -269,6 +292,37 @@ export function EtiquetaForm({
             <span className="text-sm text-gray-500">
               Asi se vera en los productos
             </span>
+          </div>
+        </div>
+
+        {/* Lineas de Negocio */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Lineas de negocio
+          </label>
+          <p className="text-xs text-gray-500 mb-2">
+            Dejar vacio para disponible en todas las lineas
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {lineasActivas.map(linea => {
+              const isSelected = selectedLineas.includes(linea.id);
+              return (
+                <button
+                  key={linea.id}
+                  type="button"
+                  onClick={() => toggleLinea(linea.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    isSelected
+                      ? 'border-transparent text-white'
+                      : 'border-gray-300 text-gray-600 hover:border-gray-400'
+                  }`}
+                  style={isSelected ? { backgroundColor: linea.color } : undefined}
+                >
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: linea.color }} />
+                  {linea.icono} {linea.nombre}
+                </button>
+              );
+            })}
           </div>
         </div>
 

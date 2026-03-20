@@ -7,7 +7,8 @@ export type EstadoRequerimiento =
   | 'borrador'        // En proceso de creación
   | 'pendiente'       // Recién creado, sin asignar
   | 'aprobado'        // Aprobado para compra
-  | 'en_proceso'      // En proceso de compra/envío (al menos una asignación activa)
+  | 'parcial'         // Algunos productos en OC, otros pendientes
+  | 'en_proceso'      // En proceso de compra/envío (todos los productos en OC)
   | 'completado'      // Todos los productos recibidos en Perú
   | 'cancelado';      // Cancelado
 
@@ -41,12 +42,18 @@ export type TipoSolicitante =
  */
 export type EstadoAsignacion =
   | 'pendiente'           // Asignado pero no ha iniciado
-  | 'comprando'           // Responsable está comprando en USA
+  | 'comprando'           // Responsable está comprando en origen
   | 'comprado'            // Productos comprados, esperando recibir
-  | 'en_almacen_usa'      // Productos en almacén/viajero USA
+  | 'en_almacen_origen'   // Productos en almacén/viajero/courier del país origen
+  | 'en_almacen_usa'      // Legacy: equivale a en_almacen_origen (backward compat)
   | 'en_transito'         // En camino a Perú (transferencia activa)
   | 'recibido'            // Recibido en Perú
   | 'cancelado';          // Esta asignación fue cancelada
+
+/**
+ * Arrays de compatibilidad para queries
+ */
+export const ESTADOS_EN_ALMACEN_ORIGEN: EstadoAsignacion[] = ['en_almacen_origen', 'en_almacen_usa'];
 
 /**
  * Producto dentro de una asignación
@@ -110,6 +117,25 @@ export interface AsignacionResponsable {
 }
 
 /**
+ * Referencia de una OC vinculada a un producto
+ */
+export interface OrdenCompraRef {
+  ordenCompraId: string;
+  ordenCompraNumero: string;
+  cantidad: number;
+}
+
+/**
+ * Resumen de cobertura OC del requerimiento
+ */
+export interface OCCoverage {
+  totalProductos: number;           // Total de productos distintos
+  productosEnOC: number;            // Productos con cantidadEnOC > 0
+  productosPendientes: number;      // Productos con pendienteCompra > 0
+  porcentaje: number;               // 0-100, cobertura ponderada por cantidad
+}
+
+/**
  * Producto solicitado en el requerimiento
  */
 export interface ProductoRequerimiento {
@@ -118,12 +144,20 @@ export interface ProductoRequerimiento {
   marca: string;
   nombreComercial: string;
   presentacion?: string;
+  contenido?: string;               // e.g. "60 cápsulas", "500g"
+  dosaje?: string;                  // e.g. "150mg", "1000 UI"
+  sabor?: string;                   // e.g. "Limón", "Fresa", "Natural"
 
   // Cantidades
   cantidadSolicitada: number;         // Total que se necesita
   cantidadAsignada: number;           // Suma de asignaciones activas
   cantidadRecibida: number;           // Suma de lo que ya llegó a Perú
   cantidadPendiente: number;          // cantidadSolicitada - cantidadAsignada
+
+  // Tracking OC parcial
+  cantidadEnOC: number;               // Cuánto ya está asignado a OCs creadas
+  pendienteCompra: number;            // cantidadSolicitada - cantidadEnOC
+  ordenCompraRefs?: OrdenCompraRef[]; // A qué OCs fue asignado este producto
 
   // Precios de referencia (de investigación de mercado)
   precioEstimadoUSD?: number;         // Precio estimado de compra
@@ -182,6 +216,11 @@ export interface Requerimiento {
   clienteId?: string;
   clienteNombre?: string;
 
+  // === LÍNEA DE NEGOCIO Y ORIGEN ===
+  lineaNegocioId?: string;
+  lineaNegocioNombre?: string;
+  paisOrigenPrincipal?: string;          // 'USA', 'China', 'Corea', 'Peru'
+
   // Productos solicitados
   productos: ProductoRequerimiento[];
 
@@ -196,9 +235,14 @@ export interface Requerimiento {
   estado: EstadoRequerimiento;
   prioridad: PrioridadRequerimiento;
 
-  // Relación con OC (cuando se genera)
+  // Relación con OC (cuando se genera) — legacy singular
   ordenCompraId?: string;
   ordenCompraNumero?: string;
+
+  // Multi-OC support (OC parcial + fusión)
+  ordenCompraIds?: string[];
+  ordenCompraNumeros?: string[];
+  ocCoverage?: OCCoverage;
 
   // Fechas
   fechaRequerida?: Timestamp;         // Fecha límite de necesidad
@@ -240,6 +284,9 @@ export interface RequerimientoFormData {
     marca?: string;
     nombreComercial?: string;
     presentacion?: string;
+    contenido?: string;
+    dosaje?: string;
+    sabor?: string;
     cantidadSolicitada: number;
     precioEstimadoUSD?: number;
     precioVentaPEN?: number;

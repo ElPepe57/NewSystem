@@ -1,0 +1,38 @@
+[
+  {
+    "_id": "Z50CnuaBdD5x0w7XGRv8",
+    "nombre": "Suplementos y Vitaminas",
+    "codigo": "SUP",
+    "descripcion": "Línea principal de suplementos alimenticios, vitaminas y minerales",
+    "color": "#3B82F6",
+    "icono": "💊",
+    "activa": true,
+    "totalProductos": 0,
+    "totalUnidadesActivas": 0,
+    "ventasMesActualPEN": 0,
+    "creadoPor": "migration-script",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T03:32:58.000Z",
+      "_seconds": 1773631978
+    }
+  },
+  {
+    "_id": "mrwyh6hvHEAPMzLOzgFS",
+    "nombre": "Skincare",
+    "codigo": "SKC",
+    "descripcion": "Línea de productos de cuidado de la piel - skincare coreano, chino e internacional",
+    "color": "#EC4899",
+    "icono": "✨",
+    "activa": true,
+    "totalProductos": 0,
+    "totalUnidadesActivas": 0,
+    "ventasMesActualPEN": 0,
+    "creadoPor": "system-migration",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T04:03:18.000Z",
+      "_seconds": 1773633798
+    }
+  }
+]

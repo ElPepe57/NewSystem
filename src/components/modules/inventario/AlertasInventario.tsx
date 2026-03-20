@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
 import {
   AlertTriangle,
   Clock,
@@ -73,16 +74,6 @@ const calcularDescuentoSugerido = (tipo: string, diasRestantes?: number): { desc
   return { descuento: 0, sugerencia: '' };
 };
 
-// Helper para calcular días hasta vencimiento
-const calcularDiasParaVencer = (fecha: any): number | null => {
-  if (!fecha || !fecha.toDate) return null;
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const vencimiento = fecha.toDate();
-  vencimiento.setHours(0, 0, 0, 0);
-  const diffTime = vencimiento.getTime() - hoy.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-};
 
 // Helper para calcular días desde creación
 const calcularDiasDesde = (fecha: any): number => {

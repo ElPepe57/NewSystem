@@ -199,7 +199,7 @@ export interface ClienteFiltros {
 // ===============================================
 
 export type EstadoMarca = 'activa' | 'inactiva' | 'descontinuada';
-export type TipoMarca = 'farmaceutica' | 'suplementos' | 'cosmetica' | 'tecnologia' | 'otro';
+export type TipoMarca = 'farmaceutica' | 'suplementos' | 'skincare' | 'cosmetica' | 'tecnologia' | 'otro';
 
 /**
  * Marca de productos

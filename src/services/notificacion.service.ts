@@ -83,16 +83,17 @@ class NotificacionService {
     usuarioId: string,
     callback: (notificaciones: Notificacion[]) => void
   ): () => void {
+    // Filtrar por usuario directamente en Firestore (no descargar notificaciones de otros)
     const q = query(
       this.collectionRef,
+      where('usuarioId', '==', usuarioId),
       orderBy('fechaCreacion', 'desc'),
       limit(50)
     );
 
     return onSnapshot(q, (snapshot) => {
       const notificaciones = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() } as Notificacion))
-        .filter(n => !n.usuarioId || n.usuarioId === usuarioId);
+        .map(doc => ({ id: doc.id, ...doc.data() } as Notificacion));
       callback(notificaciones);
     }, (error) => {
       console.error('Error en suscripción de notificaciones:', error);

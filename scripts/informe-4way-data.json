@@ -1,0 +1,4210 @@
+{
+  "fecha": "2026-03-14",
+  "mpAccountId": "geEs98tz955mVjYNct8M",
+  "overview": {
+    "totalIngresos": 12514.41,
+    "countIngresos": 69,
+    "totalEgresos": 10376.76,
+    "countEgresos": 99,
+    "egresoComisiones": 1784.53,
+    "egresoCargoEnvio": 4.17,
+    "egresoDelivery": 163.06,
+    "egresoTransferencias": 8424,
+    "egresoOtros": 1,
+    "saldoSistema": 2137.65,
+    "saldoReal": 1816.15,
+    "gap": 321.5
+  },
+  "ventasConInconsistencias": 66,
+  "ventasOK": 1,
+  "ventasOKList": [
+    "VT-2026-078"
+  ],
+  "orphanCount": 1,
+  "orphanMovs": [
+    {
+      "num": "MOV-2026-0088",
+      "efecto": 65.1,
+      "concepto": "Ajuste por ingreso por Envios - Mercado Flex",
+      "id": "NU72R29i6HiQeOzZ30eW"
+    }
+  ],
+  "orphanIngresosTotal": 65.1,
+  "ventasDetalle": [
+    {
+      "ventaId": "8GpMxoTrqSm9l8qQrj9S",
+      "numVenta": "VT-2026-032",
+      "ventaTotalPEN": 175.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 142.8,
+      "mlApiPayments": [
+        {
+          "paymentId": 147505678328,
+          "net": 142.8,
+          "transactionAmount": 168
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 168,
+      "mlErpComision": 25.2,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 175.25,
+      "mlErpNet": 150.05,
+      "syncCount": 1,
+      "sysIngresos": 175.25,
+      "sysEgresos": 25.2,
+      "sysNet": 150.05,
+      "sysIngresosDetail": [
+        {
+          "id": "2C9A0lQTnr7PtwqihtGb",
+          "num": "MOV-2026-0089",
+          "monto": 175.25,
+          "concepto": "Pago de venta VT-2026-032",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "TyAexqJS51JM1HjDHCj9",
+          "num": "MOV-2026-0091",
+          "monto": 25.2,
+          "concepto": "Pago GAS-0064: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 150.05) ≠ ML API net_received (S/ 142.80) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "LgboD8ZPRv3MuflME8Od",
+      "numVenta": "VT-2026-033",
+      "ventaTotalPEN": 220.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 180.2,
+      "mlApiPayments": [
+        {
+          "paymentId": 147516476134,
+          "net": 180.2,
+          "transactionAmount": 212
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 212,
+      "mlErpComision": 31.8,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 220.95,
+      "mlErpNet": 189.15,
+      "syncCount": 1,
+      "sysIngresos": 220.95,
+      "sysEgresos": 31.8,
+      "sysNet": 189.15,
+      "sysIngresosDetail": [
+        {
+          "id": "2PVT1AaakB4H2pR99Y2U",
+          "num": "MOV-2026-0090",
+          "monto": 220.95,
+          "concepto": "Pago de venta VT-2026-033",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "92tlGCt20rC3nkthFrM7",
+          "num": "MOV-2026-0092",
+          "monto": 31.8,
+          "concepto": "Pago GAS-0065: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 189.15) ≠ ML API net_received (S/ 180.20) → diff +S/ 8.95",
+          "impacto": 8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-2000015508642888",
+      "numVenta": "VT-2026-076",
+      "ventaTotalPEN": 276.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 227.8,
+      "mlApiPayments": [
+        {
+          "paymentId": 149959788990,
+          "net": 227.8,
+          "transactionAmount": 268
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 268,
+      "mlErpComision": 40.2,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 276.95,
+      "mlErpNet": 236.75,
+      "syncCount": 1,
+      "sysIngresos": 276.95,
+      "sysEgresos": 40.2,
+      "sysNet": 236.75,
+      "sysIngresosDetail": [
+        {
+          "id": "3JmUFATFwxzc3bk0O7Qg",
+          "num": "MOV-ml-1773274996385",
+          "monto": 276.95,
+          "concepto": "Pago venta VT-2026-076 - ML #2000015508642888",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "bRCa4BpW8OYlV4eCIYIL",
+          "num": "MOV-mlgas-1773274999793",
+          "monto": 40.2,
+          "concepto": "Comisión ML - VT-2026-076 - Orden #2000015508642888",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 236.75) ≠ ML API net_received (S/ 227.80) → diff +S/ 8.95",
+          "impacto": 8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "S3GajkDfmPhnED60okY3",
+      "numVenta": "VT-2026-046",
+      "ventaTotalPEN": 226,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 184.65,
+      "mlApiPayments": [
+        {
+          "paymentId": 148570694276,
+          "net": 184.65,
+          "transactionAmount": 226
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 226,
+      "mlErpComision": 33.9,
+      "mlErpCargoEnvio": 7.45,
+      "mlErpCostoEnvioCliente": 7.45,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 226,
+      "mlErpNet": 184.65,
+      "syncCount": 1,
+      "sysIngresos": 226,
+      "sysEgresos": 41.35,
+      "sysNet": 184.65,
+      "sysIngresosDetail": [
+        {
+          "id": "3jUEj35oWibbOihHMh2L",
+          "num": "MOV-2026-0119",
+          "monto": 226,
+          "concepto": "Adelanto con reserva - VT-2026-046 - Martha Elena Bonifaz",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "oYqjYWGhXCupLtHWAM3l",
+          "num": "MOV-2026-0125",
+          "monto": 7.45,
+          "concepto": "Pago GAS-0092: Entrega ENT-2026-044 - Urbano - Av Lima Cuadra 34 (Cieneguilla)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "WyMKNMtI3hGrG5JyNaMt",
+          "num": "MOV-2026-0122",
+          "monto": 33.9,
+          "concepto": "Pago GAS-0091: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 7.45) no tiene egreso correspondiente en tesorería",
+          "impacto": 7.45
+        }
+      ]
+    },
+    {
+      "ventaId": "cJlfxGnzzSXuYrmc3DkV",
+      "numVenta": "VT-2026-022",
+      "ventaTotalPEN": 198,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 168.3,
+      "mlApiPayments": [
+        {
+          "paymentId": 145121185241,
+          "net": 168.3,
+          "transactionAmount": 198
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 198,
+      "mlErpComision": 29.7,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 206.95,
+      "mlErpNet": 177.25,
+      "syncCount": 1,
+      "sysIngresos": 198,
+      "sysEgresos": 29.7,
+      "sysNet": 168.3,
+      "sysIngresosDetail": [
+        {
+          "id": "6VObbvw4T17dFcTCkmh2",
+          "num": "MOV-2026-0041",
+          "monto": 198,
+          "concepto": "Pago de venta VT-2026-022",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "Ti3uQmc0Fa06eXQ3Nnrc",
+          "num": "MOV-2026-0042",
+          "monto": 29.7,
+          "concepto": "Pago GAS-0034: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 198.00) ≠ depósito esperado ML (S/ 206.95) → diff S/ -8.95. Flex: ingreso NO incluye bonificación que ML SÍ deposita",
+          "impacto": -8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "UMRZg6uC4t43MpYhUB8e",
+      "numVenta": "VT-2026-030",
+      "ventaTotalPEN": 141,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 119.85,
+      "mlApiPayments": [
+        {
+          "paymentId": 146335359895,
+          "net": 119.85,
+          "transactionAmount": 141
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 141,
+      "mlErpComision": 21.15,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 149.95,
+      "mlErpNet": 128.8,
+      "syncCount": 1,
+      "sysIngresos": 141,
+      "sysEgresos": 21.15,
+      "sysNet": 119.85,
+      "sysIngresosDetail": [
+        {
+          "id": "7ESvH4kfnrnWrAjlTEiW",
+          "num": "MOV-2026-0059",
+          "monto": 141,
+          "concepto": "Adelanto cotización COT-2026-013 - Eduardo Isaac Ugaz",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "vKlwgFApIHqv4IcHBYu4",
+          "num": "MOV-2026-0060",
+          "monto": 21.15,
+          "concepto": "Pago GAS-0044: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 141.00) ≠ depósito esperado ML (S/ 149.95) → diff S/ -8.95. Flex: ingreso NO incluye bonificación que ML SÍ deposita",
+          "impacto": -8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "XksTZbRbG2xiYHO2itTw",
+      "numVenta": "VT-2026-052",
+      "ventaTotalPEN": 114.45,
+      "ventaEstadoPago": "parcial",
+      "mlApiNetReceived": 92.65,
+      "mlApiPayments": [
+        {
+          "paymentId": 149123593092,
+          "net": 92.65,
+          "transactionAmount": 109
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 109,
+      "mlErpComision": 16.35,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 5.45,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 114.45,
+      "mlErpNet": 98.1,
+      "syncCount": 1,
+      "sysIngresos": 114.45,
+      "sysEgresos": 16.35,
+      "sysNet": 98.1,
+      "sysIngresosDetail": [
+        {
+          "id": "97Tp3inLfrgc3wPZjGgN",
+          "num": "MOV-ml-1772814830950",
+          "monto": 114.45,
+          "concepto": "Pago venta VT-2026-052 - ML #2000015425896104",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "fzeEI8zL5Az1mbEiCu6g",
+          "num": "MOV-mlgas-1772814832785",
+          "monto": 16.35,
+          "concepto": "Comisión ML - VT-2026-052 - Orden #2000015425896104",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 98.10) ≠ ML API net_received (S/ 92.65) → diff +S/ 5.45",
+          "impacto": 5.45
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011948808569",
+      "numVenta": "VT-2026-069",
+      "ventaTotalPEN": 233.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 191.25,
+      "mlApiPayments": [
+        {
+          "paymentId": 148936406673,
+          "net": 191.25,
+          "transactionAmount": 225
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 225,
+      "mlErpComision": 33.75,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 233.95,
+      "mlErpNet": 200.2,
+      "syncCount": 1,
+      "sysIngresos": 233.95,
+      "sysEgresos": 33.75,
+      "sysNet": 200.2,
+      "sysIngresosDetail": [
+        {
+          "id": "99W2U0FsMfbiavN5pySi",
+          "num": "MOV-ml-1773107043170",
+          "monto": 233.95,
+          "concepto": "Pago venta VT-2026-069 - ML #2000015476334626",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "IhaH1bWF06O5nV6RY9yA",
+          "num": "MOV-mlgas-1773107044675",
+          "monto": 33.75,
+          "concepto": "Comisión ML - VT-2026-069 - Orden #2000015476334626",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 200.20) ≠ ML API net_received (S/ 191.25) → diff +S/ 8.95",
+          "impacto": 8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "B3gbamCUnBHQ7cPa7ivJ",
+      "numVenta": "VT-2026-037",
+      "ventaTotalPEN": 165.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 134.3,
+      "mlApiPayments": [
+        {
+          "paymentId": 147799085126,
+          "net": 134.3,
+          "transactionAmount": 158
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 158,
+      "mlErpComision": 23.7,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 165.25,
+      "mlErpNet": 141.55,
+      "syncCount": 1,
+      "sysIngresos": 172.5,
+      "sysEgresos": 23.7,
+      "sysNet": 148.8,
+      "sysIngresosDetail": [
+        {
+          "id": "D334TQB0g2tViBN5ZXj1",
+          "num": "MOV-2026-0128",
+          "monto": 7.25,
+          "concepto": "Pago de venta VT-2026-037",
+          "via": "ventaId"
+        },
+        {
+          "id": "LANzoBKjwJcAutLlurf2",
+          "num": "MOV-2026-0102",
+          "monto": 165.25,
+          "concepto": "Adelanto cotización COT-2026-014 - Carmen Shimabukuro",
+          "via": "cot:wTey8z8HW7D4"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "uOMJKowuL82OU4T5hr6E",
+          "num": "MOV-2026-0103",
+          "monto": 23.7,
+          "concepto": "Pago GAS-0077: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 148.80) ≠ ML API net_received (S/ 134.30) → diff +S/ 14.50",
+          "impacto": 14.5
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 172.50) ≠ depósito esperado ML (S/ 165.25) → diff +S/ 7.25. Ingreso inflado",
+          "impacto": 7.25
+        },
+        {
+          "tipo": "MULTIPLE_INGRESOS",
+          "descripcion": "2 movimientos ingreso: MOV-2026-0128=S/ 7.25, MOV-2026-0102=S/ 165.25",
+          "impacto": 0
+        }
+      ]
+    },
+    {
+      "ventaId": "SkMDUHj6SeF9S7uUZzWT",
+      "numVenta": "VT-2026-047",
+      "ventaTotalPEN": 126.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 100.3,
+      "mlApiPayments": [
+        {
+          "paymentId": 147869654863,
+          "net": 100.3,
+          "transactionAmount": 118
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 118,
+      "mlErpComision": 17.7,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 126.95,
+      "mlErpNet": 109.25,
+      "syncCount": 1,
+      "sysIngresos": 126.95,
+      "sysEgresos": 17.7,
+      "sysNet": 109.25,
+      "sysIngresosDetail": [
+        {
+          "id": "DAa6OX062zQsq5i26laZ",
+          "num": "MOV-2026-0126",
+          "monto": 126.95,
+          "concepto": "Pago de venta VT-2026-047",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "J8z0L2bwHw8Eg9H7P86Q",
+          "num": "MOV-2026-0127",
+          "monto": 17.7,
+          "concepto": "Pago GAS-0093: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 109.25) ≠ ML API net_received (S/ 100.30) → diff +S/ 8.95",
+          "impacto": 8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "SNqKq4rvTm0ag7t5Hoh5",
+      "numVenta": "VT-2026-036",
+      "ventaTotalPEN": 210.45,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 174.25,
+      "mlApiPayments": [
+        {
+          "paymentId": 147739596068,
+          "net": 174.25,
+          "transactionAmount": 205
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 205,
+      "mlErpComision": 30.75,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 5.45,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 210.45,
+      "mlErpNet": 179.7,
+      "syncCount": 1,
+      "sysIngresos": 210.45,
+      "sysEgresos": 30.75,
+      "sysNet": 179.7,
+      "sysIngresosDetail": [
+        {
+          "id": "ILKOtfRKln8HcT4JVkgO",
+          "num": "MOV-2026-0100",
+          "monto": 210.45,
+          "concepto": "Adelanto con reserva - VT-2026-036 - Sandro Huanca",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "9Hs1NMDeSfOsZw9bep55",
+          "num": "MOV-2026-0101",
+          "monto": 30.75,
+          "concepto": "Pago GAS-0074: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 179.70) ≠ ML API net_received (S/ 174.25) → diff +S/ 5.45",
+          "impacto": 5.45
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011942167953",
+      "numVenta": "VT-2026-068",
+      "ventaTotalPEN": 230.45,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 173.6,
+      "mlApiPayments": [
+        {
+          "paymentId": 148887520725,
+          "net": 173.6,
+          "transactionAmount": 223
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 223,
+      "mlErpComision": 31.95,
+      "mlErpCargoEnvio": 7.45,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 223,
+      "mlErpNet": 183.6,
+      "syncCount": 1,
+      "sysIngresos": 230.45,
+      "sysEgresos": 39.4,
+      "sysNet": 191.05,
+      "sysIngresosDetail": [
+        {
+          "id": "IbCaLiVjxEopwm0Wzw79",
+          "num": "MOV-ml-1773086678953",
+          "monto": 230.45,
+          "concepto": "Pago venta VT-2026-068 - ML #2000015470736528",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "f4dVzPqOT0U3G3hpqoll",
+          "num": "MOV-mlgas-1773086680519",
+          "monto": 31.95,
+          "concepto": "Comisión ML - VT-2026-068 - Orden #2000015470736528",
+          "via": "ventaId"
+        },
+        {
+          "id": "PJFOmijYoznpA0ctC6S6",
+          "num": "MOV-2026-0003",
+          "monto": 7.45,
+          "concepto": "Pago GAS-0139: Entrega ENT-2026-065 - Urbano - Av Lima Cuadra 34 (Alto Amazonas)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 191.05) ≠ ML API net_received (S/ 173.60) → diff +S/ 17.45",
+          "impacto": 17.45
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 230.45) ≠ depósito esperado ML (S/ 223.00) → diff +S/ 7.45. Urbano: ingreso incluye costoEnvío que ML NO deposita",
+          "impacto": 7.45
+        },
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 7.45) no tiene egreso correspondiente en tesorería",
+          "impacto": 7.45
+        }
+      ]
+    },
+    {
+      "ventaId": "zAmoVmSIob76ZRJHO7J0",
+      "numVenta": "VT-2026-023",
+      "ventaTotalPEN": 153,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 130.05,
+      "mlApiPayments": [
+        {
+          "paymentId": 145833957406,
+          "net": 130.05,
+          "transactionAmount": 153
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 153,
+      "mlErpComision": 22.95,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 160.25,
+      "mlErpNet": 137.3,
+      "syncCount": 1,
+      "sysIngresos": 153,
+      "sysEgresos": 22.95,
+      "sysNet": 130.05,
+      "sysIngresosDetail": [
+        {
+          "id": "Io0jDkuPM1lj2wNS6CLh",
+          "num": "MOV-2026-0044",
+          "monto": 153,
+          "concepto": "Adelanto cotización COT-2026-007 - Philip Carl Staaf",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "XmjjP8kZyCmRIQyYHmBj",
+          "num": "MOV-2026-0045",
+          "monto": 22.95,
+          "concepto": "Pago GAS-0036: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 153.00) ≠ depósito esperado ML (S/ 160.25) → diff S/ -7.25. Flex: ingreso NO incluye bonificación que ML SÍ deposita",
+          "impacto": -7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "nNqeKEErZw0Gr4sdPrKf",
+      "numVenta": "VT-2026-006",
+      "ventaTotalPEN": 157,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 126.5,
+      "mlApiPayments": [
+        {
+          "paymentId": 141929853351,
+          "net": 126.5,
+          "transactionAmount": 157
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 157,
+      "mlErpComision": 23.55,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 6.95,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 157,
+      "mlErpNet": 126.5,
+      "syncCount": 1,
+      "sysIngresos": 157,
+      "sysEgresos": 30.55,
+      "sysNet": 126.45,
+      "sysIngresosDetail": [
+        {
+          "id": "JHDRhotcDQCdtbxOGGu9",
+          "num": "MOV-2026-0001",
+          "monto": 157,
+          "concepto": "Pago de venta VT-2026-006",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "9Fa7ylbkuHJftGNQux2N",
+          "num": "MOV-2026-0008",
+          "monto": 23.55,
+          "concepto": "Pago GAS-0008: Comision",
+          "via": "gasto:comision_ml"
+        },
+        {
+          "id": "ut4TtBL7ccyIGrPCWLMa",
+          "num": "MOV-2026-0009",
+          "monto": 7,
+          "concepto": "Pago GAS-0009: Entrega ENT-2026-006 - Urbano - Av Lima Cuadra 34 (Ancon)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "FAeS4jaPQZdWEhS9iCj4",
+      "numVenta": "VT-2026-020",
+      "ventaTotalPEN": 198,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 161.35,
+      "mlApiPayments": [
+        {
+          "paymentId": 145006951393,
+          "net": 161.35,
+          "transactionAmount": 198
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 198,
+      "mlErpComision": 29.7,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 6.95,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 198,
+      "mlErpNet": 161.35,
+      "syncCount": 1,
+      "sysIngresos": 198,
+      "sysEgresos": 36.7,
+      "sysNet": 161.3,
+      "sysIngresosDetail": [
+        {
+          "id": "Jl9xumoq7TYodmSE8Ijw",
+          "num": "MOV-2026-0036",
+          "monto": 198,
+          "concepto": "Pago de venta VT-2026-020",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "SMlrybkk2tkzg8kl8Id7",
+          "num": "MOV-2026-0038",
+          "monto": 7,
+          "concepto": "Pago GAS-0032: Entrega ENT-2026-015 - Urbano - Av Lima Cuadra 34 (Chiclayo)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "KtT8ofzz3cSCpuwNajJk",
+          "num": "MOV-2026-0037",
+          "monto": 29.7,
+          "concepto": "Pago GAS-0031: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "Zbqg1WyaqvhWS3qNKrcd",
+      "numVenta": "VT-2026-049",
+      "ventaTotalPEN": 249.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 205.7,
+      "mlApiPayments": [
+        {
+          "paymentId": 148708525690,
+          "net": 205.7,
+          "transactionAmount": 242
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 242,
+      "mlErpComision": 36.3,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 249.25,
+      "mlErpNet": 212.95,
+      "syncCount": 1,
+      "sysIngresos": 249.25,
+      "sysEgresos": 36.3,
+      "sysNet": 212.95,
+      "sysIngresosDetail": [
+        {
+          "id": "K64xtE4Yn0cYRE5UWRlu",
+          "num": "MOV-2026-0130",
+          "monto": 249.25,
+          "concepto": "Adelanto con reserva - VT-2026-049 - Silvia Soledad Montalvan",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "K4AHEmUWv4vud1q64df3",
+          "num": "MOV-2026-0132",
+          "monto": 36.3,
+          "concepto": "Pago GAS-0096: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 212.95) ≠ ML API net_received (S/ 205.70) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011951006709",
+      "numVenta": "VT-2026-071",
+      "ventaTotalPEN": 144.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 116.45,
+      "mlApiPayments": [
+        {
+          "paymentId": 148949658319,
+          "net": 116.45,
+          "transactionAmount": 137
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 137,
+      "mlErpComision": 20.55,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 144.25,
+      "mlErpNet": 123.7,
+      "syncCount": 1,
+      "sysIngresos": 144.25,
+      "sysEgresos": 20.55,
+      "sysNet": 123.7,
+      "sysIngresosDetail": [
+        {
+          "id": "KrFjW1uMOzP5K2utaz0Q",
+          "num": "MOV-ml-1773120613503",
+          "monto": 144.25,
+          "concepto": "Pago venta VT-2026-071 - ML #2000015478259694",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "i2WUVJnI0ChFn3OFUSfo",
+          "num": "MOV-mlgas-1773380049635",
+          "monto": 20.55,
+          "concepto": "Comisión ML - VT-2026-071 - Orden #2000015478259694",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 123.70) ≠ ML API net_received (S/ 116.45) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "1WqFNRbfU1ZHx2G9Uj0Z",
+      "numVenta": "VT-2026-034",
+      "ventaTotalPEN": 142,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 109.73,
+      "mlApiPayments": [
+        {
+          "paymentId": 146909929305,
+          "net": 109.73,
+          "transactionAmount": 134
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 134,
+      "mlErpComision": 20.1,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 4.17,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 134,
+      "mlErpNet": 109.73,
+      "syncCount": 1,
+      "sysIngresos": 142,
+      "sysEgresos": 24.27,
+      "sysNet": 117.73,
+      "sysIngresosDetail": [
+        {
+          "id": "Kv7HBDO0SKEL9ZR5duJq",
+          "num": "MOV-2026-0094",
+          "monto": 142,
+          "concepto": "Pago de venta VT-2026-034",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "YEhBG7UhB1bDz9otE651",
+          "num": "MOV-2026-0095",
+          "monto": 20.1,
+          "concepto": "Pago GAS-0068: Comision",
+          "via": "gasto:comision_ml"
+        },
+        {
+          "id": "dFKB7lT7zrYDCbIL0ib3",
+          "num": "MOV-2026-0096",
+          "monto": 4.17,
+          "concepto": "Pago GAS-0069: Entrega ENT-2026-034 - Urbano - Av Lima Cuadra 34 (Arequipa)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 117.73) ≠ ML API net_received (S/ 109.73) → diff +S/ 8.00",
+          "impacto": 8
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 142.00) ≠ depósito esperado ML (S/ 134.00) → diff +S/ 8.00. Urbano: ingreso incluye costoEnvío que ML NO deposita",
+          "impacto": 8
+        },
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        },
+        {
+          "tipo": "VENTA_VS_ML_TOTAL",
+          "descripcion": "Venta totalPEN (S/ 142.00) ≠ mlOrderSync totalML (S/ 134.00) → diff S/ 8.00",
+          "impacto": 0
+        }
+      ]
+    },
+    {
+      "ventaId": "Rte7cotOdfpkKdoRID8x",
+      "numVenta": "VT-2026-053",
+      "ventaTotalPEN": 226.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 185.3,
+      "mlApiPayments": [
+        {
+          "paymentId": 148421879885,
+          "net": 185.3,
+          "transactionAmount": 218
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 218,
+      "mlErpComision": 32.7,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 226.95,
+      "mlErpNet": 194.25,
+      "syncCount": 1,
+      "sysIngresos": 226.95,
+      "sysEgresos": 32.7,
+      "sysNet": 194.25,
+      "sysIngresosDetail": [
+        {
+          "id": "M0WQHJHHEueLORTtAj1x",
+          "num": "MOV-ml-1772824702519",
+          "monto": 226.95,
+          "concepto": "Pago venta VT-2026-053 - ML #2000015427128940",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "jEQK5xwe2YsRbN9L6q9g",
+          "num": "MOV-mlgas-1772824704337",
+          "monto": 32.7,
+          "concepto": "Comisión ML - VT-2026-053 - Orden #2000015427128940",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 194.25) ≠ ML API net_received (S/ 185.30) → diff +S/ 8.95",
+          "impacto": 8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011950444541",
+      "numVenta": "VT-2026-070",
+      "ventaTotalPEN": 205.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 168.3,
+      "mlApiPayments": [
+        {
+          "paymentId": 148945157025,
+          "net": 168.3,
+          "transactionAmount": 198
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 198,
+      "mlErpComision": 29.7,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 205.25,
+      "mlErpNet": 175.55,
+      "syncCount": 1,
+      "sysIngresos": 205.25,
+      "sysEgresos": 29.7,
+      "sysNet": 175.55,
+      "sysIngresosDetail": [
+        {
+          "id": "MW4gxjLACMLSEsdWZkbE",
+          "num": "MOV-ml-1773115107812",
+          "monto": 205.25,
+          "concepto": "Pago venta VT-2026-070 - ML #2000015477755610",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "oUCh8EhYROo2sadeNn90",
+          "num": "MOV-mlgas-1773115109260",
+          "monto": 29.7,
+          "concepto": "Comisión ML - VT-2026-070 - Orden #2000015477755610",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 175.55) ≠ ML API net_received (S/ 168.30) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "Yn6jN0PTUKRDniefsjRC",
+      "numVenta": "VT-2026-048",
+      "ventaTotalPEN": 116.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 92.65,
+      "mlApiPayments": [
+        {
+          "paymentId": 147980931345,
+          "net": 92.65,
+          "transactionAmount": 109
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 109,
+      "mlErpComision": 16.35,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 116.25,
+      "mlErpNet": 99.9,
+      "syncCount": 1,
+      "sysIngresos": 116.25,
+      "sysEgresos": 16.35,
+      "sysNet": 99.9,
+      "sysIngresosDetail": [
+        {
+          "id": "MXh9OIN40zM7UAXGNrZf",
+          "num": "MOV-2026-0129",
+          "monto": 116.25,
+          "concepto": "Adelanto cotización COT-2026-016 - Daniela Jauregui Bernal",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "7Qj4E9TeX0nzJj8vHwYp",
+          "num": "MOV-2026-0134",
+          "monto": 16.35,
+          "concepto": "Pago GAS-0099: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 99.90) ≠ ML API net_received (S/ 92.65) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011954165105",
+      "numVenta": "VT-2026-072",
+      "ventaTotalPEN": 232.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 191.25,
+      "mlApiPayments": [
+        {
+          "paymentId": 149702762764,
+          "net": 191.25,
+          "transactionAmount": 225
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 225,
+      "mlErpComision": 33.75,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 232.25,
+      "mlErpNet": 198.5,
+      "syncCount": 1,
+      "sysIngresos": 232.25,
+      "sysEgresos": 33.75,
+      "sysNet": 198.5,
+      "sysIngresosDetail": [
+        {
+          "id": "Nl1x4IxYmg7Cqhlh94H0",
+          "num": "MOV-ml-1773148283389",
+          "monto": 232.25,
+          "concepto": "Pago venta VT-2026-072 - ML #2000015480862890",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "WTXtirMYtSQZQ1bIDV0O",
+          "num": "MOV-mlgas-1773380050631",
+          "monto": 33.75,
+          "concepto": "Comisión ML - VT-2026-072 - Orden #2000015480862890",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 198.50) ≠ ML API net_received (S/ 191.25) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "JpWZ7VDMhZBrZtSJtJew",
+      "numVenta": "VT-2026-021",
+      "ventaTotalPEN": 121,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 98.68,
+      "mlApiPayments": [
+        {
+          "paymentId": 145066545105,
+          "net": 98.68,
+          "transactionAmount": 121
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 121,
+      "mlErpComision": 18.15,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 4.17,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 121,
+      "mlErpNet": 98.68,
+      "syncCount": 1,
+      "sysIngresos": 121,
+      "sysEgresos": 22.65,
+      "sysNet": 98.35,
+      "sysIngresosDetail": [
+        {
+          "id": "OxU0XGnDCDInPanZYUuq",
+          "num": "MOV-2026-0039",
+          "monto": 121,
+          "concepto": "Adelanto cotización COT-2026-006 - Bolivar Rodriguez Jatniel",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "gpo5qVyA6hpn4wTStD4m",
+          "num": "MOV-2026-0077",
+          "monto": 4.5,
+          "concepto": "Pago GAS-0055: Entrega ENT-2026-024 - Urbano - Av Lima Cuadra 34 (Tacna)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "XV6paXgJ32Zf6MJkj5Fp",
+          "num": "MOV-2026-0040",
+          "monto": 18.15,
+          "concepto": "Pago GAS-0033: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        }
+      ]
+    },
+    {
+      "ventaId": "PXK7aUnukf7UPLffSdZY",
+      "numVenta": "VT-2026-040",
+      "ventaTotalPEN": 212.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 174.25,
+      "mlApiPayments": [
+        {
+          "paymentId": 147454743155,
+          "net": 174.25,
+          "transactionAmount": 205
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 205,
+      "mlErpComision": 30.75,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 212.25,
+      "mlErpNet": 181.5,
+      "syncCount": 1,
+      "sysIngresos": 212.25,
+      "sysEgresos": 30.75,
+      "sysNet": 181.5,
+      "sysIngresosDetail": [
+        {
+          "id": "PGkfVDWC1ZZRF6ArIzqz",
+          "num": "MOV-2026-0108",
+          "monto": 212.25,
+          "concepto": "Adelanto con reserva - VT-2026-040 - Annette Larrabure Washburn ",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "q6XdBucB536GdvKdLZVW",
+          "num": "MOV-2026-0109",
+          "monto": 30.75,
+          "concepto": "Pago GAS-0082: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 181.50) ≠ ML API net_received (S/ 174.25) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "WobByrEHqPmIJGImO90a",
+      "numVenta": "VT-2026-008",
+      "ventaTotalPEN": 189,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 153.7,
+      "mlApiPayments": [
+        {
+          "paymentId": 143056414054,
+          "net": 153.7,
+          "transactionAmount": 189
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 189,
+      "mlErpComision": 28.35,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 6.95,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 189,
+      "mlErpNet": 153.7,
+      "syncCount": 1,
+      "sysIngresos": 189,
+      "sysEgresos": 35.35,
+      "sysNet": 153.65,
+      "sysIngresosDetail": [
+        {
+          "id": "PbVUD0Sf7kDHkrcPhn4m",
+          "num": "MOV-2026-0003",
+          "monto": 189,
+          "concepto": "Pago de venta VT-2026-008",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "p4si8Ham9PiAYqd54bpu",
+          "num": "MOV-2026-0016",
+          "monto": 7,
+          "concepto": "Pago GAS-0013: Entrega ENT-2026-008 - Shalom - Av Lima Cuadra 38",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "d2urZQDWcMFkYCvSc0Ba",
+          "num": "MOV-2026-0014",
+          "monto": 28.35,
+          "concepto": "Pago GAS-0012: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "MtozMe6KVXf74nsIfPPY",
+      "numVenta": "VT-2026-029",
+      "ventaTotalPEN": 153,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 130.05,
+      "mlApiPayments": [
+        {
+          "paymentId": 146880596036,
+          "net": 130.05,
+          "transactionAmount": 153
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 153,
+      "mlErpComision": 22.95,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 160.25,
+      "mlErpNet": 137.3,
+      "syncCount": 1,
+      "sysIngresos": 153,
+      "sysEgresos": 22.95,
+      "sysNet": 130.05,
+      "sysIngresosDetail": [
+        {
+          "id": "QH363oqktTygWpxtzx9g",
+          "num": "MOV-2026-0057",
+          "monto": 153,
+          "concepto": "Adelanto cotización COT-2026-012 - Jonatan Calderón",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "kUWhwHkQEI7IxsgQoIc9",
+          "num": "MOV-2026-0058",
+          "monto": 22.95,
+          "concepto": "Pago GAS-0042: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 153.00) ≠ depósito esperado ML (S/ 160.25) → diff S/ -7.25. Flex: ingreso NO incluye bonificación que ML SÍ deposita",
+          "impacto": -7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011980202269",
+      "numVenta": "VT-2026-075",
+      "ventaTotalPEN": 345.9,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 268.3,
+      "mlApiPayments": [
+        {
+          "paymentId": 149187186273,
+          "net": 268.3,
+          "transactionAmount": 332
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 332,
+      "mlErpComision": 49.8,
+      "mlErpCargoEnvio": 13.9,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 332,
+      "mlErpNet": 268.3,
+      "syncCount": 1,
+      "sysIngresos": 345.9,
+      "sysEgresos": 49.8,
+      "sysNet": 296.1,
+      "sysIngresosDetail": [
+        {
+          "id": "Qt3yihUq2TFGMdIISDre",
+          "num": "MOV-ml-1773253261415",
+          "monto": 345.9,
+          "concepto": "Pago venta VT-2026-075 - ML #2000015502933632",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "opnIMM1gEtXwYsb1kj51",
+          "num": "MOV-mlgas-1773253263160",
+          "monto": 49.8,
+          "concepto": "Comisión ML - VT-2026-075 - Orden #2000015502933632",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 296.10) ≠ ML API net_received (S/ 268.30) → diff +S/ 27.80",
+          "impacto": 27.8
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 345.90) ≠ depósito esperado ML (S/ 332.00) → diff +S/ 13.90. Urbano: ingreso incluye costoEnvío que ML NO deposita",
+          "impacto": 13.9
+        },
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 13.90) no tiene egreso correspondiente en tesorería",
+          "impacto": 13.9
+        }
+      ]
+    },
+    {
+      "ventaId": "NfOCnZYNaX4TsnAnEM2l",
+      "numVenta": "VT-2026-050",
+      "ventaTotalPEN": 142.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 113.9,
+      "mlApiPayments": [
+        {
+          "paymentId": 148785897436,
+          "net": 113.9,
+          "transactionAmount": 134
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 134,
+      "mlErpComision": 20.1,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 142.95,
+      "mlErpNet": 122.85,
+      "syncCount": 1,
+      "sysIngresos": 142.95,
+      "sysEgresos": 20.1,
+      "sysNet": 122.85,
+      "sysIngresosDetail": [
+        {
+          "id": "QtnUadsbKhplopksK1fa",
+          "num": "MOV-2026-0131",
+          "monto": 142.95,
+          "concepto": "Adelanto con reserva - VT-2026-050 - Guillermo Torres",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "f39bVmueJQHTMr3alALv",
+          "num": "MOV-2026-0133",
+          "monto": 20.1,
+          "concepto": "Pago GAS-0097: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 122.85) ≠ ML API net_received (S/ 113.90) → diff +S/ 8.95",
+          "impacto": 8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "K1RXyANPOhxAHpNvrF4z",
+      "numVenta": "VT-2026-058",
+      "ventaTotalPEN": 180.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 146.2,
+      "mlApiPayments": [
+        {
+          "paymentId": 149285894350,
+          "net": 146.2,
+          "transactionAmount": 172
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 172,
+      "mlErpComision": 25.8,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 180.95,
+      "mlErpNet": 155.15,
+      "syncCount": 1,
+      "sysIngresos": 180.95,
+      "sysEgresos": 25.8,
+      "sysNet": 155.15,
+      "sysIngresosDetail": [
+        {
+          "id": "RRs4B3ZilNI4ltis8z1z",
+          "num": "MOV-ml-1772896271742",
+          "monto": 180.95,
+          "concepto": "Pago venta VT-2026-058 - ML #2000015439659796",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "7FfaI8X0UnEcEkorqqcf",
+          "num": "MOV-mlgas-1772896273675",
+          "monto": 25.8,
+          "concepto": "Comisión ML - VT-2026-058 - Orden #2000015439659796",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 155.15) ≠ ML API net_received (S/ 146.20) → diff +S/ 8.95",
+          "impacto": 8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "QSM4AaGmLUt9PKhuX92H",
+      "numVenta": "VT-2026-011",
+      "ventaTotalPEN": 266,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 217.76,
+      "mlApiPayments": [
+        {
+          "paymentId": 143769645236,
+          "net": 217.76,
+          "transactionAmount": 266
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 266,
+      "mlErpComision": 39.9,
+      "mlErpCargoEnvio": 8.34,
+      "mlErpCostoEnvioCliente": 8.34,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 266,
+      "mlErpNet": 217.76,
+      "syncCount": 1,
+      "sysIngresos": 266,
+      "sysEgresos": 48.4,
+      "sysNet": 217.6,
+      "sysIngresosDetail": [
+        {
+          "id": "T3BhQEjiy44BtrmpDpLG",
+          "num": "MOV-2026-0005",
+          "monto": 266,
+          "concepto": "Pago de venta VT-2026-011",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "IwOJkAMttsJjIcKv9uMb",
+          "num": "MOV-2026-0020",
+          "monto": 8.5,
+          "concepto": "Pago GAS-0019: Entrega ENT-2026-011 - Urbano - Av Lima Cuadra 34 (Andahuaylas, Apurimac)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "zBuidz9p0l320bjFOOs5",
+          "num": "MOV-2026-0019",
+          "monto": 39.9,
+          "concepto": "Pago GAS-0018: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 8.34) no tiene egreso correspondiente en tesorería",
+          "impacto": 8.34
+        }
+      ]
+    },
+    {
+      "ventaId": "bon12g6x3PiJ8ThE2xLv",
+      "numVenta": "VT-2026-043",
+      "ventaTotalPEN": 153.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 124.1,
+      "mlApiPayments": [
+        {
+          "paymentId": 147584347927,
+          "net": 124.1,
+          "transactionAmount": 146
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 146,
+      "mlErpComision": 21.9,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 153.25,
+      "mlErpNet": 131.35,
+      "syncCount": 1,
+      "sysIngresos": 153.25,
+      "sysEgresos": 21.9,
+      "sysNet": 131.35,
+      "sysIngresosDetail": [
+        {
+          "id": "U0YbkBy4UwlPXsjTergP",
+          "num": "MOV-2026-0112",
+          "monto": 153.25,
+          "concepto": "Adelanto con reserva - VT-2026-043 - Victor Raul Alva",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "IXhdfR1f2Ys5saTaG0Xa",
+          "num": "MOV-2026-0113",
+          "monto": 21.9,
+          "concepto": "Pago GAS-0085: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 131.35) ≠ ML API net_received (S/ 124.10) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "4IGiSIqrtIonA7rMhaFu",
+      "numVenta": "VT-2026-060",
+      "ventaTotalPEN": 226.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 185.3,
+      "mlApiPayments": [
+        {
+          "paymentId": 148658608751,
+          "net": 185.3,
+          "transactionAmount": 218
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 218,
+      "mlErpComision": 32.7,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 226.95,
+      "mlErpNet": 194.25,
+      "syncCount": 2,
+      "sysIngresos": 226.95,
+      "sysEgresos": 32.7,
+      "sysNet": 194.25,
+      "sysIngresosDetail": [
+        {
+          "id": "UMfS1jsgA7BP0FSvKAvV",
+          "num": "MOV-ml-1772930973421",
+          "monto": 226.95,
+          "concepto": "Pago venta VT-2026-060 - ML #2000015446886614",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "CMvMZMhpoQeWqjvVZGbM",
+          "num": "MOV-mlgas-1772930975142",
+          "monto": 32.7,
+          "concepto": "Comisión ML - VT-2026-060 - Orden #2000015446886614",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 194.25) ≠ ML API net_received (S/ 185.30) → diff +S/ 8.95",
+          "impacto": 8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "7OxiwOcppctdEtI6injO",
+      "numVenta": "VT-2026-056",
+      "ventaTotalPEN": 108,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 87.63,
+      "mlApiPayments": [
+        {
+          "paymentId": 149206602362,
+          "net": 87.63,
+          "transactionAmount": 108
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 108,
+      "mlErpComision": 16.2,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 108,
+      "mlErpNet": 87.63,
+      "syncCount": 1,
+      "sysIngresos": 108,
+      "sysEgresos": 20.37,
+      "sysNet": 87.63,
+      "sysIngresosDetail": [
+        {
+          "id": "UoGqKfs4XcmrCHxyXrSL",
+          "num": "MOV-ml-1772839165976",
+          "monto": 108,
+          "concepto": "Pago venta VT-2026-056 - ML #2000015432846842",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "UoxmdeN9CWfqK7qnKwvU",
+          "num": "MOV-mlgas-1772839168090",
+          "monto": 16.2,
+          "concepto": "Comisión ML - VT-2026-056 - Orden #2000015432846842",
+          "via": "ventaId"
+        },
+        {
+          "id": "vwDm8F9TJLbpKvc3MLEa",
+          "num": "MOV-2026-0002",
+          "monto": 4.17,
+          "concepto": "Pago GAS-0114: Entrega ENT-2026-054 - Urbano - Av Lima Cuadra 34 (Celendín)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011960167689",
+      "numVenta": "VT-2026-074",
+      "ventaTotalPEN": 144.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 116.45,
+      "mlApiPayments": [
+        {
+          "paymentId": 149031258653,
+          "net": 116.45,
+          "transactionAmount": 137
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 137,
+      "mlErpComision": 20.55,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 144.25,
+      "mlErpNet": 123.7,
+      "syncCount": 1,
+      "sysIngresos": 144.25,
+      "sysEgresos": 20.55,
+      "sysNet": 123.7,
+      "sysIngresosDetail": [
+        {
+          "id": "Uri4YrxIi3g3cT0GhRh5",
+          "num": "MOV-ml-1773166866884",
+          "monto": 144.25,
+          "concepto": "Pago venta VT-2026-074 - ML #2000015485935168",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "lrm7TkPasESTamFB9NIk",
+          "num": "MOV-mlgas-1773166868506",
+          "monto": 20.55,
+          "concepto": "Comisión ML - VT-2026-074 - Orden #2000015485935168",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 123.70) ≠ ML API net_received (S/ 116.45) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "oT62lh9MR8RWM7dg9DCc",
+      "numVenta": "VT-2026-062",
+      "ventaTotalPEN": 354.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 294.95,
+      "mlApiPayments": [
+        {
+          "paymentId": 148669427881,
+          "net": 113.9,
+          "transactionAmount": 134
+        },
+        {
+          "paymentId": 148669662433,
+          "net": 181.05,
+          "transactionAmount": 213
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 134,
+      "mlErpComision": 52.05,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 141.25,
+      "mlErpNet": 89.2,
+      "syncCount": 3,
+      "sysIngresos": 354.25,
+      "sysEgresos": 20.1,
+      "sysNet": 334.15,
+      "sysIngresosDetail": [
+        {
+          "id": "V8pPzkdht0WQ0808HZjO",
+          "num": "MOV-ml-1772937158337",
+          "monto": 354.25,
+          "concepto": "Pago venta VT-2026-062 - Pack ML (shipment 46607159966)",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "fFTppn1UFjxnsPJcqVNW",
+          "num": "MOV-repair-1773379780451",
+          "monto": 20.1,
+          "concepto": "Comisión ML - VT-2026-062 (reparación GV faltante)",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 334.15) ≠ ML API net_received (S/ 294.95) → diff +S/ 39.20",
+          "impacto": 39.2
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 354.25) ≠ depósito esperado ML (S/ 141.25) → diff +S/ 213.00. Ingreso inflado",
+          "impacto": 213
+        },
+        {
+          "tipo": "DISC_COMISION",
+          "descripcion": "Comisión sistema (S/ 20.10) ≠ comisionML sync (S/ 52.05) → diff S/ -31.95",
+          "impacto": 31.95
+        },
+        {
+          "tipo": "VENTA_VS_ML_TOTAL",
+          "descripcion": "Venta totalPEN (S/ 354.25) ≠ mlOrderSync totalML (S/ 134.00) → diff S/ 220.25",
+          "impacto": 0
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-2000015467278476",
+      "numVenta": "VT-2026-065",
+      "ventaTotalPEN": 180.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 146.2,
+      "mlApiPayments": [
+        {
+          "paymentId": 149578467706,
+          "net": 146.2,
+          "transactionAmount": 172
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 172,
+      "mlErpComision": 25.8,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 180.95,
+      "mlErpNet": 155.15,
+      "syncCount": 1,
+      "sysIngresos": 180.95,
+      "sysEgresos": 25.8,
+      "sysNet": 155.15,
+      "sysIngresosDetail": [
+        {
+          "id": "VhySwatpz3gEli1w6giH",
+          "num": "MOV-ml-1773074347628",
+          "monto": 180.95,
+          "concepto": "Pago venta VT-2026-065 - ML #2000015467278476",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "eYdeWtkBolt0uTwwOzQw",
+          "num": "MOV-mlgas-1773074349390",
+          "monto": 25.8,
+          "concepto": "Comisión ML - VT-2026-065 - Orden #2000015467278476",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 155.15) ≠ ML API net_received (S/ 146.20) → diff +S/ 8.95",
+          "impacto": 8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "Sz6bVhX304lxcjS8xqWq",
+      "numVenta": "VT-2026-014",
+      "ventaTotalPEN": 249,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 204.7,
+      "mlApiPayments": [
+        {
+          "paymentId": 143952333861,
+          "net": 204.7,
+          "transactionAmount": 249
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 249,
+      "mlErpComision": 37.35,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 6.95,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 249,
+      "mlErpNet": 204.7,
+      "syncCount": 1,
+      "sysIngresos": 249,
+      "sysEgresos": 44.35,
+      "sysNet": 204.65,
+      "sysIngresosDetail": [
+        {
+          "id": "XdwYwbuZorVyzdF3Y4ZU",
+          "num": "MOV-2026-0022",
+          "monto": 249,
+          "concepto": "Pago de venta VT-2026-014",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "0m7yU92noqhnA99mVXJH",
+          "num": "MOV-2026-0024",
+          "monto": 7,
+          "concepto": "Pago GAS-0023: Entrega ENT-2026-013 - Urbano - Av Lima Cuadra 34 (San Miguel)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "vWtdVjkDMPE6NQEThqwW",
+          "num": "MOV-2026-0023",
+          "monto": 37.35,
+          "concepto": "Pago GAS-0022: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "rPwmrRRraaerWBCXC62M",
+      "numVenta": "VT-2026-016",
+      "ventaTotalPEN": 154,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 123.95,
+      "mlApiPayments": [
+        {
+          "paymentId": 144959715904,
+          "net": 123.95,
+          "transactionAmount": 154
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 154,
+      "mlErpComision": 23.1,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 6.95,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 154,
+      "mlErpNet": 123.95,
+      "syncCount": 1,
+      "sysIngresos": 154,
+      "sysEgresos": 30.1,
+      "sysNet": 123.9,
+      "sysIngresosDetail": [
+        {
+          "id": "YlGBhlAFZBzBkWmzw2Ru",
+          "num": "MOV-2026-0028",
+          "monto": 154,
+          "concepto": "Adelanto cotización COT-2026-002 - Greta Peru SAC",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "zoModYvYzwAOOnSbPTNA",
+          "num": "MOV-2026-0029",
+          "monto": 23.1,
+          "concepto": "Pago GAS-0027: Comision",
+          "via": "gasto:comision_ml"
+        },
+        {
+          "id": "QfOa4krD0W3Nl7udYAxu",
+          "num": "MOV-2026-0079",
+          "monto": 7,
+          "concepto": "Pago GAS-0051: Entrega ENT-2026-020 - Urbano - Av Lima Cuadra 34 (Miraflores)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "y18Dr8ZxhwBo7gXrY0xS",
+      "numVenta": "VT-2026-059",
+      "ventaTotalPEN": 146.15,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 123.62,
+      "mlApiPayments": [
+        {
+          "paymentId": 148649968099,
+          "net": 123.62,
+          "transactionAmount": 138.9
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 138.9,
+      "mlErpComision": 15.28,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 146.15,
+      "mlErpNet": 130.87,
+      "syncCount": 2,
+      "sysIngresos": 146.15,
+      "sysEgresos": 15.28,
+      "sysNet": 130.87,
+      "sysIngresosDetail": [
+        {
+          "id": "ZLjJR31Lo93gLXWRgqpa",
+          "num": "MOV-ml-1772927417043",
+          "monto": 146.15,
+          "concepto": "Pago venta VT-2026-059 - ML #2000015446187518",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "axRTNeoFyB61inHaWE2Q",
+          "num": "MOV-mlgas-fix-1772932158956",
+          "monto": 15.28,
+          "concepto": "Comisión ML - VT-2026-059 - Orden #2000015446187518",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 130.87) ≠ ML API net_received (S/ 123.62) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "QoWdzPA9KVjr0l9BBrlF",
+      "numVenta": "VT-2026-028",
+      "ventaTotalPEN": 238,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 202.3,
+      "mlApiPayments": [
+        {
+          "paymentId": 146847852258,
+          "net": 202.3,
+          "transactionAmount": 238
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 238,
+      "mlErpComision": 35.7,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 245.25,
+      "mlErpNet": 209.55,
+      "syncCount": 1,
+      "sysIngresos": 238,
+      "sysEgresos": 35.7,
+      "sysNet": 202.3,
+      "sysIngresosDetail": [
+        {
+          "id": "ZWt4yZLWh0231vQniJzJ",
+          "num": "MOV-2026-0055",
+          "monto": 238,
+          "concepto": "Adelanto cotización COT-2026-011 - Josafat Vara",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "d1jvrXIudEMUZU3CVqGm",
+          "num": "MOV-2026-0056",
+          "monto": 35.7,
+          "concepto": "Pago GAS-0041: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 238.00) ≠ depósito esperado ML (S/ 245.25) → diff S/ -7.25. Flex: ingreso NO incluye bonificación que ML SÍ deposita",
+          "impacto": -7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "r4DnK3lwt8OrfRQ1ntcQ",
+      "numVenta": "VT-2026-035",
+      "ventaTotalPEN": 126.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 101.15,
+      "mlApiPayments": [
+        {
+          "paymentId": 146953514403,
+          "net": 101.15,
+          "transactionAmount": 119
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 119,
+      "mlErpComision": 17.85,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 126.25,
+      "mlErpNet": 108.4,
+      "syncCount": 1,
+      "sysIngresos": 126.25,
+      "sysEgresos": 17.85,
+      "sysNet": 108.4,
+      "sysIngresosDetail": [
+        {
+          "id": "ZafqhS8wveGLeYxZ4TC9",
+          "num": "MOV-2026-0097",
+          "monto": 126.25,
+          "concepto": "Adelanto con reserva - VT-2026-035 - Herbert Perez",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "fQxoUvGIVLxA04j8fW2y",
+          "num": "MOV-2026-0098",
+          "monto": 17.85,
+          "concepto": "Pago GAS-0070: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 108.40) ≠ ML API net_received (S/ 101.15) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "WaJIl6tnLWYDWgDUl3UE",
+      "numVenta": "VT-2026-024",
+      "ventaTotalPEN": 158,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 134.3,
+      "mlApiPayments": [
+        {
+          "paymentId": 145869229718,
+          "net": 134.3,
+          "transactionAmount": 158
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 158,
+      "mlErpComision": 23.7,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 8.95,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 166.95,
+      "mlErpNet": 143.25,
+      "syncCount": 1,
+      "sysIngresos": 158,
+      "sysEgresos": 23.7,
+      "sysNet": 134.3,
+      "sysIngresosDetail": [
+        {
+          "id": "ZqVL5jW8Zo2O5KYR207a",
+          "num": "MOV-2026-0046",
+          "monto": 158,
+          "concepto": "Adelanto cotización COT-2026-008 - Dante Cunti Pérez",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "g6rz0bkCUiJ6pGzPzPbc",
+          "num": "MOV-2026-0047",
+          "monto": 23.7,
+          "concepto": "Pago GAS-0037: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 158.00) ≠ depósito esperado ML (S/ 166.95) → diff S/ -8.95. Flex: ingreso NO incluye bonificación que ML SÍ deposita",
+          "impacto": -8.95
+        }
+      ]
+    },
+    {
+      "ventaId": "ittZOBs6ewmHA4mxXqwg",
+      "numVenta": "VT-2026-057",
+      "ventaTotalPEN": 95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 76.58,
+      "mlApiPayments": [
+        {
+          "paymentId": 148530705025,
+          "net": 76.58,
+          "transactionAmount": 95
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 95,
+      "mlErpComision": 14.25,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 95,
+      "mlErpNet": 76.58,
+      "syncCount": 2,
+      "sysIngresos": 95,
+      "sysEgresos": 18.42,
+      "sysNet": 76.58,
+      "sysIngresosDetail": [
+        {
+          "id": "ZwN2RfKoI610VxIYyIf6",
+          "num": "MOV-ml-1772865876162",
+          "monto": 95,
+          "concepto": "Pago venta VT-2026-057 - ML #2000015436410876 (reparado)",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "bpofXTtPuYSHXd7KbOgu",
+          "num": "MOV-mlgas-1772865877794",
+          "monto": 14.25,
+          "concepto": "Comisión ML - VT-2026-057 - Orden #2000015436410876",
+          "via": "ventaId"
+        },
+        {
+          "id": "bsfDlxqq5GKKVBpYdAyE",
+          "num": "MOV-2026-0003",
+          "monto": 4.17,
+          "concepto": "Pago GAS-0116: Entrega ENT-2026-055 - Urbano - Av Lima Cuadra 34 (Santa)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        }
+      ]
+    },
+    {
+      "ventaId": "g55FuGC7zMxIflhfpJ0T",
+      "numVenta": "VT-2026-010",
+      "ventaTotalPEN": 176,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 142.65,
+      "mlApiPayments": [
+        {
+          "paymentId": 143087677913,
+          "net": 142.65,
+          "transactionAmount": 176
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 176,
+      "mlErpComision": 26.4,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 6.95,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 176,
+      "mlErpNet": 142.65,
+      "syncCount": 1,
+      "sysIngresos": 176,
+      "sysEgresos": 33.4,
+      "sysNet": 142.6,
+      "sysIngresosDetail": [
+        {
+          "id": "c6XPsd7zxGR3BiC6qKR7",
+          "num": "MOV-2026-0006",
+          "monto": 176,
+          "concepto": "Pago de venta VT-2026-010",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "bbs2isUXR9LWNnvQc6uj",
+          "num": "MOV-2026-0018",
+          "monto": 1,
+          "concepto": "Pago GAS-0017: Saldo",
+          "via": "gasto:De"
+        },
+        {
+          "id": "Rn5Q7qqThgCt6htrkiZ1",
+          "num": "MOV-2026-0015",
+          "monto": 26.4,
+          "concepto": "Pago GAS-0015: Comision",
+          "via": "gasto:comision_ml"
+        },
+        {
+          "id": "VxcZSdhkHnQnrHlims7U",
+          "num": "MOV-2026-0017",
+          "monto": 6,
+          "concepto": "Pago GAS-0016: Entrega ENT-2026-010 - Urbano - Av Lima Cuadra 34 (Ate)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011957609441",
+      "numVenta": "VT-2026-073",
+      "ventaTotalPEN": 236.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 188.55,
+      "mlApiPayments": [
+        {
+          "paymentId": 149013738765,
+          "net": 188.55,
+          "transactionAmount": 230
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 230,
+      "mlErpComision": 34.5,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 230,
+      "mlErpNet": 188.55,
+      "syncCount": 1,
+      "sysIngresos": 236.95,
+      "sysEgresos": 41.45,
+      "sysNet": 195.5,
+      "sysIngresosDetail": [
+        {
+          "id": "cpRctmnAM1H2LeYxQz35",
+          "num": "MOV-ml-1773159049813",
+          "monto": 236.95,
+          "concepto": "Pago venta VT-2026-073 - ML #2000015483778420",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "CLs5LB13GNqhvkWoTiKG",
+          "num": "MOV-mlgas-1773159051395",
+          "monto": 34.5,
+          "concepto": "Comisión ML - VT-2026-073 - Orden #2000015483778420",
+          "via": "ventaId"
+        },
+        {
+          "id": "Bxy4Xsmw0cifH5cFevuB",
+          "num": "MOV-2026-0001",
+          "monto": 6.95,
+          "concepto": "Pago GAS-0149: Entrega ENT-2026-072 - Urbano - Av Lima Cuadra 34 (Arequipa)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 195.50) ≠ ML API net_received (S/ 188.55) → diff +S/ 6.95",
+          "impacto": 6.95
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 236.95) ≠ depósito esperado ML (S/ 230.00) → diff +S/ 6.95. Urbano: ingreso incluye costoEnvío que ML NO deposita",
+          "impacto": 6.95
+        },
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "CuxilqwSHmpLWB0JK0PC",
+      "numVenta": "VT-2026-055",
+      "ventaTotalPEN": 212.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 174.25,
+      "mlApiPayments": [
+        {
+          "paymentId": 148438149795,
+          "net": 174.25,
+          "transactionAmount": 205
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 205,
+      "mlErpComision": 30.75,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 212.25,
+      "mlErpNet": 181.5,
+      "syncCount": 1,
+      "sysIngresos": 212.25,
+      "sysEgresos": 30.75,
+      "sysNet": 181.5,
+      "sysIngresosDetail": [
+        {
+          "id": "d62UzTumMKxmySMFsGms",
+          "num": "MOV-ml-1772834104579",
+          "monto": 212.25,
+          "concepto": "Pago venta VT-2026-055 - ML #2000015428674634",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "OH8DPDGCV306RPtzEaoZ",
+          "num": "MOV-mlgas-1772834106511",
+          "monto": 30.75,
+          "concepto": "Comisión ML - VT-2026-055 - Orden #2000015428674634",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 181.50) ≠ ML API net_received (S/ 174.25) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "ojFIl12OIOK1zG19Kkee",
+      "numVenta": "VT-2026-031",
+      "ventaTotalPEN": 139,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 113.68,
+      "mlApiPayments": [
+        {
+          "paymentId": 147219158246,
+          "net": 113.68,
+          "transactionAmount": 139
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 139,
+      "mlErpComision": 20.85,
+      "mlErpCargoEnvio": 4.47,
+      "mlErpCostoEnvioCliente": 4.47,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 139,
+      "mlErpNet": 113.68,
+      "syncCount": 1,
+      "sysIngresos": 139,
+      "sysEgresos": 25.35,
+      "sysNet": 113.65,
+      "sysIngresosDetail": [
+        {
+          "id": "dQYw78I4lfxjRVhRc4PR",
+          "num": "MOV-2026-0072",
+          "monto": 139,
+          "concepto": "Pago de venta VT-2026-031",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "SzvSD4AUqD7Caufvqdnb",
+          "num": "MOV-2026-0074",
+          "monto": 4.5,
+          "concepto": "Pago GAS-0063: Entrega ENT-2026-031 - Urbano - Av Lima Cuadra 34 (Huancavelica)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "G5Yw2ZRmUO2u4xuQGSpg",
+          "num": "MOV-2026-0073",
+          "monto": 20.85,
+          "concepto": "Pago GAS-0062: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.47) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.47
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011939984135",
+      "numVenta": "VT-2026-066",
+      "ventaTotalPEN": 300.34,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 239.86,
+      "mlApiPayments": [
+        {
+          "paymentId": 148872849755,
+          "net": 239.86,
+          "transactionAmount": 292
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 292,
+      "mlErpComision": 43.8,
+      "mlErpCargoEnvio": 8.34,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 292,
+      "mlErpNet": 239.86,
+      "syncCount": 1,
+      "sysIngresos": 300.34,
+      "sysEgresos": 52.14,
+      "sysNet": 248.2,
+      "sysIngresosDetail": [
+        {
+          "id": "dWFkvGUgQCDcxKWZiqMN",
+          "num": "MOV-ml-1773079923783",
+          "monto": 300.34,
+          "concepto": "Pago venta VT-2026-066 - ML #2000015468868684",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "mdjREItlIyRXB7xJ6NYE",
+          "num": "MOV-mlgas-1773079925099",
+          "monto": 43.8,
+          "concepto": "Comisión ML - VT-2026-066 - Orden #2000015468868684",
+          "via": "ventaId"
+        },
+        {
+          "id": "JsGgJNNkQinY81e7MeUq",
+          "num": "MOV-2026-0001",
+          "monto": 8.34,
+          "concepto": "Pago GAS-0137: Entrega ENT-2026-066 - Urbano - Av Lima Cuadra 34 (Coronel Portillo)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 248.20) ≠ ML API net_received (S/ 239.86) → diff +S/ 8.34",
+          "impacto": 8.34
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 300.34) ≠ depósito esperado ML (S/ 292.00) → diff +S/ 8.34. Urbano: ingreso incluye costoEnvío que ML NO deposita",
+          "impacto": 8.34
+        },
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 8.34) no tiene egreso correspondiente en tesorería",
+          "impacto": 8.34
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000012022553733",
+      "numVenta": "VT-2026-079",
+      "ventaTotalPEN": 228.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 187.85,
+      "mlApiPayments": [
+        {
+          "paymentId": 150272804980,
+          "net": 187.85,
+          "transactionAmount": 221
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 221,
+      "mlErpComision": 33.15,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 228.25,
+      "mlErpNet": 195.1,
+      "syncCount": 1,
+      "sysIngresos": 228.25,
+      "sysEgresos": 33.15,
+      "sysNet": 195.1,
+      "sysIngresosDetail": [
+        {
+          "id": "diZyR8JXZpiwQjTGh3PC",
+          "num": "MOV-ml-1773448683521",
+          "monto": 228.25,
+          "concepto": "Pago venta VT-2026-079 - ML #2000015539005286",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "xUPJwrmpK3cep6aDiQNX",
+          "num": "MOV-mlgas-1773452122723",
+          "monto": 33.15,
+          "concepto": "Comisión ML - VT-2026-079 - Orden #2000015539005286",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 195.10) ≠ ML API net_received (S/ 187.85) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000012002306205",
+      "numVenta": "VT-2026-077",
+      "ventaTotalPEN": 228.45,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 180.4,
+      "mlApiPayments": [
+        {
+          "paymentId": 150082968160,
+          "net": 180.4,
+          "transactionAmount": 221
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 221,
+      "mlErpComision": 33.15,
+      "mlErpCargoEnvio": 7.45,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 221,
+      "mlErpNet": 180.4,
+      "syncCount": 1,
+      "sysIngresos": 228.45,
+      "sysEgresos": 40.6,
+      "sysNet": 187.85,
+      "sysIngresosDetail": [
+        {
+          "id": "fjt80VR1xfsSBuMf5YtT",
+          "num": "MOV-ml-1773350319672",
+          "monto": 228.45,
+          "concepto": "Pago venta VT-2026-077 - ML #2000015521698568",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "LgldmZS6Gm0qEOuIR6e1",
+          "num": "MOV-mlgas-1773380053990",
+          "monto": 33.15,
+          "concepto": "Comisión ML - VT-2026-077 - Orden #2000015521698568",
+          "via": "ventaId"
+        },
+        {
+          "id": "i3pP74Y8ukluBEJ7cRSP",
+          "num": "MOV-2026-0001",
+          "monto": 7.45,
+          "concepto": "Pago GAS-2030: Entrega ENT-2026-076 - Urbano - Av Lima Cuadra 34 (Piura)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 187.85) ≠ ML API net_received (S/ 180.40) → diff +S/ 7.45",
+          "impacto": 7.45
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 228.45) ≠ depósito esperado ML (S/ 221.00) → diff +S/ 7.45. Urbano: ingreso incluye costoEnvío que ML NO deposita",
+          "impacto": 7.45
+        },
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 7.45) no tiene egreso correspondiente en tesorería",
+          "impacto": 7.45
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-2000015463770048",
+      "numVenta": "VT-2026-064",
+      "ventaTotalPEN": 144.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 116.45,
+      "mlApiPayments": [
+        {
+          "paymentId": 149544491668,
+          "net": 116.45,
+          "transactionAmount": 137
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 137,
+      "mlErpComision": 20.55,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 144.25,
+      "mlErpNet": 123.7,
+      "syncCount": 1,
+      "sysIngresos": 144.25,
+      "sysEgresos": 20.55,
+      "sysNet": 123.7,
+      "sysIngresosDetail": [
+        {
+          "id": "fx8w78DZ2qmHuBp2RT1h",
+          "num": "MOV-ml-1773061757162",
+          "monto": 144.25,
+          "concepto": "Pago venta VT-2026-064 - ML #2000015463770048",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "kkMVLDZqLx6OT227FQPQ",
+          "num": "MOV-mlgas-1773061759259",
+          "monto": 20.55,
+          "concepto": "Comisión ML - VT-2026-064 - Orden #2000015463770048",
+          "via": "ventaId"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 123.70) ≠ ML API net_received (S/ 116.45) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "pA9DWKhmhU9TRCrHwmAS",
+      "numVenta": "VT-2026-017",
+      "ventaTotalPEN": 237,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 194,
+      "mlApiPayments": [
+        {
+          "paymentId": 145337718660,
+          "net": 194,
+          "transactionAmount": 237
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 237,
+      "mlErpComision": 35.55,
+      "mlErpCargoEnvio": 7.45,
+      "mlErpCostoEnvioCliente": 7.45,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 237,
+      "mlErpNet": 194,
+      "syncCount": 1,
+      "sysIngresos": 237,
+      "sysEgresos": 43.05,
+      "sysNet": 193.95,
+      "sysIngresosDetail": [
+        {
+          "id": "gGn18fphNYJBYG9LJ9Qe",
+          "num": "MOV-2026-0030",
+          "monto": 237,
+          "concepto": "Adelanto cotización COT-2026-003 - Emilio González",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "cfAqi7ET2auJz6nkMjyF",
+          "num": "MOV-2026-0031",
+          "monto": 35.55,
+          "concepto": "Pago GAS-0028: Comision",
+          "via": "gasto:comision_ml"
+        },
+        {
+          "id": "SfLPRaTEjvWKe0LQEHL4",
+          "num": "MOV-2026-0078",
+          "monto": 7.5,
+          "concepto": "Pago GAS-0052: Entrega ENT-2026-021 - Urbano - Av Lima Cuadra 34 (Lince)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 7.45) no tiene egreso correspondiente en tesorería",
+          "impacto": 7.45
+        }
+      ]
+    },
+    {
+      "ventaId": "q2eefWlTA2ppc2JYzWdP",
+      "numVenta": "VT-2026-007",
+      "ventaTotalPEN": 157,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 126.5,
+      "mlApiPayments": [
+        {
+          "paymentId": 142286118445,
+          "net": 126.5,
+          "transactionAmount": 157
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 157,
+      "mlErpComision": 23.55,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 6.95,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 157,
+      "mlErpNet": 126.5,
+      "syncCount": 1,
+      "sysIngresos": 157,
+      "sysEgresos": 23.55,
+      "sysNet": 133.45,
+      "sysIngresosDetail": [
+        {
+          "id": "gLIB7hosvEnPr5RyJHPJ",
+          "num": "MOV-2026-0002",
+          "monto": 157,
+          "concepto": "Pago de venta VT-2026-007",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "OJty0SQ6Yo0JyfT093HN",
+          "num": "MOV-2026-0013",
+          "monto": 23.55,
+          "concepto": "Pago GAS-0010: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 133.45) ≠ ML API net_received (S/ 126.50) → diff +S/ 6.95",
+          "impacto": 6.95
+        },
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "Os4D6fL9hxAFB6dXSBFf",
+      "numVenta": "VT-2026-025",
+      "ventaTotalPEN": 133,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 108.88,
+      "mlApiPayments": [
+        {
+          "paymentId": 146620900438,
+          "net": 108.88,
+          "transactionAmount": 133
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 133,
+      "mlErpComision": 19.95,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 4.17,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 133,
+      "mlErpNet": 108.88,
+      "syncCount": 1,
+      "sysIngresos": 133,
+      "sysEgresos": 24.45,
+      "sysNet": 108.55,
+      "sysIngresosDetail": [
+        {
+          "id": "h0cHUJWfseAyEzYlCh96",
+          "num": "MOV-2026-0048",
+          "monto": 133,
+          "concepto": "Adelanto cotización COT-2026-009 - Luis Alberto Mesahuanca Huamani",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "II4fFjfidXVa6bbSusv3",
+          "num": "MOV-2026-0075",
+          "monto": 4.5,
+          "concepto": "Pago GAS-0057: Entrega ENT-2026-026 - Urbano - Av Lima Cuadra 34 (Cusco)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "naahgfkmQ2SpklLQMHfc",
+          "num": "MOV-2026-0049",
+          "monto": 19.95,
+          "concepto": "Pago GAS-0038: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        }
+      ]
+    },
+    {
+      "ventaId": "kMaRM2mwyC9eIDO5aJof",
+      "numVenta": "VT-2026-038",
+      "ventaTotalPEN": 212.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 174.25,
+      "mlApiPayments": [
+        {
+          "paymentId": 147976859926,
+          "net": 174.25,
+          "transactionAmount": 205
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 205,
+      "mlErpComision": 30.75,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 212.25,
+      "mlErpNet": 181.5,
+      "syncCount": 1,
+      "sysIngresos": 212.25,
+      "sysEgresos": 30.75,
+      "sysNet": 181.5,
+      "sysIngresosDetail": [
+        {
+          "id": "hxTJinHLzzx6b9luCT1B",
+          "num": "MOV-2026-0104",
+          "monto": 212.25,
+          "concepto": "Adelanto con reserva - VT-2026-038 - Bertha Aparicio",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "hdbqDETDiZ8MWaZsZI38",
+          "num": "MOV-2026-0105",
+          "monto": 30.75,
+          "concepto": "Pago GAS-0078: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 181.50) ≠ ML API net_received (S/ 174.25) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "2LDIOfXqdZgC9kh5tnHM",
+      "numVenta": "VT-2026-044",
+      "ventaTotalPEN": 109,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 88.48,
+      "mlApiPayments": [
+        {
+          "paymentId": 148421727182,
+          "net": 88.48,
+          "transactionAmount": 109
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 109,
+      "mlErpComision": 16.35,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 4.17,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 109,
+      "mlErpNet": 88.48,
+      "syncCount": 1,
+      "sysIngresos": 109,
+      "sysEgresos": 20.52,
+      "sysNet": 88.48,
+      "sysIngresosDetail": [
+        {
+          "id": "ii8pmYj5HJ8tQkcX4hpJ",
+          "num": "MOV-2026-0117",
+          "monto": 109,
+          "concepto": "Adelanto con reserva - VT-2026-044 - Kevin Vargas Bautista",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "F23bp7ED3eoxkPsggMoj",
+          "num": "MOV-2026-0121",
+          "monto": 16.35,
+          "concepto": "Pago GAS-0087: COMISION",
+          "via": "gasto:comision_ml"
+        },
+        {
+          "id": "bQlHUaDIjhK2zMij9vF2",
+          "num": "MOV-2026-0123",
+          "monto": 4.17,
+          "concepto": "Pago GAS-0088: Entrega ENT-2026-041 - Urbano - Av Lima Cuadra 34 (Urb la Aurora)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        }
+      ]
+    },
+    {
+      "ventaId": "U4DwYMZjw2CyII1TJftx",
+      "numVenta": "VT-2026-019",
+      "ventaTotalPEN": 232,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 197.2,
+      "mlApiPayments": [
+        {
+          "paymentId": 144992444483,
+          "net": 197.2,
+          "transactionAmount": 232
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 232,
+      "mlErpComision": 34.8,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 239.25,
+      "mlErpNet": 204.45,
+      "syncCount": 1,
+      "sysIngresos": 232,
+      "sysEgresos": 34.8,
+      "sysNet": 197.2,
+      "sysIngresosDetail": [
+        {
+          "id": "jL9cwi91RdImeMcQ52JN",
+          "num": "MOV-2026-0034",
+          "monto": 232,
+          "concepto": "Adelanto cotización COT-2026-005 - Francesca Rivera Torres",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "dbyjwAVJ5GutvhL1UZqj",
+          "num": "MOV-2026-0035",
+          "monto": 34.8,
+          "concepto": "Pago GAS-0030: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 232.00) ≠ depósito esperado ML (S/ 239.25) → diff S/ -7.25. Flex: ingreso NO incluye bonificación que ML SÍ deposita",
+          "impacto": -7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "KmP3qbAeaGHRKJLhSjCF",
+      "numVenta": "VT-2026-039",
+      "ventaTotalPEN": 233.25,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 192.1,
+      "mlApiPayments": [
+        {
+          "paymentId": 147393491827,
+          "net": 192.1,
+          "transactionAmount": 226
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 226,
+      "mlErpComision": 33.9,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 233.25,
+      "mlErpNet": 199.35,
+      "syncCount": 1,
+      "sysIngresos": 233.25,
+      "sysEgresos": 33.9,
+      "sysNet": 199.35,
+      "sysIngresosDetail": [
+        {
+          "id": "lIDRkxD1PswHHxVEWiHK",
+          "num": "MOV-2026-0106",
+          "monto": 233.25,
+          "concepto": "Adelanto con reserva - VT-2026-039 - Vivi Calza",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "K3fUBiKanl0dSfTWhAKx",
+          "num": "MOV-2026-0107",
+          "monto": 33.9,
+          "concepto": "Pago GAS-0080: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 199.35) ≠ ML API net_received (S/ 192.10) → diff +S/ 7.25",
+          "impacto": 7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "rKfnavWz5vPLN9FiDftb",
+      "numVenta": "VT-2026-018",
+      "ventaTotalPEN": 121,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 102.85,
+      "mlApiPayments": [
+        {
+          "paymentId": 144769745797,
+          "net": 102.85,
+          "transactionAmount": 121
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 121,
+      "mlErpComision": 18.15,
+      "mlErpCargoEnvio": 0,
+      "mlErpCostoEnvioCliente": 7.25,
+      "mlErpMetodoEnvio": "flex",
+      "mlErpDeposit": 128.25,
+      "mlErpNet": 110.1,
+      "syncCount": 1,
+      "sysIngresos": 121,
+      "sysEgresos": 18.15,
+      "sysNet": 102.85,
+      "sysIngresosDetail": [
+        {
+          "id": "oplFaLFxcF2QLlhc5mbp",
+          "num": "MOV-2026-0032",
+          "monto": 121,
+          "concepto": "Adelanto cotización COT-2026-004 - Daniela Jauregui Bernal",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "I1UfGwSGRcLtYGwYHkqC",
+          "num": "MOV-2026-0033",
+          "monto": 18.15,
+          "concepto": "Pago GAS-0029: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 121.00) ≠ depósito esperado ML (S/ 128.25) → diff S/ -7.25. Flex: ingreso NO incluye bonificación que ML SÍ deposita",
+          "impacto": -7.25
+        }
+      ]
+    },
+    {
+      "ventaId": "pFDmZ4Y0gZ2Swfz62qdB",
+      "numVenta": "VT-2026-061",
+      "ventaTotalPEN": 112.17,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 87.63,
+      "mlApiPayments": [
+        {
+          "paymentId": 149379467390,
+          "net": 87.63,
+          "transactionAmount": 108
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 108,
+      "mlErpComision": 16.2,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 108,
+      "mlErpNet": 87.63,
+      "syncCount": 2,
+      "sysIngresos": 112.17,
+      "sysEgresos": 20.37,
+      "sysNet": 91.8,
+      "sysIngresosDetail": [
+        {
+          "id": "ujsQCHU3RLpNgjbLuDxA",
+          "num": "MOV-ml-1772933039323",
+          "monto": 112.17,
+          "concepto": "Pago venta VT-2026-061 - ML #2000015447257680",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "Hqxk3QC4uAO9ojJXdNGL",
+          "num": "MOV-mlgas-fix-1772933565163",
+          "monto": 16.2,
+          "concepto": "Comisión ML - VT-2026-061",
+          "via": "ventaId"
+        },
+        {
+          "id": "fvkdJOuGa0vAEPZ0C0zr",
+          "num": "MOV-2026-0004",
+          "monto": 4.17,
+          "concepto": "Pago GAS-0125: Entrega ENT-2026-059 - Urbano - Av Lima Cuadra 34 (Tarma)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 91.80) ≠ ML API net_received (S/ 87.63) → diff +S/ 4.17",
+          "impacto": 4.17
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 112.17) ≠ depósito esperado ML (S/ 108.00) → diff +S/ 4.17. Urbano: ingreso incluye costoEnvío que ML NO deposita",
+          "impacto": 4.17
+        },
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        }
+      ]
+    },
+    {
+      "ventaId": "dIpmmMMRNpO3EaqvsP2r",
+      "numVenta": "VT-2026-027",
+      "ventaTotalPEN": 257,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 211.5,
+      "mlApiPayments": [
+        {
+          "paymentId": 146755888112,
+          "net": 211.5,
+          "transactionAmount": 257
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 257,
+      "mlErpComision": 38.55,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 6.95,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 257,
+      "mlErpNet": 211.5,
+      "syncCount": 1,
+      "sysIngresos": 257,
+      "sysEgresos": 45.55,
+      "sysNet": 211.45,
+      "sysIngresosDetail": [
+        {
+          "id": "uyIm97BTECGa0I7RPRox",
+          "num": "MOV-2026-0052",
+          "monto": 257,
+          "concepto": "Pago de venta VT-2026-027",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "EUvhwECRgC1cPsVP3a1s",
+          "num": "MOV-2026-0054",
+          "monto": 7,
+          "concepto": "Pago GAS-0040: Entrega ENT-2026-017 - Urbano - Av Lima Cuadra 34 (Santa Victoria, Chiclayo)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "ELbVdXylkhTO1nfmyC1B",
+          "num": "MOV-2026-0053",
+          "monto": 38.55,
+          "concepto": "Pago GAS-0039: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "9NaXj3c3wboNPfOKvuPP",
+      "numVenta": "VT-2026-012",
+      "ventaTotalPEN": 142,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 116.53,
+      "mlApiPayments": [
+        {
+          "paymentId": 143876246858,
+          "net": 116.53,
+          "transactionAmount": 142
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 142,
+      "mlErpComision": 21.3,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 4.17,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 142,
+      "mlErpNet": 116.53,
+      "syncCount": 1,
+      "sysIngresos": 142,
+      "sysEgresos": 25.8,
+      "sysNet": 116.2,
+      "sysIngresosDetail": [
+        {
+          "id": "vRQ564QC9dMuytJb4ARC",
+          "num": "MOV-2026-0007",
+          "monto": 142,
+          "concepto": "Pago de venta VT-2026-012",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "iO86ILRh5F3gFSBDHRyI",
+          "num": "MOV-2026-0011",
+          "monto": 4.5,
+          "concepto": "Pago GAS-0021: Entrega ENT-2026-012 - Urbano - Av Lima Cuadra 34 (Junin)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "YGIWbEkOcg2PVqax8Sxh",
+          "num": "MOV-2026-0010",
+          "monto": 21.3,
+          "concepto": "Pago GAS-0020: Comision",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        }
+      ]
+    },
+    {
+      "ventaId": "venta-ml-pack-2000011940231279",
+      "numVenta": "VT-2026-067",
+      "ventaTotalPEN": 172.95,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 134.15,
+      "mlApiPayments": [
+        {
+          "paymentId": 148874417255,
+          "net": 134.15,
+          "transactionAmount": 166
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 166,
+      "mlErpComision": 24.9,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 166,
+      "mlErpNet": 134.15,
+      "syncCount": 1,
+      "sysIngresos": 172.95,
+      "sysEgresos": 31.85,
+      "sysNet": 141.1,
+      "sysIngresosDetail": [
+        {
+          "id": "vaLWhyObt9icHvkkNKN0",
+          "num": "MOV-ml-1773080652009",
+          "monto": 172.95,
+          "concepto": "Pago venta VT-2026-067 - ML #2000015469057918",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "JUqAOOpmoiO1MpE9DKJS",
+          "num": "MOV-mlgas-1773080653408",
+          "monto": 24.9,
+          "concepto": "Comisión ML - VT-2026-067 - Orden #2000015469057918",
+          "via": "ventaId"
+        },
+        {
+          "id": "0DJbXp7mHFrDlmP7ZoXq",
+          "num": "MOV-2026-0002",
+          "monto": 6.95,
+          "concepto": "Pago GAS-0138: Entrega ENT-2026-067 - Urbano - Av Lima Cuadra 34 (Villa El Salvador)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "DISC_VS_ML_API",
+          "descripcion": "Sistema NET (S/ 141.10) ≠ ML API net_received (S/ 134.15) → diff +S/ 6.95",
+          "impacto": 6.95
+        },
+        {
+          "tipo": "DISC_INGRESO",
+          "descripcion": "Ingreso sistema (S/ 172.95) ≠ depósito esperado ML (S/ 166.00) → diff +S/ 6.95. Urbano: ingreso incluye costoEnvío que ML NO deposita",
+          "impacto": 6.95
+        },
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "Bfizilptt9WWcGSVwe6B",
+      "numVenta": "VT-2026-054",
+      "ventaTotalPEN": 152,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 122.25,
+      "mlApiPayments": [
+        {
+          "paymentId": 149146964988,
+          "net": 122.25,
+          "transactionAmount": 152
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 152,
+      "mlErpComision": 22.8,
+      "mlErpCargoEnvio": 6.95,
+      "mlErpCostoEnvioCliente": 0,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 152,
+      "mlErpNet": 122.25,
+      "syncCount": 1,
+      "sysIngresos": 152,
+      "sysEgresos": 29.75,
+      "sysNet": 122.25,
+      "sysIngresosDetail": [
+        {
+          "id": "vtOpct0XdcNAH9wOaTJw",
+          "num": "MOV-ml-1772833979649",
+          "monto": 152,
+          "concepto": "Pago venta VT-2026-054 - ML #2000015427969146 (reparado)",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "uuRQfE3a1wkgS3rXCRl2",
+          "num": "MOV-mlgas-1772833982048",
+          "monto": 22.8,
+          "concepto": "Comisión ML - VT-2026-054 - Orden #2000015427969146",
+          "via": "ventaId"
+        },
+        {
+          "id": "cCDs1SDQ1VGWrzIwjsmr",
+          "num": "MOV-2026-0001",
+          "monto": 6.95,
+          "concepto": "Pago GAS-0110: Entrega ENT-2026-052 - Urbano - Av Lima Cuadra 34 (Coronel Portillo)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 6.95) no tiene egreso correspondiente en tesorería",
+          "impacto": 6.95
+        }
+      ]
+    },
+    {
+      "ventaId": "FEw49cZhUDsbxAnvB2hS",
+      "numVenta": "VT-2026-015",
+      "ventaTotalPEN": 141,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 115.68,
+      "mlApiPayments": [
+        {
+          "paymentId": 144188333577,
+          "net": 115.68,
+          "transactionAmount": 141
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 141,
+      "mlErpComision": 21.15,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 4.17,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 141,
+      "mlErpNet": 115.68,
+      "syncCount": 1,
+      "sysIngresos": 141,
+      "sysEgresos": 25.65,
+      "sysNet": 115.35,
+      "sysIngresosDetail": [
+        {
+          "id": "wgsr7Z5q8ykCdsu3ZiRv",
+          "num": "MOV-2026-0025",
+          "monto": 141,
+          "concepto": "Pago de venta VT-2026-015",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "xYTzQpNqbXYlLPNZO89S",
+          "num": "MOV-2026-0026",
+          "monto": 21.15,
+          "concepto": "Pago GAS-0024: Comision",
+          "via": "gasto:comision_ml"
+        },
+        {
+          "id": "Bs9MuBQDJQoqZZyZA249",
+          "num": "MOV-2026-0027",
+          "monto": 4.5,
+          "concepto": "Pago GAS-0025: Entrega ENT-2026-014 - Urbano - Av Lima Cuadra 34 (Ate)",
+          "via": "gasto:delivery"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        }
+      ]
+    },
+    {
+      "ventaId": "jzhHnosyLrhoZ6Od0kpU",
+      "numVenta": "VT-2026-041",
+      "ventaTotalPEN": 134,
+      "ventaEstadoPago": "pagado",
+      "mlApiNetReceived": 109.73,
+      "mlApiPayments": [
+        {
+          "paymentId": 148288155126,
+          "net": 109.73,
+          "transactionAmount": 134
+        }
+      ],
+      "mlApiError": null,
+      "mlErpTotalML": 134,
+      "mlErpComision": 20.1,
+      "mlErpCargoEnvio": 4.17,
+      "mlErpCostoEnvioCliente": 4.17,
+      "mlErpMetodoEnvio": "urbano",
+      "mlErpDeposit": 134,
+      "mlErpNet": 109.73,
+      "syncCount": 1,
+      "sysIngresos": 134,
+      "sysEgresos": 24.27,
+      "sysNet": 109.73,
+      "sysIngresosDetail": [
+        {
+          "id": "zvHHjP2efiwf35dr6E68",
+          "num": "MOV-2026-0110",
+          "monto": 134,
+          "concepto": "Adelanto con reserva - VT-2026-041 - Ruth Cavero Contreras",
+          "via": "ventaId"
+        }
+      ],
+      "sysEgresosDetail": [
+        {
+          "id": "qxsJv0QbJgtST0IjsAUA",
+          "num": "MOV-2026-0124",
+          "monto": 4.17,
+          "concepto": "Pago GAS-0089: Entrega ENT-2026-042 - Urbano - Av Lima Cuadra 34 (Piura)",
+          "via": "gasto:delivery"
+        },
+        {
+          "id": "npIWtYVIx8OtABelnqRP",
+          "num": "MOV-2026-0114",
+          "monto": 20.1,
+          "concepto": "Pago GAS-0084: Comisión ",
+          "via": "gasto:comision_ml"
+        }
+      ],
+      "inconsistencias": [
+        {
+          "tipo": "MISSING_CARGO",
+          "descripcion": "Cargo envío ML (S/ 4.17) no tiene egreso correspondiente en tesorería",
+          "impacto": 4.17
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "tipo": "DISC_VS_ML_API",
+      "count": 38,
+      "totalImpacto": 355.2099999999999,
+      "ventas": [
+        "VT-2026-032",
+        "VT-2026-033",
+        "VT-2026-076",
+        "VT-2026-052",
+        "VT-2026-069",
+        "VT-2026-037",
+        "VT-2026-047",
+        "VT-2026-036",
+        "VT-2026-068",
+        "VT-2026-049",
+        "VT-2026-071",
+        "VT-2026-034",
+        "VT-2026-053",
+        "VT-2026-070",
+        "VT-2026-048",
+        "VT-2026-072",
+        "VT-2026-040",
+        "VT-2026-075",
+        "VT-2026-050",
+        "VT-2026-058",
+        "VT-2026-043",
+        "VT-2026-060",
+        "VT-2026-074",
+        "VT-2026-062",
+        "VT-2026-065",
+        "VT-2026-059",
+        "VT-2026-035",
+        "VT-2026-073",
+        "VT-2026-055",
+        "VT-2026-066",
+        "VT-2026-079",
+        "VT-2026-077",
+        "VT-2026-064",
+        "VT-2026-007",
+        "VT-2026-038",
+        "VT-2026-039",
+        "VT-2026-061",
+        "VT-2026-067"
+      ]
+    },
+    {
+      "tipo": "MISSING_CARGO",
+      "count": 29,
+      "totalImpacto": 182.9999999999999,
+      "ventas": [
+        "VT-2026-046",
+        "VT-2026-068",
+        "VT-2026-006",
+        "VT-2026-020",
+        "VT-2026-034",
+        "VT-2026-021",
+        "VT-2026-008",
+        "VT-2026-075",
+        "VT-2026-011",
+        "VT-2026-056",
+        "VT-2026-014",
+        "VT-2026-016",
+        "VT-2026-057",
+        "VT-2026-010",
+        "VT-2026-073",
+        "VT-2026-031",
+        "VT-2026-066",
+        "VT-2026-077",
+        "VT-2026-017",
+        "VT-2026-007",
+        "VT-2026-025",
+        "VT-2026-044",
+        "VT-2026-061",
+        "VT-2026-027",
+        "VT-2026-012",
+        "VT-2026-067",
+        "VT-2026-054",
+        "VT-2026-015",
+        "VT-2026-041"
+      ]
+    },
+    {
+      "tipo": "DISC_INGRESO",
+      "count": 18,
+      "totalImpacto": 220.35999999999996,
+      "ventas": [
+        "VT-2026-022",
+        "VT-2026-030",
+        "VT-2026-037",
+        "VT-2026-068",
+        "VT-2026-023",
+        "VT-2026-034",
+        "VT-2026-029",
+        "VT-2026-075",
+        "VT-2026-062",
+        "VT-2026-028",
+        "VT-2026-024",
+        "VT-2026-073",
+        "VT-2026-066",
+        "VT-2026-077",
+        "VT-2026-019",
+        "VT-2026-018",
+        "VT-2026-061",
+        "VT-2026-067"
+      ]
+    },
+    {
+      "tipo": "MULTIPLE_INGRESOS",
+      "count": 1,
+      "totalImpacto": 0,
+      "ventas": [
+        "VT-2026-037"
+      ]
+    },
+    {
+      "tipo": "VENTA_VS_ML_TOTAL",
+      "count": 2,
+      "totalImpacto": 0,
+      "ventas": [
+        "VT-2026-034",
+        "VT-2026-062"
+      ]
+    },
+    {
+      "tipo": "DISC_COMISION",
+      "count": 1,
+      "totalImpacto": 31.95,
+      "ventas": [
+        "VT-2026-062"
+      ]
+    }
+  ],
+  "totalImpacto": 855.62,
+  "corrections": [
+    {
+      "venta": "VT-2026-046",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 7.45",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 7.45, ventaId=S3GajkDfmPhnED60okY3. Crear movimiento egreso desde MP por S/ 7.45",
+      "impacto": 7.45
+    },
+    {
+      "venta": "VT-2026-022",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Aumentar ingreso de S/ 198.00 a S/ 206.95 (agregar bonificación envío)",
+      "accion": "Editar movimiento MOV-2026-0041 (6VObbvw4T17dFcTCkmh2): monto S/ 198.00 → S/ 206.95",
+      "impacto": -8.95
+    },
+    {
+      "venta": "VT-2026-030",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Aumentar ingreso de S/ 141.00 a S/ 149.95 (agregar bonificación envío)",
+      "accion": "Editar movimiento MOV-2026-0059 (7ESvH4kfnrnWrAjlTEiW): monto S/ 141.00 → S/ 149.95",
+      "impacto": -8.95
+    },
+    {
+      "venta": "VT-2026-037",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Ajustar ingreso de S/ 172.50 a S/ 165.25",
+      "accion": "Editar movimiento MOV-2026-0128",
+      "impacto": 7.25
+    },
+    {
+      "venta": "VT-2026-068",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Reducir ingreso de S/ 230.45 a S/ 223.00",
+      "accion": "Editar movimiento MOV-ml-1773086678953 (IbCaLiVjxEopwm0Wzw79): monto S/ 230.45 → S/ 223.00",
+      "impacto": 7.45
+    },
+    {
+      "venta": "VT-2026-068",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 7.45",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 7.45, ventaId=venta-ml-pack-2000011942167953. Crear movimiento egreso desde MP por S/ 7.45",
+      "impacto": 7.45
+    },
+    {
+      "venta": "VT-2026-023",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Aumentar ingreso de S/ 153.00 a S/ 160.25 (agregar bonificación envío)",
+      "accion": "Editar movimiento MOV-2026-0044 (Io0jDkuPM1lj2wNS6CLh): monto S/ 153.00 → S/ 160.25",
+      "impacto": -7.25
+    },
+    {
+      "venta": "VT-2026-006",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=nNqeKEErZw0Gr4sdPrKf. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-020",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=FAeS4jaPQZdWEhS9iCj4. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-034",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Reducir ingreso de S/ 142.00 a S/ 134.00",
+      "accion": "Editar movimiento MOV-2026-0094 (Kv7HBDO0SKEL9ZR5duJq): monto S/ 142.00 → S/ 134.00",
+      "impacto": 8
+    },
+    {
+      "venta": "VT-2026-034",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=1WqFNRbfU1ZHx2G9Uj0Z. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-021",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=JpWZ7VDMhZBrZtSJtJew. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-008",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=WobByrEHqPmIJGImO90a. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-029",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Aumentar ingreso de S/ 153.00 a S/ 160.25 (agregar bonificación envío)",
+      "accion": "Editar movimiento MOV-2026-0057 (QH363oqktTygWpxtzx9g): monto S/ 153.00 → S/ 160.25",
+      "impacto": -7.25
+    },
+    {
+      "venta": "VT-2026-075",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Reducir ingreso de S/ 345.90 a S/ 332.00",
+      "accion": "Editar movimiento MOV-ml-1773253261415 (Qt3yihUq2TFGMdIISDre): monto S/ 345.90 → S/ 332.00",
+      "impacto": 13.9
+    },
+    {
+      "venta": "VT-2026-075",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 13.90",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 13.90, ventaId=venta-ml-pack-2000011980202269. Crear movimiento egreso desde MP por S/ 13.90",
+      "impacto": 13.9
+    },
+    {
+      "venta": "VT-2026-011",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 8.34",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 8.34, ventaId=QSM4AaGmLUt9PKhuX92H. Crear movimiento egreso desde MP por S/ 8.34",
+      "impacto": 8.34
+    },
+    {
+      "venta": "VT-2026-056",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=7OxiwOcppctdEtI6injO. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-062",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Ajustar ingreso de S/ 354.25 a S/ 141.25",
+      "accion": "Editar movimiento MOV-ml-1772937158337",
+      "impacto": 213
+    },
+    {
+      "venta": "VT-2026-062",
+      "tipo": "DISC_COMISION",
+      "correccion": "Crear gasto comisión ML + movimiento egreso por S/ 52.05",
+      "accion": "Crear gasto tipo=comision_ml, monto=S/ 52.05, ventaId=oT62lh9MR8RWM7dg9DCc. Crear movimiento egreso desde MP por S/ 52.05",
+      "impacto": 31.95
+    },
+    {
+      "venta": "VT-2026-014",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=Sz6bVhX304lxcjS8xqWq. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-016",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=rPwmrRRraaerWBCXC62M. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-028",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Aumentar ingreso de S/ 238.00 a S/ 245.25 (agregar bonificación envío)",
+      "accion": "Editar movimiento MOV-2026-0055 (ZWt4yZLWh0231vQniJzJ): monto S/ 238.00 → S/ 245.25",
+      "impacto": -7.25
+    },
+    {
+      "venta": "VT-2026-024",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Aumentar ingreso de S/ 158.00 a S/ 166.95 (agregar bonificación envío)",
+      "accion": "Editar movimiento MOV-2026-0046 (ZqVL5jW8Zo2O5KYR207a): monto S/ 158.00 → S/ 166.95",
+      "impacto": -8.95
+    },
+    {
+      "venta": "VT-2026-057",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=ittZOBs6ewmHA4mxXqwg. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-010",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=g55FuGC7zMxIflhfpJ0T. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-073",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Reducir ingreso de S/ 236.95 a S/ 230.00",
+      "accion": "Editar movimiento MOV-ml-1773159049813 (cpRctmnAM1H2LeYxQz35): monto S/ 236.95 → S/ 230.00",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-073",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=venta-ml-pack-2000011957609441. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-031",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.47",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.47, ventaId=ojFIl12OIOK1zG19Kkee. Crear movimiento egreso desde MP por S/ 4.47",
+      "impacto": 4.47
+    },
+    {
+      "venta": "VT-2026-066",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Reducir ingreso de S/ 300.34 a S/ 292.00",
+      "accion": "Editar movimiento MOV-ml-1773079923783 (dWFkvGUgQCDcxKWZiqMN): monto S/ 300.34 → S/ 292.00",
+      "impacto": 8.34
+    },
+    {
+      "venta": "VT-2026-066",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 8.34",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 8.34, ventaId=venta-ml-pack-2000011939984135. Crear movimiento egreso desde MP por S/ 8.34",
+      "impacto": 8.34
+    },
+    {
+      "venta": "VT-2026-077",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Reducir ingreso de S/ 228.45 a S/ 221.00",
+      "accion": "Editar movimiento MOV-ml-1773350319672 (fjt80VR1xfsSBuMf5YtT): monto S/ 228.45 → S/ 221.00",
+      "impacto": 7.45
+    },
+    {
+      "venta": "VT-2026-077",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 7.45",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 7.45, ventaId=venta-ml-pack-2000012002306205. Crear movimiento egreso desde MP por S/ 7.45",
+      "impacto": 7.45
+    },
+    {
+      "venta": "VT-2026-017",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 7.45",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 7.45, ventaId=pA9DWKhmhU9TRCrHwmAS. Crear movimiento egreso desde MP por S/ 7.45",
+      "impacto": 7.45
+    },
+    {
+      "venta": "VT-2026-007",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=q2eefWlTA2ppc2JYzWdP. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-025",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=Os4D6fL9hxAFB6dXSBFf. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-044",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=2LDIOfXqdZgC9kh5tnHM. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-019",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Aumentar ingreso de S/ 232.00 a S/ 239.25 (agregar bonificación envío)",
+      "accion": "Editar movimiento MOV-2026-0034 (jL9cwi91RdImeMcQ52JN): monto S/ 232.00 → S/ 239.25",
+      "impacto": -7.25
+    },
+    {
+      "venta": "VT-2026-018",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Aumentar ingreso de S/ 121.00 a S/ 128.25 (agregar bonificación envío)",
+      "accion": "Editar movimiento MOV-2026-0032 (oplFaLFxcF2QLlhc5mbp): monto S/ 121.00 → S/ 128.25",
+      "impacto": -7.25
+    },
+    {
+      "venta": "VT-2026-061",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Reducir ingreso de S/ 112.17 a S/ 108.00",
+      "accion": "Editar movimiento MOV-ml-1772933039323 (ujsQCHU3RLpNgjbLuDxA): monto S/ 112.17 → S/ 108.00",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-061",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=pFDmZ4Y0gZ2Swfz62qdB. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-027",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=dIpmmMMRNpO3EaqvsP2r. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-012",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=9NaXj3c3wboNPfOKvuPP. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-067",
+      "tipo": "DISC_INGRESO",
+      "correccion": "Reducir ingreso de S/ 172.95 a S/ 166.00",
+      "accion": "Editar movimiento MOV-ml-1773080652009 (vaLWhyObt9icHvkkNKN0): monto S/ 172.95 → S/ 166.00",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-067",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=venta-ml-pack-2000011940231279. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-054",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 6.95",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 6.95, ventaId=Bfizilptt9WWcGSVwe6B. Crear movimiento egreso desde MP por S/ 6.95",
+      "impacto": 6.95
+    },
+    {
+      "venta": "VT-2026-015",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=FEw49cZhUDsbxAnvB2hS. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "VT-2026-041",
+      "tipo": "MISSING_CARGO",
+      "correccion": "Crear gasto cargo envío ML + movimiento egreso por S/ 4.17",
+      "accion": "Crear gasto tipo=cargo_envio_ml, monto=S/ 4.17, ventaId=jzhHnosyLrhoZ6Od0kpU. Crear movimiento egreso desde MP por S/ 4.17",
+      "impacto": 4.17
+    },
+    {
+      "venta": "HUÉRFANO",
+      "tipo": "ORPHAN",
+      "correccion": "Movimiento MOV-2026-0088 (+S/ 65.10) — vincular a venta o anular",
+      "accion": "Anular movimiento NU72R29i6HiQeOzZ30eW si no corresponde a operación real",
+      "impacto": 65.1
+    }
+  ],
+  "projection": {
+    "saldoActual": 2137.65,
+    "totalCorrecciones": 500.41,
+    "saldoProyectado": 1637.24,
+    "saldoReal": 1816.15,
+    "gapResidual": -178.91
+  }
+}

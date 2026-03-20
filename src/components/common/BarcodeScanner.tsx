@@ -37,6 +37,11 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
   const keystrokeTimesRef = useRef<number[]>([]);
   const manualInputRef = useRef<HTMLInputElement>(null);
 
+  // Ref para evitar stale closure: html5-qrcode captura el callback una sola vez
+  // al iniciar la cámara, así que usamos ref para siempre tener el onScan actual
+  const onScanRef = useRef(onScan);
+  onScanRef.current = onScan;
+
   // Cleanup camera on unmount
   useEffect(() => {
     return () => {
@@ -131,8 +136,8 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
     }
 
     lastScanRef.current = { barcode, time: now };
-    onScan(barcode, format);
-  }, [onScan]);
+    onScanRef.current(barcode, format);
+  }, []);
 
   const handleManualKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const now = Date.now();

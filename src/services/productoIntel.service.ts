@@ -305,13 +305,13 @@ export const productoIntelService = {
 
     // Costos
     const costoPromedioUSD = producto.ctruPromedio || 0;
-    const costoPromedioConFlete = costoPromedioUSD + (producto.costoFleteUSAPeru || 0);
+    const costoPromedioConFlete = costoPromedioUSD;
 
     // Precios de venta
     const preciosVenta = this.extraerPreciosVenta(ventasProducto30d, producto.id);
     const precioVentaPromedio = preciosVenta.length > 0
       ? preciosVenta.reduce((a, b) => a + b, 0) / preciosVenta.length
-      : producto.precioSugerido || 0;
+      : 0;
 
     // Margenes de ventas reales
     const margenes = this.extraerMargenes(ventasProducto30d, producto.id);
@@ -351,7 +351,7 @@ export const productoIntelService = {
       costoPromedioUSD,
       costoPromedioConFlete,
       precioVentaPromedio,
-      precioSugerido: producto.precioSugerido || 0,
+      precioSugerido: 0,
       margenBrutoPromedio: Math.round(margenBrutoPromedio * 10) / 10,
       margenNetoPromedio: Math.round(margenNetoPromedio * 10) / 10,
       margenMinimo: margenes.length > 0 ? Math.min(...margenes) : 0,
@@ -390,7 +390,7 @@ export const productoIntelService = {
    */
   calcularMargenTeorico(producto: Producto): number {
     const costo = (producto.ctruPromedio || 0) * 3.7; // TC aprox
-    const precio = producto.precioSugerido || 0;
+    const precio = 0; // precioSugerido removed - use actual sales data
     if (precio <= 0 || costo <= 0) return 0;
     return Math.round(((precio - costo) / precio) * 100);
   },
@@ -480,7 +480,7 @@ export const productoIntelService = {
     const costoUnitarioPEN = (producto.ctruPromedio || 0) * tc;
     const valorInventarioUSD = rotacion.stockTotal * (producto.ctruPromedio || 0);
     const valorInventarioPEN = valorInventarioUSD * tc;
-    const potencialVentaPEN = rotacion.stockTotal * (producto.precioSugerido || 0);
+    const potencialVentaPEN = rotacion.stockTotal * (rentabilidad.precioVentaPromedio || 0);
     const potencialUtilidadPEN = potencialVentaPEN - valorInventarioPEN;
 
     return {
@@ -586,12 +586,14 @@ export const productoIntelService = {
       });
     }
 
-    // Margen bajo
-    if (rentabilidad.margenBrutoPromedio < (producto.margenMinimo || 20) && rentabilidad.margenBrutoPromedio > 0) {
+    // Margen bajo - read from product's category
+    const categoriaPrincipal = producto.categorias?.find((c: any) => c.categoriaId === producto.categoriaPrincipalId) || producto.categorias?.[0];
+    const margenMinimoCategoria = categoriaPrincipal?.margenMinimo ?? 20;
+    if (rentabilidad.margenBrutoPromedio < margenMinimoCategoria && rentabilidad.margenBrutoPromedio > 0) {
       alertas.push({
         tipo: 'margen_bajo',
         severidad: 'warning',
-        mensaje: `Margen ${rentabilidad.margenBrutoPromedio.toFixed(1)}% por debajo del objetivo (${producto.margenMinimo || 20}%)`,
+        mensaje: `Margen ${rentabilidad.margenBrutoPromedio.toFixed(1)}% por debajo del minimo de categoria (${margenMinimoCategoria}%)`,
         valor: rentabilidad.margenBrutoPromedio,
         fechaCreacion: ahora
       });
@@ -686,6 +688,7 @@ export const productoIntelService = {
       leadTimePromedioDias: leadTime?.tiempoPromedioTotal,
       ultimaCompraFecha: leadTime?.ultimaCompra,
       alertas,
+      lineaNegocioId: producto.lineaNegocioId,
       ultimoCalculo: ahora
     };
   },
@@ -734,6 +737,7 @@ export const productoIntelService = {
         leadTimePromedioDias: leadTime?.tiempoPromedioTotal,
         ultimaCompraFecha: leadTime?.ultimaCompra,
         alertas,
+        lineaNegocioId: producto.lineaNegocioId,
         ultimoCalculo: ahora
       };
     });
@@ -960,7 +964,7 @@ export const productoIntelService = {
 
     for (const p of productosIntel) {
       const ventaDiaria = p.rotacion.promedioVentasDiarias;
-      const precioPromedio = p.rentabilidad.precioVentaPromedio || p.rentabilidad.precioSugerido;
+      const precioPromedio = p.rentabilidad.precioVentaPromedio || 0;
 
       ingresosProyectados7d += ventaDiaria * 7 * precioPromedio;
       ingresosProyectados15d += ventaDiaria * 15 * precioPromedio;

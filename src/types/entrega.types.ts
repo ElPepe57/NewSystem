@@ -123,6 +123,10 @@ export interface Entrega extends BaseEntity {
   pdfGuiaTransportista?: string;   // URL del PDF para transportista
   pdfCargoCliente?: string;        // URL del PDF cargo para cliente
 
+  // Línea de negocio (heredada de Venta)
+  lineaNegocioId?: string;
+  lineaNegocioNombre?: string;
+
   // Observaciones
   observaciones?: string;
 

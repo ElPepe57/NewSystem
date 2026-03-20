@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react';
+import { formatFecha } from '../../../utils/dateFormatters';
 import {
   X,
   User,
@@ -140,15 +141,6 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
     }
   };
 
-  const formatFecha = (timestamp: any) => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate?.() || new Date(timestamp);
-    return date.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

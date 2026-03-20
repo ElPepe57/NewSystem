@@ -41,6 +41,33 @@ import type {
 } from "../../types/transferencia.types";
 import type { Unidad } from "../../types/unidad.types";
 import type { CuentaCaja, MetodoTesoreria } from "../../types/tesoreria.types";
+import { userService } from "../../services/user.service";
+import { esTipoTransferenciaInterna, esTipoTransferenciaInternacional, getLabelTipoTransferencia, esPaisOrigen } from '../../utils/multiOrigen.helpers';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+
+// Mini-componente para resolver userId → displayName
+const userNameCache = new Map<string, string>();
+const UserName: React.FC<{ userId: string }> = ({ userId }) => {
+  const [name, setName] = useState<string | null>(null);
+  useEffect(() => {
+    if (!userId) return;
+    // Si ya parece un nombre legible (no un UID largo), mostrarlo directo
+    if (userId.length < 20 || userId.includes(' ') || userId.includes('@')) {
+      setName(userId);
+      return;
+    }
+    if (userNameCache.has(userId)) {
+      setName(userNameCache.get(userId)!);
+      return;
+    }
+    userService.getByUid(userId).then(profile => {
+      const displayName = profile?.displayName || profile?.email || userId.slice(0, 8) + '...';
+      userNameCache.set(userId, displayName);
+      setName(displayName);
+    }).catch(() => setName(userId.slice(0, 8) + '...'));
+  }, [userId]);
+  return <>{name ?? userId.slice(0, 8) + '...'}</>;
+};
 
 export const Transferencias: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -68,15 +95,27 @@ export const Transferencias: React.FC = () => {
   const [tipoCambioActual, setTipoCambioActual] = useState<{ tasaVenta: number } | null>(null);
 
   const {
+    almacenes: todosAlmacenes,
     almacenesUSA,
     almacenesPeru,
     viajeros,
+    fetchAlmacenes: fetchTodosAlmacenes,
     fetchAlmacenesUSA,
     fetchAlmacenesPeru,
     fetchViajeros
   } = useAlmacenStore();
 
-  const { productos: todosProductos } = useProductoStore();
+  // Almacenes dinámicos por tipo (origen vs destino Peru)
+  const almacenesOrigen = useMemo(() =>
+    todosAlmacenes.filter(a => a.estadoAlmacen === 'activo' && esPaisOrigen(a.pais)),
+    [todosAlmacenes]
+  );
+  const almacenesDestinoPeru = useMemo(() =>
+    todosAlmacenes.filter(a => a.estadoAlmacen === 'activo' && a.pais === 'Peru'),
+    [todosAlmacenes]
+  );
+
+  const { productos: todosProductos, fetchProductos } = useProductoStore();
   const productosMapGlobal = useMemo(() => {
     const map = new Map<string, typeof todosProductos[0]>();
     todosProductos.forEach(p => map.set(p.id, p));
@@ -97,6 +136,7 @@ export const Transferencias: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
   const [pipelineStage, setPipelineStage] = useState<string | null>(null);
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
@@ -109,6 +149,7 @@ export const Transferencias: React.FC = () => {
     fetchEnTransito();
     fetchPendientesRecepcion();
     fetchResumen();
+    fetchTodosAlmacenes();
     fetchAlmacenesUSA();
     fetchAlmacenesPeru();
     fetchViajeros();
@@ -117,6 +158,11 @@ export const Transferencias: React.FC = () => {
     // Cargar cuentas de tesorería
     tesoreriaService.getCuentas().then(setCuentasTesoreria).catch(console.error);
   }, [fetchTransferencias, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia]);
+
+  // Cargar productos para resolver marca, presentación, dosaje, etc.
+  useEffect(() => {
+    if (todosProductos.length === 0) fetchProductos();
+  }, [todosProductos.length, fetchProductos]);
 
   // Abrir transferencia por query param (deep link desde Tesorería)
   useEffect(() => {
@@ -191,6 +237,11 @@ export const Transferencias: React.FC = () => {
         ? transferenciasPendientes
         : transferencias;
 
+    // Filtrar por línea de negocio global
+    if (lineaFiltroGlobal) {
+      lista = lista.filter(t => !t.lineaNegocioId || t.lineaNegocioId === lineaFiltroGlobal);
+    }
+
     // Filtrar por etapa del pipeline
     if (pipelineStage) {
       if (pipelineStage === 'recibida') {
@@ -201,7 +252,13 @@ export const Transferencias: React.FC = () => {
     }
 
     if (filtroTipo !== 'todas') {
-      lista = lista.filter(t => t.tipo === filtroTipo);
+      if (filtroTipo === 'internacional_peru' || filtroTipo === 'usa_peru') {
+        lista = lista.filter(t => esTipoTransferenciaInternacional(t.tipo));
+      } else if (filtroTipo === 'interna_origen' || filtroTipo === 'interna_usa') {
+        lista = lista.filter(t => esTipoTransferenciaInterna(t.tipo));
+      } else {
+        lista = lista.filter(t => t.tipo === filtroTipo);
+      }
     }
 
     if (filtroEstado !== 'todas') {
@@ -284,10 +341,10 @@ export const Transferencias: React.FC = () => {
   };
 
   // Formatear tipo
-  const getTipoBadge = (tipo: TipoTransferencia) => {
-    return tipo === 'interna_usa'
-      ? <Badge variant="default">Interna USA</Badge>
-      : <Badge variant="info">USA → Perú</Badge>;
+  const getTipoBadge = (tipo: TipoTransferencia, paisOrigen?: string) => {
+    return esTipoTransferenciaInterna(tipo)
+      ? <Badge variant="default">{getLabelTipoTransferencia(tipo, paisOrigen)}</Badge>
+      : <Badge variant="info">{getLabelTipoTransferencia(tipo, paisOrigen)}</Badge>;
   };
 
   // Card de transferencia
@@ -304,9 +361,9 @@ export const Transferencias: React.FC = () => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-              transferencia.tipo === 'usa_peru' ? 'bg-blue-100' : 'bg-gray-100'
+              esTipoTransferenciaInternacional(transferencia.tipo) ? 'bg-blue-100' : 'bg-gray-100'
             }`}>
-              {transferencia.tipo === 'usa_peru'
+              {esTipoTransferenciaInternacional(transferencia.tipo)
                 ? <Plane className="h-6 w-6 text-blue-600" />
                 : <ArrowRightLeft className="h-6 w-6 text-gray-600" />
               }
@@ -314,7 +371,7 @@ export const Transferencias: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">{transferencia.numeroTransferencia}</h3>
               <div className="flex items-center space-x-2 mt-1">
-                {getTipoBadge(transferencia.tipo)}
+                {getTipoBadge(transferencia.tipo, (transferencia as any).paisOrigen)}
                 {getEstadoBadge(transferencia.estado)}
               </div>
             </div>
@@ -347,7 +404,7 @@ export const Transferencias: React.FC = () => {
             </span>
             {transferencia.costoFleteTotal != null && transferencia.costoFleteTotal > 0 ? (
               <span className="text-xs font-medium text-green-600">Flete: ${transferencia.costoFleteTotal.toFixed(2)}</span>
-            ) : transferencia.tipo === 'usa_peru' ? (
+            ) : esTipoTransferenciaInternacional(transferencia.tipo) ? (
               <span className="text-xs text-amber-500">Sin flete</span>
             ) : null}
           </div>
@@ -416,6 +473,29 @@ export const Transferencias: React.FC = () => {
           </div>
         )}
 
+        {/* Progreso de recepción parcial */}
+        {transferencia.estado === 'recibida_parcial' && (() => {
+          const recibidas = transferencia.totalUnidadesRecibidas ?? transferencia.unidades.filter(u => u.estadoTransferencia === 'recibida').length;
+          const danadas = transferencia.totalUnidadesDanadas ?? transferencia.unidades.filter(u => u.estadoTransferencia === 'danada').length;
+          const procesadas = recibidas + danadas;
+          const totalU = transferencia.totalUnidades;
+          const numRecepciones = (transferencia.recepcionesTransferencia || []).length || (transferencia.recepcion ? 1 : 0);
+          return (
+            <div className="p-2 bg-purple-50 rounded-lg text-sm">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-purple-700 font-medium flex items-center gap-1">
+                  <Package className="h-4 w-4" />
+                  {procesadas}/{totalU} recibidas
+                </span>
+                <span className="text-xs text-purple-500">{numRecepciones} recep.</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                <div className="bg-purple-500 h-1.5 rounded-full transition-all" style={{ width: `${(procesadas / totalU) * 100}%` }} />
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Tracking */}
         {transferencia.numeroTracking && (
           <div className="mt-3 flex items-center text-sm text-gray-600">
@@ -458,6 +538,20 @@ export const Transferencias: React.FC = () => {
           </div>
         )}
 
+        {/* Acción rápida para recepción parcial */}
+        {transferencia.estado === 'recibida_parcial' && (
+          <div className="mt-4 pt-4 border-t flex justify-end">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={(e) => { e.stopPropagation(); handleIniciarRecepcion(transferencia); }}
+            >
+              <Package className="h-4 w-4 mr-1" />
+              Recepción Adicional
+            </Button>
+          </div>
+        )}
+
         <div className="mt-4 flex justify-end">
           <ChevronRight className="h-5 w-5 text-gray-400" />
         </div>
@@ -469,7 +563,7 @@ export const Transferencias: React.FC = () => {
   const CreateTransferenciaModal = () => {
     const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Config, 2: Unidades, 3: Confirmar
     const [formData, setFormData] = useState<Partial<TransferenciaFormData>>({
-      tipo: 'usa_peru',
+      tipo: 'internacional_peru',
       unidadesIds: []
     });
     const [unidadesDisponibles, setUnidadesDisponibles] = useState<Unidad[]>([]);
@@ -671,7 +765,7 @@ export const Transferencias: React.FC = () => {
         await crearTransferencia(dataFinal, user.uid);
         setShowCreateModal(false);
         setStep(1);
-        setFormData({ tipo: 'usa_peru', unidadesIds: [] });
+        setFormData({ tipo: 'internacional_peru', unidadesIds: [] });
         setUnidadesSeleccionadas([]);
         setCostoFleteUnitarioPorProducto({});
         setAgregarFleteAhora(false);
@@ -683,8 +777,13 @@ export const Transferencias: React.FC = () => {
       }
     };
 
-    const almacenesOrigen = formData.tipo === 'usa_peru' ? almacenesUSA : almacenesUSA;
-    const almacenesDestino = formData.tipo === 'usa_peru' ? almacenesPeru : almacenesUSA.filter(a => a.id !== formData.almacenOrigenId);
+    // Dinámico: origen = almacenes de cualquier país de origen; destino = Peru (int'l) o mismo origen (interna)
+    const almacenesOrigenModal = esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
+      ? almacenesOrigen
+      : almacenesOrigen;
+    const almacenesDestinoModal = esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
+      ? almacenesDestinoPeru
+      : almacenesOrigen.filter(a => a.id !== formData.almacenOrigenId);
 
     const canProceedToStep2 = formData.almacenOrigenId && formData.almacenDestinoId;
     const canProceedToStep3 = unidadesSeleccionadas.length > 0;
@@ -718,28 +817,28 @@ export const Transferencias: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, tipo: 'usa_peru', almacenDestinoId: undefined })}
+                  onClick={() => setFormData({ ...formData, tipo: 'internacional_peru', almacenDestinoId: undefined })}
                   className={`p-4 rounded-lg border-2 text-center transition-all ${
-                    formData.tipo === 'usa_peru'
+                    esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
                       ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-200 hover:border-gray-300 text-gray-600'
                   }`}
                 >
                   <Plane className="h-8 w-8 mx-auto mb-2" />
-                  <span className="block font-medium">USA → Perú</span>
+                  <span className="block font-medium">Origen → Perú</span>
                   <span className="text-xs">Envío internacional</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, tipo: 'interna_usa', almacenDestinoId: undefined })}
+                  onClick={() => setFormData({ ...formData, tipo: 'interna_origen', almacenDestinoId: undefined })}
                   className={`p-4 rounded-lg border-2 text-center transition-all ${
-                    formData.tipo === 'interna_usa'
+                    esTipoTransferenciaInterna(formData.tipo as TipoTransferencia)
                       ? 'border-purple-500 bg-purple-50 text-purple-700'
                       : 'border-gray-200 hover:border-gray-300 text-gray-600'
                   }`}
                 >
                   <ArrowRightLeft className="h-8 w-8 mx-auto mb-2" />
-                  <span className="block font-medium">Interna USA</span>
+                  <span className="block font-medium">Interna Origen</span>
                   <span className="text-xs">Entre viajeros/almacenes</span>
                 </button>
               </div>
@@ -752,9 +851,9 @@ export const Transferencias: React.FC = () => {
               onChange={(e) => handleSelectOrigen(e.target.value)}
               options={[
                 { value: '', label: 'Seleccionar origen...' },
-                ...almacenesOrigen.map(a => ({
+                ...almacenesOrigenModal.map(a => ({
                   value: a.id,
-                  label: `${a.nombre} (${a.codigo}) - ${a.unidadesActuales || 0} unidades`
+                  label: `${a.nombre} (${a.codigo}) [${a.pais}] - ${a.unidadesActuales || 0} uds`
                 }))
               ]}
               required
@@ -762,14 +861,14 @@ export const Transferencias: React.FC = () => {
 
             {/* Destino */}
             <Select
-              label={formData.tipo === 'usa_peru' ? 'Almacén Destino (Perú)' : 'Viajero/Almacén Destino'}
+              label={esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia) ? 'Almacén Destino (Perú)' : 'Viajero/Almacén Destino'}
               value={formData.almacenDestinoId || ''}
               onChange={(e) => setFormData({ ...formData, almacenDestinoId: e.target.value })}
               options={[
                 { value: '', label: 'Seleccionar destino...' },
-                ...almacenesDestino.map(a => ({
+                ...almacenesDestinoModal.map(a => ({
                   value: a.id,
-                  label: `${a.nombre} (${a.codigo})`
+                  label: `${a.nombre} (${a.codigo}) [${a.pais}]`
                 }))
               ]}
               required
@@ -777,7 +876,7 @@ export const Transferencias: React.FC = () => {
             />
 
             {/* Viajero (solo para USA → Perú) */}
-            {formData.tipo === 'usa_peru' && (
+            {esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia) && (
               <Select
                 label="Viajero que transporta"
                 value={formData.viajeroId || ''}
@@ -793,7 +892,7 @@ export const Transferencias: React.FC = () => {
             )}
 
             {/* Motivo (solo para interna USA) */}
-            {formData.tipo === 'interna_usa' && (
+            {esTipoTransferenciaInterna(formData.tipo as TipoTransferencia) && (
               <Select
                 label="Motivo de la transferencia"
                 value={formData.motivo || ''}
@@ -846,56 +945,54 @@ export const Transferencias: React.FC = () => {
 
               {/* Acciones rápidas globales */}
               {unidadesDisponibles.length > 0 && (
-                <div className="flex items-center justify-end space-x-2 mt-3 pt-3 border-t border-primary-200">
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary-200">
                   <button
                     type="button"
-                    onClick={seleccionarTodas}
-                    className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                    onClick={() => setShowScanner(!showScanner)}
+                    className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors ${
+                      showScanner ? 'bg-primary-200 text-primary-800' : 'text-primary-700 hover:text-primary-900 hover:bg-primary-100'
+                    }`}
                   >
-                    Seleccionar todas ({unidadesDisponibles.length})
+                    <ScanLine className="h-3.5 w-3.5" />
+                    Escanear
                   </button>
-                  {unidadesSeleccionadas.length > 0 && (
-                    <>
-                      <span className="text-primary-300">|</span>
-                      <button
-                        type="button"
-                        onClick={deseleccionarTodas}
-                        className="text-xs text-primary-700 hover:text-primary-900 font-medium"
-                      >
-                        Limpiar selección
-                      </button>
-                    </>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={seleccionarTodas}
+                      className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                    >
+                      Seleccionar todas ({unidadesDisponibles.length})
+                    </button>
+                    {unidadesSeleccionadas.length > 0 && (
+                      <>
+                        <span className="text-primary-300">|</span>
+                        <button
+                          type="button"
+                          onClick={deseleccionarTodas}
+                          className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                        >
+                          Limpiar selección
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Inline scanner */}
+              {showScanner && (
+                <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-700">Escanear producto</span>
+                    <button type="button" onClick={() => setShowScanner(false)} className="text-gray-400 hover:text-gray-600">
+                      <XIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <BarcodeScanner onScan={handleBarcodeScan} mode="both" compact />
                 </div>
               )}
             </div>
-
-            {/* Scanner inline */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowScanner(!showScanner)}
-                className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm border rounded-lg transition-colors ${
-                  showScanner
-                    ? 'bg-primary-50 border-primary-300 text-primary-700'
-                    : 'bg-white border-gray-300 text-gray-600 hover:text-primary-600 hover:border-primary-300'
-                }`}
-              >
-                <ScanLine className="h-4 w-4" />
-                Escanear producto
-              </button>
-            </div>
-            {showScanner && (
-              <div className="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-gray-500">Escanear para seleccionar producto</span>
-                  <button type="button" onClick={() => setShowScanner(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded">
-                    <XIcon className="h-4 w-4" />
-                  </button>
-                </div>
-                <BarcodeScanner onScan={handleBarcodeScan} mode="both" compact placeholder="Escanear o escribir UPC/SKU..." />
-              </div>
-            )}
 
             {/* Lista de unidades agrupadas por producto */}
             {loadingUnidades ? (
@@ -1133,7 +1230,7 @@ export const Transferencias: React.FC = () => {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-500">Tipo:</span>
-                  <span className="ml-2 font-medium">{formData.tipo === 'usa_peru' ? 'USA → Perú' : 'Interna USA'}</span>
+                  <span className="ml-2 font-medium">{getLabelTipoTransferencia(formData.tipo as TipoTransferencia)}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">Unidades:</span>
@@ -1151,7 +1248,7 @@ export const Transferencias: React.FC = () => {
             </div>
 
             {/* Toggle de flete (solo para USA → Perú) */}
-            {formData.tipo === 'usa_peru' && (
+            {esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia) && (
               <div>
                 <label className="flex items-center gap-3 cursor-pointer select-none mb-3">
                   <input
@@ -1275,7 +1372,7 @@ export const Transferencias: React.FC = () => {
             )}
 
             {/* Info para transferencias internas */}
-            {formData.tipo === 'interna_usa' && (
+            {esTipoTransferenciaInterna(formData.tipo as TipoTransferencia) && (
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                 <div className="flex items-center">
                   <ArrowRightLeft className="h-5 w-5 text-purple-600 mr-2" />
@@ -1328,56 +1425,109 @@ export const Transferencias: React.FC = () => {
     onClose: () => void;
     onConfirm: (data: RecepcionFormData) => Promise<void>;
   }) => {
-    const [unidadesRecepcion, setUnidadesRecepcion] = useState<{
-      unidadId: string;
-      recibida: boolean;
-      danada: boolean;
-      incidencia?: string;
-    }[]>(
-      transferencia.unidades.map(u => ({
-        unidadId: u.unidadId,
-        recibida: true,
-        danada: false,
-        incidencia: ''
-      }))
+    // Unidades pendientes (no recibida ni danada)
+    const unidadesPendientes = transferencia.unidades.filter(
+      u => u.estadoTransferencia === 'enviada' || u.estadoTransferencia === 'faltante'
+        || u.estadoTransferencia === 'pendiente' || u.estadoTransferencia === 'preparada'
     );
+    const esParcial = transferencia.estado === 'recibida_parcial';
+    const recepcionNumero = (transferencia.recepcionesTransferencia?.length || (transferencia.recepcion ? 1 : 0)) + 1;
+
+    // Agrupar por producto (solo agrupación, sin resolver productosMapGlobal para evitar stale data)
+    const productosAgrupados = useMemo(() => {
+      const map = new Map<string, typeof unidadesPendientes>();
+      for (const u of unidadesPendientes) {
+        const arr = map.get(u.productoId) || [];
+        arr.push(u);
+        map.set(u.productoId, arr);
+      }
+      return [...map.entries()].map(([productoId, unids]) => {
+        const pSummary = transferencia.productosSummary.find(p => p.productoId === productoId);
+        const totalEnvio = pSummary?.cantidad || unids.length;
+        const yaRecibido = transferencia.unidades.filter(u => u.productoId === productoId && u.estadoTransferencia === 'recibida').length;
+        const costoFleteUnit = unids[0].costoFleteUSD || 0;
+        const costoFleteTotal = unids.reduce((s, u) => s + (u.costoFleteUSD || 0), 0);
+        const fechasVenc = unids
+          .map(u => u.fechaVencimiento?.toDate?.())
+          .filter(Boolean) as Date[];
+        fechasVenc.sort((a, b) => a.getTime() - b.getTime());
+        return {
+          productoId,
+          nombreFallback: pSummary?.nombre || unids[0].sku,
+          sku: unids[0].sku,
+          lote: unids[0].lote,
+          fechaVencimiento: fechasVenc[0] || null,
+          costoFleteUnit,
+          costoFleteTotal,
+          unidades: unids,
+          totalEnvio,
+          yaRecibido,
+          pendiente: unids.length
+        };
+      });
+    }, [transferencia, unidadesPendientes]);
+
+    // Estado: cantidad a recibir por producto
+    const [cantidadRecibir, setCantidadRecibir] = useState<Record<string, number>>(() => {
+      const init: Record<string, number> = {};
+      productosAgrupados.forEach(p => { init[p.productoId] = 0; });
+      return init;
+    });
     const [observaciones, setObservaciones] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [showRecepcionScanner, setShowRecepcionScanner] = useState(false);
+    const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
 
-    const toggleRecibida = (unidadId: string) => {
-      setUnidadesRecepcion(prev =>
-        prev.map(u =>
-          u.unidadId === unidadId
-            ? { ...u, recibida: !u.recibida, danada: false }
-            : u
-        )
-      );
+    const totalARecibir = Object.values(cantidadRecibir).reduce((s, v) => s + v, 0);
+    const totalPendiente = unidadesPendientes.length;
+
+    const handleRecibirTodo = (checked: boolean) => {
+      const next: Record<string, number> = {};
+      productosAgrupados.forEach(p => { next[p.productoId] = checked ? p.pendiente : 0; });
+      setCantidadRecibir(next);
     };
 
-    const toggleDanada = (unidadId: string) => {
-      setUnidadesRecepcion(prev =>
-        prev.map(u =>
-          u.unidadId === unidadId
-            ? { ...u, danada: !u.danada, recibida: true }
-            : u
-        )
-      );
+    const toggleExpandirProductoRecepcion = (productoId: string) => {
+      setProductosExpandidos(prev => {
+        const next = new Set(prev);
+        if (next.has(productoId)) next.delete(productoId);
+        else next.add(productoId);
+        return next;
+      });
     };
 
-    const setIncidencia = (unidadId: string, incidencia: string) => {
-      setUnidadesRecepcion(prev =>
-        prev.map(u =>
-          u.unidadId === unidadId ? { ...u, incidencia } : u
-        )
-      );
+    const handleRecepcionBarcodeScan = (barcode: string) => {
+      // Buscar producto que coincida con SKU/UPC
+      const prod = productosAgrupados.find(p => {
+        const pFull = productosMapGlobal.get(p.productoId);
+        return p.sku === barcode || (pFull as any)?.codigoBarras === barcode || (pFull as any)?.upc === barcode;
+      });
+      if (prod) {
+        const current = cantidadRecibir[prod.productoId] || 0;
+        if (current < prod.pendiente) {
+          setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: current + 1 }));
+        }
+      }
     };
 
     const handleSubmit = async () => {
+      if (totalARecibir === 0) return;
       setSubmitting(true);
       try {
+        const unidadesRecibidas: RecepcionFormData['unidadesRecibidas'] = [];
+        for (const prod of productosAgrupados) {
+          const cant = cantidadRecibir[prod.productoId] || 0;
+          prod.unidades.forEach((u, idx) => {
+            unidadesRecibidas.push({
+              unidadId: u.unidadId,
+              recibida: idx < cant,
+              danada: false
+            });
+          });
+        }
         await onConfirm({
           transferenciaId: transferencia.id,
-          unidadesRecibidas: unidadesRecepcion,
+          unidadesRecibidas,
           observaciones
         });
       } finally {
@@ -1385,157 +1535,275 @@ export const Transferencias: React.FC = () => {
       }
     };
 
-    const resumen = {
-      total: transferencia.unidades.length,
-      recibidas: unidadesRecepcion.filter(u => u.recibida && !u.danada).length,
-      danadas: unidadesRecepcion.filter(u => u.danada).length,
-      faltantes: unidadesRecepcion.filter(u => !u.recibida).length
-    };
-
     return (
       <Modal
         isOpen={true}
         onClose={onClose}
-        title={`Recepción: ${transferencia.numeroTransferencia}`}
+        title={`Recepción de Productos - ${transferencia.numeroTransferencia}`}
         size="lg"
       >
-        <div className="space-y-6">
-          {/* Info de la transferencia */}
-          <div className="bg-gray-50 rounded-lg p-4">
+        <div className="space-y-4">
+          {/* Sticky header - Resumen de recepción (same style as Step 2) */}
+          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 sticky top-0 z-10">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-500">Origen</div>
-                <div className="font-medium">{transferencia.almacenOrigenNombre}</div>
+                <h4 className="font-medium text-primary-900">Unidades a recibir</h4>
+                <p className="text-sm text-primary-700">
+                  {totalARecibir} de {totalPendiente} pendientes · Recepción #{recepcionNumero}
+                </p>
               </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
               <div className="text-right">
-                <div className="text-sm text-gray-500">Destino</div>
-                <div className="font-medium">{transferencia.almacenDestinoNombre}</div>
+                <div className="text-2xl font-bold text-primary-700">
+                  {totalPendiente > 0 ? Math.round((totalARecibir / totalPendiente) * 100) : 0}%
+                </div>
+                <div className="text-xs text-primary-600">Progreso</div>
               </div>
             </div>
+
+            {/* Barra de progreso */}
+            <div className="w-full bg-primary-200 rounded-full h-2 mt-3">
+              <div
+                className="bg-primary-600 h-2 rounded-full transition-all"
+                style={{ width: `${totalPendiente > 0 ? (totalARecibir / totalPendiente) * 100 : 0}%` }}
+              />
+            </div>
+
+            {/* Acciones: Escanear + Recibir todas */}
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary-200">
+              <button
+                type="button"
+                onClick={() => setShowRecepcionScanner(!showRecepcionScanner)}
+                className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors ${
+                  showRecepcionScanner ? 'bg-primary-200 text-primary-800' : 'text-primary-700 hover:text-primary-900 hover:bg-primary-100'
+                }`}
+              >
+                <ScanLine className="h-3.5 w-3.5" />
+                Escanear
+              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => handleRecibirTodo(totalARecibir !== totalPendiente)}
+                  className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                >
+                  Seleccionar todas ({totalPendiente})
+                </button>
+                {totalARecibir > 0 && (
+                  <>
+                    <span className="text-primary-300">|</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRecibirTodo(false)}
+                      className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                    >
+                      Limpiar selección
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Inline scanner */}
+            {showRecepcionScanner && (
+              <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-gray-700">Escanear producto</span>
+                  <button type="button" onClick={() => setShowRecepcionScanner(false)} className="text-gray-400 hover:text-gray-600">
+                    <XIcon className="h-4 w-4" />
+                  </button>
+                </div>
+                <BarcodeScanner onScan={handleRecepcionBarcodeScan} mode="both" compact />
+              </div>
+            )}
           </div>
 
-          {/* Resumen */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-700">{resumen.total}</div>
-              <div className="text-xs text-blue-600">Esperadas</div>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-700">{resumen.recibidas}</div>
-              <div className="text-xs text-green-600">Recibidas OK</div>
-            </div>
-            <div className="text-center p-3 bg-yellow-50 rounded-lg">
-              <div className="text-2xl font-bold text-yellow-700">{resumen.danadas}</div>
-              <div className="text-xs text-yellow-600">Dañadas</div>
-            </div>
-            <div className="text-center p-3 bg-red-50 rounded-lg">
-              <div className="text-2xl font-bold text-red-700">{resumen.faltantes}</div>
-              <div className="text-xs text-red-600">Faltantes</div>
-            </div>
-          </div>
+          {/* Lista de productos agrupados - same style as Step 2 */}
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+            {productosAgrupados.map((prod) => {
+              const cant = cantidadRecibir[prod.productoId] || 0;
+              const todoRecibido = cant === prod.pendiente;
+              const estaExpandido = productosExpandidos.has(prod.productoId);
+              // Resolver producto completo al render time (no en useMemo) para datos frescos
+              const pFull = productosMapGlobal.get(prod.productoId);
 
-          {/* Lista de unidades */}
-          <div>
-            <h4 className="font-medium text-gray-900 mb-3">Verificar Unidades</h4>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {transferencia.unidades.map((unidad) => {
-                const recepcion = unidadesRecepcion.find(u => u.unidadId === unidad.unidadId);
-                if (!recepcion) return null;
-
-                return (
-                  <div
-                    key={unidad.unidadId}
-                    className={`border rounded-lg p-3 ${
-                      !recepcion.recibida
-                        ? 'border-red-300 bg-red-50'
-                        : recepcion.danada
-                        ? 'border-yellow-300 bg-yellow-50'
-                        : 'border-green-300 bg-green-50'
-                    }`}
-                  >
+              return (
+                <div key={prod.productoId} className="border rounded-lg overflow-hidden bg-white">
+                  {/* Header del producto */}
+                  <div className="p-3 bg-gray-50">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-gray-900">{unidad.sku}</div>
-                        <div className="text-xs text-gray-500">
-                          Lote: {unidad.lote || 'N/A'} • {unidad.codigoUnidad}
+                      <div className="flex items-center flex-1">
+                        <input
+                          type="checkbox"
+                          checked={todoRecibido}
+                          onChange={() => setCantidadRecibir(prev => ({
+                            ...prev,
+                            [prod.productoId]: todoRecibido ? 0 : prod.pendiente
+                          }))}
+                          className="h-4 w-4 text-primary-600 rounded mr-3 flex-shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || prod.nombreFallback}</h4>
+                          {/* Tags: marca, presentacion, dosaje, contenido, sabor - resolved at render time */}
+                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+                            {pFull?.marca && (
+                              <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{pFull.marca}</span>
+                            )}
+                            {pFull?.presentacion && (
+                              <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>
+                            )}
+                            {pFull?.dosaje && (
+                              <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{pFull.dosaje}</span>
+                            )}
+                            {pFull?.contenido && (
+                              <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{pFull.contenido}</span>
+                            )}
+                            {pFull?.sabor && (
+                              <span className="text-xs text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">{pFull.sabor}</span>
+                            )}
+                          </div>
+                          {/* SKU */}
+                          <div className="text-xs text-gray-500 mt-1">
+                            {prod.sku}
+                          </div>
+                          {/* Flete info */}
+                          {prod.costoFleteUnit > 0 && (
+                            <div className="text-xs text-green-600 font-medium mt-0.5">
+                              Flete: ${prod.costoFleteUnit.toFixed(2)}/u · Total flete: ${prod.costoFleteTotal.toFixed(2)}
+                            </div>
+                          )}
+                          {/* Ya recibidas */}
+                          {prod.yaRecibido > 0 && (
+                            <div className="flex items-center gap-1 text-xs text-green-600 mt-0.5">
+                              <CheckCircle className="h-3 w-3" />
+                              {prod.yaRecibido} recibidas
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => toggleRecibida(unidad.unidadId)}
-                          className={`px-3 py-1 rounded text-sm font-medium ${
-                            recepcion.recibida
-                              ? 'bg-green-600 text-white'
-                              : 'bg-gray-200 text-gray-600'
-                          }`}
-                        >
-                          {recepcion.recibida ? (
-                            <span className="flex items-center">
-                              <CheckCircle className="h-4 w-4 mr-1" /> Recibida
-                            </span>
-                          ) : (
-                            <span className="flex items-center">
-                              <XCircle className="h-4 w-4 mr-1" /> Faltante
-                            </span>
-                          )}
-                        </button>
-                        {recepcion.recibida && (
+
+                      <div className="flex items-center space-x-3 ml-3">
+                        {/* Selector de cantidad - same +/- as Step 2 */}
+                        <div className="flex items-center bg-white border rounded-lg overflow-hidden">
                           <button
                             type="button"
-                            onClick={() => toggleDanada(unidad.unidadId)}
-                            className={`px-3 py-1 rounded text-sm font-medium ${
-                              recepcion.danada
-                                ? 'bg-yellow-600 text-white'
-                                : 'bg-gray-200 text-gray-600'
-                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newCant = Math.max(0, cant - 1);
+                              setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: newCant }));
+                            }}
+                            className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-r"
                           >
-                            {recepcion.danada ? 'Dañada' : '¿Dañada?'}
+                            <Minus className="h-3 w-3" />
                           </button>
-                        )}
+                          <input
+                            type="number"
+                            value={cant}
+                            onChange={(e) => {
+                              const val = Math.min(Math.max(0, parseInt(e.target.value) || 0), prod.pendiente);
+                              setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: val }));
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-12 text-center text-sm py-1 border-0 focus:ring-0"
+                            min="0"
+                            max={prod.pendiente}
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newCant = Math.min(prod.pendiente, cant + 1);
+                              setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: newCant }));
+                            }}
+                            className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-l"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+
+                        <Badge variant={todoRecibido ? 'success' : cant > 0 ? 'warning' : 'default'}>
+                          {cant}/{prod.pendiente}
+                        </Badge>
+
+                        {/* Botón expandir/colapsar */}
+                        <button
+                          type="button"
+                          onClick={() => toggleExpandirProductoRecepcion(prod.productoId)}
+                          className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                        >
+                          {estaExpandido ? (
+                            <ChevronDown className="h-5 w-5" />
+                          ) : (
+                            <ChevronRight className="h-5 w-5" />
+                          )}
+                        </button>
                       </div>
                     </div>
-                    {(recepcion.danada || !recepcion.recibida) && (
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          placeholder="Describir incidencia..."
-                          value={recepcion.incidencia || ''}
-                          onChange={(e) => setIncidencia(unidad.unidadId, e.target.value)}
-                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
-                        />
-                      </div>
-                    )}
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Lista de unidades individuales - Colapsable */}
+                  {estaExpandido && (
+                    <div className="divide-y max-h-48 overflow-y-auto">
+                      {prod.unidades.map((unidad, idx) => (
+                        <div
+                          key={unidad.unidadId}
+                          className={`flex items-center justify-between p-3 ${
+                            idx < cant ? 'bg-primary-50' : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center">
+                            <div className={`h-2 w-2 rounded-full mr-3 ${idx < cant ? 'bg-green-500' : 'bg-gray-300'}`} />
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">
+                                  #{idx + 1}
+                                </span>
+                                {unidad.lote && <span className="text-sm text-gray-900">Lote: {unidad.lote}</span>}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                                {unidad.estadoTransferencia === 'faltante' && (
+                                  <span className="text-amber-600 font-medium">Prev. faltante</span>
+                                )}
+                                <span>Estado: {unidad.estadoTransferencia}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                            idx < cant ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                          }`}>
+                            {idx < cant ? 'Se recibirá' : 'Pendiente'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Observaciones generales */}
+          {/* Observaciones */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Observaciones generales (opcional)
+              Observaciones (opcional)
             </label>
             <textarea
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
               rows={2}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Agregar comentarios sobre la recepción..."
+              placeholder="Ej: Paquete 2 de 3, tracking TBA12345..."
             />
           </div>
 
           {/* Botones */}
-          <div className="flex justify-end space-x-3 pt-4 border-t">
-            <Button variant="outline" onClick={onClose} disabled={submitting}>
+          <div className="flex justify-between pt-4 border-t">
+            <Button variant="secondary" onClick={onClose} disabled={submitting}>
               Cancelar
             </Button>
             <Button
               variant="primary"
               onClick={handleSubmit}
-              disabled={submitting}
+              disabled={submitting || totalARecibir === 0}
             >
               {submitting ? (
                 <span className="flex items-center">
@@ -1545,7 +1813,7 @@ export const Transferencias: React.FC = () => {
               ) : (
                 <span className="flex items-center">
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  Confirmar Recepción
+                  Registrar Recepción #{recepcionNumero}
                 </span>
               )}
             </Button>
@@ -2350,8 +2618,8 @@ export const Transferencias: React.FC = () => {
         <StatDistribution
           title="Tipo de Transferencias"
           data={[
-            { label: 'USA → Perú', value: transferencias.filter(t => t.tipo === 'usa_peru').length, color: 'bg-blue-500' },
-            { label: 'Interna USA', value: transferencias.filter(t => t.tipo === 'interna_usa').length, color: 'bg-gray-500' }
+            { label: 'Internacional → Perú', value: transferencias.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-blue-500' },
+            { label: 'Interna Origen', value: transferencias.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-gray-500' }
           ]}
         />
       </div>
@@ -2367,11 +2635,11 @@ export const Transferencias: React.FC = () => {
       {/* Tabs y Filtros */}
       <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
         {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
+        <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
+          <nav className="-mb-px flex space-x-4 sm:space-x-8">
             <button
               onClick={() => setActiveTab('todas')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === 'todas'
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -2381,7 +2649,7 @@ export const Transferencias: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('en_transito')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === 'en_transito'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -2391,7 +2659,7 @@ export const Transferencias: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('pendientes')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === 'pendientes'
                   ? 'border-amber-500 text-amber-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -2403,7 +2671,7 @@ export const Transferencias: React.FC = () => {
         </div>
 
         {/* Filtros */}
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
@@ -2411,31 +2679,33 @@ export const Transferencias: React.FC = () => {
               placeholder="Buscar..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-48"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-48"
             />
           </div>
-          <select
-            value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value as TipoTransferencia | 'todas')}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="todas">Todos los tipos</option>
-            <option value="usa_peru">USA → Perú</option>
-            <option value="interna_usa">Interna USA</option>
-          </select>
-          <select
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value as EstadoTransferencia | 'todas')}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="todas">Todos los estados</option>
-            <option value="borrador">Borrador</option>
-            <option value="preparando">Preparando</option>
-            <option value="en_transito">En Tránsito</option>
-            <option value="recibida_parcial">Recibida Parcial</option>
-            <option value="recibida_completa">Completada</option>
-            <option value="cancelada">Cancelada</option>
-          </select>
+          <div className="flex items-center gap-2">
+            <select
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value as TipoTransferencia | 'todas')}
+              className="flex-1 sm:flex-initial px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="todas">Todos los tipos</option>
+              <option value="internacional_peru">Internacional → Perú</option>
+              <option value="interna_origen">Interna Origen</option>
+            </select>
+            <select
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value as EstadoTransferencia | 'todas')}
+              className="flex-1 sm:flex-initial px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="todas">Todos los estados</option>
+              <option value="borrador">Borrador</option>
+              <option value="preparando">Preparando</option>
+              <option value="en_transito">En Tránsito</option>
+              <option value="recibida_parcial">Recibida Parcial</option>
+              <option value="recibida_completa">Completada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -2648,8 +2918,8 @@ export const Transferencias: React.FC = () => {
               </div>
             )}
 
-            {/* Costo de Flete (solo USA → Perú) */}
-            {selectedTransferencia.tipo === 'usa_peru' && (
+            {/* Costo de Flete (solo internacional) */}
+            {esTipoTransferenciaInternacional(selectedTransferencia.tipo) && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <div className="flex items-center justify-between">
                   <div>
@@ -2677,7 +2947,7 @@ export const Transferencias: React.FC = () => {
             )}
 
             {/* Historial de Pagos al Viajero */}
-            {selectedTransferencia.tipo === 'usa_peru' && (() => {
+            {esTipoTransferenciaInternacional(selectedTransferencia.tipo) && (() => {
               const pagos = selectedTransferencia.pagosViajero && selectedTransferencia.pagosViajero.length > 0
                 ? selectedTransferencia.pagosViajero
                 : (selectedTransferencia.pagoViajero ? [selectedTransferencia.pagoViajero] : []);
@@ -2726,6 +2996,73 @@ export const Transferencias: React.FC = () => {
               );
             })()}
 
+            {/* Historial de Recepciones */}
+            {(selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') && (() => {
+              const recepciones = selectedTransferencia.recepcionesTransferencia && selectedTransferencia.recepcionesTransferencia.length > 0
+                ? selectedTransferencia.recepcionesTransferencia
+                : (selectedTransferencia.recepcion ? [{ ...selectedTransferencia.recepcion, id: 'legacy', numero: 1 }] : []);
+              if (recepciones.length === 0) return null;
+              const totalRecibidas = selectedTransferencia.totalUnidadesRecibidas ?? recepciones.reduce((s, r) => s + r.unidadesRecibidas, 0);
+              const totalDanadas = selectedTransferencia.totalUnidadesDanadas ?? recepciones.reduce((s, r) => s + r.unidadesDanadas, 0);
+              const totalUnidades = selectedTransferencia.totalUnidades;
+              return (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <div className="text-xs text-purple-600 uppercase mb-2 font-semibold">
+                    Historial de Recepciones ({recepciones.length})
+                  </div>
+                  {recepciones.map((rec, idx) => (
+                    <div key={rec.id || idx} className="text-sm py-2 border-b border-purple-100 last:border-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <span className="font-medium text-gray-900">Recepción #{rec.numero || idx + 1}</span>
+                          <span className="text-gray-500 text-xs">
+                            {rec.fechaRecepcion?.toDate?.() ? rec.fechaRecepcion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
+                          </span>
+                        </div>
+                      </div>
+                      {rec.recibidoPor && (
+                        <p className="text-[10px] text-gray-400 mt-0.5 truncate" title={rec.recibidoPor}>
+                          Por: <UserName userId={rec.recibidoPor} />
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {rec.unidadesRecibidas > 0 && (
+                          <span className="text-xs text-green-600 flex items-center gap-0.5">
+                            <CheckCircle className="h-3 w-3" /> {rec.unidadesRecibidas} recibida{rec.unidadesRecibidas > 1 ? 's' : ''}
+                          </span>
+                        )}
+                        {rec.unidadesDanadas > 0 && (
+                          <span className="text-xs text-amber-600 flex items-center gap-0.5">
+                            <AlertTriangle className="h-3 w-3" /> {rec.unidadesDanadas} dañada{rec.unidadesDanadas > 1 ? 's' : ''}
+                          </span>
+                        )}
+                        {rec.unidadesFaltantes > 0 && (
+                          <span className="text-xs text-red-600 flex items-center gap-0.5">
+                            <XCircle className="h-3 w-3" /> {rec.unidadesFaltantes} faltante{rec.unidadesFaltantes > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                      {rec.observaciones && (
+                        <div className="text-xs text-gray-500 mt-0.5 italic">"{rec.observaciones}"</div>
+                      )}
+                    </div>
+                  ))}
+                  <div className="mt-2">
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <span>Recibidas: {totalRecibidas}{totalDanadas > 0 ? ` (${totalDanadas} dañadas)` : ''}</span>
+                      <span>Total: {totalUnidades}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-purple-500 h-2 rounded-full transition-all"
+                        style={{ width: `${Math.min(100, ((totalRecibidas + totalDanadas) / totalUnidades) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Notas */}
             {selectedTransferencia.notas && (
               <div>
@@ -2751,14 +3088,14 @@ export const Transferencias: React.FC = () => {
                   Marcar como Enviada
                 </Button>
               )}
-              {selectedTransferencia.estado === 'en_transito' && (
+              {(selectedTransferencia.estado === 'en_transito' || selectedTransferencia.estado === 'recibida_parcial') && (
                 <Button variant="primary" onClick={() => handleIniciarRecepcion(selectedTransferencia)}>
                   <Package className="h-4 w-4 mr-2" />
-                  Registrar Recepción
+                  {selectedTransferencia.estado === 'recibida_parcial' ? 'Registrar Recepción Adicional' : 'Registrar Recepción'}
                 </Button>
               )}
               {/* Botón para registrar pago al viajero */}
-              {selectedTransferencia.tipo === 'usa_peru' &&
+              {esTipoTransferenciaInternacional(selectedTransferencia.tipo) &&
                (selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') &&
                selectedTransferencia.estadoPagoViajero !== 'pagado' && (
                 <Button variant="success" onClick={() => handleAbrirPagoViajero(selectedTransferencia)}>

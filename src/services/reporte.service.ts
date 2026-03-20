@@ -52,30 +52,27 @@ export class ReporteService {
       inicioSemana.setDate(ahora.getDate() - 7);
       const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
 
-      const [ventasHoy, ventasSemana, ventasMes, ventasRango] = await Promise.all([
+      const [ventasHoy, ventasSemana, ventasMes, ventasRango, transferencias, ventas] = await Promise.all([
         this.getVentasPorRango({ inicio: inicioHoy, fin: ahora }),
         this.getVentasPorRango({ inicio: inicioSemana, fin: ahora }),
         this.getVentasPorRango({ inicio: inicioMes, fin: ahora }),
-        this.getVentasPorRango(rangoFinal)
+        this.getVentasPorRango(rangoFinal),
+        transferenciaService.getAll(),
+        VentaService.getAll()
       ]);
 
-      // Calcular valor de inventario
-      const inventarioValorizado = await this.getInventarioValorizado();
-      const valorInventarioPEN = inventarioValorizado.reduce((sum, item) => sum + item.valorTotalPEN, 0);
-      const unidadesTotales = inventarioValorizado.reduce((sum, item) => sum + item.unidadesTotal, 0);
-      const unidadesDisponibles = inventarioValorizado.reduce((sum, item) => sum + item.unidadesDisponibles, 0);
-
       // Calcular costo total de flete de transferencias USA→Perú
-      const transferencias = await transferenciaService.getAll();
       const costoFleteTotal = transferencias
         .filter(t => t.tipo === 'usa_peru' && t.costoFleteTotal)
         .reduce((sum, t) => sum + (t.costoFleteTotal || 0), 0);
 
       // Calcular costo de envío asumido por la empresa (incluyeEnvio = true)
-      const ventas = await VentaService.getAll();
       const costoEnvioAsumidoPEN = ventas
         .filter(v => v.estado !== 'cancelada' && v.estado !== 'cotizacion' && v.incluyeEnvio && v.costoEnvio)
         .reduce((sum, v) => sum + (v.costoEnvio || 0), 0);
+
+      // NOTA: Inventario valorizado se calcula por separado (getInventarioValorizado)
+      // para no bloquear el resumen. Los valores se computan en el frontend.
 
       return {
         // Ventas
@@ -84,15 +81,20 @@ export class ReporteService {
         ventasSemana: ventasSemana.totalPEN,
         ventasHoy: ventasHoy.totalPEN,
 
+        // Ventas del rango seleccionado
+        ventasRangoPEN: ventasRango.totalPEN,
+        ventasRangoCantidad: ventasRango.cantidad,
+        utilidadRangoPEN: ventasRango.utilidadPEN,
+
         // Rentabilidad
         utilidadTotalPEN: ventasStats.utilidadTotalPEN,
         margenPromedio: ventasStats.margenPromedio,
         costoEnvioAsumidoPEN,
 
-        // Inventario
-        valorInventarioPEN,
-        unidadesTotales,
-        unidadesDisponibles,
+        // Inventario (se completa en frontend con datos de inventarioValorizado)
+        valorInventarioPEN: 0,
+        unidadesTotales: 0,
+        unidadesDisponibles: 0,
 
         // Órdenes (inversión = mercancía + flete)
         ordenesActivas: ordenesStats.enviadas + ordenesStats.pagadas + ordenesStats.enTransito,
@@ -121,12 +123,15 @@ export class ReporteService {
   static async getProductosRentabilidad(rango: RangoFechas): Promise<ProductoRentabilidad[]> {
     try {
       const ventas = await VentaService.getAll();
-      const ventasEntregadas = ventas.filter(v =>
-        v.estado === 'entregada' &&
-        v.fechaEntrega &&
-        v.fechaEntrega.toDate() >= rango.inicio &&
-        v.fechaEntrega.toDate() <= rango.fin
-      );
+      const ventasEntregadas = ventas.filter(v => {
+        if (v.estado !== 'entregada') return false;
+        // Fallback: fechaEntrega → fechaDespacho → fechaCreacion (legacy sin fecha de entrega)
+        const fecha = v.fechaEntrega?.toDate?.()
+          || (v as any).fechaDespacho?.toDate?.()
+          || v.fechaCreacion?.toDate?.();
+        if (!fecha) return false;
+        return fecha >= rango.inicio && fecha <= rango.fin;
+      });
 
       // Obtener tipo de cambio para conversión de costos legacy en USD
       let tipoCambioVenta = 3.70;
@@ -243,21 +248,40 @@ export class ReporteService {
 
         if (inventario.length === 0) continue;
 
+        // Verificar que tenga unidades activas (no solo vendidas/dañadas)
+        const tieneActivas = inventario.some(i => i.disponibles > 0 || i.reservadas > 0 || i.enTransito > 0);
+        if (!tieneActivas) continue;
+
         // Agregar datos por país
         const inventarioUSA = inventario.filter(i => i.pais === 'USA');
         const inventarioPeru = inventario.filter(i => i.pais === 'Peru');
 
         const unidadesDisponibles = inventario.reduce((sum, i) => sum + i.disponibles, 0);
         const unidadesAsignadas = inventario.reduce((sum, i) => sum + i.reservadas, 0);
-        const unidadesTotal = inventario.reduce((sum, i) => sum + i.totalUnidades, 0);
+        const enTransito = inventario.reduce((sum, i) => sum + i.enTransito, 0);
+        // Total = solo unidades activas (disponibles + reservadas + en tránsito)
+        // NO incluir vendidas/dañadas/vencidas — ya no son inventario
+        const unidadesTotal = unidadesDisponibles + unidadesAsignadas + enTransito;
 
-        const unidadesMiami = inventarioUSA.reduce((sum, i) => sum + i.totalUnidades, 0);
-        const unidadesUtah = 0; // Por ahora no diferenciamos almacenes USA
-        const unidadesPeru = inventarioPeru.reduce((sum, i) => sum + i.totalUnidades, 0);
+        // Ubicación: solo unidades activas por país (genérico)
+        const unidadesPorPais: Record<string, number> = {};
+        for (const inv of inventario) {
+          const pais = inv.pais || 'Sin país';
+          const activas = (inv.disponibles || 0) + (inv.reservadas || 0) + (inv.enTransito || 0);
+          if (activas > 0) {
+            unidadesPorPais[pais] = (unidadesPorPais[pais] || 0) + activas;
+          }
+        }
 
+        // Backward compat: mantener campos legacy
+        const unidadesMiami = inventarioUSA.reduce((sum, i) => sum + i.disponibles + i.reservadas + i.enTransito, 0);
+        const unidadesUtah = 0;
+        const unidadesPeru = inventarioPeru.reduce((sum, i) => sum + i.disponibles + i.reservadas + i.enTransito, 0);
+
+        // valorTotalUSD ya solo incluye unidades activas (calculado en inventario.service)
         const valorTotalUSD = inventario.reduce((sum, i) => sum + i.valorTotalUSD, 0);
-        // Convertir de USD a PEN usando el tipo de cambio del día
         const valorTotalPEN = valorTotalUSD * tipoCambioVenta;
+        // costoPromedio: valorTotal ya es de activas, dividir por unidades activas
         const costoPromedioUSD = unidadesTotal > 0 ? valorTotalUSD / unidadesTotal : 0;
         const costoPromedioPEN = costoPromedioUSD * tipoCambioVenta;
 
@@ -273,7 +297,8 @@ export class ReporteService {
           costoPromedioUnidad: costoPromedioPEN,
           unidadesMiami,
           unidadesUtah,
-          unidadesPeru
+          unidadesPeru,
+          unidadesPorPais
         });
       }
 
@@ -344,19 +369,26 @@ export class ReporteService {
    * Obtener tendencia de ventas
    * Incluye ventas confirmadas, asignadas, en_entrega y entregadas
    */
-  static async getTendenciaVentas(dias: number = 30): Promise<TendenciaVentas[]> {
+  static async getTendenciaVentas(rango?: RangoFechas): Promise<TendenciaVentas[]> {
     try {
       const ventas = await VentaService.getAll();
       // Incluir todas las ventas válidas (no cotizaciones ni canceladas)
       const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada', 'reservada'];
       const ventasValidas = ventas.filter(v => estadosValidos.includes(v.estado));
 
-      const hoy = new Date();
+      // Usar rango proporcionado o default últimos 30 días
+      const fin = rango?.fin || new Date();
+      const inicio = rango?.inicio || (() => { const d = new Date(); d.setDate(d.getDate() - 30); return d; })();
+
+      // Calcular días entre inicio y fin
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const dias = Math.max(1, Math.ceil((fin.getTime() - inicio.getTime()) / msPerDay) + 1);
+
       const tendencias: TendenciaVentas[] = [];
 
-      for (let i = dias - 1; i >= 0; i--) {
-        const fecha = new Date(hoy);
-        fecha.setDate(hoy.getDate() - i);
+      for (let i = 0; i < dias; i++) {
+        const fecha = new Date(inicio);
+        fecha.setDate(inicio.getDate() + i);
         fecha.setHours(0, 0, 0, 0);
 
         const fechaFinDia = new Date(fecha);

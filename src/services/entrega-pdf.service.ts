@@ -5,6 +5,17 @@ import type { Entrega } from '../types/entrega.types';
  * Usa el API de impresión del navegador para generar PDFs
  */
 
+// SEC-011 FIX: Sanitizar texto para prevenir XSS en HTML generado
+function escapeHtml(text: string | number | null | undefined): string {
+  const str = String(text ?? '');
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 interface EmpresaConfig {
   nombre: string;
   ruc: string;
@@ -71,9 +82,9 @@ function generarHTMLGuiaTransportista(entrega: Entrega): string {
 
   const productosHTML = entrega.productos.map(p => `
     <tr>
-      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${p.sku}</td>
-      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${p.marca} ${p.nombreComercial}</td>
-      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${p.cantidad}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${escapeHtml(p.sku)}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${escapeHtml(p.marca)} ${escapeHtml(p.nombreComercial)}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">${escapeHtml(p.cantidad)}</td>
     </tr>
   `).join('');
 
@@ -88,7 +99,7 @@ function generarHTMLGuiaTransportista(entrega: Entrega): string {
             S/ ${entrega.montoPorCobrar.toFixed(2)}
           </p>
           <p style="margin: 4px 0; color: #78350f;">
-            Método esperado: ${entrega.metodoPagoEsperado || 'Cualquiera'}
+            Método esperado: ${escapeHtml(entrega.metodoPagoEsperado || 'Cualquiera')}
           </p>
         </div>
         <div style="text-align: center;">
@@ -139,7 +150,7 @@ function generarHTMLGuiaTransportista(entrega: Entrega): string {
             <div class="logo">${EMPRESA_CONFIG.nombre}</div>
             <div style="font-size: 12px; color: #6b7280;">Guía de Entrega para Transportista</div>
           </div>
-          <div class="codigo">${entrega.codigo}</div>
+          <div class="codigo">${escapeHtml(entrega.codigo)}</div>
         </div>
 
         <div class="section">
@@ -147,13 +158,13 @@ function generarHTMLGuiaTransportista(entrega: Entrega): string {
           <div class="info-grid">
             <div class="info-box">
               <div class="info-label">Fecha Programada</div>
-              <div class="info-value">${fechaFormateada}</div>
-              ${entrega.horaProgramada ? `<div style="color: #6b7280; font-size: 14px;">Horario: ${entrega.horaProgramada}</div>` : ''}
+              <div class="info-value">${escapeHtml(fechaFormateada)}</div>
+              ${entrega.horaProgramada ? `<div style="color: #6b7280; font-size: 14px;">Horario: ${escapeHtml(entrega.horaProgramada)}</div>` : ''}
             </div>
             <div class="info-box">
               <div class="info-label">Venta</div>
-              <div class="info-value">${entrega.numeroVenta}</div>
-              <div style="color: #6b7280; font-size: 14px;">Entrega ${entrega.numeroEntrega}${entrega.totalEntregas ? ` de ${entrega.totalEntregas}` : ''}</div>
+              <div class="info-value">${escapeHtml(entrega.numeroVenta)}</div>
+              <div style="color: #6b7280; font-size: 14px;">Entrega ${escapeHtml(entrega.numeroEntrega)}${entrega.totalEntregas ? ` de ${escapeHtml(entrega.totalEntregas)}` : ''}</div>
             </div>
           </div>
         </div>
@@ -164,16 +175,16 @@ function generarHTMLGuiaTransportista(entrega: Entrega): string {
             <div style="display: flex; justify-content: space-between; align-items: start;">
               <div style="flex: 1;">
                 <div style="font-size: 18px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">
-                  ${entrega.nombreCliente}
+                  ${escapeHtml(entrega.nombreCliente)}
                 </div>
-                ${entrega.telefonoCliente ? `<div style="color: #3b82f6; margin-bottom: 4px;">Tel: ${entrega.telefonoCliente}</div>` : ''}
+                ${entrega.telefonoCliente ? `<div style="color: #3b82f6; margin-bottom: 4px;">Tel: ${escapeHtml(entrega.telefonoCliente)}</div>` : ''}
                 <div style="font-size: 14px; color: #1f2937; margin-top: 8px;">
-                  <strong>Dirección:</strong> ${entrega.direccionEntrega}
+                  <strong>Dirección:</strong> ${escapeHtml(entrega.direccionEntrega)}
                 </div>
-                ${entrega.distrito ? `<div style="font-size: 14px; color: #6b7280;">Distrito: ${entrega.distrito}</div>` : ''}
-                ${entrega.provincia ? `<div style="font-size: 14px; color: #6b7280;">Provincia: ${entrega.provincia}</div>` : ''}
-                ${entrega.codigoPostal ? `<div style="font-size: 14px; color: #6b7280;">C.P.: ${entrega.codigoPostal}</div>` : ''}
-                ${entrega.referencia ? `<div style="font-size: 14px; color: #059669; margin-top: 4px;"><strong>Ref:</strong> ${entrega.referencia}</div>` : ''}
+                ${entrega.distrito ? `<div style="font-size: 14px; color: #6b7280;">Distrito: ${escapeHtml(entrega.distrito)}</div>` : ''}
+                ${entrega.provincia ? `<div style="font-size: 14px; color: #6b7280;">Provincia: ${escapeHtml(entrega.provincia)}</div>` : ''}
+                ${entrega.codigoPostal ? `<div style="font-size: 14px; color: #6b7280;">C.P.: ${escapeHtml(entrega.codigoPostal)}</div>` : ''}
+                ${entrega.referencia ? `<div style="font-size: 14px; color: #059669; margin-top: 4px;"><strong>Ref:</strong> ${escapeHtml(entrega.referencia)}</div>` : ''}
               </div>
               ${(() => {
                 const mapsUrl = generarGoogleMapsUrl(entrega);
@@ -217,7 +228,7 @@ function generarHTMLGuiaTransportista(entrega: Entrega): string {
         ${entrega.observaciones ? `
           <div class="section" style="background: #fef3c7; padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b;">
             <div class="section-title" style="color: #92400e;">Observaciones</div>
-            <p style="margin: 0; color: #78350f;">${entrega.observaciones}</p>
+            <p style="margin: 0; color: #78350f;">${escapeHtml(entrega.observaciones)}</p>
           </div>
         ` : ''}
 
@@ -257,8 +268,8 @@ function generarHTMLCargoCliente(entrega: Entrega): string {
 
   const productosHTML = entrega.productos.map(p => `
     <tr>
-      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${p.marca} ${p.nombreComercial}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${p.cantidad}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${escapeHtml(p.marca)} ${escapeHtml(p.nombreComercial)}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${escapeHtml(p.cantidad)}</td>
       <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">S/ ${p.precioUnitario.toFixed(2)}</td>
       <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">S/ ${p.subtotal.toFixed(2)}</td>
     </tr>
@@ -312,13 +323,13 @@ function generarHTMLCargoCliente(entrega: Entrega): string {
         <div class="header">
           <div class="logo">${EMPRESA_CONFIG.nombre}</div>
           <div class="subtitle">Comprobante de Entrega</div>
-          <div class="codigo">${entrega.codigo}</div>
+          <div class="codigo">${escapeHtml(entrega.codigo)}</div>
         </div>
 
         <div class="section">
           <div class="cliente-box">
             <div style="font-size: 18px; font-weight: bold; color: #065f46;">
-              ${entrega.nombreCliente}
+              ${escapeHtml(entrega.nombreCliente)}
             </div>
             <div style="font-size: 14px; color: #047857; margin-top: 4px;">
               ${fechaFormateada}
@@ -374,7 +385,7 @@ function generarHTMLCargoCliente(entrega: Entrega): string {
           </div>
           <div style="width: 200px; margin: 0 auto; border-bottom: 1px solid #1f2937;"></div>
           <div style="text-align: center; font-size: 12px; color: #6b7280; margin-top: 8px;">
-            ${entrega.nombreCliente}
+            ${escapeHtml(entrega.nombreCliente)}
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatFechaRelativa as formatFecha } from '../../../utils/dateFormatters';
 import { Link } from 'react-router-dom';
 import {
   Activity,
@@ -102,19 +103,6 @@ export const ActividadRecienteWidget: React.FC<ActividadRecienteWidgetProps> = (
     }
   };
 
-  const formatFecha = (fecha: Date) => {
-    const ahora = new Date();
-    const diffMs = ahora.getTime() - fecha.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Ahora';
-    if (diffMins < 60) return `Hace ${diffMins}m`;
-    if (diffHours < 24) return `Hace ${diffHours}h`;
-    if (diffDays < 7) return `Hace ${diffDays}d`;
-    return fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
-  };
 
   // Agrupar actividades por fecha
   const actividadesAgrupadas = actividades

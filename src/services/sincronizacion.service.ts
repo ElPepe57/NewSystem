@@ -19,6 +19,8 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
+import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
 
 export interface SincronizacionResult {
   modulo: string;
@@ -173,22 +175,16 @@ class SincronizacionService {
         }
 
         const stock = stockPorProducto.get(productoId)!;
-        switch (unidad.estado) {
-          case 'recibida_usa':
-            stock.usa++;
-            break;
-          case 'disponible_peru':
-            stock.peru++;
-            break;
-          case 'en_transito_usa':
-          case 'en_transito_peru':
-            stock.transito++;
-            break;
-          case 'asignada_pedido':
-          case 'en_despacho':
-            stock.peru++;
-            stock.reservado++;
-            break;
+        // Multi-origen compatible state checks
+        if (esEstadoEnOrigen(unidad.estado as any)) {
+          stock.usa++;
+        } else if (unidad.estado === 'disponible_peru') {
+          stock.peru++;
+        } else if (esEstadoEnTransitoOrigen(unidad.estado as any) || unidad.estado === 'en_transito_peru') {
+          stock.transito++;
+        } else if (unidad.estado === 'asignada_pedido' || unidad.estado === 'en_despacho') {
+          stock.peru++;
+          stock.reservado++;
         }
       }
 
@@ -615,7 +611,7 @@ class SincronizacionService {
       const stockPorAlmacen = new Map<string, number>();
       for (const docSnap of unidadesSnap.docs) {
         const unidad = docSnap.data();
-        if (['recibida_usa', 'disponible_peru', 'asignada_pedido', 'en_despacho'].includes(unidad.estado)) {
+        if ([...ESTADOS_EN_ORIGEN, 'disponible_peru', 'asignada_pedido', 'en_despacho'].includes(unidad.estado)) {
           const almacenId = unidad.almacenActualId;
           if (almacenId) {
             stockPorAlmacen.set(almacenId, (stockPorAlmacen.get(almacenId) || 0) + 1);

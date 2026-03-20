@@ -41,6 +41,8 @@ import type {
   EditarVentaData
 } from '../types/venta.types';
 import type { Unidad } from '../types/unidad.types';
+import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
+import { esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { unidadService } from './unidad.service';
@@ -52,6 +54,7 @@ import { entregaService } from './entrega.service';
 import { gastoService } from './gasto.service';
 import { actividadService } from './actividad.service';
 import { COLLECTIONS } from '../config/collections';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
 
@@ -224,11 +227,14 @@ export class VentaService {
           marca: producto.marca,
           nombreComercial: producto.nombreComercial,
           presentacion: producto.presentacion,
+          ...(producto.contenido && { contenido: producto.contenido }),
+          ...(producto.dosaje && { dosaje: producto.dosaje }),
+          ...(producto.sabor && { sabor: producto.sabor }),
           unidadesDisponibles: disponiblesEnPeru,
           unidadesUSA: disponiblesEnUSA,
           unidadesEnTransito: 0,
-          precioSugerido: producto.precioSugerido || 0,
-          margenObjetivo: producto.margenObjetivo || 0
+          precioSugerido: 0,
+          margenObjetivo: 0
         };
 
         // Agregar datos de investigación de mercado si existen
@@ -306,17 +312,27 @@ export class VentaService {
       // Obtener información de productos y calcular totales
       const productosVenta: ProductoVenta[] = [];
       let subtotalPEN = 0;
-      
+      const lineaNegocioIds: string[] = []; // Track lineaNegocioId from each product
+      let lineaNegocioNombreMap: Record<string, string> = {}; // Map id → nombre
+
       for (const prod of data.productos) {
         const producto = await ProductoService.getById(prod.productoId);
         if (!producto) {
           throw new Error(`Producto ${prod.productoId} no encontrado`);
         }
-        
+
+        // Collect lineaNegocioId for auto-inheritance
+        if (producto.lineaNegocioId) {
+          lineaNegocioIds.push(producto.lineaNegocioId);
+          if (producto.lineaNegocioNombre) {
+            lineaNegocioNombreMap[producto.lineaNegocioId] = producto.lineaNegocioNombre;
+          }
+        }
+
         const subtotal = prod.cantidad * prod.precioUnitario;
         subtotalPEN += subtotal;
-        
-        productosVenta.push({
+
+        const prodVenta: ProductoVenta = {
           productoId: prod.productoId,
           sku: producto.sku,
           marca: producto.marca,
@@ -325,7 +341,24 @@ export class VentaService {
           cantidad: prod.cantidad,
           precioUnitario: prod.precioUnitario,
           subtotal
-        });
+        };
+        // Campos opcionales de descripción (solo si existen en catálogo)
+        if (producto.contenido) prodVenta.contenido = producto.contenido;
+        if (producto.dosaje) prodVenta.dosaje = producto.dosaje;
+        if ((producto as any).sabor) prodVenta.sabor = (producto as any).sabor;
+        productosVenta.push(prodVenta);
+      }
+
+      // Auto-inherit lineaNegocioId from products (most frequent wins)
+      let derivedLineaNegocioId: string | undefined;
+      let derivedLineaNegocioNombre: string | undefined;
+      if (lineaNegocioIds.length > 0) {
+        const freq: Record<string, number> = {};
+        for (const id of lineaNegocioIds) {
+          freq[id] = (freq[id] || 0) + 1;
+        }
+        derivedLineaNegocioId = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+        derivedLineaNegocioNombre = lineaNegocioNombreMap[derivedLineaNegocioId];
       }
       
       // Calcular total
@@ -375,6 +408,12 @@ export class VentaService {
       if (data.dniRuc) nuevaVenta.dniRuc = data.dniRuc;
       if (data.mercadoLibreId) nuevaVenta.mercadoLibreId = data.mercadoLibreId;
       if (data.observaciones) nuevaVenta.observaciones = data.observaciones;
+
+      // Auto-inherited lineaNegocioId from products
+      if (derivedLineaNegocioId) {
+        nuevaVenta.lineaNegocioId = derivedLineaNegocioId;
+        if (derivedLineaNegocioNombre) nuevaVenta.lineaNegocioNombre = derivedLineaNegocioNombre;
+      }
 
       // Campos de gastos de venta (ML y generales)
       if (data.comisionML) nuevaVenta.comisionML = data.comisionML;
@@ -814,7 +853,7 @@ export class VentaService {
         }
 
         // Validar estado: debe estar reservada o disponible (para casos de inconsistencia)
-        const estadosValidos = ['reservada', 'disponible_peru', 'recibida_usa'];
+        const estadosValidos = ['reservada', 'disponible_peru', ...ESTADOS_EN_ORIGEN];
         if (!estadosValidos.includes(unidad.estado)) {
           console.warn(`Unidad ${unidadId} no está en estado válido para asignar (estado: ${unidad.estado})`);
           continue;
@@ -1340,13 +1379,15 @@ export class VentaService {
               // Leer unidad para determinar estado correcto según país
               const unidadSnap = await getDoc(doc(db, 'unidades', unidadId));
               const unidadData = unidadSnap.data();
-              const estadoLiberado = unidadData?.pais === 'USA' ? 'recibida_usa' : 'disponible_peru';
+              const estadoLiberado = esPaisOrigen(unidadData?.pais) ? 'recibida_origen' : 'disponible_peru';
 
               const unidadRef = doc(db, 'unidades', unidadId);
               batch.update(unidadRef, {
                 estado: estadoLiberado,
                 ventaId: null,
-                fechaAsignacion: null
+                fechaAsignacion: null,
+                reservadaPara: null,
+                reservadoPara: null
               });
             }
           }
@@ -1360,11 +1401,12 @@ export class VentaService {
           for (const unidadId of prod.unidadesReservadas) {
             const unidadSnap = await getDoc(doc(db, 'unidades', unidadId));
             const unidadData = unidadSnap.data();
-            const estadoLiberado = unidadData?.pais === 'USA' ? 'recibida_usa' : 'disponible_peru';
+            const estadoLiberado = esPaisOrigen(unidadData?.pais) ? 'recibida_origen' : 'disponible_peru';
 
             const unidadRef = doc(db, 'unidades', unidadId);
             batch.update(unidadRef, {
               estado: estadoLiberado,
+              reservadaPara: null,
               reservadoPara: null,
               fechaReserva: null
             });
@@ -1390,6 +1432,33 @@ export class VentaService {
       batch.update(ventaRef, updates);
 
       await batch.commit();
+
+      // Revertir pagos en Tesorería (después del batch para no bloquear la cancelación)
+      if (venta.pagos && venta.pagos.length > 0) {
+        for (const pago of venta.pagos) {
+          try {
+            if (pago.tesoreriaMovimientoId && pago.tesoreriaMovimientoId !== 'registrado') {
+              await tesoreriaService.eliminarMovimiento(pago.tesoreriaMovimientoId, userId);
+            } else if (pago.tesoreriaMovimientoId === 'registrado') {
+              // Legacy: buscar por ventaId + monto
+              const snap = await getDocs(query(
+                collection(db, 'movimientosTesoreria'),
+                where('ventaId', '==', id),
+                where('tipo', '==', 'ingreso_venta')
+              ));
+              const match = snap.docs.find(d => {
+                const data = d.data();
+                return data.estado !== 'anulado' && Math.abs(data.monto - pago.monto) < 0.01;
+              });
+              if (match) {
+                await tesoreriaService.eliminarMovimiento(match.id, userId);
+              }
+            }
+          } catch (tesoreriaError) {
+            console.error(`[cancelar] Error revirtiendo pago en tesorería (monto: ${pago.monto}):`, tesoreriaError);
+          }
+        }
+      }
 
       // Sincronizar stock de productos afectados
       if (productosAfectados.size > 0) {
@@ -1522,37 +1591,13 @@ export class VentaService {
   }
 
   /**
-   * Generar número de venta (busca el máximo para evitar duplicados)
+   * Generar número de venta usando contador atómico.
+   * Formato: VT-YYYY-NNN (ej: VT-2026-043)
+   * Usa runTransaction para evitar duplicados en acceso concurrente.
    */
   private static async generateNumeroVenta(): Promise<string> {
-    try {
-      const year = new Date().getFullYear();
-      const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-      if (snapshot.empty) {
-        return `VT-${year}-001`;
-      }
-
-      // Buscar el número máximo existente
-      let maxNumber = 0;
-      snapshot.docs.forEach(docSnap => {
-        const data = docSnap.data() as Venta;
-        const numero = data.numeroVenta;
-
-        // Extraer el número del formato VT-YYYY-NNN
-        const match = numero?.match(/VT-\d{4}-(\d+)/);
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (num > maxNumber) {
-            maxNumber = num;
-          }
-        }
-      });
-
-      return `VT-${year}-${(maxNumber + 1).toString().padStart(3, '0')}`;
-    } catch (error) {
-      return `VT-${new Date().getFullYear()}-001`;
-    }
+    const year = new Date().getFullYear();
+    return getNextSequenceNumber(`VT-${year}`, 3);
   }
 
   // ========== MÉTODOS DE PAGO ==========
@@ -1589,6 +1634,20 @@ export class VentaService {
 
       if (venta.estado === 'cotizacion') {
         throw new Error('No se puede registrar pago en una cotización. Confirme la venta primero.');
+      }
+
+      // Guard: no permitir pagos duplicados en ventas ya pagadas
+      if (venta.estadoPago === 'pagado') {
+        throw new Error('Esta venta ya está completamente pagada. No se pueden registrar pagos adicionales.');
+      }
+
+      // Guard: no permitir pago manual si ya existe pago ML automático
+      const pagosExistentes = venta.pagos || [];
+      const tienepagoML = pagosExistentes.some(
+        (p: any) => p.registradoPor === 'ml-auto-processor' || p.registradoPor === 'ml-webhook'
+      );
+      if (tienepagoML && datosPago.metodoPago === 'mercado_pago') {
+        throw new Error('Esta venta ya tiene un pago automático de MercadoLibre. No se puede duplicar.');
       }
 
       // Validar monto
@@ -1687,7 +1746,7 @@ export class VentaService {
           }
 
           // Crear movimiento de ingreso en tesorería
-          await tesoreriaService.registrarMovimiento(
+          const movimientoId = await tesoreriaService.registrarMovimiento(
             {
               tipo: 'ingreso_venta',
               moneda: 'PEN',
@@ -1705,8 +1764,8 @@ export class VentaService {
             userId
           );
 
-          // Guardar referencia del movimiento en el pago
-          nuevoPago.tesoreriaMovimientoId = 'registrado';
+          // Guardar referencia del movimiento en el pago (ID real para poder revertir)
+          nuevoPago.tesoreriaMovimientoId = movimientoId;
         } catch (tesoreriaError: any) {
           // No fallar el pago si hay error en tesorería, solo loguear
           console.error('Error registrando en tesorería (el pago fue registrado):', tesoreriaError);
@@ -1745,6 +1804,33 @@ export class VentaService {
       const nuevosPagos = pagos.filter(p => p.id !== pagoId);
       const nuevoMontoPagado = venta.montoPagado - pagoEliminado.monto;
       const nuevoMontoPendiente = venta.totalPEN - nuevoMontoPagado;
+
+      // Revertir movimiento en Tesorería si existe
+      if (pagoEliminado.tesoreriaMovimientoId && pagoEliminado.tesoreriaMovimientoId !== 'registrado') {
+        try {
+          await tesoreriaService.eliminarMovimiento(pagoEliminado.tesoreriaMovimientoId, userId);
+        } catch (tesoreriaError) {
+          console.error(`[eliminarPago] Error revirtiendo tesorería (movId: ${pagoEliminado.tesoreriaMovimientoId}):`, tesoreriaError);
+        }
+      } else if (pagoEliminado.tesoreriaMovimientoId === 'registrado') {
+        // Legacy: pagos con ID='registrado' (pre-fix) — buscar por ventaId + monto + tipo
+        try {
+          const snap = await getDocs(query(
+            collection(db, 'movimientosTesoreria'),
+            where('ventaId', '==', ventaId),
+            where('tipo', '==', 'ingreso_venta')
+          ));
+          const movimientoCorrespondiente = snap.docs.find(d => {
+            const data = d.data();
+            return data.estado !== 'anulado' && Math.abs(data.monto - pagoEliminado.monto) < 0.01;
+          });
+          if (movimientoCorrespondiente) {
+            await tesoreriaService.eliminarMovimiento(movimientoCorrespondiente.id, userId);
+          }
+        } catch (tesoreriaError) {
+          console.error(`[eliminarPago] Error revirtiendo tesorería (legacy):`, tesoreriaError);
+        }
+      }
 
       // Determinar nuevo estado de pago
       let nuevoEstadoPago: EstadoPago;
@@ -1967,7 +2053,7 @@ export class VentaService {
             const unidadRef = doc(db, 'unidades', unidad.id);
             batch.update(unidadRef, {
               estado: 'reservada',
-              reservadoPara: cotizacionId,
+              reservadaPara: cotizacionId,
               fechaReserva: serverTimestamp()
             });
             unidadesIds.push(unidad.id);
@@ -2219,8 +2305,12 @@ export class VentaService {
         for (const prod of venta.stockReservado.productosReservados) {
           for (const unidadId of prod.unidadesReservadas) {
             const unidadRef = doc(db, 'unidades', unidadId);
+            const unidadSnap = await getDoc(unidadRef);
+            const unidadData = unidadSnap.data();
+            const estadoLiberado = esPaisOrigen(unidadData?.pais) ? 'recibida_origen' : 'disponible_peru';
             batch.update(unidadRef, {
-              estado: 'disponible_peru',
+              estado: estadoLiberado,
+              reservadaPara: null,
               reservadoPara: null,
               fechaReserva: null
             });
@@ -2396,7 +2486,7 @@ export class VentaService {
             const unidadRef = doc(db, 'unidades', unidad.id);
             batch.update(unidadRef, {
               estado: 'reservada',
-              reservadoPara: ventaId,
+              reservadaPara: ventaId,
               fechaReserva: serverTimestamp()
             });
             unidadesIds.push(unidad.id);
@@ -2972,6 +3062,216 @@ export class VentaService {
     } catch (err) {
       console.error('Error actualizando tesorería:', err);
       cambios.push('Tesorería: Error al actualizar (revisar manualmente)');
+    }
+
+    return { cambios };
+  }
+
+  // ========== CORRECCIÓN DE PRODUCTO EN VENTA ==========
+
+  /**
+   * Corregir un producto equivocado en una venta: reemplaza la identidad del producto
+   * (productoId, sku, marca, nombreComercial, presentacion) manteniendo cantidad y precio.
+   * Propaga cambios a: cotización origen, requerimientos vinculados y entregas.
+   * Solo permitido en estados tempranos (cotizacion, confirmada) sin unidades asignadas.
+   */
+  static async corregirProductoVenta(
+    ventaId: string,
+    productoIdAnterior: string,
+    nuevoProductoId: string,
+    userId: string
+  ): Promise<{ cambios: string[] }> {
+    const cambios: string[] = [];
+
+    // 1. Obtener venta actual
+    const venta = await this.getById(ventaId);
+    if (!venta) throw new Error('Venta no encontrada');
+
+    // 2. Validar estado early
+    const estadosPermitidos: EstadoVenta[] = ['cotizacion', 'confirmada'];
+    if (!estadosPermitidos.includes(venta.estado)) {
+      throw new Error(`No se puede corregir producto en estado "${venta.estado}". Solo permitido en: ${estadosPermitidos.join(', ')}`);
+    }
+
+    // 3. Encontrar el producto viejo
+    const productoIndex = venta.productos.findIndex(p => p.productoId === productoIdAnterior);
+    if (productoIndex === -1) throw new Error('Producto no encontrado en la venta');
+
+    const productoAnterior = venta.productos[productoIndex];
+
+    // 4. Validar que no tenga unidades asignadas
+    if (productoAnterior.unidadesAsignadas && productoAnterior.unidadesAsignadas.length > 0) {
+      throw new Error('No se puede corregir: el producto ya tiene unidades asignadas. Desasigne primero.');
+    }
+    if (productoAnterior.cantidadAsignada && productoAnterior.cantidadAsignada > 0) {
+      throw new Error('No se puede corregir: el producto ya tiene unidades asignadas.');
+    }
+
+    // 5. Validar que sea un producto diferente
+    if (productoIdAnterior === nuevoProductoId) {
+      return { cambios: ['Sin cambios - es el mismo producto'] };
+    }
+
+    // 6. Obtener datos del nuevo producto
+    const nuevoProducto = await ProductoService.getById(nuevoProductoId);
+    if (!nuevoProducto) throw new Error('Nuevo producto no encontrado en el catálogo');
+
+    // 7. Reemplazar campos de identidad, mantener cantidad/precio/subtotal
+    // Construir objeto limpio sin valores undefined (Firestore no los acepta)
+    const productoCorregido: Record<string, any> = {
+      productoId: nuevoProducto.id,
+      sku: nuevoProducto.sku,
+      marca: nuevoProducto.marca,
+      nombreComercial: nuevoProducto.nombreComercial,
+      presentacion: nuevoProducto.presentacion,
+      cantidad: productoAnterior.cantidad,
+      precioUnitario: productoAnterior.precioUnitario,
+      subtotal: productoAnterior.subtotal,
+      // Resetear campos de asignación
+      unidadesAsignadas: [],
+      estadoAsignacion: 'pendiente' as EstadoAsignacionProducto,
+      cantidadAsignada: 0,
+      cantidadPendiente: productoAnterior.cantidad,
+    };
+    // Campos opcionales de descripción del nuevo producto
+    if (nuevoProducto.contenido) productoCorregido.contenido = nuevoProducto.contenido;
+    if (nuevoProducto.dosaje) productoCorregido.dosaje = nuevoProducto.dosaje;
+    if ((nuevoProducto as any).sabor) productoCorregido.sabor = (nuevoProducto as any).sabor;
+
+    const productosActualizados = [...venta.productos];
+    productosActualizados[productoIndex] = productoCorregido as ProductoVenta;
+
+    const nombreAnterior = `${productoAnterior.marca} ${productoAnterior.nombreComercial} (${productoAnterior.presentacion})`;
+    const nombreNuevo = `${nuevoProducto.marca} ${nuevoProducto.nombreComercial} (${nuevoProducto.presentacion})`;
+
+    // 8. Actualizar documento de la venta
+    await updateDoc(doc(db, COLLECTION_NAME, ventaId), {
+      productos: productosActualizados,
+      ultimaEdicion: serverTimestamp(),
+      editadoPor: userId
+    });
+    cambios.push(`Venta: ${nombreAnterior} → ${nombreNuevo}`);
+
+    // 9. Cascada a cotización origen
+    if (venta.cotizacionOrigenId) {
+      try {
+        const cotRef = doc(db, COLLECTIONS.COTIZACIONES, venta.cotizacionOrigenId);
+        const cotSnap = await getDoc(cotRef);
+        if (cotSnap.exists()) {
+          const cotData = cotSnap.data();
+          const cotProductos = cotData.productos as any[] || [];
+          const cotProdIndex = cotProductos.findIndex((p: any) => p.productoId === productoIdAnterior);
+
+          if (cotProdIndex !== -1) {
+            const cotProductosActualizados = [...cotProductos];
+            const cotProdActualizado: Record<string, any> = {
+              ...cotProductos[cotProdIndex],
+              productoId: nuevoProducto.id,
+              sku: nuevoProducto.sku,
+              marca: nuevoProducto.marca,
+              nombreComercial: nuevoProducto.nombreComercial,
+              presentacion: nuevoProducto.presentacion,
+            };
+            // Solo agregar contenido/dosaje si existen (Firestore no acepta undefined)
+            if (nuevoProducto.contenido) cotProdActualizado.contenido = nuevoProducto.contenido;
+            if (nuevoProducto.dosaje) cotProdActualizado.dosaje = nuevoProducto.dosaje;
+            cotProductosActualizados[cotProdIndex] = cotProdActualizado;
+
+            await updateDoc(cotRef, {
+              productos: cotProductosActualizados,
+              ultimaEdicion: serverTimestamp(),
+              editadoPor: userId
+            });
+            cambios.push(`Cotización ${cotData.numeroCotizacion || venta.numeroCotizacionOrigen}: Producto actualizado`);
+          } else {
+            cambios.push(`Cotización: Producto no encontrado en cotización (verificar manualmente)`);
+          }
+        }
+      } catch (err) {
+        console.error('Error actualizando cotización:', err);
+        cambios.push('Cotización: Error al actualizar (revisar manualmente)');
+      }
+    }
+
+    // 10. Cascada a requerimientos vinculados
+    try {
+      const reqQuery = query(collection(db, COLLECTIONS.REQUERIMIENTOS));
+      const reqSnap = await getDocs(reqQuery);
+      let reqsActualizados = 0;
+
+      for (const reqDoc of reqSnap.docs) {
+        const req = reqDoc.data();
+        // Verificar si el requerimiento está vinculado a esta venta o cotización
+        const vinculado =
+          req.ventaId === ventaId ||
+          req.ventaRelacionadaId === ventaId ||
+          (venta.cotizacionOrigenId && req.cotizacionId === venta.cotizacionOrigenId) ||
+          (venta.cotizacionOrigenId && req.ventaRelacionadaId === venta.cotizacionOrigenId);
+
+        if (!vinculado) continue;
+        if (req.estado === 'cancelado') continue;
+
+        const reqProductos = req.productos as any[] || [];
+        const reqProdIndex = reqProductos.findIndex((p: any) => p.productoId === productoIdAnterior);
+
+        if (reqProdIndex === -1) continue;
+
+        const reqProductosActualizados = [...reqProductos];
+        reqProductosActualizados[reqProdIndex] = {
+          ...reqProductos[reqProdIndex],
+          productoId: nuevoProducto.id,
+          sku: nuevoProducto.sku,
+          marca: nuevoProducto.marca,
+          nombreComercial: nuevoProducto.nombreComercial,
+          presentacion: nuevoProducto.presentacion,
+        };
+
+        await updateDoc(doc(db, COLLECTIONS.REQUERIMIENTOS, reqDoc.id), {
+          productos: reqProductosActualizados,
+          ultimaEdicion: serverTimestamp(),
+          editadoPor: userId
+        });
+        reqsActualizados++;
+        cambios.push(`Requerimiento ${req.numeroRequerimiento}: Producto actualizado`);
+      }
+
+      if (reqsActualizados === 0) {
+        cambios.push('Requerimientos: Sin requerimientos vinculados');
+      }
+    } catch (err) {
+      console.error('Error actualizando requerimientos:', err);
+      cambios.push('Requerimientos: Error al actualizar (revisar manualmente)');
+    }
+
+    // 11. Cascada a entregas (poco probable en estado early, pero por seguridad)
+    try {
+      const entregas = await entregaService.getByVenta(ventaId);
+      for (const entrega of entregas) {
+        const entregaProdIndex = entrega.productos.findIndex(p => p.productoId === productoIdAnterior);
+        if (entregaProdIndex !== -1) {
+          const entregaProductosActualizados = entrega.productos.map(p => {
+            if (p.productoId === productoIdAnterior) {
+              return {
+                ...p,
+                productoId: nuevoProducto.id,
+                sku: nuevoProducto.sku,
+                marca: nuevoProducto.marca,
+                nombreComercial: nuevoProducto.nombreComercial,
+                presentacion: nuevoProducto.presentacion,
+              };
+            }
+            return p;
+          });
+
+          await updateDoc(doc(db, COLLECTIONS.ENTREGAS, entrega.id), {
+            productos: entregaProductosActualizados
+          });
+          cambios.push(`Entrega ${entrega.codigo}: Producto actualizado`);
+        }
+      }
+    } catch (err) {
+      console.error('Error actualizando entregas:', err);
+      cambios.push('Entregas: Error al actualizar (revisar manualmente)');
     }
 
     return { cambios };

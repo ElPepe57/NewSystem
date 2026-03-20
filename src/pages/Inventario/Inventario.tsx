@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { calcularDiasParaVencer } from '../../utils/dateFormatters';
 import {
   Package,
   AlertTriangle,
@@ -55,6 +56,8 @@ import { useCTRUStore } from '../../store/ctruStore';
 import { exportService } from '../../services/export.service';
 import { inventarioService } from '../../services/inventario.service';
 import type { Unidad } from '../../types/unidad.types';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, getLabelEstadoUnidad, getPaisEmoji } from '../../utils/multiOrigen.helpers';
 
 type VistaInventario = 'cards' | 'tabla';
 type TabInventario = 'lista' | 'analytics' | 'alertas';
@@ -65,11 +68,12 @@ export const Inventario: React.FC = () => {
   const { almacenes, fetchAlmacenes } = useAlmacenStore();
   const { stats, fetchStats } = useInventarioStore();
   const { productosDetalle: ctruData, fetchAll: fetchCTRU } = useCTRUStore();
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   const [tabActivo, setTabActivo] = useState<TabInventario>('lista');
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   const [filtroAlmacen, setFiltroAlmacen] = useState<string>('');
-  const [filtroPais, setFiltroPais] = useState<'USA' | 'Peru' | ''>('');
+  const [filtroPais, setFiltroPais] = useState<string>('');
   const [busqueda, setBusqueda] = useState('');
   const [vistaActual, setVistaActual] = useState<VistaInventario>('tabla');
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
@@ -92,25 +96,15 @@ export const Inventario: React.FC = () => {
     fetchCTRU();
   }, [fetchUnidades, fetchStats, fetchProductos, fetchAlmacenes, fetchCTRU]);
 
-  // Calcular días para vencer
-  const calcularDiasParaVencer = (fecha: any): number => {
-    if (!fecha || !fecha.toDate) return 999;
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const vencimiento = fecha.toDate();
-    vencimiento.setHours(0, 0, 0, 0);
-    const diffTime = vencimiento.getTime() - hoy.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
 
   // Calcular estadísticas del pipeline desde las unidades (fuente única de verdad)
   const inventarioStats = useMemo(() => {
-    let recibidaUSA = 0;
-    let enTransitoUSA = 0;
+    let enOrigen = 0;
+    let enTransitoOrigen = 0;
     let enTransitoPeru = 0;
     let disponiblePeru = 0;
     let reservada = 0;
-    let reservadaUSA = 0;
+    let reservadaOrigen = 0;
     let reservadaPeru = 0;
     let problemas = 0;
     let total = 0;
@@ -125,9 +119,10 @@ export const Inventario: React.FC = () => {
     // Validar que unidades sea un array antes de iterar
     const unidadesArray = Array.isArray(unidades) ? unidades : [];
     unidadesArray.forEach(u => {
-      // Aplicar filtros de almacén y país
+      // Aplicar filtros de almacén, país y línea de negocio
       if (filtroAlmacen && u.almacenId !== filtroAlmacen) return;
       if (filtroPais && u.pais !== filtroPais) return;
+      if (lineaFiltroGlobal && u.lineaNegocioId !== lineaFiltroGlobal) return;
 
       // Contar vendidas por separado
       if (u.estado === 'vendida') {
@@ -139,28 +134,20 @@ export const Inventario: React.FC = () => {
       total++;
       valorTotalUSD += u.costoUnitarioUSD;
 
-      switch (u.estado) {
-        case 'recibida_usa':
-          recibidaUSA++;
-          break;
-        case 'en_transito_usa':
-          enTransitoUSA++;
-          break;
-        case 'en_transito_peru':
-          enTransitoPeru++;
-          break;
-        case 'disponible_peru':
-          disponiblePeru++;
-          break;
-        case 'reservada':
-          reservada++;
-          if (u.pais === 'USA') reservadaUSA++;
-          else reservadaPeru++;
-          break;
-        case 'vencida':
-        case 'danada':
-          problemas++;
-          break;
+      if (esEstadoEnOrigen(u.estado)) {
+        enOrigen++;
+      } else if (esEstadoEnTransitoOrigen(u.estado)) {
+        enTransitoOrigen++;
+      } else if (u.estado === 'en_transito_peru') {
+        enTransitoPeru++;
+      } else if (u.estado === 'disponible_peru') {
+        disponiblePeru++;
+      } else if (u.estado === 'reservada') {
+        reservada++;
+        if (u.pais !== 'Peru') reservadaOrigen++;
+        else reservadaPeru++;
+      } else if (u.estado === 'vencida' || u.estado === 'danada') {
+        problemas++;
       }
 
       // Contar próximas a vencer (30 días)
@@ -173,16 +160,16 @@ export const Inventario: React.FC = () => {
         }
       }
     });
-    const enTransito = enTransitoUSA + enTransitoPeru;
+    const enTransito = enTransitoOrigen + enTransitoPeru;
 
     return {
-      recibidaUSA,
-      enTransitoUSA,
+      enOrigen,
+      enTransitoOrigen,
       enTransitoPeru,
       enTransito,
       disponiblePeru,
       reservada,
-      reservadaUSA,
+      reservadaOrigen,
       reservadaPeru,
       problemas,
       total,
@@ -191,14 +178,14 @@ export const Inventario: React.FC = () => {
       proximasAVencer,
       stockCriticoCount
     };
-  }, [unidades, filtroAlmacen, filtroPais]);
+  }, [unidades, filtroAlmacen, filtroPais, lineaFiltroGlobal]);
 
   // Pipeline stages para el PipelineHeader existente
   const pipelineStages: PipelineStage[] = useMemo(() => [
     {
-      id: 'recibida_usa',
-      label: 'USA',
-      count: inventarioStats.recibidaUSA,
+      id: 'en_origen',
+      label: 'En Origen',
+      count: inventarioStats.enOrigen,
       color: 'blue',
       icon: <Warehouse className="h-4 w-4" />
     },
@@ -255,12 +242,15 @@ export const Inventario: React.FC = () => {
     // Filtrar unidades vendidas para el inventario activo
     let unidadesActivas = unidadesArr.filter(u => u.estado !== 'vendida');
 
-    // Aplicar filtros de almacén y país
+    // Aplicar filtros de almacén, país y línea de negocio
     if (filtroAlmacen) {
       unidadesActivas = unidadesActivas.filter(u => u.almacenId === filtroAlmacen);
     }
     if (filtroPais) {
       unidadesActivas = unidadesActivas.filter(u => u.pais === filtroPais);
+    }
+    if (lineaFiltroGlobal) {
+      unidadesActivas = unidadesActivas.filter(u => u.lineaNegocioId === lineaFiltroGlobal);
     }
 
     unidadesActivas.forEach(unidad => {
@@ -272,12 +262,12 @@ export const Inventario: React.FC = () => {
           marca: '',
           grupo: '',
           unidades: [],
-          recibidaUSA: 0,
-          enTransitoUSA: 0,
+          enOrigen: 0,
+          enTransitoOrigen: 0,
           enTransitoPeru: 0,
           disponiblePeru: 0,
           reservada: 0,
-          reservadaUSA: 0,
+          reservadaOrigen: 0,
           reservadaPeru: 0,
           vendida: 0,
           problemas: 0,
@@ -296,36 +286,28 @@ export const Inventario: React.FC = () => {
       grupo.valorTotalUSD += unidad.costoUnitarioUSD;
 
       // Contar por estado
-      switch (unidad.estado) {
-        case 'recibida_usa':
-          grupo.recibidaUSA++;
-          grupo.totalDisponibles++;
-          break;
-        case 'en_transito_usa':
-          grupo.enTransitoUSA++;
-          break;
-        case 'en_transito_peru':
-          grupo.enTransitoPeru++;
-          break;
-        case 'disponible_peru':
-          grupo.disponiblePeru++;
-          grupo.totalDisponibles++;
-          break;
-        case 'reservada':
-          grupo.reservada++;
-          if (unidad.pais === 'USA') grupo.reservadaUSA++;
-          else grupo.reservadaPeru++;
-          break;
-        case 'vencida':
-        case 'danada':
-          grupo.problemas++;
-          break;
+      if (esEstadoEnOrigen(unidad.estado)) {
+        grupo.enOrigen++;
+        grupo.totalDisponibles++;
+      } else if (esEstadoEnTransitoOrigen(unidad.estado)) {
+        grupo.enTransitoOrigen++;
+      } else if (unidad.estado === 'en_transito_peru') {
+        grupo.enTransitoPeru++;
+      } else if (unidad.estado === 'disponible_peru') {
+        grupo.disponiblePeru++;
+        grupo.totalDisponibles++;
+      } else if (unidad.estado === 'reservada') {
+        grupo.reservada++;
+        if (unidad.pais !== 'Peru') grupo.reservadaOrigen++;
+        else grupo.reservadaPeru++;
+      } else if (unidad.estado === 'vencida' || unidad.estado === 'danada') {
+        grupo.problemas++;
       }
 
       // Verificar próximas a vencer
       if (unidad.fechaVencimiento && typeof unidad.fechaVencimiento.toDate === 'function') {
         const diffDias = calcularDiasParaVencer(unidad.fechaVencimiento);
-        if (diffDias >= 0 && diffDias <= 30) {
+        if (diffDias !== null && diffDias >= 0 && diffDias <= 30) {
           grupo.proximasAVencer30Dias++;
         }
       }
@@ -343,8 +325,8 @@ export const Inventario: React.FC = () => {
             marca: producto.marca,
             grupo: producto.grupo,
             unidades: [],
-            recibidaUSA: 0, enTransitoUSA: 0, enTransitoPeru: 0,
-            disponiblePeru: 0, reservada: 0, reservadaUSA: 0, reservadaPeru: 0,
+            enOrigen: 0, enTransitoOrigen: 0, enTransitoPeru: 0,
+            disponiblePeru: 0, reservada: 0, reservadaOrigen: 0, reservadaPeru: 0,
             vendida: cantVendidas,
             problemas: 0,
             totalUnidades: 0,
@@ -358,12 +340,17 @@ export const Inventario: React.FC = () => {
       }
     });
 
-    // Enriquecer con datos del producto (marca, grupo) y asignar vendidas
+    // Enriquecer con datos del producto (marca, grupo, descripción) y asignar vendidas
     Object.values(grupos).forEach(grupo => {
       const producto = productos.find(p => p.id === grupo.productoId);
       if (producto) {
         grupo.marca = producto.marca;
         grupo.grupo = producto.grupo;
+        grupo.presentacion = producto.presentacion;
+        grupo.contenido = producto.contenido;
+        grupo.dosaje = producto.dosaje;
+        grupo.sabor = producto.sabor;
+        grupo.lineaNegocioId = producto.lineaNegocioId;
         grupo.stockCritico = producto.stockMinimo !== undefined &&
           grupo.totalDisponibles <= producto.stockMinimo;
       }
@@ -375,7 +362,7 @@ export const Inventario: React.FC = () => {
 
     // Ordenar por SKU
     return Object.values(grupos).sort((a, b) => a.sku.localeCompare(b.sku));
-  }, [unidades, productos, filtroAlmacen, filtroPais]);
+  }, [unidades, productos, filtroAlmacen, filtroPais, lineaFiltroGlobal]);
 
   // Filtrar productos según el estado seleccionado en el pipeline y búsqueda
   const productosFiltrados = useMemo(() => {
@@ -385,11 +372,11 @@ export const Inventario: React.FC = () => {
     if (filtroEstado) {
       resultado = resultado.filter(p => {
         switch (filtroEstado) {
-          case 'recibida_usa':
-            return p.recibidaUSA > 0;
+          case 'en_origen':
+            return p.enOrigen > 0;
           case 'en_transito':
           case 'en_transito_peru':
-            return p.enTransitoUSA > 0 || p.enTransitoPeru > 0;
+            return p.enTransitoOrigen > 0 || p.enTransitoPeru > 0;
           case 'disponible_peru':
             return p.disponiblePeru > 0;
           case 'reservada':
@@ -430,7 +417,7 @@ export const Inventario: React.FC = () => {
         producto.unidades.forEach(u => {
           if (u.fechaVencimiento && u.estado !== 'vendida') {
             const dias = calcularDiasParaVencer(u.fechaVencimiento);
-            if (dias < menorDias && dias >= 0) menorDias = dias;
+            if (dias !== null && dias < menorDias && dias >= 0) menorDias = dias;
           }
         });
 
@@ -637,7 +624,7 @@ export const Inventario: React.FC = () => {
         stats={[
           { label: 'Unidades', value: inventarioStats.total },
           { label: 'Productos', value: productosConUnidades.length },
-          { label: 'USA', value: inventarioStats.recibidaUSA },
+          { label: 'En Origen', value: inventarioStats.enOrigen },
           { label: 'Tránsito', value: inventarioStats.enTransito },
           { label: 'Perú', value: inventarioStats.disponiblePeru },
           { label: 'Reservadas', value: inventarioStats.reservada },
@@ -662,12 +649,12 @@ export const Inventario: React.FC = () => {
               variant="green"
             />
             <StatCard
-              label="En USA"
-              value={inventarioStats.recibidaUSA}
+              label="En Origen"
+              value={inventarioStats.enOrigen}
               icon={Warehouse}
               variant="blue"
-              onClick={() => setFiltroPais('USA')}
-              active={filtroPais === 'USA'}
+              onClick={() => setFiltroEstado(filtroEstado === 'en_origen' ? null : 'en_origen')}
+              active={filtroEstado === 'en_origen'}
             />
             <StatCard
               label="En Tránsito"
@@ -686,8 +673,8 @@ export const Inventario: React.FC = () => {
               active={filtroPais === 'Peru'}
             />
             <StatCard
-              label="Reserv. USA"
-              value={inventarioStats.reservadaUSA}
+              label="Reserv. Origen"
+              value={inventarioStats.reservadaOrigen}
               icon={ShoppingBag}
               variant="purple"
               onClick={() => setFiltroEstado('reservada')}
@@ -716,17 +703,17 @@ export const Inventario: React.FC = () => {
             <StatDistribution
               title="Distribución por Ubicación"
               data={[
-                { label: 'USA', value: inventarioStats.recibidaUSA, color: 'bg-blue-500' },
+                { label: 'En Origen', value: inventarioStats.enOrigen, color: 'bg-blue-500' },
                 { label: 'En Tránsito', value: inventarioStats.enTransito, color: 'bg-amber-500' },
                 { label: 'Perú', value: inventarioStats.disponiblePeru, color: 'bg-green-500' },
-                { label: 'Reserv. USA', value: inventarioStats.reservadaUSA, color: 'bg-purple-500' },
+                { label: 'Reserv. Origen', value: inventarioStats.reservadaOrigen, color: 'bg-purple-500' },
                 { label: 'Reserv. Perú', value: inventarioStats.reservadaPeru, color: 'bg-purple-400' }
               ]}
             />
             <StatDistribution
               title="Estado del Stock"
               data={[
-                { label: 'Disponible', value: inventarioStats.recibidaUSA + inventarioStats.disponiblePeru, color: 'bg-green-500' },
+                { label: 'Disponible', value: inventarioStats.enOrigen + inventarioStats.disponiblePeru, color: 'bg-green-500' },
                 { label: 'En Movimiento', value: inventarioStats.enTransito, color: 'bg-blue-500' },
                 { label: 'Reservado', value: inventarioStats.reservada, color: 'bg-purple-500' },
                 { label: 'Vendido', value: inventarioStats.vendida, color: 'bg-emerald-500' },
@@ -786,7 +773,7 @@ export const Inventario: React.FC = () => {
 
                   <Select
                     value={filtroPais}
-                    onChange={(e) => setFiltroPais(e.target.value as 'USA' | 'Peru' | '')}
+                    onChange={(e) => setFiltroPais(e.target.value)}
                     options={[
                       { value: '', label: 'Todos los países' },
                       { value: 'USA', label: '🇺🇸 USA' },
@@ -802,7 +789,7 @@ export const Inventario: React.FC = () => {
                       { value: '', label: 'Todos los almacenes' },
                       ...almacenes.map(a => ({
                         value: a.id,
-                        label: `${a.pais === 'USA' ? '🇺🇸' : '🇵🇪'} ${a.nombre}`
+                        label: `${getPaisEmoji(a.pais)} ${a.nombre}`
                       }))
                     ]}
                     className="w-52"
@@ -930,6 +917,10 @@ export const Inventario: React.FC = () => {
       {unidadSeleccionada && (
         <UnidadDetailsModal
           unidad={unidadSeleccionada}
+          productoInfo={(() => {
+            const p = productos.find(pr => pr.id === unidadSeleccionada.productoId);
+            return p ? { presentacion: p.presentacion, contenido: p.contenido, dosaje: p.dosaje, sabor: p.sabor } : undefined;
+          })()}
           onClose={() => setUnidadSeleccionada(null)}
         />
       )}

@@ -1,11 +1,13 @@
 import { Timestamp } from 'firebase/firestore';
 
 /**
- * Tipo de almacén
- * - viajero: Persona que almacena en USA y transporta a Perú (modelo principal)
+ * Tipo de almacén / agente logístico
+ * - viajero: Persona que almacena y transporta a Perú (modelo USA principal)
+ * - courier: Servicio courier internacional (China, Corea, etc.)
+ * - almacen_origen: Almacén en país de origen (no viajero)
  * - almacen_peru: Almacén en Perú
  */
-export type TipoAlmacen = 'viajero' | 'almacen_peru';
+export type TipoAlmacen = 'viajero' | 'courier' | 'almacen_origen' | 'almacen_peru';
 
 /**
  * Estado del almacén/viajero
@@ -72,8 +74,21 @@ export interface MetricasOperativasAlmacen {
 
 /**
  * País del almacén
+ * Extensible: se pueden agregar más países según necesidad.
+ * Los valores legacy 'USA' | 'Peru' se mantienen para backward compat.
  */
-export type PaisAlmacen = 'USA' | 'Peru';
+export type PaisAlmacen = 'USA' | 'Peru' | 'China' | 'Corea' | 'Peru_local';
+
+/**
+ * Configuración de país para display y lógica
+ */
+export const PAISES_CONFIG: Record<string, { nombre: string; emoji: string; esOrigen: boolean; monedaDefault: string }> = {
+  USA:        { nombre: 'Estados Unidos', emoji: '🇺🇸', esOrigen: true, monedaDefault: 'USD' },
+  China:      { nombre: 'China',          emoji: '🇨🇳', esOrigen: true, monedaDefault: 'USD' },
+  Corea:      { nombre: 'Corea del Sur',  emoji: '🇰🇷', esOrigen: true, monedaDefault: 'USD' },
+  Peru:       { nombre: 'Perú',           emoji: '🇵🇪', esOrigen: false, monedaDefault: 'PEN' },
+  Peru_local: { nombre: 'Perú (local)',   emoji: '🇵🇪', esOrigen: false, monedaDefault: 'PEN' },
+};
 
 /**
  * Frecuencia de viajes (solo para tipo viajero)
@@ -81,9 +96,12 @@ export type PaisAlmacen = 'USA' | 'Peru';
 export type FrecuenciaViaje = 'semanal' | 'quincenal' | 'mensual' | 'bimestral' | 'variable';
 
 /**
- * Almacén / Viajero
- * En tu modelo: Viajero = Almacén USA = Transportista
- * Una misma entidad que almacena tus productos en USA y los trae a Perú
+ * Almacén / Viajero / Courier
+ * Entidad que almacena productos en el país de origen y los transporta a Perú.
+ * - Viajero: persona en USA que trae productos (modelo original)
+ * - Courier: servicio de envío internacional (China, Corea, USA, etc.)
+ * - Almacén origen: almacén en país de origen (sin viajero)
+ * - Almacén Perú: almacén de inventario local
  */
 export interface Almacen {
   id: string;
@@ -219,6 +237,7 @@ export interface InventarioAlmacen {
 
 /**
  * Estadísticas generales de almacenes USA
+ * @deprecated Usar ResumenAlmacenesPorPais en su lugar
  */
 export interface ResumenAlmacenesUSA {
   totalAlmacenes: number;
@@ -234,6 +253,32 @@ export interface ResumenAlmacenesUSA {
   // Alertas
   almacenesConCapacidadAlta: Almacen[];  // >80% capacidad
   unidadesConMuchotiempo: {              // >30 días en almacén
+    almacenId: string;
+    almacenNombre: string;
+    cantidad: number;
+  }[];
+}
+
+/**
+ * Estadísticas generales de almacenes por país (genérico, reemplaza ResumenAlmacenesUSA)
+ */
+export interface ResumenAlmacenesPorPais {
+  pais: PaisAlmacen;
+  paisNombre: string;
+  paisEmoji: string;
+  totalAlmacenes: number;
+  totalViajerosCouriers: number;
+
+  // Inventario total en este país
+  totalUnidades: number;
+  valorTotalUSD: number;
+
+  // Por almacén
+  inventarioPorAlmacen: InventarioAlmacen[];
+
+  // Alertas
+  almacenesConCapacidadAlta: Almacen[];
+  unidadesConMuchotiempo: {
     almacenId: string;
     almacenNombre: string;
     cantidad: number;

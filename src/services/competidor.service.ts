@@ -14,6 +14,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Competidor,
   CompetidorFormData,
@@ -38,27 +39,7 @@ const normalizarTexto = (texto: string): string => {
  * Formato: CMP-001, CMP-002, etc.
  */
 async function generarCodigoCompetidor(): Promise<string> {
-  const prefix = 'CMP';
-
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith(prefix)) {
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber('CMP', 3);
 }
 
 export const competidorService = {

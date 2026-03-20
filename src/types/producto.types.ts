@@ -302,14 +302,10 @@ export interface Producto {
   etiquetaIds?: string[];
   etiquetasData?: EtiquetaSnapshot[];
 
-  enlaceProveedor: string;
   codigoUPC: string;
 
   estado: EstadoProducto;
   etiquetas: string[];
-
-  habilitadoML: boolean;
-  restriccionML: string;
 
   // === COSTOS ===
   /**
@@ -317,23 +313,28 @@ export interface Producto {
    * Antes llamado "ctruPromedio"
    */
   ctruPromedio: number;
-  precioSugerido: number;
-  margenMinimo: number;
-  margenObjetivo: number;
 
   /**
-   * Costo FIJO de flete USA → Perú por unidad (USD)
-   * Este es el costo que cobra el viajero por traer este producto específico.
+   * Costo FIJO de flete internacional por unidad (USD)
    * Es intrínseco al producto porque depende de su peso/volumen.
    */
-  costoFleteUSAPeru: number;
+  costoFleteInternacional?: number;
+
+  // === ORIGEN Y LÍNEA DE NEGOCIO ===
+  paisOrigen?: string;                    // País de origen del producto ('USA', 'China', 'Corea', 'Peru')
+  lineaNegocioId?: string;                // ID de la línea de negocio
+  lineaNegocioNombre?: string;            // Desnormalizado para display
 
   // === STOCK ===
+  /** @deprecated Usar stockOrigen para multi-país */
   stockUSA: number;
   stockPeru: number;
   stockTransito: number;
   stockReservado: number;
   stockDisponible: number;
+  stockDisponiblePeru?: number; // Solo disponible_peru (lo que ML puede vender)
+  stockPendienteML?: number;    // Unidades comprometidas en órdenes ML no procesadas aún
+  stockEfectivoML?: number;     // stockDisponiblePeru - stockPendienteML (lo que se pushea a ML)
 
   stockMinimo: number;
   stockMaximo: number;
@@ -396,19 +397,12 @@ export interface ProductoFormData {
   /** IDs de etiquetas seleccionadas */
   etiquetaIds?: string[];
 
-  enlaceProveedor: string;
   codigoUPC: string;
-  precioSugerido: number;
-  margenMinimo: number;
-  margenObjetivo: number;
   stockMinimo: number;
   stockMaximo: number;
-  habilitadoML: boolean;
-  restriccionML: string;
-  /**
-   * Costo FIJO de flete USA → Perú por unidad (USD)
-   */
-  costoFleteUSAPeru: number;
+  costoFleteInternacional?: number;
+  paisOrigen?: string;                      // País de origen del producto
+  lineaNegocioId?: string;                  // ID de la línea de negocio
 
   // === CICLO DE RECOMPRA ===
   /**

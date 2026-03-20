@@ -7,6 +7,8 @@ import { getCTRU, getCostoBasePEN, getTC, calcularGAGOProporcional } from '../ut
 import { ctruLockService } from './ctruLock.service';
 import type { Unidad } from '../types/unidad.types';
 import type { Gasto } from '../types/gasto.types';
+import { esFleteInternacional } from '../utils/multiOrigen.helpers';
+import { esEstadoEnOrigen } from '../utils/multiOrigen.helpers';
 
 /**
  * Servicio para cálculo y actualización del CTRU (Costo Total Real por Unidad)
@@ -110,10 +112,9 @@ export const ctruService = {
     unidadId: string
   ): Promise<number> {
     try {
-      const gastosFleteOC = await gastoService.buscar({
-        ordenCompraId,
-        tipo: 'flete_usa_peru'
-      });
+      // Search for both legacy and generic flete types
+      const todosGastosOC = await gastoService.buscar({ ordenCompraId });
+      const gastosFleteOC = todosGastosOC.filter(g => esFleteInternacional(g.tipo));
 
       if (gastosFleteOC.length === 0) {
         return 0;
@@ -156,11 +157,11 @@ export const ctruService = {
   }> {
     try {
       // 1. Obtener todas las unidades
-      const todasUnidades = await unidadService.getAll();
+      const todasUnidades = await unidadService.getAllIncluyendoHistoricas();
       const unidadesVendidas = todasUnidades.filter(u => u.estado === 'vendida');
       const unidadesActivas = todasUnidades.filter(u =>
         u.estado === 'disponible_peru' ||
-        u.estado === 'recibida_usa' ||
+        esEstadoEnOrigen(u.estado) ||
         u.estado === 'reservada'
       );
 
@@ -302,30 +303,59 @@ export const ctruService = {
    */
   async actualizarCTRUPromedioProductos(): Promise<number> {
     try {
-      const productos = await ProductoService.getAll();
+      // Cargar productos y TODAS las unidades en paralelo (2 queries, no N+1)
+      const [productos, todasLasUnidades] = await Promise.all([
+        ProductoService.getAll(),
+        unidadService.getAllIncluyendoHistoricas()
+      ]);
+
+      // Agrupar unidades activas por productoId en un Map
+      const unidadesActivasPorProducto = new Map<string, Unidad[]>();
+      for (const u of todasLasUnidades) {
+        if (
+          u.estado === 'disponible_peru' ||
+          esEstadoEnOrigen(u.estado) ||
+          u.estado === 'reservada'
+        ) {
+          const pid = u.productoId;
+          if (!unidadesActivasPorProducto.has(pid)) {
+            unidadesActivasPorProducto.set(pid, []);
+          }
+          unidadesActivasPorProducto.get(pid)!.push(u);
+        }
+      }
+
+      // Preparar batch de updates (evitar N writes seriales)
       let productosActualizados = 0;
+      let batch = writeBatch(db);
+      let opsEnBatch = 0;
+      const MAX_BATCH = 450;
 
       for (const producto of productos) {
-        const todasUnidades = await unidadService.buscar({
-          productoId: producto.id
-        });
-
-        const unidadesActivas = todasUnidades.filter(u =>
-          u.estado === 'disponible_peru' ||
-          u.estado === 'recibida_usa' ||
-          u.estado === 'reservada'
-        );
-
-        if (unidadesActivas.length === 0) {
+        const unidadesActivas = unidadesActivasPorProducto.get(producto.id);
+        if (!unidadesActivas || unidadesActivas.length === 0) {
           continue;
         }
 
-        // Usar utility centralizado
         const sumaCTRU = unidadesActivas.reduce((sum, u) => sum + getCTRU(u), 0);
         const ctruPromedio = sumaCTRU / unidadesActivas.length;
 
-        await ProductoService.update(producto.id, { ctruPromedio } as any);
+        const prodRef = doc(db, 'productos', producto.id);
+        batch.update(prodRef, { ctruPromedio });
         productosActualizados++;
+        opsEnBatch++;
+
+        // Commit en chunks si se acerca al límite
+        if (opsEnBatch >= MAX_BATCH) {
+          await batch.commit();
+          batch = writeBatch(db);
+          opsEnBatch = 0;
+        }
+      }
+
+      // Commit final del batch restante
+      if (opsEnBatch > 0) {
+        await batch.commit();
       }
 
       return productosActualizados;
@@ -349,7 +379,7 @@ export const ctruService = {
 
       const unidadesActivas = todasUnidades.filter(u =>
         u.estado === 'disponible_peru' ||
-        u.estado === 'recibida_usa' ||
+        esEstadoEnOrigen(u.estado) ||
         u.estado === 'reservada'
       );
 

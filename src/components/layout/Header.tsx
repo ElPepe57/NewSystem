@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Menu } from 'lucide-react';
+import { User, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -9,9 +9,11 @@ import { CollaborationButton } from './CollaborationButton';
 
 interface HeaderProps {
   onMenuClick?: () => void;
+  onToggleSidebar?: () => void;
+  sidebarCollapsed?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+export const Header: React.FC<HeaderProps> = ({ onMenuClick, onToggleSidebar, sidebarCollapsed }) => {
   const user = useAuthStore(state => state.user);
   const navigate = useNavigate();
   const { displayName, role, profile } = usePermissions();
@@ -27,6 +29,19 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             aria-label="Abrir menú"
           >
             <Menu className="h-6 w-6 text-gray-600" />
+          </button>
+
+          {/* Toggle sidebar - solo visible en desktop */}
+          <button
+            onClick={onToggleSidebar}
+            className="hidden lg:flex p-2 -ml-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label={sidebarCollapsed ? 'Mostrar sidebar' : 'Ocultar sidebar'}
+            title={sidebarCollapsed ? 'Mostrar sidebar' : 'Ocultar sidebar'}
+          >
+            {sidebarCollapsed
+              ? <PanelLeftOpen className="h-5 w-5 text-gray-500" />
+              : <PanelLeftClose className="h-5 w-5 text-gray-500" />
+            }
           </button>
 
           <div>

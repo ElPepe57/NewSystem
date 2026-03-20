@@ -1,0 +1,73 @@
+[
+  {
+    "_id": "4L7GHZfCKWTcSnkd5fdg",
+    "nombre": "Cuenta BCP - Jossie",
+    "titular": "Josselin Gambini",
+    "tipo": "digital",
+    "esBiMoneda": true,
+    "moneda": "PEN",
+    "activa": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-26T17:04:13.000Z",
+      "_seconds": 1769447053
+    },
+    "saldoActual": 0,
+    "saldoUSD": 0.01144820863767565,
+    "saldoPEN": 3795.88,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T00:15:45.000Z",
+      "_seconds": 1773447345
+    }
+  },
+  {
+    "_id": "geEs98tz955mVjYNct8M",
+    "nombre": "MercadoPago",
+    "titular": "MercadoLibre",
+    "tipo": "banco",
+    "esBiMoneda": false,
+    "moneda": "PEN",
+    "activa": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T17:27:17.000Z",
+      "_seconds": 1769102837
+    },
+    "banco": "MercadoPago",
+    "esCuentaPorDefecto": true,
+    "metodoPagoAsociado": "mercado_pago",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T00:15:44.000Z",
+      "_seconds": 1773447344
+    },
+    "saldoActual": 4280.850000000002
+  },
+  {
+    "_id": "nlIJ1Eegox0LfdjSl8w3",
+    "nombre": "Cuenta IBK - Jossie",
+    "titular": "Josselin Gambini",
+    "esBiMoneda": true,
+    "moneda": "PEN",
+    "activa": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-26T17:04:40.000Z",
+      "_seconds": 1769447080
+    },
+    "saldoActual": 0,
+    "tipo": "digital",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "saldoPEN": 245,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T04:23:34.000Z",
+      "_seconds": 1773375814
+    },
+    "saldoUSD": -0.0045000000001120255
+  }
+]

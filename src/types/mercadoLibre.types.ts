@@ -51,6 +51,13 @@ export interface MLProductMap {
   vinculado: boolean;
   fechaVinculacion: Timestamp | null;
   fechaSync: Timestamp;
+  // Competencia Buy Box (solo catálogo)
+  buyBoxStatus?: 'winning' | 'competing' | 'sharing_first_place' | 'listed' | null;
+  buyBoxPriceToWin?: number | null;
+  buyBoxWinnerPrice?: number | null;
+  buyBoxVisitShare?: 'maximum' | 'medium' | 'minimum' | null;
+  buyBoxBoosts?: Array<{ id: string; status: string }>;
+  buyBoxLastCheck?: Timestamp | null;
 }
 
 /**
@@ -80,6 +87,7 @@ export interface MLOrderSync {
   mlStatus: string;
   mlBuyerId: number;
   mlBuyerName: string | null;
+  mlBuyerNickname?: string | null;
   ventaId: string | null;
   numeroVenta: string | null;
   clienteId: string | null;
@@ -89,22 +97,36 @@ export interface MLOrderSync {
   comisionML: number;
   costoEnvioML: number;
   costoEnvioCliente?: number; // Lo que el cliente pagó por envío (payment.shipping_cost)
+  metodoEnvio?: 'flex' | 'urbano' | null; // Método de envío detectado
+  cargoEnvioML?: number; // Cargo por envío que ML cobra al vendedor (Urbano) — deducción
   fechaOrdenML: Timestamp;
   fechaProcesada: Timestamp | null;
   fechaSync: Timestamp;
+  // Origen del registro: cómo llegó al sistema
+  origen?: 'webhook' | 'importacion_historica' | 'manual';
+  fechaImportacion?: Timestamp | null;
   // Datos extendidos
   buyerEmail?: string | null;
   buyerPhone?: string | null;
   buyerDni?: string | null;
+  buyerDocType?: string | null; // "DNI" | "RUC" | etc.
+  razonSocial?: string | null; // Razón social para compradores con RUC
   direccionEntrega?: string;
   distrito?: string;
   provincia?: string;
+  codigoPostal?: string | null;
+  referenciaEntrega?: string | null; // Referencia de entrega del comprador
   coordenadas?: { lat: number; lng: number } | null;
   trackingNumber?: string | null;
   trackingMethod?: string | null; // "flex", "urbano", etc. — método de envío ML
   shipmentStatus?: string;
   todosVinculados?: boolean;
+  stockPendienteContabilizado?: boolean; // true si ya se incrementó stockPendienteML en productos
   productos?: MLOrderProduct[];
+  // Pack orders: cuando el comprador compra 2+ productos en un solo carrito
+  packId?: number | null; // ML pack_id que agrupa sub-órdenes
+  subOrderIds?: number[]; // Lista de mlOrderIds que componen este pack
+  subOrdersRecibidas?: number; // Cantidad de sub-órdenes recibidas hasta ahora
 }
 
 export interface MLOrderProduct {

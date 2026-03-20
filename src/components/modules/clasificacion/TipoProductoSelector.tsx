@@ -7,6 +7,7 @@ import type { TipoProducto, TipoProductoSnapshot } from '../../../types/tipoProd
 interface TipoProductoSelectorProps {
   value?: string;                    // ID del tipo seleccionado
   onChange: (tipoId: string | undefined, snapshot?: TipoProductoSnapshot) => void;
+  lineaNegocioId?: string;           // Filtrar por linea de negocio
   required?: boolean;
   disabled?: boolean;
   placeholder?: string;
@@ -17,6 +18,7 @@ interface TipoProductoSelectorProps {
 export function TipoProductoSelector({
   value,
   onChange,
+  lineaNegocioId,
   required = false,
   disabled = false,
   placeholder = 'Buscar tipo de producto...',
@@ -56,8 +58,15 @@ export function TipoProductoSelector({
   // Obtener tipo seleccionado
   const tipoSeleccionado = tiposActivos.find(t => t.id === value);
 
-  // Filtrar tipos por busqueda
+  // Filtrar tipos por linea de negocio y busqueda
   const tiposFiltrados = tiposActivos.filter(t => {
+    // Filtro por linea de negocio: show if no lineaNegocioIds (available for all) or includes the lineaNegocioId
+    if (lineaNegocioId) {
+      const lineaIds = t.lineaNegocioIds;
+      if (lineaIds && lineaIds.length > 0 && !lineaIds.includes(lineaNegocioId)) {
+        return false;
+      }
+    }
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return (

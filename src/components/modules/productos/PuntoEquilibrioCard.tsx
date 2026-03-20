@@ -182,23 +182,23 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
   return (
     <div className="space-y-4">
       {/* Header con estado de viabilidad */}
-      <div className={`rounded-lg p-4 ${viabilidad.bg}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-full ${viabilidad.bg}`}>
-              <ViabilidadIcon className={`h-6 w-6 ${viabilidad.color}`} />
+      <div className={`rounded-lg p-3 sm:p-4 ${viabilidad.bg}`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className={`p-1.5 sm:p-2 rounded-full ${viabilidad.bg}`}>
+              <ViabilidadIcon className={`h-5 w-5 sm:h-6 sm:w-6 ${viabilidad.color}`} />
             </div>
             <div>
-              <h4 className={`font-semibold ${viabilidad.color}`}>{viabilidad.label}</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className={`text-sm sm:text-base font-semibold ${viabilidad.color}`}>{viabilidad.label}</h4>
+              <p className="text-xs sm:text-sm text-gray-600">
                 {puntoEquilibrio.tiempoRecuperacionCapital === Infinity
                   ? 'Sin recuperación posible'
                   : `Recuperas capital en ${puntoEquilibrio.tiempoRecuperacionCapital} mes${puntoEquilibrio.tiempoRecuperacionCapital !== 1 ? 'es' : ''}`}
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-gray-900">
+          <div className="text-left sm:text-right pl-8 sm:pl-0">
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">
               {formatNumber(puntoEquilibrio.unidadesParaRecuperarCapital)} / {unidadesAComprar}
             </p>
             <p className="text-xs text-gray-500">
@@ -255,20 +255,20 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
             </button>
           )}
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
               <ShoppingCart className="h-3 w-3 inline mr-1" />
-              Unidades a Comprar
+              <span className="hidden sm:inline">Unidades a </span>Comprar
             </label>
             <input
               type="number"
               min="1"
               value={unidadesAComprar}
               onChange={handleUserChange((v) => setUnidadesAComprar(Math.max(1, Math.round(v))))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-400 mt-0.5 hidden sm:block">
               Sugerido: {calcularUnidadesIniciales()} (2 meses)
             </p>
           </div>
@@ -276,15 +276,15 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
               <Package className="h-3 w-3 inline mr-1" />
-              Ventas / Mes
+              <span className="hidden sm:inline">Ventas / </span>Mes
             </label>
             <input
               type="number"
               value={ventasMensuales}
               onChange={handleUserChange((v) => setVentasMensuales(Math.max(0, Math.round(v))))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-400 mt-0.5 hidden sm:block">
               Demanda {demandaEstimada}: ~{calcularVentasEstimadas()}/mes
             </p>
           </div>
@@ -292,16 +292,16 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
               <Target className="h-3 w-3 inline mr-1" />
-              Precio Venta (PEN)
+              Precio <span className="hidden sm:inline">Venta </span>(PEN)
             </label>
             <input
               type="number"
               step="0.01"
               value={precioVenta}
               onChange={handleUserChange(setPrecioVenta)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-400 mt-0.5 hidden sm:block">
               {precioEntrada ? `Entrada: S/${precioEntrada.toFixed(2)}` :
                precioPERUMin > 0 ? `Min mercado: S/${precioPERUMin.toFixed(2)}` : 'Sin referencia'}
             </p>
@@ -311,13 +311,13 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
 
       {/* Inversión calculada */}
       <div className="bg-indigo-50 rounded-lg p-3 border border-indigo-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-indigo-600" />
-            <span className="text-sm font-medium text-indigo-900">Inversión Total:</span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <DollarSign className="h-4 w-4 text-indigo-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-indigo-900">Inversión Total:</span>
           </div>
-          <div className="text-right">
-            <p className="text-lg font-bold text-indigo-700">
+          <div className="text-right flex-shrink-0">
+            <p className="text-base sm:text-lg font-bold text-indigo-700">
               {formatMoney(inversionCalculada)}
             </p>
             {costoTotalUSD > 0 && (
@@ -333,7 +333,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
       </div>
 
       {/* Métricas detalladas */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
             <Calculator className="h-3 w-3" />
@@ -452,18 +452,18 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
             })()}
           </div>
 
-          <div className="mt-8 grid grid-cols-3 gap-2 text-center">
+          <div className="mt-8 grid grid-cols-3 gap-1 sm:gap-2 text-center">
             <div>
-              <p className="text-xs text-gray-500">Unidad #{puntoEquilibrio.unidadesParaRecuperarCapital}</p>
-              <p className="text-sm font-medium text-green-600">Recuperas capital</p>
+              <p className="text-xs text-gray-500 truncate">Unidad #{puntoEquilibrio.unidadesParaRecuperarCapital}</p>
+              <p className="text-xs sm:text-sm font-medium text-green-600">Recuperas capital</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Unidades #{puntoEquilibrio.unidadesParaRecuperarCapital + 1}-{unidadesAComprar}</p>
-              <p className="text-sm font-medium text-emerald-600">¡Ganancia pura!</p>
+              <p className="text-xs text-gray-500 truncate">#{puntoEquilibrio.unidadesParaRecuperarCapital + 1}-{unidadesAComprar}</p>
+              <p className="text-xs sm:text-sm font-medium text-emerald-600">¡Ganancia pura!</p>
             </div>
             <div>
               <p className="text-xs text-gray-500">Al vender todo</p>
-              <p className="text-sm font-medium text-purple-600">+{formatMoney(puntoEquilibrio.gananciaTotalPotencial)}</p>
+              <p className="text-xs sm:text-sm font-medium text-purple-600">+{formatMoney(puntoEquilibrio.gananciaTotalPotencial)}</p>
             </div>
           </div>
 

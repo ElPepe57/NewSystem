@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import {
   Truck,
   Package,
@@ -142,22 +143,6 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
     cargar();
   }, [ventaId, fetchByVenta, fetchResumenVenta]);
 
-  const formatDate = (timestamp: any, includeTime = false) => {
-    if (!timestamp) return '-';
-    try {
-      const date = typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp);
-      if (isNaN(date.getTime())) return '-';
-      const options: Intl.DateTimeFormatOptions = {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        ...(includeTime && { hour: '2-digit', minute: '2-digit' })
-      };
-      return date.toLocaleDateString('es-PE', options);
-    } catch {
-      return '-';
-    }
-  };
 
   const handlePrintGuia = async (entrega: Entrega) => {
     try {
@@ -374,7 +359,8 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
       toast.success(`Entrega ${entregaEditando.codigo} corregida`);
       setEntregaEditando(null);
 
-      if (entregaEditando.estado === 'entregada' && onEntregaCompletada) {
+      // Siempre refrescar rentabilidad si hay gasto GD asociado (cualquier estado)
+      if (onEntregaCompletada && (entregaEditando.gastoDistribucionId || entregaEditando.estado === 'entregada')) {
         setTimeout(() => {
           invalidarCacheGastos();
           onEntregaCompletada();

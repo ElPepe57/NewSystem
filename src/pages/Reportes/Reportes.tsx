@@ -23,19 +23,24 @@ import { RentabilidadBarChart } from '../../components/modules/reporte/Rentabili
 import { FiltroFechas, type PeriodoPreset } from '../../components/modules/reporte/FiltroFechas';
 import { useReporteStore } from '../../store/reporteStore';
 import { ExcelService } from '../../services/excel.service';
-import { gastoService } from '../../services/gasto.service';
 import { VentaService } from '../../services/venta.service';
+import { useRentabilidadVentas } from '../../hooks/useRentabilidadVentas';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import type { Venta } from '../../types/venta.types';
+import type { ProductoRentabilidad } from '../../types/reporte.types';
 
-interface RentabilidadNetaMes {
-  ventasBrutasMes: number;
-  costoProductosMes: number;
-  utilidadBrutaMes: number;
-  margenBrutoMes: number;
-  gastosOperativosMes: number;
-  utilidadNetaMes: number;
-  margenNetoMes: number;
-  unidadesVendidasMes: number;
-  cargaPorUnidad: number;
+interface RentabilidadNetaPeriodo {
+  ventasBrutas: number;
+  costoBase: number;       // Compra + Flete (puesto en Perú)
+  costoGVGD: number;       // Gastos Venta + Distribución
+  costoGAGO: number;       // Gastos Admin + Operativos
+  costoTotal: number;      // costoBase + costoGVGD + costoGAGO
+  utilidadBruta: number;   // ventas - costoBase
+  margenBruto: number;
+  utilidadNeta: number;    // ventas - costoTotal
+  margenNeto: number;
+  unidadesVendidas: number;
+  cargaPorUnidad: number;  // (costoGVGD + costoGAGO) / unidades
 }
 
 export const Reportes: React.FC = () => {
@@ -50,13 +55,27 @@ export const Reportes: React.FC = () => {
     fetchAll
   } = useReporteStore();
 
-  const [rentabilidadNeta, setRentabilidadNeta] = useState<RentabilidadNetaMes | null>(null);
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+
+  const [rentabilidadNeta, setRentabilidadNeta] = useState<RentabilidadNetaPeriodo | null>(null);
   const [tipoGrafico, setTipoGrafico] = useState<'utilidad' | 'margen' | 'ventas'>('utilidad');
   const [periodoActivo, setPeriodoActivo] = useState<PeriodoPreset>('mes');
   const [fechasFiltro, setFechasFiltro] = useState<{ inicio: Date; fin: Date }>({
     inicio: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     fin: new Date()
   });
+
+  // Ventas entregadas del periodo para modelo completo de costos
+  const [ventasEntregadas, setVentasEntregadas] = useState<Venta[]>([]);
+
+  // Filtrar ventas por línea de negocio global
+  const ventasEntregadasFiltradas = useMemo(() => {
+    if (!lineaFiltroGlobal) return ventasEntregadas;
+    return ventasEntregadas.filter(v => v.lineaNegocioId === lineaFiltroGlobal);
+  }, [ventasEntregadas, lineaFiltroGlobal]);
+
+  // Hook de rentabilidad con modelo completo (7 capas: Compra + Flete + GV + GD + GA + GO)
+  const { datos: datosRentabilidad } = useRentabilidadVentas(ventasEntregadasFiltradas);
 
   // Manejar cambio de filtro de fechas
   const handleFiltroFechas = (inicio: Date, fin: Date, periodo: PeriodoPreset) => {
@@ -66,10 +85,108 @@ export const Reportes: React.FC = () => {
     fetchAll({ inicio, fin });
   };
 
-  // Productos filtrados por fecha
-  const productosRentabilidadFiltrados = useMemo(() => {
-    return productosRentabilidad;
-  }, [productosRentabilidad, fechasFiltro]);
+  // Cargar ventas entregadas del periodo para modelo completo
+  useEffect(() => {
+    let cancelled = false;
+    const cargarEntregadas = async () => {
+      try {
+        const ventas = await VentaService.getAll();
+        const entregadas = ventas.filter(v => {
+          if (v.estado !== 'entregada') return false;
+          // Use fechaEntrega, fallback to fechaDespacho or fechaCreacion for legacy data
+          const fecha = v.fechaEntrega?.toDate?.()
+            || (v as any).fechaDespacho?.toDate?.()
+            || v.fechaCreacion?.toDate?.();
+          if (!fecha) return false;
+          return fecha >= fechasFiltro.inicio && fecha <= fechasFiltro.fin;
+        });
+        if (!cancelled) setVentasEntregadas(entregadas);
+      } catch (e) {
+        console.error('Error cargando ventas entregadas:', e);
+      }
+    };
+    cargarEntregadas();
+    return () => { cancelled = true; };
+  }, [fechasFiltro]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Productos con modelo completo de costos (7 capas) agregados por productoId
+  const productosRentabilidadCompleto = useMemo<ProductoRentabilidad[]>(() => {
+    if (!datosRentabilidad?.rentabilidadPorVenta) {
+      // Fallback al modelo simplificado si el hook aún no calculó
+      return productosRentabilidad;
+    }
+
+    const agregado = new Map<string, {
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      unidadesVendidas: number;
+      ventasTotalPEN: number;
+      costoBasePEN: number;
+      costoGVGDPEN: number;
+      costoGAGOPEN: number;
+    }>();
+
+    // Agregar desgloseProductos de cada venta por productoId
+    for (const [, rv] of datosRentabilidad.rentabilidadPorVenta) {
+      if (!rv.desgloseProductos) continue;
+      for (const dp of rv.desgloseProductos) {
+        const existing = agregado.get(dp.productoId);
+        if (existing) {
+          existing.unidadesVendidas += dp.cantidad;
+          existing.ventasTotalPEN += dp.precioVenta;
+          existing.costoBasePEN += dp.costoBase;
+          existing.costoGVGDPEN += dp.costoGVGD;
+          existing.costoGAGOPEN += dp.costoGAGO;
+        } else {
+          const [marca, ...rest] = dp.nombre.split(' ');
+          agregado.set(dp.productoId, {
+            productoId: dp.productoId,
+            sku: dp.sku,
+            marca: marca || '',
+            nombreComercial: rest.join(' ') || dp.nombre,
+            unidadesVendidas: dp.cantidad,
+            ventasTotalPEN: dp.precioVenta,
+            costoBasePEN: dp.costoBase,
+            costoGVGDPEN: dp.costoGVGD,
+            costoGAGOPEN: dp.costoGAGO,
+          });
+        }
+      }
+    }
+
+    if (agregado.size === 0) return productosRentabilidad;
+
+    // Calcular métricas finales
+    const productos: ProductoRentabilidad[] = Array.from(agregado.values()).map(p => {
+      const costoTotalPEN = p.costoBasePEN + p.costoGVGDPEN + p.costoGAGOPEN;
+      const utilidadPEN = p.ventasTotalPEN - costoTotalPEN;
+      const margenPromedio = p.ventasTotalPEN > 0
+        ? (utilidadPEN / p.ventasTotalPEN) * 100
+        : 0;
+
+      return {
+        productoId: p.productoId,
+        sku: p.sku,
+        marca: p.marca,
+        nombreComercial: p.nombreComercial,
+        unidadesVendidas: p.unidadesVendidas,
+        ventasTotalPEN: p.ventasTotalPEN,
+        costoTotalPEN,
+        utilidadPEN,
+        margenPromedio,
+        precioPromedioVenta: p.unidadesVendidas > 0 ? p.ventasTotalPEN / p.unidadesVendidas : 0,
+        costoPromedioUnidad: p.unidadesVendidas > 0 ? costoTotalPEN / p.unidadesVendidas : 0,
+        // Desglose
+        costoBasePEN: p.costoBasePEN,
+        costoGVGDPEN: p.costoGVGDPEN,
+        costoGAGOPEN: p.costoGAGOPEN,
+      };
+    });
+
+    return productos.sort((a, b) => b.ventasTotalPEN - a.ventasTotalPEN);
+  }, [datosRentabilidad, productosRentabilidad]);
 
   // Cargar todos los reportes al montar (con rango inicial del mes)
   useEffect(() => {
@@ -78,61 +195,49 @@ export const Reportes: React.FC = () => {
     fetchAll({ inicio: inicioMes, fin: ahora });
   }, []);
 
-  // Calcular rentabilidad neta del mes
+  // Calcular rentabilidad neta del periodo usando modelo completo de 7 capas
   useEffect(() => {
-    const calcularRentabilidadNeta = async () => {
-      try {
-        // Obtener gastos prorrateables
-        const todosLosGastos = await gastoService.getAll();
-        const gastosProrrateables = todosLosGastos.filter(g => g.esProrrateable);
-        const gastosOperativosMes = gastosProrrateables.reduce((sum, g) => sum + g.montoPEN, 0);
+    if (!datosRentabilidad) {
+      setRentabilidadNeta(null);
+      return;
+    }
 
-        // Obtener ventas del mes
-        const ventas = await VentaService.getAll();
-        const ahora = new Date();
-        const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+    const ventasBrutas = datosRentabilidad.totalVentas;
+    const costoBase = datosRentabilidad.totalCostoBase;
+    const costoGVGD = (datosRentabilidad.totalGastosGV || 0) + (datosRentabilidad.totalGastosGD || 0);
+    const costoGAGO = datosRentabilidad.totalCostoGAGO || 0;
+    const costoTotal = costoBase + costoGVGD + costoGAGO;
 
-        const ventasMes = ventas.filter(v => {
-          if (v.estado === 'cancelada' || v.estado === 'cotizacion') return false;
-          const fechaVenta = v.fechaCreacion?.toDate?.() || new Date();
-          return fechaVenta >= inicioMes;
-        });
+    const utilidadBruta = ventasBrutas - costoBase;
+    const margenBruto = ventasBrutas > 0 ? (utilidadBruta / ventasBrutas) * 100 : 0;
+    const utilidadNeta = ventasBrutas - costoTotal;
+    const margenNeto = ventasBrutas > 0 ? (utilidadNeta / ventasBrutas) * 100 : 0;
 
-        // Calcular totales
-        let ventasBrutasMes = 0;
-        let costoProductosMes = 0;
-        let unidadesVendidasMes = 0;
-
-        ventasMes.forEach(v => {
-          ventasBrutasMes += v.totalPEN || 0;
-          costoProductosMes += v.costoTotalPEN || 0;
-          unidadesVendidasMes += v.productos.reduce((s, p) => s + p.cantidad, 0);
-        });
-
-        const utilidadBrutaMes = ventasBrutasMes - costoProductosMes;
-        const margenBrutoMes = ventasBrutasMes > 0 ? (utilidadBrutaMes / ventasBrutasMes) * 100 : 0;
-        const utilidadNetaMes = utilidadBrutaMes - gastosOperativosMes;
-        const margenNetoMes = ventasBrutasMes > 0 ? (utilidadNetaMes / ventasBrutasMes) * 100 : 0;
-        const cargaPorUnidad = unidadesVendidasMes > 0 ? gastosOperativosMes / unidadesVendidasMes : 0;
-
-        setRentabilidadNeta({
-          ventasBrutasMes,
-          costoProductosMes,
-          utilidadBrutaMes,
-          margenBrutoMes,
-          gastosOperativosMes,
-          utilidadNetaMes,
-          margenNetoMes,
-          unidadesVendidasMes,
-          cargaPorUnidad
-        });
-      } catch (error) {
-        console.error('Error calculando rentabilidad neta:', error);
+    // Contar unidades vendidas
+    let unidadesVendidas = 0;
+    for (const [, rv] of datosRentabilidad.rentabilidadPorVenta) {
+      if (rv.desgloseProductos) {
+        unidadesVendidas += rv.desgloseProductos.reduce((s, dp) => s + dp.cantidad, 0);
       }
-    };
+    }
 
-    calcularRentabilidadNeta();
-  }, []);
+    const gastosIndirectos = costoGVGD + costoGAGO;
+    const cargaPorUnidad = unidadesVendidas > 0 ? gastosIndirectos / unidadesVendidas : 0;
+
+    setRentabilidadNeta({
+      ventasBrutas,
+      costoBase,
+      costoGVGD,
+      costoGAGO,
+      costoTotal,
+      utilidadBruta,
+      margenBruto,
+      utilidadNeta,
+      margenNeto,
+      unidadesVendidas,
+      cargaPorUnidad,
+    });
+  }, [datosRentabilidad]);
 
   // Funciones de exportación a Excel
   const exportarResumenEjecutivo = () => {
@@ -160,17 +265,20 @@ export const Reportes: React.FC = () => {
   };
 
   const exportarRentabilidad = () => {
-    if (productosRentabilidad.length === 0) return;
+    if (productosRentabilidadCompleto.length === 0) return;
 
-    const data = productosRentabilidad.map(p => ({
+    const data = productosRentabilidadCompleto.map(p => ({
       'SKU': p.sku,
       'Marca': p.marca,
       'Nombre Comercial': p.nombreComercial,
       'Unidades Vendidas': p.unidadesVendidas,
       'Ventas Total (PEN)': p.ventasTotalPEN,
+      'Costo Base (PEN)': p.costoBasePEN ?? p.costoTotalPEN,
+      'GV/GD (PEN)': p.costoGVGDPEN ?? 0,
+      'GA/GO (PEN)': p.costoGAGOPEN ?? 0,
       'Costo Total (PEN)': p.costoTotalPEN,
       'Utilidad (PEN)': p.utilidadPEN,
-      'Margen Promedio (%)': p.margenPromedio,
+      'Margen Neto (%)': p.margenPromedio,
       'Precio Promedio Venta': p.precioPromedioVenta,
       'Costo Promedio Unidad': p.costoPromedioUnidad
     }));
@@ -190,9 +298,9 @@ export const Reportes: React.FC = () => {
       'Total Unidades': i.unidadesTotal,
       'Valor Total (PEN)': i.valorTotalPEN,
       'Costo Promedio Unidad': i.costoPromedioUnidad,
-      'Unidades Miami': i.unidadesMiami,
-      'Unidades Utah': i.unidadesUtah,
-      'Unidades Peru': i.unidadesPeru
+      'Unidades Origen': i.unidadesMiami ?? (i.unidadesPorPais ? Object.entries(i.unidadesPorPais).filter(([p]) => p !== 'Peru').reduce((s, [, v]) => s + v, 0) : 0),
+      'Unidades Destino': i.unidadesPeru ?? (i.unidadesPorPais?.['Peru'] || 0),
+      ...(i.unidadesPorPais ? Object.fromEntries(Object.entries(i.unidadesPorPais).map(([p, v]) => [`Unidades ${p}`, v])) : {})
     }));
 
     ExcelService.exportToExcel(data, 'Inventario_Valorizado', 'Inventario');
@@ -218,6 +326,10 @@ export const Reportes: React.FC = () => {
     exportarTendencia();
   };
 
+  // Helpers para KPIs de inventario computados en frontend
+  const invValorPEN = useMemo(() => inventarioValorizado.reduce((s, i) => s + i.valorTotalPEN, 0), [inventarioValorizado]);
+  const invDisponibles = useMemo(() => inventarioValorizado.reduce((s, i) => s + i.unidadesDisponibles, 0), [inventarioValorizado]);
+
   if (loading && !resumenEjecutivo) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -230,32 +342,26 @@ export const Reportes: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Reportes</h1>
-          <p className="text-gray-600 mt-1">Analisis ejecutivo y metricas del negocio</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl sm:text-3xl font-bold text-gray-900">Reportes</h1>
+        <div className="flex gap-1.5 sm:gap-2">
+          <button
             onClick={() => fetchAll()}
             disabled={loading}
-            className="flex items-center gap-2"
+            className="p-2 sm:px-3 sm:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Actualizar
-          </Button>
-          <Button
-            variant="outline"
+          </button>
+          <button
             onClick={exportarTodo}
             disabled={loading}
-            className="flex items-center gap-2"
+            className="p-2 sm:px-3 sm:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 flex items-center gap-1.5"
           >
             <FileSpreadsheet className="h-4 w-4" />
-            Exportar Todo
-          </Button>
+            <span className="hidden sm:inline text-sm">Exportar</span>
+          </button>
         </div>
       </div>
 
@@ -268,481 +374,452 @@ export const Reportes: React.FC = () => {
       {/* Resumen Ejecutivo */}
       {resumenEjecutivo && (
         <>
-          {/* KPIs Principales */}
+          {/* KPIs Principales — 2 cards grandes arriba */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Resumen Ejecutivo</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-              <Card padding="md">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Ventas Totales</div>
-                    <div className="text-2xl font-bold text-primary-600 mt-1">
-                      S/ {resumenEjecutivo.ventasTotalesPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Mes: S/ {resumenEjecutivo.ventasMes.toFixed(0)}
-                    </div>
-                  </div>
-                  <ShoppingCart className="h-10 w-10 text-primary-400" />
-                </div>
-              </Card>
+            <h2 className="text-base sm:text-xl font-semibold text-gray-900 mb-3">Resumen Ejecutivo</h2>
 
-              <Card padding="md">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Utilidad Total</div>
-                    <div className="text-2xl font-bold text-success-600 mt-1">
-                      S/ {resumenEjecutivo.utilidadTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Margen: {resumenEjecutivo.margenPromedio.toFixed(1)}%
-                    </div>
-                  </div>
-                  <TrendingUp className="h-10 w-10 text-success-400" />
+            {/* Ventas + Utilidad — siempre 2 columnas, compactos en móvil */}
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+              {/* Ventas del Periodo */}
+              <div className="bg-white border border-primary-200 rounded-xl p-3 sm:p-4">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-500" />
+                  <span className="text-[11px] sm:text-sm text-gray-500">Ventas del Periodo</span>
                 </div>
-              </Card>
+                <div className="text-lg sm:text-2xl font-bold text-primary-600 leading-tight">
+                  S/ {resumenEjecutivo.ventasRangoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">
+                  {resumenEjecutivo.ventasRangoCantidad} ventas
+                </div>
+              </div>
 
+              {/* Utilidad del Periodo */}
+              <div className="bg-white border border-success-200 rounded-xl p-3 sm:p-4">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-success-500" />
+                  <span className="text-[11px] sm:text-sm text-gray-500">Utilidad del Periodo</span>
+                </div>
+                <div className="text-lg sm:text-2xl font-bold text-success-600 leading-tight">
+                  S/ {resumenEjecutivo.utilidadRangoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">
+                  Margen: {resumenEjecutivo.ventasRangoPEN > 0
+                    ? ((resumenEjecutivo.utilidadRangoPEN / resumenEjecutivo.ventasRangoPEN) * 100).toFixed(1)
+                    : '0.0'}%
+                </div>
+              </div>
+            </div>
+
+            {/* Métricas secundarias — fila compacta de 3 (o 4 si hay envíos) */}
+            <div className={`grid gap-2.5 sm:gap-4 mt-2.5 sm:mt-4 ${resumenEjecutivo.costoEnvioAsumidoPEN > 0 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'}`}>
               {resumenEjecutivo.costoEnvioAsumidoPEN > 0 && (
-                <Card padding="md" className="bg-orange-50">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm text-gray-600">Envíos Asumidos</div>
-                      <div className="text-2xl font-bold text-orange-600 mt-1">
-                        S/ {resumenEjecutivo.costoEnvioAsumidoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Costo asumido por la empresa
-                      </div>
-                    </div>
-                    <Truck className="h-10 w-10 text-orange-400" />
+                <div className="bg-orange-50 border border-orange-200 rounded-xl p-2.5 sm:p-4">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
+                    <span className="text-[10px] sm:text-xs text-gray-500">Envíos</span>
                   </div>
-                </Card>
+                  <div className="text-sm sm:text-lg font-bold text-orange-600 leading-tight">
+                    S/ {resumenEjecutivo.costoEnvioAsumidoPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </div>
+                </div>
               )}
 
-              <Card padding="md">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Valor Inventario</div>
-                    <div className="text-2xl font-bold text-warning-600 mt-1">
-                      S/ {resumenEjecutivo.valorInventarioPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {resumenEjecutivo.unidadesDisponibles} disponibles
-                    </div>
-                  </div>
-                  <Package className="h-10 w-10 text-warning-400" />
+              <div className="bg-white border border-gray-200 rounded-xl p-2.5 sm:p-4">
+                <div className="flex items-center gap-1 mb-0.5">
+                  <Package className="h-3 w-3 sm:h-4 sm:w-4 text-warning-500" />
+                  <span className="text-[10px] sm:text-xs text-gray-500">Inventario</span>
                 </div>
-              </Card>
+                <div className="text-sm sm:text-lg font-bold text-warning-600 leading-tight">
+                  {inventarioValorizado.length > 0
+                    ? `S/ ${invValorPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                    : loading ? '...' : 'S/ 0'}
+                </div>
+                <div className="text-[10px] sm:text-xs text-gray-400">{invDisponibles} disp.</div>
+              </div>
 
-              <Card padding="md">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Inversión Total</div>
-                    <div className="text-2xl font-bold text-gray-900 mt-1">
-                      ${resumenEjecutivo.inversionTotalUSD.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      TC: {resumenEjecutivo.tcActual.toFixed(3)}
-                    </div>
-                  </div>
-                  <DollarSign className="h-10 w-10 text-gray-400" />
+              <div className="bg-white border border-gray-200 rounded-xl p-2.5 sm:p-4">
+                <div className="flex items-center gap-1 mb-0.5">
+                  <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
+                  <span className="text-[10px] sm:text-xs text-gray-500">Inversión</span>
                 </div>
-              </Card>
+                <div className="text-sm sm:text-lg font-bold text-gray-900 leading-tight">
+                  ${resumenEjecutivo.inversionTotalUSD.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </div>
+                <div className="text-[10px] sm:text-xs text-gray-400">TC: {resumenEjecutivo.tcActual.toFixed(2)}</div>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl p-2.5 sm:p-4">
+                <div className="flex items-center gap-1 mb-0.5">
+                  <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-primary-500" />
+                  <span className="text-[10px] sm:text-xs text-gray-500">Productos</span>
+                </div>
+                <div className="text-sm sm:text-lg font-bold text-gray-900 leading-tight">
+                  {resumenEjecutivo.productosActivos}
+                </div>
+                <div className="text-[10px] sm:text-xs text-gray-400">{resumenEjecutivo.ordenesActivas} OC activas</div>
+              </div>
             </div>
           </div>
 
-          {/* KPIs Secundarios */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            <Card padding="md">
-              <div className="text-sm text-gray-600 mb-2">Ventas por Período</div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Hoy:</span>
-                  <span className="font-semibold text-gray-900">
-                    S/ {resumenEjecutivo.ventasHoy.toFixed(2)}
-                  </span>
+          {/* KPIs detalle — 3 columnas compactas en móvil */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            <div className="bg-white border border-gray-200 rounded-xl p-2.5 sm:p-4">
+              <div className="text-[10px] sm:text-sm font-medium text-gray-500 mb-1.5 sm:mb-2">Ventas</div>
+              <div className="space-y-1 sm:space-y-2">
+                <div className="flex justify-between items-baseline gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">Hoy</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-gray-900 truncate">S/ {resumenEjecutivo.ventasHoy.toFixed(0)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Semana:</span>
-                  <span className="font-semibold text-gray-900">
-                    S/ {resumenEjecutivo.ventasSemana.toFixed(2)}
-                  </span>
+                <div className="flex justify-between items-baseline gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">7d</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-gray-900 truncate">S/ {resumenEjecutivo.ventasSemana.toFixed(0)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Mes:</span>
-                  <span className="font-semibold text-primary-600">
-                    S/ {resumenEjecutivo.ventasMes.toFixed(2)}
-                  </span>
+                <div className="flex justify-between items-baseline gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">Mes</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-primary-600 truncate">S/ {resumenEjecutivo.ventasMes.toFixed(0)}</span>
                 </div>
               </div>
-            </Card>
+            </div>
 
-            <Card padding="md">
-              <div className="text-sm text-gray-600 mb-2">Inventario</div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Total Unidades:</span>
-                  <span className="font-semibold text-gray-900">
-                    {resumenEjecutivo.unidadesTotales}
-                  </span>
+            <div className="bg-white border border-gray-200 rounded-xl p-2.5 sm:p-4">
+              <div className="text-[10px] sm:text-sm font-medium text-gray-500 mb-1.5 sm:mb-2">Inventario</div>
+              <div className="space-y-1 sm:space-y-2">
+                <div className="flex justify-between items-baseline gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">Total</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-gray-900">{resumenEjecutivo.unidadesTotales}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Disponibles:</span>
-                  <span className="font-semibold text-success-600">
-                    {resumenEjecutivo.unidadesDisponibles}
-                  </span>
+                <div className="flex justify-between items-baseline gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">Disp.</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-success-600">{resumenEjecutivo.unidadesDisponibles}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Productos:</span>
-                  <span className="font-semibold text-gray-900">
-                    {resumenEjecutivo.productosActivos}
-                  </span>
+                <div className="flex justify-between items-baseline gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">Prod.</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-gray-900">{resumenEjecutivo.productosActivos}</span>
                 </div>
               </div>
-            </Card>
+            </div>
 
-            <Card padding="md">
-              <div className="text-sm text-gray-600 mb-2">Órdenes de Compra</div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Activas:</span>
-                  <span className="font-semibold text-warning-600">
-                    {resumenEjecutivo.ordenesActivas}
-                  </span>
+            <div className="bg-white border border-gray-200 rounded-xl p-2.5 sm:p-4">
+              <div className="text-[10px] sm:text-sm font-medium text-gray-500 mb-1.5 sm:mb-2">Compras</div>
+              <div className="space-y-1 sm:space-y-2">
+                <div className="flex justify-between items-baseline gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">Activas</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-warning-600">{resumenEjecutivo.ordenesActivas}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">Recibidas:</span>
-                  <span className="font-semibold text-success-600">
-                    {resumenEjecutivo.ordenesRecibidas}
-                  </span>
+                <div className="flex justify-between items-baseline gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">Recib.</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-success-600">{resumenEjecutivo.ordenesRecibidas}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-700">TC Promedio:</span>
-                  <span className="font-semibold text-gray-900">
-                    {resumenEjecutivo.tcPromedio.toFixed(3)}
-                  </span>
+                <div className="flex justify-between items-baseline gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">TC</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-gray-900">{resumenEjecutivo.tcPromedio.toFixed(3)}</span>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </>
       )}
 
-      {/* Rentabilidad Neta del Mes */}
+      {/* Rentabilidad Neta del Periodo */}
       {rentabilidadNeta && (
-        <Card padding="md" className="bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <Calculator className="h-6 w-6 text-orange-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">
-                Rentabilidad Neta del Mes
+        <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-3 sm:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1.5">
+              <Calculator className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-900">
+                Rentabilidad Neta {periodoActivo === 'mes' ? 'del Mes' : periodoActivo === 'semana' ? 'de la Semana' : periodoActivo === 'hoy' ? 'del Dia' : periodoActivo === 'trimestre' ? 'del Trimestre' : periodoActivo === 'anio' ? 'del Ano' : periodoActivo === 'custom' ? 'del Periodo' : 'del Periodo'}
               </h2>
             </div>
-            <span className="text-sm text-gray-500">
-              Incluye gastos operativos prorrateados
-            </span>
+            <span className="text-[10px] sm:text-xs text-gray-400 hidden sm:block">Modelo completo (7 capas)</span>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
-            {/* Ventas Brutas */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <div className="text-sm text-gray-600 mb-1">Ventas Brutas</div>
-              <div className="text-2xl font-bold text-gray-900">
-                S/ {rentabilidadNeta.ventasBrutasMes.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+          {/* 4 métricas compactas */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3">
+            <div className="bg-white rounded-lg p-2.5 sm:p-3 border border-gray-200">
+              <div className="text-[10px] sm:text-xs text-gray-500 mb-0.5">Ventas Brutas</div>
+              <div className="text-sm sm:text-xl font-bold text-gray-900 leading-tight">
+                S/ {rentabilidadNeta.ventasBrutas.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {rentabilidadNeta.unidadesVendidasMes} unidades vendidas
-              </div>
+              <div className="text-[10px] text-gray-400">{rentabilidadNeta.unidadesVendidas} uds</div>
             </div>
 
-            {/* Utilidad Bruta */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <div className="text-sm text-gray-600 mb-1">Utilidad Bruta</div>
-              <div className={`text-2xl font-bold ${rentabilidadNeta.utilidadBrutaMes >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                S/ {rentabilidadNeta.utilidadBrutaMes.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+            <div className="bg-white rounded-lg p-2.5 sm:p-3 border border-gray-200">
+              <div className="text-[10px] sm:text-xs text-gray-500 mb-0.5">Utilidad Bruta</div>
+              <div className={`text-sm sm:text-xl font-bold leading-tight ${rentabilidadNeta.utilidadBruta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                S/ {rentabilidadNeta.utilidadBruta.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <div className="text-xs text-gray-500 mt-1">
-                Margen: {rentabilidadNeta.margenBrutoMes.toFixed(1)}%
-              </div>
+              <div className="text-[10px] text-gray-400">{rentabilidadNeta.margenBruto.toFixed(1)}%</div>
             </div>
 
-            {/* Gastos Operativos */}
-            <div className="bg-white p-4 rounded-lg border border-orange-200">
-              <div className="text-sm text-gray-600 mb-1">Gastos Operativos</div>
-              <div className="text-2xl font-bold text-orange-600">
-                S/ {rentabilidadNeta.gastosOperativosMes.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+            <div className="bg-white rounded-lg p-2.5 sm:p-3 border border-orange-200">
+              <div className="text-[10px] sm:text-xs text-gray-500 mb-0.5">Gastos (GV/GD + GA/GO)</div>
+              <div className="text-sm sm:text-xl font-bold text-orange-600 leading-tight">
+                S/ {(rentabilidadNeta.costoGVGD + rentabilidadNeta.costoGAGO).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <div className="text-xs text-gray-500 mt-1">
-                S/ {rentabilidadNeta.cargaPorUnidad.toFixed(2)} por unidad
-              </div>
+              <div className="text-[10px] text-gray-400">S/ {rentabilidadNeta.cargaPorUnidad.toFixed(2)}/ud</div>
             </div>
 
-            {/* Utilidad Neta */}
-            <div className={`p-4 rounded-lg border-2 ${rentabilidadNeta.utilidadNetaMes >= 0 ? 'bg-success-50 border-success-300' : 'bg-danger-50 border-danger-300'}`}>
-              <div className="text-sm text-gray-600 mb-1">Utilidad Neta</div>
-              <div className={`text-2xl font-bold ${rentabilidadNeta.utilidadNetaMes >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                S/ {rentabilidadNeta.utilidadNetaMes.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+            <div className={`rounded-lg p-2.5 sm:p-3 border-2 ${rentabilidadNeta.utilidadNeta >= 0 ? 'bg-success-50 border-success-300' : 'bg-danger-50 border-danger-300'}`}>
+              <div className="text-[10px] sm:text-xs text-gray-500 mb-0.5">Utilidad Neta</div>
+              <div className={`text-sm sm:text-xl font-bold leading-tight ${rentabilidadNeta.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                S/ {rentabilidadNeta.utilidadNeta.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <div className={`text-sm font-semibold mt-1 ${rentabilidadNeta.margenNetoMes >= 0 ? 'text-success-700' : 'text-danger-700'}`}>
-                Margen Neto: {rentabilidadNeta.margenNetoMes.toFixed(1)}%
+              <div className={`text-[10px] font-semibold ${rentabilidadNeta.margenNeto >= 0 ? 'text-success-700' : 'text-danger-700'}`}>
+                Neto: {rentabilidadNeta.margenNeto.toFixed(1)}%
               </div>
             </div>
           </div>
 
-          {/* Desglose visual */}
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Desglose del Mes</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Ventas Brutas:</span>
-                <span className="font-medium">S/ {rentabilidadNeta.ventasBrutasMes.toFixed(2)}</span>
+          {/* Desglose compacto con 7 capas */}
+          <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 text-xs sm:text-sm">
+            <h4 className="text-xs font-medium text-gray-600 mb-2">Desglose (Modelo Completo)</h4>
+            <div className="space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Ventas Brutas</span>
+                <span className="font-medium">S/ {rentabilidadNeta.ventasBrutas.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-500 ml-4">- Costo de Productos:</span>
-                <span className="text-gray-600">S/ {rentabilidadNeta.costoProductosMes.toFixed(2)}</span>
+              <div className="flex justify-between text-gray-400">
+                <span className="pl-3">− Costo Base (Compra + Flete)</span>
+                <span>S/ {rentabilidadNeta.costoBase.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center border-t border-gray-100 pt-2">
-                <span className="text-gray-700 font-medium">= Utilidad Bruta:</span>
-                <span className={`font-semibold ${rentabilidadNeta.utilidadBrutaMes >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                  S/ {rentabilidadNeta.utilidadBrutaMes.toFixed(2)} ({rentabilidadNeta.margenBrutoMes.toFixed(1)}%)
+              <div className="flex justify-between border-t border-gray-100 pt-1.5">
+                <span className="text-gray-700 font-medium">= Util. Bruta</span>
+                <span className={`font-semibold ${rentabilidadNeta.utilidadBruta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                  S/ {rentabilidadNeta.utilidadBruta.toFixed(2)} <span className="text-gray-400 font-normal">({rentabilidadNeta.margenBruto.toFixed(1)}%)</span>
                 </span>
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-orange-600 ml-4">- Gastos Operativos:</span>
-                <span className="text-orange-600">S/ {rentabilidadNeta.gastosOperativosMes.toFixed(2)}</span>
+              <div className="flex justify-between text-blue-600">
+                <span className="pl-3">− GV/GD</span>
+                <span>S/ {rentabilidadNeta.costoGVGD.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center border-t-2 border-gray-300 pt-2">
-                <span className="text-gray-900 font-bold">= UTILIDAD NETA:</span>
-                <span className={`text-lg font-bold ${rentabilidadNeta.utilidadNetaMes >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                  S/ {rentabilidadNeta.utilidadNetaMes.toFixed(2)} ({rentabilidadNeta.margenNetoMes.toFixed(1)}%)
+              <div className="flex justify-between text-orange-600">
+                <span className="pl-3">− GA/GO</span>
+                <span>S/ {rentabilidadNeta.costoGAGO.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between border-t-2 border-gray-300 pt-1.5">
+                <span className="text-gray-900 font-bold">= UTIL. NETA</span>
+                <span className={`font-bold ${rentabilidadNeta.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                  S/ {rentabilidadNeta.utilidadNeta.toFixed(2)} <span className="text-gray-400 font-normal">({rentabilidadNeta.margenNeto.toFixed(1)}%)</span>
                 </span>
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Alertas de Inventario */}
       {alertasInventario.length > 0 && (
-        <Card padding="md">
-          <div className="flex items-center mb-4">
-            <AlertTriangle className="h-6 w-6 text-warning-600 mr-2" />
-            <h2 className="text-xl font-semibold text-gray-900">
-              Alertas de Inventario ({alertasInventario.length})
+        <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-5">
+          <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
+            <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-warning-600" />
+            <h2 className="text-sm sm:text-lg font-semibold text-gray-900">
+              Alertas de Inventario
             </h2>
+            <span className="text-[10px] sm:text-xs bg-warning-100 text-warning-700 px-1.5 py-0.5 rounded-full font-medium">
+              {alertasInventario.length}
+            </span>
           </div>
           <AlertasInventario alertas={alertasInventario} />
-        </Card>
+        </div>
       )}
 
       {/* Tendencia de Ventas */}
-      <Card padding="md">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <Activity className="h-6 w-6 text-primary-600 mr-2" />
-            <h2 className="text-xl font-semibold text-gray-900">
-              Tendencia de Ventas (30 días)
+      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-5">
+        <div className="flex items-center justify-between mb-2 sm:mb-4">
+          <div className="flex items-center gap-1.5">
+            <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+            <h2 className="text-sm sm:text-lg font-semibold text-gray-900">
+              Tendencia de Ventas <span className="text-gray-400 font-normal">({periodoActivo === 'custom' ? 'Personalizado' : periodoActivo === 'hoy' ? 'Hoy' : periodoActivo === 'semana' ? '7d' : periodoActivo === 'mes' ? '30d' : periodoActivo === 'trimestre' ? '90d' : '1a'})</span>
             </h2>
           </div>
           {tendenciaVentas.length > 0 && (
             <button
               onClick={exportarTendencia}
-              className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+              className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700"
             >
-              <Download className="h-4 w-4" />
-              Excel
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Excel</span>
             </button>
           )}
         </div>
         <TendenciaChart data={tendenciaVentas} />
-      </Card>
+      </div>
 
       {/* Ventas por Canal */}
       {ventasPorCanal && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-          <Card padding="md">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm text-gray-600">Mercado Libre</div>
-              <PieChart className="h-5 w-5 text-blue-500" />
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+          <div className="bg-white border border-gray-200 rounded-xl p-2.5 sm:p-4">
+            <div className="flex items-center justify-between mb-1 sm:mb-2">
+              <div className="text-[10px] sm:text-sm text-gray-600">M. Libre</div>
+              <PieChart className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-blue-500" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-base sm:text-2xl font-bold text-gray-900">
               {ventasPorCanal.mercadoLibre.cantidad}
             </div>
-            <div className="text-sm text-gray-600 mt-1">
-              S/ {ventasPorCanal.mercadoLibre.totalPEN.toFixed(2)}
+            <div className="text-[11px] sm:text-sm text-gray-600 mt-0.5">
+              S/ {ventasPorCanal.mercadoLibre.totalPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {ventasPorCanal.mercadoLibre.porcentaje.toFixed(1)}% del total
+            <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">
+              {ventasPorCanal.mercadoLibre.porcentaje.toFixed(1)}%
             </div>
-          </Card>
+          </div>
 
-          <Card padding="md">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm text-gray-600">Venta Directa</div>
-              <PieChart className="h-5 w-5 text-green-500" />
+          <div className="bg-white border border-gray-200 rounded-xl p-2.5 sm:p-4">
+            <div className="flex items-center justify-between mb-1 sm:mb-2">
+              <div className="text-[10px] sm:text-sm text-gray-600">Directa</div>
+              <PieChart className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-green-500" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-base sm:text-2xl font-bold text-gray-900">
               {ventasPorCanal.directo.cantidad}
             </div>
-            <div className="text-sm text-gray-600 mt-1">
-              S/ {ventasPorCanal.directo.totalPEN.toFixed(2)}
+            <div className="text-[11px] sm:text-sm text-gray-600 mt-0.5">
+              S/ {ventasPorCanal.directo.totalPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {ventasPorCanal.directo.porcentaje.toFixed(1)}% del total
+            <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">
+              {ventasPorCanal.directo.porcentaje.toFixed(1)}%
             </div>
-          </Card>
+          </div>
 
-          <Card padding="md">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-sm text-gray-600">Otros Canales</div>
-              <PieChart className="h-5 w-5 text-purple-500" />
+          <div className="bg-white border border-gray-200 rounded-xl p-2.5 sm:p-4">
+            <div className="flex items-center justify-between mb-1 sm:mb-2">
+              <div className="text-[10px] sm:text-sm text-gray-600">Otros</div>
+              <PieChart className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-purple-500" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-base sm:text-2xl font-bold text-gray-900">
               {ventasPorCanal.otro.cantidad}
             </div>
-            <div className="text-sm text-gray-600 mt-1">
-              S/ {ventasPorCanal.otro.totalPEN.toFixed(2)}
+            <div className="text-[11px] sm:text-sm text-gray-600 mt-0.5">
+              S/ {ventasPorCanal.otro.totalPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {ventasPorCanal.otro.porcentaje.toFixed(1)}% del total
+            <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">
+              {ventasPorCanal.otro.porcentaje.toFixed(1)}%
             </div>
-          </Card>
+          </div>
         </div>
       )}
 
       {/* Top Productos por Rentabilidad */}
       {resumenEjecutivo && resumenEjecutivo.productosMasVendidos.length > 0 && (
-        <Card padding="md">
-          <div className="flex items-center mb-4">
-            <BarChart3 className="h-6 w-6 text-success-600 mr-2" />
-            <h2 className="text-xl font-semibold text-gray-900">
+        <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-5">
+          <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
+            <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-success-600" />
+            <h2 className="text-sm sm:text-lg font-semibold text-gray-900">
               Top 5 Productos Más Vendidos
             </h2>
           </div>
           <ProductosRentabilidadTable productos={resumenEjecutivo.productosMasVendidos} />
-        </Card>
+        </div>
       )}
 
       {/* Gráfico de Barras - Rentabilidad Visual */}
-      {productosRentabilidad.length > 0 && (
-        <Card padding="md">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <BarChart3 className="h-6 w-6 text-primary-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">
-                Top 10 Productos por Rentabilidad
+      {productosRentabilidadCompleto.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-5">
+          {/* Header + botones */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
+            <div className="flex items-center gap-1.5">
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-900">
+                Top 10 Rentabilidad
               </h2>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">Ver por:</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] sm:text-xs text-gray-400">Ver:</span>
               <div className="flex gap-1">
-                <button
-                  onClick={() => setTipoGrafico('utilidad')}
-                  className={`px-3 py-1 text-sm rounded-lg transition-colors ${
-                    tipoGrafico === 'utilidad'
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Utilidad
-                </button>
-                <button
-                  onClick={() => setTipoGrafico('margen')}
-                  className={`px-3 py-1 text-sm rounded-lg transition-colors ${
-                    tipoGrafico === 'margen'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Margen %
-                </button>
-                <button
-                  onClick={() => setTipoGrafico('ventas')}
-                  className={`px-3 py-1 text-sm rounded-lg transition-colors ${
-                    tipoGrafico === 'ventas'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Ventas
-                </button>
+                {[
+                  { key: 'utilidad' as const, label: 'Utilidad', color: 'green' },
+                  { key: 'margen' as const, label: 'Margen', color: 'blue' },
+                  { key: 'ventas' as const, label: 'Ventas', color: 'purple' }
+                ].map(({ key, label, color }) => (
+                  <button
+                    key={key}
+                    onClick={() => setTipoGrafico(key)}
+                    className={`px-2 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-sm rounded-lg transition-colors ${
+                      tipoGrafico === key
+                        ? `bg-${color}-600 text-white`
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
           {/* Leyenda de colores */}
-          <div className="flex items-center gap-4 mb-4 text-xs">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-[10px] sm:text-xs">
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-green-500"></div>
-              <span className="text-gray-600">Margen ≥40%</span>
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-green-500"></div>
+              <span className="text-gray-600">{'>'}40%</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-blue-500"></div>
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-blue-500"></div>
               <span className="text-gray-600">25-40%</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-yellow-500"></div>
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-yellow-500"></div>
               <span className="text-gray-600">15-25%</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded bg-red-500"></div>
-              <span className="text-gray-600">&lt;15%</span>
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-red-500"></div>
+              <span className="text-gray-600">{'<'}15%</span>
             </div>
           </div>
 
           <RentabilidadBarChart
-            productos={productosRentabilidadFiltrados}
+            productos={productosRentabilidadCompleto}
             maxItems={10}
             tipo={tipoGrafico}
           />
-        </Card>
+        </div>
       )}
 
       {/* Análisis de Rentabilidad Completo */}
-      {productosRentabilidad.length > 0 && (
-        <Card padding="md">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <TrendingUp className="h-6 w-6 text-primary-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">
-                Analisis de Rentabilidad por Producto
+      {productosRentabilidadCompleto.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-5">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-900">
+                Rentabilidad por Producto
               </h2>
-              <Badge variant="info" size="sm" className="ml-2">
-                {productosRentabilidad.length} productos
-              </Badge>
+              <span className="text-[10px] sm:text-xs bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full font-medium">
+                {productosRentabilidadCompleto.length}
+              </span>
             </div>
             <button
               onClick={exportarRentabilidad}
-              className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+              className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700"
             >
-              <Download className="h-4 w-4" />
-              Excel
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Excel</span>
             </button>
           </div>
-          <ProductosRentabilidadTable productos={productosRentabilidad} />
-        </Card>
+          <ProductosRentabilidadTable productos={productosRentabilidadCompleto} />
+        </div>
       )}
 
       {/* Inventario Valorizado */}
       {inventarioValorizado.length > 0 && (
-        <Card padding="md">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <Package className="h-6 w-6 text-warning-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">
+        <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-5">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="flex items-center gap-1.5">
+              <Package className="h-4 w-4 sm:h-5 sm:w-5 text-warning-600" />
+              <h2 className="text-sm sm:text-lg font-semibold text-gray-900">
                 Inventario Valorizado
               </h2>
             </div>
             <button
               onClick={exportarInventario}
-              className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+              className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700"
             >
-              <Download className="h-4 w-4" />
-              Excel
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Excel</span>
             </button>
           </div>
           <InventarioValorizadoTable inventario={inventarioValorizado} />
-        </Card>
+        </div>
       )}
     </div>
   );

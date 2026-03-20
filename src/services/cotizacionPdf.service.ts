@@ -1,4 +1,6 @@
-import { jsPDF } from 'jspdf';
+// Lazy import: jsPDF (~490KB) solo se carga cuando el usuario genera un PDF
+const getJsPDF = () => import('jspdf').then(m => m.jsPDF);
+import { formatFecha as formatDate } from '../utils/dateFormatters';
 import type { Cotizacion } from '../types/cotizacion.types';
 import type { EmpresaInfo } from '../types/configuracion.types';
 
@@ -29,17 +31,6 @@ const formatCurrency = (amount: number): string => {
   return `S/ ${amount.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-/**
- * Formatea una fecha
- */
-const formatDate = (date: Date | { toDate: () => Date }): string => {
-  const d = 'toDate' in date ? date.toDate() : date;
-  return d.toLocaleDateString('es-PE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-};
 
 /**
  * Calcula fecha de vencimiento
@@ -64,7 +55,8 @@ export class CotizacionPdfService {
    * Genera un PDF de cotización formal
    */
   static async generatePdf(cotizacion: Cotizacion, empresa: EmpresaInfo): Promise<Blob> {
-    const doc = new jsPDF({
+    const JsPDF = await getJsPDF();
+    const doc = new JsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4'

@@ -56,6 +56,7 @@ import type {
 } from '../types/contabilidad.types';
 import type { CuentaCaja } from '../types/tesoreria.types';
 import type { Unidad } from '../types/unidad.types';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { getCTRU } from '../utils/ctru.utils';
 
 // ============================================================================
@@ -193,7 +194,7 @@ const MESES = [
 /**
  * Obtener ventas del período
  */
-async function getVentasPeriodo(mes: number, anio: number): Promise<Venta[]> {
+async function getVentasPeriodo(mes: number, anio: number, lineaNegocioId?: string | null): Promise<Venta[]> {
   const ventasRef = collection(db, 'ventas');
 
   const inicioMes = new Date(anio, mes - 1, 1);
@@ -212,6 +213,8 @@ async function getVentasPeriodo(mes: number, anio: number): Promise<Venta[]> {
     const venta = { id: doc.id, ...doc.data() } as Venta;
     // Solo ventas válidas (no cotizaciones ni canceladas)
     if (venta.estado !== 'cotizacion' && venta.estado !== 'cancelada') {
+      // Filtrar por línea de negocio si se especifica
+      if (lineaNegocioId && venta.lineaNegocioId && venta.lineaNegocioId !== lineaNegocioId) return;
       ventas.push(venta);
     }
   });
@@ -222,7 +225,7 @@ async function getVentasPeriodo(mes: number, anio: number): Promise<Venta[]> {
 /**
  * Obtener gastos del período
  */
-async function getGastosPeriodo(mes: number, anio: number): Promise<Gasto[]> {
+async function getGastosPeriodo(mes: number, anio: number, lineaNegocioId?: string | null): Promise<Gasto[]> {
   const gastosRef = collection(db, 'gastos');
 
   const q = query(
@@ -237,6 +240,8 @@ async function getGastosPeriodo(mes: number, anio: number): Promise<Gasto[]> {
   snapshot.forEach(doc => {
     const gasto = { id: doc.id, ...doc.data() } as Gasto;
     if (gasto.estado !== 'cancelado') {
+      // Filtrar por línea de negocio: incluir gastos compartidos (null) + los de la línea
+      if (lineaNegocioId && gasto.lineaNegocioId && gasto.lineaNegocioId !== lineaNegocioId) return;
       gastos.push(gasto);
     }
   });
@@ -729,7 +734,7 @@ function calcularMetricas(
  * GENERAR ESTADO DE RESULTADOS
  * Basado en flujo de actividad del negocio
  */
-export async function generarEstadoResultados(mes: number, anio: number): Promise<EstadoResultados> {
+export async function generarEstadoResultados(mes: number, anio: number, lineaNegocioId?: string | null): Promise<EstadoResultados> {
   // Obtener TC para conversiones
   let tcDefault = 3.75;
   try {
@@ -739,12 +744,12 @@ export async function generarEstadoResultados(mes: number, anio: number): Promis
     console.warn('No se pudo obtener TC, usando default:', tcDefault);
   }
 
-  // Obtener datos de todas las fuentes
+  // Obtener datos de todas las fuentes (filtrados por línea de negocio si aplica)
   const [ventas, gastos, ordenesCompra, transferencias] = await Promise.all([
-    getVentasPeriodo(mes, anio),
-    getGastosPeriodo(mes, anio),
+    getVentasPeriodo(mes, anio, lineaNegocioId),
+    getGastosPeriodo(mes, anio, lineaNegocioId),
     getComprasPeriodo(mes, anio),
-    getTransferenciasPeriodo(mes, anio)  // NUEVO: Transferencias USA-PERU
+    getTransferenciasPeriodo(mes, anio)
   ]);
 
   // Período
@@ -865,8 +870,8 @@ export async function generarEstadoResultados(mes: number, anio: number): Promis
 /**
  * Obtener resumen rápido para dashboard
  */
-export async function getResumenContable(mes: number, anio: number): Promise<ResumenContable> {
-  const estado = await generarEstadoResultados(mes, anio);
+export async function getResumenContable(mes: number, anio: number, lineaNegocioId?: string | null): Promise<ResumenContable> {
+  const estado = await generarEstadoResultados(mes, anio, lineaNegocioId);
 
   // Obtener mes anterior para comparación
   let variacionVsMesAnterior: number | undefined;
@@ -875,7 +880,7 @@ export async function getResumenContable(mes: number, anio: number): Promise<Res
   try {
     const mesAnterior = mes === 1 ? 12 : mes - 1;
     const anioAnterior = mes === 1 ? anio - 1 : anio;
-    const estadoAnterior = await generarEstadoResultados(mesAnterior, anioAnterior);
+    const estadoAnterior = await generarEstadoResultados(mesAnterior, anioAnterior, lineaNegocioId);
 
     if (estadoAnterior.ventasNetas > 0) {
       variacionVsMesAnterior = ((estado.ventasNetas - estadoAnterior.ventasNetas) / estadoAnterior.ventasNetas) * 100;
@@ -903,7 +908,7 @@ export async function getResumenContable(mes: number, anio: number): Promise<Res
 /**
  * Obtener tendencia mensual para gráficos
  */
-export async function getTendenciaMensual(anio: number): Promise<TendenciaMensual[]> {
+export async function getTendenciaMensual(anio: number, lineaNegocioId?: string | null): Promise<TendenciaMensual[]> {
   const tendencia: TendenciaMensual[] = [];
   const mesActual = new Date().getMonth() + 1;
   const anioActual = new Date().getFullYear();
@@ -912,7 +917,7 @@ export async function getTendenciaMensual(anio: number): Promise<TendenciaMensua
 
   for (let mes = 1; mes <= hastasMes; mes++) {
     try {
-      const estado = await generarEstadoResultados(mes, anio);
+      const estado = await generarEstadoResultados(mes, anio, lineaNegocioId);
       tendencia.push({
         mes,
         anio,
@@ -1112,13 +1117,13 @@ async function getInventarios(tc: number): Promise<Inventarios> {
   const unidadesRef = collection(db, 'unidades');
   const snapshot = await getDocs(unidadesRef);
 
-  // USA
+  // Origen (legacy: USA)
   let unidadesUSA = 0;
   let valorUSA_USD = 0;
   let enAlmacenesUSA = 0;
   let enTransitoUSA = 0;
 
-  // Perú
+  // Destino (legacy: Perú)
   let unidadesPeru = 0;
   let valorPeru_PEN = 0;
   let disponiblePeru = 0;
@@ -1131,8 +1136,13 @@ async function getInventarios(tc: number): Promise<Inventarios> {
     const unidad = doc.data() as Unidad;
 
     // Solo contar unidades activas (no vendidas, no dañadas, no vencidas)
-    const estadosActivos = ['recibida_usa', 'en_transito_peru', 'disponible_peru', 'reservada'];
-    if (!estadosActivos.includes(unidad.estado)) return;
+    const esActiva = esEstadoEnOrigen(unidad.estado) ||
+      esEstadoEnTransitoOrigen(unidad.estado) ||
+      unidad.estado === 'en_transito_peru' ||
+      unidad.estado === 'disponible_peru' ||
+      unidad.estado === 'reservada' ||
+      unidad.estado === 'asignada_pedido';
+    if (!esActiva) return;
 
     // Costo total de la unidad (producto + flete)
     const costoProductoUSD = unidad.costoUnitarioUSD || 0;
@@ -1149,17 +1159,17 @@ async function getInventarios(tc: number): Promise<Inventarios> {
     }
 
     // Clasificar por ubicación
-    if (unidad.pais === 'USA' || unidad.estado === 'recibida_usa') {
+    if (esPaisOrigen(unidad.pais) || esEstadoEnOrigen(unidad.estado)) {
       unidadesUSA++;
-      // En USA: valor = costo producto (el flete aún no aplica)
+      // En origen: valor = costo producto (el flete aún no aplica)
       valorUSA_USD += costoProductoUSD;
 
-      if (unidad.estado === 'recibida_usa') {
+      if (esEstadoEnOrigen(unidad.estado)) {
         enAlmacenesUSA++;
       }
-    } else if (unidad.estado === 'en_transito_peru') {
+    } else if (unidad.estado === 'en_transito_peru' || esEstadoEnTransitoOrigen(unidad.estado)) {
       // En tránsito: ya incluye el flete comprometido
-      unidadesUSA++; // Se cuenta como USA en ubicación
+      unidadesUSA++; // Se cuenta como origen en ubicación
       valorUSA_USD += costoTotalUSD; // Incluye flete porque ya está en camino
       enTransitoUSA++;
     } else {
@@ -1169,7 +1179,7 @@ async function getInventarios(tc: number): Promise<Inventarios> {
 
       if (unidad.estado === 'disponible_peru') {
         disponiblePeru++;
-      } else if (unidad.estado === 'reservada') {
+      } else if (unidad.estado === 'reservada' || unidad.estado === 'asignada_pedido') {
         reservadoPeru++;
       }
     }
@@ -1179,20 +1189,25 @@ async function getInventarios(tc: number): Promise<Inventarios> {
   const valorUSA_PEN = valorUSA_USD * tc;
   const totalValorPEN = valorUSA_PEN + valorPeru_PEN;
 
+  const inventarioUSA = {
+    unidades: unidadesUSA,
+    valorUSD: valorUSA_USD,
+    valorPEN: valorUSA_PEN,
+    enAlmacenes: enAlmacenesUSA,
+    enTransito: enTransitoUSA
+  };
+  const inventarioPeru = {
+    unidades: unidadesPeru,
+    valorPEN: valorPeru_PEN,
+    disponible: disponiblePeru,
+    reservado: reservadoPeru
+  };
+
   return {
-    inventarioUSA: {
-      unidades: unidadesUSA,
-      valorUSD: valorUSA_USD,
-      valorPEN: valorUSA_PEN,
-      enAlmacenes: enAlmacenesUSA,
-      enTransito: enTransitoUSA
-    },
-    inventarioPeru: {
-      unidades: unidadesPeru,
-      valorPEN: valorPeru_PEN,
-      disponible: disponiblePeru,
-      reservado: reservadoPeru
-    },
+    inventarioUSA,
+    inventarioPeru,
+    inventarioOrigen: inventarioUSA,
+    inventarioDestino: inventarioPeru,
     totalUnidades: unidadesUSA + unidadesPeru,
     totalValorPEN,
     metodoValorizacion: 'CTRU',
@@ -1562,11 +1577,12 @@ export async function generarBalanceGeneral(mes: number, anio: number): Promise<
  */
 export async function calcularIndicadoresFinancieros(
   mes: number,
-  anio: number
+  anio: number,
+  lineaNegocioId?: string | null
 ): Promise<IndicadoresFinancieros> {
   const [balance, estado] = await Promise.all([
     generarBalanceGeneral(mes, anio),
-    generarEstadoResultados(mes, anio)
+    generarEstadoResultados(mes, anio, lineaNegocioId)
   ]);
 
   const actCorriente = balance.activos.corriente.total;

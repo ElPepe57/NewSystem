@@ -42,6 +42,7 @@ import {
 } from '../../components/common';
 import { EstadoResultados, BalanceGeneral } from '../../components/modules/contabilidad';
 import { contabilidadService } from '../../services/contabilidad.service';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type {
   EstadoResultados as EstadoResultadosType,
   ResumenContable,
@@ -96,6 +97,7 @@ const getEstadoIcon = (estado: AnalisisFinanciero['estado']) => {
 };
 
 export function Contabilidad() {
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const [anio, setAnio] = useState(new Date().getFullYear());
@@ -118,10 +120,10 @@ export function Contabilidad() {
     setLoading(true);
     try {
       const [estadoData, tendenciaData, balanceData, indicadoresData] = await Promise.all([
-        contabilidadService.generarEstadoResultados(mes, anio),
-        contabilidadService.getTendenciaMensual(anio),
+        contabilidadService.generarEstadoResultados(mes, anio, lineaFiltroGlobal),
+        contabilidadService.getTendenciaMensual(anio, lineaFiltroGlobal),
         contabilidadService.generarBalanceGeneral(mes, anio),
-        contabilidadService.calcularIndicadoresFinancieros(mes, anio),
+        contabilidadService.calcularIndicadoresFinancieros(mes, anio, lineaFiltroGlobal),
       ]);
 
       setEstado(estadoData);
@@ -146,7 +148,7 @@ export function Contabilidad() {
       const mesAnt = mes === 1 ? 12 : mes - 1;
       const anioAnt = mes === 1 ? anio - 1 : anio;
       try {
-        const resumenAnt = await contabilidadService.getResumenContable(mesAnt, anioAnt);
+        const resumenAnt = await contabilidadService.getResumenContable(mesAnt, anioAnt, lineaFiltroGlobal);
         setMesAnterior(resumenAnt);
       } catch {
         setMesAnterior(null);
@@ -160,7 +162,7 @@ export function Contabilidad() {
 
   useEffect(() => {
     cargarDatos();
-  }, [mes, anio]);
+  }, [mes, anio, lineaFiltroGlobal]);
 
   // Calcular variaciones vs mes anterior
   const calcularVariacion = (actual: number, anterior: number | undefined): number | null => {
@@ -175,9 +177,9 @@ export function Contabilidad() {
   // Tabs
   const tabs = [
     { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
-    { id: 'balance', label: 'Balance General', icon: Scale },
-    { id: 'estado-resultados', label: 'Estado de Resultados', icon: FileText },
-    { id: 'indicadores', label: 'Indicadores', icon: Activity },
+    { id: 'balance', label: 'Balance General', mobileLabel: 'Balance', icon: Scale },
+    { id: 'estado-resultados', label: 'Estado de Resultados', mobileLabel: 'Resultados', icon: FileText },
+    { id: 'indicadores', label: 'Indicadores', mobileLabel: 'KPIs', icon: Activity },
     { id: 'tendencias', label: 'Tendencias', icon: LineChart },
   ];
 
@@ -209,14 +211,14 @@ export function Contabilidad() {
         icon={Calculator}
         variant="dark"
         actions={
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2 sm:space-x-3">
             {/* Selector de período */}
-            <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
-              <Calendar className="w-4 h-4 text-white/70" />
+            <div className="flex items-center gap-1 sm:gap-2 bg-white/10 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2">
+              <Calendar className="w-4 h-4 text-white/70 hidden sm:block" />
               <select
                 value={mes}
                 onChange={(e) => setMes(Number(e.target.value))}
-                className="border-none bg-transparent text-white focus:ring-0 text-sm"
+                className="border-none bg-transparent text-white focus:ring-0 text-xs sm:text-sm"
               >
                 {MESES.map((m, i) => (
                   <option key={i} value={i + 1} className="text-gray-900">
@@ -227,7 +229,7 @@ export function Contabilidad() {
               <select
                 value={anio}
                 onChange={(e) => setAnio(Number(e.target.value))}
-                className="border-none bg-transparent text-white focus:ring-0 text-sm"
+                className="border-none bg-transparent text-white focus:ring-0 text-xs sm:text-sm"
               >
                 {aniosDisponibles.map((a) => (
                   <option key={a} value={a} className="text-gray-900">
@@ -242,7 +244,7 @@ export function Contabilidad() {
               disabled={loading}
               className="text-white/70 hover:text-white hover:bg-white/10"
             >
-              <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         }
@@ -332,21 +334,21 @@ export function Contabilidad() {
             {/* Alerta de Anticipos Pendientes */}
             {balance.pasivos.corriente.anticiposClientes &&
              balance.pasivos.corriente.anticiposClientes.totalAnticiposPEN > 0 && (
-              <div className="mt-3 bg-purple-50 border border-purple-200 rounded-lg p-4 flex items-center justify-between">
+              <div className="mt-3 bg-purple-50 border border-purple-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-lg">
+                  <div className="p-2 bg-purple-100 rounded-lg shrink-0">
                     <CircleDollarSign className="w-5 h-5 text-purple-600" />
                   </div>
                   <div>
-                    <div className="font-semibold text-purple-800">
+                    <div className="font-semibold text-purple-800 text-sm sm:text-base">
                       Anticipos Pendientes (Pasivo)
                     </div>
-                    <div className="text-sm text-purple-600">
+                    <div className="text-xs sm:text-sm text-purple-600">
                       {balance.pasivos.corriente.anticiposClientes.cantidadVentas} ventas con anticipo sin entregar — Ingreso diferido
                     </div>
                   </div>
                 </div>
-                <div className="text-2xl font-bold text-purple-700">
+                <div className="text-xl sm:text-2xl font-bold text-purple-700 sm:text-right pl-12 sm:pl-0">
                   {formatCurrency(balance.pasivos.corriente.anticiposClientes.totalAnticiposPEN)}
                 </div>
               </div>
@@ -466,24 +468,24 @@ export function Contabilidad() {
                 <CircleDollarSign className="w-5 h-5" />
                 Acumulado {anio}
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <div>
-                  <div className="text-sm text-indigo-600">Ventas Acumuladas</div>
-                  <div className="text-2xl font-bold text-indigo-900">{formatCurrency(acumuladoVentas)}</div>
+                  <div className="text-xs sm:text-sm text-indigo-600">Ventas Acumuladas</div>
+                  <div className="text-lg sm:text-2xl font-bold text-indigo-900">{formatCurrency(acumuladoVentas)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-indigo-600">Compras Acumuladas</div>
-                  <div className="text-2xl font-bold text-indigo-900">{formatCurrency(acumuladoCompras)}</div>
+                  <div className="text-xs sm:text-sm text-indigo-600">Compras Acumuladas</div>
+                  <div className="text-lg sm:text-2xl font-bold text-indigo-900">{formatCurrency(acumuladoCompras)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-indigo-600">Utilidad Acumulada</div>
-                  <div className={`text-2xl font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className="text-xs sm:text-sm text-indigo-600">Utilidad Acumulada</div>
+                  <div className={`text-lg sm:text-2xl font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {formatCurrency(acumuladoUtilidadNeta)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-indigo-600">Promedio Mensual</div>
-                  <div className={`text-2xl font-bold ${promedioMensual >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className="text-xs sm:text-sm text-indigo-600">Promedio Mensual</div>
+                  <div className={`text-lg sm:text-2xl font-bold ${promedioMensual >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {formatCurrency(promedioMensual)}
                   </div>
                 </div>
@@ -509,8 +511,8 @@ export function Contabilidad() {
           {/* Ratios por categoría */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Liquidez */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="text-lg font-bold text-blue-800 mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-lg border p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-bold text-blue-800 mb-3 sm:mb-4 flex items-center gap-2">
                 <Wallet className="w-5 h-5" />
                 Ratios de Liquidez
               </h3>
@@ -521,7 +523,7 @@ export function Contabilidad() {
                     <div className="font-medium">Razón Corriente</div>
                     <div className="text-xs text-gray-500">Activo Corriente / Pasivo Corriente</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.liquidez.razonCorriente >= 1.5 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-xl sm:text-2xl font-bold ${indicadores.liquidez.razonCorriente >= 1.5 ? 'text-green-600' : 'text-amber-600'}`}>
                     {indicadores.liquidez.razonCorriente.toFixed(2)}
                   </div>
                 </div>
@@ -556,8 +558,8 @@ export function Contabilidad() {
             </div>
 
             {/* Solvencia */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="text-lg font-bold text-purple-800 mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-lg border p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-bold text-purple-800 mb-3 sm:mb-4 flex items-center gap-2">
                 <Scale className="w-5 h-5" />
                 Ratios de Solvencia
               </h3>
@@ -603,8 +605,8 @@ export function Contabilidad() {
             </div>
 
             {/* Rentabilidad */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="text-lg font-bold text-green-800 mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-lg border p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-bold text-green-800 mb-3 sm:mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5" />
                 Ratios de Rentabilidad
               </h3>
@@ -650,8 +652,8 @@ export function Contabilidad() {
             </div>
 
             {/* Actividad */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="text-lg font-bold text-amber-800 mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-lg border p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-bold text-amber-800 mb-3 sm:mb-4 flex items-center gap-2">
                 <Activity className="w-5 h-5" />
                 Ratios de Actividad
               </h3>
@@ -707,8 +709,8 @@ export function Contabilidad() {
           </div>
 
           {/* Análisis completo con semáforo */}
-          <div className="bg-white rounded-lg border p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <div className="bg-white rounded-lg border p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
               <Target className="w-5 h-5 text-amber-600" />
               Diagnóstico Financiero Completo
             </h3>
@@ -741,54 +743,147 @@ export function Contabilidad() {
         <div className="space-y-6">
           {/* Resumen de tendencia */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center gap-3 mb-3">
+            <div className="bg-white rounded-lg border p-4 sm:p-6">
+              <div className="flex items-center gap-3 mb-2 sm:mb-3">
                 <div className="p-2 bg-green-100 rounded-lg">
                   <TrendingUp className="w-5 h-5 text-green-600" />
                 </div>
                 <div className="text-sm text-gray-500">Mejor Mes</div>
               </div>
-              <div className="text-2xl font-bold text-gray-900">{mejorMes?.nombreMes || '-'}</div>
-              <div className="text-green-600 font-medium">
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">{mejorMes?.nombreMes || '-'}</div>
+              <div className="text-green-600 font-medium text-sm sm:text-base">
                 {mejorMes ? formatCurrency(mejorMes.utilidadNeta) : '-'}
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center gap-3 mb-3">
+            <div className="bg-white rounded-lg border p-4 sm:p-6">
+              <div className="flex items-center gap-3 mb-2 sm:mb-3">
                 <div className="p-2 bg-red-100 rounded-lg">
                   <TrendingDown className="w-5 h-5 text-red-600" />
                 </div>
                 <div className="text-sm text-gray-500">Peor Mes</div>
               </div>
-              <div className="text-2xl font-bold text-gray-900">{peorMes?.nombreMes || '-'}</div>
-              <div className={`font-medium ${(peorMes?.utilidadNeta || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">{peorMes?.nombreMes || '-'}</div>
+              <div className={`font-medium text-sm sm:text-base ${(peorMes?.utilidadNeta || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {peorMes ? formatCurrency(peorMes.utilidadNeta) : '-'}
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center gap-3 mb-3">
+            <div className="bg-white rounded-lg border p-4 sm:p-6">
+              <div className="flex items-center gap-3 mb-2 sm:mb-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <BarChart3 className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="text-sm text-gray-500">Promedio Mensual</div>
               </div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">
                 {formatCurrency(promedioMensual)}
               </div>
-              <div className="text-blue-600 font-medium">
+              <div className="text-blue-600 font-medium text-sm sm:text-base">
                 {tendencia.length} meses
               </div>
             </div>
           </div>
 
-          {/* Tabla de tendencia mensual */}
+          {/* Evolución Mensual — Cards en mobile, tabla en desktop */}
           <div className="bg-white rounded-lg border overflow-hidden">
-            <div className="px-6 py-4 border-b bg-gray-50">
+            <div className="px-4 sm:px-6 py-4 border-b bg-gray-50">
               <h3 className="font-semibold text-gray-800">Evolución Mensual {anio}</h3>
             </div>
-            <div className="overflow-x-auto">
+
+            {/* Mobile: Cards */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {tendencia.map((m, idx) => {
+                const margenBruto = m.ventasNetas > 0 ? (m.utilidadBruta / m.ventasNetas) * 100 : 0;
+                const margenNeto = m.ventasNetas > 0 ? (m.utilidadNeta / m.ventasNetas) * 100 : 0;
+                const maxVentas = Math.max(...tendencia.map(t => t.ventasNetas), 1);
+                const barWidth = (m.ventasNetas / maxVentas) * 100;
+
+                return (
+                  <div key={idx} className="px-4 py-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-semibold text-gray-900">{m.nombreMes}</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        m.utilidadNeta >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                      }`}>
+                        {m.utilidadNeta >= 0 ? '+' : ''}{margenNeto.toFixed(1)}% neto
+                      </span>
+                    </div>
+
+                    {/* Barra de ventas */}
+                    <div className="h-2 bg-gray-100 rounded-full mb-3 overflow-hidden">
+                      <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${barWidth}%` }} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Ventas</span>
+                        <span className="font-medium text-gray-900">{formatCurrency(m.ventasNetas)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Compras</span>
+                        <span className="font-medium text-orange-600">{formatCurrency(m.compras)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">U. Bruta</span>
+                        <span className={`font-medium ${m.utilidadBruta >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                          {formatCurrency(m.utilidadBruta)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Gastos Op.</span>
+                        <span className="font-medium text-gray-600">{formatCurrency(m.gastosOperativos)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">EBIT</span>
+                        <span className="font-medium text-purple-600">{formatCurrency(m.utilidadOperativa)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">U. Neta</span>
+                        <span className={`font-bold ${m.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatCurrency(m.utilidadNeta)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Totales mobile */}
+              <div className="px-4 py-4 bg-gray-50">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-bold text-gray-900">ACUMULADO {anio}</span>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    acumuladoUtilidadNeta >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                  }`}>
+                    {acumuladoUtilidadNeta >= 0 ? '+' : ''}{acumuladoVentas > 0 ? ((acumuladoUtilidadNeta / acumuladoVentas) * 100).toFixed(1) : '0.0'}% neto
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Ventas</span>
+                    <span className="font-bold text-gray-900">{formatCurrency(acumuladoVentas)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Compras</span>
+                    <span className="font-bold text-orange-700">{formatCurrency(acumuladoCompras)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">U. Bruta</span>
+                    <span className="font-bold text-blue-700">{formatCurrency(tendencia.reduce((s, m) => s + m.utilidadBruta, 0))}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">U. Neta</span>
+                    <span className={`font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                      {formatCurrency(acumuladoUtilidadNeta)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop: Tabla */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
@@ -815,7 +910,6 @@ export function Contabilidad() {
                       </td>
                     </tr>
                   ))}
-                  {/* Totales */}
                   <tr className="bg-gray-100 font-semibold">
                     <td className="px-4 py-3 text-gray-900">TOTAL</td>
                     <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(acumuladoVentas)}</td>
@@ -838,8 +932,8 @@ export function Contabilidad() {
             </div>
           </div>
 
-          {/* Gráfico visual simple */}
-          <div className="bg-white rounded-lg border p-6">
+          {/* Gráfico visual — Utilidad Neta por Mes */}
+          <div className="bg-white rounded-lg border p-4 sm:p-6">
             <h3 className="font-semibold text-gray-800 mb-4">Utilidad Neta por Mes</h3>
             <div className="space-y-3">
               {tendencia.map((m, idx) => {
@@ -848,15 +942,15 @@ export function Contabilidad() {
                 const isPositive = m.utilidadNeta >= 0;
 
                 return (
-                  <div key={idx} className="flex items-center gap-3">
-                    <div className="w-20 text-sm text-gray-600">{m.nombreMes.slice(0, 3)}</div>
-                    <div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden relative">
+                  <div key={idx} className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-12 sm:w-20 text-xs sm:text-sm text-gray-600 shrink-0">{m.nombreMes.slice(0, 3)}</div>
+                    <div className="flex-1 h-5 sm:h-6 bg-gray-100 rounded-full overflow-hidden relative">
                       <div
                         className={`h-full rounded-full transition-all ${isPositive ? 'bg-green-500' : 'bg-red-500'}`}
                         style={{ width: `${width}%` }}
                       />
                     </div>
-                    <div className={`w-28 text-right text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`w-20 sm:w-28 text-right text-xs sm:text-sm font-medium shrink-0 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                       {formatCurrency(m.utilidadNeta)}
                     </div>
                   </div>

@@ -13,6 +13,7 @@ import {
   serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
 import type {
   Cotizacion,
@@ -200,34 +201,8 @@ export class CotizacionService {
    * Generar número de cotización (COT-YYYY-NNN)
    */
   private static async generateNumeroCotizacion(): Promise<string> {
-    try {
-      const year = new Date().getFullYear();
-      const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-      if (snapshot.empty) {
-        return `COT-${year}-001`;
-      }
-
-      // Buscar el número máximo existente
-      let maxNumber = 0;
-      snapshot.docs.forEach(docSnap => {
-        const data = docSnap.data() as Cotizacion;
-        const numero = data.numeroCotizacion;
-
-        // Extraer el número del formato COT-YYYY-NNN
-        const match = numero?.match(/COT-\d{4}-(\d+)/);
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (num > maxNumber) {
-            maxNumber = num;
-          }
-        }
-      });
-
-      return `COT-${year}-${(maxNumber + 1).toString().padStart(3, '0')}`;
-    } catch (error) {
-      return `COT-${new Date().getFullYear()}-001`;
-    }
+    const year = new Date().getFullYear();
+    return getNextSequenceNumber(`COT-${year}`, 3);
   }
 
   /**
@@ -239,6 +214,8 @@ export class CotizacionService {
       // Obtener información de productos y calcular totales
       const productosCotizacion: ProductoCotizacion[] = [];
       let subtotalPEN = 0;
+      const lineaNegocioIds: string[] = []; // Track lineaNegocioId from each product
+      let lineaNegocioNombreMap: Record<string, string> = {}; // Map id → nombre
 
       // Consultar disponibilidad multi-almacén para todos los productos
       const consultaDisponibilidad = await stockDisponibilidadService.consultarDisponibilidad({
@@ -258,6 +235,14 @@ export class CotizacionService {
         const producto = await ProductoService.getById(prod.productoId);
         if (!producto) {
           throw new Error(`Producto ${prod.productoId} no encontrado`);
+        }
+
+        // Collect lineaNegocioId for auto-inheritance
+        if (producto.lineaNegocioId) {
+          lineaNegocioIds.push(producto.lineaNegocioId);
+          if (producto.lineaNegocioNombre) {
+            lineaNegocioNombreMap[producto.lineaNegocioId] = producto.lineaNegocioNombre;
+          }
         }
 
         // Obtener disponibilidad multi-almacén
@@ -332,6 +317,18 @@ export class CotizacionService {
         productosCotizacion.push(productoCotizacion);
       }
 
+      // Auto-inherit lineaNegocioId from products (most frequent wins)
+      let derivedLineaNegocioId: string | undefined;
+      let derivedLineaNegocioNombre: string | undefined;
+      if (lineaNegocioIds.length > 0) {
+        const freq: Record<string, number> = {};
+        for (const id of lineaNegocioIds) {
+          freq[id] = (freq[id] || 0) + 1;
+        }
+        derivedLineaNegocioId = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+        derivedLineaNegocioNombre = lineaNegocioNombreMap[derivedLineaNegocioId];
+      }
+
       // Calcular total
       const descuento = data.descuento || 0;
       const costoEnvio = data.costoEnvio || 0;
@@ -391,6 +388,12 @@ export class CotizacionService {
       // Guardar expectativa en la cotización
       if (expectativaCotizacion) {
         nuevaCotizacion.expectativaCotizacion = expectativaCotizacion;
+      }
+
+      // Auto-inherited lineaNegocioId from products
+      if (derivedLineaNegocioId) {
+        nuevaCotizacion.lineaNegocioId = derivedLineaNegocioId;
+        if (derivedLineaNegocioNombre) nuevaCotizacion.lineaNegocioNombre = derivedLineaNegocioNombre;
       }
 
       // Agregar campos opcionales
@@ -918,7 +921,7 @@ export class CotizacionService {
               const unidadRef = doc(db, 'unidades', unidadId);
               batch.update(unidadRef, {
                 estado: 'reservada',
-                reservadoPara: id,
+                reservadaPara: id,
                 fechaReserva: serverTimestamp()
               });
               unidadesIds.push(unidadId);
@@ -1308,7 +1311,7 @@ export class CotizacionService {
           for (const unidadId of prod.unidadesReservadas) {
             const unidadRef = doc(db, 'unidades', unidadId);
             batch.update(unidadRef, {
-              reservadoPara: venta.id, // Transferir reserva a la venta
+              reservadaPara: venta.id, // Transferir reserva a la venta
               ventaId: venta.id
             });
           }
@@ -1360,6 +1363,7 @@ export class CotizacionService {
             const unidadRef = doc(db, 'unidades', unidadId);
             batch.update(unidadRef, {
               estado: 'disponible_peru',
+              reservadaPara: null,
               reservadoPara: null,
               fechaReserva: null
             });

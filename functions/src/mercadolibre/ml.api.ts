@@ -7,7 +7,7 @@
 
 import axios, { AxiosError } from "axios";
 import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v1";
 import {
   MLTokenResponse,
   MLTokenData,
@@ -18,7 +18,11 @@ import {
   MLQuestion,
   MLSellerReputation,
   MLWebhookNotification,
+  MLBillingInfoInner,
+  MLBillingInfoResponse,
+  MLPriceToWin,
 } from "./ml.types";
+import { getSecret } from "../secrets";
 
 const ML_API_BASE = "https://api.mercadolibre.com";
 const ML_AUTH_URL = "https://auth.mercadolibre.com.pe/authorization";
@@ -29,9 +33,9 @@ const ML_AUTH_URL = "https://auth.mercadolibre.com.pe/authorization";
 
 function getConfig() {
   return {
-    clientId: process.env.ML_CLIENT_ID || "",
-    clientSecret: process.env.ML_CLIENT_SECRET || "",
-    redirectUri: process.env.ML_REDIRECT_URI || "",
+    clientId: getSecret("ML_CLIENT_ID"),
+    clientSecret: getSecret("ML_CLIENT_SECRET"),
+    redirectUri: getSecret("ML_REDIRECT_URI"),
   };
 }
 
@@ -179,6 +183,65 @@ async function mlPut<T>(path: string, data: Record<string, unknown>): Promise<T>
 }
 
 // ============================================================
+// WEBHOOK REGISTRATION
+// ============================================================
+
+/**
+ * Obtiene la configuración actual de la aplicación ML (incluye notification_url)
+ */
+export async function getApplicationConfig(): Promise<Record<string, any>> {
+  const { clientId } = getConfig();
+  return mlGet(`/applications/${clientId}`);
+}
+
+/**
+ * Obtiene un token de aplicación (client_credentials).
+ * Este token representa a la APLICACIÓN, no a un usuario.
+ * Necesario para modificar configuración de la app (ej: webhook URL).
+ */
+async function getAppAccessToken(): Promise<string> {
+  const { clientId, clientSecret } = getConfig();
+  const response = await axios.post<{ access_token: string; token_type: string; expires_in: number }>(
+    `${ML_API_BASE}/oauth/token`,
+    {
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+    }
+  );
+  return response.data.access_token;
+}
+
+/**
+ * Registra la URL de notificaciones (webhook) en la aplicación ML.
+ * ML enviará POST a esta URL cuando ocurran eventos (orders, shipments, items, questions).
+ *
+ * Usa token de aplicación (client_credentials) porque PUT /applications/{id}
+ * requiere permisos de app owner, no del vendedor.
+ */
+export async function registerWebhookUrl(webhookUrl: string): Promise<Record<string, any>> {
+  const { clientId } = getConfig();
+  // Intentar primero con user token, fallback a app token
+  let token: string;
+  try {
+    token = await getValidAccessToken();
+  } catch {
+    token = await getAppAccessToken();
+  }
+  const response = await axios.put<Record<string, any>>(
+    `${ML_API_BASE}/applications/${clientId}`,
+    {
+      notification_callback_url: webhookUrl,
+      notification_topics: ["orders_v2", "items", "shipments", "questions"],
+    },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return response.data;
+}
+
+// ============================================================
 // ORDERS
 // ============================================================
 
@@ -190,6 +253,31 @@ export async function getOrder(orderId: number): Promise<MLOrder> {
 }
 
 /**
+ * Obtiene billing info extendida de una orden (razón social para RUC).
+ * Retorna null si el endpoint no está disponible o falla.
+ */
+export async function getOrderBillingInfo(orderId: number): Promise<MLBillingInfoInner | null> {
+  try {
+    const response = await mlGet<MLBillingInfoResponse>(`/orders/${orderId}/billing_info`);
+    return response.billing_info || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Obtiene las órdenes de un pack (compra multi-producto en un solo carrito).
+ * Retorna los order IDs que componen el pack, o null si falla.
+ */
+export async function getPackOrders(packId: number): Promise<{ orders: Array<{ id: number }> } | null> {
+  try {
+    return await mlGet<{ orders: Array<{ id: number }> }>(`/packs/${packId}`);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Obtiene órdenes recientes del seller
  */
 export async function getRecentOrders(sellerId: number, limit = 20): Promise<{
@@ -197,6 +285,35 @@ export async function getRecentOrders(sellerId: number, limit = 20): Promise<{
   paging: { total: number; offset: number; limit: number };
 }> {
   return mlGet(`/orders/search?seller=${sellerId}&sort=date_desc&limit=${limit}`);
+}
+
+/**
+ * Busca órdenes del seller con paginación y filtros opcionales.
+ * Usado para importar historial de órdenes.
+ */
+export async function searchOrders(
+  sellerId: number,
+  options: {
+    offset?: number;
+    limit?: number;
+    sort?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  } = {}
+): Promise<{
+  results: MLOrder[];
+  paging: { total: number; offset: number; limit: number };
+}> {
+  const params = new URLSearchParams();
+  params.set("seller", String(sellerId));
+  params.set("sort", options.sort || "date_desc");
+  params.set("limit", String(Math.min(options.limit || 50, 50)));
+  params.set("offset", String(options.offset || 0));
+
+  if (options.dateFrom) params.set("order.date_created.from", options.dateFrom);
+  if (options.dateTo) params.set("order.date_created.to", options.dateTo);
+
+  return mlGet(`/orders/search?${params.toString()}`);
 }
 
 // ============================================================
@@ -269,6 +386,23 @@ export async function updateItemStock(itemId: string, quantity: number): Promise
  */
 export async function updateItemPrice(itemId: string, price: number): Promise<void> {
   await mlPut(`/items/${itemId}`, { price });
+}
+
+// ============================================================
+// BUY BOX / COMPETITION
+// ============================================================
+
+/**
+ * Obtiene el estado de competencia (Buy Box) de un item de catálogo.
+ * Solo aplica a publicaciones de catálogo (catalog_listing: true).
+ * Retorna null si el item no es de catálogo o hay un error.
+ */
+export async function getItemPriceToWin(itemId: string): Promise<MLPriceToWin | null> {
+  try {
+    return await mlGet<MLPriceToWin>(`/items/${itemId}/price_to_win?siteId=MPE&version=v2`);
+  } catch {
+    return null;
+  }
 }
 
 // ============================================================

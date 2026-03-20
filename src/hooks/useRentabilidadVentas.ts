@@ -137,7 +137,7 @@ async function getUnidadesVendidasConCache(): Promise<Unidad[]> {
     return unidadesVendidasCache.data;
   }
 
-  const todasUnidades = await unidadService.getAll();
+  const todasUnidades = await unidadService.getAllIncluyendoHistoricas();
   // Incluir vendidas + cualquier unidad que tenga ventaId (asignada a una venta)
   const conVenta = todasUnidades.filter(u =>
     u.estado === 'vendida' || (u as any).ventaId
@@ -279,13 +279,15 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         if (costoBase === 0) continue;
 
         // GV: Gastos de Venta
+        // Priorizar registros de gastos reales (tabla gastos) sobre campos de venta
+        // para evitar doble conteo cuando ambos existen (ej: órdenes ML)
+        const gastosGVTablaVenta = gastosGVPorVenta.get(venta.id) || 0;
         const gastosVentaCampos = (venta.gastosVentaPEN || 0) ||
           ((venta.comisionML || 0) +
            (venta.costoEnvioNegocio || 0) +
            (venta.costoEnvioML || 0) +
            (venta.otrosGastosVenta || 0));
-        const gastosGVTablaVenta = gastosGVPorVenta.get(venta.id) || 0;
-        const gastosGV = gastosVentaCampos + gastosGVTablaVenta;
+        const gastosGV = gastosGVTablaVenta > 0 ? gastosGVTablaVenta : gastosVentaCampos;
 
         // GD: Gastos de Distribución
         const gastosGD = gastosGDPorVenta.get(venta.id) || 0;

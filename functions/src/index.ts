@@ -6,10 +6,12 @@
  * 2. Obtener tipo de cambio automático diario
  * 3. Recálculo de CTRU cuando se registran gastos
  * 4. Integración Mercado Libre (OAuth, webhooks, sync)
+ * 5. WhatsApp Chatbot (consultas internas, ventas, welcome)
  */
 
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { COLLECTIONS } from "./collections";
 
 // Inicializar Firebase Admin ANTES de cualquier import que use admin
 admin.initializeApp();
@@ -32,7 +34,39 @@ export {
   mlupdateprice,
   mlprocesarorden,
   mlprocesarpendientes,
+  mlregisterwebhook,
+  mlgetwebhookstatus,
+  mlimporthistoricalorders,
+  mlreenrichbuyers,
+  mlrepararventasurbano,
+  mlrepararnamesdni,
+  mldiagshipping,
+  mlpatchenvio,
+  mlfixventashistoricas,
+  mlmigratestockpendiente,
+  mlsyncbuybox,
+  mlconsolidatepackorders,
+  mldiagnosticosistema,
+  mlrecalcularbalancemp,
+  mlreingenieria,
+  mlmatchsuggestions,
+  mlconfirmmatch,
+  mldiaginconsistencias,
+  mlresolverinconsistencias,
+  mlrepairgastosml,
+  mlrepairmetodoenvio,
+  mlautocreateventas,
 } from "./mercadolibre";
+
+// ============================================================
+// WHATSAPP CHATBOT - Consultas internas, ventas, welcome
+// ============================================================
+export {
+  wawebhook,
+  wasetconfig,
+  wasendmessage,
+} from "./whatsapp";
+
 const db = admin.firestore();
 
 // ============================================================
@@ -40,12 +74,12 @@ const db = admin.firestore();
 // ============================================================
 
 /**
- * FUNCIÓN 1: Generar unidades al recibir OC en USA
+ * FUNCIÓN 1: Generar unidades al recibir OC en origen
  *
  * FLUJO CORRECTO según el modelo de negocio:
- * 1. OC se marca como "recibida" (en almacén/viajero USA)
- * 2. Se generan unidades con estado "recibida_usa"
- * 3. Posteriormente se crea una Transferencia USA → Perú
+ * 1. OC se marca como "recibida" (en almacén/viajero de origen: USA, China, Corea, etc.)
+ * 2. Se generan unidades con estado "recibida_origen"
+ * 3. Posteriormente se crea una Transferencia Origen → Perú
  * 4. Al recibir en Perú, las unidades pasan a "disponible_peru"
  */
 export const onOrdenCompraRecibida = functions.firestore
@@ -67,7 +101,6 @@ export const onOrdenCompraRecibida = functions.firestore
       });
 
       try {
-        const batch = db.batch();
         const unidadesGeneradas: string[] = [];
         let unidadCount = 1;
 
@@ -77,30 +110,42 @@ export const onOrdenCompraRecibida = functions.firestore
 
         // Obtener datos del almacén/viajero destino
         const almacenDestinoId = after.almacenDestinoId;
-        let almacenNombre = "Almacén USA";
-        let almacenCodigo = "USA";
+        let almacenNombre = "Almacén Origen";
+        let almacenCodigo = "ORIGEN";
+        let almacenPais = after.paisOrigen || "USA"; // Leer país de la OC o default USA
 
         if (almacenDestinoId) {
-          const almacenSnap = await db.collection("almacenes").doc(almacenDestinoId).get();
+          const almacenSnap = await db.collection(COLLECTIONS.ALMACENES).doc(almacenDestinoId).get();
           if (almacenSnap.exists) {
             const almacenData = almacenSnap.data();
             almacenNombre = almacenData?.nombre || almacenNombre;
             almacenCodigo = almacenData?.codigo || almacenCodigo;
+            almacenPais = almacenData?.pais || almacenPais;
           }
         }
 
-        // Generar unidades para cada producto
+        // ARCH-001 FIX: Preparar todas las operaciones antes de hacer batches
+        // ARCH-002 FIX: Chunking de batches (máx 450 ops por batch, margen sobre 500)
+        const MAX_OPS_PER_BATCH = 450;
+
+        interface UnidadOp {
+          ref: FirebaseFirestore.DocumentReference;
+          data: Record<string, unknown>;
+        }
+        const unidadOps: UnidadOp[] = [];
+
+        // Generar operaciones para cada producto
         for (const producto of after.productos) {
           // Obtener el costo de flete fijo del producto
           let costoFleteUSD = 0;
-          const productoSnap = await db.collection("productos").doc(producto.productoId).get();
+          const productoSnap = await db.collection(COLLECTIONS.PRODUCTOS).doc(producto.productoId).get();
           if (productoSnap.exists) {
             const productoData = productoSnap.data();
-            costoFleteUSD = productoData?.costoFleteUSAPeru || 0;
+            costoFleteUSD = productoData?.costoFleteInternacional ?? productoData?.costoFleteUSAPeru ?? 0;
           }
 
           for (let i = 0; i < producto.cantidad; i++) {
-            const unidadRef = db.collection("unidades").doc();
+            const unidadRef = db.collection(COLLECTIONS.UNIDADES).doc();
             const codigoUnidad = `${after.numeroOrden}-${String(
               unidadCount
             ).padStart(3, "0")}`;
@@ -110,97 +155,123 @@ export const onOrdenCompraRecibida = functions.firestore
             const costoTotalUSD = costoUnitarioUSD + costoFleteUSD;
 
             // El CTRU se calculará al llegar a Perú, por ahora solo base
-            const ctruBase = costoTotalUSD * tcPago;
+            const ctruInicial = costoTotalUSD * tcPago;
 
+            // ARCH-001 FIX: Campos alineados con unidad.types.ts (Unidad interface)
             const unidadData = {
-              // Identificación
+              // Identificación — nombres según interface Unidad
               productoId: producto.productoId,
-              sku: producto.sku,
+              productoSKU: producto.sku,              // FIX: era 'sku'
               productoNombre: producto.nombre || producto.sku,
               numeroUnidad: unidadCount,
               codigoUnidad,
               lote: producto.lote || null,
               fechaVencimiento: producto.fechaVencimiento || null,
 
-              // Trazabilidad
+              // Trazabilidad — nombres según interface Unidad
               ordenCompraId: ordenId,
-              numeroOrden: after.numeroOrden,
+              ordenCompraNumero: after.numeroOrden,    // FIX: era 'numeroOrden'
               proveedorId: after.proveedorId,
 
-              // === ESTADO: recibida_usa (NO disponible_peru) ===
-              estado: "recibida_usa",
-              paisActual: "USA",
+              // Estado
+              estado: "recibida_origen",
+              pais: almacenPais,                       // FIX: era 'paisActual'
+              paisOrigen: almacenPais,                 // Campo adicional del tipo
 
-              // Ubicación en USA (almacén/viajero)
-              almacenActualId: almacenDestinoId || null,
-              almacenActualNombre: almacenNombre,
-              almacenActualCodigo: almacenCodigo,
+              // Ubicación — nombres según interface Unidad
+              almacenId: almacenDestinoId || null,     // FIX: era 'almacenActualId'
+              almacenNombre: almacenNombre,            // FIX: era 'almacenActualNombre'
+              almacenCodigo: almacenCodigo,            // Extra: mantener para referencia
 
               // Costos
               costoUnitarioUSD,
-              costoFleteUSD,  // Flete FIJO del producto
+              costoFleteUSD,
               costoTotalUSD,
               tcCompra,
               tcPago,
 
-              // CTRU (se completará al recibir en Perú)
-              ctruBase,
-              ctruGastos: 0,
-              ctruDinamico: ctruBase,
+              // CTRU — nombres según interface Unidad
+              ctruInicial,                             // FIX: era 'ctruBase'
+              ctruDinamico: ctruInicial,               // FIX: inicializar igual a ctruInicial
 
-              // Fechas
+              // Fechas — nombres según interface Unidad
               fechaCreacion: admin.firestore.FieldValue.serverTimestamp(),
-              fechaRecepcionUSA: admin.firestore.FieldValue.serverTimestamp(),
-              // fechaLlegadaPeru se llenará cuando llegue a Perú
+              fechaRecepcion: admin.firestore.FieldValue.serverTimestamp(),  // FIX: era 'fechaRecepcionOrigen'
 
-              // Historial inicial
-              historial: [{
-                id: `mov-${Date.now()}`,
+              // Movimientos — nombre según interface Unidad
+              movimientos: [{                          // FIX: era 'historial'
+                id: `mov-${Date.now()}-${unidadCount}`,
+                tipo: "recepcion",                     // FIX: era 'recepcion_origen', ahora es TipoMovimiento
                 fecha: admin.firestore.FieldValue.serverTimestamp(),
-                tipo: "recepcion_usa",
-                estadoAnterior: null,
-                estadoNuevo: "recibida_usa",
-                almacenDestinoId: almacenDestinoId || null,
-                almacenDestinoNombre: almacenNombre,
-                referenciaId: ordenId,
-                referenciaTipo: "orden_compra",
-                referenciaNumero: after.numeroOrden,
-                motivo: "Recepción de OC en almacén USA",
-                realizadoPor: "system",
+                almacenDestino: almacenDestinoId || null,
+                usuarioId: after.creadoPor || "system",
+                observaciones: `Recepción de OC ${after.numeroOrden} en almacén ${almacenPais}`,
+                documentoRelacionado: {
+                  tipo: "orden-compra",
+                  id: ordenId,
+                  numero: after.numeroOrden,
+                },
               }],
 
               // Auditoría
               creadoPor: after.creadoPor || "system",
             };
 
-            batch.set(unidadRef, unidadData);
+            unidadOps.push({ ref: unidadRef, data: unidadData });
             unidadesGeneradas.push(unidadRef.id);
             unidadCount++;
           }
         }
 
-        // Actualizar orden con referencia a unidades generadas
-        const ordenRef = db.collection("ordenesCompra").doc(ordenId);
-        batch.update(ordenRef, {
-          inventarioGenerado: true,
-          unidadesGeneradas,
-          fechaGeneracionInventario:
-            admin.firestore.FieldValue.serverTimestamp(),
-        });
-
-        // Incrementar contador de unidades en el almacén/viajero
-        if (almacenDestinoId) {
-          const almacenRef = db.collection("almacenes").doc(almacenDestinoId);
-          batch.update(almacenRef, {
-            totalUnidadesRecibidas: admin.firestore.FieldValue.increment(unidadesGeneradas.length),
-            unidadesActuales: admin.firestore.FieldValue.increment(unidadesGeneradas.length),
-          });
+        // ARCH-002 FIX: Ejecutar en chunks de 450 operaciones
+        // Cada unidad = 1 op (set), + 2 ops extra al final (update OC + update almacén)
+        const extraOps = almacenDestinoId ? 2 : 1;
+        const chunks: UnidadOp[][] = [];
+        for (let i = 0; i < unidadOps.length; i += MAX_OPS_PER_BATCH - extraOps) {
+          chunks.push(unidadOps.slice(i, i + MAX_OPS_PER_BATCH - extraOps));
         }
 
-        await batch.commit();
+        // Si no hay unidades, aún necesitamos un batch para las operaciones extra
+        if (chunks.length === 0) {
+          chunks.push([]);
+        }
+
+        for (let chunkIdx = 0; chunkIdx < chunks.length; chunkIdx++) {
+          const batch = db.batch();
+          const chunk = chunks[chunkIdx];
+
+          // Agregar unidades de este chunk
+          for (const op of chunk) {
+            batch.set(op.ref, op.data);
+          }
+
+          // Solo en el último batch: actualizar OC y almacén
+          if (chunkIdx === chunks.length - 1) {
+            const ordenRef = db.collection(COLLECTIONS.ORDENES_COMPRA).doc(ordenId);
+            batch.update(ordenRef, {
+              inventarioGenerado: true,
+              unidadesGeneradas,
+              fechaGeneracionInventario:
+                admin.firestore.FieldValue.serverTimestamp(),
+            });
+
+            if (almacenDestinoId) {
+              const almacenRef = db.collection(COLLECTIONS.ALMACENES).doc(almacenDestinoId);
+              batch.update(almacenRef, {
+                totalUnidadesRecibidas: admin.firestore.FieldValue.increment(unidadesGeneradas.length),
+                unidadesActuales: admin.firestore.FieldValue.increment(unidadesGeneradas.length),
+              });
+            }
+          }
+
+          await batch.commit();
+          functions.logger.info(
+            `Batch ${chunkIdx + 1}/${chunks.length}: ${chunk.length} unidades committed`
+          );
+        }
 
         functions.logger.info(
-          `✅ Generadas ${unidadesGeneradas.length} unidades en USA para OC ${after.numeroOrden}`
+          `✅ Generadas ${unidadesGeneradas.length} unidades en ${almacenPais} para OC ${after.numeroOrden}`
         );
 
         return { success: true, unidadesGeneradas: unidadesGeneradas.length };
@@ -247,7 +318,7 @@ export const obtenerTipoCambioDiario = functions.pubsub
         const hoy = new Date();
         const fechaStr = hoy.toISOString().split("T")[0]; // YYYY-MM-DD
 
-        const tcRef = db.collection("tiposCambio").doc(fechaStr);
+        const tcRef = db.collection(COLLECTIONS.TIPOS_CAMBIO).doc(fechaStr);
 
         await tcRef.set({
           fecha: admin.firestore.Timestamp.fromDate(hoy),
@@ -281,7 +352,7 @@ export const obtenerTipoCambioManual = functions.https.onCall(async () => {
       const hoy = new Date();
       const fechaStr = hoy.toISOString().split("T")[0];
 
-      const tcRef = db.collection("tiposCambio").doc(fechaStr);
+      const tcRef = db.collection(COLLECTIONS.TIPOS_CAMBIO).doc(fechaStr);
 
       await tcRef.set(
         {
@@ -369,7 +440,7 @@ export const onGastoCreado = functions.firestore
       if (gasto.prorrateoTipo === "oc" && gasto.ordenCompraId) {
         // Prorratear entre unidades de una OC específica
         unidadesSnapshot = await db
-          .collection("unidades")
+          .collection(COLLECTIONS.UNIDADES)
           .where("ordenCompraId", "==", gasto.ordenCompraId)
           .where("estado", "in", [
             "disponible_peru",
@@ -382,7 +453,7 @@ export const onGastoCreado = functions.firestore
         const finMes = new Date(gasto.anio, gasto.mes, 0, 23, 59, 59);
 
         unidadesSnapshot = await db
-          .collection("unidades")
+          .collection(COLLECTIONS.UNIDADES)
           .where("estado", "in", [
             "disponible_peru",
             "asignada_pedido",
@@ -432,7 +503,7 @@ export const onGastoCreado = functions.firestore
       );
 
       // Registrar en historial
-      await db.collection("historialRecalculoCTRU").add({
+      await db.collection(COLLECTIONS.HISTORIAL_CTRU).add({
         gastoId,
         numeroGasto: gasto.numeroGasto,
         montoGasto: gasto.montoPEN,
@@ -456,19 +527,8 @@ export const onGastoCreado = functions.firestore
 // FUNCIÓN 4: Limpiar caché y estadísticas diarias (opcional)
 // ============================================================
 
-export const limpiezaDiaria = functions.pubsub
-  .schedule("0 1 * * *") // 1:00 AM diario
-  .timeZone("America/Lima")
-  .onRun(async () => {
-    functions.logger.info("Iniciando limpieza diaria");
-
-    // Aquí puedes agregar tareas de mantenimiento:
-    // - Limpiar documentos temporales
-    // - Consolidar estadísticas
-    // - Archivar datos antiguos
-
-    return null;
-  });
+// limpiezaDiaria: deshabilitada (era un no-op que generaba invocaciones diarias sin hacer nada)
+// Reactivar cuando se implementen tareas reales de mantenimiento.
 
 // ============================================================
 // FUNCIÓN 5: Gestión de Usuarios (Admin Only)
@@ -622,7 +682,7 @@ async function verificarAdmin(context: functions.https.CallableContext): Promise
     );
   }
 
-  const adminDoc = await db.collection("users").doc(context.auth.uid).get();
+  const adminDoc = await db.collection(COLLECTIONS.USERS).doc(context.auth.uid).get();
 
   if (!adminDoc.exists) {
     throw new functions.https.HttpsError(
@@ -706,7 +766,7 @@ export const createUser = functions.https.onCall(
         activo: true,
       };
 
-      await db.collection("users").doc(userRecord.uid).set(userProfile);
+      await db.collection(COLLECTIONS.USERS).doc(userRecord.uid).set(userProfile);
 
       functions.logger.info(`Perfil creado en Firestore para: ${userRecord.uid}`);
 
@@ -771,7 +831,7 @@ export const updateUserRole = functions.https.onCall(
     }
 
     // Verificar que el usuario existe
-    const userDoc = await db.collection("users").doc(uid).get();
+    const userDoc = await db.collection(COLLECTIONS.USERS).doc(uid).get();
     if (!userDoc.exists) {
       throw new functions.https.HttpsError(
         "not-found",
@@ -788,7 +848,7 @@ export const updateUserRole = functions.https.onCall(
     }
 
     try {
-      await db.collection("users").doc(uid).update({
+      await db.collection(COLLECTIONS.USERS).doc(uid).update({
         role,
         permisos,
         ultimaEdicion: admin.firestore.FieldValue.serverTimestamp(),
@@ -837,7 +897,7 @@ export const deleteUser = functions.https.onCall(
       await admin.auth().deleteUser(uid);
 
       // Eliminar perfil de Firestore
-      await db.collection("users").doc(uid).delete();
+      await db.collection(COLLECTIONS.USERS).doc(uid).delete();
 
       functions.logger.info(`Usuario eliminado: ${uid}`);
 
@@ -968,7 +1028,7 @@ export const forceDisconnectUser = functions.https.onCall(
       await admin.auth().revokeRefreshTokens(uid);
 
       // 2. Marcar en Firestore para que el cliente detecte y cierre sesión
-      await db.collection("users").doc(uid).update({
+      await db.collection(COLLECTIONS.USERS).doc(uid).update({
         forceLogoutAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
@@ -1015,9 +1075,10 @@ export const createDailyRoom = functions.https.onCall(
       );
     }
 
-    const apiKey = process.env.DAILY_API_KEY;
+    const { getSecret } = require("./secrets");
+    const apiKey = getSecret("DAILY_API_KEY");
     if (!apiKey) {
-      functions.logger.error("DAILY_API_KEY not configured in functions/.env");
+      functions.logger.error("DAILY_API_KEY not configured");
       throw new functions.https.HttpsError(
         "internal",
         "Video service not configured"
@@ -1135,7 +1196,7 @@ export const forceDisconnectAll = functions.https.onCall(
     try {
       // Obtener todos los usuarios activos excepto el admin actual
       const usersSnapshot = await db
-        .collection("users")
+        .collection(COLLECTIONS.USERS)
         .where("activo", "==", true)
         .get();
 
@@ -1187,13 +1248,366 @@ export const forceDisconnectAll = functions.https.onCall(
  * basándose en las ventas reales existentes en Firestore.
  * Solo admin puede ejecutarla.
  */
+// ============================================================
+// FUNCIÓN: Procesar Llamada con IA (Transcripción + Análisis)
+// ============================================================
+
+/**
+ * Recibe un intelId + audioUrl, descarga el audio,
+ * lo envía a Gemini para transcripción y luego a Claude para análisis.
+ * Actualiza el documento en llamadasIntel con los resultados.
+ */
+export const procesarLlamadaIntel = functions
+  .runWith({ memory: "1GB", timeoutSeconds: 300 })
+  .https.onCall(
+    async (data: { intelId: string; audioUrl: string }, context) => {
+      if (!context.auth) {
+        throw new functions.https.HttpsError(
+          "unauthenticated",
+          "Debes estar autenticado"
+        );
+      }
+
+      const { intelId, audioUrl } = data;
+      if (!intelId || !audioUrl) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "intelId y audioUrl son requeridos"
+        );
+      }
+
+      const { getSecret } = require("./secrets");
+      const GEMINI_API_KEY = getSecret("GEMINI_API_KEY");
+      const ANTHROPIC_API_KEY = getSecret("ANTHROPIC_API_KEY");
+
+      if (!GEMINI_API_KEY || !ANTHROPIC_API_KEY) {
+        functions.logger.error("GEMINI_API_KEY o ANTHROPIC_API_KEY no configuradas");
+        await db.collection(COLLECTIONS.LLAMADAS_INTEL).doc(intelId).update({
+          estado: "error",
+          error: "API keys no configuradas en el servidor",
+        });
+        throw new functions.https.HttpsError(
+          "internal",
+          "AI API keys not configured"
+        );
+      }
+
+      try {
+        // 1. Descargar audio desde Firebase Storage
+        functions.logger.info(`[LlamadaIntel] Descargando audio: ${audioUrl}`);
+        const audioResponse = await axios.get(audioUrl, {
+          responseType: "arraybuffer",
+        });
+        const audioBuffer = Buffer.from(audioResponse.data);
+        const audioBase64 = audioBuffer.toString("base64");
+        functions.logger.info(
+          `[LlamadaIntel] Audio descargado: ${(audioBuffer.length / 1024 / 1024).toFixed(2)} MB`
+        );
+
+        // 2. Transcribir con Gemini (audio nativo)
+        functions.logger.info("[LlamadaIntel] Enviando a Gemini para transcripción...");
+        const geminiResponse = await axios.post(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            contents: [
+              {
+                parts: [
+                  {
+                    inline_data: {
+                      mime_type: "audio/webm",
+                      data: audioBase64,
+                    },
+                  },
+                  {
+                    text: `Transcribe esta grabación de audio de una llamada de trabajo interna.
+
+INSTRUCCIONES:
+- Transcribe TODO el contenido hablado fielmente
+- Identifica a los diferentes hablantes como "Participante 1", "Participante 2", etc.
+- Incluye timestamps aproximados cada 30 segundos
+- Si hay partes inaudibles, marca con [inaudible]
+- Mantén el idioma original (español)
+
+FORMATO DE SALIDA (JSON):
+{
+  "segmentos": [
+    {"timestamp": "00:00:00", "hablante": "Participante 1", "texto": "..."},
+    {"timestamp": "00:00:15", "hablante": "Participante 2", "texto": "..."}
+  ],
+  "textoCompleto": "Transcripción completa en texto plano sin timestamps"
+}
+
+Responde SOLO con el JSON, sin markdown ni texto adicional.`,
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.1,
+              maxOutputTokens: 8192,
+            },
+          },
+          {
+            headers: { "Content-Type": "application/json" },
+            timeout: 120000,
+          }
+        );
+
+        const geminiText =
+          geminiResponse.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        functions.logger.info(
+          `[LlamadaIntel] Gemini respondió: ${geminiText.substring(0, 200)}...`
+        );
+
+        // Parsear transcripción
+        let transcripcionData: {
+          segmentos: Array<{
+            timestamp: string;
+            hablante: string;
+            texto: string;
+          }>;
+          textoCompleto: string;
+        };
+        try {
+          // Limpiar posible markdown wrapping
+          const cleanJson = geminiText
+            .replace(/```json\s*/g, "")
+            .replace(/```\s*/g, "")
+            .trim();
+          transcripcionData = JSON.parse(cleanJson);
+        } catch {
+          functions.logger.warn(
+            "[LlamadaIntel] No se pudo parsear JSON de Gemini, usando texto plano"
+          );
+          transcripcionData = {
+            segmentos: [
+              {
+                timestamp: "00:00:00",
+                hablante: "Transcripción",
+                texto: geminiText,
+              },
+            ],
+            textoCompleto: geminiText,
+          };
+        }
+
+        // 3. Analizar con Claude
+        functions.logger.info(
+          "[LlamadaIntel] Enviando a Claude para análisis..."
+        );
+        const claudeResponse = await axios.post(
+          "https://api.anthropic.com/v1/messages",
+          {
+            model: "claude-haiku-4-5-20251001",
+            max_tokens: 2048,
+            messages: [
+              {
+                role: "user",
+                content: `Analiza esta transcripción de una llamada interna de trabajo de una empresa (ERP de importación/comercialización).
+
+TRANSCRIPCIÓN:
+${transcripcionData.textoCompleto}
+
+GENERA un análisis estructurado en JSON con este formato:
+{
+  "resumenEjecutivo": ["punto 1", "punto 2", "punto 3"],
+  "tareas": [
+    {
+      "descripcion": "Qué hay que hacer",
+      "responsable": "Nombre del participante",
+      "deadline": "Fecha si se mencionó o null",
+      "prioridad": "alta|media|baja"
+    }
+  ],
+  "decisiones": [
+    {
+      "decision": "Qué se decidió",
+      "contexto": "Por qué",
+      "involucrados": ["Participante 1"]
+    }
+  ],
+  "seguimientos": [
+    {
+      "accion": "Qué seguimiento hacer",
+      "responsable": "Quién",
+      "plazo": "Cuándo"
+    }
+  ],
+  "temasDiscutidos": ["tema 1", "tema 2"],
+  "sentimiento": "positivo|neutral|tenso|urgente",
+  "alertas": ["riesgo o problema mencionado"]
+}
+
+Responde SOLO con el JSON válido, sin markdown.`,
+              },
+            ],
+          },
+          {
+            headers: {
+              "x-api-key": ANTHROPIC_API_KEY,
+              "anthropic-version": "2023-06-01",
+              "Content-Type": "application/json",
+            },
+            timeout: 60000,
+          }
+        );
+
+        const claudeText =
+          claudeResponse.data?.content?.[0]?.text || "";
+        functions.logger.info(
+          `[LlamadaIntel] Claude respondió: ${claudeText.substring(0, 200)}...`
+        );
+
+        let analisis: Record<string, unknown>;
+        try {
+          const cleanJson = claudeText
+            .replace(/```json\s*/g, "")
+            .replace(/```\s*/g, "")
+            .trim();
+          analisis = JSON.parse(cleanJson);
+        } catch {
+          functions.logger.warn(
+            "[LlamadaIntel] No se pudo parsear JSON de Claude"
+          );
+          analisis = {
+            resumenEjecutivo: ["No se pudo analizar la llamada automáticamente"],
+            tareas: [],
+            decisiones: [],
+            seguimientos: [],
+            temasDiscutidos: [],
+            sentimiento: "neutral",
+            alertas: ["Error al parsear análisis de IA"],
+          };
+        }
+
+        // 4. Auto-vincular tareas/seguimientos a usuarios del equipo
+        const usersSnap = await db.collection(COLLECTIONS.USERS)
+          .where("activo", "==", true).get();
+        const teamUsers = usersSnap.docs.map(d => ({
+          uid: d.id,
+          displayName: (d.data().displayName || "").toLowerCase(),
+        }));
+
+        // Obtener participantes de la llamada para mapear
+        const intelDoc = await db.collection(COLLECTIONS.LLAMADAS_INTEL).doc(intelId).get();
+        const participantesUids: string[] = intelDoc.data()?.participantesUids || [];
+        const participantesNombres: string[] = intelDoc.data()?.participantes || [];
+
+        const matchUserByName = (nombre: string): { uid: string; displayName: string } | null => {
+          if (!nombre) return null;
+          const nombreLower = nombre.toLowerCase().trim();
+
+          // 1. Coincidencia exacta con participantes de la llamada
+          const idxParticipante = participantesNombres.findIndex(
+            p => p.toLowerCase() === nombreLower
+          );
+          if (idxParticipante >= 0 && participantesUids[idxParticipante]) {
+            return {
+              uid: participantesUids[idxParticipante],
+              displayName: participantesNombres[idxParticipante],
+            };
+          }
+
+          // 2. Coincidencia parcial con usuarios del equipo (nombre o apellido)
+          const match = teamUsers.find(u =>
+            u.displayName === nombreLower ||
+            u.displayName.includes(nombreLower) ||
+            nombreLower.includes(u.displayName.split(" ")[0])
+          );
+          if (match) return { uid: match.uid, displayName: match.displayName };
+
+          // 3. Match por "Participante N" → mapear al N-ésimo participante
+          const participanteMatch = nombre.match(/Participante\s*(\d+)/i);
+          if (participanteMatch) {
+            const idx = parseInt(participanteMatch[1]) - 1;
+            if (idx >= 0 && idx < participantesUids.length) {
+              return {
+                uid: participantesUids[idx],
+                displayName: participantesNombres[idx] || nombre,
+              };
+            }
+          }
+
+          return null;
+        };
+
+        // Enriquecer tareas con UIDs y estado inicial
+        if (Array.isArray((analisis as any).tareas)) {
+          (analisis as any).tareas = (analisis as any).tareas.map((t: any) => {
+            const matched = matchUserByName(t.responsable);
+            return {
+              ...t,
+              responsableUid: matched?.uid || null,
+              responsable: matched?.displayName || t.responsable,
+              estado: "pendiente",
+              completada: false,
+            };
+          });
+        }
+
+        // Enriquecer seguimientos con UIDs
+        if (Array.isArray((analisis as any).seguimientos)) {
+          (analisis as any).seguimientos = (analisis as any).seguimientos.map((s: any) => {
+            const matched = matchUserByName(s.responsable);
+            return {
+              ...s,
+              responsableUid: matched?.uid || null,
+              responsable: matched?.displayName || s.responsable,
+              completado: false,
+            };
+          });
+        }
+
+        // 5. Guardar resultados en Firestore
+        await db.collection(COLLECTIONS.LLAMADAS_INTEL).doc(intelId).update({
+          transcripcion: transcripcionData.segmentos,
+          transcripcionTexto: transcripcionData.textoCompleto,
+          analisis,
+          estado: "completado",
+          procesadoEn: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        functions.logger.info(
+          `[LlamadaIntel] Procesamiento completado para ${intelId}`
+        );
+
+        return {
+          success: true,
+          intelId,
+          segmentos: transcripcionData.segmentos.length,
+        };
+      } catch (error: unknown) {
+        const errMsg =
+          error instanceof Error ? error.message : JSON.stringify(error);
+        functions.logger.error(
+          `[LlamadaIntel] Error procesando: ${errMsg}`
+        );
+
+        // Marcar como error en Firestore
+        try {
+          await db.collection(COLLECTIONS.LLAMADAS_INTEL).doc(intelId).update({
+            estado: "error",
+            error: errMsg.substring(0, 500),
+          });
+        } catch {
+          // Ignore update error
+        }
+
+        throw new functions.https.HttpsError(
+          "internal",
+          `Error procesando llamada: ${errMsg}`
+        );
+      }
+    }
+  );
+
 export const recalcularMetricas = functions.https.onCall(
   async (_data: unknown, context) => {
     await verificarAdmin(context);
 
     try {
       // 1. Leer todas las ventas (no anuladas)
-      const ventasSnap = await db.collection("ventas").get();
+      const ventasSnap = await db.collection(COLLECTIONS.VENTAS).get();
       const ventas = ventasSnap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter((v: any) => v.estado !== "anulada" && v.estado !== "cancelada");
@@ -1250,7 +1664,7 @@ export const recalcularMetricas = functions.https.onCall(
       }
 
       // 4. Actualizar clientes en batches de 500
-      const clientesSnap = await db.collection("clientes").get();
+      const clientesSnap = await db.collection(COLLECTIONS.CLIENTES).get();
       let clientesActualizados = 0;
       let batch = db.batch();
       let batchCount = 0;
@@ -1285,7 +1699,7 @@ export const recalcularMetricas = functions.https.onCall(
 
       // 5. Actualizar marcas en batches de 500
       // Primero contar productos activos por marca
-      const productosSnap = await db.collection("productos").get();
+      const productosSnap = await db.collection(COLLECTIONS.PRODUCTOS).get();
       const productosActivosPorMarca: Record<string, number> = {};
       for (const doc of productosSnap.docs) {
         const p = doc.data();
@@ -1295,7 +1709,7 @@ export const recalcularMetricas = functions.https.onCall(
         }
       }
 
-      const marcasSnap = await db.collection("marcas").get();
+      const marcasSnap = await db.collection(COLLECTIONS.MARCAS).get();
       let marcasActualizadas = 0;
       batch = db.batch();
       batchCount = 0;

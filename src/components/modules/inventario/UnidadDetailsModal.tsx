@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatFecha as formatDate, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
 import { Modal } from '../../common';
 import {
   Package,
@@ -16,23 +17,28 @@ import {
 import { Badge, Button } from '../../common';
 import { useUserName } from '../../../hooks/useUserNames';
 import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
+import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../utils/multiOrigen.helpers';
 
 interface UnidadDetailsModalProps {
   unidad: Unidad;
+  productoInfo?: { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string };
   onClose: () => void;
   onLiberarReserva?: (unidad: Unidad) => void;
 }
 
-const estadoConfig: Record<EstadoUnidad, { label: string; variant: 'success' | 'info' | 'warning' | 'danger' | 'default' }> = {
-  'recibida_usa': { label: 'Recibida USA', variant: 'info' },
-  'en_transito_usa': { label: 'En Tránsito USA', variant: 'warning' },
-  'en_transito_peru': { label: 'En Tránsito → Perú', variant: 'warning' },
-  'disponible_peru': { label: 'Disponible Perú', variant: 'success' },
-  'reservada': { label: 'Reservada', variant: 'default' },
-  'asignada_pedido': { label: 'Asignada a Pedido', variant: 'warning' },
-  'vendida': { label: 'Vendida', variant: 'default' },
-  'vencida': { label: 'Vencida', variant: 'danger' },
-  'danada': { label: 'Dañada', variant: 'danger' }
+const getEstadoVariant = (estado: EstadoUnidad): 'success' | 'info' | 'warning' | 'danger' | 'default' => {
+  if (esEstadoEnOrigen(estado)) return 'info';
+  if (esEstadoEnTransitoOrigen(estado)) return 'warning';
+  switch (estado) {
+    case 'en_transito_peru': return 'warning';
+    case 'disponible_peru': return 'success';
+    case 'reservada': return 'default';
+    case 'asignada_pedido': return 'warning';
+    case 'vendida': return 'default';
+    case 'vencida': return 'danger';
+    case 'danada': return 'danger';
+    default: return 'default';
+  }
 };
 
 const tipoMovimientoLabels: Record<string, { label: string; color: string }> = {
@@ -47,6 +53,7 @@ const tipoMovimientoLabels: Record<string, { label: string; color: string }> = {
 
 export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
   unidad,
+  productoInfo,
   onClose,
   onLiberarReserva
 }) => {
@@ -54,35 +61,16 @@ export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
   const creadoPorNombre = useUserName(unidad.creadoPor);
   const actualizadoPorNombre = useUserName(unidad.actualizadoPor);
 
-  const formatDate = (timestamp: any): string => {
-    if (!timestamp || !timestamp.toDate) return '-';
-    return timestamp.toDate().toLocaleString('es-PE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   const formatCurrency = (amount: number, currency: 'USD' | 'PEN' = 'USD'): string => {
     const prefix = currency === 'USD' ? '$' : 'S/';
     return `${prefix}${amount.toFixed(2)}`;
   };
 
-  // Calcular días para vencer
-  const calcularDiasParaVencer = (): number => {
-    if (!unidad.fechaVencimiento || !unidad.fechaVencimiento.toDate) return 999;
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const vencimiento = unidad.fechaVencimiento.toDate();
-    vencimiento.setHours(0, 0, 0, 0);
-    const diffTime = vencimiento.getTime() - hoy.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diasParaVencer = calcularDiasParaVencerUtil(unidad.fechaVencimiento) ?? 999;
+  const estadoInfo = {
+    label: getLabelEstadoUnidad(unidad.estado, unidad.paisOrigen || unidad.pais),
+    variant: getEstadoVariant(unidad.estado)
   };
-
-  const diasParaVencer = calcularDiasParaVencer();
-  const estadoInfo = estadoConfig[unidad.estado] || { label: unidad.estado, variant: 'default' as const };
 
   return (
     <Modal
@@ -101,6 +89,11 @@ export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
             <div>
               <div className="font-semibold text-gray-900">{unidad.productoSKU}</div>
               <div className="text-sm text-gray-500">{unidad.productoNombre}</div>
+              {productoInfo && (productoInfo.presentacion || productoInfo.contenido || productoInfo.dosaje || productoInfo.sabor) && (
+                <div className="text-xs text-gray-400">
+                  {[productoInfo.presentacion, productoInfo.contenido, productoInfo.dosaje, productoInfo.sabor].filter(Boolean).join(' · ')}
+                </div>
+              )}
             </div>
           </div>
           <Badge variant={estadoInfo.variant} size="lg">
@@ -127,7 +120,7 @@ export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
             <h4 className="font-semibold text-gray-900">Ubicación Actual</h4>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-lg">{unidad.pais === 'USA' ? '🇺🇸' : '🇵🇪'}</span>
+            <span className="text-lg">{getPaisEmoji(unidad.pais)}</span>
             <span className="text-lg font-medium text-gray-900">{unidad.almacenNombre}</span>
           </div>
         </div>

@@ -46,6 +46,7 @@ interface AlmacenState {
   almacenesPeru: Almacen[];
   viajeros: Almacen[];
   viajerosConProximoViaje: Almacen[];
+  /** @deprecated Usar ResumenAlmacenesPorPais cuando se implemente el servicio genérico */
   resumenUSA: ResumenAlmacenesUSA | null;
   stats: AlmacenStats | null;
   selectedAlmacen: Almacen | null;
@@ -60,7 +61,7 @@ interface AlmacenState {
   fetchViajerosConProximoViaje: () => Promise<void>;
   fetchResumenUSA: () => Promise<void>;
   fetchStats: () => Promise<void>;
-  getByPais: (pais: 'USA' | 'Peru') => Promise<Almacen[]>;
+  getByPais: (pais: string) => Promise<Almacen[]>;
   getById: (id: string) => Promise<Almacen | null>;
   createAlmacen: (data: AlmacenFormData, userId: string) => Promise<string>;
   updateAlmacen: (id: string, data: Partial<AlmacenFormData>, userId: string) => Promise<void>;
@@ -162,7 +163,7 @@ export const useAlmacenStore = create<AlmacenState>((set, get) => ({
     }
   },
 
-  getByPais: async (pais: 'USA' | 'Peru') => {
+  getByPais: async (pais: string) => {
     set({ loading: true, error: null });
     try {
       const almacenes = await almacenService.getByPais(pais);

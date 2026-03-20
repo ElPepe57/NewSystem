@@ -5,7 +5,7 @@ export type ScannerMode = 'camera' | 'manual';
 
 export type ScanResultStatus = 'found' | 'not_found' | 'error';
 
-export type ScanSource = 'escaner' | 'venta' | 'cotizacion' | 'transferencia' | 'recepcion';
+export type ScanSource = 'escaner' | 'venta' | 'cotizacion' | 'transferencia' | 'recepcion' | 'conteo' | 'despacho';
 
 export interface ScanResult {
   barcode: string;

@@ -84,6 +84,7 @@ interface MercadoLibreState {
   syncingStock: boolean;
   procesando: boolean;
   procesandoOrderId: string | null;
+  importingOrders: boolean;
   error: string | null;
   initialized: boolean;
 
@@ -126,6 +127,65 @@ interface MercadoLibreState {
   procesarOrden: (orderSyncId: string) => Promise<{ ventaId: string; numeroVenta: string }>;
   procesarPendientes: () => Promise<{ procesadas: number; errores: number }>;
 
+  // Importar historial
+  importHistoricalOrders: (maxOrders?: number) => Promise<{
+    importadas: number;
+    omitidas: number;
+    errores: number;
+    totalEnML: number;
+  }>;
+
+  // Re-enriquecer buyers
+  reenrichingBuyers: boolean;
+  reenrichBuyers: () => Promise<{
+    actualizadas: number;
+    clientesActualizados: number;
+    errores: number;
+    total: number;
+  }>;
+
+  // Migración envío
+  patchEnvio: () => Promise<{ parchadas: number; sinCambio: number; sinMetodo: number; total: number }>;
+
+  // Fix ventas históricas
+  fixingVentas: boolean;
+  fixVentasHistoricas: () => Promise<{
+    corregidas: number;
+    sinCambio: number;
+    gastosEliminados: number;
+    total: number;
+  }>;
+
+  // Reparar ventas Urbano
+  repararVentasUrbano: () => Promise<{
+    reparadas: number;
+    omitidas: number;
+    errores: number;
+    total: number;
+    detalles: string[];
+  }>;
+
+  // Reparar nombres y DNI
+  repararNombresDni: () => Promise<{
+    reparadas: number;
+    omitidas: number;
+    errores: number;
+    total: number;
+    detalles: string[];
+  }>;
+
+  // Buy Box / Competencia
+  syncingBuyBox: boolean;
+  syncBuyBox: () => Promise<{ checked: number; winning: number; competing: number; sharing: number; listed: number; errors: number }>;
+
+  // Pack order consolidation
+  consolidatingPacks: boolean;
+  consolidatePackOrders: (dryRun?: boolean) => Promise<{ duplicatesFound: number; fixed: number; log: string[] }>;
+
+  // Diagnóstico del sistema
+  runningDiagnostic: boolean;
+  diagnosticoSistema: () => Promise<{ totalIssues: number; criticas: number; altas: number; medias: number; issues: any[]; log: string[] }>;
+
   // Helpers
   clearError: () => void;
 }
@@ -143,6 +203,12 @@ export const useMercadoLibreStore = create<MercadoLibreState>((set, get) => ({
   syncingStock: false,
   procesando: false,
   procesandoOrderId: null,
+  importingOrders: false,
+  reenrichingBuyers: false,
+  fixingVentas: false,
+  syncingBuyBox: false,
+  consolidatingPacks: false,
+  runningDiagnostic: false,
   error: null,
   initialized: false,
   _unsubConfig: null,
@@ -360,6 +426,156 @@ export const useMercadoLibreStore = create<MercadoLibreState>((set, get) => ({
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error procesando pendientes';
       set({ error: message, procesando: false });
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // IMPORTAR HISTORIAL
+  // ============================================================
+
+  importHistoricalOrders: async (maxOrders = 100) => {
+    set({ importingOrders: true, error: null });
+    try {
+      const result = await mercadoLibreService.importHistoricalOrders(maxOrders);
+      set({ importingOrders: false });
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error importando historial';
+      set({ error: message, importingOrders: false });
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // RE-ENRIQUECER BUYERS
+  // ============================================================
+
+  reenrichBuyers: async () => {
+    set({ reenrichingBuyers: true, error: null });
+    try {
+      const result = await mercadoLibreService.reenrichBuyers();
+      set({ reenrichingBuyers: false });
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error actualizando datos de buyers';
+      set({ error: message, reenrichingBuyers: false });
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // PATCH ENVÍO (migración)
+  // ============================================================
+
+  patchEnvio: async () => {
+    set({ error: null });
+    try {
+      const result = await mercadoLibreService.patchEnvio();
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error parcheando envíos';
+      set({ error: message });
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // FIX VENTAS HISTÓRICAS
+  // ============================================================
+
+  fixVentasHistoricas: async () => {
+    set({ fixingVentas: true, error: null });
+    try {
+      const result = await mercadoLibreService.fixVentasHistoricas();
+      set({ fixingVentas: false });
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error corrigiendo ventas históricas';
+      set({ error: message, fixingVentas: false });
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // REPARAR VENTAS URBANO
+  // ============================================================
+
+  repararVentasUrbano: async () => {
+    set({ error: null });
+    try {
+      const result = await mercadoLibreService.repararVentasUrbano();
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error reparando ventas Urbano';
+      set({ error: message });
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // REPARAR NOMBRES Y DNI
+  // ============================================================
+
+  repararNombresDni: async () => {
+    set({ error: null });
+    try {
+      const result = await mercadoLibreService.repararNombresDni();
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error reparando nombres/DNI';
+      set({ error: message });
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // BUY BOX / COMPETENCIA
+  // ============================================================
+
+  syncBuyBox: async () => {
+    set({ syncingBuyBox: true, error: null });
+    try {
+      const result = await mercadoLibreService.syncBuyBox();
+      set({ syncingBuyBox: false });
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error sincronizando competencia';
+      set({ error: message, syncingBuyBox: false });
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // CONSOLIDAR PACK ORDERS
+  // ============================================================
+
+  consolidatePackOrders: async (dryRun = true) => {
+    set({ consolidatingPacks: true, error: null });
+    try {
+      const result = await mercadoLibreService.consolidatePackOrders(dryRun);
+      set({ consolidatingPacks: false });
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error consolidando pack orders';
+      set({ error: message, consolidatingPacks: false });
+      throw error;
+    }
+  },
+
+  // ============================================================
+  // DIAGNÓSTICO DEL SISTEMA
+  // ============================================================
+
+  diagnosticoSistema: async () => {
+    set({ runningDiagnostic: true, error: null });
+    try {
+      const result = await mercadoLibreService.diagnosticoSistema();
+      set({ runningDiagnostic: false });
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error ejecutando diagnóstico';
+      set({ error: message, runningDiagnostic: false });
       throw error;
     }
   },

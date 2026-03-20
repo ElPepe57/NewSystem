@@ -11,9 +11,10 @@ import {
   Search,
   ArrowUpDown
 } from 'lucide-react';
-import { Badge } from '../../common';
+import { Badge, LineaNegocioBadge } from '../../common';
 import { UnidadesDesglose } from './UnidadesDesglose';
 import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../utils/multiOrigen.helpers';
 
 // Interfaz para producto con sus unidades agrupadas
 export interface ProductoConUnidades {
@@ -22,14 +23,18 @@ export interface ProductoConUnidades {
   nombre: string;
   marca: string;
   grupo: string;
+  presentacion?: string;
+  contenido?: string;
+  dosaje?: string;
+  sabor?: string;
   unidades: Unidad[];
   // Conteos por estado
-  recibidaUSA: number;
-  enTransitoUSA: number;
+  enOrigen: number;
+  enTransitoOrigen: number;
   enTransitoPeru: number;
   disponiblePeru: number;
   reservada: number;
-  reservadaUSA: number;
+  reservadaOrigen: number;
   reservadaPeru: number;
   vendida: number;
   problemas: number; // vencida + danada
@@ -52,7 +57,7 @@ interface ProductoInventarioTableProps {
 }
 
 // Configuración de ordenamiento
-type SortKey = 'sku' | 'nombre' | 'usa' | 'transito' | 'peru' | 'resUsa' | 'resPeru' | 'vendidas' | 'total' | 'valor' | 'vencer';
+type SortKey = 'sku' | 'nombre' | 'origen' | 'transito' | 'peru' | 'resOrigen' | 'resPeru' | 'vendidas' | 'total' | 'valor' | 'vencer';
 type SortDirection = 'asc' | 'desc';
 
 interface SortConfig {
@@ -75,10 +80,10 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
     switch (key) {
       case 'sku': return producto.sku.toLowerCase();
       case 'nombre': return producto.nombre.toLowerCase();
-      case 'usa': return producto.recibidaUSA;
-      case 'transito': return producto.enTransitoUSA + producto.enTransitoPeru;
+      case 'origen': return producto.enOrigen;
+      case 'transito': return producto.enTransitoOrigen + producto.enTransitoPeru;
       case 'peru': return producto.disponiblePeru;
-      case 'resUsa': return producto.reservadaUSA;
+      case 'resOrigen': return producto.reservadaOrigen;
       case 'resPeru': return producto.reservadaPeru;
       case 'vendidas': return producto.vendida;
       case 'total': return producto.totalUnidades;
@@ -201,10 +206,10 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
 
     return producto.unidades.filter(u => {
       switch (filtroEstado) {
-        case 'recibida_usa':
-          return u.estado === 'recibida_usa';
+        case 'en_origen':
+          return esEstadoEnOrigen(u.estado);
         case 'en_transito':
-          return u.estado === 'en_transito_usa' || u.estado === 'en_transito_peru';
+          return esEstadoEnTransitoOrigen(u.estado) || u.estado === 'en_transito_peru';
         case 'disponible_peru':
           return u.estado === 'disponible_peru';
         case 'reservada':
@@ -280,7 +285,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
         <div className="flex items-center gap-2 text-sm text-gray-600 bg-primary-50 px-3 py-2 rounded-lg">
           <ArrowUpDown className="h-4 w-4 text-primary-600" />
           <span>
-            Ordenado por <strong>{sortConfig.key === 'sku' ? 'SKU' : sortConfig.key === 'nombre' ? 'Nombre' : sortConfig.key === 'usa' ? 'USA' : sortConfig.key === 'transito' ? 'Tránsito' : sortConfig.key === 'peru' ? 'Perú' : sortConfig.key === 'resUsa' ? 'Res. USA' : sortConfig.key === 'resPeru' ? 'Res. Perú' : sortConfig.key === 'vendidas' ? 'Vendidas' : sortConfig.key === 'total' ? 'Total' : sortConfig.key === 'valor' ? 'Valor' : 'Por Vencer'}</strong>
+            Ordenado por <strong>{sortConfig.key === 'sku' ? 'SKU' : sortConfig.key === 'nombre' ? 'Nombre' : sortConfig.key === 'origen' ? 'Origen' : sortConfig.key === 'transito' ? 'Tránsito' : sortConfig.key === 'peru' ? 'Perú' : sortConfig.key === 'resOrigen' ? 'Res. Origen' : sortConfig.key === 'resPeru' ? 'Res. Perú' : sortConfig.key === 'vendidas' ? 'Vendidas' : sortConfig.key === 'total' ? 'Total' : sortConfig.key === 'valor' ? 'Valor' : 'Por Vencer'}</strong>
             {' '}({sortConfig.direction === 'asc' ? 'ascendente' : 'descendente'})
           </span>
           <button
@@ -315,10 +320,10 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
                   )}
                 </div>
               </th>
-              <SortableHeader sortKey="usa">USA</SortableHeader>
+              <SortableHeader sortKey="origen">Origen</SortableHeader>
               <SortableHeader sortKey="transito">Tránsito</SortableHeader>
               <SortableHeader sortKey="peru">Perú</SortableHeader>
-              <SortableHeader sortKey="resUsa">Res. USA</SortableHeader>
+              <SortableHeader sortKey="resOrigen">Res. Origen</SortableHeader>
               <SortableHeader sortKey="resPeru">Res. Perú</SortableHeader>
               <SortableHeader sortKey="vendidas">Vendidas</SortableHeader>
               <SortableHeader sortKey="total">Total</SortableHeader>
@@ -387,23 +392,24 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
                             {producto.marca} · {producto.nombre}
                           </div>
                           <div className="text-xs text-gray-400">
-                            {producto.grupo}
+                            {[producto.presentacion, producto.contenido, producto.dosaje, producto.sabor].filter(Boolean).join(' · ') || producto.grupo}
                           </div>
+                          <LineaNegocioBadge lineaNegocioId={producto.lineaNegocioId} />
                         </div>
                       </div>
                     </td>
 
-                    {/* Stock USA */}
+                    {/* Stock Origen */}
                     <td className="px-4 py-4 text-center">
                       <div className="text-sm font-medium text-blue-600">
-                        {producto.recibidaUSA}
+                        {producto.enOrigen}
                       </div>
                     </td>
 
                     {/* En Tránsito */}
                     <td className="px-4 py-4 text-center">
                       <div className="text-sm font-medium text-amber-600">
-                        {producto.enTransitoUSA + producto.enTransitoPeru}
+                        {producto.enTransitoOrigen + producto.enTransitoPeru}
                       </div>
                     </td>
 
@@ -414,10 +420,10 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
                       </div>
                     </td>
 
-                    {/* Reservadas USA */}
+                    {/* Reservadas Origen */}
                     <td className="px-4 py-4 text-center">
                       <div className="text-sm font-medium text-purple-600">
-                        {producto.reservadaUSA}
+                        {producto.reservadaOrigen}
                       </div>
                     </td>
 

@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Etiqueta,
   EtiquetaFormData,
@@ -50,26 +51,7 @@ const generarSlug = (texto: string): string => {
  * Formato: ETQ-001, ETQ-002, etc.
  */
 async function generarCodigo(): Promise<string> {
-  const prefix = 'ETQ';
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith(prefix)) {
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber('ETQ', 3);
 }
 
 /**
@@ -150,6 +132,17 @@ export const etiquetaService = {
   },
 
   /**
+   * Obtener etiquetas filtradas por linea de negocio
+   * Retorna etiquetas que no tienen lineaNegocioIds (globales) o que incluyen esta linea
+   */
+  async getByLineaNegocio(lineaNegocioId: string): Promise<Etiqueta[]> {
+    const todas = await this.getActivas();
+    return todas.filter(e =>
+      !e.lineaNegocioIds?.length || e.lineaNegocioIds.includes(lineaNegocioId)
+    );
+  },
+
+  /**
    * Obtener una etiqueta por ID
    */
   async getById(id: string): Promise<Etiqueta | null> {
@@ -205,6 +198,7 @@ export const etiquetaService = {
         colorFondo: data.colorFondo || '#F3F4F6',
         colorTexto: data.colorTexto || '#4B5563',
         colorBorde: data.colorBorde || '#D1D5DB',
+        ...(data.lineaNegocioIds?.length ? { lineaNegocioIds: data.lineaNegocioIds } : {}),
         estado: 'activa',
         mostrarEnFiltros: data.mostrarEnFiltros ?? true,
         ordenDisplay,
@@ -262,6 +256,7 @@ export const etiquetaService = {
       if (data.colorBorde !== undefined) updateData.colorBorde = data.colorBorde;
       if (data.mostrarEnFiltros !== undefined) updateData.mostrarEnFiltros = data.mostrarEnFiltros;
       if (data.ordenDisplay !== undefined) updateData.ordenDisplay = data.ordenDisplay;
+      if (data.lineaNegocioIds !== undefined) updateData.lineaNegocioIds = data.lineaNegocioIds;
 
       await updateDoc(docRef, updateData);
 

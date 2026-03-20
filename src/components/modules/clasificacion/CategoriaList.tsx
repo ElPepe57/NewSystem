@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, FolderTree, Search, ChevronRight, Package, Globe,
 import { Button } from '../../common';
 import { ConfirmDialog } from '../../common/ConfirmDialog';
 import { useCategoriaStore } from '../../../store/categoriaStore';
+import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { useAuthStore } from '../../../store/authStore';
 import { CategoriaForm } from './CategoriaForm';
 import { CategoriaDetalle } from './CategoriaDetalle';
@@ -11,8 +12,10 @@ import type { Categoria, CategoriaArbol } from '../../../types/categoria.types';
 export function CategoriaList() {
   const { user } = useAuthStore();
   const { arbol, fetchArbol, delete: deleteCategoria, loading } = useCategoriaStore();
+  const { lineasActivas, fetchLineasActivas, getLineaNombre, getLineaColor } = useLineaNegocioStore();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [filtroLinea, setFiltroLinea] = useState<string | ''>('');
   const [showForm, setShowForm] = useState(false);
   const [editingCategoria, setEditingCategoria] = useState<Categoria | null>(null);
   const [categoriaPadreId, setCategoriaPadreId] = useState<string | undefined>();
@@ -22,6 +25,9 @@ export function CategoriaList() {
 
   useEffect(() => {
     fetchArbol();
+    if (lineasActivas.length === 0) {
+      fetchLineasActivas();
+    }
   }, []);
 
   const handleAddSubcategoria = (padreId: string) => {
@@ -66,15 +72,21 @@ export function CategoriaList() {
     setExpandedIds(newExpanded);
   };
 
-  // Filtrar por busqueda
-  const arbolFiltrado = searchTerm
-    ? arbol.filter(padre => {
-        const term = searchTerm.toLowerCase();
-        const padreMatch = padre.nombre.toLowerCase().includes(term);
-        const hijosMatch = padre.hijos.some(h => h.nombre.toLowerCase().includes(term));
-        return padreMatch || hijosMatch;
-      })
-    : arbol;
+  // Filtrar por busqueda y linea
+  const arbolFiltrado = arbol.filter(padre => {
+    // Filtro por linea de negocio
+    if (filtroLinea) {
+      const lineaIds = padre.lineaNegocioIds;
+      if (lineaIds && lineaIds.length > 0 && !lineaIds.includes(filtroLinea)) {
+        return false;
+      }
+    }
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    const padreMatch = padre.nombre.toLowerCase().includes(term);
+    const hijosMatch = padre.hijos.some(h => h.nombre.toLowerCase().includes(term));
+    return padreMatch || hijosMatch;
+  });
 
   // Renderizar categoria
   const renderCategoria = (categoria: Categoria, isChild = false) => (
@@ -94,6 +106,22 @@ export function CategoriaList() {
         </span>
         {categoria.mostrarEnWeb && (
           <Globe className="h-3 w-3 text-green-500" />
+        )}
+        {/* Lineas de negocio badges */}
+        {(categoria.lineaNegocioIds)?.length ? (
+          (categoria.lineaNegocioIds).map((lid: string) => (
+            <span
+              key={lid}
+              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs text-white"
+              style={{ backgroundColor: getLineaColor(lid) }}
+            >
+              {getLineaNombre(lid)}
+            </span>
+          ))
+        ) : (
+          <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+            Todas
+          </span>
         )}
       </div>
 
@@ -186,16 +214,30 @@ export function CategoriaList() {
         </Button>
       </div>
 
-      {/* Busqueda */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar categoria..."
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-        />
+      {/* Busqueda y filtro */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar categoria..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+          />
+        </div>
+        {lineasActivas.length > 0 && (
+          <select
+            value={filtroLinea}
+            onChange={(e) => setFiltroLinea(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">Todas las lineas</option>
+            {lineasActivas.map(l => (
+              <option key={l.id} value={l.id}>{l.icono} {l.nombre}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Lista */}

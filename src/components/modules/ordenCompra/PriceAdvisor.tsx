@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { PriceIntelligenceService } from '../../../services/priceIntelligence.service';
 import { PriceHistoryChart } from './PriceHistoryChart';
+import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
 import type { PriceIntelligenceResult, PriceIntelligenceConfig } from '../../../types/priceIntelligence.types';
 import type { Producto } from '../../../types/producto.types';
 
@@ -59,6 +60,15 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
   const [expanded, setExpanded] = useState(!compact);
   const [activeSection, setActiveSection] = useState<'overview' | 'history' | 'providers' | 'profitability'>('overview');
 
+  // Márgenes desde categoría principal
+  const categoriaPrincipal = producto.categorias?.find(c => c.categoriaId === producto.categoriaPrincipalId) || producto.categorias?.[0];
+  const margenObjetivoCategoria = categoriaPrincipal?.margenObjetivo ?? 35;
+  const margenMinimoCategoria = categoriaPrincipal?.margenMinimo ?? 15;
+
+  // Flete desde ruta (paisOrigen)
+  const getFleteEstimado = usePaisOrigenStore(s => s.getFleteEstimado);
+  const fleteRuta = getFleteEstimado?.(producto.paisOrigen || 'US') ?? 0;
+
   // Debounce del precio para evitar muchas llamadas
   const [debouncedPrecio, setDebouncedPrecio] = useState(precioIngresado);
 
@@ -72,9 +82,9 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
   // Configuración del análisis
   const config: PriceIntelligenceConfig = useMemo(() => ({
     tipoCambio,
-    margenObjetivo: producto.margenObjetivo || 35,
-    margenMinimo: producto.margenMinimo || 15,
-    costoFleteUSAPeru: producto.costoFleteUSAPeru || 5,
+    margenObjetivo: margenObjetivoCategoria,
+    margenMinimo: margenMinimoCategoria,
+    costoFleteInternacional: fleteRuta,
     proveedorActual
   }), [tipoCambio, producto, proveedorActual]);
 
@@ -576,8 +586,8 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                   <span className="font-medium">${(precioIngresado || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">+ Flete USA-Perú:</span>
-                  <span className="font-medium">${(producto.costoFleteUSAPeru || 0).toFixed(2)}</span>
+                  <span className="text-gray-600">+ Flete Internacional:</span>
+                  <span className="font-medium">${(fleteRuta || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2">
                   <span className="text-gray-600">= Costo Total USD:</span>

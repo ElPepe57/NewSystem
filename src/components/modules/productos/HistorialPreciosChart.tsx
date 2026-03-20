@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { formatFecha } from '../../../utils/dateFormatters';
 import { TrendingUp, TrendingDown, Minus, Calendar, DollarSign, Percent } from 'lucide-react';
 import type { HistorialPrecio } from '../../../types/producto.types';
 import type { Timestamp } from 'firebase/firestore';
@@ -63,9 +64,6 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
   // Calcular valores para el gráfico de barras simple
   const maxValor = Math.max(...datos.map(d => Math.max(d.precioUSAPromedio * tipoCambioActual, d.precioPERUPromedio)));
 
-  const formatFecha = (fecha: Date) => {
-    return fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
-  };
 
   const getTendenciaIcon = () => {
     if (!stats) return null;

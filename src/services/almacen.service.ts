@@ -12,9 +12,11 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Almacen,
   AlmacenFormData,
+  TipoAlmacen,
   InventarioAlmacen,
   ResumenAlmacenesUSA,
   ClasificacionAlmacen,
@@ -24,39 +26,27 @@ import type {
   MetricasOperativasAlmacen
 } from '../types/almacen.types';
 import { COLLECTIONS } from '../config/collections';
+import { esPaisOrigen } from '../utils/multiOrigen.helpers';
 
 const COLLECTION_NAME = COLLECTIONS.ALMACENES;
 
 /**
  * Genera el siguiente código de almacén automáticamente según el tipo
  * - Viajero: VIA-001, VIA-002...
+ * - Courier: COU-001, COU-002...
+ * - Almacén Origen: ALM-OR-001...
  * - Almacén Perú: ALM-PE-001...
  */
-async function generarCodigoAlmacen(tipo: 'viajero' | 'almacen_peru'): Promise<string> {
-  const prefix = tipo === 'viajero' ? 'VIA' : 'ALM-PE';
+async function generarCodigoAlmacen(tipo: TipoAlmacen): Promise<string> {
+  const prefixMap: Record<TipoAlmacen, string> = {
+    viajero: 'VIA',
+    courier: 'COU',
+    almacen_origen: 'ALM-OR',
+    almacen_peru: 'ALM-PE'
+  };
+  const prefix = prefixMap[tipo] || 'ALM';
 
-  // Obtener todos los almacenes y encontrar el número máximo para este prefijo
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    // Verificar si el código comienza con el prefijo correcto
-    if (codigo && codigo.startsWith(prefix)) {
-      // Extraer el número del final (ej: VIA-001 -> 001, ALM-USA-001 -> 001)
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber(prefix, 3);
 }
 
 export const almacenService = {
@@ -117,7 +107,7 @@ export const almacenService = {
     } as Almacen;
   },
 
-  async getByPais(pais: 'USA' | 'Peru'): Promise<Almacen[]> {
+  async getByPais(pais: string): Promise<Almacen[]> {
     const q = query(
       collection(db, COLLECTION_NAME),
       where('pais', '==', pais)
@@ -167,7 +157,7 @@ export const almacenService = {
       if (!viajerosIds.includes(data.almacenId)) return;
       // Solo contar unidades disponibles o sin estado definido (legacy)
       // Excluir solo las que claramente no están disponibles
-      const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru'];
+      const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
       if (estadosExcluidos.includes(data.estado)) return;
 
       if (!unidadesPorAlmacen[data.almacenId]) {
@@ -238,7 +228,7 @@ export const almacenService = {
       if (!almacenesIds.includes(data.almacenId)) return;
       // Solo contar unidades disponibles (recibida_usa) o sin estado definido (legacy)
       // Excluir solo las que claramente no están disponibles
-      const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru'];
+      const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
       if (estadosExcluidos.includes(data.estado)) return;
 
       if (!unidadesPorAlmacen[data.almacenId]) {
@@ -260,6 +250,52 @@ export const almacenService = {
       if (a.esViajero !== b.esViajero) {
         return a.esViajero ? -1 : 1;
       }
+      return a.nombre.localeCompare(b.nombre);
+    });
+  },
+
+  /**
+   * Obtiene todos los almacenes de origen activos (genérico multi-país)
+   * Si se proporciona país, filtra por ese país. Si no, devuelve todos los de origen.
+   * Mantiene backward compat con getAlmacenesUSA() que es un caso especial.
+   */
+  async getAlmacenesOrigen(pais?: string): Promise<Almacen[]> {
+    if (pais) {
+      // Filtrar por país específico
+      return this.getByPais(pais as any);
+    }
+
+    // Obtener todos los almacenes activos y filtrar los de origen
+    const todos = await this.getAll();
+    const almacenesOrigen = todos.filter(a =>
+      a.estadoAlmacen === 'activo' && esPaisOrigen(a.pais)
+    );
+
+    // Obtener unidades para enriquecer con inventario
+    const almacenesIds = almacenesOrigen.map(a => a.id);
+    if (almacenesIds.length === 0) return [];
+
+    const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
+    const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
+    const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
+
+    unidadesSnapshot.docs.forEach(docSnap => {
+      const data = docSnap.data();
+      if (!almacenesIds.includes(data.almacenId)) return;
+      if (estadosExcluidos.includes(data.estado)) return;
+      if (!unidadesPorAlmacen[data.almacenId]) {
+        unidadesPorAlmacen[data.almacenId] = { cantidad: 0, valor: 0 };
+      }
+      unidadesPorAlmacen[data.almacenId].cantidad++;
+      unidadesPorAlmacen[data.almacenId].valor += data.costoUnitarioUSD || 0;
+    });
+
+    return almacenesOrigen.map(a => ({
+      ...a,
+      unidadesActuales: unidadesPorAlmacen[a.id]?.cantidad || 0,
+      valorInventarioUSD: unidadesPorAlmacen[a.id]?.valor || 0
+    })).sort((a, b) => {
+      if (a.esViajero !== b.esViajero) return a.esViajero ? -1 : 1;
       return a.nombre.localeCompare(b.nombre);
     });
   },
@@ -436,7 +472,7 @@ export const almacenService = {
     );
 
     // Filtrar unidades disponibles (excluir las claramente no disponibles)
-    const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru'];
+    const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
     const unidadesDisponibles = unidadesSnapshot.docs.filter(docSnap => {
       const estado = docSnap.data().estado;
       return !estadosExcluidos.includes(estado);
@@ -475,7 +511,7 @@ export const almacenService = {
       const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
 
       // Agrupar unidades por almacenId
-      const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru'];
+      const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
       const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
 
       unidadesSnapshot.docs.forEach(docSnap => {
@@ -537,7 +573,7 @@ export const almacenService = {
     );
 
     // Filtrar unidades disponibles (excluir las claramente no disponibles)
-    const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru'];
+    const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
     const unidadesUSA = unidadesSnapshot.docs.filter(docSnap => {
       const estado = docSnap.data().estado;
       return !estadosExcluidos.includes(estado);
@@ -634,7 +670,7 @@ export const almacenService = {
 
     // Obtener unidades USA para cálculos precisos
     const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
-    const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru'];
+    const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
 
     const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
     let totalUnidadesUSA = 0;
@@ -741,7 +777,7 @@ export const almacenService = {
    * Obtiene el próximo código que se generará para un tipo de almacén
    * Útil para mostrar al usuario antes de crear
    */
-  async getProximoCodigo(tipo: 'viajero' | 'almacen_peru'): Promise<string> {
+  async getProximoCodigo(tipo: TipoAlmacen): Promise<string> {
     return generarCodigoAlmacen(tipo);
   },
 

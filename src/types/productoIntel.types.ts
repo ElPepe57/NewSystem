@@ -152,6 +152,9 @@ export interface ProductoIntel {
   // Alertas
   alertas: AlertaProductoIntel[];
 
+  // Línea de negocio (heredada del producto)
+  lineaNegocioId?: string;
+
   // Metadata
   ultimoCalculo: Date;
 }

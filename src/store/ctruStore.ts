@@ -71,6 +71,7 @@ export interface CTRUProductoDetalle {
   contenido: string;
   dosaje: string;
   sabor?: string;
+  lineaNegocioId?: string;
 
   // Estado y conteos
   estadoProducto: 'activo' | 'vendido' | 'mixto';
@@ -521,6 +522,7 @@ function processProductosDetalle(
       contenido: prodInfo?.contenido || '',
       dosaje: prodInfo?.dosaje || '',
       sabor: prodInfo?.sabor,
+      lineaNegocioId: prodInfo?.lineaNegocioId,
       estadoProducto,
       unidadesActivas: data.activas,
       unidadesVendidas: data.vendidas,
@@ -959,7 +961,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const [todasUnidades, todosGastos, todasOCs, todasVentas, todasTransferencias, todosProductos] = await Promise.all([
-        unidadService.getAll(),
+        unidadService.getAllIncluyendoHistoricas(),
         gastoService.getAll(),
         OrdenCompraService.getAll(),
         VentaService.getAll(),

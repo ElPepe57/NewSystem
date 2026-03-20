@@ -41,6 +41,9 @@ export interface TipoProducto {
   iconoUrl?: string;
   imagenUrl?: string;
 
+  // Lineas de negocio asociadas
+  lineaNegocioIds?: string[];  // Si vacio/undefined = disponible para todas las lineas
+
   // Estado
   estado: EstadoTipoProducto;
 
@@ -80,6 +83,7 @@ export interface TipoProductoFormData {
   categoriasSugeridasIds?: string[];
   iconoUrl?: string;
   imagenUrl?: string;
+  lineaNegocioIds?: string[];
 }
 
 /**

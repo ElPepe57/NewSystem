@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { useNavigate } from 'react-router-dom';
 import {
   Wallet,
@@ -33,6 +34,7 @@ import { cuentasPendientesService } from '../../services/cuentasPendientes.servi
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { useTesoreriaStore } from '../../store/tesoreriaStore';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type {
   MovimientoTesoreria,
   ConversionCambiaria,
@@ -81,6 +83,16 @@ export const Tesoreria: React.FC = () => {
     fetchAll: storeFetchAll
   } = useTesoreriaStore();
   const navigate = useNavigate();
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+
+  // Filtrar movimientos por línea de negocio global
+  // null lineaNegocioId en movimiento = compartido, siempre visible
+  const movimientosFiltrados = useMemo(() => {
+    if (!lineaFiltroGlobal) return movimientos;
+    return movimientos.filter(m =>
+      !m.lineaNegocioId || m.lineaNegocioId === lineaFiltroGlobal
+    );
+  }, [movimientos, lineaFiltroGlobal]);
 
   const [tabActiva, setTabActiva] = useState<TabActiva>('movimientos');
   const [loadingLocal, setLoadingLocal] = useState(true);
@@ -100,6 +112,10 @@ export const Tesoreria: React.FC = () => {
 
   // Estado para edición de cuentas
   const [cuentaEditando, setCuentaEditando] = useState<CuentaCaja | null>(null);
+
+  // Estado para ver movimientos de una cuenta específica
+  const [cuentaDetalle, setCuentaDetalle] = useState<CuentaCaja | null>(null);
+  const [movsLimit, setMovsLimit] = useState(50);
 
   // Estado para edición de movimientos
   const [movimientoEditando, setMovimientoEditando] = useState<MovimientoTesoreria | null>(null);
@@ -218,6 +234,12 @@ export const Tesoreria: React.FC = () => {
         m.tipo === 'transferencia_interna' && m.estado !== 'anulado'
       );
 
+      // Debug: mostrar todos los movimientos de transferencia encontrados
+      console.log(`[Transferencias] Total movimientos: ${movimientos.length}, tipo transferencia_interna: ${movsTrans.length}`);
+      movsTrans.forEach(m => {
+        console.log(`  - ${m.numeroMovimiento} | ${m.concepto} | ${m.moneda} ${m.monto} | cuentaOrigen: ${m.cuentaOrigen || 'N/A'} | cuentaDestino: ${m.cuentaDestino || 'N/A'} | fecha: ${m.fecha?.toDate?.()}`);
+      });
+
       // Separar SALIDAS y ENTRADAS
       const salidas = movsTrans.filter(m => m.cuentaOrigen && !m.cuentaDestino);
       const entradas = movsTrans.filter(m => m.cuentaDestino && !m.cuentaOrigen);
@@ -226,7 +248,7 @@ export const Tesoreria: React.FC = () => {
 
       const transArray: TransferenciaEntreCuentas[] = [];
 
-      // Emparejar SALIDA + ENTRADA por monto y fecha cercana
+      // Emparejar SALIDA + ENTRADA por monto y fecha cercana (ventana ampliada a 1 hora)
       const entradasUsadas = new Set<string>();
 
       for (const salida of salidas) {
@@ -235,7 +257,7 @@ export const Tesoreria: React.FC = () => {
           !entradasUsadas.has(e.id) &&
           e.monto === salida.monto &&
           e.moneda === salida.moneda &&
-          Math.abs(e.fecha.toMillis() - salida.fecha.toMillis()) < 60000 // dentro de 1 min
+          Math.abs(e.fecha.toMillis() - salida.fecha.toMillis()) < 3600000 // dentro de 1 hora
         );
 
         if (entrada) {
@@ -252,12 +274,31 @@ export const Tesoreria: React.FC = () => {
           cuentaOrigenId: salida.cuentaOrigen || '',
           cuentaOrigenNombre: cuentaOrigenData?.nombre || 'Cuenta desconocida',
           cuentaDestinoId: entrada?.cuentaDestino || '',
-          cuentaDestinoNombre: cuentaDestinoData?.nombre || 'Cuenta desconocida',
+          cuentaDestinoNombre: cuentaDestinoData?.nombre || (entrada ? 'Cuenta desconocida' : '(sin emparejar)'),
           monto: salida.monto,
           moneda: salida.moneda,
           concepto: salida.concepto?.replace('[SALIDA] ', '').replace('Transferencia entre cuentas: ', '') || '',
           creadoPor: salida.creadoPor,
           creadoEn: salida.fechaCreacion.toDate()
+        });
+      }
+
+      // Agregar ENTRADAS que no fueron emparejadas (para que no se pierdan)
+      for (const entrada of entradas) {
+        if (entradasUsadas.has(entrada.id)) continue;
+        const cuentaDestinoData = cuentas.find(c => c.id === entrada.cuentaDestino);
+        transArray.push({
+          id: entrada.id,
+          fecha: entrada.fecha.toDate(),
+          cuentaOrigenId: '',
+          cuentaOrigenNombre: '(sin emparejar)',
+          cuentaDestinoId: entrada.cuentaDestino || '',
+          cuentaDestinoNombre: cuentaDestinoData?.nombre || 'Cuenta desconocida',
+          monto: entrada.monto,
+          moneda: entrada.moneda,
+          concepto: entrada.concepto?.replace('[ENTRADA] ', '').replace('Transferencia entre cuentas: ', '') || '',
+          creadoPor: entrada.creadoPor,
+          creadoEn: entrada.fechaCreacion.toDate()
         });
       }
 
@@ -612,15 +653,6 @@ export const Tesoreria: React.FC = () => {
     setCuentaForm({ moneda: 'PEN', tipo: 'efectivo', saldoInicial: 0, titular: '', esBiMoneda: false, saldoInicialUSD: 0, saldoInicialPEN: 0 });
   };
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
 
   const esIngreso = (tipo: TipoMovimientoTesoreria): boolean => {
     return ['ingreso_venta', 'ingreso_anticipo', 'ingreso_otro', 'ajuste_positivo'].includes(tipo);
@@ -825,6 +857,23 @@ export const Tesoreria: React.FC = () => {
     return puntos;
   }, [movimientos, cuentas]);
 
+  // Totales de movimientos visibles (usa movimientosFiltrados para respetar filtro de línea de negocio)
+  const totalesMovimientos = useMemo(() => {
+    const activos = movimientosFiltrados.filter(m => m.estado !== 'anulado');
+    let entradasPEN = 0, salidasPEN = 0, entradasUSD = 0, salidasUSD = 0;
+    for (const mov of activos) {
+      const esIng = esIngresoMovimiento(mov);
+      if (mov.moneda === 'PEN') {
+        if (esIng) entradasPEN += mov.monto;
+        else salidasPEN += mov.monto;
+      } else {
+        if (esIng) entradasUSD += mov.monto;
+        else salidasUSD += mov.monto;
+      }
+    }
+    return { entradasPEN, salidasPEN, entradasUSD, salidasUSD, total: activos.length };
+  }, [movimientosFiltrados]);
+
   // Recalcular saldos de todas las cuentas basándose en los movimientos
   const handleRecalcularSaldos = async () => {
     const confirmed = await confirm({
@@ -926,9 +975,9 @@ export const Tesoreria: React.FC = () => {
             <Card padding="md" className="bg-gradient-to-br from-green-50 to-white border-green-200">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-green-800 uppercase tracking-wide">Soles (PEN)</h3>
-                <Banknote className="h-8 w-8 text-green-500" />
+                <Banknote className="h-5 w-5 sm:h-8 sm:w-8 text-green-500" />
               </div>
-              <div className="text-3xl font-bold text-green-700 mb-3">
+              <div className="text-xl sm:text-3xl font-bold text-green-700 mb-2 sm:mb-3">
                 S/ {stats.saldoTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-green-200">
@@ -965,9 +1014,9 @@ export const Tesoreria: React.FC = () => {
             <Card padding="md" className="bg-gradient-to-br from-blue-50 to-white border-blue-200">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-blue-800 uppercase tracking-wide">Dólares (USD)</h3>
-                <DollarSign className="h-8 w-8 text-blue-500" />
+                <DollarSign className="h-5 w-5 sm:h-8 sm:w-8 text-blue-500" />
               </div>
-              <div className="text-3xl font-bold text-blue-700 mb-3">
+              <div className="text-xl sm:text-3xl font-bold text-blue-700 mb-2 sm:mb-3">
                 $ {stats.saldoTotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-blue-200">
@@ -1002,10 +1051,10 @@ export const Tesoreria: React.FC = () => {
           </div>
 
           {/* Fila 2: Métricas adicionales */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             <Card padding="sm" className="bg-gray-50">
-              <div className="text-xs text-gray-500 mb-1">Conversiones Mes</div>
-              <div className="text-lg font-bold text-gray-800">
+              <div className="text-[10px] sm:text-xs text-gray-500 mb-1">Conversiones Mes</div>
+              <div className="text-base sm:text-lg font-bold text-gray-800">
                 {stats.conversionesMes || 0}
               </div>
               <div className="text-xs text-gray-400 mt-1">
@@ -1014,8 +1063,8 @@ export const Tesoreria: React.FC = () => {
             </Card>
 
             <Card padding="sm" className="bg-gray-50">
-              <div className="text-xs text-gray-500 mb-1">TC Promedio Usado</div>
-              <div className="text-lg font-bold text-gray-800">
+              <div className="text-[10px] sm:text-xs text-gray-500 mb-1"><span className="sm:hidden">TC Prom.</span><span className="hidden sm:inline">TC Promedio Usado</span></div>
+              <div className="text-base sm:text-lg font-bold text-gray-800">
                 {(stats.tcPromedioMes || 3.70).toFixed(3)}
               </div>
               <div className="text-xs text-gray-400 mt-1">
@@ -1024,8 +1073,8 @@ export const Tesoreria: React.FC = () => {
             </Card>
 
             <Card padding="sm" className="bg-amber-50 border-amber-200">
-              <div className="text-xs text-amber-700 mb-1">Pagos Pendientes USD</div>
-              <div className="text-lg font-bold text-amber-800">
+              <div className="text-[10px] sm:text-xs text-amber-700 mb-1"><span className="sm:hidden">Pend. USD</span><span className="hidden sm:inline">Pagos Pendientes USD</span></div>
+              <div className="text-base sm:text-lg font-bold text-amber-800">
                 $ {(stats.pagosPendientesUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
               <div className="text-xs text-amber-600 mt-1">
@@ -1034,8 +1083,8 @@ export const Tesoreria: React.FC = () => {
             </Card>
 
             <Card padding="sm" className="bg-amber-50 border-amber-200">
-              <div className="text-xs text-amber-700 mb-1">Pagos Pendientes PEN</div>
-              <div className="text-lg font-bold text-amber-800">
+              <div className="text-[10px] sm:text-xs text-amber-700 mb-1"><span className="sm:hidden">Pend. PEN</span><span className="hidden sm:inline">Pagos Pendientes PEN</span></div>
+              <div className="text-base sm:text-lg font-bold text-amber-800">
                 S/ {(stats.pagosPendientesPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
               </div>
               <div className="text-xs text-amber-600 mt-1">
@@ -1048,69 +1097,71 @@ export const Tesoreria: React.FC = () => {
 
       {/* Tabs */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex overflow-x-auto scrollbar-hide space-x-4 sm:space-x-8">
+        <nav className="-mb-px flex sm:space-x-8">
           <button
             onClick={() => setTabActiva('movimientos')}
-            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
+            className={`flex-1 sm:flex-none py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center justify-center sm:justify-start gap-1 sm:gap-2 ${
               tabActiva === 'movimientos'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <Wallet className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
+            <Wallet className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
             <span className="hidden sm:inline">Movimientos</span>
             <span className="sm:hidden">Mov.</span>
           </button>
           <button
             onClick={() => setTabActiva('conversiones')}
-            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
+            className={`flex-1 sm:flex-none py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center justify-center sm:justify-start gap-1 sm:gap-2 ${
               tabActiva === 'conversiones'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
+            <RefreshCw className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
             <span className="hidden sm:inline">Conversiones</span>
             <span className="sm:hidden">Conv.</span>
           </button>
           <button
             onClick={() => setTabActiva('transferencias')}
-            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
+            className={`flex-1 sm:flex-none py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center justify-center sm:justify-start gap-1 sm:gap-2 ${
               tabActiva === 'transferencias'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <ArrowLeftRight className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
+            <ArrowLeftRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
             <span className="hidden sm:inline">Transferencias</span>
             <span className="sm:hidden">Transf.</span>
           </button>
           <button
             onClick={() => setTabActiva('cuentas')}
-            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
+            className={`flex-1 sm:flex-none py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center justify-center sm:justify-start gap-1 sm:gap-2 ${
               tabActiva === 'cuentas'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <Building2 className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
-            Cuentas
+            <Building2 className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Cuentas</span>
+            <span className="sm:hidden">Ctas.</span>
           </button>
           <button
             onClick={() => {
               setTabActiva('pendientes');
               if (!dashboardPendientes) loadPendientes();
             }}
-            className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
+            className={`flex-1 sm:flex-none py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center justify-center sm:justify-start gap-1 sm:gap-2 ${
               tabActiva === 'pendientes'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <FileText className="h-4 w-4 sm:h-5 sm:w-5 inline mr-1 sm:mr-2" />
-            CxP/CxC
+            <FileText className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">CxP/CxC</span>
+            <span className="sm:hidden">CxP</span>
             {dashboardPendientes && (dashboardPendientes.cuentasPorCobrar.cantidadDocumentos + dashboardPendientes.cuentasPorPagar.cantidadDocumentos) > 0 && (
-              <span className="ml-1 sm:ml-2 px-1.5 sm:px-2 py-0.5 text-xs rounded-full bg-orange-100 text-orange-800">
+              <span className="px-1 sm:px-2 py-0.5 text-[10px] sm:text-xs rounded-full bg-orange-100 text-orange-800">
                 {dashboardPendientes.cuentasPorCobrar.cantidadDocumentos + dashboardPendientes.cuentasPorPagar.cantidadDocumentos}
               </span>
             )}
@@ -1123,7 +1174,7 @@ export const Tesoreria: React.FC = () => {
         <Card padding="none">
           <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-              Movimientos ({movimientos.length})
+              Movimientos ({movimientosFiltrados.length})
             </h3>
             <Button variant="primary" onClick={() => setIsMovimientoModalOpen(true)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
@@ -1192,7 +1243,122 @@ export const Tesoreria: React.FC = () => {
             </div>
           )}
 
-          <div className="overflow-x-auto">
+          {/* Totales de movimientos */}
+          {movimientosFiltrados.length > 0 && (
+            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+              <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                <div>
+                  <span className="text-gray-500">Entradas:</span>
+                  {totalesMovimientos.entradasPEN > 0 && (
+                    <span className="ml-2 font-semibold text-green-600">+S/ {totalesMovimientos.entradasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
+                  )}
+                  {totalesMovimientos.entradasUSD > 0 && (
+                    <span className="ml-2 font-semibold text-green-600">+$ {totalesMovimientos.entradasUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  )}
+                </div>
+                <div className="text-right">
+                  <span className="text-gray-500">Salidas:</span>
+                  {totalesMovimientos.salidasPEN > 0 && (
+                    <span className="ml-2 font-semibold text-red-600">-S/ {totalesMovimientos.salidasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
+                  )}
+                  {totalesMovimientos.salidasUSD > 0 && (
+                    <span className="ml-2 font-semibold text-red-600">-$ {totalesMovimientos.salidasUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  )}
+                </div>
+              </div>
+              <div className="mt-1 pt-1 border-t border-gray-200 flex justify-between text-xs sm:text-sm">
+                <span className="text-gray-500">Balance neto:</span>
+                <div className="flex gap-3">
+                  {(totalesMovimientos.entradasPEN > 0 || totalesMovimientos.salidasPEN > 0) && (
+                    <span className={`font-bold ${(totalesMovimientos.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {(totalesMovimientos.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? '+' : ''}S/ {(totalesMovimientos.entradasPEN - totalesMovimientos.salidasPEN).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                    </span>
+                  )}
+                  {(totalesMovimientos.entradasUSD > 0 || totalesMovimientos.salidasUSD > 0) && (
+                    <span className={`font-bold ${(totalesMovimientos.entradasUSD - totalesMovimientos.salidasUSD) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {(totalesMovimientos.entradasUSD - totalesMovimientos.salidasUSD) >= 0 ? '+' : ''}$ {(totalesMovimientos.entradasUSD - totalesMovimientos.salidasUSD).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Mobile card layout */}
+          <div className="md:hidden divide-y divide-gray-200">
+            {movimientosFiltrados.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">
+                No hay movimientos registrados
+              </div>
+            ) : (
+              movimientosFiltrados.map((mov) => {
+                const esIng = esIngresoMovimiento(mov);
+                return (
+                  <div
+                    key={mov.id}
+                    className={`px-4 py-3 space-y-2 ${mov.estado === 'anulado' ? 'opacity-50 bg-gray-100' : ''}`}
+                  >
+                    {/* Row 1: Date + Type badge + Amount */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-gray-500">{formatDate(mov.fecha)}</span>
+                        <span
+                          className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
+                            mov.tipo === 'ingreso_anticipo'
+                              ? 'bg-purple-100 text-purple-800'
+                              : esIng
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {esIng ? <TrendingUp className="h-2.5 w-2.5 mr-0.5" /> : <TrendingDown className="h-2.5 w-2.5 mr-0.5" />}
+                          {getTipoLabel(mov.tipo)}
+                        </span>
+                        {mov.estado === 'anulado' && (
+                          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-200 text-gray-600">
+                            ANULADO
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-2">
+                        <div className={`text-sm font-bold ${esIng ? 'text-green-600' : 'text-red-600'}`}>
+                          {esIng ? '+' : '-'} {mov.moneda === 'USD' ? '$' : 'S/'} {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                        </div>
+                        <div className="text-[10px] text-gray-400">TC: {mov.tipoCambio.toFixed(3)}</div>
+                      </div>
+                    </div>
+                    {/* Row 2: Doc + Account + Concepto */}
+                    <div className="flex items-center gap-2 flex-wrap text-xs">
+                      {mov.ordenCompraNumero && <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-medium">{mov.ordenCompraNumero}</span>}
+                      {mov.ventaNumero && <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-medium">{mov.ventaNumero}</span>}
+                      {mov.cotizacionNumero && <span className="px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800 text-[10px] font-medium">{mov.cotizacionNumero}</span>}
+                      {mov.transferenciaNumero && <span className="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[10px] font-medium">{mov.transferenciaNumero}</span>}
+                      {mov.gastoNumero && <span className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-medium">{mov.gastoNumero}</span>}
+                      {mov.conversionId && <span className="px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 text-[10px] font-medium">Conversión</span>}
+                      {(() => {
+                        const cuentaId = esIng ? mov.cuentaDestino : mov.cuentaOrigen;
+                        const cuenta = cuentaId ? cuentas.find(c => c.id === cuentaId) : null;
+                        return cuenta ? <span className="text-gray-500 truncate max-w-[120px]">{cuenta.nombre}</span> : null;
+                      })()}
+                    </div>
+                    {mov.concepto && (
+                      <p className="text-xs text-gray-600 truncate">{mov.concepto}</p>
+                    )}
+                    {/* Actions */}
+                    {mov.estado !== 'anulado' && userProfile?.role === 'admin' && (
+                      <div className="flex gap-1 pt-1">
+                        <button onClick={() => handleEditarMovimiento(mov)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full"><Edit2 className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => handleAnularMovimiento(mov)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -1226,14 +1392,14 @@ export const Tesoreria: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {movimientos.length === 0 ? (
+                {movimientosFiltrados.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
                       No hay movimientos registrados
                     </td>
                   </tr>
                 ) : (
-                  movimientos.map((mov) => {
+                  movimientosFiltrados.map((mov) => {
                     const esIngresoPEN = mov.moneda === 'PEN' && esIngresoMovimiento(mov);
                     const esEgresoPEN = mov.moneda === 'PEN' && !esIngresoMovimiento(mov);
                     const esIngresoUSD = mov.moneda === 'USD' && esIngresoMovimiento(mov);
@@ -1399,7 +1565,49 @@ export const Tesoreria: React.FC = () => {
               <span className="hidden sm:inline">Nueva Conversión</span>
             </Button>
           </div>
-          <div className="overflow-x-auto">
+          {/* Mobile card layout */}
+          <div className="md:hidden divide-y divide-gray-200">
+            {conversiones.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">
+                No hay conversiones registradas
+              </div>
+            ) : (
+              conversiones.map((conv) => (
+                <div key={conv.id} className="px-4 py-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">{formatDate(conv.fecha)}</span>
+                    <span className={`text-xs font-medium ${conv.spreadCambiario >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      Spread: {conv.spreadCambiario >= 0 ? '+' : ''}{conv.spreadCambiario.toFixed(2)}%
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="text-center flex-1">
+                      <div className="text-[10px] text-gray-500 uppercase">Origen</div>
+                      <div className="text-sm font-bold text-red-600">
+                        {conv.monedaOrigen === 'PEN' ? 'S/ ' : '$ '}{conv.montoOrigen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className="text-[10px] text-gray-400">{conv.monedaOrigen}</div>
+                    </div>
+                    <RefreshCw className="h-4 w-4 text-gray-300 flex-shrink-0" />
+                    <div className="text-center flex-1">
+                      <div className="text-[10px] text-gray-500 uppercase">Destino</div>
+                      <div className="text-sm font-bold text-green-600">
+                        {conv.monedaDestino === 'PEN' ? 'S/ ' : '$ '}{conv.montoDestino.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className="text-[10px] text-gray-400">{conv.monedaDestino}</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-4 text-[10px] text-gray-500">
+                    <span>TC: <strong className="text-gray-700">{conv.tipoCambio.toFixed(3)}</strong></span>
+                    <span>Ref: {conv.tipoCambioReferencia.toFixed(3)}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -1493,7 +1701,44 @@ export const Tesoreria: React.FC = () => {
               <span className="hidden sm:inline">Nueva Transferencia</span>
             </Button>
           </div>
-          <div className="overflow-x-auto">
+          {/* Mobile card layout */}
+          <div className="md:hidden divide-y divide-gray-200">
+            {transferencias.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">
+                <ArrowLeftRight className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                <p className="font-medium text-sm">No hay transferencias registradas</p>
+                <p className="text-xs mt-1">Las transferencias entre cuentas se mostrarán aquí</p>
+              </div>
+            ) : (
+              transferencias.map((transf) => (
+                <div key={transf.id} className="px-4 py-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">{formatDate(transf.fecha)}</span>
+                    <span className="text-sm font-bold text-gray-900">
+                      {transf.moneda === 'PEN' ? 'S/ ' : '$ '}{transf.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 text-xs">
+                      <div className="text-[10px] text-gray-400 uppercase">Origen</div>
+                      <div className="font-medium text-gray-900 truncate">{transf.cuentaOrigenNombre}</div>
+                    </div>
+                    <ArrowLeftRight className="h-3.5 w-3.5 text-gray-300 flex-shrink-0" />
+                    <div className="flex-1 text-xs text-right">
+                      <div className="text-[10px] text-gray-400 uppercase">Destino</div>
+                      <div className="font-medium text-gray-900 truncate">{transf.cuentaDestinoNombre}</div>
+                    </div>
+                  </div>
+                  {transf.concepto && (
+                    <p className="text-xs text-gray-500 truncate">{transf.concepto}</p>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -1595,10 +1840,19 @@ export const Tesoreria: React.FC = () => {
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {cuentas.filter(c => c.tipo !== 'credito').map((cuenta) => (
-                    <Card key={cuenta.id} padding="md" className="border border-gray-200 relative group">
+                    <Card
+                      key={cuenta.id}
+                      padding="md"
+                      className={`border relative group cursor-pointer transition-all hover:shadow-md ${
+                        cuentaDetalle?.id === cuenta.id
+                          ? 'border-primary-400 ring-2 ring-primary-100 shadow-md'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => { setCuentaDetalle(cuentaDetalle?.id === cuenta.id ? null : cuenta); setMovsLimit(50); }}
+                    >
                       <button
-                        onClick={() => handleEditarCuenta(cuenta)}
-                        className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => { e.stopPropagation(); handleEditarCuenta(cuenta); }}
+                        className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
                         title="Editar cuenta"
                       >
                         <Edit2 className="h-4 w-4" />
@@ -1659,6 +1913,237 @@ export const Tesoreria: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+              {/* === DETALLE DE MOVIMIENTOS DE CUENTA SELECCIONADA === */}
+              {cuentaDetalle && cuentaDetalle.tipo !== 'credito' && (() => {
+                const movsCuenta = movimientosFiltrados.filter(m =>
+                  m.cuentaOrigen === cuentaDetalle.id || m.cuentaDestino === cuentaDetalle.id
+                );
+                // Calculate running balance for this account
+                const movsOrdenados = [...movsCuenta].sort((a, b) => {
+                  const fa = a.fecha?.toDate ? a.fecha.toDate().getTime() : new Date(a.fecha as any).getTime();
+                  const fb = b.fecha?.toDate ? b.fecha.toDate().getTime() : new Date(b.fecha as any).getTime();
+                  return fa - fb;
+                });
+                let saldoCorridoPEN = 0;
+                let saldoCorridoUSD = 0;
+                const saldosPorMov = new Map<string, { pen: number; usd: number }>();
+                for (const mov of movsOrdenados) {
+                  if (mov.estado === 'anulado') {
+                    saldosPorMov.set(mov.id, { pen: saldoCorridoPEN, usd: saldoCorridoUSD });
+                    continue;
+                  }
+                  const esIngreso = mov.cuentaDestino === cuentaDetalle.id;
+                  const signo = esIngreso ? 1 : -1;
+                  if (mov.moneda === 'PEN') {
+                    saldoCorridoPEN += signo * mov.monto;
+                  } else {
+                    saldoCorridoUSD += signo * mov.monto;
+                  }
+                  saldosPorMov.set(mov.id, { pen: saldoCorridoPEN, usd: saldoCorridoUSD });
+                }
+                // Show most recent first
+                const movsDisplay = [...movsCuenta].sort((a, b) => {
+                  const fa = a.fecha?.toDate ? a.fecha.toDate().getTime() : new Date(a.fecha as any).getTime();
+                  const fb = b.fecha?.toDate ? b.fecha.toDate().getTime() : new Date(b.fecha as any).getTime();
+                  return fb - fa;
+                });
+
+                // Totales por cuenta
+                let entPEN = 0, salPEN = 0, entUSD = 0, salUSD = 0;
+                for (const mov of movsCuenta) {
+                  if (mov.estado === 'anulado') continue;
+                  const esIng = mov.cuentaDestino === cuentaDetalle.id;
+                  if (mov.moneda === 'PEN') {
+                    if (esIng) entPEN += mov.monto; else salPEN += mov.monto;
+                  } else {
+                    if (esIng) entUSD += mov.monto; else salUSD += mov.monto;
+                  }
+                }
+
+                return (
+                  <div className="px-4 sm:px-6 pb-4">
+                    <div className="border border-primary-200 rounded-xl bg-primary-50/30 overflow-hidden">
+                      {/* Header */}
+                      <div className="px-4 py-3 border-b border-primary-100 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-primary-500" />
+                          <h4 className="text-sm font-semibold text-gray-900">
+                            Movimientos de {cuentaDetalle.nombre}
+                          </h4>
+                          <span className="text-xs text-gray-400">({movsCuenta.length})</span>
+                        </div>
+                        <button
+                          onClick={() => setCuentaDetalle(null)}
+                          className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      {/* Totales de cuenta */}
+                      {movsCuenta.length > 0 && (
+                        <div className="px-4 py-2.5 bg-white/60 border-b border-primary-100">
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <span className="text-gray-500">Entradas:</span>
+                              {entPEN > 0 && <span className="ml-1 font-semibold text-green-600">+S/ {entPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>}
+                              {entUSD > 0 && <span className="ml-1 font-semibold text-green-600">+$ {entUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>}
+                            </div>
+                            <div className="text-right">
+                              <span className="text-gray-500">Salidas:</span>
+                              {salPEN > 0 && <span className="ml-1 font-semibold text-red-600">-S/ {salPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>}
+                              {salUSD > 0 && <span className="ml-1 font-semibold text-red-600">-$ {salUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>}
+                            </div>
+                          </div>
+                          <div className="mt-1 pt-1 border-t border-gray-200/50 flex justify-between text-xs">
+                            <span className="text-gray-500">Balance:</span>
+                            <div className="flex gap-2">
+                              {(entPEN > 0 || salPEN > 0) && (
+                                <span className={`font-bold ${(entPEN - salPEN) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                  {(entPEN - salPEN) >= 0 ? '+' : ''}S/ {(entPEN - salPEN).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                </span>
+                              )}
+                              {(entUSD > 0 || salUSD > 0) && (
+                                <span className={`font-bold ${(entUSD - salUSD) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                  {(entUSD - salUSD) >= 0 ? '+' : ''}$ {(entUSD - salUSD).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {movsCuenta.length === 0 ? (
+                        <div className="px-4 py-8 text-center text-gray-400 text-sm">
+                          No hay movimientos para esta cuenta
+                        </div>
+                      ) : (
+                        <>
+                          {/* Mobile cards */}
+                          <div className="md:hidden divide-y divide-gray-100">
+                            {movsDisplay.slice(0, movsLimit).map((mov) => {
+                              const esIngreso = mov.cuentaDestino === cuentaDetalle.id;
+                              const saldos = saldosPorMov.get(mov.id);
+                              return (
+                                <div key={mov.id} className={`px-4 py-2.5 ${mov.estado === 'anulado' ? 'opacity-40' : ''}`}>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                      <span className="text-[10px] text-gray-400 flex-shrink-0">{formatDate(mov.fecha)}</span>
+                                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium flex-shrink-0 ${
+                                        esIngreso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                      }`}>
+                                        {esIngreso ? 'Entrada' : 'Salida'}
+                                      </span>
+                                    </div>
+                                    <span className={`text-sm font-bold flex-shrink-0 ${esIngreso ? 'text-green-600' : 'text-red-600'}`}>
+                                      {esIngreso ? '+' : '-'}{mov.moneda === 'USD' ? '$' : 'S/'} {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-600 truncate mt-0.5">{mov.concepto}</p>
+                                  {saldos && (
+                                    <div className="text-[10px] text-gray-400 mt-0.5">
+                                      Saldo: {cuentaDetalle.esBiMoneda
+                                        ? `S/${saldos.pen.toFixed(2)} | $${saldos.usd.toFixed(2)}`
+                                        : `${cuentaDetalle.moneda === 'PEN' ? 'S/' : '$'}${(cuentaDetalle.moneda === 'PEN' ? saldos.pen : saldos.usd).toFixed(2)}`
+                                      }
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Desktop table */}
+                          <div className="hidden md:block overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-100 text-sm">
+                              <thead className="bg-gray-50/50">
+                                <tr>
+                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Doc.</th>
+                                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
+                                  <th className="px-3 py-2 text-right text-xs font-medium text-green-700 uppercase">Entrada</th>
+                                  <th className="px-3 py-2 text-right text-xs font-medium text-red-700 uppercase">Salida</th>
+                                  <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Saldo</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-50">
+                                {movsDisplay.slice(0, movsLimit).map((mov) => {
+                                  const esIngreso = mov.cuentaDestino === cuentaDetalle.id;
+                                  const saldos = saldosPorMov.get(mov.id);
+                                  const simbolo = mov.moneda === 'USD' ? '$' : 'S/';
+                                  return (
+                                    <tr key={mov.id} className={`hover:bg-gray-50 ${mov.estado === 'anulado' ? 'opacity-40' : ''}`}>
+                                      <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{formatDate(mov.fecha)}</td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
+                                          esIngreso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                        }`}>
+                                          {esIngreso ? <TrendingUp className="h-2.5 w-2.5 mr-0.5" /> : <TrendingDown className="h-2.5 w-2.5 mr-0.5" />}
+                                          {getTipoLabel(mov.tipo)}
+                                        </span>
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        {mov.ordenCompraNumero && <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-medium">{mov.ordenCompraNumero}</span>}
+                                        {mov.ventaNumero && <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-medium">{mov.ventaNumero}</span>}
+                                        {mov.gastoNumero && <span className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-medium">{mov.gastoNumero}</span>}
+                                        {mov.cotizacionNumero && <span className="px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800 text-[10px] font-medium">{mov.cotizacionNumero}</span>}
+                                        {mov.transferenciaNumero && <span className="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[10px] font-medium">{mov.transferenciaNumero}</span>}
+                                        {mov.conversionId && <span className="px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 text-[10px] font-medium">Conv.</span>}
+                                        {!mov.ordenCompraNumero && !mov.ventaNumero && !mov.gastoNumero && !mov.cotizacionNumero && !mov.transferenciaNumero && !mov.conversionId && (
+                                          <span className="text-gray-300">-</span>
+                                        )}
+                                      </td>
+                                      <td className="px-3 py-2 text-gray-700 max-w-[240px] truncate" title={mov.concepto}>
+                                        {mov.concepto}
+                                      </td>
+                                      <td className="px-3 py-2 text-right font-medium text-green-600 whitespace-nowrap">
+                                        {esIngreso ? `${simbolo} ${mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}` : ''}
+                                      </td>
+                                      <td className="px-3 py-2 text-right font-medium text-red-600 whitespace-nowrap">
+                                        {!esIngreso ? `${simbolo} ${mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}` : ''}
+                                      </td>
+                                      <td className="px-3 py-2 text-right text-gray-500 whitespace-nowrap">
+                                        {saldos && (
+                                          cuentaDetalle.esBiMoneda
+                                            ? <span className={mov.moneda === 'PEN' ? 'text-gray-700' : 'text-gray-700'}>
+                                                {simbolo} {(mov.moneda === 'PEN' ? saldos.pen : saldos.usd).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                              </span>
+                                            : <span>
+                                                {simbolo} {(cuentaDetalle.moneda === 'PEN' ? saldos.pen : saldos.usd).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                              </span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                          {movsDisplay.length > movsLimit ? (
+                            <div className="px-4 py-3 text-center border-t border-gray-100 space-y-1">
+                              <p className="text-xs text-gray-400">
+                                Mostrando {movsLimit} de {movsDisplay.length} movimientos
+                              </p>
+                              <button
+                                onClick={() => setMovsLimit(prev => prev + 50)}
+                                className="text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                              >
+                                Ver más movimientos
+                              </button>
+                            </div>
+                          ) : movsDisplay.length > 50 && (
+                            <div className="px-4 py-2 text-center text-xs text-gray-400 border-t border-gray-100">
+                              Mostrando todos los {movsDisplay.length} movimientos
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* === CUENTAS DE CRÉDITO (Deudas) === */}
               {cuentas.some(c => c.tipo === 'credito') && (
@@ -1742,27 +2227,27 @@ export const Tesoreria: React.FC = () => {
           ) : dashboardPendientes ? (
             <>
               {/* KPIs de Balance */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <Card padding="md" className="border-l-4 border-l-green-500">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm text-gray-600">Por Cobrar (Ventas)</div>
-                      <div className="text-2xl font-bold text-green-600 mt-1">
+                      <div className="text-xs sm:text-sm text-gray-600">Por Cobrar (Ventas)</div>
+                      <div className="text-lg sm:text-2xl font-bold text-green-600 mt-1">
                         S/ {dashboardPendientes.cuentasPorCobrar.totalEquivalentePEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
                         {dashboardPendientes.cuentasPorCobrar.cantidadDocumentos} documento(s)
                       </div>
                     </div>
-                    <ArrowDownCircle className="h-10 w-10 text-green-400" />
+                    <ArrowDownCircle className="h-8 w-8 sm:h-10 sm:w-10 text-green-400" />
                   </div>
                 </Card>
 
                 <Card padding="md" className="border-l-4 border-l-red-500">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm text-gray-600">Por Pagar (OC, Gastos, Viajeros)</div>
-                      <div className="text-2xl font-bold text-red-600 mt-1">
+                      <div className="text-xs sm:text-sm text-gray-600"><span className="sm:hidden">Por Pagar</span><span className="hidden sm:inline">Por Pagar (OC, Gastos, Viajeros)</span></div>
+                      <div className="text-lg sm:text-2xl font-bold text-red-600 mt-1">
                         S/ {dashboardPendientes.cuentasPorPagar.totalEquivalentePEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
@@ -1774,15 +2259,15 @@ export const Tesoreria: React.FC = () => {
                         )}
                       </div>
                     </div>
-                    <ArrowUpCircle className="h-10 w-10 text-red-400" />
+                    <ArrowUpCircle className="h-8 w-8 sm:h-10 sm:w-10 text-red-400" />
                   </div>
                 </Card>
 
                 <Card padding="md" className={`border-l-4 ${dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? 'border-l-blue-500' : 'border-l-orange-500'}`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm text-gray-600">Flujo Neto (CxC - CxP)</div>
-                      <div className={`text-2xl font-bold mt-1 ${dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+                      <div className="text-xs sm:text-sm text-gray-600">Flujo Neto (CxC - CxP)</div>
+                      <div className={`text-lg sm:text-2xl font-bold mt-1 ${dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                         {dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? '+' : ''}
                         S/ {dashboardPendientes.balanceNeto.flujoNetoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
@@ -1791,9 +2276,9 @@ export const Tesoreria: React.FC = () => {
                       </div>
                     </div>
                     {dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? (
-                      <CheckCircle className="h-10 w-10 text-blue-400" />
+                      <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-blue-400" />
                     ) : (
-                      <AlertTriangle className="h-10 w-10 text-orange-400" />
+                      <AlertTriangle className="h-8 w-8 sm:h-10 sm:w-10 text-orange-400" />
                     )}
                   </div>
                 </Card>
@@ -1802,15 +2287,16 @@ export const Tesoreria: React.FC = () => {
               {/* Flujo de Caja Proyectado Mejorado */}
               {dashboardPendientes.flujoCajaProyectado && (
                 <Card padding="md" className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200">
-                  <h3 className="font-semibold text-indigo-800 mb-4 flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2" />
-                    Flujo de Caja Proyectado Completo
+                  <h3 className="font-semibold text-indigo-800 mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
+                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                    <span className="sm:hidden">Flujo Proyectado</span>
+                    <span className="hidden sm:inline">Flujo de Caja Proyectado Completo</span>
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                     {/* Saldo Actual */}
-                    <div className="bg-white rounded-lg p-3 shadow-sm">
-                      <div className="text-xs text-gray-500 uppercase">Saldo Actual en Cuentas</div>
-                      <div className="text-lg font-bold text-gray-900 mt-1">
+                    <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm">
+                      <div className="text-[10px] sm:text-xs text-gray-500 uppercase"><span className="sm:hidden">Saldo Actual</span><span className="hidden sm:inline">Saldo Actual en Cuentas</span></div>
+                      <div className="text-sm sm:text-lg font-bold text-gray-900 mt-1">
                         S/ {dashboardPendientes.flujoCajaProyectado.saldoActualPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
                       {dashboardPendientes.flujoCajaProyectado.saldoActualUSD > 0 && (
@@ -1821,9 +2307,9 @@ export const Tesoreria: React.FC = () => {
                     </div>
 
                     {/* Ingresos del Mes */}
-                    <div className="bg-white rounded-lg p-3 shadow-sm">
-                      <div className="text-xs text-gray-500 uppercase">Cobrado este Mes</div>
-                      <div className="text-lg font-bold text-green-600 mt-1">
+                    <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm">
+                      <div className="text-[10px] sm:text-xs text-gray-500 uppercase"><span className="sm:hidden">Cobrado</span><span className="hidden sm:inline">Cobrado este Mes</span></div>
+                      <div className="text-sm sm:text-lg font-bold text-green-600 mt-1">
                         + S/ {dashboardPendientes.flujoCajaProyectado.ingresosCobradosMesPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
                       {dashboardPendientes.flujoCajaProyectado.ingresosCobradosMesUSD > 0 && (
@@ -1834,9 +2320,9 @@ export const Tesoreria: React.FC = () => {
                     </div>
 
                     {/* Egresos del Mes */}
-                    <div className="bg-white rounded-lg p-3 shadow-sm">
-                      <div className="text-xs text-gray-500 uppercase">Pagado este Mes</div>
-                      <div className="text-lg font-bold text-red-600 mt-1">
+                    <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm">
+                      <div className="text-[10px] sm:text-xs text-gray-500 uppercase"><span className="sm:hidden">Pagado</span><span className="hidden sm:inline">Pagado este Mes</span></div>
+                      <div className="text-sm sm:text-lg font-bold text-red-600 mt-1">
                         - S/ {dashboardPendientes.flujoCajaProyectado.egresosPagadosMesPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
                       {dashboardPendientes.flujoCajaProyectado.egresosPagadosMesUSD > 0 && (
@@ -1847,9 +2333,9 @@ export const Tesoreria: React.FC = () => {
                     </div>
 
                     {/* Flujo Neto Proyectado Total */}
-                    <div className={`rounded-lg p-3 shadow-sm ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'bg-blue-100' : 'bg-orange-100'}`}>
-                      <div className="text-xs text-gray-600 uppercase">Proyección Total</div>
-                      <div className={`text-lg font-bold mt-1 ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
+                    <div className={`rounded-lg p-2 sm:p-3 shadow-sm ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'bg-blue-100' : 'bg-orange-100'}`}>
+                      <div className="text-[10px] sm:text-xs text-gray-600 uppercase"><span className="sm:hidden">Proyección</span><span className="hidden sm:inline">Proyección Total</span></div>
+                      <div className={`text-sm sm:text-lg font-bold mt-1 ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
                         S/ {dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
                       <div className={`text-sm font-semibold mt-1 ${dashboardPendientes.flujoCajaProyectado.rentabilidadProyectada >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -1863,8 +2349,8 @@ export const Tesoreria: React.FC = () => {
                     dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.expectativasActivas > 0 ||
                     dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.inventarioDisponibleValor > 0) && (
                     <div className="mt-4 pt-4 border-t border-indigo-200">
-                      <div className="text-xs text-indigo-600 font-medium mb-2">Proyección de Ingresos Futuros (potencial)</div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                      <div className="text-xs text-indigo-600 font-medium mb-2"><span className="sm:hidden">Ingresos Futuros</span><span className="hidden sm:inline">Proyección de Ingresos Futuros (potencial)</span></div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-sm">
                         <div className="bg-white/50 rounded px-3 py-2">
                           <div className="flex items-center justify-between">
                             <span className="text-gray-600">Cotizaciones pendientes</span>
@@ -1935,17 +2421,17 @@ export const Tesoreria: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Cuentas por Cobrar */}
                 <Card padding="none">
-                  <div className="px-6 py-4 border-b border-gray-200 bg-green-50">
-                    <h3 className="text-lg font-semibold text-green-800 flex items-center">
-                      <ArrowDownCircle className="h-5 w-5 mr-2" />
+                  <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-green-50">
+                    <h3 className="text-base sm:text-lg font-semibold text-green-800 flex items-center">
+                      <ArrowDownCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Cuentas por Cobrar
                     </h3>
-                    <p className="text-sm text-green-600">Ventas pendientes de pago</p>
+                    <p className="text-xs sm:text-sm text-green-600">Ventas pendientes de pago</p>
                   </div>
 
                   {/* Resumen por antigüedad */}
-                  <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
-                    <div className="grid grid-cols-4 gap-2 text-xs">
+                  <div className="px-4 sm:px-6 py-3 bg-gray-50 border-b border-gray-200">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                       <div className="text-center">
                         <div className="text-gray-500">0-7 días</div>
                         <div className="font-bold text-gray-900">S/ {dashboardPendientes.cuentasPorCobrar.pendiente0a7dias.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</div>
@@ -1967,7 +2453,7 @@ export const Tesoreria: React.FC = () => {
 
                   <div className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
                     {dashboardPendientes.cuentasPorCobrar.pendientes.length === 0 ? (
-                      <div className="px-6 py-8 text-center text-gray-500">
+                      <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
                         <CheckCircle className="h-10 w-10 mx-auto text-green-300 mb-2" />
                         No hay cuentas pendientes de cobro
                       </div>
@@ -1975,7 +2461,7 @@ export const Tesoreria: React.FC = () => {
                       dashboardPendientes.cuentasPorCobrar.pendientes.map((p) => (
                         <div
                           key={p.id}
-                          className="px-6 py-3 hover:bg-green-50 cursor-pointer transition-colors group"
+                          className="px-4 sm:px-6 py-3 hover:bg-green-50 cursor-pointer transition-colors group"
                           onClick={() => handleNavigarPendiente(p)}
                           title="Clic para ir al registro de cobro"
                         >
@@ -2027,17 +2513,17 @@ export const Tesoreria: React.FC = () => {
 
                 {/* Cuentas por Pagar */}
                 <Card padding="none">
-                  <div className="px-6 py-4 border-b border-gray-200 bg-red-50">
-                    <h3 className="text-lg font-semibold text-red-800 flex items-center">
-                      <ArrowUpCircle className="h-5 w-5 mr-2" />
+                  <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-red-50">
+                    <h3 className="text-base sm:text-lg font-semibold text-red-800 flex items-center">
+                      <ArrowUpCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Cuentas por Pagar
                     </h3>
-                    <p className="text-sm text-red-600">OC, Gastos y Viajeros pendientes</p>
+                    <p className="text-xs sm:text-sm text-red-600">OC, Gastos y Viajeros pendientes</p>
                   </div>
 
                   {/* Resumen por antigüedad */}
-                  <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
-                    <div className="grid grid-cols-4 gap-2 text-xs">
+                  <div className="px-4 sm:px-6 py-3 bg-gray-50 border-b border-gray-200">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                       <div className="text-center">
                         <div className="text-gray-500">0-7 días</div>
                         <div className="font-bold text-gray-900">S/ {dashboardPendientes.cuentasPorPagar.pendiente0a7dias.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</div>
@@ -2058,7 +2544,7 @@ export const Tesoreria: React.FC = () => {
                   </div>
 
                   {/* Resumen por tipo */}
-                  <div className="px-6 py-2 border-b border-gray-200">
+                  <div className="px-4 sm:px-6 py-2 border-b border-gray-200">
                     <div className="flex flex-wrap gap-2">
                       {dashboardPendientes.cuentasPorPagar.porTipo.map((tipo) => (
                         <div key={tipo.tipo} className={`text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 ${
@@ -2084,7 +2570,7 @@ export const Tesoreria: React.FC = () => {
 
                   <div className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
                     {dashboardPendientes.cuentasPorPagar.pendientes.length === 0 ? (
-                      <div className="px-6 py-8 text-center text-gray-500">
+                      <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
                         <CheckCircle className="h-10 w-10 mx-auto text-green-300 mb-2" />
                         No hay cuentas pendientes de pago
                       </div>
@@ -2092,7 +2578,7 @@ export const Tesoreria: React.FC = () => {
                       dashboardPendientes.cuentasPorPagar.pendientes.map((p) => (
                         <div
                           key={p.id}
-                          className="px-6 py-3 hover:bg-red-50 cursor-pointer transition-colors group"
+                          className="px-4 sm:px-6 py-3 hover:bg-red-50 cursor-pointer transition-colors group"
                           onClick={() => handleNavigarPendiente(p)}
                           title="Clic para ir al registro de pago"
                         >
@@ -2458,7 +2944,7 @@ export const Tesoreria: React.FC = () => {
                 <ExternalLink className="h-3.5 w-3.5 text-gray-500" />
                 <span className="text-xs font-medium text-gray-600">Documentos relacionados</span>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-gray-600 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-gray-600 text-xs">
                 {movimientoEditando.ordenCompraNumero && (
                   <div className="bg-white rounded px-2 py-1">
                     <span className="font-medium">OC:</span> {movimientoEditando.ordenCompraNumero}
@@ -2752,178 +3238,292 @@ export const Tesoreria: React.FC = () => {
         title="Transferencia entre Cuentas"
         size="lg"
       >
-        <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <p className="text-sm text-blue-800">
-              <strong>Nota:</strong> Esta operación mueve fondos entre tus propias cuentas.
-              No afecta el patrimonio ni se registra como ingreso/egreso.
-            </p>
-          </div>
+        {(() => {
+          const moneda = transferenciaForm.moneda || 'PEN';
+          const simbolo = moneda === 'USD' ? '$' : 'S/';
+          const monto = transferenciaForm.monto || 0;
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Moneda
-              </label>
-              <select
-                value={transferenciaForm.moneda}
-                onChange={(e) =>
-                  setTransferenciaForm({
-                    ...transferenciaForm,
-                    moneda: e.target.value as MonedaTesoreria,
-                    cuentaOrigenId: undefined,
-                    cuentaDestinoId: undefined
-                  })
-                }
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              >
-                <option value="PEN">PEN (Soles)</option>
-                <option value="USD">USD (Dólares)</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Monto a Transferir
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={transferenciaForm.monto || ''}
-                onChange={(e) =>
-                  setTransferenciaForm({ ...transferenciaForm, monto: parseFloat(e.target.value) })
-                }
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
+          // Helper to get saldo for a cuenta in selected currency
+          const getSaldo = (cuenta: CuentaCaja): number => {
+            if (cuenta.esBiMoneda) {
+              return moneda === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0);
+            }
+            return cuenta.saldoActual || 0;
+          };
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <ArrowUpCircle className="inline h-4 w-4 mr-1 text-red-500" />
-                Cuenta Origen (Sale)
-              </label>
-              <select
-                value={transferenciaForm.cuentaOrigenId || ''}
-                onChange={(e) =>
-                  setTransferenciaForm({ ...transferenciaForm, cuentaOrigenId: e.target.value || undefined })
-                }
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              >
-                <option value="">Seleccionar cuenta...</option>
-                {cuentas
-                  .filter(c => c.activa && (
-                    c.esBiMoneda ||
-                    c.moneda === transferenciaForm.moneda
-                  ))
-                  .filter(c => c.id !== transferenciaForm.cuentaDestinoId)
-                  .map(cuenta => {
-                    const saldoActual = cuenta.esBiMoneda
-                      ? (transferenciaForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
-                      : cuenta.saldoActual;
-                    return (
-                      <option key={cuenta.id} value={cuenta.id}>
-                        {cuenta.nombre} - Saldo: {transferenciaForm.moneda === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
-                      </option>
-                    );
-                  })}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <ArrowDownCircle className="inline h-4 w-4 mr-1 text-green-500" />
-                Cuenta Destino (Entra)
-              </label>
-              <select
-                value={transferenciaForm.cuentaDestinoId || ''}
-                onChange={(e) =>
-                  setTransferenciaForm({ ...transferenciaForm, cuentaDestinoId: e.target.value || undefined })
-                }
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              >
-                <option value="">Seleccionar cuenta...</option>
-                {cuentas
-                  .filter(c => c.activa && (
-                    c.esBiMoneda ||
-                    c.moneda === transferenciaForm.moneda
-                  ))
-                  .filter(c => c.id !== transferenciaForm.cuentaOrigenId)
-                  .map(cuenta => {
-                    const saldoActual = cuenta.esBiMoneda
-                      ? (transferenciaForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
-                      : cuenta.saldoActual;
-                    return (
-                      <option key={cuenta.id} value={cuenta.id}>
-                        {cuenta.nombre} - Saldo: {transferenciaForm.moneda === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
-                      </option>
-                    );
-                  })}
-              </select>
-            </div>
-          </div>
+          // Get tipo icon
+          const getTipoIcon = (tipo: string) => {
+            if (tipo === 'banco') return <Building2 className="w-3.5 h-3.5" />;
+            if (tipo === 'digital') return <CreditCard className="w-3.5 h-3.5" />;
+            return <Banknote className="w-3.5 h-3.5" />;
+          };
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Concepto / Motivo (Opcional)
-            </label>
-            <input
-              type="text"
-              value={transferenciaForm.concepto || ''}
-              onChange={(e) =>
-                setTransferenciaForm({ ...transferenciaForm, concepto: e.target.value })
-              }
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              placeholder="Ej: Reposición de caja chica, fondeo de cuenta..."
-            />
-          </div>
+          // Cuentas filtradas
+          const cuentasCompatibles = cuentas.filter(c =>
+            c.activa && (c.esBiMoneda || c.moneda === moneda)
+          );
 
-          {/* Preview */}
-          {transferenciaForm.monto && transferenciaForm.cuentaOrigenId && transferenciaForm.cuentaDestinoId && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Vista Previa de Transferencia</h4>
-              <div className="flex items-center justify-center space-x-4">
-                <div className="text-center">
-                  <p className="text-xs text-gray-500">Sale de</p>
-                  <p className="text-sm font-medium text-gray-900">
-                    {cuentas.find(c => c.id === transferenciaForm.cuentaOrigenId)?.nombre}
-                  </p>
-                  <p className="text-lg font-bold text-red-600">
-                    -{transferenciaForm.moneda === 'USD' ? '$' : 'S/'}{transferenciaForm.monto.toFixed(2)}
-                  </p>
+          const cuentaOrigen = cuentas.find(c => c.id === transferenciaForm.cuentaOrigenId);
+          const cuentaDestino = cuentas.find(c => c.id === transferenciaForm.cuentaDestinoId);
+
+          const saldoOrigen = cuentaOrigen ? getSaldo(cuentaOrigen) : 0;
+          const saldoDestino = cuentaDestino ? getSaldo(cuentaDestino) : 0;
+
+          const saldoOrigenPost = saldoOrigen - monto;
+          const saldoDestinoPost = saldoDestino + monto;
+
+          const fondosInsuficientes = cuentaOrigen && monto > 0 && saldoOrigenPost < 0;
+          const origenBajoMinimo = cuentaOrigen && monto > 0 && (() => {
+            if (cuentaOrigen.esBiMoneda) {
+              const min = moneda === 'USD' ? cuentaOrigen.saldoMinimoUSD : cuentaOrigen.saldoMinimoPEN;
+              return min !== undefined && saldoOrigenPost < min;
+            }
+            return cuentaOrigen.saldoMinimo !== undefined && saldoOrigenPost < cuentaOrigen.saldoMinimo;
+          })();
+
+          return (
+            <div className="space-y-4">
+              {/* Saldos de cuentas - resumen rápido */}
+              <div className="bg-gray-50 rounded-xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] uppercase tracking-wide font-medium text-gray-400">
+                    Saldos en {moneda}
+                  </span>
+                  <div className="flex gap-1">
+                    {(['PEN', 'USD'] as MonedaTesoreria[]).map(m => (
+                      <button
+                        key={m}
+                        onClick={() => setTransferenciaForm({
+                          ...transferenciaForm,
+                          moneda: m,
+                          cuentaOrigenId: undefined,
+                          cuentaDestinoId: undefined
+                        })}
+                        className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
+                          moneda === m
+                            ? 'bg-white text-gray-900 shadow-sm'
+                            : 'text-gray-400 hover:text-gray-600'
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <ArrowLeftRight className="h-6 w-6 text-purple-400" />
-                <div className="text-center">
-                  <p className="text-xs text-gray-500">Entra a</p>
-                  <p className="text-sm font-medium text-gray-900">
-                    {cuentas.find(c => c.id === transferenciaForm.cuentaDestinoId)?.nombre}
-                  </p>
-                  <p className="text-lg font-bold text-green-600">
-                    +{transferenciaForm.moneda === 'USD' ? '$' : 'S/'}{transferenciaForm.monto.toFixed(2)}
-                  </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {cuentasCompatibles.map(c => {
+                    const saldo = getSaldo(c);
+                    const isOrigen = c.id === transferenciaForm.cuentaOrigenId;
+                    const isDestino = c.id === transferenciaForm.cuentaDestinoId;
+                    return (
+                      <div
+                        key={c.id}
+                        className={`rounded-lg p-2 text-xs transition-all ${
+                          isOrigen ? 'bg-red-50 border border-red-200 ring-1 ring-red-200' :
+                          isDestino ? 'bg-green-50 border border-green-200 ring-1 ring-green-200' :
+                          'bg-white border border-gray-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1 text-gray-400 mb-0.5">
+                          {getTipoIcon(c.tipo)}
+                          <span className="truncate font-medium text-gray-600">{c.nombre}</span>
+                        </div>
+                        <div className={`text-sm font-bold ${
+                          saldo < 0 ? 'text-red-600' : isOrigen ? 'text-red-700' : isDestino ? 'text-green-700' : 'text-gray-900'
+                        }`}>
+                          {simbolo} {saldo.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        {isOrigen && <span className="text-[9px] text-red-400 font-medium">ORIGEN</span>}
+                        {isDestino && <span className="text-[9px] text-green-500 font-medium">DESTINO</span>}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            </div>
-          )}
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button variant="ghost" onClick={() => setIsTransferenciaModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleCrearTransferencia}
-              disabled={
-                isSubmitting ||
-                !transferenciaForm.monto ||
-                !transferenciaForm.cuentaOrigenId ||
-                !transferenciaForm.cuentaDestinoId
-              }
-            >
-              {isSubmitting ? 'Procesando...' : 'Realizar Transferencia'}
-            </Button>
-          </div>
-        </div>
+              {/* Monto */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Monto a Transferir
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
+                    {simbolo}
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={transferenciaForm.monto || ''}
+                    onChange={(e) =>
+                      setTransferenciaForm({ ...transferenciaForm, monto: parseFloat(e.target.value) })
+                    }
+                    className="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-lg font-semibold"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              {/* Cuenta Origen y Destino */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Origen */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <ArrowUpCircle className="inline h-4 w-4 mr-1 text-red-500" />
+                    Cuenta Origen (Sale)
+                  </label>
+                  <select
+                    value={transferenciaForm.cuentaOrigenId || ''}
+                    onChange={(e) =>
+                      setTransferenciaForm({ ...transferenciaForm, cuentaOrigenId: e.target.value || undefined })
+                    }
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  >
+                    <option value="">Seleccionar cuenta...</option>
+                    {cuentasCompatibles
+                      .filter(c => c.id !== transferenciaForm.cuentaDestinoId)
+                      .map(cuenta => (
+                        <option key={cuenta.id} value={cuenta.id}>
+                          {cuenta.nombre} — {simbolo} {getSaldo(cuenta).toFixed(2)}
+                        </option>
+                      ))}
+                  </select>
+                  {cuentaOrigen && (
+                    <div className={`mt-1.5 rounded-lg p-2 text-xs ${fondosInsuficientes ? 'bg-red-50 border border-red-200' : 'bg-gray-50'}`}>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Saldo actual</span>
+                        <span className="font-semibold text-gray-700">{simbolo} {saldoOrigen.toFixed(2)}</span>
+                      </div>
+                      {monto > 0 && (
+                        <div className="flex justify-between mt-0.5">
+                          <span className="text-gray-500">Saldo despues</span>
+                          <span className={`font-bold ${saldoOrigenPost < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                            {simbolo} {saldoOrigenPost.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Destino */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <ArrowDownCircle className="inline h-4 w-4 mr-1 text-green-500" />
+                    Cuenta Destino (Entra)
+                  </label>
+                  <select
+                    value={transferenciaForm.cuentaDestinoId || ''}
+                    onChange={(e) =>
+                      setTransferenciaForm({ ...transferenciaForm, cuentaDestinoId: e.target.value || undefined })
+                    }
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  >
+                    <option value="">Seleccionar cuenta...</option>
+                    {cuentasCompatibles
+                      .filter(c => c.id !== transferenciaForm.cuentaOrigenId)
+                      .map(cuenta => (
+                        <option key={cuenta.id} value={cuenta.id}>
+                          {cuenta.nombre} — {simbolo} {getSaldo(cuenta).toFixed(2)}
+                        </option>
+                      ))}
+                  </select>
+                  {cuentaDestino && (
+                    <div className="mt-1.5 rounded-lg p-2 text-xs bg-gray-50">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Saldo actual</span>
+                        <span className="font-semibold text-gray-700">{simbolo} {saldoDestino.toFixed(2)}</span>
+                      </div>
+                      {monto > 0 && (
+                        <div className="flex justify-between mt-0.5">
+                          <span className="text-gray-500">Saldo despues</span>
+                          <span className="font-bold text-green-600">{simbolo} {saldoDestinoPost.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Warnings */}
+              {fondosInsuficientes && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-2.5 flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-xs text-red-700">
+                    <strong>Fondos insuficientes.</strong> La cuenta origen solo tiene {simbolo} {saldoOrigen.toFixed(2)} disponibles.
+                  </div>
+                </div>
+              )}
+              {!fondosInsuficientes && origenBajoMinimo && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-xs text-amber-700">
+                    <strong>Alerta:</strong> Esta transferencia dejara la cuenta origen por debajo de su saldo minimo configurado.
+                  </div>
+                </div>
+              )}
+
+              {/* Concepto */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Concepto / Motivo (Opcional)
+                </label>
+                <input
+                  type="text"
+                  value={transferenciaForm.concepto || ''}
+                  onChange={(e) =>
+                    setTransferenciaForm({ ...transferenciaForm, concepto: e.target.value })
+                  }
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  placeholder="Ej: Reposicion de caja chica, fondeo de cuenta..."
+                />
+              </div>
+
+              {/* Preview visual */}
+              {monto > 0 && cuentaOrigen && cuentaDestino && (
+                <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-xl border border-purple-100">
+                  <div className="flex items-center justify-center gap-3 sm:gap-6">
+                    <div className="text-center flex-1 min-w-0">
+                      <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-0.5">Sale de</p>
+                      <p className="text-xs font-semibold text-gray-900 truncate">{cuentaOrigen.nombre}</p>
+                      <p className="text-sm text-gray-400 line-through">{simbolo} {saldoOrigen.toFixed(2)}</p>
+                      <p className="text-base font-bold text-red-600">{simbolo} {saldoOrigenPost.toFixed(2)}</p>
+                    </div>
+                    <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center">
+                        <ArrowLeftRight className="h-4 w-4 text-purple-500" />
+                      </div>
+                      <span className="text-xs font-bold text-purple-600">{simbolo} {monto.toFixed(2)}</span>
+                    </div>
+                    <div className="text-center flex-1 min-w-0">
+                      <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-0.5">Entra a</p>
+                      <p className="text-xs font-semibold text-gray-900 truncate">{cuentaDestino.nombre}</p>
+                      <p className="text-sm text-gray-400 line-through">{simbolo} {saldoDestino.toFixed(2)}</p>
+                      <p className="text-base font-bold text-green-600">{simbolo} {saldoDestinoPost.toFixed(2)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-3 pt-2">
+                <Button variant="ghost" onClick={() => setIsTransferenciaModalOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleCrearTransferencia}
+                  disabled={
+                    isSubmitting ||
+                    !transferenciaForm.monto ||
+                    !transferenciaForm.cuentaOrigenId ||
+                    !transferenciaForm.cuentaDestinoId
+                  }
+                >
+                  {isSubmitting ? 'Procesando...' : 'Realizar Transferencia'}
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
       </Modal>
 
       {/* Modal Nueva/Editar Cuenta */}

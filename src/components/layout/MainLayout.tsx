@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { CollaborationPanel } from './CollaborationPanel';
-import { DailyCallModal } from './DailyCallModal';
-import { IncomingCallModal } from './IncomingCallModal';
+const DailyCallModal = lazy(() => import('./DailyCallModal').then(m => ({ default: m.DailyCallModal })));
+const IncomingCallModal = lazy(() => import('./IncomingCallModal').then(m => ({ default: m.IncomingCallModal })));
+import { ErrorBoundary } from '../common/ErrorBoundary';
 import { useNotificacionesAutoInit } from '../../hooks';
 import { useCollaborationInit } from '../../hooks/useCollaborationInit';
 import { useAuthStore } from '../../store/authStore';
@@ -19,8 +20,9 @@ export const MainLayout: React.FC = () => {
   // Inicializar sistema de colaboración (presencia, actividad, chat)
   useCollaborationInit();
 
-  // Estado para controlar sidebar en móvil
+  // Estado para controlar sidebar en móvil y desktop
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const logout = useAuthStore(state => state.logout);
@@ -85,8 +87,9 @@ export const MainLayout: React.FC = () => {
       {/* Sidebar - responsive */}
       <div
         className={`
-          fixed inset-y-0 left-0 z-50 w-64 h-full transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
+          fixed inset-y-0 left-0 z-50 w-64 h-full transform transition-transform duration-300 ease-in-out lg:relative
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${sidebarCollapsed ? 'lg:-translate-x-full lg:w-0 lg:overflow-hidden' : 'lg:translate-x-0'}
         `}
       >
         <Sidebar onClose={() => setSidebarOpen(false)} />
@@ -95,22 +98,32 @@ export const MainLayout: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         {/* Header con botón hamburguesa */}
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <Header
+          onMenuClick={() => setSidebarOpen(true)}
+          onToggleSidebar={() => setSidebarCollapsed(prev => !prev)}
+          sidebarCollapsed={sidebarCollapsed}
+        />
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 lg:p-6">
-          <Outlet />
+          <ErrorBoundary fallbackMessage="Ocurrió un error en esta página">
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
 
       {/* Panel de Colaboración (derecha) */}
       <CollaborationPanel />
 
-      {/* Modal de videollamada Daily.co */}
-      <DailyCallModal />
+      {/* Modal de videollamada Daily.co (lazy loaded ~500KB) */}
+      <Suspense fallback={null}>
+        <DailyCallModal />
+      </Suspense>
 
-      {/* Modal de llamada entrante */}
-      <IncomingCallModal />
+      {/* Modal de llamada entrante (lazy loaded) */}
+      <Suspense fallback={null}>
+        <IncomingCallModal />
+      </Suspense>
     </div>
   );
 };

@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   TipoProducto,
   TipoProductoFormData,
@@ -42,26 +43,7 @@ const normalizarTexto = (texto: string): string => {
  * Formato: TPR-001, TPR-002, etc.
  */
 async function generarCodigo(): Promise<string> {
-  const prefix = 'TPR';
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith(prefix)) {
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber('TPR', 3);
 }
 
 export const tipoProductoService = {
@@ -119,6 +101,17 @@ export const tipoProductoService = {
   },
 
   /**
+   * Obtener tipos filtrados por linea de negocio
+   * Retorna tipos que no tienen lineaNegocioIds (globales) o que incluyen esta linea
+   */
+  async getByLineaNegocio(lineaNegocioId: string): Promise<TipoProducto[]> {
+    const todos = await this.getActivos();
+    return todos.filter(t =>
+      !t.lineaNegocioIds?.length || t.lineaNegocioIds.includes(lineaNegocioId)
+    );
+  },
+
+  /**
    * Buscar tipo por nombre (exacto o similar)
    */
   async buscarPorNombre(nombre: string): Promise<TipoProducto | null> {
@@ -157,6 +150,7 @@ export const tipoProductoService = {
         categoriasSugeridasIds: data.categoriasSugeridasIds || [],
         iconoUrl: data.iconoUrl || '',
         imagenUrl: data.imagenUrl || '',
+        ...(data.lineaNegocioIds?.length ? { lineaNegocioIds: data.lineaNegocioIds } : {}),
         estado: 'activo',
         metricas: {
           productosActivos: 0,
@@ -212,6 +206,7 @@ export const tipoProductoService = {
       if (data.categoriasSugeridasIds !== undefined) updateData.categoriasSugeridasIds = data.categoriasSugeridasIds;
       if (data.iconoUrl !== undefined) updateData.iconoUrl = data.iconoUrl;
       if (data.imagenUrl !== undefined) updateData.imagenUrl = data.imagenUrl;
+      if (data.lineaNegocioIds !== undefined) updateData.lineaNegocioIds = data.lineaNegocioIds;
 
       await updateDoc(docRef, updateData);
     } catch (error: any) {

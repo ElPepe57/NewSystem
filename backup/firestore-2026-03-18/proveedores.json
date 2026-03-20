@@ -1,0 +1,760 @@
+[
+  {
+    "_id": "0H9WyV0eogwzDLZJURng",
+    "codigo": "PRV-021",
+    "nombre": "Sam's Club",
+    "tipo": "distribuidor",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T21:38:38.000Z",
+      "_seconds": 1771796318
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 1,
+      "precioPromedio": 27.91,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-22T21:43:55.000Z",
+        "_seconds": 1771796635
+      }
+    }
+  },
+  {
+    "_id": "2bWXdlBrYTB1kErl25Fb",
+    "codigo": "PRV-017",
+    "nombre": "Mary Ruth's",
+    "tipo": "distribuidor",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-11T20:06:53.000Z",
+      "_seconds": 1768162013
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 2,
+      "precioPromedio": 39.95,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-11T20:17:28.000Z",
+        "_seconds": 1768162648
+      }
+    }
+  },
+  {
+    "_id": "5QMWdka4BKdIaR2waTNg",
+    "codigo": "PRV-023",
+    "nombre": "Deal Supplement",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T03:06:44.000Z",
+      "_seconds": 1771816004
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 2,
+      "precioPromedio": 27.95,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T03:18:42.000Z",
+        "_seconds": 1771816722
+      }
+    }
+  },
+  {
+    "_id": "9RbnYoQIu5nlMRAhVKbE",
+    "codigo": "PRV-006",
+    "nombre": "Walmart",
+    "url": "www.walmart.com",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T07:08:02.000Z",
+      "_seconds": 1766214482
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "tipo": "mayorista",
+    "totalComprasUSD": 0,
+    "totalOCs": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:02.000Z",
+      "_seconds": 1767498062
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 1,
+      "precioPromedio": 12.99,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-08T03:42:51.000Z",
+        "_seconds": 1767843771
+      }
+    }
+  },
+  {
+    "_id": "AervU2g3VXxgF1eU2YfY",
+    "codigo": "PRV-015",
+    "nombre": "Sports Research",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-10T05:46:16.000Z",
+      "_seconds": 1768023976
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 2,
+      "precioPromedio": 27.94,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-11T17:24:10.000Z",
+        "_seconds": 1768152250
+      }
+    }
+  },
+  {
+    "_id": "BlcXi2tCB9sRa7gL7yuL",
+    "codigo": "PRV-003",
+    "nombre": "Target",
+    "tipo": "mayorista",
+    "url": "www.target.com",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T07:06:48.000Z",
+      "_seconds": 1766214408
+    },
+    "totalComprasUSD": 0,
+    "totalOCs": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:02.000Z",
+      "_seconds": 1767498062
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 2,
+      "precioPromedio": 24.99,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-08T16:01:07.000Z",
+        "_seconds": 1767888067
+      }
+    }
+  },
+  {
+    "_id": "CpBqAa4sqbnRONFYrpzR",
+    "codigo": "PRV-005",
+    "nombre": "Carlyle",
+    "tipo": "fabricante",
+    "url": "www.carlyle.com",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T07:07:30.000Z",
+      "_seconds": 1766214450
+    },
+    "totalComprasUSD": 0,
+    "totalOCs": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:02.000Z",
+      "_seconds": 1767498062
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 17,
+      "precioPromedio": 17.99,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T01:33:13.000Z",
+        "_seconds": 1771810393
+      }
+    }
+  },
+  {
+    "_id": "HnxYOAAF4vHA7tdNzvDq",
+    "codigo": "PRV-010",
+    "nombre": "MicroIngredients",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-08T05:21:19.000Z",
+      "_seconds": 1767849679
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 17,
+      "precioPromedio": 31.95,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T02:51:43.000Z",
+        "_seconds": 1771815103
+      }
+    }
+  },
+  {
+    "_id": "ItuVO2JUtBts0eUZWaFB",
+    "codigo": "PRV-012",
+    "nombre": "Horbaach",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-09T01:25:41.000Z",
+      "_seconds": 1767921941
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 8,
+      "precioPromedio": 16.99,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-09T22:07:10.000Z",
+        "_seconds": 1767996430
+      }
+    }
+  },
+  {
+    "_id": "JoRMpKGziOAGPWxdLDqK",
+    "codigo": "PRV-016",
+    "nombre": "Wellness Labs RX",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-10T05:53:40.000Z",
+      "_seconds": 1768024420
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 1,
+      "precioPromedio": 29.99,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-12T13:47:18.000Z",
+        "_seconds": 1768225638
+      }
+    }
+  },
+  {
+    "_id": "OQ4a32vgVymfVRrTtMbi",
+    "codigo": "PRV-013",
+    "nombre": "Now Foods",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-09T22:16:43.000Z",
+      "_seconds": 1767997003
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 11,
+      "precioPromedio": 53,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-10T00:45:34.000Z",
+        "_seconds": 1768005934
+      }
+    }
+  },
+  {
+    "_id": "PSZOzVuAUtxk9iZ9Y2tq",
+    "codigo": "PRV-011",
+    "nombre": "Solaray",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-08T23:01:26.000Z",
+      "_seconds": 1767913286
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 3,
+      "precioPromedio": 9.59,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-22T20:07:54.000Z",
+        "_seconds": 1771790874
+      }
+    }
+  },
+  {
+    "_id": "X8Fa6TcFtVRUj0a3RB8V",
+    "codigo": "PRV-009",
+    "nombre": "Life Extension",
+    "tipo": "distribuidor",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-08T03:59:33.000Z",
+      "_seconds": 1767844773
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 7,
+      "precioPromedio": 16.2,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-09T00:20:31.000Z",
+        "_seconds": 1767918031
+      }
+    }
+  },
+  {
+    "_id": "Xm9vZhed9FB8527xX8kv",
+    "codigo": "PRV-022",
+    "nombre": "Naturebell",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T02:13:16.000Z",
+      "_seconds": 1771812796
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 2,
+      "precioPromedio": 25.99,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T03:02:13.000Z",
+        "_seconds": 1771815733
+      }
+    }
+  },
+  {
+    "_id": "a6GCKMQt6vCbvcOsrTQM",
+    "codigo": "PRV-001",
+    "nombre": "Amazon",
+    "tipo": "distribuidor",
+    "url": "www.amazon.com",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T05:33:02.000Z",
+      "_seconds": 1766208782
+    },
+    "totalComprasUSD": 0,
+    "totalOCs": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:58:24.000Z",
+      "_seconds": 1768787904
+    },
+    "metricas": {
+      "ordenesCompra": 1,
+      "montoTotalUSD": 292.5715,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2025-12-25T23:35:49.000Z",
+        "_seconds": 1766705749
+      },
+      "ordenesCompletadas": 3,
+      "productosComprados": [
+        "BMN-0002",
+        "BMN-0001"
+      ],
+      "productosAnalizados": 103,
+      "precioPromedio": 29.71,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T04:10:39.000Z",
+        "_seconds": 1771819839
+      }
+    }
+  },
+  {
+    "_id": "cPHvo6itHQkiyCjet2OG",
+    "codigo": "PRV-018",
+    "nombre": "Double Wood",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:37:19.000Z",
+      "_seconds": 1768786639
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 2,
+      "precioPromedio": 30.95,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-22T19:24:57.000Z",
+        "_seconds": 1771788297
+      }
+    }
+  },
+  {
+    "_id": "g0kvoAXZxXtC6XePBe2D",
+    "codigo": "PRV-002",
+    "nombre": "iHerb",
+    "tipo": "distribuidor",
+    "url": "www.iherb.com",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T05:33:25.000Z",
+      "_seconds": 1766208805
+    },
+    "totalComprasUSD": 0,
+    "totalOCs": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:02.000Z",
+      "_seconds": 1767498062
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 54,
+      "precioPromedio": 29.71,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T04:10:40.000Z",
+        "_seconds": 1771819840
+      }
+    }
+  },
+  {
+    "_id": "mvwfQVspuKZ0lNIhMoLp",
+    "codigo": "PRV-020",
+    "nombre": "JoySpring",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T21:19:36.000Z",
+      "_seconds": 1771795176
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 1,
+      "precioPromedio": 34.99,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-22T21:22:54.000Z",
+        "_seconds": 1771795374
+      }
+    }
+  },
+  {
+    "_id": "pyRKtFsDHuLGu3uQVOD6",
+    "codigo": "PRV-008",
+    "nombre": "Nordic Naturals",
+    "tipo": "distribuidor",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-08T03:52:03.000Z",
+      "_seconds": 1767844323
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 9,
+      "precioPromedio": 27.16,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-13T01:05:54.000Z",
+        "_seconds": 1768266354
+      }
+    }
+  },
+  {
+    "_id": "rictZ1Q5j1Bx4kYdBNHo",
+    "codigo": "PRV-019",
+    "nombre": "Instacart",
+    "tipo": "minorista",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T19:30:30.000Z",
+      "_seconds": 1771788630
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 6,
+      "precioPromedio": 6.53,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T00:47:02.000Z",
+        "_seconds": 1771807622
+      }
+    }
+  },
+  {
+    "_id": "s2vkrnR1GyemVHnJTE9P",
+    "codigo": "PRV-007",
+    "nombre": "Ebay",
+    "tipo": "distribuidor",
+    "url": "www.ebay.com",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T07:08:54.000Z",
+      "_seconds": 1766214534
+    },
+    "totalComprasUSD": 0,
+    "totalOCs": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:02.000Z",
+      "_seconds": 1767498062
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 2,
+      "precioPromedio": 16.57,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-11T17:25:38.000Z",
+        "_seconds": 1768152338
+      }
+    }
+  },
+  {
+    "_id": "sPS0v54mhyscOV9T8Dwk",
+    "codigo": "PRV-024",
+    "nombre": "Pure Encapsulations",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T03:24:18.000Z",
+      "_seconds": 1771817058
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 1,
+      "precioPromedio": 27,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T03:52:44.000Z",
+        "_seconds": 1771818764
+      }
+    }
+  },
+  {
+    "_id": "sVH3irZCo99kMJBsQEio",
+    "codigo": "PRV-014",
+    "nombre": "Dr. Moritz",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-10T05:04:32.000Z",
+      "_seconds": 1768021472
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 1,
+      "precioPromedio": 16,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-01-10T05:09:16.000Z",
+        "_seconds": 1768021756
+      }
+    }
+  },
+  {
+    "_id": "v6D5Sp1WfXZCddYURTuj",
+    "codigo": "PRV-004",
+    "nombre": "Costco",
+    "tipo": "mayorista",
+    "url": "www.costco.com",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T07:07:14.000Z",
+      "_seconds": 1766214434
+    },
+    "totalComprasUSD": 0,
+    "totalOCs": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:02.000Z",
+      "_seconds": 1767498062
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 7,
+      "precioPromedio": 7.825,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T00:56:30.000Z",
+        "_seconds": 1771808190
+      }
+    }
+  },
+  {
+    "_id": "xtOFgd2fa5C55baPLWsZ",
+    "codigo": "PRV-025",
+    "nombre": "MAV Nutrition",
+    "tipo": "fabricante",
+    "url": "",
+    "pais": "USA",
+    "activo": true,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T03:59:07.000Z",
+      "_seconds": 1771819147
+    },
+    "metricas": {
+      "ordenesCompra": 0,
+      "montoTotalUSD": 0,
+      "ultimaCompra": null,
+      "productosComprados": [],
+      "productosAnalizados": 1,
+      "precioPromedio": 34.95,
+      "ultimaInvestigacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T04:02:03.000Z",
+        "_seconds": 1771819323
+      }
+    }
+  }
+]

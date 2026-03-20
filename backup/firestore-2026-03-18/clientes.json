@@ -1,0 +1,3765 @@
+[
+  {
+    "_id": "0KSaDFRytD2e0ST9vuLk",
+    "codigo": "CLI-009",
+    "nombre": "Fabricio Omar Rios",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "09907409",
+    "telefono": "971403753",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T16:45:32.000Z",
+      "_seconds": 1769100332
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    },
+    "metricas": {
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-03T17:57:17.000Z",
+        "_seconds": 1770141437
+      },
+      "ticketPromedio": 152.33,
+      "montoTotalPEN": 457,
+      "totalCompras": 3
+    }
+  },
+  {
+    "_id": "0NgPBEUTogHilxwy5t8q",
+    "codigo": "CLI-012",
+    "nombre": "Anthony Juarez Solis",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "70149504",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T06:53:14.000Z",
+      "_seconds": 1769583194
+    },
+    "metricas": {
+      "ticketPromedio": 266,
+      "montoTotalPEN": 266,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-01-28T06:53:30.000Z",
+        "_seconds": 1769583210
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "2NAiIZHa061WViroLUpe",
+    "codigo": "CLI-067",
+    "nombre": "Jorge Castro",
+    "nombreLowercase": "jorge castro",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "29511335",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773159049015",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida Miguel Grau 124",
+        "distrito": "Arequipa",
+        "ciudad": "Arequipa",
+        "referencia": "Referencia: tiene rejas negras y la fachada es de color amarillo",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:10:49.000Z",
+      "_seconds": 1773159049
+    }
+  },
+  {
+    "_id": "34II9b6AwD2qeZjtZgmk",
+    "codigo": "CLI-016",
+    "nombre": "Greta Peru SAC",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "20506985308",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T19:20:58.000Z",
+      "_seconds": 1770319258
+    },
+    "metricas": {
+      "ticketPromedio": 154,
+      "montoTotalPEN": 154,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-05T19:22:09.000Z",
+        "_seconds": 1770319329
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "3zrVGkVkwjhaSUdd5JGx",
+    "codigo": "CLI-076",
+    "nombre": "Jessenia Alexandra Arias",
+    "nombreLowercase": "jessenia alexandra arias",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "71406709",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773595982330",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle John F. Kennedy A-11 SN",
+        "distrito": "Arequipa",
+        "ciudad": "Arequipa",
+        "referencia": "Referencia: Entre adepa y bancarios",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-15T17:33:02.000Z",
+      "_seconds": 1773595982
+    }
+  },
+  {
+    "_id": "4GB8xZKqXa54Ce1CLFq5",
+    "codigo": "CLI-045",
+    "nombre": "Guillermo Torres",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "etiquetas": [],
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "dniRuc": "40083862",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:28:06.000Z",
+      "_seconds": 1772645286
+    }
+  },
+  {
+    "_id": "8CYsYgqMk2pgKBs0O9hk",
+    "codigo": "CLI-059",
+    "nombre": "Andrea Alexandra Navarro",
+    "nombreLowercase": "andrea alexandra navarro",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "74617853",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773074347032",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Aguamarina 157",
+        "distrito": "El Agustino",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T16:39:07.000Z",
+      "_seconds": 1773074347
+    }
+  },
+  {
+    "_id": "8LDtsF5p8DoFKQdX31Ah",
+    "codigo": "CLI-029",
+    "nombre": "Josafat Vara",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "72749124",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:12:12.000Z",
+      "_seconds": 1771470732
+    },
+    "metricas": {
+      "ticketPromedio": 238,
+      "montoTotalPEN": 238,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T03:13:35.000Z",
+        "_seconds": 1771470815
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "8UpMRon7WxwtGWGR3Ufo",
+    "codigo": "CLI-044",
+    "nombre": "Silvia Soledad Montalvan",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "etiquetas": [],
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "dniRuc": "41051022",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:21:47.000Z",
+      "_seconds": 1772644907
+    }
+  },
+  {
+    "_id": "8zsHOkMZrPJL1406nhua",
+    "codigo": "CLI-086",
+    "nombre": "Henry Aguilar Reategui",
+    "nombreLowercase": "henry aguilar reategui",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "01147076",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773851343019",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jirón Jimenez Pimentel 119",
+        "distrito": "San Martín",
+        "ciudad": "San Martin",
+        "referencia": "Dpto 402 Referencia: A media Cuadra de la Plaza de Armas",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-18T16:29:03.000Z",
+      "_seconds": 1773851343
+    }
+  },
+  {
+    "_id": "912khjoVqzZCl9xHvrBd",
+    "codigo": "CLI-010",
+    "nombre": "Mariela Cinthia García Palacios",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "42191099",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T16:50:41.000Z",
+      "_seconds": 1769100641
+    },
+    "metricas": {
+      "ticketPromedio": 189,
+      "montoTotalPEN": 189,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-01-22T16:50:57.000Z",
+        "_seconds": 1769100657
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "92Ub8pQVnYNx0zMBN5zc",
+    "codigo": "CLI-065",
+    "nombre": "Miguel Angel Atencio Picho",
+    "nombreLowercase": "miguel angel atencio picho",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "10001419",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773120612801",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle Artemio Ocaña 112 210",
+        "distrito": "San Borja",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Referencia: Altura cuadra 24 y 25 de javier Prado Este, costado del nuevo edificio del Banco de la Naciòn y el centro de comvenciones",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T05:30:12.000Z",
+      "_seconds": 1773120612
+    }
+  },
+  {
+    "_id": "BIPgZKYNkxKLgieQDFGC",
+    "codigo": "CLI-030",
+    "nombre": "Jonatan Calderón",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "43371649",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:41:26.000Z",
+      "_seconds": 1771515686
+    },
+    "metricas": {
+      "ticketPromedio": 153,
+      "montoTotalPEN": 153,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T15:42:29.000Z",
+        "_seconds": 1771515749
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "BSQBkKM8mk9KZb42zMxb",
+    "codigo": "CLI-075",
+    "nombre": "Rafael MartíN Moreno Daguerre",
+    "nombreLowercase": "rafael martín moreno daguerre",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "49087435",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773587342223",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jirón Joaquín Bernal 1028",
+        "distrito": "Lince",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "1702 Referencia: Esquina con avenida César Vallejo",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-15T15:09:02.000Z",
+      "_seconds": 1773587342
+    }
+  },
+  {
+    "_id": "BatI7SQwGaD6SRRbLAwq",
+    "codigo": "CLI-032",
+    "nombre": "Chantal Victoria Arizapana",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "41609887",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:24:09.000Z",
+      "_seconds": 1771737849
+    },
+    "metricas": {
+      "ticketPromedio": 139,
+      "montoTotalPEN": 139,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-22T05:25:29.000Z",
+        "_seconds": 1771737929
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "B",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "B",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "regular",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "DC9JkGD56a6DajoFEoNb",
+    "codigo": "CLI-026",
+    "nombre": "Luis Alberto Mesahuanca Huamani",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "75151669",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:42:07.000Z",
+      "_seconds": 1771346527
+    },
+    "metricas": {
+      "ticketPromedio": 133,
+      "montoTotalPEN": 133,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-17T16:42:56.000Z",
+        "_seconds": 1771346576
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "B",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "B",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "regular",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "FLlB3bjxHa2t08WQHeri",
+    "codigo": "CLI-025",
+    "nombre": "Dante Cunti Pérez",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "46193094",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:36:39.000Z",
+      "_seconds": 1770874599
+    },
+    "metricas": {
+      "ticketPromedio": 158,
+      "montoTotalPEN": 158,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-12T05:37:34.000Z",
+        "_seconds": 1770874654
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "G620bsRLrAhktx04iLxs",
+    "codigo": "CLI-008",
+    "nombre": "Jhosselyn Martinez",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "72217403",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:41:17.000Z",
+      "_seconds": 1768786877
+    },
+    "totalVentas": 1,
+    "totalCompras": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:16.000Z",
+      "_seconds": 1768787236
+    },
+    "metricas": {
+      "ticketPromedio": 157,
+      "montoTotalPEN": 157,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-01-19T01:41:52.000Z",
+        "_seconds": 1768786912
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "GUcEhmZsqLVGPKqI8MvA",
+    "codigo": "CLI-061",
+    "nombreLowercase": "henry reyes ramos",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "40589287",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773080651528",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Sector 2 grupo 13 manzana K Lote 24",
+        "distrito": "Villa El Salvador",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "24 Referencia: St. 2, Gr. 13, Mz. K Lt. 24 .Por el ovalo de la mujer, cruce de alamos con santa rosa.",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T18:24:11.000Z",
+      "_seconds": 1773080651
+    },
+    "nombre": "henry reyes ramos"
+  },
+  {
+    "_id": "H9lT75uHhLUitzPB6Z9t",
+    "codigo": "CLI-038",
+    "nombre": "Carmen Shimabukuro",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "07993868",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:19:00.000Z",
+      "_seconds": 1772086740
+    },
+    "metricas": {
+      "ticketPromedio": 158,
+      "montoTotalPEN": 158,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-26T06:20:22.000Z",
+        "_seconds": 1772086822
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "HinsO6rdUcBgfF9mATGZ",
+    "codigo": "CLI-073",
+    "nombre": "Rosina Pamela Velit",
+    "nombreLowercase": "rosina pamela velit",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "10734170",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773448682835",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle enrique palacios 240",
+        "distrito": "Miraflores",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "301 Referencia: amarillo claro",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T00:38:02.000Z",
+      "_seconds": 1773448682
+    }
+  },
+  {
+    "_id": "J9grhJleM5KoWezfht0p",
+    "codigo": "CLI-082",
+    "nombre": "Maria Alburuqueque Tafur",
+    "nombreLowercase": "maria alburuqueque tafur",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "60985548",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773760509415",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jirón Uranio SN",
+        "distrito": "San Martín de Porres",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "502 Referencia: Jirón Uranio Mz.H - Lt.8 . \nMercado vipol tantamayo smp, llamar antes de entregar",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-17T15:15:09.000Z",
+      "_seconds": 1773760509
+    }
+  },
+  {
+    "_id": "JkbSr4vIBmFrAXlO7hFK",
+    "codigo": "CLI-033",
+    "nombre": "Juan José Arroyo Rojas",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "33263682",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T05:29:02.000Z",
+      "_seconds": 1771910942
+    },
+    "metricas": {
+      "ticketPromedio": 175.25,
+      "montoTotalPEN": 175.25,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-24T05:30:27.000Z",
+        "_seconds": 1771911027
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "KKixngEbLH86jd0MUNbI",
+    "codigo": "CLI-069",
+    "nombre": "Ronald Tacilla",
+    "nombreLowercase": "ronald tacilla",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "70214776",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773253260731",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida Hoyos Rubio 1801",
+        "distrito": "Cajamarca",
+        "ciudad": "Cajamarca",
+        "referencia": "interior B Referencia: Frente al colegio Davy college al costado de planta de revisiones técnicas Infaservis",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-11T18:21:00.000Z",
+      "_seconds": 1773253260
+    }
+  },
+  {
+    "_id": "KjZ8Ixw4pnf7CH5VTo0P",
+    "codigo": "CLI-040",
+    "nombre": "Annette Larrabure Washburn",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "dniRuc": "06515899",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-28T00:33:02.000Z",
+      "_seconds": 1772238782
+    },
+    "clasificacionABC": "A",
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:36:48.000Z",
+      "_seconds": 1772393808
+    },
+    "metricas": {
+      "montoTotalPEN": 212.25,
+      "productosFrecuentes": [
+        "Natrol Gomitas de Melatonina para Adultos"
+      ],
+      "totalCompras": 1,
+      "ticketPromedio": 212.25,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-28T00:34:11.000Z",
+        "_seconds": 1772238851
+      }
+    },
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    }
+  },
+  {
+    "_id": "MlhmOZ3owGxRgDULjkyy",
+    "codigo": "CLI-056",
+    "nombre": "Henry Ventura Quispe",
+    "nombreLowercase": "henry ventura quispe",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "45964507",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772933038780",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida vienrich 264",
+        "distrito": "Tarma",
+        "ciudad": "Junin",
+        "referencia": "primer piso Referencia: Restaurante Matt",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T01:23:58.000Z",
+      "_seconds": 1772933038
+    }
+  },
+  {
+    "_id": "N1MQkwR5C2UaWkcLhrq5",
+    "codigo": "CLI-031",
+    "nombre": "Eduardo Isaac Ugaz",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "09867241",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:36:46.000Z",
+      "_seconds": 1771601806
+    },
+    "metricas": {
+      "ticketPromedio": 141,
+      "montoTotalPEN": 141,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-20T15:37:48.000Z",
+        "_seconds": 1771601868
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "B",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "B",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "regular",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "O0Dy02syNOTcyWsdMZKU",
+    "codigo": "CLI-054",
+    "nombre": "Maychyure Miranda Matos",
+    "nombreLowercase": "maychyure miranda matos",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "41474140",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772927416540",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida Brasil 863",
+        "distrito": "Jesús María",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Dpto 2003 Torre A Referencia: Al frente de la Rambla de Breña",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T23:50:16.000Z",
+      "_seconds": 1772927416
+    }
+  },
+  {
+    "_id": "QAfaBvyt7WdrvuCv0yS9",
+    "codigo": "CLI-081",
+    "nombre": "Stephany Buendia",
+    "nombreLowercase": "stephany buendia",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "72875576",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773750783699",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida del Río 257",
+        "distrito": "Pueblo Libre",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "1001",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-17T12:33:03.000Z",
+      "_seconds": 1773750783
+    }
+  },
+  {
+    "_id": "QOVvHjAnq0IUsrSdcx9E",
+    "codigo": "CLI-055",
+    "nombre": "Stefany Alvarez",
+    "nombreLowercase": "stefany alvarez",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "60898372",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772930972920",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jirón jean francoi Millet D6-lote1",
+        "distrito": "Santiago de Surco",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Casa Referencia: Casa de 3 piso color mostaza con gris en una esquina",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T00:49:32.000Z",
+      "_seconds": 1772930972
+    }
+  },
+  {
+    "_id": "QottZ4gsf9fQ1VwE9nRu",
+    "codigo": "CLI-007",
+    "nombre": "Miguel Vargas",
+    "tipoCliente": "persona",
+    "canalOrigen": "whatsapp",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "dniRuc": "111111111",
+    "telefono": "9865552248",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T19:41:55.000Z",
+      "_seconds": 1767382915
+    },
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0,
+      "ultimaCompra": null,
+      "productosFavoritos": []
+    },
+    "totalVentas": 0,
+    "totalCompras": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:07.000Z",
+      "_seconds": 1767498067
+    },
+    "clasificacionABC": "nuevo",
+    "segmento": "nuevo",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-05T18:12:51.000Z",
+      "_seconds": 1767636771
+    },
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    }
+  },
+  {
+    "_id": "RUzs3G12xyNoDgIYsk44",
+    "codigo": "CLI-058",
+    "nombre": "Juliana Trujillo",
+    "nombreLowercase": "juliana trujillo",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "10439939",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773061756401",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle Holanda Mz.H3 Lote 56 Palmeras de Oquendo SN",
+        "distrito": "Callao",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Referencia: casa de tres pisos de mayolica azul  frente posta médica de Palmeras de Oquendo",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:09:16.000Z",
+      "_seconds": 1773061756
+    }
+  },
+  {
+    "_id": "Sh9CmUk40bMqgfdhKhqp",
+    "codigo": "CLI-063",
+    "nombre": "Marisela Romina Augusto",
+    "nombreLowercase": "marisela romina augusto",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "46324048",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773107042525",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle Monte frio 137",
+        "distrito": "Santiago de Surco",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "401 Referencia: Frente a parque César Vallejo",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T01:44:02.000Z",
+      "_seconds": 1773107042
+    }
+  },
+  {
+    "_id": "TLroPfZxSGMaYwsUEu30",
+    "codigo": "CLI-049",
+    "nombreLowercase": "joy gustavo del aguila reategui",
+    "tipoCliente": "persona",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772833978948",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jirón 16 de noviembre A.h Micaela Bastidas 144",
+        "distrito": "Coronel Portillo",
+        "ciudad": "Ucayali",
+        "referencia": "",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T21:52:58.000Z",
+      "_seconds": 1772833978
+    },
+    "dniRuc": "46191415",
+    "tipoDocumento": "DNI",
+    "nombre": "Joy Gustavo Del Aguila Reategui"
+  },
+  {
+    "_id": "TSGK5TFhU730YcSSIZqR",
+    "codigo": "CLI-027",
+    "nombre": "Maritere Armas Vargas",
+    "tipoCliente": "persona",
+    "canalOrigen": "referido",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "telefono": "917257796",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T20:57:30.000Z",
+      "_seconds": 1771361850
+    },
+    "metricas": {
+      "ticketPromedio": 140,
+      "montoTotalPEN": 140,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-17T20:59:54.000Z",
+        "_seconds": 1771361994
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "B",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "B",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "regular",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "UxoBXURkqjHZ6WXbZLlq",
+    "codigo": "CLI-020",
+    "nombre": "Francesca Rivera Torres",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "73705616",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:06:32.000Z",
+      "_seconds": 1770746792
+    },
+    "metricas": {
+      "ticketPromedio": 232,
+      "montoTotalPEN": 232,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-10T18:07:43.000Z",
+        "_seconds": 1770746863
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "VKXBtZdIV5dWGebJqVjB",
+    "codigo": "CLI-035",
+    "nombre": "Luis Caja",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "71696315",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T23:16:30.000Z",
+      "_seconds": 1771974990
+    },
+    "metricas": {
+      "ticketPromedio": 142,
+      "montoTotalPEN": 142,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-24T23:17:06.000Z",
+        "_seconds": 1771975026
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "B",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "B",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "regular",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "W8vnFUmU52vvzh2jm7bP",
+    "codigo": "CLI-014",
+    "nombre": "Elizabeth Cortez Fuster",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "41696791",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T17:58:56.000Z",
+      "_seconds": 1770141536
+    },
+    "metricas": {
+      "ticketPromedio": 249,
+      "montoTotalPEN": 249,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-03T17:59:15.000Z",
+        "_seconds": 1770141555
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "WCbyQa9r5bh3cfppJfIC",
+    "codigo": "CLI-078",
+    "nombre": "Fortunato Contreras Contreras",
+    "nombreLowercase": "fortunato contreras contreras",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "08443100",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773670523040",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jirón Maipu 643",
+        "distrito": "Pueblo Libre",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "702 Referencia: altura cuadra 3 avenida BOLÍVAR, A UN 1/4 DE CUADRA y al al costado del parque BAHIA",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T14:15:23.000Z",
+      "_seconds": 1773670523
+    }
+  },
+  {
+    "_id": "Xmtd9dHD6BWhPEgYhq22",
+    "codigo": "CLI-053",
+    "nombre": "Farix Daniel Romero Manrique",
+    "nombreLowercase": "farix daniel romero manrique",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "72634617",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772896271067",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jr. Carlos Arrieta 380",
+        "distrito": "Barranco",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "607 Referencia: Edificio Invent Patria piso 607",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T15:11:11.000Z",
+      "_seconds": 1772896271
+    }
+  },
+  {
+    "_id": "XpDi9DrO9ww0S3NQh5Cd",
+    "codigo": "CLI-084",
+    "nombre": "Natalie Fernandez Garcia",
+    "nombreLowercase": "natalie fernandez garcia",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "43969068",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-18T13:03:05.000Z",
+      "_seconds": 1773838985
+    }
+  },
+  {
+    "_id": "Y3BE2ZGiKEwnARkH0bqu",
+    "codigo": "CLI-083",
+    "nombre": "Jose Dario Toledo",
+    "nombreLowercase": "jose dario toledo",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "42295687",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773797342613",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida San Borja Norte 958",
+        "distrito": "San Borja",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Depa 801 Referencia: Casi en el cruce de san Borja norte y san luis",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-18T01:29:02.000Z",
+      "_seconds": 1773797342
+    }
+  },
+  {
+    "_id": "YEkXLMkKaDuUG5Lilc1l",
+    "codigo": "CLI-039",
+    "nombre": "Bertha Aparicio",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "09850852",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T20:37:45.000Z",
+      "_seconds": 1772138265
+    },
+    "metricas": {
+      "ticketPromedio": 212.25,
+      "montoTotalPEN": 212.25,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-26T20:38:07.000Z",
+        "_seconds": 1772138287
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "Yqs7xPWT3LO3tWAWhZXY",
+    "codigo": "CLI-028",
+    "nombre": "Luis Ugaz",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "43348392",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-18T16:50:04.000Z",
+      "_seconds": 1771433404
+    },
+    "metricas": {
+      "ticketPromedio": 257,
+      "montoTotalPEN": 257,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-18T16:50:44.000Z",
+        "_seconds": 1771433444
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "ZWSOk0n6PCdoYSjiRbOO",
+    "codigo": "CLI-070",
+    "nombre": "Angie Garcia",
+    "nombreLowercase": "angie garcia",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "80076123",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773274995748",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle Santa Teresa de villa MZ 4 Lote 11",
+        "distrito": "Chorrillos",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Casa Referencia: Espalda de la comisaría que está en el mismo ovalo de la curva ,casa vereda roja ,puerta de vidrio",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T00:23:15.000Z",
+      "_seconds": 1773274995
+    }
+  },
+  {
+    "_id": "ZiaqrG8fnNRfro8lLBTF",
+    "codigo": "CLI-017",
+    "nombre": "Emilio González",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "CE 002460210",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T05:10:56.000Z",
+      "_seconds": 1770527456
+    },
+    "metricas": {
+      "ticketPromedio": 237,
+      "montoTotalPEN": 237,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-08T05:18:50.000Z",
+        "_seconds": 1770527930
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "abVv3sXqRWU0Fzq3AyHN",
+    "codigo": "CLI-043",
+    "nombre": "Jessica Fierro",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "etiquetas": [],
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "dniRuc": "42978890",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:34:47.000Z",
+      "_seconds": 1772505287
+    }
+  },
+  {
+    "_id": "ad6uVi7PyiZOg7MnAJkg",
+    "codigo": "CLI-022",
+    "nombre": "Bolivar Rodriguez Jatniel",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "15603114865",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:26:38.000Z",
+      "_seconds": 1770780398
+    },
+    "metricas": {
+      "ticketPromedio": 121,
+      "montoTotalPEN": 121,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T03:35:15.000Z",
+        "_seconds": 1770780915
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "C",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "C",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "ocasional",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "ailADziZbUc42wIaF4WK",
+    "codigo": "CLI-087",
+    "nombre": "Arturo Manuel Eguila",
+    "nombreLowercase": "arturo manuel eguila",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "10724911",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773865862456",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle Calle Las Oropendolas 314",
+        "distrito": "San Isidro",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "202 Referencia: Departamento 202",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-18T20:31:02.000Z",
+      "_seconds": 1773865862
+    }
+  },
+  {
+    "_id": "b9CWSlRrKGa523wUxKDu",
+    "codigo": "CLI-041",
+    "nombre": "Victor Raul Alva",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "dniRuc": "42710736",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T01:07:35.000Z",
+      "_seconds": 1772327255
+    },
+    "metricas": {
+      "ticketPromedio": 153.25,
+      "montoTotalPEN": 153.25,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-03-01T01:15:24.000Z",
+        "_seconds": 1772327724
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "bkLeeh1uY5VwLpfHGSLE",
+    "codigo": "CLI-079",
+    "nombre": "Edison Huaman",
+    "nombreLowercase": "edison huaman",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "42298926",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773690669241",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida Camino Real 677",
+        "distrito": "San Isidro",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Departamento 1701 A Referencia: Edificio The Palms",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T19:51:09.000Z",
+      "_seconds": 1773690669
+    }
+  },
+  {
+    "_id": "cK2z22cciJIbwAzLozIb",
+    "codigo": "CLI-066",
+    "nombre": "Geraldine Oliver",
+    "nombreLowercase": "geraldine oliver",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "43630628",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773148282625",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Malecón Bernales 295",
+        "distrito": "Magdalena del Mar",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "501 Referencia: Frente al parque de la pera",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T13:11:22.000Z",
+      "_seconds": 1773148282
+    }
+  },
+  {
+    "_id": "cV96DBEqj2VVcFjD0e7b",
+    "codigo": "CLI-005",
+    "nombre": "Pablo Alexander Junior Reyna Prado",
+    "tipoCliente": "persona",
+    "canalOrigen": "whatsapp",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "dniRuc": "5489658",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-28T05:35:25.000Z",
+      "_seconds": 1766900125
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2025-12-31T03:11:45.000Z",
+          "_seconds": 1767150705
+        },
+        "clasificacionAnterior": "C",
+        "clasificacionNueva": "B",
+        "segmentoAnterior": "ocasional",
+        "segmentoNuevo": "ocasional",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "metricas": {
+      "ticketPromedio": 0,
+      "productosFrecuentes": [
+        "Nordic Naturals Artic-D"
+      ],
+      "montoTotalPEN": 0,
+      "ultimaCompra": null,
+      "totalCompras": 0,
+      "productosFavoritos": []
+    },
+    "totalVentas": 0,
+    "totalCompras": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:07.000Z",
+      "_seconds": 1767498067
+    },
+    "clasificacionABC": "nuevo",
+    "segmento": "nuevo",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-05T18:12:51.000Z",
+      "_seconds": 1767636771
+    },
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    }
+  },
+  {
+    "_id": "d8X8JgboDcR3NYEM3lqW",
+    "codigo": "CLI-068",
+    "nombreLowercase": "asociacion amistad y cultura",
+    "tipoCliente": "empresa",
+    "tipoDocumento": "RUC",
+    "dniRuc": "20509603406",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773166866082",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Petit Thouars 4364",
+        "distrito": "Miraflores",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T18:21:06.000Z",
+      "_seconds": 1773166866
+    },
+    "nombre": "ASOCIACION AMISTAD Y CULTURA"
+  },
+  {
+    "_id": "dLpEkFfko0bRc7zYmDWU",
+    "codigo": "CLI-019",
+    "nombre": "Francesca Rivera Torres",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "73705616",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:05:10.000Z",
+      "_seconds": 1770746710
+    },
+    "clasificacionABC": "nuevo",
+    "segmento": "nuevo",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:36:48.000Z",
+      "_seconds": 1772393808
+    },
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    }
+  },
+  {
+    "_id": "ew5LUEvoO8k6yboK3oKX",
+    "codigo": "CLI-064",
+    "nombreLowercase": "mario cardenas",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "44054851",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773115107197",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida arequipa 4405",
+        "distrito": "Miraflores",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "1505 Referencia: cruce av arequipa con calle salaverry",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T03:58:27.000Z",
+      "_seconds": 1773115107
+    },
+    "nombre": "mario cardenas"
+  },
+  {
+    "_id": "f6xPgma4omWkDJWzplzA",
+    "codigo": "CLI-013",
+    "nombre": "Elizabeth Vila Cabezas",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "43255248",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T21:09:01.000Z",
+      "_seconds": 1769634541
+    },
+    "metricas": {
+      "ticketPromedio": 142,
+      "montoTotalPEN": 142,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-01-28T21:09:21.000Z",
+        "_seconds": 1769634561
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "fan6ov2oJ8AOP09nD8MT",
+    "codigo": "CLI-077",
+    "nombre": "Roxana Maritza Bustinza Nalvarte",
+    "nombreLowercase": "roxana maritza bustinza nalvarte",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "40719686",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773631984425",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle General Varela 356",
+        "distrito": "Miraflores",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Dpto. 410 Referencia: Altura entre las cuadras 9 y 10 de Enrique Palacios",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T03:33:04.000Z",
+      "_seconds": 1773631984
+    }
+  },
+  {
+    "_id": "hSqgaTQ5PFEWOgX3GYQG",
+    "codigo": "CLI-036",
+    "nombre": "Herbert Perez",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "25462940",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T05:33:37.000Z",
+      "_seconds": 1771997617
+    },
+    "metricas": {
+      "ticketPromedio": 126.25,
+      "montoTotalPEN": 126.25,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-25T05:34:13.000Z",
+        "_seconds": 1771997653
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "C",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "C",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "ocasional",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "ho2ukUHs4INnE4u57H5J",
+    "codigo": "CLI-050",
+    "tipoCliente": "persona",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772834103511",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle 6 Mz J Lote 1 urb alameda de el pinar SN",
+        "distrito": "Comas",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T21:55:03.000Z",
+      "_seconds": 1772834103
+    },
+    "dniRuc": "72654003",
+    "nombre": "Fanny Benavides",
+    "nombreLowercase": "fanny benavides",
+    "tipoDocumento": "DNI"
+  },
+  {
+    "_id": "jIqXJpWISP0w0VjtwxFp",
+    "codigo": "CLI-003",
+    "nombre": "Luis Alonso Yataco Mautino",
+    "tipoCliente": "persona",
+    "canalOrigen": "referido",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "telefono": "986 932 728",
+    "referidoPor": "Jose Pinto",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T03:43:55.000Z",
+      "_seconds": 1766202235
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2025-12-28T06:23:24.000Z",
+          "_seconds": 1766903004
+        },
+        "segmentoAnterior": "ocasional",
+        "segmentoNuevo": "ocasional",
+        "motivo": "Recálculo automático ABC",
+        "clasificacionAnterior": "C",
+        "clasificacionNueva": "B"
+      },
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2025-12-31T03:11:45.000Z",
+          "_seconds": 1767150705
+        },
+        "clasificacionAnterior": "B",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "regular",
+        "segmentoNuevo": "regular",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "totalCompras": 0,
+    "totalVentas": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:58:27.000Z",
+      "_seconds": 1768787907
+    },
+    "metricas": {
+      "ticketPromedio": 0,
+      "productosFavoritos": [],
+      "productosFrecuentes": [
+        "Carlyle K2 + D3",
+        "Carlyle Aceite de Oregano",
+        "Nordic Naturals Artic-D",
+        "CARLYLE ACEITE DE OREGANO",
+        "Mary Ruth's Líquido Multivitamínico + Crecimiento del Cabello"
+      ],
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-01-05T07:15:28.000Z",
+        "_seconds": 1767597328
+      },
+      "montoTotalPEN": 0,
+      "totalCompras": 0
+    },
+    "clasificacionABC": "nuevo",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "nuevo",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "jmZx0H5unw0lqfWVqeDW",
+    "codigo": "CLI-015",
+    "nombre": "Junior Felix Mayta",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "73583401",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T05:25:41.000Z",
+      "_seconds": 1770269141
+    },
+    "metricas": {
+      "ticketPromedio": 141,
+      "montoTotalPEN": 141,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-05T05:26:02.000Z",
+        "_seconds": 1770269162
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "B",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "B",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "regular",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "kGi3QrCiaH33TWaUHz9X",
+    "codigo": "CLI-018",
+    "nombre": "Daniela Jauregui Bernal",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "75107763",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:56:42.000Z",
+      "_seconds": 1770616602
+    },
+    "metricas": {
+      "ticketPromedio": 121,
+      "montoTotalPEN": 121,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-09T05:57:43.000Z",
+        "_seconds": 1770616663
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "C",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "C",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "ocasional",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "kgcqsdkg9GViQibXHs4A",
+    "codigo": "CLI-051",
+    "tipoCliente": "persona",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772839165378",
+        "etiqueta": "Mercado Libre",
+        "direccion": "JR. UNION 342",
+        "distrito": "Celendín",
+        "ciudad": "Cajamarca",
+        "referencia": "",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T23:19:25.000Z",
+      "_seconds": 1772839165
+    },
+    "dniRuc": "41617091",
+    "nombreLowercase": "hubber montenegro aguilar",
+    "tipoDocumento": "DNI",
+    "nombre": "HUBBER MONTENEGRO AGUILAR"
+  },
+  {
+    "_id": "krnbai9675ybLjvpal9t",
+    "codigo": "CLI-085",
+    "nombre": "Alfredo Santiago Bravo Yance",
+    "nombreLowercase": "alfredo santiago bravo yance",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "09402782",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773847624411",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida Tomas Valle 1530",
+        "distrito": "Los Olivos",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Block6 Dpto 604 Referencia: Frente A Colegio Monserrat Son Edificios De Color Rojo",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-18T15:27:04.000Z",
+      "_seconds": 1773847624
+    }
+  },
+  {
+    "_id": "l5QtuxdZ2qi0ViY2Wpwy",
+    "codigo": "CLI-004",
+    "nombre": "Guillermo Gambini",
+    "tipoCliente": "persona",
+    "canalOrigen": "facebook",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "156859653",
+    "telefono": "988452685",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-24T20:11:45.000Z",
+      "_seconds": 1766607105
+    },
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "metricas": {
+      "productosFrecuentes": [
+        "Carlyle K2 + D3",
+        "Carlyle Aceite de Oregano"
+      ],
+      "ticketPromedio": 0,
+      "montoTotalPEN": 0,
+      "ultimaCompra": null,
+      "totalCompras": 0,
+      "productosFavoritos": []
+    },
+    "totalCompras": 0,
+    "clasificacionABC": "nuevo",
+    "segmento": "nuevo",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-05T18:12:51.000Z",
+      "_seconds": 1767636771
+    },
+    "totalVentas": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:58:27.000Z",
+      "_seconds": 1768787907
+    },
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    }
+  },
+  {
+    "_id": "liz8UBMEWy0pL81WCHZQ",
+    "codigo": "CLI-047",
+    "tipoCliente": "persona",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772814830350",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle el derecho MzV4 Lt 20",
+        "distrito": "Los Olivos",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T16:33:50.000Z",
+      "_seconds": 1772814830
+    },
+    "dniRuc": "72452865",
+    "nombre": "Jessebel Paola Moreno",
+    "nombreLowercase": "jessebel paola moreno",
+    "tipoDocumento": "DNI"
+  },
+  {
+    "_id": "mZxkWxUo7Ol0fmFMGZYv",
+    "codigo": "CLI-057",
+    "nombre": "Lita Magali Huertas Romero",
+    "nombreLowercase": "lita magali huertas romero",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "41638323",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772937157906",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Urbanizacion san fernando Mz J Lt 17 SN",
+        "distrito": "Callao",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Referencia: Es una casa BLANCA al frente del Condominio IQUIQUE. En la calle paralela a Calle El Sol.",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T02:32:37.000Z",
+      "_seconds": 1772937157
+    }
+  },
+  {
+    "_id": "mbEfwimIjJcbyqiG600O",
+    "codigo": "CLI-057",
+    "nombre": "Lita Magali Huertas Romero",
+    "nombreLowercase": "lita magali huertas romero",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "41638323",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772937157972",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Urbanizacion san fernando Mz J Lt 17 SN",
+        "distrito": "Callao",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Referencia: Es una casa BLANCA al frente del Condominio IQUIQUE. En la calle paralela a Calle El Sol.",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T02:32:37.000Z",
+      "_seconds": 1772937157
+    }
+  },
+  {
+    "_id": "o51P1sTtb3a2kkuX8Pbc",
+    "codigo": "CLI-048",
+    "tipoCliente": "persona",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772824701813",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jr augusto B. Leguía MZ N5 LT 28 MARISCAL CACERES- SJL SN",
+        "distrito": "San Juan de Lurigancho",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T19:18:21.000Z",
+      "_seconds": 1772824701
+    },
+    "dniRuc": "44550077",
+    "nombreLowercase": "gavi hinostroza cristobal hinostroza cristobal",
+    "tipoDocumento": "DNI",
+    "nombre": "GAVI HINOSTROZA CRISTOBAL HINOSTROZA CRISTOBAL"
+  },
+  {
+    "_id": "oGgiQRPjzuLDZJig5bST",
+    "codigo": "CLI-023",
+    "nombre": "Brandon Stefano Paredes Quispe",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "72503297",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T15:33:04.000Z",
+      "_seconds": 1770823984
+    },
+    "metricas": {
+      "ticketPromedio": 198,
+      "montoTotalPEN": 198,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T15:33:56.000Z",
+        "_seconds": 1770824036
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "oJ1zBIx5vTlxLWxQAHMi",
+    "codigo": "CLI-046",
+    "nombre": "Mimi Herrera",
+    "tipoCliente": "persona",
+    "canalOrigen": "eX0jRdrn6dtfQXrpppfc",
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "etiquetas": [],
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T00:25:28.000Z",
+      "_seconds": 1772670328
+    }
+  },
+  {
+    "_id": "p234zyA46Yn00Yh7snsn",
+    "codigo": "CLI-074",
+    "nombre": "Alexia YañEz",
+    "nombreLowercase": "alexia yañez",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "70424435",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773505626243",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle geranios F-10 residencial Barcelona urb. La florida 10",
+        "distrito": "Cusco",
+        "ciudad": "Cusco",
+        "referencia": "Referencia: Esquina de calle geranios y Av. gardenias",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T16:27:06.000Z",
+      "_seconds": 1773505626
+    }
+  },
+  {
+    "_id": "pbCaZ7Ziggszw4usC6X1",
+    "codigo": "CLI-034",
+    "nombre": "Emiliano Julio Santillan Rimac",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "32304051",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T05:35:08.000Z",
+      "_seconds": 1771911308
+    },
+    "metricas": {
+      "ticketPromedio": 220.95,
+      "montoTotalPEN": 220.95,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-24T05:35:54.000Z",
+        "_seconds": 1771911354
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "pyJylTr5grQnKHunaqlB",
+    "codigo": "CLI-037",
+    "nombre": "Sandro Huanca",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "41432824",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T23:01:32.000Z",
+      "_seconds": 1772060492
+    },
+    "metricas": {
+      "ticketPromedio": 210.45,
+      "montoTotalPEN": 210.45,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-25T23:01:56.000Z",
+        "_seconds": 1772060516
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "q7D2IHc25aNatTa3LcLz",
+    "codigo": "CLI-042",
+    "nombre": "Martha Elena Bonifaz",
+    "tipoCliente": "persona",
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "etiquetas": [],
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "dniRuc": "46878729",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:03:25.000Z",
+      "_seconds": 1772503405
+    }
+  },
+  {
+    "_id": "qn53v7RLce7lPOpxqJrx",
+    "codigo": "CLI-080",
+    "nombre": "BeronéS Henny Zavala Huerta",
+    "nombreLowercase": "beronés henny zavala huerta",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "25715768",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773725222904",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida 2 de Mayo 363",
+        "distrito": "Callao",
+        "ciudad": "Lima Metropolitana",
+        "referencia": "Referencia: En Urb. Playa Rímac, a 2 cuadras del Puente Belaunde Terry",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-17T05:27:02.000Z",
+      "_seconds": 1773725222
+    }
+  },
+  {
+    "_id": "rWPpFOnl9u4LKn0HZ6sc",
+    "codigo": "CLI-002",
+    "nombre": "Josselin Rene Gambini Egusquiza",
+    "tipoCliente": "persona",
+    "canalOrigen": "referido",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "73331793",
+    "telefono": "988681245",
+    "email": "jgambini2511@gmail.com",
+    "referidoPor": "Jose Pinto",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T03:43:22.000Z",
+      "_seconds": 1766202202
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2025-12-31T03:11:45.000Z",
+          "_seconds": 1767150705
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "C",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "totalCompras": 0,
+    "totalVentas": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:58:27.000Z",
+      "_seconds": 1768787907
+    },
+    "metricas": {
+      "ticketPromedio": 0,
+      "productosFavoritos": [],
+      "productosFrecuentes": [
+        "Nordic Naturals Artic-D",
+        "Mary Ruth's Zinc Iónico Orgánico"
+      ],
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-01-05T07:09:20.000Z",
+        "_seconds": 1767596960
+      },
+      "montoTotalPEN": 0,
+      "totalCompras": 0
+    },
+    "clasificacionABC": "nuevo",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "nuevo",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "rlfJRch1NFml4CFnoMYI",
+    "codigo": "CLI-072",
+    "nombre": "Lisbeth Colupu",
+    "nombreLowercase": "lisbeth colupu",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "71373847",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773434646463",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Calle José Belaunde Terry Juan PABLO II Catacaos SN",
+        "distrito": "Piura",
+        "ciudad": "Piura",
+        "referencia": "Referencia: Una esquina antes del fundo chepita Catacaos",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T20:44:06.000Z",
+      "_seconds": 1773434646
+    }
+  },
+  {
+    "_id": "sXOEhkTMeHvwH73j7s50",
+    "codigo": "CLI-011",
+    "nombre": "Anthony Alfonso Ortiz Garcia",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "48562916",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T06:46:22.000Z",
+      "_seconds": 1769582782
+    },
+    "metricas": {
+      "ticketPromedio": 176,
+      "montoTotalPEN": 176,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-01-28T06:46:41.000Z",
+        "_seconds": 1769582801
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "suPQbGaGYBZTGCH4GFLE",
+    "codigo": "CLI-024",
+    "nombre": "Philip Carl Staaf",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "CE 001310905",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:14:58.000Z",
+      "_seconds": 1770840898
+    },
+    "metricas": {
+      "ticketPromedio": 153,
+      "montoTotalPEN": 153,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T20:16:04.000Z",
+        "_seconds": 1770840964
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "tbyhTZ9gtQ1ybt8KmQZp",
+    "codigo": "CLI-060",
+    "nombreLowercase": "liliana valera wesember",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "47423772",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773079923131",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jirón 7 de Junio 465",
+        "distrito": "Coronel Portillo",
+        "ciudad": "Ucayali",
+        "referencia": "Referencia: Entrega a domicilio desde las 7 am 2 pm",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T18:12:03.000Z",
+      "_seconds": 1773079923
+    },
+    "nombre": "Liliana Valera wesember"
+  },
+  {
+    "_id": "u2UCmRGXGGFVJJ4ll3OC",
+    "codigo": "CLI-006",
+    "nombre": "Lila Paulina Toscano Arteaga",
+    "tipoCliente": "persona",
+    "canalOrigen": "facebook",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "dniRuc": "08596417",
+    "telefono": "976359669",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-01T04:45:09.000Z",
+      "_seconds": 1767242709
+    },
+    "clasificacionABC": "nuevo",
+    "segmento": "nuevo",
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0,
+      "ultimaCompra": null,
+      "productosFavoritos": []
+    },
+    "totalVentas": 0,
+    "totalCompras": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:07.000Z",
+      "_seconds": 1767498067
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:46:29.000Z",
+      "_seconds": 1767498389
+    },
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    }
+  },
+  {
+    "_id": "ucaB8y0SYtp0uzYmRxTt",
+    "codigo": "CLI-052",
+    "nombreLowercase": "inversiones ger capital e.i.r.l.",
+    "tipoCliente": "empresa",
+    "tipoDocumento": "RUC",
+    "dniRuc": "20614688107",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1772865875459",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Avenida Pardo 272",
+        "distrito": "Santa",
+        "ciudad": "Ancash",
+        "referencia": "",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T06:44:35.000Z",
+      "_seconds": 1772865875
+    },
+    "nombre": "INVERSIONES GER CAPITAL E.I.R.L."
+  },
+  {
+    "_id": "vo7L7wThiK3SJs4j3hHj",
+    "codigo": "CLI-001",
+    "nombre": "Jose Luis Pinto Toscano",
+    "tipoCliente": "persona",
+    "canalOrigen": "referido",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "47152059",
+    "telefono": "988404418",
+    "referidoPor": "Jose Pinto",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:27:01.000Z",
+      "_seconds": 1766197621
+    },
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "totalCompras": 0,
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-01-05T18:12:48.000Z",
+          "_seconds": 1767636768
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "B",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "totalVentas": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:58:27.000Z",
+      "_seconds": 1768787907
+    },
+    "metricas": {
+      "ticketPromedio": 0,
+      "productosFavoritos": [],
+      "productosFrecuentes": [
+        "Mary Ruth's Zinc Iónico Orgánico"
+      ],
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-01-05T06:42:41.000Z",
+        "_seconds": 1767595361
+      },
+      "montoTotalPEN": 0,
+      "totalCompras": 0
+    },
+    "clasificacionABC": "nuevo",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "nuevo",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "yhEOtKkH3aaasUaY1n8z",
+    "codigo": "CLI-021",
+    "nombre": "Hospedaje Miami EIRL",
+    "tipoCliente": "persona",
+    "canalOrigen": "mercadolibre",
+    "estado": "activo",
+    "etiquetas": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "dniRuc": "20480459793",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T21:04:30.000Z",
+      "_seconds": 1770757470
+    },
+    "metricas": {
+      "ticketPromedio": 198,
+      "montoTotalPEN": 198,
+      "ultimaCompra": {
+        "_type": "timestamp",
+        "iso": "2026-02-10T21:05:21.000Z",
+        "_seconds": 1770757521
+      },
+      "totalCompras": 1
+    },
+    "historialClasificacion": [
+      {
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T19:56:08.000Z",
+          "_seconds": 1772394968
+        },
+        "clasificacionAnterior": "nuevo",
+        "clasificacionNueva": "A",
+        "segmentoAnterior": "nuevo",
+        "segmentoNuevo": "nuevo",
+        "motivo": "Recálculo automático ABC"
+      }
+    ],
+    "clasificacionABC": "A",
+    "fechaUltimaClasificacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:08.000Z",
+      "_seconds": 1772394968
+    },
+    "segmento": "premium",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T19:56:09.000Z",
+      "_seconds": 1772394969
+    }
+  },
+  {
+    "_id": "ymWr06VLsCAQ6yeBJYdW",
+    "codigo": "CLI-071",
+    "nombreLowercase": "anabel alexandra morey serrato",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "74745844",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773350318975",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Monteverde Galilea Mz g lote 11- Castilla Piura SN",
+        "distrito": "Piura",
+        "ciudad": "Piura",
+        "referencia": "Mz g lote 11 Referencia: Monteverde galilea, referencia antes de aqualandis",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T21:18:38.000Z",
+      "_seconds": 1773350318
+    },
+    "nombre": "Anabel Alexandra Morey serrato"
+  },
+  {
+    "_id": "z2MrfgDinsKppRUItNIL",
+    "codigo": "CLI-062",
+    "nombreLowercase": "meléndez factori",
+    "tipoCliente": "persona",
+    "tipoDocumento": "DNI",
+    "dniRuc": "01139813",
+    "telefono": null,
+    "email": null,
+    "canalOrigen": "dDmpSMch8PU6sTwFYftZ",
+    "direcciones": [
+      {
+        "id": "dir-1773086678173",
+        "etiqueta": "Mercado Libre",
+        "direccion": "Jr. Condamine 402 las américas 402",
+        "distrito": "Alto Amazonas",
+        "ciudad": "Loreto",
+        "referencia": "402 Referencia: Meléndez factori , en la misma esquina",
+        "esPrincipal": true
+      }
+    ],
+    "estado": "activo",
+    "metricas": {
+      "totalCompras": 0,
+      "montoTotalPEN": 0,
+      "ticketPromedio": 0
+    },
+    "notas": "Creado automáticamente desde Mercado Libre",
+    "creadoPor": "ml-auto-processor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:04:38.000Z",
+      "_seconds": 1773086678
+    },
+    "nombre": "Meléndez Factori"
+  }
+]

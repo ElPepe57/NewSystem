@@ -3,6 +3,7 @@
  * Dashboard mini con KPIs accionables, insights y diseño enterprise
  */
 import React, { useEffect, useState } from 'react';
+import { formatFecha } from '../../utils/dateFormatters';
 import {
   X,
   User,
@@ -172,15 +173,6 @@ const DetailModalBase: React.FC<DetailModalBaseProps> = ({
 // UTILIDADES
 // ============================================
 
-const formatFecha = (timestamp: any) => {
-  if (!timestamp) return '-';
-  const date = timestamp.toDate?.() || new Date(timestamp);
-  return date.toLocaleDateString('es-PE', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
-};
 
 const formatMoney = (amount: number, currency: string = 'S/') => {
   return `${currency} ${amount.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

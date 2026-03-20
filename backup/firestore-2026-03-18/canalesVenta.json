@@ -1,0 +1,149 @@
+[
+  {
+    "_id": "InJkUhTRSKOP704sFFl0",
+    "codigo": "CV-004",
+    "nombre": "Instagram",
+    "descripcion": "Ventas por Instagram/Facebook",
+    "comisionPorcentaje": 0,
+    "requiereEnvio": true,
+    "color": "#e1306c",
+    "icono": "Instagram",
+    "estado": "activo",
+    "esSistema": true,
+    "orden": 4,
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-01T23:15:49.000Z",
+      "_seconds": 1767309349
+    }
+  },
+  {
+    "_id": "VbrsXW7FqBNl6oBJot7n",
+    "codigo": "CV-007",
+    "nombre": "Tiktok",
+    "descripcion": null,
+    "comisionPorcentaje": 0,
+    "requiereEnvio": true,
+    "tiempoProcesamientoDias": null,
+    "color": "#6b7280",
+    "icono": "Tag",
+    "estado": "activo",
+    "esSistema": false,
+    "orden": 101,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T23:10:54.000Z",
+      "_seconds": 1771974654
+    }
+  },
+  {
+    "_id": "dDmpSMch8PU6sTwFYftZ",
+    "codigo": "CV-002",
+    "nombre": "Mercado Libre",
+    "descripcion": "Ventas a través de Mercado Libre",
+    "requiereEnvio": true,
+    "tiempoProcesamientoDias": 1,
+    "color": "#ffe600",
+    "icono": "ShoppingBag",
+    "estado": "activo",
+    "esSistema": true,
+    "orden": 2,
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-01T23:15:49.000Z",
+      "_seconds": 1767309349
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-01T23:28:34.000Z",
+      "_seconds": 1767310114
+    },
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "comisionPorcentaje": 0
+  },
+  {
+    "_id": "eX0jRdrn6dtfQXrpppfc",
+    "codigo": "CV-006",
+    "nombre": "Facebook",
+    "comisionPorcentaje": 0,
+    "requiereEnvio": true,
+    "tiempoProcesamientoDias": null,
+    "estado": "activo",
+    "esSistema": false,
+    "orden": 100,
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-01T23:28:07.000Z",
+      "_seconds": 1767310087
+    },
+    "descripcion": "",
+    "icono": "Facebook",
+    "color": "#3b82f6",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T01:44:55.000Z",
+      "_seconds": 1772675095
+    },
+    "actualizadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "hMUTYf0aDsOlO0Z9TMXN",
+    "codigo": "CV-003",
+    "nombre": "WhatsApp",
+    "descripcion": "Ventas por WhatsApp Business",
+    "comisionPorcentaje": 0,
+    "requiereEnvio": true,
+    "color": "#25d366",
+    "icono": "MessageCircle",
+    "estado": "activo",
+    "esSistema": true,
+    "orden": 3,
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-01T23:15:49.000Z",
+      "_seconds": 1767309349
+    }
+  },
+  {
+    "_id": "rMhnpLSCznENilD4q8mF",
+    "codigo": "CV-001",
+    "nombre": "Venta Directa",
+    "descripcion": "Ventas presenciales o por contacto directo",
+    "comisionPorcentaje": 0,
+    "requiereEnvio": false,
+    "color": "#22c55e",
+    "icono": "Store",
+    "estado": "activo",
+    "esSistema": true,
+    "orden": 1,
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-01T23:15:49.000Z",
+      "_seconds": 1767309349
+    }
+  },
+  {
+    "_id": "yHKlxxEyuz1eB4c1Ju05",
+    "codigo": "CV-005",
+    "nombre": "Otro",
+    "descripcion": "Otros canales de venta",
+    "comisionPorcentaje": 0,
+    "color": "#6b7280",
+    "icono": "MoreHorizontal",
+    "estado": "activo",
+    "esSistema": true,
+    "orden": 99,
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-01T23:15:49.000Z",
+      "_seconds": 1767309349
+    }
+  }
+]

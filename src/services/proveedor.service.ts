@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Proveedor,
   ProveedorFormData,
@@ -32,27 +33,7 @@ const COLLECTION_NAME = COLLECTIONS.PROVEEDORES;
  * Formato: PRV-001, PRV-002, etc.
  */
 async function generarCodigoProveedor(): Promise<string> {
-  const prefix = 'PRV';
-
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith(prefix)) {
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber('PRV', 3);
 }
 
 /**

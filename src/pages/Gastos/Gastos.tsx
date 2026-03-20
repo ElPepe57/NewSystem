@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { formatFecha } from '../../utils/dateFormatters';
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2 } from 'lucide-react';
-import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton } from '../../components/common';
+import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton, GastoLineaBadge } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
@@ -8,6 +9,7 @@ import { ctruService } from '../../services/ctru.service';
 import { GastoForm } from './GastoForm';
 import { PagoGastoForm } from './PagoGastoForm';
 import { exportService } from '../../services/export.service';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type EstadoGasto, type ClaseGasto } from '../../types/gasto.types';
 
 const MONTH_NAMES = [
@@ -43,6 +45,8 @@ export const Gastos: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [searchTerm, setSearchTerm] = useState('');
+
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
@@ -92,6 +96,11 @@ export const Gastos: React.FC = () => {
   const gastosFiltrados = useMemo(() => {
     let resultado = gastos;
 
+    // Filtro global por línea de negocio (gastos sin lineaNegocioId son compartidos y siempre se muestran)
+    if (lineaFiltroGlobal) {
+      resultado = resultado.filter(g => !g.lineaNegocioId || g.lineaNegocioId === lineaFiltroGlobal);
+    }
+
     // Búsqueda por texto
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
@@ -121,7 +130,7 @@ export const Gastos: React.FC = () => {
     }
 
     return resultado;
-  }, [gastos, filtros, searchTerm]);
+  }, [gastos, filtros, searchTerm, lineaFiltroGlobal]);
 
   // Calcular resumen por tipo de gasto
   const resumenPorTipo = useMemo(() => {
@@ -162,16 +171,6 @@ export const Gastos: React.FC = () => {
     }).format(amount);
   };
 
-  const formatFecha = (timestamp: any): string => {
-    if (!timestamp || !timestamp.toDate) {
-      return '-';
-    }
-    return timestamp.toDate().toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
 
   const getEstadoBadge = (estado: EstadoGasto) => {
     const badges = {
@@ -288,30 +287,32 @@ export const Gastos: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gastos</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gastos</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">
             Gestión de gastos operativos y cálculo CTRU dinámico
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           <Button
             variant="outline"
             onClick={() => exportService.exportGastos(gastosFiltrados)}
             disabled={gastosFiltrados.length === 0}
+            className="flex-shrink-0"
           >
-            <Download className="h-4 w-4 mr-2" />
-            Exportar Excel
+            <Download className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Exportar Excel</span>
           </Button>
           <Button
             variant="secondary"
             onClick={handleRecalcularCTRU}
+            className="flex-shrink-0"
           >
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Recalcular CTRU
+            <TrendingUp className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Recalcular CTRU</span>
           </Button>
-          <Button onClick={() => { setGastoParaEditar(null); setShowModal(true); }}>
+          <Button onClick={() => { setGastoParaEditar(null); setShowModal(true); }} className="flex-shrink-0">
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Gasto
           </Button>
@@ -320,165 +321,168 @@ export const Gastos: React.FC = () => {
 
       {/* Navegador de Período */}
       <Card padding="md">
-        <div className="flex items-center justify-between">
-          {/* Tabs de vista */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('month')}
-              className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors flex items-center gap-1.5 ${
-                viewMode === 'month'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Calendar className="h-4 w-4" />
-              Mensual
-            </button>
-            <button
-              onClick={() => setViewMode('all')}
-              className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors flex items-center gap-1.5 ${
-                viewMode === 'all'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <List className="h-4 w-4" />
-              Todos
-            </button>
-            <button
-              onClick={() => setViewMode('pending')}
-              className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors flex items-center gap-1.5 ${
-                viewMode === 'pending'
-                  ? 'bg-amber-50 text-amber-800 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <AlertCircle className="h-4 w-4" />
-              Pendientes
-            </button>
-          </div>
-
-          {/* Navegación de mes (solo en modo mensual) */}
-          {viewMode === 'month' && (
-            <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3">
+          {/* Row 1: Tabs + month nav / label */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            {/* Tabs de vista */}
+            <div className="flex items-center gap-0.5 sm:gap-1 bg-gray-100 rounded-lg p-1 w-full sm:w-auto">
               <button
-                onClick={() => navigateMonth('prev')}
-                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <div className="text-center min-w-[180px]">
-                <span className="text-lg font-semibold text-gray-900">
-                  {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
-                </span>
-              </div>
-              <button
-                onClick={() => navigateMonth('next')}
-                className={`p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors ${
-                  isCurrentMonth ? 'opacity-30 cursor-not-allowed' : ''
+                onClick={() => setViewMode('month')}
+                className={`flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
+                  viewMode === 'month'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
-                disabled={isCurrentMonth}
               >
-                <ChevronRight className="h-5 w-5" />
+                <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Mensual
               </button>
-              {!isCurrentMonth && (
-                <button
-                  onClick={goToCurrentMonth}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium ml-1"
-                >
-                  Hoy
-                </button>
-              )}
+              <button
+                onClick={() => setViewMode('all')}
+                className={`flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
+                  viewMode === 'all'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Todos
+              </button>
+              <button
+                onClick={() => setViewMode('pending')}
+                className={`flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md font-medium transition-colors flex items-center justify-center gap-1 sm:gap-1.5 ${
+                  viewMode === 'pending'
+                    ? 'bg-amber-50 text-amber-800 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Pendientes
+              </button>
             </div>
-          )}
 
-          {/* Label para modos no-mensuales */}
-          {viewMode === 'all' && (
-            <span className="text-lg font-semibold text-gray-900">
-              Todos los gastos ({gastos.length})
-            </span>
-          )}
-          {viewMode === 'pending' && (
-            <span className="text-lg font-semibold text-amber-700">
-              Gastos pendientes de pago ({gastos.length})
-            </span>
-          )}
+            {/* Navegación de mes (solo en modo mensual) */}
+            {viewMode === 'month' && (
+              <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-3">
+                <button
+                  onClick={() => navigateMonth('prev')}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <div className="text-center min-w-[140px] sm:min-w-[180px]">
+                  <span className="text-sm sm:text-lg font-semibold text-gray-900">
+                    {MONTH_NAMES[selectedMonth - 1]} {selectedYear}
+                  </span>
+                </div>
+                <button
+                  onClick={() => navigateMonth('next')}
+                  className={`p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors ${
+                    isCurrentMonth ? 'opacity-30 cursor-not-allowed' : ''
+                  }`}
+                  disabled={isCurrentMonth}
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+                {!isCurrentMonth && (
+                  <button
+                    onClick={goToCurrentMonth}
+                    className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    Hoy
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Label para modos no-mensuales */}
+            {viewMode === 'all' && (
+              <span className="text-sm sm:text-lg font-semibold text-gray-900 text-center sm:text-right">
+                Todos los gastos ({gastos.length})
+              </span>
+            )}
+            {viewMode === 'pending' && (
+              <span className="text-sm sm:text-lg font-semibold text-amber-700 text-center sm:text-right">
+                Pendientes de pago ({gastos.length})
+              </span>
+            )}
+          </div>
         </div>
       </Card>
 
       {/* Métricas */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
           <Card padding="md">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">{getViewLabel()}</div>
-                <div className="text-2xl font-bold text-gray-900 mt-1">
+              <div className="min-w-0">
+                <div className="text-[11px] sm:text-sm text-gray-600 truncate">{getViewLabel()}</div>
+                <div className="text-base sm:text-2xl font-bold text-gray-900 mt-0.5 sm:mt-1 truncate">
                   {formatCurrency(
                     viewMode === 'month' && isCurrentMonth
                       ? stats.totalMesActual
                       : resumenPorTipo.totalGeneral
                   )}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
                   {viewMode === 'month' && isCurrentMonth
                     ? `${stats.cantidadGastosMesActual} gastos`
                     : `${gastosFiltrados.length} gastos`
                   }
                 </div>
               </div>
-              <DollarSign className="h-8 w-8 text-gray-400" />
+              <DollarSign className="h-5 w-5 sm:h-8 sm:w-8 text-gray-400 flex-shrink-0" />
             </div>
           </Card>
 
           <Card padding="md">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Gastos Prorrateables</div>
-                <div className="text-2xl font-bold text-primary-600 mt-1">
+              <div className="min-w-0">
+                <div className="text-[11px] sm:text-sm text-gray-600 truncate"><span className="sm:hidden">Prorrateables</span><span className="hidden sm:inline">Gastos Prorrateables</span></div>
+                <div className="text-base sm:text-2xl font-bold text-primary-600 mt-0.5 sm:mt-1 truncate">
                   {formatCurrency(stats.gastosProrrateablesMesActual)}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
                   Impactan CTRU
                 </div>
               </div>
-              <TrendingUp className="h-8 w-8 text-primary-400" />
+              <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-primary-400 flex-shrink-0" />
             </div>
           </Card>
 
           <Card padding="md">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Pendientes de Pago</div>
-                <div className="text-2xl font-bold text-warning-600 mt-1">
+              <div className="min-w-0">
+                <div className="text-[11px] sm:text-sm text-gray-600 truncate"><span className="sm:hidden">Pendientes</span><span className="hidden sm:inline">Pendientes de Pago</span></div>
+                <div className="text-base sm:text-2xl font-bold text-warning-600 mt-0.5 sm:mt-1 truncate">
                   {formatCurrency(stats.totalPendientePago)}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
                   {stats.cantidadPendientePago} gastos
                 </div>
               </div>
-              <AlertCircle className="h-8 w-8 text-warning-400" />
+              <AlertCircle className="h-5 w-5 sm:h-8 sm:w-8 text-warning-400 flex-shrink-0" />
             </div>
           </Card>
 
           <Card padding="md">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Variación vs Mes Anterior</div>
-                <div className={`text-2xl font-bold mt-1 ${
+              <div className="min-w-0">
+                <div className="text-[11px] sm:text-sm text-gray-600 truncate"><span className="sm:hidden">Variación</span><span className="hidden sm:inline">Variación vs Mes Anterior</span></div>
+                <div className={`text-base sm:text-2xl font-bold mt-0.5 sm:mt-1 ${
                   stats.variacionVsMesAnterior >= 0 ? 'text-danger-600' : 'text-success-600'
                 }`}>
                   {stats.variacionVsMesAnterior >= 0 ? '+' : ''}
                   {stats.variacionVsMesAnterior.toFixed(1)}%
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Promedio anual: {formatCurrency(stats.promedioMensualAnioActual)}
+                <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1 truncate">
+                  <span className="hidden sm:inline">Promedio anual: </span>{formatCurrency(stats.promedioMensualAnioActual)}
                 </div>
               </div>
               {stats.variacionVsMesAnterior >= 0 ? (
-                <TrendingUp className="h-8 w-8 text-danger-400" />
+                <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-danger-400 flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-8 w-8 text-success-400" />
+                <TrendingDown className="h-5 w-5 sm:h-8 sm:w-8 text-success-400 flex-shrink-0" />
               )}
             </div>
           </Card>
@@ -488,18 +492,18 @@ export const Gastos: React.FC = () => {
       {/* Resumen por Tipo de Gasto */}
       {resumenPorTipo.items.length > 0 && (
         <Card padding="md">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
               <div className="flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-primary-500" />
-                <span className="font-medium text-gray-900">Distribución por Tipo de Gasto</span>
+                <PieChart className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
+                <span className="text-sm sm:text-base font-medium text-gray-900">Distribución por Tipo</span>
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-xs sm:text-sm text-gray-500">
                 Total: {formatCurrency(resumenPorTipo.totalGeneral)}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
               {resumenPorTipo.items.map((item, index) => {
                 // Colores para las barras de progreso
                 const colores = [
@@ -517,28 +521,28 @@ export const Gastos: React.FC = () => {
                 return (
                   <div
                     key={item.tipo}
-                    className="bg-gray-50 rounded-lg p-3 border border-gray-100 hover:border-primary-200 transition-colors cursor-pointer"
+                    className="bg-gray-50 rounded-lg p-2 sm:p-3 border border-gray-100 hover:border-primary-200 transition-colors cursor-pointer"
                     onClick={() => setFiltros({ ...filtros, tipo: item.tipo as TipoGasto })}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-900 truncate" title={item.tipo}>
+                    <div className="flex items-center justify-between mb-1 sm:mb-2">
+                      <span className="text-xs sm:text-sm font-medium text-gray-900 truncate" title={item.tipo}>
                         {item.tipo}
                       </span>
-                      <span className="text-xs text-gray-500 ml-2">
-                        {item.cantidad} {item.cantidad === 1 ? 'gasto' : 'gastos'}
+                      <span className="text-[10px] sm:text-xs text-gray-500 ml-1 flex-shrink-0">
+                        {item.cantidad}
                       </span>
                     </div>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-lg font-semibold text-gray-900">
+                      <span className="text-sm sm:text-lg font-semibold text-gray-900 truncate">
                         {formatCurrency(item.total)}
                       </span>
-                      <span className="text-sm font-medium text-gray-600">
+                      <span className="text-[10px] sm:text-sm font-medium text-gray-600 ml-1 flex-shrink-0">
                         {item.porcentaje.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                       <div
-                        className={`${colorBarra} h-2 rounded-full transition-all`}
+                        className={`${colorBarra} h-1.5 sm:h-2 rounded-full transition-all`}
                         style={{ width: `${Math.min(item.porcentaje, 100)}%` }}
                       />
                     </div>
@@ -567,7 +571,7 @@ export const Gastos: React.FC = () => {
             <span className="font-medium text-gray-700">Filtros</span>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
             <Select
               label="Clase"
               value={filtros.claseGasto}
@@ -641,23 +645,47 @@ export const Gastos: React.FC = () => {
       {/* Tabla de Gastos */}
       <Card padding="md">
         {loading ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <TableRowSkeleton columns={6} rows={8} />
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* Mobile skeleton */}
+            <div className="md:hidden space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="border border-gray-200 rounded-lg p-3 animate-pulse">
+                  <div className="flex justify-between">
+                    <div className="flex gap-1.5">
+                      <div className="h-4 w-8 bg-gray-200 rounded" />
+                      <div className="h-4 w-20 bg-gray-200 rounded" />
+                      <div className="h-4 w-14 bg-gray-200 rounded" />
+                    </div>
+                    <div className="h-5 w-20 bg-gray-200 rounded" />
+                  </div>
+                  <div className="h-3 w-3/4 bg-gray-200 rounded mt-2" />
+                  <div className="flex gap-1.5 mt-2">
+                    <div className="h-3 w-8 bg-gray-200 rounded" />
+                    <div className="h-3 w-24 bg-gray-200 rounded" />
+                    <div className="h-3 w-16 bg-gray-200 rounded ml-auto" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Desktop skeleton */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <TableRowSkeleton columns={6} rows={8} />
+                </tbody>
+              </table>
+            </div>
+          </>
         ) : gastosFiltrados.length === 0 ? (
           <EmptyStateAction
             title={
@@ -682,172 +710,289 @@ export const Gastos: React.FC = () => {
             onAction={hayFiltrosActivos ? limpiarFiltros : () => setShowModal(true)}
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Número
-                  </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Descripción
-                  </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Tipo / Categoría
-                  </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                    Monto
-                  </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    Fecha
-                  </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    Estado
-                  </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    CTRU
-                  </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {gastosFiltrados.map((gasto) => {
-                  const estadoBadge = getEstadoBadge(gasto.estado);
-                  const tipoBadge = getTipoBadge(gasto.tipo);
-                  const claseBadge = getClaseBadge(gasto.claseGasto);
+          <>
+            {/* Mobile card layout */}
+            <div className="md:hidden space-y-2">
+              {gastosFiltrados.map((gasto) => {
+                const estadoBadge = getEstadoBadge(gasto.estado);
+                const claseBadge = getClaseBadge(gasto.claseGasto);
 
-                  return (
-                    <tr key={gasto.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${claseBadge.color}`}>
+                return (
+                  <div key={gasto.id} className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors">
+                    {/* Row 1: Number + badges + amount */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`text-[10px] font-semibold px-1 py-0.5 rounded ${claseBadge.color}`}>
                             {claseBadge.label}
                           </span>
-                          <span className="text-sm font-medium text-gray-900">
+                          <span className="text-xs font-medium text-gray-900">
                             {gasto.numeroGasto}
                           </span>
+                          <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
+                          {gasto.esProrrateable && (
+                            <span className={`text-[10px] px-1 py-0.5 rounded font-medium ${gasto.ctruRecalculado ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                              CTRU {gasto.ctruRecalculado ? '✓' : '⏳'}
+                            </span>
+                          )}
+                          <GastoLineaBadge lineaNegocioId={gasto.lineaNegocioId} />
                         </div>
                         {gasto.ventaId && (
-                          <div className="text-xs text-purple-600 mt-0.5">
-                            → Venta vinculada
-                          </div>
+                          <div className="text-[10px] text-purple-600 mt-0.5">→ Venta vinculada</div>
                         )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">{gasto.descripcion}</div>
-                        {gasto.proveedor && (
-                          <div className="text-xs text-gray-500">{gasto.proveedor}</div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="space-y-1">
-                          <div className="text-sm font-medium text-gray-900">{gasto.tipo}</div>
-                          <div className="flex items-center gap-1">
-                            <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
-                              {gasto.categoria}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {CATEGORIAS_GASTO[gasto.categoria]?.nombre || gasto.categoria}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="text-sm font-medium text-gray-900">
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-sm font-bold text-gray-900">
                           {formatCurrency(gasto.montoPEN)}
                         </div>
                         {gasto.moneda === 'USD' && (
-                          <div className="text-xs text-gray-500">
-                            ${gasto.montoOriginal.toFixed(2)} USD
-                          </div>
+                          <div className="text-[10px] text-gray-500">${gasto.montoOriginal.toFixed(2)}</div>
                         )}
-                        {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
-                          <div className="mt-1">
-                            <div className="w-full bg-gray-200 rounded-full h-1.5">
-                              <div
-                                className="bg-primary-500 h-1.5 rounded-full transition-all"
-                                style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
-                              />
-                            </div>
-                            <div className="text-xs text-primary-600 mt-0.5">
-                              {((gasto.montoPagado / gasto.montoPEN) * 100).toFixed(0)}% pagado
-                            </div>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-sm text-gray-900">
-                          {formatFecha(gasto.fecha)}
+                      </div>
+                    </div>
+
+                    {/* Row 2: Description */}
+                    <div className="mt-1.5">
+                      <div className="text-xs text-gray-900 line-clamp-1">{gasto.descripcion}</div>
+                      {gasto.proveedor && (
+                        <div className="text-[10px] text-gray-500">{gasto.proveedor}</div>
+                      )}
+                    </div>
+
+                    {/* Row 3: Tipo + Categoría + Fecha */}
+                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
+                        {gasto.categoria}
+                      </span>
+                      <span className="text-[10px] text-gray-600 truncate">{gasto.tipo}</span>
+                      <span className="text-[10px] text-gray-400 ml-auto flex-shrink-0">{formatFecha(gasto.fecha)}</span>
+                    </div>
+
+                    {/* Partial payment progress */}
+                    {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
+                      <div className="mt-1.5">
+                        <div className="flex items-center justify-between text-[10px] text-gray-500 mb-0.5">
+                          <span>{((gasto.montoPagado / gasto.montoPEN) * 100).toFixed(0)}% pagado</span>
+                          <span>{formatCurrency(gasto.montoPagado)} / {formatCurrency(gasto.montoPEN)}</span>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {gasto.esProrrateable ? (
-                          <Badge variant={gasto.ctruRecalculado ? 'success' : 'warning'}>
-                            {gasto.ctruRecalculado ? 'Aplicado' : 'Pendiente'}
-                          </Badge>
-                        ) : (
-                          <span className="text-xs text-gray-400">N/A</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          {/* Pagar: para gastos pendientes o con pagos parciales */}
-                          {(gasto.estado === 'pendiente' || gasto.estado === 'parcial') && (
-                            <button
-                              onClick={() => {
-                                setGastoParaPago(gasto);
-                                setShowPagoModal(true);
-                              }}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
-                              title={gasto.estado === 'pendiente' ? 'Registrar pago' : 'Registrar pago parcial'}
-                            >
-                              <CreditCard className="h-3.5 w-3.5" />
-                              Pagar
-                            </button>
-                          )}
-                          {/* Editar: siempre visible */}
-                          <button
-                            onClick={() => handleEditarGasto(gasto)}
-                            className="inline-flex items-center p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Editar gasto"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          {/* Eliminar: solo pendiente/cancelado sin pagos */}
-                          {(gasto.estado === 'pendiente' || gasto.estado === 'cancelado') && !gasto.pagos?.length && (
-                            <button
-                              onClick={() => handleEliminarGasto(gasto)}
-                              className="inline-flex items-center p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Eliminar gasto"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          )}
+                        <div className="w-full bg-gray-200 rounded-full h-1">
+                          <div
+                            className="bg-primary-500 h-1 rounded-full transition-all"
+                            style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
+                          />
                         </div>
-                        {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            {formatCurrency(gasto.montoPagado)} / {formatCurrency(gasto.montoPEN)}
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-100">
+                      {(gasto.estado === 'pendiente' || gasto.estado === 'parcial') && (
+                        <button
+                          onClick={() => {
+                            setGastoParaPago(gasto);
+                            setShowPagoModal(true);
+                          }}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-md transition-colors"
+                        >
+                          <CreditCard className="h-3 w-3" />
+                          Pagar
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleEditarGasto(gasto)}
+                        className="inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      >
+                        <Pencil className="h-3 w-3" />
+                        Editar
+                      </button>
+                      {(gasto.estado === 'pendiente' || gasto.estado === 'cancelado') && !gasto.pagos?.length && (
+                        <button
+                          onClick={() => handleEliminarGasto(gasto)}
+                          className="inline-flex items-center p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors ml-auto"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      )}
+                      {gasto.estado === 'pagado' && (
+                        <span className="text-[10px] text-gray-400 ml-auto">
+                          {gasto.pagos && gasto.pagos.length > 1
+                            ? `${gasto.pagos.length} pagos`
+                            : gasto.metodoPago || '-'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop table layout */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Número
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Descripción
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Tipo / Categoría
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      Monto
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                      Fecha
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                      Estado
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                      CTRU
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {gastosFiltrados.map((gasto) => {
+                    const estadoBadge = getEstadoBadge(gasto.estado);
+                    const claseBadge = getClaseBadge(gasto.claseGasto);
+
+                    return (
+                      <tr key={gasto.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${claseBadge.color}`}>
+                              {claseBadge.label}
+                            </span>
+                            <span className="text-sm font-medium text-gray-900">
+                              {gasto.numeroGasto}
+                            </span>
                           </div>
-                        )}
-                        {gasto.estado === 'pagado' && (
-                          <div className="text-xs text-gray-400 mt-1">
-                            {gasto.pagos && gasto.pagos.length > 1
-                              ? `${gasto.pagos.length} pagos`
-                              : gasto.metodoPago || '-'}
+                          {gasto.ventaId && (
+                            <div className="text-xs text-purple-600 mt-0.5">
+                              → Venta vinculada
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="text-sm text-gray-900">{gasto.descripcion}</div>
+                          {gasto.proveedor && (
+                            <div className="text-xs text-gray-500">{gasto.proveedor}</div>
+                          )}
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="space-y-1">
+                            <div className="text-sm font-medium text-gray-900">{gasto.tipo}</div>
+                            <div className="flex items-center gap-1">
+                              <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
+                                {gasto.categoria}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {CATEGORIAS_GASTO[gasto.categoria]?.nombre || gasto.categoria}
+                              </span>
+                            </div>
                           </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-right">
+                          <div className="text-sm font-medium text-gray-900">
+                            {formatCurrency(gasto.montoPEN)}
+                          </div>
+                          {gasto.moneda === 'USD' && (
+                            <div className="text-xs text-gray-500">
+                              ${gasto.montoOriginal.toFixed(2)} USD
+                            </div>
+                          )}
+                          {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
+                            <div className="mt-1">
+                              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                <div
+                                  className="bg-primary-500 h-1.5 rounded-full transition-all"
+                                  style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
+                                />
+                              </div>
+                              <div className="text-xs text-primary-600 mt-0.5">
+                                {((gasto.montoPagado / gasto.montoPEN) * 100).toFixed(0)}% pagado
+                              </div>
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-center">
+                          <div className="text-sm text-gray-900">
+                            {formatFecha(gasto.fecha)}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
+                            <GastoLineaBadge lineaNegocioId={gasto.lineaNegocioId} />
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-center">
+                          {gasto.esProrrateable ? (
+                            <Badge variant={gasto.ctruRecalculado ? 'success' : 'warning'}>
+                              {gasto.ctruRecalculado ? 'Aplicado' : 'Pendiente'}
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-gray-400">N/A</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            {(gasto.estado === 'pendiente' || gasto.estado === 'parcial') && (
+                              <button
+                                onClick={() => {
+                                  setGastoParaPago(gasto);
+                                  setShowPagoModal(true);
+                                }}
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
+                                title={gasto.estado === 'pendiente' ? 'Registrar pago' : 'Registrar pago parcial'}
+                              >
+                                <CreditCard className="h-3.5 w-3.5" />
+                                Pagar
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleEditarGasto(gasto)}
+                              className="inline-flex items-center p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="Editar gasto"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            {(gasto.estado === 'pendiente' || gasto.estado === 'cancelado') && !gasto.pagos?.length && (
+                              <button
+                                onClick={() => handleEliminarGasto(gasto)}
+                                className="inline-flex items-center p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Eliminar gasto"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                          {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {formatCurrency(gasto.montoPagado)} / {formatCurrency(gasto.montoPEN)}
+                            </div>
+                          )}
+                          {gasto.estado === 'pagado' && (
+                            <div className="text-xs text-gray-400 mt-1">
+                              {gasto.pagos && gasto.pagos.length > 1
+                                ? `${gasto.pagos.length} pagos`
+                                : gasto.metodoPago || '-'}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         {!loading && gastosFiltrados.length > 0 && (

@@ -271,16 +271,9 @@ export async function migrarProductos(
         sabor: productoCSV.sabor === 'NEUTRAL' ? '' : productoCSV.sabor,
         grupo: productoCSV.grupo,
         subgrupo: productoCSV.subgrupo,
-        enlaceProveedor: '',
         codigoUPC: '',
-        precioSugerido: 0,
-        margenMinimo: 20,
-        margenObjetivo: 30,
         stockMinimo: 5,
         stockMaximo: 50,
-        habilitadoML: true,
-        restriccionML: '',
-        costoFleteUSAPeru: 0,
         servingsPerDay,
         cicloRecompraDias
       };

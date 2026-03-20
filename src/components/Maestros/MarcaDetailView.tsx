@@ -351,7 +351,6 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
               <th className="px-4 py-3 text-right">Ventas</th>
               <th className="px-4 py-3 text-right">Margen</th>
               <th className="px-4 py-3 text-center">Tendencia</th>
-              <th className="px-4 py-3 text-center">ML</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -377,7 +376,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
                     {producto.stockTotal}
                   </div>
                   <div className="text-xs text-gray-500">
-                    USA: {producto.stockUSA} | PE: {producto.stockPeru}
+                    Origen: {producto.stockUSA} | Destino: {producto.stockPeru}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-right text-gray-900">
@@ -393,15 +392,6 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
                 </td>
                 <td className="px-4 py-3 text-center text-lg">
                   {getTendenciaIcon(producto.tendencia)}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  {producto.habilitadoML ? (
-                    <span className="inline-flex items-center px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full">
-                      ML
-                    </span>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
                 </td>
               </tr>
             ))}
@@ -569,8 +559,8 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
               <thead className="bg-gray-50">
                 <tr className="text-xs text-gray-500 uppercase">
                   <th className="px-4 py-3 text-left">Producto</th>
-                  <th className="px-4 py-3 text-right">Stock USA</th>
-                  <th className="px-4 py-3 text-right">Stock Perú</th>
+                  <th className="px-4 py-3 text-right">Stock Origen</th>
+                  <th className="px-4 py-3 text-right">Stock Destino</th>
                   <th className="px-4 py-3 text-right">Total</th>
                   <th className="px-4 py-3 text-right">Valor (PEN)</th>
                   <th className="px-4 py-3 text-right">Rotación</th>

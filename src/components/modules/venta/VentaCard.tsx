@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { ShoppingCart, User, Calendar, DollarSign, TrendingUp, Package, Truck, CreditCard, Trash2, Calculator, Receipt, FileText, Link2, ClipboardList, PieChart, MapPin, Pencil, Clock } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
 import type { TimelineStep, NextAction } from '../../common';
@@ -28,6 +29,8 @@ interface VentaCardProps {
   onEntregaCompletada?: () => void;
   /** Handler para corregir precio de un producto */
   onCorregirPrecio?: (productoId: string, productoNombre: string, precioActual: number) => void;
+  /** Handler para corregir (reemplazar) un producto equivocado */
+  onCorregirProducto?: (productoId: string, productoNombre: string, sku: string, presentacion: string) => void;
   /** Handler para editar la venta completa */
   onEditarVenta?: () => void;
 }
@@ -103,6 +106,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
   onProgramarEntrega,
   onEntregaCompletada,
   onCorregirPrecio,
+  onCorregirProducto,
   onEditarVenta
 }) => {
   const [documentosRelacionados, setDocumentosRelacionados] = useState<{
@@ -167,22 +171,6 @@ export const VentaCard: React.FC<VentaCardProps> = ({
     cargarDocumentosRelacionados();
   }, [venta.id, venta.cotizacionOrigenId]);
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    try {
-      const date = typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp);
-      if (isNaN(date.getTime())) return '-';
-      return date.toLocaleString('es-PE', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch {
-      return '-';
-    }
-  };
 
   // Recalcular costos si están en USD (datos legacy)
   const costoTotalPENCorregido = (venta.productos || []).reduce((sum, prod) => {
@@ -957,6 +945,22 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                 Corregir precio: {producto.marca} {producto.nombreComercial}
               </button>
             ))}
+          </div>
+        )}
+        {onCorregirProducto && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {venta.productos
+              .filter(p => !p.unidadesAsignadas?.length && (!p.cantidadAsignada || p.cantidadAsignada === 0))
+              .map((producto) => (
+                <button
+                  key={`corregir-prod-${producto.productoId}`}
+                  onClick={() => onCorregirProducto(producto.productoId, `${producto.marca} ${producto.nombreComercial}`, producto.sku, producto.presentacion)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+                >
+                  <Package className="h-3.5 w-3.5" />
+                  Corregir producto: {producto.marca} {producto.nombreComercial}
+                </button>
+              ))}
           </div>
         )}
       </div>

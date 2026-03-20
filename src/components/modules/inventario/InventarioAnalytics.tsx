@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
 import {
   TrendingUp,
   TrendingDown,
@@ -79,16 +80,6 @@ const calcularDiasDesde = (fecha: any): number => {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
-// Helper para calcular días hasta vencimiento
-const calcularDiasParaVencer = (fecha: any): number | null => {
-  if (!fecha || !fecha.toDate) return null;
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const vencimiento = fecha.toDate();
-  vencimiento.setHours(0, 0, 0, 0);
-  const diffTime = vencimiento.getTime() - hoy.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-};
 
 // Sort types for tabla completa
 type TablaSort = 'sku' | 'nombre' | 'cantidad' | 'valor' | 'clase' | 'rotacion' | 'dias' | 'ctru' | 'margen' | 'precioVenta' | 'roi';
@@ -99,7 +90,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
   almacenes = [],
   ctruData = []
 }) => {
-  const [filtroPais, setFiltroPais] = useState<'USA' | 'Peru' | ''>('');
+  const [filtroPais, setFiltroPais] = useState<string>('');
   const [filtroAlmacen, setFiltroAlmacen] = useState<string>('');
   const [filtroClaseABC, setFiltroClaseABC] = useState<'A' | 'B' | 'C' | ''>('');
   const [busquedaTabla, setBusquedaTabla] = useState('');
@@ -690,7 +681,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
             </div>
             <Select
               value={filtroPais}
-              onChange={(e) => { setFiltroPais(e.target.value as 'USA' | 'Peru' | ''); setFiltroAlmacen(''); }}
+              onChange={(e) => { setFiltroPais(e.target.value); setFiltroAlmacen(''); }}
               options={[
                 { value: '', label: 'Todos los países' },
                 { value: 'USA', label: '🇺🇸 USA' },

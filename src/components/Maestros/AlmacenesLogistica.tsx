@@ -45,6 +45,7 @@ import {
 import { AlmacenDetailView } from './AlmacenDetailView';
 import { useAlmacenStore } from '../../store/almacenStore';
 import type { Almacen, PaisAlmacen, TipoAlmacen, EstadoAlmacen } from '../../types/almacen.types';
+import { PAISES_CONFIG } from '../../types/almacen.types';
 
 // Sub-tabs del módulo
 type SubTab = 'lista' | 'dashboard' | 'evaluacion';
@@ -133,15 +134,25 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
 
   // Helpers de UI
   const getPaisColor = (pais: PaisAlmacen) => {
-    return pais === 'USA'
-      ? 'bg-blue-100 text-blue-700 border-blue-300'
-      : 'bg-amber-100 text-amber-700 border-amber-300';
+    switch (pais) {
+      case 'USA': return 'bg-blue-100 text-blue-700 border-blue-300';
+      case 'China': return 'bg-red-100 text-red-700 border-red-300';
+      case 'Corea': return 'bg-sky-100 text-sky-700 border-sky-300';
+      case 'Peru':
+      case 'Peru_local':
+      default:
+        return 'bg-amber-100 text-amber-700 border-amber-300';
+    }
   };
 
   const getTipoColor = (tipo: TipoAlmacen) => {
-    return tipo === 'viajero'
-      ? 'bg-purple-100 text-purple-700 border-purple-300'
-      : 'bg-indigo-100 text-indigo-700 border-indigo-300';
+    switch (tipo) {
+      case 'viajero': return 'bg-purple-100 text-purple-700 border-purple-300';
+      case 'courier': return 'bg-orange-100 text-orange-700 border-orange-300';
+      case 'almacen_origen': return 'bg-blue-100 text-blue-700 border-blue-300';
+      case 'almacen_peru': return 'bg-indigo-100 text-indigo-700 border-indigo-300';
+      default: return 'bg-gray-100 text-gray-700 border-gray-300';
+    }
   };
 
   const getEstadoColor = (estado: EstadoAlmacen): 'success' | 'default' | 'danger' => {
@@ -203,6 +214,8 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
     // Distribución por tipo
     const porTipo = {
       viajero: viajeros.length,
+      almacen_origen: almacenes.filter(a => a.tipo === 'almacen_origen').length,
+      courier: almacenes.filter(a => a.tipo === 'courier').length,
       almacen_peru: almacenes.filter(a => a.tipo === 'almacen_peru').length
     };
 
@@ -387,7 +400,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                       </div>
                       <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${pais === 'USA' ? 'bg-blue-500' : 'bg-amber-500'}`}
+                          className={`h-full rounded-full ${pais === 'USA' ? 'bg-blue-500' : pais === 'China' ? 'bg-red-500' : pais === 'Corea' ? 'bg-sky-500' : 'bg-amber-500'}`}
                           style={{ width: `${porcentaje}%` }}
                         />
                       </div>
@@ -404,38 +417,29 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                 Por Tipo
               </h3>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className={`px-2.5 py-1 text-xs font-medium rounded border ${getTipoColor('viajero')}`}>
-                      Viajero
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {metricas.porTipo.viajero}
-                    </span>
+                {([
+                  { key: 'viajero' as const, label: 'Viajero', color: 'bg-purple-500' },
+                  { key: 'almacen_origen' as const, label: 'Almacén Origen', color: 'bg-blue-500' },
+                  { key: 'courier' as const, label: 'Courier', color: 'bg-orange-500' },
+                  { key: 'almacen_peru' as const, label: 'Almacén Perú', color: 'bg-indigo-500' },
+                ] as const).map(({ key, label, color }) => (
+                  <div key={key} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className={`px-2.5 py-1 text-xs font-medium rounded border ${getTipoColor(key)}`}>
+                        {label}
+                      </span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {metricas.porTipo[key] || 0}
+                      </span>
+                    </div>
+                    <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${color}`}
+                        style={{ width: `${((metricas.porTipo[key] || 0) / metricas.totalAlmacenes) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-purple-500"
-                      style={{ width: `${(metricas.porTipo.viajero / metricas.totalAlmacenes) * 100}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className={`px-2.5 py-1 text-xs font-medium rounded border ${getTipoColor('almacen_peru')}`}>
-                      Almacén
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {metricas.porTipo.almacen_peru}
-                    </span>
-                  </div>
-                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-indigo-500"
-                      style={{ width: `${(metricas.porTipo.almacen_peru / metricas.totalAlmacenes) * 100}%` }}
-                    />
-                  </div>
-                </div>
+                ))}
               </div>
             </Card>
 
@@ -601,7 +605,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <span className={`px-2 py-1 text-xs font-medium rounded border ${getTipoColor(almacen.tipo)}`}>
-                              {almacen.tipo === 'viajero' ? 'Viajero' : 'Almacén'}
+                              {almacen.tipo === 'viajero' ? 'Viajero' : almacen.tipo === 'courier' ? 'Courier' : almacen.tipo === 'almacen_origen' ? 'Almacén Origen' : 'Almacén'}
                             </span>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-gray-900">
@@ -938,8 +942,9 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                   className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="todos">Todos los países</option>
-                  <option value="USA">USA</option>
-                  <option value="Peru">Peru</option>
+                  {Object.entries(PAISES_CONFIG).map(([code, cfg]) => (
+                    <option key={code} value={code}>{cfg.emoji} {cfg.nombre}</option>
+                  ))}
                 </select>
               </div>
 
@@ -951,6 +956,8 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
               >
                 <option value="todos">Todos los tipos</option>
                 <option value="viajero">Viajero</option>
+                <option value="almacen_origen">Almacén Origen</option>
+                <option value="courier">Courier</option>
                 <option value="almacen_peru">Almacén Perú</option>
               </select>
 
@@ -1022,7 +1029,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                               {almacen.pais}
                             </span>
                             <span className={`px-2 py-1 text-xs font-medium rounded border ${getTipoColor(almacen.tipo)}`}>
-                              {almacen.tipo === 'viajero' ? 'Viajero' : 'Almacén'}
+                              {almacen.tipo === 'viajero' ? 'Viajero' : almacen.tipo === 'courier' ? 'Courier' : almacen.tipo === 'almacen_origen' ? 'Almacén Origen' : 'Almacén'}
                             </span>
                             <Badge variant={getEstadoColor(almacen.estadoAlmacen)}>
                               {almacen.estadoAlmacen}

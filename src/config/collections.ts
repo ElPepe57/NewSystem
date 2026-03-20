@@ -34,6 +34,12 @@ export const COLLECTIONS = {
   APORTES_CAPITAL: 'aportesCapital',
   RETIROS_CAPITAL: 'retirosCapital',
 
+  // === Líneas de Negocio ===
+  LINEAS_NEGOCIO: 'lineasNegocio',
+
+  // === Países de Origen ===
+  PAISES_ORIGEN: 'paisesOrigen',
+
   // === Datos Maestros ===
   MARCAS: 'marcas',
   CATEGORIAS: 'categorias',
@@ -53,6 +59,7 @@ export const COLLECTIONS = {
 
   // === Escáner ===
   SCAN_HISTORY: 'scanHistory',
+  CONTEOS_INVENTARIO: 'conteosInventario',
 
   // === Colaboración ===
   PRESENCIA: 'presencia',
@@ -60,6 +67,7 @@ export const COLLECTIONS = {
   CHAT_MENSAJES: 'chat_mensajes',
   CHAT_META: 'chat_meta',
   LLAMADAS: 'llamadas',
+  LLAMADAS_INTEL: 'llamadasIntel',
 } as const;
 
 /** Tipo union de todos los nombres de colección */

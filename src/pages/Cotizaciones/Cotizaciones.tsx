@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { formatFecha } from '../../utils/dateFormatters';
 import {
   FileText,
   Plus,
@@ -31,7 +32,7 @@ import {
   ShoppingCart,
   Truck
 } from 'lucide-react';
-import { Card, Badge, Button, Input, Select, Modal, useConfirmDialog, ConfirmDialog } from '../../components/common';
+import { Card, Badge, Button, Input, Select, Modal, useConfirmDialog, ConfirmDialog, LineaNegocioBadge } from '../../components/common';
 import { CotizacionForm } from './CotizacionForm';
 import { CotizacionCard } from './CotizacionCard';
 import { RegistrarAdelantoModal } from '../../components/modules/venta/RegistrarAdelantoModal';
@@ -45,6 +46,7 @@ import { tesoreriaService } from '../../services/tesoreria.service';
 import { tipoCambioService } from '../../services/tipoCambio.service';
 import type { Cotizacion, MotivoRechazo } from '../../types/cotizacion.types';
 import type { MetodoPago } from '../../types/venta.types';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type { CuentaCaja, MonedaTesoreria } from '../../types/tesoreria.types';
 
 type VistaType = 'kanban' | 'lista';
@@ -210,9 +212,12 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
         )}
       </div>
 
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <span className="text-lg font-bold text-gray-900">{formatCurrency(cotizacion.totalPEN)}</span>
         <span className="text-xs text-gray-500">{cotizacion.productos.length} prod.</span>
+      </div>
+      <div className="mb-3">
+        <LineaNegocioBadge lineaNegocioId={cotizacion.lineaNegocioId} />
       </div>
 
       {/* Input de días de compromiso de entrega (solo en Esperando Pago) */}
@@ -434,6 +439,7 @@ export const Cotizaciones: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [vista, setVista] = useState<VistaType>('kanban');
   const [filtroCanal, setFiltroCanal] = useState('');
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
   const [generandoPdf, setGenerandoPdf] = useState(false);
 
   // Estados para el formulario de adelanto
@@ -475,6 +481,11 @@ export const Cotizaciones: React.FC = () => {
   const cotizacionesFiltradas = useMemo(() => {
     let filtradas = [...todasCotizaciones];
 
+    // Filtro global por línea de negocio
+    if (lineaFiltroGlobal) {
+      filtradas = filtradas.filter(c => c.lineaNegocioId === lineaFiltroGlobal);
+    }
+
     if (busqueda) {
       const termino = busqueda.toLowerCase();
       filtradas = filtradas.filter(c => {
@@ -492,7 +503,7 @@ export const Cotizaciones: React.FC = () => {
     }
 
     return filtradas;
-  }, [todasCotizaciones, busqueda, filtroCanal]);
+  }, [todasCotizaciones, busqueda, filtroCanal, lineaFiltroGlobal]);
 
   // ========== NUEVO FLUJO: Categorizar por ACCIÓN del vendedor ==========
   const {
@@ -599,14 +610,6 @@ export const Cotizaciones: React.FC = () => {
   const formatCurrencyBimoneda = (amount: number, moneda: MonedaTesoreria): string =>
     new Intl.NumberFormat('es-PE', { style: 'currency', currency: moneda }).format(amount);
 
-  const formatFecha = (timestamp: any): string => {
-    if (!timestamp?.toDate) return '-';
-    return timestamp.toDate().toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
 
   const handleVerDetalles = (cotizacion: Cotizacion) => {
     setSelectedCotizacion(cotizacion);
@@ -952,17 +955,17 @@ export const Cotizaciones: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Cotizaciones</h1>
-          <p className="text-gray-600 mt-1">Flujo: Nueva → Validada → Con Abono → Confirmada | Colección: cotizaciones/</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Cotizaciones</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base hidden sm:block">Flujo: Nueva → Validada → Con Abono → Confirmada</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => fetchCotizaciones()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Actualizar
+          <Button variant="outline" onClick={() => fetchCotizaciones()} className="flex-1 sm:flex-initial justify-center">
+            <RefreshCw className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Actualizar</span>
           </Button>
-          <Button onClick={() => setShowModal(true)}>
+          <Button onClick={() => setShowModal(true)} className="flex-1 sm:flex-initial justify-center">
             <Plus className="h-4 w-4 mr-2" />
             Nueva Cotización
           </Button>
@@ -970,7 +973,7 @@ export const Cotizaciones: React.FC = () => {
       </div>
 
       {/* Métricas principales */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-4">
         <Card padding="md" className="border-l-4 border-l-gray-400">
           <div className="flex items-center justify-between">
             <div>
@@ -1131,9 +1134,9 @@ export const Cotizaciones: React.FC = () => {
 
       {/* Barra de búsqueda y vista */}
       <Card padding="md">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="relative flex-1 max-w-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-1">
+            <div className="relative flex-1 sm:max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
@@ -1155,17 +1158,17 @@ export const Cotizaciones: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center border rounded-lg overflow-hidden">
+          <div className="flex items-center border rounded-lg overflow-hidden self-start sm:self-auto">
             <button
               onClick={() => setVista('kanban')}
-              className={`px-3 py-2 flex items-center gap-1 ${vista === 'kanban' ? 'bg-primary-100 text-primary-700' : 'text-gray-500 hover:bg-gray-100'}`}
+              className={`px-3 py-2 flex items-center gap-1 text-sm ${vista === 'kanban' ? 'bg-primary-100 text-primary-700' : 'text-gray-500 hover:bg-gray-100'}`}
             >
               <LayoutGrid className="h-4 w-4" />
               Kanban
             </button>
             <button
               onClick={() => setVista('lista')}
-              className={`px-3 py-2 flex items-center gap-1 ${vista === 'lista' ? 'bg-primary-100 text-primary-700' : 'text-gray-500 hover:bg-gray-100'}`}
+              className={`px-3 py-2 flex items-center gap-1 text-sm ${vista === 'lista' ? 'bg-primary-100 text-primary-700' : 'text-gray-500 hover:bg-gray-100'}`}
             >
               <List className="h-4 w-4" />
               Lista
@@ -1463,7 +1466,10 @@ export const Cotizaciones: React.FC = () => {
                           <span className="px-1.5 py-0.5 text-xs bg-amber-100 text-amber-700 rounded">Sin stock</span>
                         )}
                       </div>
-                      <div className="text-xs text-gray-500">{item.productos.length} producto(s)</div>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-xs text-gray-500">{item.productos.length} producto(s)</span>
+                        <LineaNegocioBadge lineaNegocioId={item.lineaNegocioId} />
+                      </div>
                     </td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4">
                       <div className="text-sm font-medium text-gray-900">{item.nombreCliente}</div>

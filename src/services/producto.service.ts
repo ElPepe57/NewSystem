@@ -12,6 +12,7 @@ import {
   where
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Producto,
   ProductoFormData,
@@ -27,6 +28,7 @@ import type { CategoriaSnapshot } from '../types/categoria.types';
 import type { EtiquetaSnapshot } from '../types/etiqueta.types';
 import { competidorService } from './competidor.service';
 import { proveedorService } from './proveedor.service';
+import { lineaNegocioService } from './lineaNegocio.service';
 import { metricasService } from './metricas.service';
 import { tipoProductoService } from './tipoProducto.service';
 import { categoriaService } from './categoria.service';
@@ -120,8 +122,23 @@ export class ProductoService {
    */
   static async create(data: ProductoFormData, userId: string): Promise<Producto> {
     try {
-      // Generar SKU automático
-      const sku = await this.generateSKU();
+      // Determinar prefijo SKU basado en línea de negocio
+      let skuPrefix = 'BMN';
+      let lineaNegocioNombre: string | undefined;
+      if (data.lineaNegocioId) {
+        try {
+          const linea = await lineaNegocioService.getById(data.lineaNegocioId);
+          if (linea) {
+            skuPrefix = linea.codigo;
+            lineaNegocioNombre = linea.nombre;
+          }
+        } catch (lineaError) {
+          console.warn('Error al obtener línea de negocio para SKU, usando BMN:', lineaError);
+        }
+      }
+
+      // Generar SKU automático con prefijo de línea
+      const sku = await this.generateSKU(skuPrefix);
 
       // Obtener snapshots de clasificacion si se proporcionaron IDs
       let tipoProducto: TipoProductoSnapshot | undefined;
@@ -152,20 +169,12 @@ export class ProductoService {
         grupo: data.grupo || '',
         subgrupo: data.subgrupo || '',
 
-        enlaceProveedor: data.enlaceProveedor || '',
         codigoUPC: data.codigoUPC || '',
 
         estado: 'activo' as const,
         etiquetas: [], // Campo legacy para etiquetas de texto
 
-        habilitadoML: data.habilitadoML || false,
-        restriccionML: data.restriccionML || '',
-
         ctruPromedio: 0,
-        precioSugerido: data.precioSugerido || 0,
-        margenMinimo: data.margenMinimo || 20,
-        margenObjetivo: data.margenObjetivo || 35,
-        costoFleteUSAPeru: data.costoFleteUSAPeru || 0,
 
         stockUSA: 0,
         stockPeru: 0,
@@ -218,6 +227,12 @@ export class ProductoService {
       }
       if (data.cicloRecompraDias !== undefined && data.cicloRecompraDias !== null) {
         newProducto.cicloRecompraDias = data.cicloRecompraDias;
+      }
+      if (data.lineaNegocioId) {
+        newProducto.lineaNegocioId = data.lineaNegocioId;
+        if (lineaNegocioNombre) {
+          newProducto.lineaNegocioNombre = lineaNegocioNombre;
+        }
       }
 
       // Limpiar cualquier valor undefined restante antes de enviar a Firestore
@@ -365,7 +380,7 @@ export class ProductoService {
    * @param cantidad Cantidad a incrementar
    * @param pais 'USA' o 'Peru' o 'transito'
    */
-  static async incrementarStock(id: string, cantidad: number, pais: 'USA' | 'Peru' | 'transito'): Promise<void> {
+  static async incrementarStock(id: string, cantidad: number, pais: string): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
       const updateData: Record<string, unknown> = {
@@ -397,46 +412,24 @@ export class ProductoService {
    * @param cantidad Cantidad a decrementar (positiva)
    * @param pais 'USA' o 'Peru' o 'transito'
    */
-  static async decrementarStock(id: string, cantidad: number, pais: 'USA' | 'Peru' | 'transito'): Promise<void> {
+  static async decrementarStock(id: string, cantidad: number, pais: string): Promise<void> {
     return this.incrementarStock(id, -cantidad, pais);
   }
 
   /**
-   * Generar SKU automático (BMN-0001, BMN-0002, etc.)
+   * Generar SKU automático con prefijo de línea de negocio
+   * Ejemplos: SUP-0001, SKC-0001, BMN-0001 (fallback)
    */
-  private static async generateSKU(): Promise<string> {
-    try {
-      const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-      // Encontrar el número máximo existente
-      let maxNumber = 0;
-      snapshot.docs.forEach(docSnap => {
-        const data = docSnap.data();
-        const sku = data.sku as string;
-
-        if (sku && sku.startsWith('BMN-')) {
-          const match = sku.match(/BMN-(\d+)/);
-          if (match) {
-            const num = parseInt(match[1], 10);
-            if (num > maxNumber) {
-              maxNumber = num;
-            }
-          }
-        }
-      });
-
-      return `BMN-${(maxNumber + 1).toString().padStart(4, '0')}`;
-    } catch (error) {
-      // Si falla, usar timestamp
-      return `BMN-${Date.now().toString().slice(-4)}`;
-    }
+  private static async generateSKU(prefix: string = 'BMN'): Promise<string> {
+    return getNextSequenceNumber(prefix, 4);
   }
 
   /**
    * Obtener el próximo SKU que se generará (para mostrar en UI)
+   * @param lineaCodigo - Código de la línea de negocio (ej: 'SUP', 'SKC')
    */
-  static async getProximoSKU(): Promise<string> {
-    return this.generateSKU();
+  static async getProximoSKU(lineaCodigo?: string): Promise<string> {
+    return this.generateSKU(lineaCodigo || 'BMN');
   }
 
   /**
@@ -663,7 +656,8 @@ export class ProductoService {
       const ctruEstimado = costoTotalUSD * tipoCambio;
 
       // Calcular precio sugerido con margen objetivo
-      const margenObjetivo = producto.margenObjetivo || 30;
+      const categoriaPrincipal = producto.categorias?.find((c: any) => c.id === producto.categoriaPrincipalId) || producto.categorias?.[0];
+      const margenObjetivo = categoriaPrincipal?.margenObjetivo ?? 30;
       const precioSugeridoCalculado = ctruEstimado > 0
         ? ctruEstimado / (1 - margenObjetivo / 100)
         : 0;
@@ -832,8 +826,6 @@ export class ProductoService {
       const docRef = doc(db, COLLECTION_NAME, productoId);
       await updateDoc(docRef, {
         investigacion,
-        // Actualizar precio sugerido si no tiene uno
-        ...(producto.precioSugerido === 0 && { precioSugerido: precioSugeridoCalculado }),
         ultimaEdicion: serverTimestamp()
       });
 

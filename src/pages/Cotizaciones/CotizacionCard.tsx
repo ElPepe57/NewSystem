@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatFecha } from '../../utils/dateFormatters';
 import {
   User,
   Phone,
@@ -44,16 +45,6 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
     }).format(amount);
   };
 
-  const formatFecha = (timestamp: any): string => {
-    if (!timestamp?.toDate) return '-';
-    return timestamp.toDate().toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   const getCanalBadge = (canal: string) => {
     const badges: Record<string, { variant: 'default' | 'info' | 'success', label: string }> = {

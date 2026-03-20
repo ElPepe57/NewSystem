@@ -1,11 +1,25 @@
 import { Timestamp } from 'firebase/firestore';
 
 /**
- * Tipo de transferencia
- * - interna_usa: Movimiento entre almacenes/viajeros en USA
- * - usa_peru: Envío desde USA hacia Perú
+ * Tipo de transferencia (genérico multi-origen)
+ * - interna_origen: Movimiento entre almacenes/viajeros/couriers en país de origen
+ * - internacional_peru: Envío internacional desde cualquier origen hacia Perú
+ *
+ * Legacy (backward compat, misma semántica):
+ * - interna_usa: alias de interna_origen para docs existentes con origen USA
+ * - usa_peru: alias de internacional_peru para docs existentes con origen USA
  */
-export type TipoTransferencia = 'interna_usa' | 'usa_peru';
+export type TipoTransferencia =
+  | 'interna_origen'        // Genérico: movimiento interno en país origen
+  | 'internacional_peru'    // Genérico: envío internacional → Perú
+  | 'interna_usa'           // Legacy: equivale a interna_origen (USA)
+  | 'usa_peru';             // Legacy: equivale a internacional_peru (USA)
+
+/**
+ * Arrays de compatibilidad para queries y filtros
+ */
+export const TIPOS_TRANSFERENCIA_INTERNA: TipoTransferencia[] = ['interna_origen', 'interna_usa'];
+export const TIPOS_TRANSFERENCIA_INTERNACIONAL: TipoTransferencia[] = ['internacional_peru', 'usa_peru'];
 
 /**
  * Estado de la transferencia
@@ -94,7 +108,15 @@ export interface Transferencia {
   diasEnTransito?: number;           // Calculado al recibir
 
   // === RECEPCIÓN ===
-  recepcion?: RecepcionTransferencia;
+  recepcion?: RecepcionTransferencia;                  // Legacy: single reception (backward compat)
+  recepcionesTransferencia?: RecepcionTransferencia[];  // Array de recepciones parciales
+  totalUnidadesRecibidas?: number;                      // Acumulado recibidas across all receptions
+  totalUnidadesFaltantes?: number;                      // Actualmente faltantes
+  totalUnidadesDanadas?: number;                        // Acumulado dañadas
+
+  // === LÍNEA DE NEGOCIO (auto-inherited from units) ===
+  lineaNegocioId?: string;
+  lineaNegocioNombre?: string;
 
   // === NOTAS ===
   notas?: string;
@@ -162,17 +184,27 @@ export interface TransferenciaUnidad {
 }
 
 /**
- * Datos de recepción de una transferencia
+ * Datos de recepción de una transferencia (soporta múltiples recepciones parciales)
  */
 export interface RecepcionTransferencia {
+  id?: string;                        // REC-TRF-{timestamp} (undefined in legacy records)
+  numero?: number;                    // Secuencial: 1, 2, 3... (undefined in legacy records)
+
   fechaRecepcion: Timestamp;
   recibidoPor: string;
 
-  // Conteo
+  // Conteo general (en legacy: acumulado total; en multi-recepcion: de ESTA recepcion)
   unidadesEsperadas: number;
   unidadesRecibidas: number;
   unidadesFaltantes: number;
   unidadesDanadas: number;
+
+  // Detalle de unidades procesadas en ESTA recepcion
+  unidadesProcesadas?: {
+    unidadId: string;
+    resultado: 'recibida' | 'faltante' | 'danada';
+    incidencia?: string;
+  }[];
 
   // Incidencias
   incidencias?: IncidenciaTransferencia[];
@@ -240,6 +272,10 @@ export interface RecepcionFormData {
     danada: boolean;
     incidencia?: string;
   }[];
+
+  // Fechas de vencimiento por productoId (YYYY-MM-DD)
+  // Se aplican a las unidades recibidas de cada producto
+  fechasVencimiento?: Record<string, string>;
 
   observaciones?: string;
   fotoEvidencia?: string;

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { Search, ChevronDown, ChevronRight, Truck } from 'lucide-react';
 import { Card } from '../../common';
 import { formatCurrency } from '../../common/Charts';
@@ -21,10 +22,6 @@ export const LoteOCTable: React.FC<LoteOCTableProps> = ({ lotes }) => {
     );
   }, [lotes, searchTerm]);
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return '-';
-    return new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
-  };
 
   const formatTC = (tc: number) => {
     if (!tc) return '-';

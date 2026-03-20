@@ -30,13 +30,16 @@ import {
   BookOpen,
   Zap,
   Droplets,
-  ScanLine
+  ScanLine,
+  BrainCircuit,
+  Palette
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
 import { AuthService } from '../../services/auth.service';
 import { usePermissions } from '../../hooks/usePermissions';
 import { PERMISOS } from '../../types/auth.types';
+import { LineaNegocioSelector } from '../modules/lineaNegocio/LineaNegocioSelector';
 
 interface MenuItem {
   icon: React.FC<{ className?: string }>;
@@ -98,11 +101,21 @@ const menuGroups: MenuGroup[] = [
     ]
   },
   {
+    id: 'equipo',
+    label: 'Equipo',
+    icon: Users,
+    defaultOpen: false,
+    items: [
+      { icon: BrainCircuit, label: 'Notas IA', path: '/notas-ia' },
+    ]
+  },
+  {
     id: 'admin',
     label: 'Administración',
     icon: Shield,
     defaultOpen: false,
     items: [
+      { icon: Palette, label: 'Líneas de Negocio', path: '/lineas-negocio', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
       { icon: Database, label: 'Maestros', path: '/maestros', permiso: PERMISOS.GESTIONAR_CONFIGURACION },
       { icon: Users, label: 'Usuarios', path: '/usuarios', permiso: PERMISOS.GESTIONAR_USUARIOS },
       { icon: Activity, label: 'Auditoría', path: '/auditoria', permiso: PERMISOS.VER_AUDITORIA },
@@ -190,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const currentRole = roleConfig[role || 'invitado'];
 
   return (
-    <div className="w-64 h-full bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 flex flex-col border-r border-gray-800/50">
+    <div className="w-64 h-full bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 flex flex-col border-r border-gray-800/50 overflow-hidden">
       {/* Logo Vita Skin Peru */}
       <div className="p-5 border-b border-gray-800/50">
         <div className="flex items-center justify-between">
@@ -245,6 +258,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
       )}
 
+      {/* Selector global de Línea de Negocio */}
+      <LineaNegocioSelector />
+
       {/* Dashboard (item principal fuera de grupos) */}
       <div className="px-3 pt-4 pb-2">
         <Link
@@ -263,7 +279,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       </div>
 
       {/* Grupos de Menú */}
-      <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+      <nav className="flex-1 min-h-0 px-3 py-2 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
         {visibleGroups.map((group) => {
           const GroupIcon = group.icon;
           const isExpanded = expandedGroups.has(group.id);

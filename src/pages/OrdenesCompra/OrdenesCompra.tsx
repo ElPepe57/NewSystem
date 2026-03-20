@@ -16,6 +16,7 @@ import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
 import { exportService } from '../../services/export.service';
 import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 
 // Interface para datos de requerimiento que viene del navigation state
 interface RequerimientoData {
@@ -95,6 +96,14 @@ export const OrdenesCompra: React.FC = () => {
     fetchStats
   } = useOrdenCompraStore();
 
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+
+  // Filtrar órdenes por línea de negocio global
+  const ordenesLN = useMemo(() => {
+    if (!lineaFiltroGlobal) return ordenes;
+    return ordenes.filter(o => o.lineaNegocioId === lineaFiltroGlobal);
+  }, [ordenes, lineaFiltroGlobal]);
+
   const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
@@ -145,12 +154,12 @@ export const OrdenesCompra: React.FC = () => {
   // Pipeline stages para filtrado visual
   const pipelineStages: PipelineStage[] = useMemo(() => {
     const counts = {
-      borrador: ordenes.filter(o => o.estado === 'borrador').length,
-      enviada: ordenes.filter(o => o.estado === 'enviada').length,
-      en_transito: ordenes.filter(o => o.estado === 'en_transito').length,
-      recibida_parcial: ordenes.filter(o => o.estado === 'recibida_parcial').length,
-      recibida: ordenes.filter(o => o.estado === 'recibida').length,
-      cancelada: ordenes.filter(o => o.estado === 'cancelada').length
+      borrador: ordenesLN.filter(o => o.estado === 'borrador').length,
+      enviada: ordenesLN.filter(o => o.estado === 'enviada').length,
+      en_transito: ordenesLN.filter(o => o.estado === 'en_transito').length,
+      recibida_parcial: ordenesLN.filter(o => o.estado === 'recibida_parcial').length,
+      recibida: ordenesLN.filter(o => o.estado === 'recibida').length,
+      cancelada: ordenesLN.filter(o => o.estado === 'cancelada').length
     };
 
     return [
@@ -161,13 +170,13 @@ export const OrdenesCompra: React.FC = () => {
       { id: 'recibida', label: 'Recibida', count: counts.recibida, color: 'green', icon: <CheckCircle className="h-4 w-4" /> },
       { id: 'cancelada', label: 'Cancelada', count: counts.cancelada, color: 'red', icon: <XCircle className="h-4 w-4" /> }
     ];
-  }, [ordenes]);
+  }, [ordenesLN]);
 
   // Órdenes filtradas
   const ordenesFiltradas = useMemo(() => {
-    if (!filtroEstado) return ordenes;
-    return ordenes.filter(o => o.estado === filtroEstado);
-  }, [ordenes, filtroEstado]);
+    if (!filtroEstado) return ordenesLN;
+    return ordenesLN.filter(o => o.estado === filtroEstado);
+  }, [ordenesLN, filtroEstado]);
 
   // Cargar datos al montar
   useEffect(() => {
@@ -620,27 +629,31 @@ export const OrdenesCompra: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Órdenes de Compra</h1>
-          <p className="text-gray-600 mt-1">Gestión de compras y proveedores</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Órdenes de Compra</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Gestión de compras y proveedores</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-2 sm:space-x-3">
           <Button
             variant="outline"
             onClick={() => exportService.exportOrdenesCompra(ordenes)}
             disabled={ordenes.length === 0}
+            className="flex-1 sm:flex-initial justify-center"
           >
             <Download className="h-5 w-5 mr-2" />
-            Exportar Excel
+            <span className="hidden sm:inline">Exportar Excel</span>
+            <span className="sm:hidden">Exportar</span>
           </Button>
           <Button
             variant="primary"
             onClick={() => setIsOrdenModalOpen(true)}
             disabled={proveedoresActivos.length === 0}
+            className="flex-1 sm:flex-initial justify-center"
           >
             <Plus className="h-5 w-5 mr-2" />
-            Nueva Orden
+            <span className="hidden sm:inline">Nueva Orden</span>
+            <span className="sm:hidden">Nueva OC</span>
           </Button>
         </div>
       </div>
@@ -758,7 +771,7 @@ export const OrdenesCompra: React.FC = () => {
 
       {/* Modal Nueva Orden */}
       {isOrdenModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-hidden">
           {/* Backdrop - click para cerrar */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
@@ -766,13 +779,13 @@ export const OrdenesCompra: React.FC = () => {
           />
 
           {/* Modal Container */}
-          <div className="flex min-h-full items-center justify-center p-4">
+          <div className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
             <div
-              className="relative bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+              className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header con X para cerrar */}
-              <div className="sticky top-0 bg-white z-10 flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex-shrink-0 bg-white z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 rounded-t-lg">
                 <h3 className="text-xl font-semibold text-gray-900">
                   {isEditMode && ordenEditando
                     ? `Editar Orden ${ordenEditando.numeroOrden}`
@@ -794,8 +807,8 @@ export const OrdenesCompra: React.FC = () => {
                 </button>
               </div>
 
-              {/* Content */}
-              <div className="p-6">
+              {/* Content - scrollable area */}
+              <div className="p-6 overflow-y-auto flex-1 min-h-0">
                 {/* Banner de progreso multi-viajero */}
                 {creandoMultiOC && multiViajeroData && totalViajerosOriginal > 0 && (
                   <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
@@ -854,6 +867,7 @@ export const OrdenesCompra: React.FC = () => {
                     impuestoUSD: ordenEditando.impuestoUSD,
                     gastosEnvioUSD: ordenEditando.gastosEnvioUSD,
                     otrosGastosUSD: ordenEditando.otrosGastosUSD,
+                    descuentoUSD: ordenEditando.descuentoUSD,
                     totalUSD: ordenEditando.totalUSD,
                     tcCompra: ordenEditando.tcCompra || 0,
                     numeroTracking: ordenEditando.numeroTracking,

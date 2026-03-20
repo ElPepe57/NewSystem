@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import {
   X,
   Warehouse,
@@ -24,6 +25,7 @@ import { KPICard, KPIGrid, AlertCard, StatDistribution } from '../../common/KPIC
 import { SimpleAreaChart, MultiLineChart, SimpleBarChart, CHART_COLORS } from '../../common/Charts';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
 import type { Almacen } from '../../../types/almacen.types';
+import { getPaisEmoji, getPaisNombre } from '../../../utils/multiOrigen.helpers';
 
 interface AlmacenDetalleProps {
   almacen: Almacen;
@@ -150,7 +152,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
         const unidadesSnapshot = await getDocs(unidadesQuery);
 
         // Filtrar unidades disponibles
-        const estadosDisponibles = ['recibida_usa', 'disponible_peru', 'reservada'];
+        const estadosDisponibles = ['recibida_usa', 'recibida_origen', 'disponible_peru', 'reservada'];
         const productoMap = new Map<string, { nombre: string; cantidad: number; valorUSD: number }>();
         const proximasVencer: Array<{ id: string; sku: string; lote: string; diasParaVencer: number }> = [];
         let unidadesActuales = 0;
@@ -392,15 +394,6 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
     return 'success';
   };
 
-  const formatDate = (timestamp: any): string => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
 
   const tabs = [
     { id: 'resumen', label: 'Resumen', icon: <Package className="h-4 w-4" /> },
@@ -430,9 +423,9 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                   {almacen.estadoAlmacen}
                 </Badge>
                 <Badge variant="info">
-                  {almacen.esViajero ? 'Viajero' : almacen.tipo === 'almacen_peru' ? 'Perú' : 'USA'}
+                  {almacen.esViajero ? 'Viajero' : almacen.tipo === 'almacen_peru' ? 'Perú' : almacen.tipo === 'courier' ? 'Courier' : 'Almacén Origen'}
                 </Badge>
-                <span className="text-lg">{almacen.pais === 'USA' ? '🇺🇸' : '🇵🇪'}</span>
+                <span className="text-lg">{getPaisEmoji(almacen.pais)}</span>
               </div>
             </div>
           </div>

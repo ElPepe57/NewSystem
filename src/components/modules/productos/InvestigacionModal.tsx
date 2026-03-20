@@ -49,6 +49,13 @@ const INVESTIGACION_TABS: Tab[] = [
   { id: 'decision', label: 'Decision', icon: <Target className="h-4 w-4" /> }
 ];
 
+const TABS_CONFIG = [
+  { id: 'proveedores', label: 'Proveedores', shortLabel: 'Provee.', icon: DollarSign },
+  { id: 'competencia', label: 'Competencia', shortLabel: 'Compet.', icon: Users },
+  { id: 'mercado', label: 'Mercado', shortLabel: 'Mercado', icon: TrendingUp },
+  { id: 'decision', label: 'Decisión', shortLabel: 'Decisión', icon: Target },
+];
+
 export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
   producto,
   tipoCambio,
@@ -139,7 +146,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
     presenciaML: inv?.presenciaML ?? false,
     nivelCompetencia: inv?.nivelCompetencia || 'media' as const,
     ventajasCompetitivas: inv?.ventajasCompetitivas || '',
-    logisticaEstimada: inv?.logisticaEstimada || producto.costoFleteUSAPeru || 5,
+    logisticaEstimada: inv?.logisticaEstimada || producto.costoFleteInternacional || 5,
     demandaEstimada: inv?.demandaEstimada || 'media' as const,
     tendencia: inv?.tendencia || 'estable' as const,
     volumenMercadoEstimado: inv?.volumenMercadoEstimado || 0,
@@ -213,7 +220,8 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
     const montoImpuestoUSA = mejorPrecioUSASinImpuesto * (impuestoMejorProveedor / 100);
 
     // Precio sugerido con margen objetivo
-    const margenObjetivo = producto.margenObjetivo || 30;
+    const categoriaPrincipal = producto.categorias?.find((c: any) => c.id === producto.categoriaPrincipalId) || producto.categorias?.[0];
+    const margenObjetivo = categoriaPrincipal?.margenObjetivo ?? 30;
     const precioSugeridoCalculado = ctruEstimado > 0
       ? ctruEstimado / (1 - margenObjetivo / 100)
       : 0;
@@ -227,7 +235,8 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       : 0;
 
     // Determinar si es rentable
-    const esRentable = margenEstimado >= (producto.margenMinimo || 15);
+    const margenMinimo = categoriaPrincipal?.margenMinimo ?? 15;
+    const esRentable = margenEstimado >= margenMinimo;
 
     // Métricas de inversión - basadas en precio de entrada
     const gananciaUnidad = precioEntrada > 0 && ctruEstimado > 0
@@ -270,6 +279,8 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       precioEntrada,
       margenEstimado,
       esRentable,
+      margenObjetivo,
+      margenMinimo,
       gananciaUnidad,
       roi,
       multiplicador,
@@ -353,9 +364,9 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       {/* Header con info del producto */}
-      <div className="bg-gray-50 -mx-6 -mt-6 px-4 sm:px-6 py-3 sm:py-4 border-b sticky top-0 z-10">
+      <div className="bg-gray-50 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 px-4 sm:px-6 py-3 sm:py-4 border-b sticky top-0 z-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <h3 className="font-semibold text-gray-900">
@@ -392,15 +403,29 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
         )}
       </div>
 
-      {/* Tabs de navegación */}
-      <Tabs
-        tabs={INVESTIGACION_TABS}
-        activeTab={activeTab}
-        onChange={setActiveTab}
-        variant="pills"
-        size="md"
-        fullWidth
-      />
+      {/* Tabs de navegación — responsive: icon+shortLabel en móvil, icon+fullLabel en desktop */}
+      <div className="flex justify-between bg-gray-100 rounded-lg p-1 gap-1">
+        {TABS_CONFIG.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 px-1 sm:px-3 rounded-md text-center transition-all ${
+                isActive
+                  ? 'bg-white text-primary-700 shadow-sm font-medium'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-primary-600' : ''}`} />
+              <span className="text-[10px] leading-tight sm:hidden">{tab.shortLabel}</span>
+              <span className="hidden sm:inline text-sm">{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
       {/* Contenido de los tabs */}
       <TabsProvider activeTab={activeTab}>
@@ -437,9 +462,9 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                     disabled={loading}
                   />
                 </div>
-                {producto.costoFleteUSAPeru > 0 && (
+                {(producto.costoFleteInternacional ?? 0) > 0 && (
                   <div className="text-xs text-gray-500 mt-4">
-                    Producto: ${producto.costoFleteUSAPeru}
+                    Producto: ${producto.costoFleteInternacional}
                   </div>
                 )}
               </div>
@@ -665,7 +690,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       {/* Panel de Análisis Automático */}
       {(proveedoresUSA.length > 0 || competidoresPeru.length > 0) && (
         <div className={`p-4 rounded-lg ${calculos.esRentable ? 'bg-green-100' : 'bg-red-100'}`}>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0 mb-3">
             <h4 className="font-semibold text-gray-800 flex items-center">
               <BarChart3 className="h-4 w-4 mr-2" />
               Análisis Automático
@@ -704,7 +729,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
               <p className="text-xs text-gray-600">Precio Sugerido</p>
               <p className="text-lg font-bold text-primary-600">S/ {calculos.precioSugeridoCalculado.toFixed(2)}</p>
-              <p className="text-xs text-gray-500">con {producto.margenObjetivo || 30}% margen</p>
+              <p className="text-xs text-gray-500">con {calculos.margenObjetivo}% margen</p>
             </div>
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
               <p className="text-xs text-gray-600">Margen Estimado</p>
@@ -712,7 +737,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                 {calculos.margenEstimado.toFixed(1)}%
               </p>
               <p className="text-xs text-gray-500">
-                {calculos.esRentable ? 'Rentable' : `Mínimo: ${producto.margenMinimo || 15}%`}
+                {calculos.esRentable ? 'Rentable' : `Mínimo: ${calculos.margenMinimo}%`}
               </p>
             </div>
           </div>
@@ -774,9 +799,9 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
               {preciosPeru.min > 0 && (
                 <div className="mt-3 p-3 bg-white bg-opacity-60 rounded-lg">
                   <p className="text-sm">
-                    <span className="font-medium">Precio de entrada competitivo:</span>{' '}
+                    <span className="font-medium">Precio entrada:</span>{' '}
                     <span className="text-primary-600 font-bold">S/ {calculos.precioEntrada.toFixed(2)}</span>
-                    <span className="text-xs text-gray-500 ml-2">(5% menos que el competidor más bajo)</span>
+                    <span className="text-xs text-gray-500 ml-1 sm:ml-2 block sm:inline mt-0.5 sm:mt-0">(5% menos que el competidor más bajo)</span>
                   </p>
                 </div>
               )}
@@ -786,7 +811,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
           {!calculos.esRentable && preciosPeru.promedio > 0 && (
             <div className="mt-3 p-2 bg-red-200 rounded text-sm text-red-800">
               <AlertTriangle className="h-4 w-4 inline mr-1" />
-              El margen estimado está por debajo del mínimo requerido ({producto.margenMinimo || 15}%)
+              El margen estimado está por debajo del mínimo requerido ({calculos.margenMinimo}%)
             </div>
           )}
         </div>
@@ -848,7 +873,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       )}
 
       {/* Footer con acciones */}
-      <div className="flex justify-between items-center pt-4 border-t sticky bottom-0 bg-white -mx-6 px-6 pb-2">
+      <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-0 pt-4 border-t sticky bottom-0 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6 pb-2">
         <div>
           {existeInvestigacion && onDelete && (
             <Button
@@ -856,17 +881,18 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
               variant="danger"
               onClick={onDelete}
               disabled={loading}
+              className="w-full sm:w-auto justify-center"
             >
-              Eliminar investigación
+              Eliminar
             </Button>
           )}
         </div>
 
-        <div className="flex gap-3">
-          <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+        <div className="flex gap-2 sm:gap-3">
+          <Button type="button" variant="outline" onClick={onClose} disabled={loading} className="flex-1 sm:flex-initial justify-center">
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={loading}>
+          <Button type="submit" variant="primary" disabled={loading} className="flex-1 sm:flex-initial justify-center">
             {loading ? 'Guardando...' : existeInvestigacion ? 'Actualizar' : 'Guardar'}
           </Button>
         </div>

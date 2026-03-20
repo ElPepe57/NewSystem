@@ -133,6 +133,7 @@ export interface MLVariation {
 
 export interface MLOrder {
   id: number;
+  pack_id?: number | null; // ID del pack cuando el comprador compra 2+ productos en un solo carrito
   status: "confirmed" | "payment_required" | "payment_in_process" | "partially_paid" | "paid" | "cancelled";
   status_detail: string | null;
   date_created: string;
@@ -177,6 +178,19 @@ export interface MLOrder {
     reason: string;
     description: string;
   } | null;
+}
+
+export interface MLBillingInfoInner {
+  doc_type?: string;
+  doc_number?: string;
+  additional_info?: Array<{
+    type: string;
+    value: string;
+  }>;
+}
+
+export interface MLBillingInfoResponse {
+  billing_info: MLBillingInfoInner;
 }
 
 export interface MLOrderItem {
@@ -249,6 +263,11 @@ export interface MLShipment {
   };
   lead_time: {
     cost: number;
+    currency_id: string;
+  } | null;
+  shipping_option?: {
+    cost: number;
+    list_cost: number;
     currency_id: string;
   } | null;
   sender_id: number;
@@ -336,6 +355,30 @@ export interface MLWebhookNotification {
 }
 
 // ============================================================
+// BUY BOX / COMPETITION (price_to_win)
+// ============================================================
+
+export interface MLPriceToWin {
+  item_id: string;
+  current_price: number;
+  currency_id: string;
+  price_to_win: number | null;
+  status: "winning" | "competing" | "sharing_first_place" | "listed";
+  consistent: boolean;
+  visit_share: "maximum" | "medium" | "minimum";
+  competitors_sharing_first_place: number | null;
+  catalog_product_id: string;
+  reason: string[];
+  boosts: Array<{ id: string; status: string; description: string }>;
+  winner: {
+    item_id: string;
+    price: number;
+    currency_id: string;
+    boosts: Array<{ id: string; status: string }>;
+  } | null;
+}
+
+// ============================================================
 // MAPEO ML <-> ERP (Firestore)
 // ============================================================
 
@@ -361,6 +404,13 @@ export interface MLProductMap {
   vinculado: boolean;
   fechaVinculacion: FirebaseFirestore.Timestamp | null;
   fechaSync: FirebaseFirestore.Timestamp;
+  // Competencia Buy Box (solo catálogo)
+  buyBoxStatus?: "winning" | "competing" | "sharing_first_place" | "listed" | null;
+  buyBoxPriceToWin?: number | null;
+  buyBoxWinnerPrice?: number | null;
+  buyBoxVisitShare?: "maximum" | "medium" | "minimum" | null;
+  buyBoxBoosts?: Array<{ id: string; status: string }>;
+  buyBoxLastCheck?: FirebaseFirestore.Timestamp | null;
 }
 
 export interface MLOrderSync {
@@ -369,6 +419,7 @@ export interface MLOrderSync {
   mlStatus: string;
   mlBuyerId: number;
   mlBuyerName: string | null;
+  mlBuyerNickname?: string | null; // Username de MercadoLibre
   ventaId: string | null; // ID de la Venta creada en ERP
   numeroVenta: string | null;
   clienteId: string | null;
@@ -378,22 +429,38 @@ export interface MLOrderSync {
   comisionML: number;
   costoEnvioML: number;
   costoEnvioCliente: number; // Lo que el cliente pagó por envío (payment.shipping_cost)
+  metodoEnvio?: "flex" | "urbano" | null; // Método de envío detectado
+  cargoEnvioML?: number; // Cargo por envío que ML cobra al vendedor (Urbano) — es una deducción, no ingreso
   fechaOrdenML: FirebaseFirestore.Timestamp;
   fechaProcesada: FirebaseFirestore.Timestamp | null;
   fechaSync: FirebaseFirestore.Timestamp;
+  // Origen del registro: cómo llegó al sistema
+  origen?: "webhook" | "importacion_historica" | "manual";
+  fechaImportacion?: FirebaseFirestore.Timestamp | null;
   // Datos extendidos del buyer y shipment
   buyerEmail?: string | null;
   buyerPhone?: string | null;
   buyerDni?: string | null;
+  buyerDocType?: string | null; // "DNI" | "RUC" | etc. (tipo de documento)
+  razonSocial?: string | null; // Razón social para compradores con RUC (empresa)
   direccionEntrega?: string;
   distrito?: string;
   provincia?: string;
+  codigoPostal?: string | null;
+  referenciaEntrega?: string | null; // Referencia/comentario de entrega del comprador
   coordenadas?: { lat: number; lng: number } | null;
   trackingNumber?: string | null;
   trackingMethod?: string | null; // "flex", "urbano", etc. — método de envío ML
   shipmentStatus?: string;
   todosVinculados?: boolean;
+  stockPendienteContabilizado?: boolean; // true si ya se incrementó stockPendienteML en productos
   productos?: MLOrderProduct[];
+  // Pack orders: cuando el comprador compra 2+ productos en un solo carrito
+  packId?: number | null; // ML pack_id que agrupa sub-órdenes
+  subOrderIds?: number[]; // Lista de mlOrderIds que componen este pack
+  subOrdersRecibidas?: number; // Cantidad de sub-órdenes recibidas hasta ahora
+  // Delay de creación de venta: timestamp a partir del cual se puede crear la venta
+  crearVentaDespuesDe?: FirebaseFirestore.Timestamp | null;
 }
 
 export interface MLOrderProduct {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Package, Eye, Pencil, Trash2, TrendingUp, ChevronDown, ChevronUp, DollarSign, CreditCard, Layers, Info, User, ClipboardCheck } from 'lucide-react';
-import { Badge, Pagination, usePagination } from '../../common';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
+import { Package, Eye, Pencil, Trash2, TrendingUp, ChevronDown, ChevronUp, DollarSign, CreditCard, Layers, Info, User, ClipboardCheck, MapPin, Search } from 'lucide-react';
+import { Badge, Pagination, usePagination, LineaNegocioBadge, PaisOrigenBadge } from '../../common';
 import { useUserName } from '../../../hooks/useUserNames';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC } from '../../../types/ordenCompra.types';
 
@@ -95,9 +96,9 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-gray-100 p-5 border-t border-gray-200">
+    <div className="bg-gradient-to-br from-slate-50 to-gray-100 p-5 border-t border-gray-200 sticky left-0 max-w-[100vw] overflow-hidden sm:static sm:max-w-none sm:overflow-visible">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
         <h4 className="text-sm font-semibold text-gray-800 flex items-center">
           <Layers className="h-4 w-4 mr-2 text-blue-600" />
           Desglose de Orden - {orden.numeroOrden}
@@ -211,13 +212,69 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
             </span>
           )}
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Vista móvil: cards */}
+        <div className="sm:hidden divide-y divide-gray-100">
+          {orden.productos.map((prod, idx) => {
+            const recibida = prod.cantidadRecibida || 0;
+            const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
+            const chips: string[] = [];
+            if (prod.presentacion) chips.push(prod.presentacion);
+            if (prod.contenido) chips.push(prod.contenido);
+            if (prod.dosaje) chips.push(prod.dosaje);
+            if (prod.sabor) chips.push(prod.sabor);
+
+            return (
+              <div key={idx} className="px-4 py-3">
+                <div className="text-sm font-medium text-gray-900">
+                  {prod.marca} {prod.nombreComercial}
+                </div>
+                <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-gray-500 mt-0.5">
+                  <span className="font-mono text-gray-400">{prod.sku}</span>
+                  {chips.length > 0 && (
+                    <>
+                      <span className="text-gray-300">·</span>
+                      <span>{chips.join(' · ')}</span>
+                    </>
+                  )}
+                </div>
+                <div className="flex items-center justify-between mt-2 text-xs">
+                  <div className="flex items-center gap-3">
+                    <span className="text-gray-500">{prod.cantidad}u × <span className="font-mono">${prod.costoUnitario.toFixed(2)}</span></span>
+                    <span className="font-semibold text-gray-900 font-mono">${prod.subtotal.toFixed(2)}</span>
+                  </div>
+                  {tieneRecepciones && (
+                    <div className="flex items-center gap-2">
+                      <span className={`font-medium ${recibida >= prod.cantidad ? 'text-green-600' : recibida > 0 ? 'text-amber-600' : 'text-gray-400'}`}>
+                        {recibida}/{prod.cantidad}
+                      </span>
+                      {recibida > 0 && (
+                        <div className="w-12 h-1.5 bg-gray-200 rounded-full">
+                          <div
+                            className={`h-full rounded-full ${porcentaje >= 100 ? 'bg-green-500' : 'bg-amber-500'}`}
+                            style={{ width: `${Math.min(porcentaje, 100)}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {/* Totales móvil */}
+          <div className="px-4 py-3 bg-gray-50 flex items-center justify-between text-xs font-bold">
+            <span className="text-gray-600">{totalPedido} unidades</span>
+            <span className="font-mono">${orden.subtotalUSD.toFixed(2)}</span>
+          </div>
+        </div>
+
+        {/* Vista desktop: tabla */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="min-w-full text-xs">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 py-2 text-left font-medium text-gray-500">Producto</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-500">SKU</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-500">Presentación</th>
                 <th className="px-3 py-2 text-right font-medium text-gray-500">Cant.</th>
                 <th className="px-3 py-2 text-right font-medium text-gray-500">Costo Unit.</th>
                 <th className="px-3 py-2 text-right font-medium text-gray-500">Subtotal</th>
@@ -230,17 +287,28 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
               {orden.productos.map((prod, idx) => {
                 const recibida = prod.cantidadRecibida || 0;
                 const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
+                const chips: string[] = [];
+                if (prod.presentacion) chips.push(prod.presentacion);
+                if (prod.contenido) chips.push(prod.contenido);
+                if (prod.dosaje) chips.push(prod.dosaje);
+                if (prod.sabor) chips.push(prod.sabor);
 
                 return (
                   <tr key={idx} className="hover:bg-gray-50">
                     <td className="px-3 py-2">
-                      <div className="font-medium text-gray-900 truncate max-w-[200px]" title={prod.nombreComercial}>
-                        {prod.marca}
+                      <div className="font-medium text-gray-900" title={`${prod.marca} ${prod.nombreComercial}`}>
+                        {prod.marca} {prod.nombreComercial}
                       </div>
-                      <div className="text-gray-400 truncate max-w-[200px]">{prod.nombreComercial}</div>
+                      <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-gray-500 mt-0.5">
+                        <span className="font-mono text-gray-400">{prod.sku}</span>
+                        {chips.length > 0 && (
+                          <>
+                            <span className="text-gray-300">·</span>
+                            <span>{chips.join(' · ')}</span>
+                          </>
+                        )}
+                      </div>
                     </td>
-                    <td className="px-3 py-2 font-mono text-gray-600">{prod.sku}</td>
-                    <td className="px-3 py-2 text-gray-600">{prod.presentacion}</td>
                     <td className="px-3 py-2 text-right font-medium">{prod.cantidad}</td>
                     <td className="px-3 py-2 text-right font-mono">${prod.costoUnitario.toFixed(2)}</td>
                     <td className="px-3 py-2 text-right font-mono font-medium">${prod.subtotal.toFixed(2)}</td>
@@ -267,7 +335,7 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
             </tbody>
             <tfoot className="bg-gray-50 border-t border-gray-200">
               <tr>
-                <td colSpan={3} className="px-3 py-2 text-right font-medium text-gray-600">Totales:</td>
+                <td className="px-3 py-2 text-right font-medium text-gray-600">Totales:</td>
                 <td className="px-3 py-2 text-right font-bold">{totalPedido}</td>
                 <td className="px-3 py-2"></td>
                 <td className="px-3 py-2 text-right font-mono font-bold">${orden.subtotalUSD.toFixed(2)}</td>
@@ -334,6 +402,29 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
 }) => {
   // Estado para filas expandidas
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  // Búsqueda
+  const [busqueda, setBusqueda] = useState('');
+
+  // Filtrar por búsqueda
+  const ordenesBuscadas = React.useMemo(() => {
+    if (!busqueda.trim()) return ordenes;
+    const q = busqueda.toLowerCase().trim();
+    return ordenes.filter(o =>
+      o.numeroOrden.toLowerCase().includes(q) ||
+      o.nombreProveedor.toLowerCase().includes(q) ||
+      (o.nombreAlmacenDestino || '').toLowerCase().includes(q) ||
+      (o.courier || '').toLowerCase().includes(q) ||
+      o.productos.some(p =>
+        p.marca.toLowerCase().includes(q) ||
+        p.nombreComercial.toLowerCase().includes(q) ||
+        p.sku.toLowerCase().includes(q) ||
+        (p.presentacion || '').toLowerCase().includes(q) ||
+        (p.contenido || '').toLowerCase().includes(q) ||
+        (p.dosaje || '').toLowerCase().includes(q) ||
+        (p.sabor || '').toLowerCase().includes(q)
+      )
+    );
+  }, [ordenes, busqueda]);
 
   // Paginación
   const {
@@ -344,7 +435,7 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
     setItemsPerPage,
     paginatedItems: ordenesPaginadas
   } = usePagination({
-    items: ordenes,
+    items: ordenesBuscadas,
     initialItemsPerPage: 15
   });
 
@@ -379,18 +470,36 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
     );
   }
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate();
-    return date.toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
 
   return (
     <div>
+      {/* Barra de búsqueda */}
+      <div className="px-4 py-3 border-b border-gray-200">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar por producto, SKU, marca, proveedor, destino..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          />
+          {busqueda && (
+            <button
+              onClick={() => setBusqueda('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        {busqueda && (
+          <div className="text-xs text-gray-500 mt-1">
+            {ordenesBuscadas.length} de {ordenes.length} órdenes
+          </div>
+        )}
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -455,6 +564,10 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
                         {orden.numeroOrden}
                       </span>
                     </div>
+                    <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                      <LineaNegocioBadge lineaNegocioId={orden.lineaNegocioId} />
+                      <PaisOrigenBadge paisOrigen={(orden as any).paisOrigen} />
+                    </div>
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -462,12 +575,35 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
                   </td>
 
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">
-                      {orden.productos.length} {orden.productos.length === 1 ? 'producto' : 'productos'}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {orden.productos.slice(0, 2).map(p => p.marca).join(', ')}
-                      {orden.productos.length > 2 && '...'}
+                    <div className="space-y-1.5 max-w-[340px]">
+                      {orden.productos.slice(0, 3).map((p, idx) => {
+                        const chips: string[] = [];
+                        if (p.presentacion) chips.push(p.presentacion);
+                        if (p.contenido) chips.push(p.contenido);
+                        if (p.dosaje) chips.push(p.dosaje);
+                        if (p.sabor) chips.push(p.sabor);
+                        return (
+                          <div key={idx} className="text-xs leading-tight">
+                            <div className="font-semibold text-gray-900 truncate">{p.marca} {p.nombreComercial}</div>
+                            <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-gray-500 mt-0.5">
+                              <span className="font-mono text-gray-400">{p.sku}</span>
+                              {chips.length > 0 && (
+                                <>
+                                  <span className="text-gray-300">·</span>
+                                  <span>{chips.join(' · ')}</span>
+                                </>
+                              )}
+                              <span className="text-gray-300">·</span>
+                              <span className="font-medium text-gray-600">{p.cantidad}u × ${p.costoUnitario.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {orden.productos.length > 3 && (
+                        <div className="text-[10px] text-gray-400">
+                          +{orden.productos.length - 3} producto{orden.productos.length - 3 > 1 ? 's' : ''} más
+                        </div>
+                      )}
                     </div>
                   </td>
 
@@ -483,17 +619,30 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge variant={estadoInfo.variant}>
-                      {estadoInfo.label}
-                    </Badge>
-                    {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
-                      <div className="flex items-center mt-1">
-                        <TrendingUp className="h-3 w-3 text-warning-500 mr-1" />
-                        <span className="text-xs text-warning-600">
-                          Dif. FX
+                    <div className="flex flex-col gap-1">
+                      <Badge variant={estadoInfo.variant}>
+                        {estadoInfo.label}
+                      </Badge>
+                      {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
+                        <div className="flex items-center">
+                          <TrendingUp className="h-3 w-3 text-warning-500 mr-1" />
+                          <span className="text-xs text-warning-600">
+                            Dif. FX
+                          </span>
+                        </div>
+                      )}
+                      {orden.nombreAlmacenDestino && (
+                        <span className="inline-flex items-center gap-0.5 text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded w-fit">
+                          <MapPin className="h-2.5 w-2.5" />
+                          {orden.nombreAlmacenDestino}
                         </span>
-                      </div>
-                    )}
+                      )}
+                      {orden.courier && (
+                        <span className="text-[10px] text-gray-500">
+                          📦 {orden.courier}
+                        </span>
+                      )}
+                    </div>
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -551,10 +700,10 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
       </div>
 
       {/* Paginación */}
-      {ordenes.length > 0 && (
+      {ordenesBuscadas.length > 0 && (
         <Pagination
           currentPage={currentPage}
-          totalItems={ordenes.length}
+          totalItems={ordenesBuscadas.length}
           pageSize={itemsPerPage}
           onPageChange={setPage}
           onPageSizeChange={setItemsPerPage}

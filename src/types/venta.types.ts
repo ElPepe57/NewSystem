@@ -180,6 +180,9 @@ export interface ProductoVenta {
   marca: string;
   nombreComercial: string;
   presentacion: string;
+  contenido?: string;        // Ej: "60 cápsulas", "500g"
+  dosaje?: string;           // Ej: "150mg", "1000 UI"
+  sabor?: string;            // Ej: "Limón", "Fresa", "Natural"
 
   cantidad: number;
   precioUnitario: number;    // Precio de venta en PEN
@@ -222,6 +225,10 @@ export interface Venta {
     lng: number;
   };
   dniRuc?: string;
+
+  // Línea de negocio (desnormalizado del producto principal)
+  lineaNegocioId?: string;
+  lineaNegocioNombre?: string;
 
   // Canal
   canal: CanalVenta;
@@ -320,6 +327,11 @@ export interface Venta {
 
   // ML específico
   mercadoLibreId?: string;     // ID de la venta en ML
+  metodoEnvio?: 'flex' | 'urbano' | null; // Método de envío ML (Flex / Urbano)
+  mlOrderId?: number;          // ID numérico de la orden ML
+  packId?: number;             // Pack ID para multi-producto ML
+  subOrderIds?: number[];      // Sub-órdenes ML del pack
+  cargoEnvioML?: number;       // Cargo por envío ML al vendedor (Urbano)
 
   // Observaciones
   observaciones?: string;
@@ -462,12 +474,17 @@ export interface ProductoDisponible {
   marca: string;
   nombreComercial: string;
   presentacion: string;
+  contenido?: string;
+  dosaje?: string;
+  sabor?: string;
 
   unidadesDisponibles: number;   // Stock en Perú
   unidadesUSA: number;           // Stock en USA
   unidadesEnTransito: number;    // En tránsito USA → Perú
-  precioSugerido: number;
-  margenObjetivo: number;
+  /** @deprecated Always 0. Use investigacion.precioEntrada instead */
+  precioSugerido?: number;
+  /** @deprecated Always 0. Use category margenObjetivo instead */
+  margenObjetivo?: number;
 
   // Datos de investigación de mercado (si existe)
   investigacion?: {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Calculator,
   Package,
@@ -18,6 +18,7 @@ import {
   LoteOCTable
 } from '../../components/modules/ctru';
 import { useCTRUStore } from '../../store/ctruStore';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type { CTRUProductoDetalle } from '../../store/ctruStore';
 
 type TabActiva = 'resumen' | 'catalogo' | 'lote';
@@ -34,8 +35,16 @@ export const CTRUDashboard: React.FC = () => {
     fetchAll
   } = useCTRUStore();
 
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
   const [productoSeleccionado, setProductoSeleccionado] = useState<CTRUProductoDetalle | null>(null);
+
+  // Filtrar productos por línea de negocio global
+  const productosFiltrados = useMemo(() => {
+    if (!lineaFiltroGlobal) return productosDetalle;
+    return productosDetalle.filter(p => p.lineaNegocioId === lineaFiltroGlobal);
+  }, [productosDetalle, lineaFiltroGlobal]);
 
   useEffect(() => {
     fetchAll();
@@ -52,14 +61,14 @@ export const CTRUDashboard: React.FC = () => {
     );
   }
 
-  const tabs: Array<{ id: TabActiva; label: string; icon: React.ReactNode; badge?: number }> = [
+  const tabs: Array<{ id: TabActiva; label: string; labelShort?: string; icon: React.ReactNode; badge?: number }> = [
     { id: 'resumen', label: 'Resumen', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'catalogo', label: 'Catalogo de Costos', icon: <Package className="w-4 h-4" />, badge: productosDetalle.length },
-    { id: 'lote', label: 'Por Lote/OC', icon: <Truck className="w-4 h-4" />, badge: lotesOC.length }
+    { id: 'catalogo', label: 'Catalogo de Costos', labelShort: 'Costos', icon: <Package className="w-4 h-4" />, badge: productosFiltrados.length },
+    { id: 'lote', label: 'Por Lote/OC', labelShort: 'Lotes', icon: <Truck className="w-4 h-4" />, badge: lotesOC.length }
   ];
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0 overflow-x-hidden">
       {/* Header */}
       <GradientHeader
         title="CTRU - Costo Total Real por Unidad"
@@ -70,20 +79,21 @@ export const CTRUDashboard: React.FC = () => {
 
       {/* Toolbar */}
       <div className="sticky top-0 z-10 bg-white border-b shadow-sm px-3 sm:px-6 py-2 sm:py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-1">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide min-w-0 flex-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setTabActiva(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                   tabActiva === tab.id
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                {tab.icon}
-                {tab.label}
+                <span className="hidden sm:inline">{tab.icon}</span>
+                <span className="sm:hidden">{tab.labelShort || tab.label}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
                 {tab.badge !== undefined && tab.badge > 0 && (
                   <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                     tabActiva === tab.id ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-600'
@@ -95,7 +105,7 @@ export const CTRUDashboard: React.FC = () => {
             ))}
           </div>
           {resumen && (
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 hidden sm:block">
               {resumen.totalProductos} productos · {resumen.totalProductosActivos} en inventario · {resumen.totalUnidadesActivas + resumen.totalUnidadesVendidas} unidades
             </div>
           )}
@@ -103,7 +113,7 @@ export const CTRUDashboard: React.FC = () => {
       </div>
 
       {/* Alerts */}
-      <div className="max-w-7xl mx-auto px-6 pt-6 space-y-3">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 pt-4 sm:pt-6 space-y-3">
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0" />
@@ -113,7 +123,7 @@ export const CTRUDashboard: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 pb-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 pb-8 space-y-4 sm:space-y-6">
         {/* Empty state */}
         {resumen && resumen.totalProductos === 0 && tabActiva === 'resumen' && (
           <Card>
@@ -132,22 +142,22 @@ export const CTRUDashboard: React.FC = () => {
         {/* Tab: Resumen */}
         {tabActiva === 'resumen' && resumen && (
           <>
-            {/* KPIs */}
-            <CTRUKPIGrid resumen={resumen} />
+            {/* KPIs — 4 compact cards */}
+            <CTRUKPIGrid resumen={resumen} productosDetalle={productosFiltrados} />
 
             {resumen.totalProductos > 0 && (
               <>
-                {/* Charts row 1: Cost Evolution + Margin Erosion */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Cost Composition — horizontal stacked bar */}
+                <CostCompositionChart productos={productosFiltrados} />
+
+                {/* Charts row: Cost Evolution + Expense Trend */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <CostEvolutionChart historialMensual={historialMensual} />
-                  <MarginErosionChart historialMensual={historialMensual} />
+                  <ExpenseTrendChart historialGastos={historialGastos} />
                 </div>
 
-                {/* Full width: Cost Composition */}
-                <CostCompositionChart productos={productosDetalle} />
-
-                {/* Full width: Expense Trend */}
-                <ExpenseTrendChart historialGastos={historialGastos} />
+                {/* Financial Summary — replaces MarginErosionChart */}
+                <MarginErosionChart productosDetalle={productosFiltrados} />
               </>
             )}
           </>
@@ -156,7 +166,7 @@ export const CTRUDashboard: React.FC = () => {
         {/* Tab: Catalogo de Costos */}
         {tabActiva === 'catalogo' && (
           <ProductoCTRUTable
-            productos={productosDetalle}
+            productos={productosFiltrados}
             onSelectProducto={setProductoSeleccionado}
           />
         )}

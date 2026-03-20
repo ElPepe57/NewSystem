@@ -36,6 +36,9 @@ interface TipoProductoState {
   delete: (id: string) => Promise<void>;
   cambiarEstado: (id: string, estado: 'activo' | 'inactivo', userId: string) => Promise<void>;
 
+  // Filtrado por linea de negocio
+  getByLineaNegocio: (lineaNegocioId: string) => TipoProducto[];
+
   // Seleccion
   setTipoSeleccionado: (tipo: TipoProducto | null) => void;
   clearError: () => void;
@@ -204,6 +207,15 @@ export const useTipoProductoStore = create<TipoProductoState>((set, get) => ({
       set({ error: error.message, loading: false });
       throw error;
     }
+  },
+
+  // ============ FILTRADO POR LINEA DE NEGOCIO ============
+
+  getByLineaNegocio: (lineaNegocioId: string) => {
+    const { tiposActivos } = get();
+    return tiposActivos.filter(t =>
+      !t.lineaNegocioIds?.length || t.lineaNegocioIds.includes(lineaNegocioId)
+    );
   },
 
   // ============ SELECCION ============

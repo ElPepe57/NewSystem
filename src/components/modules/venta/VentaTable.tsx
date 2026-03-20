@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, PieChart, ChevronDown, ChevronUp, Package, DollarSign, Percent, Info, Truck } from 'lucide-react';
-import { Badge, Pagination, usePagination } from '../../common';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
+import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, PieChart, ChevronDown, ChevronUp, Package, DollarSign, Percent, Info, Truck, Zap } from 'lucide-react';
+import { Badge, Pagination, usePagination, LineaNegocioBadge } from '../../common';
 import type { Venta, EstadoVenta } from '../../../types/venta.types';
 import { useRentabilidadVentas, type RentabilidadVenta, type DatosRentabilidadGlobal } from '../../../hooks/useRentabilidadVentas';
 import { useCanalVentaStore } from '../../../store/canalVentaStore';
@@ -10,6 +11,7 @@ interface VentaTableProps {
   onView: (venta: Venta) => void;
   onDelete?: (venta: Venta) => void;
   onRegistrarAdelanto?: (venta: Venta) => void;
+  onDespachar?: (venta: Venta) => void;
   loading?: boolean;
   /** @deprecated - Ahora se usa distribución proporcional vía useRentabilidadVentas */
   cargaOperativaPorUnidad?: number;
@@ -267,27 +269,36 @@ const VentaCard: React.FC<{
   venta: Venta;
   onView: (venta: Venta) => void;
   onDelete?: (venta: Venta) => void;
-}> = ({ venta, onView, onDelete }) => {
+  onDespachar?: (venta: Venta) => void;
+}> = ({ venta, onView, onDelete, onDespachar }) => {
   const canales = useCanalVentaStore(s => s.canales);
   const getCanalLabel = (v: Venta) => resolveCanalLabel(v, canales);
   const estadoInfo = estadoLabels[venta.estado];
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate();
-    return date.toLocaleDateString('es-PE', { month: 'short', day: 'numeric' });
-  };
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-3 space-y-2" onClick={() => onView(venta)}>
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-mono text-xs text-primary-600 font-semibold">{venta.numeroVenta}</span>
             <Badge variant={estadoInfo.variant} size="sm">{estadoInfo.label}</Badge>
+            <LineaNegocioBadge lineaNegocioId={venta.lineaNegocioId} />
           </div>
           <div className="font-medium text-gray-900 text-sm truncate mt-1">{venta.nombreCliente}</div>
-          <div className="text-xs text-gray-500">{formatDate(venta.fechaCreacion)} - {getCanalLabel(venta)}</div>
+          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+            <span>{formatDate(venta.fechaCreacion)} - {getCanalLabel(venta)}</span>
+            {venta.metodoEnvio === 'flex' && (
+              <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700">
+                <Zap className="h-2.5 w-2.5" />Flex
+              </span>
+            )}
+            {venta.metodoEnvio === 'urbano' && (
+              <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">
+                <Truck className="h-2.5 w-2.5" />Urbano
+              </span>
+            )}
+          </div>
         </div>
         <div className="text-right">
           <div className="font-bold text-gray-900">S/ {venta.totalPEN.toFixed(2)}</div>
@@ -299,9 +310,48 @@ const VentaCard: React.FC<{
           )}
         </div>
       </div>
+      {/* Product details */}
+      <div className="space-y-1">
+        {venta.productos.slice(0, 2).map((p, idx) => {
+          const chips: string[] = [];
+          if (p.presentacion) chips.push(p.presentacion);
+          if (p.contenido) chips.push(p.contenido);
+          if (p.dosaje) chips.push(p.dosaje);
+          if (p.sabor) chips.push(p.sabor);
+
+          return (
+            <div key={idx} className="text-xs leading-tight">
+              <div className="font-medium text-gray-700 truncate">{p.marca} {p.nombreComercial}</div>
+              <div className="flex items-center flex-wrap gap-x-1 gap-y-0.5 text-[10px] text-gray-500 mt-0.5">
+                <span className="font-mono text-gray-400">{p.sku}</span>
+                {chips.length > 0 && (
+                  <>
+                    <span className="text-gray-300">·</span>
+                    <span>{chips.join(' · ')}</span>
+                  </>
+                )}
+                <span className="text-gray-300">·</span>
+                <span className="font-medium text-gray-600">{p.cantidad}u × S/{p.precioUnitario.toFixed(2)}</span>
+              </div>
+            </div>
+          );
+        })}
+        {venta.productos.length > 2 && (
+          <div className="text-[10px] text-gray-400">+{venta.productos.length - 2} más</div>
+        )}
+      </div>
       <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
         <span>{venta.productos.length} producto{venta.productos.length !== 1 ? 's' : ''}</span>
         <div className="flex items-center gap-2">
+          {venta.estado === 'en_entrega' && onDespachar && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDespachar(venta); }}
+              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Truck className="h-3 w-3" />
+              Despachar
+            </button>
+          )}
           <button onClick={(e) => { e.stopPropagation(); onView(venta); }} className="p-1.5 text-primary-600 hover:bg-primary-50 rounded">
             <Eye className="h-4 w-4" />
           </button>
@@ -321,6 +371,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
   onView,
   onDelete,
   onRegistrarAdelanto,
+  onDespachar,
   loading = false
 }) => {
   // Canales de venta (para resolver IDs → nombres)
@@ -382,15 +433,6 @@ export const VentaTable: React.FC<VentaTableProps> = ({
     );
   }
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate();
-    return date.toLocaleDateString('es-PE', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
 
   return (
     <>
@@ -402,6 +444,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
             venta={venta}
             onView={onView}
             onDelete={onDelete}
+            onDespachar={onDespachar}
           />
         ))}
         {ventas.length > 0 && (
@@ -461,11 +504,10 @@ export const VentaTable: React.FC<VentaTableProps> = ({
         <tbody className="bg-white divide-y divide-gray-200">
           {ventasPaginadas.map((venta) => {
             const estadoInfo = estadoLabels[venta.estado];
-            const margenBrutoPositivo = venta.margenPromedio !== undefined && venta.margenPromedio > 0;
-
             // Obtener rentabilidad con distribución proporcional
             const rentabilidad = getRentabilidadVenta(venta.id);
             const tieneRentabilidad = rentabilidad !== null;
+            const margenBrutoPositivo = tieneRentabilidad ? rentabilidad.margenBruto > 0 : (venta.margenPromedio !== undefined && venta.margenPromedio > 0);
             const margenNetoPositivo = tieneRentabilidad && rentabilidad.margenNeto > 0;
             const isExpanded = expandedRows.has(venta.id);
 
@@ -498,6 +540,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                       {venta.numeroVenta}
                     </span>
                   </div>
+                  <LineaNegocioBadge lineaNegocioId={venta.lineaNegocioId} />
                 </td>
                 
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -508,18 +551,59 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 </td>
                 
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge variant="info" size="sm">
-                    {getCanalLabel(venta)}
-                  </Badge>
+                  <div className="flex flex-col gap-1">
+                    <Badge variant="info" size="sm">
+                      {getCanalLabel(venta)}
+                    </Badge>
+                    {venta.metodoEnvio === 'flex' && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 w-fit">
+                        <Zap className="h-3 w-3" />
+                        Flex
+                      </span>
+                    )}
+                    {venta.metodoEnvio === 'urbano' && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700 w-fit">
+                        <Truck className="h-3 w-3" />
+                        Urbano
+                      </span>
+                    )}
+                  </div>
                 </td>
                 
                 <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">
-                    {venta.productos.length} {venta.productos.length === 1 ? 'producto' : 'productos'}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {venta.productos.slice(0, 2).map(p => p.marca).join(', ')}
-                    {venta.productos.length > 2 && '...'}
+                  <div className="space-y-1.5 max-w-[340px]">
+                    {venta.productos.slice(0, 3).map((p, idx) => {
+                      // Build description chips: presentacion, contenido, dosaje, sabor
+                      const chips: string[] = [];
+                      if (p.presentacion) chips.push(p.presentacion);
+                      if (p.contenido) chips.push(p.contenido);
+                      if (p.dosaje) chips.push(p.dosaje);
+                      if (p.sabor) chips.push(p.sabor);
+
+                      return (
+                        <div key={idx} className="text-xs leading-tight">
+                          <div className="font-semibold text-gray-900 truncate" title={`${p.marca} ${p.nombreComercial}`}>
+                            {p.marca} {p.nombreComercial}
+                          </div>
+                          <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-[10px] text-gray-500 mt-0.5">
+                            <span className="font-mono text-gray-400">{p.sku}</span>
+                            {chips.length > 0 && (
+                              <>
+                                <span className="text-gray-300">·</span>
+                                <span>{chips.join(' · ')}</span>
+                              </>
+                            )}
+                            <span className="text-gray-300">·</span>
+                            <span className="font-medium text-gray-600">{p.cantidad}u × S/{p.precioUnitario.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {venta.productos.length > 3 && (
+                      <div className="text-[10px] text-gray-400">
+                        +{venta.productos.length - 3} producto{venta.productos.length - 3 > 1 ? 's' : ''} más
+                      </div>
+                    )}
                   </div>
                 </td>
                 
@@ -535,7 +619,27 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 </td>
                 
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {venta.margenPromedio !== undefined ? (
+                  {tieneRentabilidad ? (
+                    <div>
+                      <div className="flex items-center">
+                        {margenBrutoPositivo ? (
+                          <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
+                        ) : (
+                          <TrendingDown className="h-4 w-4 text-danger-500 mr-1" />
+                        )}
+                        <span className={`text-sm font-medium ${
+                          margenBrutoPositivo ? 'text-success-600' : 'text-danger-600'
+                        }`}>
+                          {rentabilidad.margenBruto.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className={`text-xs ${rentabilidad.utilidadBruta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                        Bruto: S/ {rentabilidad.utilidadBruta.toFixed(2)}
+                      </div>
+                    </div>
+                  ) : loadingRentabilidad ? (
+                    <span className="text-sm text-gray-400">...</span>
+                  ) : venta.margenPromedio !== undefined ? (
                     <div className="flex items-center">
                       {margenBrutoPositivo ? (
                         <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
@@ -619,6 +723,18 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                     >
                       <Eye className="h-4 w-4" />
                     </button>
+
+                    {/* Botón de despachar - solo ventas en_entrega */}
+                    {venta.estado === 'en_entrega' && onDespachar && (
+                      <button
+                        onClick={() => onDespachar(venta)}
+                        className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors"
+                        title="Despachar — marcar En Camino"
+                      >
+                        <Truck className="h-3 w-3" />
+                        Despachar
+                      </button>
+                    )}
 
                     {/* Botón de registrar adelanto - solo cotizaciones */}
                     {venta.estado === 'cotizacion' && onRegistrarAdelanto && (

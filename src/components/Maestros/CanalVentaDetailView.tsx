@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import {
   ShoppingBag, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
   BarChart3, RefreshCw, Users, Star, X, Activity, Target, Zap,
@@ -66,13 +67,6 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
     }).format(value);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).format(date);
-  };
 
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 

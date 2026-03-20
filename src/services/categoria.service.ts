@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Categoria,
   CategoriaFormData,
@@ -52,26 +53,7 @@ const generarSlug = (texto: string): string => {
  * Formato: CAT-001, CAT-002, etc.
  */
 async function generarCodigo(): Promise<string> {
-  const prefix = 'CAT';
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith(prefix)) {
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber('CAT', 3);
 }
 
 /**
@@ -154,6 +136,17 @@ export const categoriaService = {
   },
 
   /**
+   * Obtener categorias filtradas por linea de negocio
+   * Retorna categorias que no tienen lineaNegocioIds (globales) o que incluyen esta linea
+   */
+  async getByLineaNegocio(lineaNegocioId: string): Promise<Categoria[]> {
+    const todas = await this.getActivas();
+    return todas.filter(c =>
+      !c.lineaNegocioIds?.length || c.lineaNegocioIds.includes(lineaNegocioId)
+    );
+  },
+
+  /**
    * Obtener una categoria por ID
    */
   async getById(id: string): Promise<Categoria | null> {
@@ -223,6 +216,10 @@ export const categoriaService = {
         color: data.color || '#6B7280',
         imagenUrl: data.imagenUrl || '',
         imagenBannerUrl: data.imagenBannerUrl || '',
+        ...(data.lineaNegocioIds?.length ? { lineaNegocioIds: data.lineaNegocioIds } : {}),
+        ...(data.margenMinimo !== undefined ? { margenMinimo: data.margenMinimo } : {}),
+        ...(data.margenObjetivo !== undefined ? { margenObjetivo: data.margenObjetivo } : {}),
+        ...(data.margenMaximo !== undefined ? { margenMaximo: data.margenMaximo } : {}),
         estado: 'activa',
         mostrarEnWeb: data.mostrarEnWeb ?? true,
         mostrarEnApp: data.mostrarEnApp ?? true,
@@ -293,6 +290,10 @@ export const categoriaService = {
       if (data.imagenBannerUrl !== undefined) updateData.imagenBannerUrl = data.imagenBannerUrl;
       if (data.mostrarEnWeb !== undefined) updateData.mostrarEnWeb = data.mostrarEnWeb;
       if (data.mostrarEnApp !== undefined) updateData.mostrarEnApp = data.mostrarEnApp;
+      if (data.lineaNegocioIds !== undefined) updateData.lineaNegocioIds = data.lineaNegocioIds;
+      if (data.margenMinimo !== undefined) updateData.margenMinimo = data.margenMinimo;
+      if (data.margenObjetivo !== undefined) updateData.margenObjetivo = data.margenObjetivo;
+      if (data.margenMaximo !== undefined) updateData.margenMaximo = data.margenMaximo;
 
       await updateDoc(docRef, updateData);
     } catch (error: any) {
@@ -377,7 +378,10 @@ export const categoriaService = {
       categoriaPadreId: categoria.categoriaPadreId,
       categoriaPadreNombre: categoria.categoriaPadreNombre,
       icono: categoria.icono,
-      color: categoria.color
+      color: categoria.color,
+      ...(categoria.margenMinimo !== undefined ? { margenMinimo: categoria.margenMinimo } : {}),
+      ...(categoria.margenObjetivo !== undefined ? { margenObjetivo: categoria.margenObjetivo } : {}),
+      ...(categoria.margenMaximo !== undefined ? { margenMaximo: categoria.margenMaximo } : {})
     };
   },
 
@@ -577,7 +581,10 @@ export const categoriaService = {
         categoriaPadreId: categoria.categoriaPadreId,
         categoriaPadreNombre: categoria.categoriaPadreNombre,
         icono: categoria.icono,
-        color: categoria.color
+        color: categoria.color,
+        ...(categoria.margenMinimo !== undefined ? { margenMinimo: categoria.margenMinimo } : {}),
+        ...(categoria.margenObjetivo !== undefined ? { margenObjetivo: categoria.margenObjetivo } : {}),
+        ...(categoria.margenMaximo !== undefined ? { margenMaximo: categoria.margenMaximo } : {})
       };
 
       // Buscar productos que tengan esta categoria

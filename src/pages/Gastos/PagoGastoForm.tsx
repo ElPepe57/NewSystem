@@ -170,22 +170,22 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-          <div className="flex items-center gap-3">
-            <CreditCard className="h-6 w-6 text-green-600" />
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Registrar Pago de Gasto</h2>
-              <p className="text-sm text-gray-600 mt-0.5">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 flex-shrink-0" />
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-xl font-bold text-gray-900">Registrar Pago</h2>
+              <p className="text-xs sm:text-sm text-gray-600 mt-0.5 truncate">
                 {gasto.numeroGasto} - {gasto.descripcion}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X className="h-6 w-6" />
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+            <X className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Resumen del Gasto */}
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
             <h3 className="text-sm font-semibold text-amber-800 mb-2">Gasto a Pagar</h3>
@@ -256,21 +256,22 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
           {/* Moneda de Pago */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Moneda de Pago *</label>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setMonedaPago('PEN');
                   setMontoPago(pendientePEN);
                 }}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                   monedaPago === 'PEN'
                     ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
                     : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                <Banknote className="h-5 w-5" />
-                S/ Soles (PEN)
+                <Banknote className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="sm:hidden">S/ PEN</span>
+                <span className="hidden sm:inline">S/ Soles (PEN)</span>
               </button>
               <button
                 type="button"
@@ -278,14 +279,15 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
                   setMonedaPago('USD');
                   setMontoPago(pendientePEN / tipoCambio);
                 }}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                   monedaPago === 'USD'
                     ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-200'
                     : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                <DollarSign className="h-5 w-5" />
-                $ Dólares (USD)
+                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="sm:hidden">$ USD</span>
+                <span className="hidden sm:inline">$ Dólares (USD)</span>
               </button>
             </div>
           </div>
@@ -360,11 +362,11 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
 
           {/* Método de Pago */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
-            <div className="grid grid-cols-3 gap-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
               {[
                 { value: 'efectivo', label: 'Efectivo', icon: '💵' },
-                { value: 'transferencia_bancaria', label: 'Transferencia', icon: '🏦' },
+                { value: 'transferencia_bancaria', label: 'Transfer.', icon: '🏦' },
                 { value: 'yape', label: 'Yape', icon: '📱' },
                 { value: 'plin', label: 'Plin', icon: '📲' },
                 { value: 'tarjeta_credito', label: 'T. Crédito', icon: '💳' },
@@ -374,13 +376,13 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
                   key={metodo.value}
                   type="button"
                   onClick={() => setMetodoPago(metodo.value as MetodoTesoreria)}
-                  className={`py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                  className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all ${
                     metodoPago === metodo.value
                       ? 'border-green-500 bg-green-50 text-green-700'
                       : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                   }`}
                 >
-                  <span className="mr-1">{metodo.icon}</span>
+                  <span className="mr-0.5 sm:mr-1">{metodo.icon}</span>
                   {metodo.label}
                 </button>
               ))}

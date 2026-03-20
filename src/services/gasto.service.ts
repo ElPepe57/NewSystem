@@ -28,6 +28,7 @@ import { tesoreriaService } from './tesoreria.service';
 import type { MetodoTesoreria, MonedaTesoreria } from '../types/tesoreria.types';
 import { actividadService } from './actividad.service';
 import { COLLECTIONS } from '../config/collections';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 
 const GASTOS_COLLECTION = COLLECTIONS.GASTOS;
 
@@ -87,6 +88,12 @@ export const gastoService = {
       if (data.estado === 'pagado') gasto.fechaPago = Timestamp.now();
       if (data.numeroComprobante) gasto.numeroComprobante = data.numeroComprobante;
       if (data.notas) gasto.notas = data.notas;
+      if (data.lineaNegocioId !== undefined) {
+        gasto.lineaNegocioId = data.lineaNegocioId;
+      }
+      if (data.lineaNegocioNombre !== undefined) {
+        gasto.lineaNegocioNombre = data.lineaNegocioNombre;
+      }
 
       const docRef = await addDoc(collection(db, GASTOS_COLLECTION), gasto);
 
@@ -172,32 +179,12 @@ export const gastoService = {
   },
 
   /**
-   * Generar número de gasto correlativo (busca el máximo para evitar duplicados)
+   * Generar número de gasto usando contador atómico.
+   * Formato: GAS-NNNN (ej: GAS-0043)
+   * Usa runTransaction para evitar duplicados en acceso concurrente.
    */
   async generateNumeroGasto(): Promise<string> {
-    const snapshot = await getDocs(collection(db, GASTOS_COLLECTION));
-
-    if (snapshot.empty) {
-      return 'GAS-0001';
-    }
-
-    // Buscar el número máximo existente
-    let maxNumber = 0;
-    snapshot.docs.forEach(docSnap => {
-      const data = docSnap.data() as Gasto;
-      const numero = data.numeroGasto;
-
-      // Extraer el número del formato GAS-NNNN
-      const match = numero?.match(/GAS-(\d+)/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    });
-
-    return `GAS-${(maxNumber + 1).toString().padStart(4, '0')}`;
+    return getNextSequenceNumber('GAS', 4);
   },
 
   /**
@@ -1004,6 +991,19 @@ export const gastoService = {
     descripcionExtra?: string;
   }, userId: string): Promise<string> {
     try {
+      // Idempotency check: si ya existe un gasto GD para esta entrega, retornar su ID
+      const existingQ = query(
+        collection(db, GASTOS_COLLECTION),
+        where('entregaId', '==', data.entregaId),
+        where('tipo', '==', 'delivery')
+      );
+      const existingSnap = await getDocs(existingQ);
+      if (!existingSnap.empty) {
+        const existingId = existingSnap.docs[0].id;
+        console.warn(`[Gasto GD] Ya existe gasto para entrega ${data.entregaCodigo}: ${existingId} — omitiendo duplicado`);
+        return existingId;
+      }
+
       const numeroGasto = await this.generateNumeroGasto();
       const ahora = new Date();
 

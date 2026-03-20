@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import {
   TrendingUp,
   TrendingDown,
@@ -18,11 +19,13 @@ import { Card } from '../../components/common';
 import { ExpectativaService } from '../../services/expectativa.service';
 import { VentaService } from '../../services/venta.service';
 import { OrdenCompraService } from '../../services/ordenCompra.service';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type { ComparacionVenta, ComparacionCompra, ExpectativaStats } from '../../types/expectativa.types';
 
 type TabActiva = 'ventas' | 'compras';
 
 export const Expectativas: React.FC = () => {
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
   const [loading, setLoading] = useState(true);
   const [tabActiva, setTabActiva] = useState<TabActiva>('ventas');
   const [comparacionesVentas, setComparacionesVentas] = useState<ComparacionVenta[]>([]);
@@ -33,7 +36,7 @@ export const Expectativas: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [mesSeleccionado, anioSeleccionado]);
+  }, [mesSeleccionado, anioSeleccionado, lineaFiltroGlobal]);
 
   const loadData = async () => {
     setLoading(true);
@@ -48,6 +51,7 @@ export const Expectativas: React.FC = () => {
 
       // Filtrar ventas del período con expectativa
       const ventasPeriodo = ventas.filter(v => {
+        if (lineaFiltroGlobal && v.lineaNegocioId && v.lineaNegocioId !== lineaFiltroGlobal) return false;
         const fecha = v.fechaCreacion?.toDate?.() || new Date(v.fechaCreacion as unknown as string);
         return (
           fecha.getMonth() + 1 === mesSeleccionado &&
@@ -66,6 +70,7 @@ export const Expectativas: React.FC = () => {
 
       // Filtrar OCs del período con expectativa de requerimiento
       const ocsPeriodo = ordenes.filter(o => {
+        if (lineaFiltroGlobal && o.lineaNegocioId && o.lineaNegocioId !== lineaFiltroGlobal) return false;
         const fecha = o.fechaCreacion?.toDate?.() || new Date(o.fechaCreacion as unknown as string);
         return (
           fecha.getMonth() + 1 === mesSeleccionado &&
@@ -94,27 +99,18 @@ export const Expectativas: React.FC = () => {
     })}`;
   };
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Expectativa vs Realidad</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Expectativa vs Realidad</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base hidden sm:block">
             Análisis de cumplimiento financiero - Ventas y Compras
           </p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-2 sm:space-x-3">
           <select
             value={mesSeleccionado}
             onChange={(e) => setMesSeleccionado(parseInt(e.target.value))}
@@ -229,10 +225,10 @@ export const Expectativas: React.FC = () => {
 
           {/* Tabs: Ventas / Compras */}
           <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex space-x-4 sm:space-x-8">
               <button
                 onClick={() => setTabActiva('ventas')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
                   tabActiva === 'ventas'
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -243,7 +239,7 @@ export const Expectativas: React.FC = () => {
               </button>
               <button
                 onClick={() => setTabActiva('compras')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
                   tabActiva === 'compras'
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'

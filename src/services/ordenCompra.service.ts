@@ -13,6 +13,7 @@ import {
   serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import type {
@@ -250,15 +251,20 @@ export class OrdenCompraService {
       const productosOrden: ProductoOrden[] = [];
       let subtotalUSD = 0;
       
+      // Track lineaNegocioId from products for auto-inheritance
+      const lineaNegocioIds: string[] = [];
+      const lineaNegocioNombres: Record<string, string> = {};
+      const paisesOrigen: string[] = [];
+
       for (const prod of data.productos) {
         const producto = await ProductoService.getById(prod.productoId);
         if (!producto) {
           throw new Error(`Producto ${prod.productoId} no encontrado`);
         }
-        
+
         const subtotal = prod.cantidad * prod.costoUnitario;
         subtotalUSD += subtotal;
-        
+
         productosOrden.push({
           productoId: prod.productoId,
           sku: producto.sku,
@@ -269,13 +275,49 @@ export class OrdenCompraService {
           costoUnitario: prod.costoUnitario,
           subtotal
         });
+
+        // Collect lineaNegocioId and paisOrigen from each product
+        if (producto.lineaNegocioId) {
+          lineaNegocioIds.push(producto.lineaNegocioId);
+          if (producto.lineaNegocioNombre) {
+            lineaNegocioNombres[producto.lineaNegocioId] = producto.lineaNegocioNombre;
+          }
+        }
+        if (producto.paisOrigen) {
+          paisesOrigen.push(producto.paisOrigen);
+        }
+      }
+
+      // Derive lineaNegocioId: if all same use that, otherwise most frequent
+      let derivedLineaNegocioId: string | undefined;
+      let derivedLineaNegocioNombre: string | undefined;
+      if (lineaNegocioIds.length > 0) {
+        const freq: Record<string, number> = {};
+        for (const id of lineaNegocioIds) {
+          freq[id] = (freq[id] || 0) + 1;
+        }
+        derivedLineaNegocioId = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+        derivedLineaNegocioNombre = lineaNegocioNombres[derivedLineaNegocioId];
+      }
+
+      // Derive paisOrigen: from products first, fallback to proveedor.pais
+      let derivedPaisOrigen: string | undefined;
+      if (paisesOrigen.length > 0) {
+        const freq: Record<string, number> = {};
+        for (const p of paisesOrigen) {
+          freq[p] = (freq[p] || 0) + 1;
+        }
+        derivedPaisOrigen = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+      } else if (proveedor.pais) {
+        derivedPaisOrigen = proveedor.pais;
       }
       
       // Calcular total
       const impuesto = data.impuestoUSD || 0;
       const gastosEnvio = data.gastosEnvioUSD || 0;
       const otrosGastos = data.otrosGastosUSD || 0;
-      const totalUSD = subtotalUSD + impuesto + gastosEnvio + otrosGastos;
+      const descuento = data.descuentoUSD || 0;
+      const totalUSD = subtotalUSD + impuesto + gastosEnvio + otrosGastos - descuento;
       
       // Generar número de orden
       const numeroOrden = await this.generateNumeroOrden();
@@ -298,6 +340,7 @@ export class OrdenCompraService {
       if (impuesto > 0) nuevaOrden.impuestoUSD = impuesto;
       if (gastosEnvio > 0) nuevaOrden.gastosEnvioUSD = gastosEnvio;
       if (otrosGastos > 0) nuevaOrden.otrosGastosUSD = otrosGastos;
+      if (descuento > 0) nuevaOrden.descuentoUSD = descuento;
       if (data.tcCompra) nuevaOrden.tcCompra = data.tcCompra;
       if (data.almacenDestino) {
         nuevaOrden.almacenDestino = data.almacenDestino;
@@ -308,6 +351,18 @@ export class OrdenCompraService {
         }
       }
       if (data.observaciones) nuevaOrden.observaciones = data.observaciones;
+
+      // Línea de negocio y país de origen (auto-heredados de productos)
+      // Prefer explicit form values (if ever passed), fallback to derived
+      const finalLineaNegocioId = data.lineaNegocioId || derivedLineaNegocioId;
+      const finalLineaNegocioNombre = data.lineaNegocioNombre || derivedLineaNegocioNombre;
+      const finalPaisOrigen = data.paisOrigen || derivedPaisOrigen;
+      if (finalLineaNegocioId) {
+        nuevaOrden.lineaNegocioId = finalLineaNegocioId;
+        if (finalLineaNegocioNombre) nuevaOrden.lineaNegocioNombre = finalLineaNegocioNombre;
+      }
+      if (finalPaisOrigen) nuevaOrden.paisOrigen = finalPaisOrigen;
+
       if (data.requerimientoId) nuevaOrden.requerimientoId = data.requerimientoId;
 
       // Soporte multi-requerimiento (OC consolidada)
@@ -341,10 +396,29 @@ export class OrdenCompraService {
         ? data.requerimientoIds
         : data.requerimientoId ? [data.requerimientoId] : [];
 
+      // Use partial vinculo when productosOrigen is available (OC Builder flow)
+      const hasProductosOrigen = data.productosOrigen && data.productosOrigen.length > 0;
+
       for (const reqId of reqIdsToLink) {
         try {
           const req = await ExpectativaService.getRequerimientoById(reqId);
-          await ExpectativaService.vincularConOC(reqId, docRef.id, numeroOrden, userId);
+
+          if (hasProductosOrigen) {
+            // Partial-aware linking: update product-level tracking
+            const productosParaReq = data.productosOrigen!
+              .filter(o => o.requerimientoId === reqId)
+              .map(o => ({ productoId: o.productoId, cantidad: o.cantidad }));
+
+            if (productosParaReq.length > 0) {
+              await ExpectativaService.vincularConOCParcial(
+                reqId, docRef.id, numeroOrden, productosParaReq, userId
+              );
+            }
+          } else {
+            // Legacy: mark entire req as en_proceso
+            await ExpectativaService.vincularConOC(reqId, docRef.id, numeroOrden, userId);
+          }
+
           // Llenar números para multi-req
           if (data.requerimientoIds?.length) {
             nuevaOrden.requerimientoNumeros.push(req?.numeroRequerimiento || '');
@@ -431,7 +505,8 @@ export class OrdenCompraService {
         const impuestoUSD = data.impuestoUSD !== undefined ? data.impuestoUSD : (orden.impuestoUSD || 0);
         const gastosEnvio = data.gastosEnvioUSD !== undefined ? data.gastosEnvioUSD : (orden.gastosEnvioUSD || 0);
         const otrosGastos = data.otrosGastosUSD !== undefined ? data.otrosGastosUSD : (orden.otrosGastosUSD || 0);
-        updates.totalUSD = subtotalUSD + impuestoUSD + gastosEnvio + otrosGastos;
+        const descuentoOC = data.descuentoUSD !== undefined ? data.descuentoUSD : (orden.descuentoUSD || 0);
+        updates.totalUSD = subtotalUSD + impuestoUSD + gastosEnvio + otrosGastos - descuentoOC;
       }
 
       // Actualizar proveedor si cambió
@@ -459,6 +534,39 @@ export class OrdenCompraService {
       if (data.numeroTracking !== undefined) updates.numeroTracking = data.numeroTracking;
       if (data.courier !== undefined) updates.courier = data.courier;
       if (data.observaciones !== undefined) updates.observaciones = data.observaciones;
+
+      // Re-derive lineaNegocioId and paisOrigen if products changed
+      if (data.productos) {
+        const lineaIds: string[] = [];
+        const lineaNombres: Record<string, string> = {};
+        const paises: string[] = [];
+        for (const prod of data.productos) {
+          const producto = await ProductoService.getById(prod.productoId);
+          if (producto) {
+            if (producto.lineaNegocioId) {
+              lineaIds.push(producto.lineaNegocioId);
+              if (producto.lineaNegocioNombre) lineaNombres[producto.lineaNegocioId] = producto.lineaNegocioNombre;
+            }
+            if (producto.paisOrigen) paises.push(producto.paisOrigen);
+          }
+        }
+        if (lineaIds.length > 0) {
+          const freq: Record<string, number> = {};
+          for (const id of lineaIds) freq[id] = (freq[id] || 0) + 1;
+          const topId = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+          updates.lineaNegocioId = topId;
+          if (lineaNombres[topId]) updates.lineaNegocioNombre = lineaNombres[topId];
+        }
+        if (paises.length > 0) {
+          const freq: Record<string, number> = {};
+          for (const p of paises) freq[p] = (freq[p] || 0) + 1;
+          updates.paisOrigen = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+        }
+      }
+      // Also accept explicit values from form data
+      if (data.lineaNegocioId !== undefined) updates.lineaNegocioId = data.lineaNegocioId;
+      if (data.lineaNegocioNombre !== undefined) updates.lineaNegocioNombre = data.lineaNegocioNombre;
+      if (data.paisOrigen !== undefined) updates.paisOrigen = data.paisOrigen;
 
       // Recalcular totalPEN si cambió tcCompra
       if (data.tcCompra !== undefined || updates.totalUSD !== undefined) {
@@ -786,13 +894,22 @@ export class OrdenCompraService {
       }
 
       // Calcular prorrateo de costos sobre el total COMPLETO de la OC
+      // - Impuesto: UNIFORME por unidad (específico)
+      // - Envío, Otros, Descuento: PROPORCIONAL al costo base del producto
       const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
-      const impuestoTotal = orden.impuestoUSD || 0;
-      const gastosEnvioTotal = orden.gastosEnvioUSD || 0;
-      const otrosGastosTotal = orden.otrosGastosUSD || 0;
-      const costosAdicionalesTotal = impuestoTotal + gastosEnvioTotal + otrosGastosTotal;
+      const costoBaseTotal = orden.productos.reduce((sum, p) => sum + (p.costoUnitario * p.cantidad), 0);
+      const impuestoPorUnidad = totalUnidadesOrden > 0 ? (orden.impuestoUSD || 0) / totalUnidadesOrden : 0;
+      const costosProrrateo = (orden.gastosEnvioUSD || 0) + (orden.otrosGastosUSD || 0) - (orden.descuentoUSD || 0);
+
+      const getCostoAdicional = (costoUnitario: number): number => {
+        const proporcional = costoBaseTotal > 0
+          ? costosProrrateo * (costoUnitario / costoBaseTotal)
+          : 0;
+        return impuestoPorUnidad + proporcional;
+      };
+      // Promedio para metadata de recepción (backward compat)
       const costoAdicionalPorUnidad = totalUnidadesOrden > 0
-        ? costosAdicionalesTotal / totalUnidadesOrden
+        ? ((orden.impuestoUSD || 0) + costosProrrateo) / totalUnidadesOrden
         : 0;
 
       // Contar unidades ya reservadas en recepciones previas por producto
@@ -833,7 +950,7 @@ export class OrdenCompraService {
           throw new Error(`Producto ${pr.productoId} no encontrado`);
         }
 
-        const costoUnitarioReal = productoOC.costoUnitario + costoAdicionalPorUnidad;
+        const costoUnitarioReal = productoOC.costoUnitario + getCostoAdicional(productoOC.costoUnitario);
 
         // Lógica de reserva: descontar lo ya reservado en entregas previas
         const reservations = reservationMap.get(pr.productoId) || [];
@@ -979,7 +1096,7 @@ export class OrdenCompraService {
       // Actualizar contadores del almacén
       const valorRecepcionUSD = productosValidos.reduce((sum, pr) => {
         const productoOC = orden.productos.find(p => p.productoId === pr.productoId)!;
-        return sum + (pr.cantidadRecibida * (productoOC.costoUnitario + costoAdicionalPorUnidad));
+        return sum + (pr.cantidadRecibida * (productoOC.costoUnitario + getCostoAdicional(productoOC.costoUnitario)));
       }, 0);
 
       await almacenService.incrementarUnidadesRecibidas(orden.almacenDestino, totalUnidadesRecepcion);
@@ -988,6 +1105,19 @@ export class OrdenCompraService {
       // Sincronizar stock de productos afectados
       const productosAfectados = productosValidos.map(pr => pr.productoId);
       await inventarioService.sincronizarStockProductos_batch(productosAfectados);
+
+      // Push stock actualizado hacia ML (fire-and-forget)
+      // GAP identificado: sin esto, ML no se entera de nuevo stock por recepción de OC
+      try {
+        const { mercadoLibreService } = await import('./mercadoLibre.service');
+        for (const pid of productosAfectados) {
+          mercadoLibreService.syncStock(pid).catch(e =>
+            console.warn(`ML sync failed for ${pid} after OC reception:`, e.message)
+          );
+        }
+      } catch {
+        // mercadoLibreService import puede fallar si ML no está configurado — no bloquear OC
+      }
 
       // Acumular unidades generadas globales
       const todasUnidadesGeneradas = [...(orden.unidadesGeneradas || []), ...unidadesGeneradas];
@@ -1094,7 +1224,8 @@ export class OrdenCompraService {
 
   /**
    * Eliminar orden (solo si no ha generado inventario)
-   * Permite eliminar borradores, enviadas y en tránsito que no tengan recepciones
+   * Permite eliminar borradores, enviadas y en tránsito que no tengan recepciones.
+   * Revierte el tracking parcial en los requerimientos vinculados.
    */
   static async delete(id: string): Promise<void> {
     try {
@@ -1116,6 +1247,17 @@ export class OrdenCompraService {
       const estadosPermitidos: EstadoOrden[] = ['borrador', 'enviada', 'en_transito', 'cancelada'];
       if (!estadosPermitidos.includes(orden.estado)) {
         throw new Error(`No se puede eliminar una orden en estado "${orden.estado}"`);
+      }
+
+      // Revertir tracking en requerimientos vinculados antes de eliminar
+      try {
+        const expectativaService = (await import('./expectativa.service')).ExpectativaService;
+        await expectativaService.desvincularOCDeRequerimientos(
+          id,
+          orden.numeroOrden || ''
+        );
+      } catch (e) {
+        console.warn('Error al desvincular OC de requerimientos (no-blocking):', e);
       }
 
       await deleteDoc(doc(db, ORDENES_COLLECTION, id));
@@ -1177,34 +1319,8 @@ export class OrdenCompraService {
    * Generar número de orden (busca el máximo para evitar duplicados)
    */
   private static async generateNumeroOrden(): Promise<string> {
-    try {
-      const year = new Date().getFullYear();
-      const snapshot = await getDocs(collection(db, ORDENES_COLLECTION));
-
-      if (snapshot.empty) {
-        return `OC-${year}-001`;
-      }
-
-      // Buscar el número máximo existente
-      let maxNumber = 0;
-      snapshot.docs.forEach(docSnap => {
-        const data = docSnap.data() as OrdenCompra;
-        const numero = data.numeroOrden;
-
-        // Extraer el número del formato OC-YYYY-NNN
-        const match = numero?.match(/OC-\d{4}-(\d+)/);
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (num > maxNumber) {
-            maxNumber = num;
-          }
-        }
-      });
-
-      return `OC-${year}-${(maxNumber + 1).toString().padStart(3, '0')}`;
-    } catch (error) {
-      return `OC-${new Date().getFullYear()}-001`;
-    }
+    const year = new Date().getFullYear();
+    return getNextSequenceNumber(`OC-${year}`, 3);
   }
 
   // ========================================
@@ -1249,14 +1365,19 @@ export class OrdenCompraService {
       }
 
       // 2. Calcular valor total a restar del almacén
+      // Impuesto: uniforme | Envío, Otros, Descuento: proporcional al costo
       const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
-      const costosAdicionales = (orden.impuestoUSD || 0) + (orden.gastosEnvioUSD || 0) + (orden.otrosGastosUSD || 0);
-      const costoAdicionalPorUnidad = totalUnidadesOrden > 0 ? costosAdicionales / totalUnidadesOrden : 0;
+      const costoBaseTotal = orden.productos.reduce((sum, p) => sum + (p.costoUnitario * p.cantidad), 0);
+      const impuestoPorUnidad = totalUnidadesOrden > 0 ? (orden.impuestoUSD || 0) / totalUnidadesOrden : 0;
+      const costosProrrateo = (orden.gastosEnvioUSD || 0) + (orden.otrosGastosUSD || 0) - (orden.descuentoUSD || 0);
 
       const totalUnidadesRecibidas = orden.totalUnidadesRecibidas || 0;
       const valorARestar = orden.productos.reduce((sum, p) => {
         const recibido = p.cantidadRecibida || 0;
-        return sum + (recibido * (p.costoUnitario + costoAdicionalPorUnidad));
+        const proporcional = costoBaseTotal > 0
+          ? costosProrrateo * (p.costoUnitario / costoBaseTotal)
+          : 0;
+        return sum + (recibido * (p.costoUnitario + impuestoPorUnidad + proporcional));
       }, 0);
 
       // 3. Restar del almacén

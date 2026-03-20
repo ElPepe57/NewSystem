@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { Calculator, TrendingUp, ArrowRight, ShoppingCart, DollarSign, BarChart3 } from 'lucide-react';
 import { Modal } from '../../common';
 import { MultiLineChart, formatCurrency, CHART_COLORS } from '../../common/Charts';
@@ -20,10 +21,6 @@ export const ProductoCTRUDetail: React.FC<ProductoCTRUDetailProps> = ({ producto
   const margenBrutoMonto = p.precioVentaProm > 0 ? p.precioVentaProm - p.ctruPromedio : 0;
   const margenNetoMonto = p.precioVentaProm > 0 ? p.precioVentaProm - costoTotal : 0;
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return '-';
-    return new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
-  };
 
   const subTabs: Array<{ id: SubTab; label: string; icon: React.ReactNode }> = [
     { id: 'costos', label: 'Costos', icon: <Calculator className="w-3.5 h-3.5" /> },
@@ -135,7 +132,7 @@ function CostosTab({ p, formatUSD, costoTotal, margenBrutoMonto, margenNetoMonto
       hidden: p.costoOtrosUSDProm < 0.001
     },
     {
-      label: 'Flete Intl (USA-Peru)',
+      label: 'Flete Internacional',
       usd: p.costoFleteIntlUSDProm > 0 ? formatUSD(p.costoFleteIntlUSDProm) : null,
       pen: formatCurrency(p.costoFleteIntlPENProm),
       pct: `${p.pctFleteIntl.toFixed(1)}%`,

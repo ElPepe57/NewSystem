@@ -25,8 +25,8 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
   const navigate = useNavigate();
 
   const stockItems = [
-    { label: 'Peru', value: producto.stockPeru || 0, icon: MapPin, color: 'green' },
-    { label: 'USA', value: producto.stockUSA || 0, icon: Plane, color: 'blue' },
+    { label: 'Destino', value: producto.stockPeru || 0, icon: MapPin, color: 'green' },
+    { label: 'Origen', value: producto.stockUSA || 0, icon: Plane, color: 'blue' },
     { label: 'Transito', value: producto.stockTransito || 0, icon: ArrowRightLeft, color: 'amber' },
     { label: 'Reservado', value: producto.stockReservado || 0, icon: ShoppingBag, color: 'purple' },
     { label: 'Disponible', value: producto.stockDisponible || 0, icon: Box, color: 'emerald' },
@@ -99,13 +99,6 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
 
         {/* Pricing */}
         <div className="flex flex-wrap gap-2 sm:gap-3">
-          {producto.precioSugerido > 0 && (
-            <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 bg-blue-50 rounded-lg">
-              <DollarSign className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-blue-500" />
-              <span className="text-xs sm:text-sm text-gray-600">Sug:</span>
-              <span className="text-xs sm:text-sm font-bold text-blue-700">S/{producto.precioSugerido.toFixed(2)}</span>
-            </div>
-          )}
           {producto.ctruPromedio > 0 && (
             <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 bg-amber-50 rounded-lg">
               <DollarSign className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-500" />

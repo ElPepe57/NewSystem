@@ -1,379 +1,137 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { ScanLine, Plus, Search, ToggleLeft, ToggleRight, Link2 } from 'lucide-react';
+import React, { useState, useRef, useCallback } from 'react';
+import { ScanLine, ToggleLeft, ToggleRight, Search, ClipboardCheck, Truck, PackageCheck, ArrowRightLeft } from 'lucide-react';
 import { GradientHeader } from '../../components/common';
 import { BarcodeScanner } from '../../components/common/BarcodeScanner';
-import { ProductoResultCard } from '../../components/modules/escaner/ProductoResultCard';
-import { ScanHistoryLog } from '../../components/modules/escaner/ScanHistoryLog';
-import { VincularUPCModal } from '../../components/modules/escaner/VincularUPCModal';
-import { ProductoService } from '../../services/producto.service';
-import { barcodeLookupService } from '../../services/barcodeLookup.service';
-import { scanHistoryService } from '../../services/scanHistory.service';
-import { useToastStore } from '../../store/toastStore';
-import { useAuthStore } from '../../store/authStore';
-import type { Producto } from '../../types/producto.types';
-import type { ScanResult, ExternalProductInfo } from '../../types/escaner.types';
+import { Tabs } from '../../components/common/Tabs';
+import { ModoConsulta } from '../../components/modules/escaner/modos/ModoConsulta';
+import { ModoAuditoria } from '../../components/modules/escaner/modos/ModoAuditoria';
+import { ModoRecepcion } from '../../components/modules/escaner/modos/ModoRecepcion';
+import { ModoDespacho } from '../../components/modules/escaner/modos/ModoDespacho';
+import { ModoTransferencia } from '../../components/modules/escaner/modos/ModoTransferencia';
+import type { ModoConsultaHandle } from '../../components/modules/escaner/modos/ModoConsulta';
+import type { ModoAuditoriaHandle } from '../../components/modules/escaner/modos/ModoAuditoria';
+import type { ModoRecepcionHandle } from '../../components/modules/escaner/modos/ModoRecepcion';
+import type { ModoDespachoHandle } from '../../components/modules/escaner/modos/ModoDespacho';
+import type { ModoTransferenciaHandle } from '../../components/modules/escaner/modos/ModoTransferencia';
+import type { ScannerModoId } from '../../types/escanerModos.types';
+import type { Tab } from '../../components/common/Tabs';
+
+const SCANNER_TABS: Tab[] = [
+  { id: 'consulta', label: 'Consulta', icon: <Search className="h-3.5 w-3.5" /> },
+  { id: 'auditoria', label: 'Auditoria', icon: <ClipboardCheck className="h-3.5 w-3.5" /> },
+  { id: 'recepcion', label: 'Recepcion', icon: <Truck className="h-3.5 w-3.5" /> },
+  { id: 'despacho', label: 'Despacho', icon: <PackageCheck className="h-3.5 w-3.5" /> },
+  { id: 'transferencia', label: 'Transferencia', icon: <ArrowRightLeft className="h-3.5 w-3.5" /> },
+];
+
+const MODE_SUBTITLES: Record<ScannerModoId, string> = {
+  consulta: 'Buscar productos por codigo de barras UPC/EAN',
+  auditoria: 'Conteo fisico vs stock del sistema',
+  recepcion: 'Recibir productos de transferencias pendientes',
+  despacho: 'Validar y despachar pedidos',
+  transferencia: 'Mover productos entre almacenes',
+};
 
 export const Escaner: React.FC = () => {
-  const toast = useToastStore();
-  const { user } = useAuthStore();
-
-  const [currentResult, setCurrentResult] = useState<Producto | null>(null);
-  const [scanHistory, setScanHistory] = useState<ScanResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [activeMode, setActiveMode] = useState<ScannerModoId>('consulta');
   const [continuousMode, setContinuousMode] = useState(false);
-  const [notFoundBarcode, setNotFoundBarcode] = useState('');
-  const [externalInfo, setExternalInfo] = useState<ExternalProductInfo | null>(null);
-  const [showVincularModal, setShowVincularModal] = useState(false);
 
-  // Load persisted history on mount
-  useEffect(() => {
-    const loadHistory = async () => {
-      try {
-        const records = await scanHistoryService.getRecent(50);
-        const mapped: ScanResult[] = records.map(r => ({
-          barcode: r.barcode,
-          format: r.format,
-          timestamp: r.timestamp?.toDate?.() || new Date(),
-          status: r.status,
-          productoId: r.productoId,
-          productoNombre: r.productoNombre,
-          productoSKU: r.productoSKU,
-          firestoreId: r.id,
-        }));
-        setScanHistory(mapped);
-      } catch {
-        // Silently fail - in-memory fallback
-      }
-    };
-    loadHistory();
-  }, []);
+  // Refs for each mode's scan handler
+  const consultaRef = useRef<ModoConsultaHandle>(null);
+  const auditoriaRef = useRef<ModoAuditoriaHandle>(null);
+  const recepcionRef = useRef<ModoRecepcionHandle>(null);
+  const despachoRef = useRef<ModoDespachoHandle>(null);
+  const transferenciaRef = useRef<ModoTransferenciaHandle>(null);
 
-  const handleBarcodeScan = useCallback(async (barcode: string, format?: string) => {
-    if (isSearching) return;
-    setIsSearching(true);
-    setExternalInfo(null);
-
-    try {
-      const producto = await ProductoService.getByCodigoUPC(barcode);
-
-      const result: ScanResult = {
-        barcode,
-        format: format || 'UNKNOWN',
-        timestamp: new Date(),
-        status: producto ? 'found' : 'not_found',
-        productoId: producto?.id,
-        productoNombre: producto ? `${producto.marca} ${producto.nombreComercial}` : undefined,
-        productoSKU: producto?.sku,
-      };
-
-      // Persist to Firestore
-      if (user?.uid) {
-        try {
-          const docId = await scanHistoryService.save({
-            barcode,
-            format: format || 'UNKNOWN',
-            status: producto ? 'found' : 'not_found',
-            productoId: producto?.id,
-            productoNombre: result.productoNombre,
-            productoSKU: producto?.sku,
-            userId: user.uid,
-            source: 'escaner',
-          });
-          result.firestoreId = docId;
-        } catch { /* silent */ }
-      }
-
-      setScanHistory(prev => [result, ...prev]);
-
-      if (producto) {
-        setCurrentResult(producto);
-        setNotFoundBarcode('');
-        toast.success(`${producto.marca} ${producto.nombreComercial}`, 'Producto encontrado');
-      } else {
-        setCurrentResult(null);
-        setNotFoundBarcode(barcode);
-        toast.warning(`Codigo ${barcode} no encontrado en el sistema`);
-
-        const external = await barcodeLookupService.lookup(barcode);
-        if (external) {
-          setExternalInfo(external);
-        }
-      }
-    } catch (error) {
-      const errResult: ScanResult = {
-        barcode,
-        format: format || 'UNKNOWN',
-        timestamp: new Date(),
-        status: 'error'
-      };
-      if (user?.uid) {
-        try {
-          const docId = await scanHistoryService.save({
-            barcode, format: format || 'UNKNOWN', status: 'error',
-            userId: user.uid, source: 'escaner',
-          });
-          errResult.firestoreId = docId;
-        } catch { /* silent */ }
-      }
-      setScanHistory(prev => [errResult, ...prev]);
-      toast.error('Error al buscar producto');
-    } finally {
-      setIsSearching(false);
+  // Delegate scan to active mode
+  const handleGlobalScan = useCallback((barcode: string, format?: string) => {
+    switch (activeMode) {
+      case 'consulta':
+        consultaRef.current?.handleScan(barcode, format);
+        break;
+      case 'auditoria':
+        auditoriaRef.current?.handleScan(barcode, format);
+        break;
+      case 'recepcion':
+        recepcionRef.current?.handleScan(barcode, format);
+        break;
+      case 'despacho':
+        despachoRef.current?.handleScan(barcode, format);
+        break;
+      case 'transferencia':
+        transferenciaRef.current?.handleScan(barcode, format);
+        break;
     }
-  }, [isSearching, toast, user]);
-
-  const handleClearHistory = useCallback(async () => {
-    setScanHistory([]);
-    try { await scanHistoryService.deleteAll(); } catch { /* silent */ }
-  }, []);
-
-  const handleDeleteHistoryItem = useCallback(async (result: ScanResult) => {
-    setScanHistory(prev => prev.filter(r => r !== result));
-    if (result.firestoreId) {
-      try { await scanHistoryService.deleteOne(result.firestoreId); } catch { /* silent */ }
-    }
-  }, []);
-
-  const handleVincularLinked = useCallback((producto: Producto) => {
-    setCurrentResult(producto);
-    setNotFoundBarcode('');
-    setExternalInfo(null);
-    // Update history: mark the last not_found for this barcode as found
-    setScanHistory(prev => prev.map(r =>
-      r.barcode === producto.codigoUPC && r.status === 'not_found'
-        ? { ...r, status: 'found' as const, productoId: producto.id, productoNombre: `${producto.marca} ${producto.nombreComercial}`, productoSKU: producto.sku }
-        : r
-    ));
-  }, []);
-
-  const handleScanAgain = () => {
-    setCurrentResult(null);
-    setNotFoundBarcode('');
-    setExternalInfo(null);
-  };
-
-  const handleHistorySelect = async (result: ScanResult) => {
-    if (result.status === 'found' && result.productoId) {
-      try {
-        const producto = await ProductoService.getById(result.productoId);
-        if (producto) {
-          setCurrentResult(producto);
-          setNotFoundBarcode('');
-          setExternalInfo(null);
-        }
-      } catch {
-        toast.error('Error al cargar producto');
-      }
-    } else {
-      handleBarcodeScan(result.barcode, result.format);
-    }
-  };
+  }, [activeMode]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <GradientHeader
         title="Escaner de Productos"
-        subtitle="Buscar productos por codigo de barras UPC/EAN"
+        subtitle={MODE_SUBTITLES[activeMode]}
         variant="blue"
       />
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-        {/* Mobile: single column stack. Desktop: two columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          {/* Left column: Scanner */}
-          <div className="space-y-3 sm:space-y-4">
-            {/* Header + continuous toggle */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <ScanLine className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
-                Escanear
-              </h2>
-              <button
-                type="button"
-                onClick={() => setContinuousMode(!continuousMode)}
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900 py-1"
-              >
-                {continuousMode ? (
-                  <ToggleRight className="h-5 w-5 text-primary-600" />
-                ) : (
-                  <ToggleLeft className="h-5 w-5 text-gray-400" />
-                )}
-                <span className="hidden sm:inline">Modo continuo</span>
-                <span className="sm:hidden">Continuo</span>
-              </button>
-            </div>
+        {/* Mode tabs */}
+        <div className="mb-4">
+          <Tabs
+            tabs={SCANNER_TABS}
+            activeTab={activeMode}
+            onChange={(id) => setActiveMode(id as ScannerModoId)}
+            variant="pills"
+            size="sm"
+            scrollable
+          />
+        </div>
 
-            {/* Scanner card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
-              <BarcodeScanner
-                onScan={handleBarcodeScan}
-                mode="both"
-                disabled={isSearching}
-              />
-            </div>
-
-            {/* Loading state */}
-            {isSearching && (
-              <div className="flex items-center justify-center gap-2 py-3">
-                <div className="h-5 w-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm text-gray-600">Buscando producto...</span>
-              </div>
-            )}
-
-            {/* Result section - shown inline on mobile (below scanner), in right column on desktop */}
-            <div className="lg:hidden space-y-3">
-              <ResultSection
-                currentResult={currentResult}
-                notFoundBarcode={notFoundBarcode}
-                externalInfo={externalInfo}
-                isSearching={isSearching}
-                onScanAgain={handleScanAgain}
-                onVincular={() => setShowVincularModal(true)}
-              />
-            </div>
-
-            {/* Scan history */}
-            <ScanHistoryLog
-              history={scanHistory}
-              onClear={handleClearHistory}
-              onSelectItem={handleHistorySelect}
-              onDeleteItem={handleDeleteHistoryItem}
-            />
+        {/* Scanner section - always visible */}
+        <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <ScanLine className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+              Escanear
+            </h2>
+            <button
+              type="button"
+              onClick={() => setContinuousMode(!continuousMode)}
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900 py-1"
+            >
+              {continuousMode ? (
+                <ToggleRight className="h-5 w-5 text-primary-600" />
+              ) : (
+                <ToggleLeft className="h-5 w-5 text-gray-400" />
+              )}
+              <span className="hidden sm:inline">Modo continuo</span>
+              <span className="sm:hidden">Continuo</span>
+            </button>
           </div>
 
-          {/* Right column: Results (desktop only, hidden on mobile - shown inline above) */}
-          <div className="hidden lg:block space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Search className="h-5 w-5 text-primary-600" />
-              Resultado
-            </h2>
-            <ResultSection
-              currentResult={currentResult}
-              notFoundBarcode={notFoundBarcode}
-              externalInfo={externalInfo}
-              isSearching={isSearching}
-              onScanAgain={handleScanAgain}
-              onVincular={() => setShowVincularModal(true)}
+          <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
+            <BarcodeScanner
+              onScan={handleGlobalScan}
+              mode="both"
             />
           </div>
         </div>
-      </div>
 
-      {/* Vincular UPC Modal */}
-      <VincularUPCModal
-        isOpen={showVincularModal}
-        onClose={() => setShowVincularModal(false)}
-        barcode={notFoundBarcode}
-        onLinked={handleVincularLinked}
-      />
+        {/* Active mode content */}
+        {activeMode === 'consulta' && (
+          <ModoConsulta ref={consultaRef} />
+        )}
+        {activeMode === 'auditoria' && (
+          <ModoAuditoria ref={auditoriaRef} />
+        )}
+        {activeMode === 'recepcion' && (
+          <ModoRecepcion ref={recepcionRef} />
+        )}
+        {activeMode === 'despacho' && (
+          <ModoDespacho ref={despachoRef} />
+        )}
+        {activeMode === 'transferencia' && (
+          <ModoTransferencia ref={transferenciaRef} />
+        )}
+      </div>
     </div>
   );
 };
-
-// Extracted result section to avoid duplication between mobile/desktop
-const ResultSection: React.FC<{
-  currentResult: Producto | null;
-  notFoundBarcode: string;
-  externalInfo: ExternalProductInfo | null;
-  isSearching: boolean;
-  onScanAgain: () => void;
-  onVincular: () => void;
-}> = ({ currentResult, notFoundBarcode, externalInfo, isSearching, onScanAgain, onVincular }) => (
-  <>
-    {/* Product found */}
-    {currentResult && (
-      <ProductoResultCard
-        producto={currentResult}
-        onScanAgain={onScanAgain}
-      />
-    )}
-
-    {/* Product NOT found */}
-    {notFoundBarcode && !currentResult && (
-      <div className="bg-white border border-amber-200 rounded-xl p-4 sm:p-6">
-        <div className="text-center">
-          <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-full flex items-center justify-center mb-3">
-            <ScanLine className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
-          </div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-            Producto no encontrado
-          </h3>
-          <p className="text-sm text-gray-500 mb-1">
-            Codigo: <span className="font-mono font-medium text-xs sm:text-sm">{notFoundBarcode}</span>
-          </p>
-          <p className="text-xs text-gray-400 mb-4">
-            Este codigo no esta registrado en el sistema
-          </p>
-
-          {/* External API info */}
-          {externalInfo && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-left">
-              <p className="text-xs text-blue-600 font-medium mb-1">
-                Info de {externalInfo.source === 'openfoodfacts' ? 'Open Food Facts' : 'API externa'}:
-              </p>
-              {externalInfo.brand && (
-                <p className="text-sm text-gray-800">
-                  <span className="text-gray-500">Marca:</span> {externalInfo.brand}
-                </p>
-              )}
-              {externalInfo.name && (
-                <p className="text-sm text-gray-800">
-                  <span className="text-gray-500">Nombre:</span> {externalInfo.name}
-                </p>
-              )}
-              {externalInfo.category && (
-                <p className="text-sm text-gray-800 truncate">
-                  <span className="text-gray-500">Categoria:</span> {externalInfo.category}
-                </p>
-              )}
-            </div>
-          )}
-
-          <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <button
-              type="button"
-              onClick={onVincular}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Link2 className="h-4 w-4" />
-              Vincular a Producto
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                window.location.href = `/productos?crear=true&upc=${encodeURIComponent(notFoundBarcode)}${externalInfo?.brand ? `&marca=${encodeURIComponent(externalInfo.brand)}` : ''}${externalInfo?.name ? `&nombre=${encodeURIComponent(externalInfo.name)}` : ''}`;
-              }}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              Crear Producto
-            </button>
-            <button
-              type="button"
-              onClick={onScanAgain}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              <ScanLine className="h-4 w-4" />
-              Escanear Otro
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
-
-    {/* Empty state */}
-    {!currentResult && !notFoundBarcode && !isSearching && (
-      <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 text-center">
-        <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-          <ScanLine className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
-        </div>
-        <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-1.5 sm:mb-2">
-          Listo para escanear
-        </h3>
-        <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto">
-          Usa la camara o un lector para escanear el codigo de barras de un suplemento
-        </p>
-      </div>
-    )}
-  </>
-);

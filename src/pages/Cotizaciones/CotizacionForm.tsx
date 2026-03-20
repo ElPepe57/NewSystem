@@ -315,8 +315,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         contenido: producto?.contenido,
         dosaje: producto?.dosaje,
         cantidad: 1,
-        precioUnitario: snapshot.precioSugerido || productoDisponible?.precioSugerido || 0,
-        subtotal: snapshot.precioSugerido || productoDisponible?.precioSugerido || 0,
+        precioUnitario: productoDisponible?.investigacion?.precioEntrada || 0,
+        subtotal: productoDisponible?.investigacion?.precioEntrada || 0,
         stockDisponible: snapshot.stockTotal,
         investigacion: productoDisponible?.investigacion,
         disponibilidadMultiAlmacen: {
@@ -402,8 +402,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
       contenido: producto.contenido,
       dosaje: producto.dosaje,
       cantidad: 1,
-      precioUnitario: producto.precioSugerido || 0,
-      subtotal: producto.precioSugerido || 0,
+      precioUnitario: 0,
+      subtotal: 0,
       stockDisponible,
       investigacion: productoConInvestigacion?.investigacion,
       disponibilidadMultiAlmacen

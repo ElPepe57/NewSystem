@@ -224,12 +224,6 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-lg sm:text-xl font-bold text-white">{producto.marca}</h2>
-              {producto.habilitadoML && (
-                <span className="bg-warning-500 text-warning-900 text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1">
-                  <ShoppingCart className="h-3 w-3" />
-                  ML
-                </span>
-              )}
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
                 producto.estado === 'activo'
                   ? 'bg-success-500 text-white'
@@ -292,18 +286,6 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <Copy className="h-3.5 w-3.5 text-gray-300" />
             )}
           </button>
-          {producto.enlaceProveedor && (
-            <a
-              href={producto.enlaceProveedor}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 text-white px-2.5 py-1 rounded-md transition-colors text-xs sm:text-sm font-medium"
-            >
-              <Globe className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Ver Proveedor</span>
-              <span className="sm:hidden">Proveedor</span>
-            </a>
-          )}
         </div>
       </div>
 
@@ -328,9 +310,9 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           bgColor="bg-gray-600"
         />
         <KPICard
-          label="Precio Sugerido"
-          value={`S/ ${(producto.precioSugerido || 0).toFixed(2)}`}
-          subtext={`Margen: ${producto.margenObjetivo != null ? `${producto.margenObjetivo}%` : 'No definido'}`}
+          label="Rotación"
+          value={`${producto.rotacionPromedio || 0}`}
+          subtext="unidades/mes"
           bgColor="bg-warning-500"
           textColor="text-warning-900"
         />
@@ -677,7 +659,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                 </div>
                 <PuntoEquilibrioCard
                   ctruEstimado={inv.ctruEstimado}
-                  precioVentaSugerido={producto.precioSugerido || inv.precioPERUPromedio * 0.95}
+                  precioVentaSugerido={inv.precioEntrada || inv.precioPERUPromedio * 0.95}
                   precioPERUMin={inv.precioPERUMin || inv.precioPERUPromedio}
                   demandaEstimada={inv.demandaEstimada || 'media'}
                   volumenMercadoEstimado={inv.volumenMercadoEstimado}
@@ -690,7 +672,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
             {(!inv.ctruEstimado || inv.ctruEstimado <= 0) && (
               <CalculadoraRentabilidad
                 ctruBase={producto.ctruPromedio || 0}
-                precioSugerido={inv.precioEntrada || inv.precioPERUPromedio || producto.precioSugerido || 0}
+                precioSugerido={inv.precioEntrada || inv.precioPERUPromedio || 0}
               />
             )}
           </div>
@@ -718,7 +700,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           <div className="mt-4">
             <CalculadoraRentabilidad
               ctruBase={producto.ctruPromedio || 0}
-              precioSugerido={producto.precioSugerido || 0}
+              precioSugerido={0}
             />
           </div>
         </div>
@@ -881,23 +863,13 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <p className="text-xl font-bold text-gray-800">S/ {(producto.ctruPromedio || 0).toFixed(2)}</p>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-              <span className="text-xs text-gray-500 block mb-1">Precio Sugerido</span>
-              <p className="text-xl font-bold text-primary-600">S/ {(producto.precioSugerido || 0).toFixed(2)}</p>
+              <span className="text-xs text-gray-500 block mb-1">Margen Mínimo (Categoría)</span>
+              <p className="text-lg font-bold text-gray-700">{(producto.categorias?.find((c: any) => c.id === producto.categoriaPrincipalId) || producto.categorias?.[0])?.margenMinimo ?? 20}%</p>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-              <span className="text-xs text-gray-500 block mb-1">Margen Mínimo</span>
-              <p className="text-lg font-bold text-gray-700">{producto.margenMinimo}%</p>
+              <span className="text-xs text-gray-500 block mb-1">Margen Objetivo (Categoría)</span>
+              <p className="text-lg font-bold text-success-600">{(producto.categorias?.find((c: any) => c.id === producto.categoriaPrincipalId) || producto.categorias?.[0])?.margenObjetivo ?? 35}%</p>
             </div>
-            <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-              <span className="text-xs text-gray-500 block mb-1">Margen Objetivo</span>
-              <p className="text-lg font-bold text-success-600">{producto.margenObjetivo}%</p>
-            </div>
-            {producto.costoFleteUSAPeru > 0 && (
-              <div className="col-span-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                <span className="text-xs text-gray-500 block mb-1">Costo Flete USA→Perú</span>
-                <p className="font-bold text-gray-800">${producto.costoFleteUSAPeru.toFixed(2)} USD/unidad</p>
-              </div>
-            )}
           </div>
         </CollapsibleSection>
 
@@ -926,27 +898,6 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           </CollapsibleSection>
         )}
 
-        {/* Mercado Libre */}
-        {producto.habilitadoML && (
-          <CollapsibleSection
-            title="Mercado Libre"
-            icon={<ShoppingCart className="h-4 w-4" />}
-            iconBgColor="bg-warning-100"
-            iconColor="text-warning-600"
-          >
-            <div className="mt-3">
-              <div className="flex items-center gap-2 text-success-600 mb-2">
-                <CheckCircle className="h-4 w-4" />
-                <span className="font-medium">Habilitado para venta en Mercado Libre</span>
-              </div>
-              {producto.restriccionML && (
-                <div className="bg-warning-50 text-warning-800 text-sm p-3 rounded-lg border border-warning-200">
-                  <strong>Restricción:</strong> {producto.restriccionML}
-                </div>
-              )}
-            </div>
-          </CollapsibleSection>
-        )}
 
         {/* Historial placeholder */}
         <CollapsibleSection

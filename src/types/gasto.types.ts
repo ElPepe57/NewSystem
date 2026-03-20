@@ -4,8 +4,9 @@ import { Timestamp } from 'firebase/firestore';
  * Tipos de gasto según su naturaleza
  */
 export type TipoGasto =
-  | 'flete_usa_peru'           // Logística internacional
-  | 'almacenaje'                // Almacenamiento USA o Perú
+  | 'flete_internacional'       // Logística internacional (genérico, reemplaza flete_usa_peru)
+  | 'flete_usa_peru'           // Legacy: equivale a flete_internacional (backward compat)
+  | 'almacenaje'                // Almacenamiento origen o Perú
   | 'administrativo'            // Gastos administrativos
   | 'operativo'                 // Gastos operativos
   | 'marketing'                 // Marketing y publicidad
@@ -192,7 +193,8 @@ export const CATEGORIAS_GASTO_VENTA: CategoriaGasto[] = ['GV', 'GD'];
  * Labels para mostrar tipos de gasto en la UI
  */
 export const TIPOS_GASTO_LABELS: Record<TipoGasto, string> = {
-  flete_usa_peru: 'Flete USA-Perú',
+  flete_internacional: 'Flete Internacional',
+  flete_usa_peru: 'Flete USA-Perú (legacy)',
   almacenaje: 'Almacenaje',
   administrativo: 'Administrativo',
   operativo: 'Operativo',
@@ -281,6 +283,10 @@ export interface Gasto {
   montoPEN: number;                // Convertido a PEN
   tipoCambio?: number;             // Si es USD, el TC usado
 
+  // Línea de negocio (null = compartido, se prorratea por % ventas entre líneas)
+  lineaNegocioId?: string | null;
+  lineaNegocioNombre?: string | null;
+
   // Prorrateo
   esProrrateable: boolean;         // Si se debe prorratear entre unidades
   prorrateoTipo?: 'unidad' | 'oc' | 'manual'; // Cómo se prorratean
@@ -355,6 +361,9 @@ export interface GastoFormData {
   numeroComprobante?: string;
   impactaCTRU: boolean;
   notas?: string;
+  // Línea de negocio (null = compartido entre todas las líneas)
+  lineaNegocioId?: string | null;
+  lineaNegocioNombre?: string | null;
 }
 
 /**

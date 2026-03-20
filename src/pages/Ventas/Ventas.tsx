@@ -6,11 +6,13 @@ import type { PipelineStage } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { VentaForm } from '../../components/modules/venta/VentaForm';
 import { VentaTable } from '../../components/modules/venta/VentaTable';
+import { VentasDashboard } from '../../components/modules/venta/VentasDashboard';
 import { VentaCard } from '../../components/modules/venta/VentaCard';
 import { PagoVentaForm } from '../../components/modules/venta/PagoVentaForm';
 import { GastosVentaForm } from '../../components/modules/venta/GastosVentaForm';
 import { ProgramarEntregaModal } from '../../components/modules/venta/ProgramarEntregaModal';
 import { EditarVentaModal } from '../../components/modules/venta/EditarVentaModal';
+import { CorregirProductoModal } from '../../components/modules/venta/CorregirProductoModal';
 import { useVentaStore } from '../../store/ventaStore';
 import { useAuthStore } from '../../store/authStore';
 import { useRentabilidadVentas } from '../../hooks/useRentabilidadVentas';
@@ -18,6 +20,7 @@ import { gastoService } from '../../services/gasto.service';
 import { VentaService } from '../../services/venta.service';
 import { useEntregaStore } from '../../store/entregaStore';
 import type { Venta, VentaFormData, MetodoPago, AdelantoData, EditarVentaData } from '../../types/venta.types';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type { ProgramarEntregaData } from '../../types/entrega.types';
 
 export const Ventas: React.FC = () => {
@@ -51,9 +54,12 @@ export const Ventas: React.FC = () => {
   const [isGastosModalOpen, setIsGastosModalOpen] = useState(false);
   const [isEntregaModalOpen, setIsEntregaModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCorregirProductoModalOpen, setIsCorregirProductoModalOpen] = useState(false);
+  const [productoACorregir, setProductoACorregir] = useState<{ productoId: string; nombre: string; sku: string; presentacion: string } | null>(null);
   const [selectedVenta, setSelectedVenta] = useState<Venta | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   // Hook de rentabilidad con distribución proporcional de GA/GO
   const { datos: rentabilidad, getRentabilidadVenta, loading: loadingRentabilidad, refetch: refetchRentabilidad } = useRentabilidadVentas(ventas);
@@ -61,6 +67,8 @@ export const Ventas: React.FC = () => {
   // Store de entregas
   const {
     programarEntrega,
+    marcarEnCamino,
+    fetchByVenta,
     iniciarSuscripcion: iniciarSuscripcionEntregas,
     detenerSuscripcion: detenerSuscripcionEntregas
   } = useEntregaStore();
@@ -75,16 +83,22 @@ export const Ventas: React.FC = () => {
   const { modalProps: actionModalProps, open: openActionModal } = useActionModal();
   const toast = useToastStore();
 
+  // Ventas filtradas por línea de negocio global
+  const ventasLineaFiltradas = useMemo(() => {
+    if (!lineaFiltroGlobal) return ventas;
+    return ventas.filter(v => v.lineaNegocioId === lineaFiltroGlobal);
+  }, [ventas, lineaFiltroGlobal]);
+
   // Pipeline stages para filtrado visual
   const pipelineStages: PipelineStage[] = useMemo(() => {
     const counts = {
-      cotizacion: ventas.filter(v => v.estado === 'cotizacion').length,
-      confirmada: ventas.filter(v => v.estado === 'confirmada').length,
-      asignada: ventas.filter(v => v.estado === 'asignada').length,
-      en_entrega: ventas.filter(v => v.estado === 'en_entrega').length,
-      despachada: ventas.filter(v => v.estado === 'despachada').length,
-      entregada: ventas.filter(v => v.estado === 'entregada').length,
-      cancelada: ventas.filter(v => v.estado === 'cancelada').length
+      cotizacion: ventasLineaFiltradas.filter(v => v.estado === 'cotizacion').length,
+      confirmada: ventasLineaFiltradas.filter(v => v.estado === 'confirmada').length,
+      asignada: ventasLineaFiltradas.filter(v => v.estado === 'asignada').length,
+      en_entrega: ventasLineaFiltradas.filter(v => v.estado === 'en_entrega').length,
+      despachada: ventasLineaFiltradas.filter(v => v.estado === 'despachada').length,
+      entregada: ventasLineaFiltradas.filter(v => v.estado === 'entregada').length,
+      cancelada: ventasLineaFiltradas.filter(v => v.estado === 'cancelada').length
     };
 
     return [
@@ -96,17 +110,17 @@ export const Ventas: React.FC = () => {
       { id: 'entregada', label: 'Entregada', count: counts.entregada, color: 'green', icon: <CheckCircle className="h-4 w-4" /> },
       { id: 'cancelada', label: 'Cancelada', count: counts.cancelada, color: 'red', icon: <XCircle className="h-4 w-4" /> }
     ];
-  }, [ventas]);
+  }, [ventasLineaFiltradas]);
 
   // Ventas filtradas
   const ventasFiltradas = useMemo(() => {
-    if (!filtroEstado) return ventas;
-    return ventas.filter(v => v.estado === filtroEstado);
-  }, [ventas, filtroEstado]);
+    if (!filtroEstado) return ventasLineaFiltradas;
+    return ventasLineaFiltradas.filter(v => v.estado === filtroEstado);
+  }, [ventasLineaFiltradas, filtroEstado]);
 
   // Lead Time metrics (solo ventas entregadas con fechas completas)
   const leadTimeMetrics = useMemo(() => {
-    const entregadas = ventas.filter(v =>
+    const entregadas = ventasLineaFiltradas.filter(v =>
       v.estado === 'entregada' &&
       v.fechaCreacion && v.fechaConfirmacion && v.fechaAsignacion && v.fechaEntrega
     );
@@ -146,7 +160,7 @@ export const Ventas: React.FC = () => {
       progDesp: { avg: avg(segments.map(s => s.progDesp)), min: min(segments.map(s => s.progDesp)), max: max(segments.map(s => s.progDesp)) },
       despEntr: { avg: avg(segments.map(s => s.despEntr)), min: min(segments.map(s => s.despEntr)), max: max(segments.map(s => s.despEntr)) },
     };
-  }, [ventas]);
+  }, [ventasLineaFiltradas]);
 
   // Cargar datos al montar + suscripción en tiempo real para ventas y entregas
   useEffect(() => {
@@ -357,6 +371,23 @@ export const Ventas: React.FC = () => {
     }
   };
 
+  // Despachar venta (marcar entregas programadas como "En Camino")
+  const handleDespachar = async (venta: Venta) => {
+    if (!user?.uid) return;
+    try {
+      const entregas = await fetchByVenta(venta.id);
+      const programada = entregas.find(e => e.estado === 'programada' || e.estado === 'reprogramada');
+      if (!programada) {
+        toast.warning('No hay entregas programadas para despachar');
+        return;
+      }
+      await marcarEnCamino(programada.id, user.uid);
+      toast.success(`${venta.numeroVenta} despachada`, 'En camino');
+    } catch (error: any) {
+      toast.error(error.message || 'Error al despachar');
+    }
+  };
+
   // Abrir modal de pago
   const handleOpenPagoModal = () => {
     setIsPagoModalOpen(true);
@@ -471,6 +502,40 @@ export const Ventas: React.FC = () => {
     }
   };
 
+  // Corregir producto (reemplazar producto equivocado)
+  const handleCorregirProducto = (productoId: string, productoNombre: string, sku: string, presentacion: string) => {
+    if (!selectedVenta) return;
+    setProductoACorregir({ productoId, nombre: productoNombre, sku, presentacion });
+    setIsCorregirProductoModalOpen(true);
+  };
+
+  const handleSubmitCorregirProducto = async (productoIdAnterior: string, nuevoProductoId: string) => {
+    if (!user || !selectedVenta) return;
+
+    setIsSubmitting(true);
+    try {
+      const { cambios } = await VentaService.corregirProductoVenta(
+        selectedVenta.id,
+        productoIdAnterior,
+        nuevoProductoId,
+        user.uid
+      );
+
+      await fetchVentas();
+      await fetchResumenPagos();
+      refetchRentabilidad();
+      refreshSelectedVenta(selectedVenta.id);
+
+      toast.success(cambios.join('\n'), 'Producto Corregido');
+      setIsCorregirProductoModalOpen(false);
+      setProductoACorregir(null);
+    } catch (error: any) {
+      toast.error(error.message, 'Error al corregir producto');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Editar venta
   const handleEditarVenta = async (cambios: EditarVentaData) => {
     if (!user || !selectedVenta) return;
@@ -570,14 +635,15 @@ export const Ventas: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Ventas</h1>
-          <p className="text-gray-600 mt-1">Gestión de ventas y cotizaciones con FEFO automático</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Ventas</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Gestión de ventas y cotizaciones con FEFO automático</p>
         </div>
         <Button
           variant="primary"
           onClick={() => setIsModalOpen(true)}
+          className="w-full sm:w-auto justify-center"
         >
           <Plus className="h-5 w-5 mr-2" />
           Nueva Venta
@@ -599,365 +665,16 @@ export const Ventas: React.FC = () => {
         </Card>
       )}
 
-      {/* KPIs */}
+      {/* KPIs Dashboard */}
       {stats && (
-        <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-            <Card padding="md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-gray-600">Total Ventas</div>
-                  <div className="text-2xl font-bold text-gray-900 mt-1">
-                    {stats.totalVentas}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {stats.cotizaciones} cotizaciones
-                  </div>
-                </div>
-                <ShoppingCart className="h-10 w-10 text-gray-400" />
-              </div>
-            </Card>
-
-            <Card padding="md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-gray-600">En Proceso</div>
-                  <div className="text-2xl font-bold text-warning-600 mt-1">
-                    {stats.enProceso}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {stats.confirmadas} confirmadas
-                  </div>
-                </div>
-                <Package className="h-10 w-10 text-warning-400" />
-              </div>
-            </Card>
-
-            <Card padding="md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-gray-600">Entregadas</div>
-                  <div className="text-2xl font-bold text-success-600 mt-1">
-                    {stats.entregadas}
-                  </div>
-                </div>
-                <CheckCircle className="h-10 w-10 text-success-400" />
-              </div>
-            </Card>
-
-            <Card padding="md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-gray-600">Ventas Totales</div>
-                  <div className="text-xl font-bold text-primary-600 mt-1">
-                    S/ {stats.ventasTotalPEN.toFixed(0)}
-                  </div>
-                </div>
-                <DollarSign className="h-10 w-10 text-primary-400" />
-              </div>
-            </Card>
-          </div>
-
-          {/* KPIs Rentabilidad - Utilidad Bruta vs Neta */}
-          {(stats.utilidadTotalPEN > 0 || (rentabilidad && rentabilidad.totalUtilidadNeta !== 0)) && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-              {/* Utilidad Bruta */}
-              <Card padding="md">
-                <div className="text-sm text-gray-600">Utilidad Bruta</div>
-                <div className="text-2xl font-bold text-success-600 mt-1">
-                  S/ {stats.utilidadTotalPEN.toFixed(2)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Ventas - Costo producto
-                </div>
-              </Card>
-
-              {/* Gastos Operativos (GA/GO + GV/GD) */}
-              {rentabilidad && (
-                <Card padding="md">
-                  <div className="text-sm text-gray-600">Gastos Operativos</div>
-                  <div className="text-2xl font-bold text-orange-600 mt-1">
-                    - S/ {(rentabilidad.totalGastosGAGO + rentabilidad.totalGastosGVGD).toFixed(2)}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1 space-y-0.5">
-                    <div className="flex justify-between">
-                      <span>GA/GO:</span>
-                      <span>S/ {rentabilidad.totalGastosGAGO.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>GV/GD:</span>
-                      <span>S/ {rentabilidad.totalGastosGVGD.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </Card>
-              )}
-
-              {/* Utilidad Neta */}
-              {rentabilidad && (
-                <Card padding="md" className={rentabilidad.totalUtilidadNeta >= 0 ? 'bg-green-50' : 'bg-red-50'}>
-                  <div className="text-sm text-gray-600">Utilidad Neta</div>
-                  <div className={`text-2xl font-bold mt-1 ${rentabilidad.totalUtilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                    S/ {rentabilidad.totalUtilidadNeta.toFixed(2)}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    Margen Neto: {rentabilidad.margenNetoPromedio.toFixed(1)}%
-                  </div>
-                </Card>
-              )}
-
-              {/* Ventas por Canal */}
-              <Card padding="md">
-                <div className="text-sm text-gray-600 mb-2">Ventas por Canal</div>
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Mercado Libre:</span>
-                    <span className="font-semibold">{stats.ventasML}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Directo:</span>
-                    <span className="font-semibold">{stats.ventasDirecto}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Otro:</span>
-                    <span className="font-semibold">{stats.ventasOtro}</span>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {/* KPIs de Eficiencia de Inversión */}
-          {rentabilidad && rentabilidad.totalVentas > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-              {/* Multiplicador de Ventas - igual que Dashboard */}
-              <Card padding="md" className="bg-gradient-to-br from-blue-50 to-indigo-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Multiplicador</div>
-                    <div className={`text-2xl font-bold mt-1 ${
-                      rentabilidad.totalCostoBase > 0 && (rentabilidad.totalVentas / rentabilidad.totalCostoBase) >= 2
-                        ? 'text-emerald-600'
-                        : rentabilidad.totalCostoBase > 0 && (rentabilidad.totalVentas / rentabilidad.totalCostoBase) >= 1.5
-                          ? 'text-yellow-600'
-                          : 'text-red-600'
-                    }`}>
-                      {rentabilidad.totalCostoBase > 0
-                        ? `${(rentabilidad.totalVentas / rentabilidad.totalCostoBase).toFixed(2)}x`
-                        : '0x'}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Por cada S/ 1 en producto
-                    </div>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-blue-400" />
-                </div>
-              </Card>
-
-              {/* Carga GA/GO por Unidad */}
-              <Card padding="md" className="bg-gradient-to-br from-purple-50 to-purple-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Carga GA/GO</div>
-                    <div className="text-2xl font-bold text-purple-600 mt-1">
-                      S/ {rentabilidad.impactoPorUnidad.toFixed(2)}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      por unidad vendida
-                    </div>
-                  </div>
-                  <PieChart className="h-8 w-8 text-purple-400" />
-                </div>
-              </Card>
-
-              {/* ROI Neto - por cada sol invertido, cuánto ganas */}
-              <Card padding="md" className="bg-gradient-to-br from-green-50 to-emerald-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">ROI Neto</div>
-                    <div className={`text-2xl font-bold mt-1 ${
-                      rentabilidad.totalUtilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'
-                    }`}>
-                      {(() => {
-                        const inversionTotal = rentabilidad.totalCostoBase + rentabilidad.totalGastosGAGO + rentabilidad.totalGastosGVGD;
-                        if (inversionTotal <= 0) return 'S/ 0.00';
-                        const roiPorSol = rentabilidad.totalUtilidadNeta / inversionTotal;
-                        return `S/ ${roiPorSol.toFixed(2)}`;
-                      })()}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      ganancia por S/ 1 invertido
-                    </div>
-                  </div>
-                  <DollarSign className="h-8 w-8 text-emerald-400" />
-                </div>
-              </Card>
-
-              {/* Costo Total por Unidad (CTRU promedio vendido) */}
-              <Card padding="md" className="bg-gradient-to-br from-amber-50 to-orange-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">CTRU Promedio</div>
-                    <div className="text-2xl font-bold text-amber-600 mt-1">
-                      S/ {rentabilidad.baseUnidades > 0
-                        ? ((rentabilidad.totalCostoBase + rentabilidad.totalCostoGAGO) / rentabilidad.baseUnidades).toFixed(2)
-                        : '0.00'}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      costo real por unidad
-                    </div>
-                  </div>
-                  <Calculator className="h-8 w-8 text-amber-400" />
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {/* KPIs Lead Time */}
-          {leadTimeMetrics && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
-              <Card padding="md" className="bg-gradient-to-br from-cyan-50 to-teal-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Lead Time Total</div>
-                    <div className="text-2xl font-bold text-cyan-600 mt-1">
-                      {leadTimeMetrics.total.avg.toFixed(1)}d
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      min {leadTimeMetrics.total.min.toFixed(1)}d · max {leadTimeMetrics.total.max.toFixed(1)}d
-                    </div>
-                  </div>
-                  <Clock className="h-8 w-8 text-cyan-400" />
-                </div>
-              </Card>
-
-              <Card padding="md" className="bg-gradient-to-br from-sky-50 to-cyan-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Cotización → Confirmada</div>
-                    <div className="text-2xl font-bold text-sky-600 mt-1">
-                      {leadTimeMetrics.cotConf.avg.toFixed(1)}d
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      min {leadTimeMetrics.cotConf.min.toFixed(1)}d · max {leadTimeMetrics.cotConf.max.toFixed(1)}d
-                    </div>
-                  </div>
-                  <Timer className="h-8 w-8 text-sky-400" />
-                </div>
-              </Card>
-
-              <Card padding="md" className="bg-gradient-to-br from-teal-50 to-emerald-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Confirmada → Asignada</div>
-                    <div className="text-2xl font-bold text-teal-600 mt-1">
-                      {leadTimeMetrics.confAsig.avg.toFixed(1)}d
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      min {leadTimeMetrics.confAsig.min.toFixed(1)}d · max {leadTimeMetrics.confAsig.max.toFixed(1)}d
-                    </div>
-                  </div>
-                  <Zap className="h-8 w-8 text-teal-400" />
-                </div>
-              </Card>
-
-              <Card padding="md" className="bg-gradient-to-br from-amber-50 to-yellow-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Asignada → Programada</div>
-                    <div className="text-2xl font-bold text-amber-600 mt-1">
-                      {leadTimeMetrics.asigProg.avg.toFixed(1)}d
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      min {leadTimeMetrics.asigProg.min.toFixed(1)}d · max {leadTimeMetrics.asigProg.max.toFixed(1)}d
-                    </div>
-                  </div>
-                  <Package className="h-8 w-8 text-amber-400" />
-                </div>
-              </Card>
-
-              <Card padding="md" className="bg-gradient-to-br from-orange-50 to-amber-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Programada → En Camino</div>
-                    <div className="text-2xl font-bold text-orange-600 mt-1">
-                      {leadTimeMetrics.progDesp.avg.toFixed(1)}d
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      min {leadTimeMetrics.progDesp.min.toFixed(1)}d · max {leadTimeMetrics.progDesp.max.toFixed(1)}d
-                    </div>
-                  </div>
-                  <Truck className="h-8 w-8 text-orange-400" />
-                </div>
-              </Card>
-
-              <Card padding="md" className="bg-gradient-to-br from-emerald-50 to-green-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">En Camino → Entregada</div>
-                    <div className="text-2xl font-bold text-emerald-600 mt-1">
-                      {leadTimeMetrics.despEntr.avg.toFixed(1)}d
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      min {leadTimeMetrics.despEntr.min.toFixed(1)}d · max {leadTimeMetrics.despEntr.max.toFixed(1)}d
-                    </div>
-                  </div>
-                  <PackageCheck className="h-8 w-8 text-emerald-400" />
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {/* KPIs Cobranza */}
-          {resumenPagos && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-              <Card padding="md" className="bg-green-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-600">Por Cobrar</div>
-                    <div className="text-xl font-bold text-danger-600 mt-1">
-                      S/ {resumenPagos.totalPorCobrar.toFixed(2)}
-                    </div>
-                  </div>
-                  <CreditCard className="h-8 w-8 text-danger-400" />
-                </div>
-              </Card>
-
-              <Card padding="md" className="bg-green-50">
-                <div className="text-sm text-gray-600">Cobranza del Mes</div>
-                <div className="text-xl font-bold text-success-600 mt-1">
-                  S/ {resumenPagos.cobranzaMesActual.toFixed(2)}
-                </div>
-              </Card>
-
-              <Card padding="md" className="bg-green-50">
-                <div className="text-sm text-gray-600 mb-1">Estado de Pagos</div>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-danger-600">Pendientes:</span>
-                    <span className="font-semibold">{resumenPagos.ventasPendientes}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-warning-600">Parciales:</span>
-                    <span className="font-semibold">{resumenPagos.ventasParciales}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-success-600">Pagadas:</span>
-                    <span className="font-semibold">{resumenPagos.ventasPagadas}</span>
-                  </div>
-                </div>
-              </Card>
-
-              <Card padding="md" className="bg-green-50">
-                <div className="text-sm text-gray-600">% Cobrado</div>
-                <div className="text-xl font-bold text-primary-600 mt-1">
-                  {stats.ventasTotalPEN > 0
-                    ? ((stats.ventasTotalPEN - resumenPagos.totalPorCobrar) / stats.ventasTotalPEN * 100).toFixed(1)
-                    : 0}%
-                </div>
-              </Card>
-            </div>
-          )}
-        </>
+        <VentasDashboard
+          stats={stats}
+          rentabilidad={rentabilidad}
+          resumenPagos={resumenPagos}
+          leadTimeMetrics={leadTimeMetrics}
+          totalVentas={ventas.filter(v => v.estado !== 'cotizacion' && v.estado !== 'cancelada').length}
+          totalEntregadas={stats.entregadas}
+        />
       )}
 
       {/* Pipeline de Estados */}
@@ -1019,6 +736,7 @@ export const Ventas: React.FC = () => {
           ventas={ventasFiltradas}
           onView={handleViewDetails}
           onDelete={handleDelete}
+          onDespachar={handleDespachar}
           loading={loading}
         />
       </Card>
@@ -1080,6 +798,11 @@ export const Ventas: React.FC = () => {
                   : undefined
               }
               onCorregirPrecio={handleCorregirPrecio}
+              onCorregirProducto={
+                ['cotizacion', 'confirmada'].includes(selectedVenta.estado)
+                  ? handleCorregirProducto
+                  : undefined
+              }
               onEditarVenta={
                 selectedVenta.estado !== 'entregada' && selectedVenta.estado !== 'cancelada'
                   ? () => setIsEditModalOpen(true)
@@ -1142,6 +865,19 @@ export const Ventas: React.FC = () => {
           onClose={() => setIsEditModalOpen(false)}
           onSubmit={handleEditarVenta}
           venta={selectedVenta}
+          loading={isSubmitting}
+        />
+      )}
+
+      {/* Modal Corregir Producto */}
+      {selectedVenta && isCorregirProductoModalOpen && productoACorregir && (
+        <CorregirProductoModal
+          isOpen={isCorregirProductoModalOpen}
+          onClose={() => { setIsCorregirProductoModalOpen(false); setProductoACorregir(null); }}
+          onSubmit={handleSubmitCorregirProducto}
+          venta={selectedVenta}
+          productoActual={productoACorregir}
+          productosDisponibles={productosDisponibles}
           loading={isSubmitting}
         />
       )}

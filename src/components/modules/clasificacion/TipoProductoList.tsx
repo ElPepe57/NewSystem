@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, FlaskConical, Search, Package, BarChart3 } from '
 import { Button } from '../../common';
 import { ConfirmDialog } from '../../common/ConfirmDialog';
 import { useTipoProductoStore } from '../../../store/tipoProductoStore';
+import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { useAuthStore } from '../../../store/authStore';
 import { TipoProductoForm } from './TipoProductoForm';
 import { TipoProductoDetalle } from './TipoProductoDetalle';
@@ -11,8 +12,10 @@ import type { TipoProducto } from '../../../types/tipoProducto.types';
 export function TipoProductoList() {
   const { user } = useAuthStore();
   const { tiposActivos, fetchTiposActivos, delete: deleteTipo, loading } = useTipoProductoStore();
+  const { lineasActivas, fetchLineasActivas, getLineaNombre, getLineaColor } = useLineaNegocioStore();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [filtroLinea, setFiltroLinea] = useState<string | ''>('');
   const [showForm, setShowForm] = useState(false);
   const [editingTipo, setEditingTipo] = useState<TipoProducto | null>(null);
   const [deletingTipo, setDeletingTipo] = useState<TipoProducto | null>(null);
@@ -20,6 +23,9 @@ export function TipoProductoList() {
 
   useEffect(() => {
     fetchTiposActivos();
+    if (lineasActivas.length === 0) {
+      fetchLineasActivas();
+    }
   }, []);
 
   const handleEdit = (tipo: TipoProducto) => {
@@ -46,8 +52,15 @@ export function TipoProductoList() {
     fetchTiposActivos();
   };
 
-  // Filtrar por busqueda
+  // Filtrar por busqueda y linea
   const tiposFiltrados = tiposActivos.filter(tipo => {
+    // Filtro por linea de negocio
+    if (filtroLinea) {
+      const lineaIds = tipo.lineaNegocioIds;
+      if (lineaIds && lineaIds.length > 0 && !lineaIds.includes(filtroLinea)) {
+        return false;
+      }
+    }
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return (
@@ -73,16 +86,30 @@ export function TipoProductoList() {
         </Button>
       </div>
 
-      {/* Busqueda */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar tipo..."
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-        />
+      {/* Busqueda y filtro */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar tipo..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+          />
+        </div>
+        {lineasActivas.length > 0 && (
+          <select
+            value={filtroLinea}
+            onChange={(e) => setFiltroLinea(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">Todas las lineas</option>
+            {lineasActivas.map(l => (
+              <option key={l.id} value={l.id}>{l.icono} {l.nombre}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Lista */}
@@ -119,6 +146,25 @@ export function TipoProductoList() {
                     Principio activo: {tipo.principioActivo}
                   </div>
                 )}
+                {/* Lineas de negocio badges */}
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {(tipo.lineaNegocioIds)?.length ? (
+                    (tipo.lineaNegocioIds).map((lid: string) => (
+                      <span
+                        key={lid}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-white"
+                        style={{ backgroundColor: getLineaColor(lid) }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-white/40" />
+                        {getLineaNombre(lid)}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                      Todas
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center gap-4">

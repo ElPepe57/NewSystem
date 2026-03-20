@@ -271,8 +271,8 @@ export interface PriceIntelligenceConfig {
   margenObjetivo: number;
   /** Margen mínimo aceptable (%) */
   margenMinimo: number;
-  /** Costo de flete USA-Perú por unidad */
-  costoFleteUSAPeru: number;
+  /** Costo de flete internacional por unidad (ruta según país de origen) */
+  costoFleteInternacional: number;
   /** Costo de logística adicional (comisiones, etc.) */
   logisticaAdicional?: number;
   /** Nombre del proveedor actual (si está seleccionado) */

@@ -11,6 +11,7 @@ import { VentaService } from '../../services/venta.service';
 import { CATEGORIAS_GASTO, type Gasto, type GastoFormData, type CategoriaGasto, type MonedaGasto, type EstadoGasto } from '../../types/gasto.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
 import type { Venta } from '../../types/venta.types';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 
 interface GastoFormProps {
   onClose: () => void;
@@ -23,7 +24,16 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   const { crearGasto, actualizarGasto, gastos } = useGastoStore();
   const { getTCDelDia } = useTipoCambioStore();
   const toast = useToastStore();
+  const { lineasActivas, fetchLineasActivas } = useLineaNegocioStore();
   const [tipoCambio, setTipoCambio] = React.useState<number>(0);
+  const [lineaNegocioId, setLineaNegocioId] = useState<string | null>(
+    gastoEditar?.lineaNegocioId ?? null
+  );
+
+  // Cargar líneas de negocio
+  useEffect(() => {
+    fetchLineasActivas();
+  }, [fetchLineasActivas]);
 
   // Registrar modal abierto
   useLayoutEffect(() => {
@@ -291,11 +301,14 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     setLoading(true);
 
     try {
+      const lineaSeleccionada = lineasActivas.find(l => l.id === lineaNegocioId);
       const gastoData = {
         ...formData,
         cuentaOrigenId: cuentaOrigenId || undefined,
         metodoPago: metodoPago || undefined,
-        referenciaPago: referenciaPago || undefined
+        referenciaPago: referenciaPago || undefined,
+        lineaNegocioId: lineaNegocioId || null,
+        lineaNegocioNombre: lineaSeleccionada?.nombre || null
       };
 
       if (isEditing && gastoEditar) {
@@ -355,18 +368,18 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">{isEditing ? 'Editar Gasto' : 'Nuevo Gasto'}</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-900">{isEditing ? 'Editar Gasto' : 'Nuevo Gasto'}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 sm:space-y-6">
           {/* Banner informativo para gastos pagados */}
           {isEditing && gastoEditar?.estado === 'pagado' && (
             <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
@@ -376,10 +389,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
           )}
 
           {/* Sección 1: Categoría */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Categoría del Gasto</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Categoría del Gasto</h3>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
               {(Object.keys(CATEGORIAS_GASTO) as CategoriaGasto[]).map((cat) => {
                 const info = CATEGORIAS_GASTO[cat];
                 const isSelected = formData.categoria === cat;
@@ -388,14 +401,14 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                     key={cat}
                     type="button"
                     onClick={() => handleChange('categoria', cat)}
-                    className={`p-3 rounded-lg border-2 text-left transition-all ${
+                    className={`p-2 sm:p-3 rounded-lg border-2 text-left transition-all ${
                       isSelected
                         ? getCategoriaColor(cat) + ' ring-2 ring-offset-1 ring-gray-400'
                         : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <div className="font-semibold text-sm">{info.codigo}</div>
-                    <div className="text-xs mt-0.5 opacity-80">{info.nombre}</div>
+                    <div className="font-semibold text-xs sm:text-sm">{info.codigo}</div>
+                    <div className="text-[10px] sm:text-xs mt-0.5 opacity-80">{info.nombre}</div>
                   </button>
                 );
               })}
@@ -419,6 +432,28 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Sección: Línea de Negocio */}
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Línea de Negocio</h3>
+            <div>
+              <select
+                value={lineaNegocioId || ''}
+                onChange={(e) => setLineaNegocioId(e.target.value || null)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option value="">Compartido (todas las líneas)</option>
+                {lineasActivas.map((linea) => (
+                  <option key={linea.id} value={linea.id}>
+                    {linea.nombre}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Dejar como "Compartido" para gastos que aplican a todas las líneas de negocio
+              </p>
             </div>
           </div>
 
@@ -520,10 +555,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
           )}
 
           {/* Sección 3: Tipo y Descripción */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Detalle del Gasto</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Detalle del Gasto</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <AutocompleteInput
                 label="Tipo de Gasto"
                 value={formData.tipo}
@@ -547,45 +582,47 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
           </div>
 
           {/* Sección 3: Monto y Moneda */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
               Monto del Gasto
             </h3>
 
             {/* Selector de Moneda Visual */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Moneda *</label>
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => handleChange('moneda', 'PEN')}
-                  className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                  className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                     formData.moneda === 'PEN'
                       ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
                       : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                   }`}
                 >
-                  <Banknote className="h-5 w-5" />
-                  S/ Soles (PEN)
+                  <Banknote className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="sm:hidden">S/ PEN</span>
+                  <span className="hidden sm:inline">S/ Soles (PEN)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleChange('moneda', 'USD')}
-                  className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                  className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                     formData.moneda === 'USD'
                       ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-200'
                       : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                   }`}
                 >
-                  <DollarSign className="h-5 w-5" />
-                  $ Dólares (USD)
+                  <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="sm:hidden">$ USD</span>
+                  <span className="hidden sm:inline">$ Dólares (USD)</span>
                 </button>
               </div>
             </div>
 
             {/* Monto y Tipo de Cambio */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Monto {formData.moneda === 'USD' ? '($)' : '(S/)'} *
@@ -621,20 +658,20 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
             {/* Preview de equivalencias */}
             {formData.montoOriginal > 0 && (formData.tipoCambio ?? 0) > 0 && (
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-gray-200">
-                <div className="text-sm font-medium text-gray-700 mb-2">Equivalencias:</div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className={`p-3 rounded-lg ${formData.moneda === 'PEN' ? 'bg-green-100 ring-2 ring-green-300' : 'bg-white'}`}>
-                    <div className="text-xs text-gray-500">En Soles</div>
-                    <div className="text-lg font-bold text-green-700">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-3 sm:p-4 rounded-lg border border-gray-200">
+                <div className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Equivalencias:</div>
+                <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                  <div className={`p-2 sm:p-3 rounded-lg ${formData.moneda === 'PEN' ? 'bg-green-100 ring-2 ring-green-300' : 'bg-white'}`}>
+                    <div className="text-[10px] sm:text-xs text-gray-500">En Soles</div>
+                    <div className="text-sm sm:text-lg font-bold text-green-700">
                       S/ {formData.moneda === 'PEN'
                         ? formData.montoOriginal.toFixed(2)
                         : (formData.montoOriginal * (formData.tipoCambio ?? 1)).toFixed(2)}
                     </div>
                   </div>
-                  <div className={`p-3 rounded-lg ${formData.moneda === 'USD' ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white'}`}>
-                    <div className="text-xs text-gray-500">En Dólares</div>
-                    <div className="text-lg font-bold text-blue-700">
+                  <div className={`p-2 sm:p-3 rounded-lg ${formData.moneda === 'USD' ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white'}`}>
+                    <div className="text-[10px] sm:text-xs text-gray-500">En Dólares</div>
+                    <div className="text-sm sm:text-lg font-bold text-blue-700">
                       $ {formData.moneda === 'USD'
                         ? formData.montoOriginal.toFixed(2)
                         : (formData.montoOriginal / (formData.tipoCambio ?? 1)).toFixed(2)}
@@ -647,8 +684,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
           {/* Sección 4: CTRU y Prorrateo - Solo para GA y GO */}
           {(formData.categoria === 'GA' || formData.categoria === 'GO') && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Impacto en CTRU</h3>
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Impacto en CTRU</h3>
 
               <div className="space-y-3">
                 <label className="flex items-start space-x-3 cursor-pointer">
@@ -698,13 +735,13 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
           )}
 
           {/* Sección 5: Estado y Fecha */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
               Estado y Fecha
             </h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Fecha del Gasto *</label>
                 <input
@@ -748,19 +785,19 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
           {/* Sección 6: Información de Pago - Solo si está pagado */}
           {formData.estado === 'pagado' && (
-            <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
-              <h3 className="text-lg font-semibold text-green-800 flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
+            <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
+              <h3 className="text-base sm:text-lg font-semibold text-green-800 flex items-center gap-2">
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
                 Información del Pago
               </h3>
 
               {/* Método de Pago */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                   {[
                     { value: 'efectivo', label: 'Efectivo', icon: '💵' },
-                    { value: 'transferencia_bancaria', label: 'Transferencia', icon: '🏦' },
+                    { value: 'transferencia_bancaria', label: 'Transfer.', icon: '🏦' },
                     { value: 'yape', label: 'Yape', icon: '📱' },
                     { value: 'plin', label: 'Plin', icon: '📲' },
                     { value: 'tarjeta_credito', label: 'T. Crédito', icon: '💳' },
@@ -770,13 +807,13 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                       key={metodo.value}
                       type="button"
                       onClick={() => setMetodoPago(metodo.value as MetodoTesoreria)}
-                      className={`py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                      className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all ${
                         metodoPago === metodo.value
                           ? 'border-green-500 bg-white text-green-700'
                           : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                       }`}
                     >
-                      <span className="mr-1">{metodo.icon}</span>
+                      <span className="mr-0.5 sm:mr-1">{metodo.icon}</span>
                       {metodo.label}
                     </button>
                   ))}
@@ -870,10 +907,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
           )}
 
           {/* Sección 7: Información Adicional */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Información Adicional</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Información Adicional</h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <Input
                 label="Proveedor (Opcional)"
                 type="text"

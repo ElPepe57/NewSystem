@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Input, Select } from '../../common';
 import { almacenService } from '../../../services/almacen.service';
 import type { Almacen, AlmacenFormData, TipoAlmacen, EstadoAlmacen, PaisAlmacen, FrecuenciaViaje } from '../../../types/almacen.types';
+import { PAISES_CONFIG } from '../../../types/almacen.types';
+import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
 
 interface AlmacenFormProps {
   almacen?: Almacen;
@@ -40,6 +42,12 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loadingCodigo, setLoadingCodigo] = useState(false);
+
+  const { paisesActivos, fetchPaisesActivos } = usePaisOrigenStore();
+
+  useEffect(() => {
+    if (paisesActivos.length === 0) fetchPaisesActivos();
+  }, []);
 
   // Función para cargar el próximo código automático
   const cargarProximoCodigo = useCallback(async (tipo: TipoAlmacen) => {
@@ -100,7 +108,8 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
 
   const handleTipoChange = (tipo: TipoAlmacen) => {
     const esViajero = tipo === 'viajero';
-    const pais: PaisAlmacen = tipo === 'almacen_peru' ? 'Peru' : 'USA';
+    // Only auto-assign Peru for almacen_peru; otherwise keep current selection
+    const pais: PaisAlmacen = tipo === 'almacen_peru' ? 'Peru' : formData.pais;
     setFormData(prev => ({
       ...prev,
       tipo,
@@ -143,7 +152,8 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
 
   const tipoOptions = [
     { value: 'viajero', label: 'Viajero (almacena y transporta)' },
-    { value: 'almacen_usa', label: 'Almacén USA (fijo)' },
+    { value: 'almacen_origen', label: 'Almacén Origen (fijo)' },
+    { value: 'courier', label: 'Courier Internacional' },
     { value: 'almacen_peru', label: 'Almacén Perú' }
   ];
 
@@ -168,7 +178,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Tipo
         </label>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {tipoOptions.map(option => (
             <button
               key={option.value}
@@ -181,13 +191,38 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
               }`}
             >
               {option.value === 'viajero' && <span className="block text-lg mb-1">👤</span>}
-              {option.value === 'almacen_usa' && <span className="block text-lg mb-1">🇺🇸</span>}
+              {option.value === 'almacen_origen' && <span className="block text-lg mb-1">📦</span>}
+              {option.value === 'courier' && <span className="block text-lg mb-1">🚚</span>}
               {option.value === 'almacen_peru' && <span className="block text-lg mb-1">🇵🇪</span>}
               {option.label}
             </button>
           ))}
         </div>
       </div>
+
+      {/* País */}
+      {formData.tipo !== 'almacen_peru' && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">País</label>
+          <select
+            value={formData.pais}
+            onChange={(e) => handleChange('pais', e.target.value as PaisAlmacen)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            {/* Static options from PAISES_CONFIG */}
+            {Object.entries(PAISES_CONFIG).filter(([, cfg]) => cfg.esOrigen).map(([code, cfg]) => (
+              <option key={code} value={code}>{cfg.emoji} {cfg.nombre}</option>
+            ))}
+            {/* Dynamic options from paisesOrigen that are not already in PAISES_CONFIG */}
+            {paisesActivos
+              .filter(p => !PAISES_CONFIG[p.codigo])
+              .map(p => (
+                <option key={p.codigo} value={p.codigo}>{p.nombre}</option>
+              ))
+            }
+          </select>
+        </div>
+      )}
 
       {/* Información básica */}
       <div className="grid grid-cols-2 gap-4">
@@ -240,7 +275,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
             label="Ciudad"
             value={formData.ciudad}
             onChange={(e) => handleChange('ciudad', e.target.value)}
-            placeholder="Miami"
+            placeholder="Ciudad"
             error={errors.ciudad}
           />
           <Input

@@ -171,6 +171,11 @@ service cloud.firestore {
       allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
     }
 
+    match /estadisticas/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
     // ============================================================
     // DATOS MAESTROS (todos leen, solo admin escribe)
     // ============================================================
@@ -263,6 +268,11 @@ service cloud.firestore {
       allow write: if isActiveUser();
     }
 
+    match /llamadasIntel/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isActiveUser();
+    }
+
     // ============================================================
     // MERCADO LIBRE (admin y gerente gestionan, todos leen estado)
     // ============================================================
@@ -287,11 +297,78 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // LINEAS DE NEGOCIO
+    // ============================================================
+    match /lineasNegocio/{docId} {
+      allow read: if isActiveUser();
+      allow write: if isAdmin();
+    }
+
+    // ============================================================
+    // PAISES DE ORIGEN
+    // ============================================================
+    match /paisesOrigen/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente']);
+    }
+
+    // ============================================================
     // CONFIGURACION DE EMPRESA
     // ============================================================
     match /configuracion/{docId} {
       allow read: if isActiveUser();
       allow write: if hasAnyRole(['admin', 'gerente']);
+    }
+
+    // ============================================================
+    // ESCANER E INVENTARIO FISICO
+    // SEC-006 FIX: Colecciones que el frontend necesita pero no tenían reglas
+    // ============================================================
+    match /scanHistory/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero', 'vendedor']);
+    }
+
+    match /conteosInventario/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero']);
+    }
+
+    // ============================================================
+    // WHATSAPP (Cloud Functions escriben via admin SDK, UI solo lee)
+    // ============================================================
+    match /whatsapp_sessions/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente']);
+      allow write: if false; // Solo Cloud Functions via admin SDK
+    }
+
+    match /whatsapp_config/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente']);
+      allow write: if false; // Solo Cloud Functions via admin SDK
+    }
+
+    // ============================================================
+    // ML WEBHOOK LOG (Cloud Functions escriben, admin puede leer para debug)
+    // ============================================================
+    match /mlWebhookLog/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente']);
+      allow write: if false; // Solo Cloud Functions via admin SDK
+    }
+
+    // ============================================================
+    // CONTADORES SECUENCIALES (numeros de venta, gasto, etc.)
+    // ============================================================
+    match /contadores/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'finanzas']);
+    }
+
+    // ============================================================
+    // WHATSAPP MESSAGES (Cloud Functions escriben, admin puede leer)
+    // ============================================================
+    match /whatsapp_messages/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente']);
+      allow write: if false; // Solo Cloud Functions via admin SDK
     }
 
     // ============================================================

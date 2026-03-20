@@ -20,12 +20,17 @@ import type {
   TransferenciaFormData,
   TransferenciaUnidad,
   RecepcionFormData,
+  RecepcionTransferencia,
   TransferenciaFiltros,
   ResumenTransferencias,
   EstadoTransferencia,
   PagoViajero
 } from '../types/transferencia.types';
 import type { Unidad, MovimientoUnidad, EstadoUnidad } from '../types/unidad.types';
+import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
+import { TIPOS_TRANSFERENCIA_INTERNA, TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/transferencia.types';
+import { esTipoTransferenciaInterna, esTipoTransferenciaInternacional, esEstadoEnOrigen } from '../utils/multiOrigen.helpers';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { almacenService } from './almacen.service';
 import { ProductoService } from './producto.service';
 import { tesoreriaService } from './tesoreria.service';
@@ -49,35 +54,43 @@ function getPagosArray(transferencia: Transferencia): PagoViajero[] {
 }
 
 /**
+ * Helper: obtiene recepciones como array (backward compat con recepcion singular)
+ */
+function getRecepcionesArray(transferencia: Transferencia): RecepcionTransferencia[] {
+  if (transferencia.recepcionesTransferencia && transferencia.recepcionesTransferencia.length > 0) {
+    return transferencia.recepcionesTransferencia;
+  }
+  if (transferencia.recepcion) {
+    return [{
+      ...transferencia.recepcion,
+      id: 'REC-TRF-legacy',
+      numero: 1,
+      unidadesProcesadas: []
+    }];
+  }
+  return [];
+}
+
+/**
+ * Helper: identifica unidades pendientes de recepcion
+ * Estados válidos: 'pendiente' (legacy, pre-envio), 'enviada' (en tránsito), 'faltante' (retry)
+ */
+function getUnidadesPendientesRecepcion(transferencia: Transferencia): TransferenciaUnidad[] {
+  return transferencia.unidades.filter(
+    u => u.estadoTransferencia === 'enviada' || u.estadoTransferencia === 'faltante'
+      || u.estadoTransferencia === 'pendiente'
+  );
+}
+
+/**
  * Genera el siguiente número de transferencia
  */
-async function generarNumeroTransferencia(tipo: 'interna_usa' | 'usa_peru'): Promise<string> {
-  const prefix = tipo === 'interna_usa' ? 'TRF' : 'ENV';
+async function generarNumeroTransferencia(tipo: 'interna_usa' | 'usa_peru' | 'interna_origen' | 'internacional_peru'): Promise<string> {
+  const esInterna = tipo === 'interna_usa' || tipo === 'interna_origen';
+  const prefix = esInterna ? 'TRF' : 'ENV';
   const year = new Date().getFullYear();
 
-  // Query simple sin orderBy para evitar índices compuestos
-  const q = query(
-    collection(db, COLLECTION_NAME),
-    where('tipo', '==', tipo)
-  );
-
-  const snapshot = await getDocs(q);
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(doc => {
-    const data = doc.data();
-    const numero = data.numeroTransferencia;
-    // Extraer el número del formato TRF-2024-001 o ENV-2024-001
-    const match = numero?.match(/-(\d+)$/);
-    if (match) {
-      const num = parseInt(match[1], 10);
-      if (num > maxNumber) {
-        maxNumber = num;
-      }
-    }
-  });
-
-  return `${prefix}-${year}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber(`${prefix}-${year}`, 3);
 }
 
 export const transferenciaService = {
@@ -138,7 +151,14 @@ export const transferenciaService = {
     let q = query(collection(db, COLLECTION_NAME));
 
     if (filtros.tipo) {
-      q = query(q, where('tipo', '==', filtros.tipo));
+      // Use arrays for backward compat (match both legacy and generic types)
+      if (esTipoTransferenciaInterna(filtros.tipo)) {
+        q = query(q, where('tipo', 'in', TIPOS_TRANSFERENCIA_INTERNA));
+      } else if (esTipoTransferenciaInternacional(filtros.tipo)) {
+        q = query(q, where('tipo', 'in', TIPOS_TRANSFERENCIA_INTERNACIONAL));
+      } else {
+        q = query(q, where('tipo', '==', filtros.tipo));
+      }
     }
 
     if (filtros.estado) {
@@ -212,7 +232,7 @@ export const transferenciaService = {
   async getPendientesRecepcion(): Promise<Transferencia[]> {
     const q = query(
       collection(db, COLLECTION_NAME),
-      where('estado', 'in', ['en_transito', 'preparando'])
+      where('estado', 'in', ['en_transito', 'preparando', 'recibida_parcial'])
     );
     const snapshot = await getDocs(q);
 
@@ -266,7 +286,7 @@ export const transferenciaService = {
       // Validar estado válido para transferir
       // Incluye 'reservada' porque las unidades reservadas en USA para un
       // requerimiento/cotización deben poder transferirse a Perú
-      const estadosValidos: EstadoUnidad[] = ['recibida_usa', 'disponible_peru', 'reservada'];
+      const estadosValidos: EstadoUnidad[] = [...ESTADOS_EN_ORIGEN, 'disponible_peru', 'reservada'];
       if (!estadosValidos.includes(unidadData.estado)) {
         throw new Error(`La unidad ${unidadData.productoSKU} (${unidadData.lote}) no está en estado válido para transferir`);
       }
@@ -356,7 +376,7 @@ export const transferenciaService = {
     };
 
     // Campos opcionales - solo agregar si tienen valor
-    if (data.tipo === 'usa_peru') {
+    if (esTipoTransferenciaInternacional(data.tipo)) {
       nuevaTransferencia.costoFleteTotal = costoFleteTotal;
       nuevaTransferencia.monedaFlete = 'USD';
     }
@@ -387,6 +407,19 @@ export const transferenciaService = {
 
     if (data.notas) {
       nuevaTransferencia.notas = data.notas;
+    }
+
+    // Auto-inherit lineaNegocioId from units being transferred
+    // Use the first unit that has a lineaNegocioId
+    for (const [, grupo] of unidadesPorProducto) {
+      const unidadConLinea = grupo.unidades.find(u => u.lineaNegocioId);
+      if (unidadConLinea) {
+        nuevaTransferencia.lineaNegocioId = unidadConLinea.lineaNegocioId;
+        if (unidadConLinea.lineaNegocioNombre) {
+          nuevaTransferencia.lineaNegocioNombre = unidadConLinea.lineaNegocioNombre;
+        }
+        break;
+      }
     }
 
     const transferenciaRef = doc(collection(db, COLLECTION_NAME));
@@ -444,11 +477,18 @@ export const transferenciaService = {
     const now = Timestamp.now();
     const fechaSalida = datos.fechaSalida ? Timestamp.fromDate(datos.fechaSalida) : now;
 
+    // Actualizar estadoTransferencia de cada unidad en el doc de transferencia a 'enviada'
+    const unidadesEnviadas = transferencia.unidades.map(u => ({
+      ...u,
+      estadoTransferencia: 'enviada' as const,
+    }));
+
     // Actualizar transferencia
     const transferenciaRef = doc(db, COLLECTION_NAME, transferenciaId);
     const transferenciaUpdate: Record<string, unknown> = {
       estado: 'en_transito',
       fechaSalida,
+      unidades: unidadesEnviadas,
       actualizadoPor: userId,
       fechaActualizacion: now
     };
@@ -462,9 +502,9 @@ export const transferenciaService = {
     batch.update(transferenciaRef, transferenciaUpdate);
 
     // Actualizar estado de cada unidad
-    const estadoNuevo: EstadoUnidad = transferencia.tipo === 'usa_peru'
+    const estadoNuevo: EstadoUnidad = esTipoTransferenciaInternacional(transferencia.tipo)
       ? 'en_transito_peru'
-      : 'en_transito_usa';
+      : 'en_transito_origen';
 
     for (const unidad of transferencia.unidades) {
       const unidadRef = doc(db, UNIDADES_COLLECTION, unidad.unidadId);
@@ -482,7 +522,7 @@ export const transferenciaService = {
           almacenOrigen: transferencia.almacenOrigenId,
           almacenDestino: transferencia.almacenDestinoId,
           usuarioId: userId,
-          observaciones: `Envío ${transferencia.tipo === 'usa_peru' ? 'USA → Perú' : 'interno USA'}. Estado: ${estadoAnterior} → ${estadoNuevo}`,
+          observaciones: `Envío ${esTipoTransferenciaInternacional(transferencia.tipo) ? 'Internacional → Perú' : 'interno origen'}. Estado: ${estadoAnterior} → ${estadoNuevo}`,
           documentoRelacionado: {
             tipo: 'transferencia',
             id: transferenciaId,
@@ -492,16 +532,19 @@ export const transferenciaService = {
 
         const unidadUpdate: Record<string, unknown> = {
           estado: estadoNuevo,
+          // Guardar estado previo para rollback en caso de faltante
+          estadoAntesDeTransferencia: estadoAnterior,
           transferenciaActualId: transferenciaId,
           numeroTransferencia: transferencia.numeroTransferencia,
+          // NOTA: reservadaPara se preserva implícitamente (updateDoc no borra campos no mencionados)
           movimientos: [...(unidadData.movimientos || []), nuevoMovimiento],
           actualizadoPor: userId,
           fechaActualizacion: now
         };
 
-        // Solo incluir fechaSalidaUSA para transferencias usa_peru
-        if (transferencia.tipo === 'usa_peru') {
-          unidadUpdate.fechaSalidaUSA = fechaSalida;
+        // Solo incluir fechaSalidaOrigen para transferencias internacionales
+        if (esTipoTransferenciaInternacional(transferencia.tipo)) {
+          unidadUpdate.fechaSalidaOrigen = fechaSalida;
         }
 
         batch.update(unidadRef, unidadUpdate);
@@ -535,7 +578,9 @@ export const transferenciaService = {
   // ============================================
 
   /**
-   * Registra la recepción de una transferencia
+   * Registra la recepción de una transferencia (soporta múltiples recepciones parciales)
+   * - Primera recepción: en_transito → recibida_parcial o recibida_completa
+   * - Recepciones adicionales: recibida_parcial → recibida_parcial o recibida_completa
    */
   async registrarRecepcion(data: RecepcionFormData, userId: string): Promise<void> {
     const transferencia = await this.getById(data.transferenciaId);
@@ -543,205 +588,274 @@ export const transferenciaService = {
       throw new Error('Transferencia no encontrada');
     }
 
-    if (transferencia.estado !== 'en_transito') {
-      throw new Error('Solo se pueden recibir transferencias en tránsito');
+    // Permitir en_transito (primera recepcion) Y recibida_parcial (recepciones adicionales)
+    if (transferencia.estado !== 'en_transito' && transferencia.estado !== 'recibida_parcial') {
+      throw new Error('Solo se pueden recibir transferencias en tránsito o con recepción parcial');
+    }
+
+    // Re-fetch almacén destino para obtener datos actualizados (el ID/nombre pudo cambiar post-migración)
+    const almacenDestino = await almacenService.getById(transferencia.almacenDestinoId);
+    const almacenDestinoId = almacenDestino?.id || transferencia.almacenDestinoId;
+    const almacenDestinoNombre = almacenDestino?.nombre || transferencia.almacenDestinoNombre;
+
+    // Validar que las unidades enviadas están realmente pendientes
+    const unidadesPendientes = getUnidadesPendientesRecepcion(transferencia);
+    const idsPendientes = new Set(unidadesPendientes.map(u => u.unidadId));
+    for (const ur of data.unidadesRecibidas) {
+      if (!idsPendientes.has(ur.unidadId)) {
+        throw new Error(`Unidad ${ur.unidadId.slice(0, 8)}... ya fue procesada en una recepción anterior`);
+      }
     }
 
     const batch = writeBatch(db);
     const now = Timestamp.now();
+    const esPrimeraRecepcion = transferencia.estado === 'en_transito';
 
-    // Contadores
-    let unidadesRecibidas = 0;
-    let unidadesFaltantes = 0;
-    let unidadesDanadas = 0;
+    // Contadores de ESTA recepcion
+    let recEnEsta = 0;
+    let faltEnEsta = 0;
+    let danEnEsta = 0;
 
-    // Procesar cada unidad
-    const unidadesActualizadas: TransferenciaUnidad[] = [];
+    // Clonar array de unidades completo para actualizar
+    const unidadesActualizadas = [...transferencia.unidades];
+    const unidadesProcesadas: NonNullable<RecepcionTransferencia['unidadesProcesadas']> = [];
 
     for (const unidadRecepcion of data.unidadesRecibidas) {
-      const unidadTransferencia = transferencia.unidades.find(
-        u => u.unidadId === unidadRecepcion.unidadId
-      );
+      const idx = unidadesActualizadas.findIndex(u => u.unidadId === unidadRecepcion.unidadId);
+      if (idx === -1) continue;
 
-      if (!unidadTransferencia) continue;
-
+      const unidadTransferencia = unidadesActualizadas[idx];
       let estadoTransferencia: TransferenciaUnidad['estadoTransferencia'];
+      let resultado: 'recibida' | 'faltante' | 'danada';
 
       if (!unidadRecepcion.recibida) {
-        estadoTransferencia = 'faltante';
-        unidadesFaltantes++;
+        estadoTransferencia = 'faltante'; resultado = 'faltante'; faltEnEsta++;
       } else if (unidadRecepcion.danada) {
-        estadoTransferencia = 'danada';
-        unidadesDanadas++;
-        unidadesRecibidas++;
+        estadoTransferencia = 'danada'; resultado = 'danada'; danEnEsta++; recEnEsta++;
       } else {
-        estadoTransferencia = 'recibida';
-        unidadesRecibidas++;
+        estadoTransferencia = 'recibida'; resultado = 'recibida'; recEnEsta++;
       }
 
-      const unidadActualizada: TransferenciaUnidad = {
+      // Actualizar unidad en el array de la transferencia
+      unidadesActualizadas[idx] = {
         ...unidadTransferencia,
-        estadoTransferencia
+        estadoTransferencia,
+        ...(unidadRecepcion.incidencia ? { incidencia: unidadRecepcion.incidencia } : {})
       };
 
-      // Solo incluir incidencia si tiene valor
-      if (unidadRecepcion.incidencia) {
-        unidadActualizada.incidencia = unidadRecepcion.incidencia;
-      }
+      unidadesProcesadas.push({
+        unidadId: unidadRecepcion.unidadId,
+        resultado,
+        ...(unidadRecepcion.incidencia ? { incidencia: unidadRecepcion.incidencia } : {})
+      });
 
-      unidadesActualizadas.push(unidadActualizada);
-
-      // Actualizar la unidad en Firestore
+      // Actualizar documento de Unidad en Firestore
       const unidadRef = doc(db, UNIDADES_COLLECTION, unidadRecepcion.unidadId);
       const unidadSnap = await getDoc(unidadRef);
 
-      if (unidadSnap.exists() && unidadRecepcion.recibida) {
+      if (unidadSnap.exists()) {
         const unidadData = unidadSnap.data() as Unidad;
         const estadoAnterior = unidadData.estado;
 
-        // Determinar nuevo estado
-        // IMPORTANTE: Si la unidad estaba reservada para una cotización/venta,
-        // debe mantener ese estado después de la recepción
-        const estabaReservada = unidadData.reservadaPara || (unidadData as any).reservadoPara;
+        if (unidadRecepcion.recibida) {
+          // Unidad recibida (OK o dañada) — mover al almacén destino
+          const estabaReservada = unidadData.reservadaPara || (unidadData as any).reservadoPara;
 
-        let estadoNuevo: EstadoUnidad;
-        if (unidadRecepcion.danada) {
-          estadoNuevo = 'danada';
-        } else if (estabaReservada) {
-          // Mantener estado reservada - la unidad sigue comprometida para la cotización/venta
-          estadoNuevo = 'reservada';
-        } else if (transferencia.tipo === 'usa_peru') {
-          estadoNuevo = 'disponible_peru';
-        } else {
-          estadoNuevo = 'recibida_usa';
-        }
-
-        // Calcular días en tránsito
-        const diasEnTransito = transferencia.fechaSalida
-          ? Math.ceil((now.toMillis() - transferencia.fechaSalida.toMillis()) / (1000 * 60 * 60 * 24))
-          : 0;
-
-        // Obtener datos del almacén destino
-        const almacenDestino = await almacenService.getById(transferencia.almacenDestinoId);
-
-        // Crear movimiento
-        const observacion = unidadRecepcion.incidencia
-          ? `Recepción ${transferencia.tipo === 'usa_peru' ? 'en Perú' : 'en USA'}. Incidencia: ${unidadRecepcion.incidencia}`
-          : `Recepción ${transferencia.tipo === 'usa_peru' ? 'en Perú' : 'en USA'}. Estado: ${estadoAnterior} → ${estadoNuevo}`;
-
-        const nuevoMovimiento: MovimientoUnidad = {
-          id: `mov-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          tipo: 'transferencia',
-          fecha: now,
-          almacenOrigen: transferencia.almacenOrigenId,
-          almacenDestino: transferencia.almacenDestinoId,
-          usuarioId: userId,
-          observaciones: observacion,
-          documentoRelacionado: {
-            tipo: 'transferencia',
-            id: data.transferenciaId,
-            numero: transferencia.numeroTransferencia
+          let estadoNuevo: EstadoUnidad;
+          if (unidadRecepcion.danada) {
+            estadoNuevo = 'danada';
+          } else if (estabaReservada) {
+            estadoNuevo = 'reservada';
+          } else if (esTipoTransferenciaInternacional(transferencia.tipo)) {
+            estadoNuevo = 'disponible_peru';
+          } else {
+            estadoNuevo = 'recibida_origen';
           }
-        };
 
-        const updateData: Record<string, unknown> = {
-          estado: estadoNuevo,
-          almacenId: transferencia.almacenDestinoId,
-          almacenNombre: transferencia.almacenDestinoNombre,
-          pais: transferencia.tipo === 'usa_peru' ? 'Peru' : 'USA',
-          transferenciaActualId: deleteField(),
-          numeroTransferencia: deleteField(),
-          movimientos: [...(unidadData.movimientos || []), nuevoMovimiento],
-          actualizadoPor: userId,
-          fechaActualizacion: now
-        };
+          const observacion = unidadRecepcion.incidencia
+            ? `Recepción ${esTipoTransferenciaInternacional(transferencia.tipo) ? 'en Perú' : 'en origen'}. Incidencia: ${unidadRecepcion.incidencia}`
+            : `Recepción ${esTipoTransferenciaInternacional(transferencia.tipo) ? 'en Perú' : 'en origen'}. Estado: ${estadoAnterior} → ${estadoNuevo}`;
 
-        // Si llegó a Perú, registrar fecha y costo de flete
-        if (transferencia.tipo === 'usa_peru') {
-          updateData.fechaLlegadaPeru = now;
+          const nuevoMovimiento: MovimientoUnidad = {
+            id: `mov-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            tipo: 'transferencia',
+            fecha: now,
+            almacenOrigen: transferencia.almacenOrigenId,
+            almacenDestino: transferencia.almacenDestinoId,
+            usuarioId: userId,
+            observaciones: observacion,
+            documentoRelacionado: {
+              tipo: 'transferencia',
+              id: data.transferenciaId,
+              numero: transferencia.numeroTransferencia
+            }
+          };
 
-          // Propagar el costo de flete USD de la transferencia a la unidad
-          // Siempre escribir el campo para que exista en el documento
-          if (unidadTransferencia) {
+          const updateData: Record<string, unknown> = {
+            estado: estadoNuevo,
+            almacenId: almacenDestinoId,
+            almacenNombre: almacenDestinoNombre,
+            pais: esTipoTransferenciaInternacional(transferencia.tipo) ? 'Peru' : (unidadData.pais || almacenDestino?.pais || 'USA'),
+            estadoAntesDeTransferencia: deleteField(),
+            transferenciaActualId: deleteField(),
+            numeroTransferencia: deleteField(),
+            movimientos: [...(unidadData.movimientos || []), nuevoMovimiento],
+            actualizadoPor: userId,
+            fechaActualizacion: now
+          };
+
+          // Aplicar fecha de vencimiento si fue proporcionada desde el escáner
+          if (data.fechasVencimiento?.[unidadTransferencia.productoId]) {
+            const fvStr = data.fechasVencimiento[unidadTransferencia.productoId];
+            updateData.fechaVencimiento = Timestamp.fromDate(new Date(fvStr + 'T00:00:00'));
+          }
+
+          if (esTipoTransferenciaInternacional(transferencia.tipo)) {
+            updateData.fechaLlegadaPeru = now;
             const costoFleteUSD = unidadTransferencia.costoFleteUSD ?? 0;
             updateData.costoFleteUSD = costoFleteUSD;
 
-            // Recalcular ctruInicial para incluir el flete internacional
-            // ctruInicial fue calculado al recibir la OC SIN flete, ahora lo actualizamos
             if (costoFleteUSD > 0) {
               const tc = unidadData.tcPago || unidadData.tcCompra || 0;
               const costoBasePEN = (unidadData.costoUnitarioUSD || 0) * tc;
               const costoFletePEN = costoFleteUSD * tc;
               const nuevoCtruInicial = costoBasePEN + costoFletePEN;
               updateData.ctruInicial = nuevoCtruInicial;
-              // También actualizar ctruDinamico si no tiene GA/GO asignado
-              // (si tiene GA/GO, el recálculo dinámico lo corregirá)
               if (!(unidadData as any).costoGAGOAsignado || (unidadData as any).costoGAGOAsignado === 0) {
                 updateData.ctruDinamico = nuevoCtruInicial;
               }
             }
           }
-        }
 
-        batch.update(unidadRef, updateData);
+          batch.update(unidadRef, updateData);
+        } else {
+          // Unidad faltante — marcar como faltante y devolver al almacén origen
+          const nuevoMovimiento: MovimientoUnidad = {
+            id: `mov-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            tipo: 'transferencia',
+            fecha: now,
+            almacenOrigen: transferencia.almacenOrigenId,
+            almacenDestino: transferencia.almacenDestinoId,
+            usuarioId: userId,
+            observaciones: `Faltante en recepción ${esTipoTransferenciaInternacional(transferencia.tipo) ? 'Perú' : 'origen'}. Unidad no recibida — devuelta a origen.`,
+            documentoRelacionado: {
+              tipo: 'transferencia',
+              id: data.transferenciaId,
+              numero: transferencia.numeroTransferencia
+            }
+          };
+
+          // Faltante: devolver al estado previo a la transferencia (guardado en enviar)
+          const estadoRollback: EstadoUnidad = (unidadData as any).estadoAntesDeTransferencia
+            || (estadoAnterior.startsWith('en_transito')
+              ? (unidadData.pais === 'Peru' ? 'disponible_peru' : 'recibida_origen')
+              : estadoAnterior);
+          batch.update(unidadRef, {
+            estado: estadoRollback,
+            estadoAntesDeTransferencia: deleteField(),
+            transferenciaActualId: deleteField(),
+            numeroTransferencia: deleteField(),
+            movimientos: [...(unidadData.movimientos || []), nuevoMovimiento],
+            actualizadoPor: userId,
+            fechaActualizacion: now
+          });
+        }
       }
     }
 
-    // Determinar estado final de la transferencia
-    const estadoFinal: EstadoTransferencia =
-      unidadesFaltantes > 0 || unidadesDanadas > 0
-        ? 'recibida_parcial'
-        : 'recibida_completa';
+    // Calcular totales acumulados desde array de unidades actualizado
+    const totalRecibidas = unidadesActualizadas.filter(u => u.estadoTransferencia === 'recibida').length;
+    const totalFaltantes = unidadesActualizadas.filter(u => u.estadoTransferencia === 'faltante').length;
+    const totalDanadas = unidadesActualizadas.filter(u => u.estadoTransferencia === 'danada').length;
+    const totalPendientes = unidadesActualizadas.filter(
+      u => u.estadoTransferencia === 'enviada' || u.estadoTransferencia === 'pendiente'
+    ).length;
 
-    // Calcular días en tránsito
+    // Estado: recibida_completa solo cuando NO quedan pendientes ni faltante
+    const estadoFinal: EstadoTransferencia =
+      (totalPendientes === 0 && totalFaltantes === 0) ? 'recibida_completa' : 'recibida_parcial';
+
     const diasEnTransito = transferencia.fechaSalida
       ? Math.ceil((now.toMillis() - transferencia.fechaSalida.toMillis()) / (1000 * 60 * 60 * 24))
       : 0;
 
-    // Actualizar transferencia
-    const transferenciaRef = doc(db, COLLECTION_NAME, data.transferenciaId);
+    // Construir nuevo registro de recepcion
+    const recepcionesAnteriores = getRecepcionesArray(transferencia);
+    const recepcionNumero = recepcionesAnteriores.filter(r => r.id !== 'REC-TRF-legacy').length + 1;
 
-    // Construir objeto recepcion sin campos undefined
-    const recepcionData: Record<string, unknown> = {
+    const nuevaRecepcion: Record<string, unknown> = {
+      id: `REC-TRF-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+      numero: recepcionNumero,
       fechaRecepcion: now,
       recibidoPor: userId,
       unidadesEsperadas: transferencia.totalUnidades,
-      unidadesRecibidas,
-      unidadesFaltantes,
-      unidadesDanadas
+      unidadesRecibidas: recEnEsta,
+      unidadesFaltantes: faltEnEsta,
+      unidadesDanadas: danEnEsta,
+      unidadesProcesadas
     };
+    if (data.observaciones) nuevaRecepcion.observaciones = data.observaciones;
+    if (data.fotoEvidencia) nuevaRecepcion.fotoEvidencia = data.fotoEvidencia;
 
-    // Solo incluir campos opcionales si tienen valor
-    if (data.observaciones) {
-      recepcionData.observaciones = data.observaciones;
-    }
-    if (data.fotoEvidencia) {
-      recepcionData.fotoEvidencia = data.fotoEvidencia;
-    }
+    const nuevasRecepciones = [
+      ...recepcionesAnteriores.filter(r => r.id !== 'REC-TRF-legacy'),
+      nuevaRecepcion
+    ];
 
-    batch.update(transferenciaRef, {
+    // Legacy recepcion field (cumulative snapshot for backwards compat)
+    const recepcionLegacy: Record<string, unknown> = {
+      fechaRecepcion: now,
+      recibidoPor: userId,
+      unidadesEsperadas: transferencia.totalUnidades,
+      unidadesRecibidas: totalRecibidas,
+      unidadesFaltantes: totalFaltantes,
+      unidadesDanadas: totalDanadas
+    };
+    if (data.observaciones) recepcionLegacy.observaciones = data.observaciones;
+
+    // Construir update de transferencia
+    const transferenciaRef = doc(db, COLLECTION_NAME, data.transferenciaId);
+    const transferenciaUpdate: Record<string, unknown> = {
       estado: estadoFinal,
-      fechaLlegadaReal: now,
       diasEnTransito,
       unidades: unidadesActualizadas,
-      recepcion: recepcionData,
+      recepcion: recepcionLegacy,
+      recepcionesTransferencia: nuevasRecepciones,
+      totalUnidadesRecibidas: totalRecibidas,
+      totalUnidadesFaltantes: totalFaltantes,
+      totalUnidadesDanadas: totalDanadas,
       actualizadoPor: userId,
       fechaActualizacion: now
-    });
+    };
 
-    // Actualizar métricas del almacén destino
+    // Solo setear fechaLlegadaReal en la PRIMERA recepcion
+    if (esPrimeraRecepcion) {
+      transferenciaUpdate.fechaLlegadaReal = now;
+    }
+
+    batch.update(transferenciaRef, transferenciaUpdate);
+
+    // Actualizar métricas del almacén destino (solo las de ESTA recepcion)
     await almacenService.incrementarUnidadesRecibidas(
       transferencia.almacenDestinoId,
-      unidadesRecibidas
+      recEnEsta
     );
 
-    // Sincronizar stock de productos afectados desde unidades (fuente de verdad)
-    const productosAfectados = [...new Set(transferencia.unidades.map(u => u.productoId))];
+    // Sincronizar stock de productos afectados (recibidos + faltantes devueltos a origen)
+    const productosAfectados = [...new Set(
+      data.unidadesRecibidas
+        .map(ur => {
+          const u = transferencia.unidades.find(tu => tu.unidadId === ur.unidadId);
+          return u?.productoId;
+        })
+        .filter(Boolean) as string[]
+    )];
 
     await batch.commit();
 
-    // Sincronizar después del commit para reflejar cambios reales
-    await inventarioService.sincronizarStockProductos_batch(productosAfectados);
+    if (productosAfectados.length > 0) {
+      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
+    }
   },
 
   // ============================================
@@ -782,7 +896,7 @@ export const transferenciaService = {
 
     const enTransito = todas.filter(t => t.estado === 'en_transito');
     const pendientesRecepcion = todas.filter(t =>
-      t.estado === 'en_transito' || t.estado === 'preparando'
+      t.estado === 'en_transito' || t.estado === 'preparando' || t.estado === 'recibida_parcial'
     );
     const completadasMes = todas.filter(t =>
       (t.estado === 'recibida_completa' || t.estado === 'recibida_parcial') &&
@@ -790,21 +904,21 @@ export const transferenciaService = {
       t.fechaLlegadaReal.toDate() >= inicioMes
     );
 
-    const internasUSA = todas.filter(t => t.tipo === 'interna_usa').length;
-    const enviosUSAPeru = todas.filter(t => t.tipo === 'usa_peru').length;
+    const internasUSA = todas.filter(t => esTipoTransferenciaInterna(t.tipo)).length;
+    const enviosUSAPeru = todas.filter(t => esTipoTransferenciaInternacional(t.tipo)).length;
 
     // Unidades en tránsito
     const unidadesEnTransitoUSA = enTransito
-      .filter(t => t.tipo === 'interna_usa')
+      .filter(t => esTipoTransferenciaInterna(t.tipo))
       .reduce((sum, t) => sum + t.totalUnidades, 0);
 
     const unidadesEnTransitoPeru = enTransito
-      .filter(t => t.tipo === 'usa_peru')
+      .filter(t => esTipoTransferenciaInternacional(t.tipo))
       .reduce((sum, t) => sum + t.totalUnidades, 0);
 
-    // Tiempo promedio de tránsito USA-Perú
+    // Tiempo promedio de tránsito internacional
     const enviosCompletados = todas.filter(t =>
-      t.tipo === 'usa_peru' &&
+      esTipoTransferenciaInternacional(t.tipo) &&
       t.diasEnTransito !== undefined
     );
     const tiempoPromedioTransitoUSAPeru = enviosCompletados.length > 0
@@ -852,7 +966,7 @@ export const transferenciaService = {
   async migrarCostoFleteUnidades(): Promise<{ actualizadas: number; errores: number }> {
     try {
       // Obtener todas las transferencias USA→Perú completadas
-      const transferencias = await this.getByFiltros({ tipo: 'usa_peru' });
+      const transferencias = await this.getByFiltros({ tipo: 'internacional_peru' });
       const transferenciasCompletadas = transferencias.filter(
         t => t.estado === 'recibida_completa' || t.estado === 'recibida_parcial'
       );
@@ -905,7 +1019,7 @@ export const transferenciaService = {
   async migrarStockProductos(): Promise<{ productosActualizados: number; errores: number }> {
     try {
       // Obtener todas las transferencias USA→Perú completadas
-      const transferencias = await this.getByFiltros({ tipo: 'usa_peru' });
+      const transferencias = await this.getByFiltros({ tipo: 'internacional_peru' });
       const transferenciasCompletadas = transferencias.filter(
         t => t.estado === 'recibida_completa' || t.estado === 'recibida_parcial'
       );
@@ -973,8 +1087,8 @@ export const transferenciaService = {
       throw new Error('Transferencia no encontrada');
     }
 
-    if (transferencia.tipo !== 'usa_peru') {
-      throw new Error('Solo se pueden registrar pagos a viajero en transferencias USA-Perú');
+    if (!esTipoTransferenciaInternacional(transferencia.tipo)) {
+      throw new Error('Solo se pueden registrar pagos a viajero en transferencias internacionales');
     }
 
     // Permitir pagos parciales: solo bloquear si ya está completamente pagado
@@ -1206,7 +1320,7 @@ export const transferenciaService = {
   async getPendientesPagoViajero(): Promise<Transferencia[]> {
     const todas = await this.getAll();
     return todas.filter(t =>
-      t.tipo === 'usa_peru' &&
+      esTipoTransferenciaInternacional(t.tipo) &&
       t.costoFleteTotal &&
       t.costoFleteTotal > 0 &&
       t.estadoPagoViajero !== 'pagado' &&
@@ -1238,8 +1352,8 @@ export const transferenciaService = {
       throw new Error('Transferencia no encontrada');
     }
 
-    if (transferencia.tipo !== 'usa_peru') {
-      throw new Error('Solo se puede asignar flete a transferencias USA → Perú');
+    if (!esTipoTransferenciaInternacional(transferencia.tipo)) {
+      throw new Error('Solo se puede asignar flete a transferencias internacionales → Perú');
     }
 
     // Agrupar unidades por producto

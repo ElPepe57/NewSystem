@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { Check, Clock, AlertCircle, ChevronRight, ArrowRight } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 
@@ -31,17 +32,6 @@ export interface StatusTimelineProps {
   compact?: boolean;
 }
 
-const formatDate = (date: Timestamp | Date | null | undefined): string => {
-  if (!date) return '';
-
-  const d = 'toDate' in date ? date.toDate() : date;
-  return d.toLocaleDateString('es-PE', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
 
 const statusConfig = {
   completed: {

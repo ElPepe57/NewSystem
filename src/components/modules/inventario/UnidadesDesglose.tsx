@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
 import {
   Package,
   Calendar,
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '../../common';
 import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
+import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../utils/multiOrigen.helpers';
 
 interface UnidadesDesgloseProps {
   unidades: Unidad[];
@@ -19,16 +21,20 @@ interface UnidadesDesgloseProps {
   onUnidadClick?: (unidad: Unidad) => void;
 }
 
-const estadoConfig: Record<EstadoUnidad, { label: string; variant: 'success' | 'info' | 'warning' | 'danger' | 'default'; color: string }> = {
-  'recibida_usa': { label: 'Recibida USA', variant: 'info', color: 'bg-blue-100 text-blue-800' },
-  'en_transito_usa': { label: 'Tránsito USA', variant: 'warning', color: 'bg-amber-100 text-amber-800' },
-  'en_transito_peru': { label: 'Tránsito Perú', variant: 'warning', color: 'bg-amber-100 text-amber-800' },
-  'disponible_peru': { label: 'Disponible', variant: 'success', color: 'bg-green-100 text-green-800' },
-  'reservada': { label: 'Reservada', variant: 'default', color: 'bg-purple-100 text-purple-800' },
-  'asignada_pedido': { label: 'Asignada a Pedido', variant: 'warning', color: 'bg-indigo-100 text-indigo-800' },
-  'vendida': { label: 'Vendida', variant: 'default', color: 'bg-gray-100 text-gray-800' },
-  'vencida': { label: 'Vencida', variant: 'danger', color: 'bg-red-100 text-red-800' },
-  'danada': { label: 'Dañada', variant: 'danger', color: 'bg-red-100 text-red-800' }
+const getEstadoConfig = (estado: EstadoUnidad, pais?: string): { label: string; variant: 'success' | 'info' | 'warning' | 'danger' | 'default'; color: string } => {
+  const label = getLabelEstadoUnidad(estado, pais);
+  if (esEstadoEnOrigen(estado)) return { label, variant: 'info', color: 'bg-blue-100 text-blue-800' };
+  if (esEstadoEnTransitoOrigen(estado)) return { label, variant: 'warning', color: 'bg-amber-100 text-amber-800' };
+  switch (estado) {
+    case 'en_transito_peru': return { label, variant: 'warning', color: 'bg-amber-100 text-amber-800' };
+    case 'disponible_peru': return { label, variant: 'success', color: 'bg-green-100 text-green-800' };
+    case 'reservada': return { label, variant: 'default', color: 'bg-purple-100 text-purple-800' };
+    case 'asignada_pedido': return { label, variant: 'warning', color: 'bg-indigo-100 text-indigo-800' };
+    case 'vendida': return { label, variant: 'default', color: 'bg-gray-100 text-gray-800' };
+    case 'vencida': return { label, variant: 'danger', color: 'bg-red-100 text-red-800' };
+    case 'danada': return { label, variant: 'danger', color: 'bg-red-100 text-red-800' };
+    default: return { label, variant: 'default', color: 'bg-gray-100 text-gray-800' };
+  }
 };
 
 export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
@@ -44,7 +50,7 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
       estado: EstadoUnidad;
       almacenId: string;
       almacenNombre: string;
-      pais: 'USA' | 'Peru';
+      pais: string;
       unidades: Unidad[];
       valorTotal: number;
     }> = {};
@@ -76,17 +82,6 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
     });
   }, [unidades]);
 
-  // Calcular días para vencer
-  const calcularDiasParaVencer = (fecha: any): number => {
-    if (!fecha || !fecha.toDate) return 999;
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const vencimiento = fecha.toDate();
-    vencimiento.setHours(0, 0, 0, 0);
-    const diffTime = vencimiento.getTime() - hoy.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
-
   const getColorVencimiento = (dias: number): string => {
     if (dias < 0) return 'text-red-600 bg-red-50';
     if (dias <= 30) return 'text-amber-600 bg-amber-50';
@@ -94,14 +89,6 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
     return 'text-gray-600 bg-gray-50';
   };
 
-  const formatFecha = (timestamp: any): string => {
-    if (!timestamp || !timestamp.toDate) return '-';
-    return timestamp.toDate().toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
 
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-US', {
@@ -158,7 +145,7 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
         /* Vista agrupada por estado/almacén */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {unidadesAgrupadas.map((grupo) => {
-            const config = estadoConfig[grupo.estado] || estadoConfig['vendida'];
+            const config = getEstadoConfig(grupo.estado, grupo.unidades[0]?.paisOrigen || grupo.pais);
 
             return (
               <div
@@ -176,7 +163,7 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
 
                 <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
                   <MapPin className="h-3 w-3" />
-                  <span>{grupo.pais === 'USA' ? '🇺🇸' : '🇵🇪'} {grupo.almacenNombre}</span>
+                  <span>{getPaisEmoji(grupo.pais)} {grupo.almacenNombre}</span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs">
@@ -247,8 +234,8 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
                     return fechaA - fechaB;
                   })
                   .map((unidad, idx) => {
-                    const config = estadoConfig[unidad.estado] || estadoConfig['vendida'];
-                    const diasVencer = calcularDiasParaVencer(unidad.fechaVencimiento);
+                    const config = getEstadoConfig(unidad.estado, unidad.paisOrigen || unidad.pais);
+                    const diasVencer = calcularDiasParaVencerUtil(unidad.fechaVencimiento) ?? 999;
                     const colorVencimiento = getColorVencimiento(diasVencer);
 
                     return (
@@ -272,7 +259,7 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
                         </td>
                         <td className="px-3 py-2">
                           <div className="flex items-center gap-1 text-sm text-gray-600">
-                            <span>{unidad.pais === 'USA' ? '🇺🇸' : '🇵🇪'}</span>
+                            <span>{getPaisEmoji(unidad.pais)}</span>
                             <span className="truncate max-w-[100px]">{unidad.almacenNombre}</span>
                           </div>
                         </td>

@@ -302,11 +302,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
         productoId: value
       };
 
-      // Auto-llenar precio sugerido
-      const producto = productosDisponibles.find(p => p.productoId === value);
-      if (producto && producto.precioSugerido > 0) {
-        nuevosProductos[index].precioUnitario = producto.precioSugerido;
-      }
+      // No auto-fill price - user must input it manually
     } else {
       nuevosProductos[index] = {
         ...nuevosProductos[index],
@@ -325,7 +321,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
       nuevosProductos[index] = {
         ...nuevosProductos[index],
         productoId: snapshot.productoId,
-        precioUnitario: snapshot.precioSugerido > 0 ? snapshot.precioSugerido : nuevosProductos[index].precioUnitario,
+        precioUnitario: nuevosProductos[index].precioUnitario,
         snapshot: snapshot
       };
     } else {

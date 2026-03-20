@@ -1,0 +1,66 @@
+[
+  {
+    "_id": "configuracion_contable",
+    "reservaLegal": 0,
+    "tcPorDefecto": 3.75,
+    "provisionIncobrablesPct": 5,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-09T03:57:59.000Z",
+      "_seconds": 1767931079
+    },
+    "capitalSocial": 0
+  },
+  {
+    "_id": "empresa",
+    "decimalesPrecio": 2,
+    "decimalesCantidad": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-23T04:04:32.000Z",
+      "_seconds": 1766462672
+    },
+    "qrPagoBanco": "YAPE",
+    "ruc": "10085964170",
+    "razonSocial": "Jose Luis Pinto Toscano",
+    "sitioWeb": "",
+    "qrPagoUrl": "",
+    "direccion": "Jiron Ica 3625, San Martin de Porres",
+    "nombreComercial": "Vita Skin Peru",
+    "monedaPrincipal": "PEN",
+    "qrPagoTelefono": "988681245",
+    "telefono": "988681245",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T16:27:16.000Z",
+      "_seconds": 1772728036
+    },
+    "email": "",
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "general",
+    "skuAutomatico": true,
+    "prefijoSKU": "BMN",
+    "stockMinimoDefault": 6,
+    "alertaStockBajo": true,
+    "alertaVencimiento": true,
+    "diasAlertaVencimiento": 30,
+    "descuentoMaximo": 30,
+    "permitirVentaSinStock": true,
+    "alertaVariacionTC": true,
+    "porcentajeAlertaTC": 3,
+    "idioma": "es",
+    "formatoFecha": "DD/MM/YYYY",
+    "aprobarOrdenesGrandes": false,
+    "montoAprobarUSD": 10000,
+    "usarLotes": true,
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2025-12-07T21:36:52.000Z",
+      "_seconds": 1765143412
+    }
+  }
+]

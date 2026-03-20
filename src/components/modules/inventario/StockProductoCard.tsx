@@ -11,7 +11,7 @@ import {
   Eye,
   CheckCircle
 } from 'lucide-react';
-import { Badge, Button, Card } from '../../common';
+import { Badge, Button, Card, LineaNegocioBadge } from '../../common';
 import type { ProductoConUnidades } from './ProductoInventarioTable';
 
 interface StockProductoCardProps {
@@ -55,6 +55,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
               <div className="text-xs text-gray-500 truncate max-w-[150px]">
                 {producto.marca}
               </div>
+              <LineaNegocioBadge lineaNegocioId={producto.lineaNegocioId} />
             </div>
           </div>
           {tieneProblemas && (
@@ -77,6 +78,12 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
         <div className="text-sm text-gray-600 mt-1 truncate">
           {producto.nombre}
         </div>
+        {(producto.presentacion || producto.contenido || producto.dosaje || producto.sabor) && (
+          <div className="text-[10px] text-gray-400 mt-0.5 truncate">
+            {[producto.presentacion, producto.contenido, producto.dosaje, producto.sabor].filter(Boolean).join(' · ')}
+          </div>
+        )}
+
       </div>
 
       {/* Distribución de Stock */}
@@ -85,20 +92,20 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
           Distribución
         </div>
         <div className="grid grid-cols-3 gap-2">
-          {/* USA */}
+          {/* Origen */}
           <div className="text-center p-2 bg-blue-50 rounded-lg">
             <Warehouse className="h-4 w-4 text-blue-500 mx-auto mb-1" />
             <div className="text-lg font-bold text-blue-600">
-              {producto.recibidaUSA}
+              {producto.enOrigen}
             </div>
-            <div className="text-[10px] text-blue-500 font-medium">USA</div>
+            <div className="text-[10px] text-blue-500 font-medium">Origen</div>
           </div>
 
           {/* Tránsito */}
           <div className="text-center p-2 bg-amber-50 rounded-lg">
             <Plane className="h-4 w-4 text-amber-500 mx-auto mb-1" />
             <div className="text-lg font-bold text-amber-600">
-              {producto.enTransitoUSA + producto.enTransitoPeru}
+              {producto.enTransitoOrigen + producto.enTransitoPeru}
             </div>
             <div className="text-[10px] text-amber-500 font-medium">Tránsito</div>
           </div>
@@ -112,13 +119,13 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
             <div className="text-[10px] text-green-500 font-medium">Perú</div>
           </div>
 
-          {/* Reservadas USA */}
+          {/* Reservadas Origen */}
           <div className="text-center p-2 bg-purple-50 rounded-lg">
             <ShoppingBag className="h-4 w-4 text-purple-500 mx-auto mb-1" />
             <div className="text-lg font-bold text-purple-600">
-              {producto.reservadaUSA}
+              {producto.reservadaOrigen}
             </div>
-            <div className="text-[10px] text-purple-500 font-medium">Res. USA</div>
+            <div className="text-[10px] text-purple-500 font-medium">Res. Origen</div>
           </div>
 
           {/* Reservadas Perú */}

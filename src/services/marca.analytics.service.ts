@@ -35,7 +35,9 @@ export interface ProductoMarcaMetrics {
   // Stock
   stockTotal: number;
   stockDisponible: number;
+  /** Stock en origen (legacy: USA) */
   stockUSA: number;
+  /** Stock en destino (legacy: Peru) */
   stockPeru: number;
   valorInventarioUSD: number;
   valorInventarioPEN: number;
@@ -56,9 +58,6 @@ export interface ProductoMarcaMetrics {
   cicloRecompraDias?: number;
   clientesConRecompra: number;
 
-  // ML
-  habilitadoML: boolean;
-  restriccionML?: string;
 }
 
 /**
@@ -159,8 +158,6 @@ export interface MarcaAnalytics {
   tasaRecompra: number;
 
   // MercadoLibre
-  productosHabilitadosML: number;
-  productosRestringidosML: number;
   ventasML?: number;
 }
 
@@ -274,10 +271,6 @@ export const marcaAnalyticsService = {
         (p.stockDisponible || 0) >= (p.stockMaximo || 100)
       ).length;
 
-      // ML
-      const productosHabilitadosML = productosData.filter(p => p.habilitadoML).length;
-      const productosRestringidosML = productosData.filter(p => p.habilitadoML && p.restriccionML).length;
-
       // Margen ponderado
       const totalUnidades = productosMetrics.reduce((sum, p) => sum + p.unidadesVendidas, 0);
       const margenPonderado = totalUnidades > 0
@@ -324,8 +317,6 @@ export const marcaAnalyticsService = {
         clientesUnicos: statsClientes.clientesUnicos,
         clientesRecurrentes: statsClientes.clientesRecurrentes,
         tasaRecompra: statsClientes.tasaRecompra,
-        productosHabilitadosML,
-        productosRestringidosML
       };
     } catch (error: any) {
       console.error('Error obteniendo analytics de marca:', error);
@@ -376,7 +367,7 @@ export const marcaAnalyticsService = {
 
       const margenPromedio = unidadesVendidas > 0
         ? (margenTotal / ventasTotalPEN) * 100
-        : producto.margenObjetivo || 0;
+        : 0;
 
       const diasSinVenta = ultimaVenta !== null
         ? Math.floor((ahora.getTime() - (ultimaVenta as Date).getTime()) / (1000 * 60 * 60 * 24))
@@ -437,9 +428,7 @@ export const marcaAnalyticsService = {
         esProductoEstrella: false, // Se marca después
         tendencia,
         cicloRecompraDias: producto.cicloRecompraDias,
-        clientesConRecompra: clientesSet.size,
-        habilitadoML: producto.habilitadoML || false,
-        restriccionML: producto.restriccionML
+        clientesConRecompra: clientesSet.size
       };
     });
   },

@@ -199,6 +199,10 @@ export interface Cotizacion {
   };
   dniRuc?: string;
 
+  // Línea de negocio (desnormalizado del producto principal)
+  lineaNegocioId?: string;
+  lineaNegocioNombre?: string;
+
   // Canal
   canal: CanalVenta;
 

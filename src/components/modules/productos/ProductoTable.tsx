@@ -115,9 +115,6 @@ const ProductoCardResponsive: React.FC<{
           )}
         </div>
         <div className="text-right flex-shrink-0">
-          {producto.precioSugerido > 0 && (
-            <div className="text-sm font-bold text-gray-900">S/ {producto.precioSugerido.toFixed(2)}</div>
-          )}
           {invResumen.tieneInvestigacion && (
             <div className={`text-xs flex items-center justify-end gap-1 mt-1 ${invResumen.estaVigente ? 'text-green-600' : 'text-red-600'}`}>
               <Clock className="h-3 w-3" />
@@ -341,7 +338,7 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                       )}
                       {sort.key === 'sku' && 'SKU'}
                       {sort.key === 'marca' && 'Producto'}
-                      {sort.key === 'precioSugerido' && 'Precio'}
+                      {sort.key === 'ctruPromedio' && 'CTRU'}
                       {sort.key === 'estado' && 'Estado'}
                       {sort.key === 'precioCompra' && 'Compra Sug.'}
                       {sort.key === 'precioVenta' && 'Venta Sug.'}
@@ -385,7 +382,7 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                 {/* Precios */}
                 {showPrecios && (
                   onSort ? (
-                    <SortableHeader label="PVP" sortKey="precioSugerido" sortConfigs={sortConfigs} onSort={handleSort} align="center" className="w-20" />
+                    <SortableHeader label="CTRU" sortKey="ctruPromedio" sortConfigs={sortConfigs} onSort={handleSort} align="center" className="w-20" />
                   ) : (
                     <th className="px-2 py-2 text-center text-[11px] font-medium text-gray-500 uppercase w-20">PVP</th>
                   )
@@ -487,8 +484,8 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                     {/* Precios */}
                     {showPrecios && (
                       <td className="px-2 py-2 text-center">
-                        {producto.precioSugerido > 0 ? (
-                          <span className="text-sm font-semibold text-gray-900">S/{producto.precioSugerido.toFixed(0)}</span>
+                        {(producto.ctruPromedio || 0) > 0 ? (
+                          <span className="text-sm font-semibold text-gray-900">S/{(producto.ctruPromedio || 0).toFixed(0)}</span>
                         ) : (
                           <span className="text-[10px] text-gray-400">-</span>
                         )}
@@ -583,9 +580,6 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                       <Badge variant={producto.estado === 'activo' ? 'success' : 'default'} size="sm">
                         {producto.estado === 'activo' ? 'Act.' : 'Inact.'}
                       </Badge>
-                      {producto.habilitadoML && (
-                        <Badge variant="info" size="sm" className="ml-0.5 text-[9px]">ML</Badge>
-                      )}
                     </td>
 
                     {/* Acciones */}

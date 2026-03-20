@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import DailyIframe from '@daily-co/daily-js';
 import type { DailyCall } from '@daily-co/daily-js';
-import { PhoneOff, Maximize2, Minimize2, Minus, Clock, RefreshCw, GripHorizontal } from 'lucide-react';
+import { PhoneOff, Maximize2, Minimize2, Minus, Clock, RefreshCw, GripHorizontal, Mic, MicOff, Loader2 } from 'lucide-react';
 import { useCollaborationStore } from '../../store/collaborationStore';
 import { useAuthStore } from '../../store/authStore';
+import { useCallRecorder } from '../../hooks/useCallRecorder';
+import { llamadaIntelService } from '../../services/llamadaIntel.service';
+import { CallProcessingToast } from '../modules/llamadaIntel/CallProcessingToast';
 
 /**
  * DailyCallModal — Daily.co Prebuilt video call via DailyIframe.createFrame()
@@ -25,6 +28,8 @@ export const DailyCallModal: React.FC = () => {
   );
   const { userProfile } = useAuthStore();
 
+  const llamadaId = useCollaborationStore(s => s.llamadaId);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const callFrameRef = useRef<DailyCall | null>(null);
   const [modo, setModo] = useState<ModoVentana>('flotante');
@@ -33,6 +38,12 @@ export const DailyCallModal: React.FC = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const finalizingRef = useRef(false);
   const initializingRef = useRef(false);
+
+  // ─── Grabación de audio ────────────────────────────────
+  const { grabando, iniciarGrabacion, detenerGrabacion, limpiar: limpiarGrabacion } = useCallRecorder();
+  const [subiendoAudio, setSubiendoAudio] = useState(false);
+  const [grabacionIniciada, setGrabacionIniciada] = useState(false);
+  const [processingIntelId, setProcessingIntelId] = useState<string | null>(null);
 
   // Drag state
   const [posicion, setPosicion] = useState({ x: 0, y: 0 });
@@ -161,6 +172,13 @@ export const DailyCallModal: React.FC = () => {
       callFrame.on('joined-meeting', () => {
         console.log('[DailyCall] Joined meeting successfully');
         setCargando(false);
+        // Auto-iniciar grabación al unirse a la llamada
+        iniciarGrabacion().then(ok => {
+          if (ok) {
+            setGrabacionIniciada(true);
+            console.log('[DailyCall] Grabación automática iniciada');
+          }
+        });
         if (!timerRef.current) {
           timerRef.current = setInterval(() => setDuracion(d => d + 1), 1000);
         }
@@ -206,17 +224,87 @@ export const DailyCallModal: React.FC = () => {
       setDuracion(0);
       setCargando(true);
       finalizingRef.current = false;
+      setGrabacionIniciada(false);
+      setSubiendoAudio(false);
     }
   }, [llamadaActiva, cleanup]);
+
+  // ─── Recording toggle ───────────────────────────────────
+  const handleToggleGrabacion = async () => {
+    if (grabando) {
+      detenerGrabacion();
+      setGrabacionIniciada(false);
+    } else {
+      const ok = await iniciarGrabacion();
+      if (ok) setGrabacionIniciada(true);
+    }
+  };
+
+  // Procesar audio grabado al finalizar llamada
+  const procesarGrabacion = async (audioBlob: Blob) => {
+    if (!llamadaId || !userProfile) return;
+    setSubiendoAudio(true);
+    try {
+      // 1. Subir audio a Firebase Storage
+      const audioUrl = await llamadaIntelService.subirAudio(llamadaId, audioBlob);
+
+      // 2. Crear registro en Firestore (estado: procesando)
+      const participantes = llamadaUsuario
+        ? [userProfile.displayName || 'Usuario', llamadaUsuario.displayName]
+        : [userProfile.displayName || 'Usuario'];
+      const participantesUids = llamadaUsuario
+        ? [userProfile.uid, llamadaUsuario.uid]
+        : [userProfile.uid];
+
+      const intelId = await llamadaIntelService.crear({
+        llamadaId,
+        audioUrl,
+        audioDuracionSeg: duracion,
+        participantes,
+        participantesUids,
+        estado: 'procesando',
+        creadoEn: null as never, // Set by service
+      });
+
+      // 3. Llamar Cloud Function para transcripción + análisis
+      const { getFunctions, httpsCallable } = await import('firebase/functions');
+      const functions = getFunctions();
+      const procesarLlamadaFn = httpsCallable(functions, 'procesarLlamadaIntel');
+      procesarLlamadaFn({ intelId, audioUrl }).catch((err: unknown) => {
+        console.error('[DailyCall] Error procesando audio:', err);
+      });
+
+      console.log('[DailyCall] Audio subido y procesamiento iniciado, intelId:', intelId);
+      setProcessingIntelId(intelId);
+    } catch (error) {
+      console.error('[DailyCall] Error subiendo audio:', error);
+    } finally {
+      setSubiendoAudio(false);
+    }
+  };
 
   // ─── Actions ─────────────────────────────────────────────
   const handleColgar = async () => {
     if (finalizingRef.current) return;
     finalizingRef.current = true;
+
+    // Si estaba grabando, detener y procesar
+    let audioBlob: Blob | null = null;
+    if (grabando) {
+      audioBlob = detenerGrabacion();
+      setGrabacionIniciada(false);
+    }
+
     cleanup();
     setCargando(true);
     setModo('flotante');
     setPosicion({ x: 0, y: 0 });
+
+    // Procesar audio en background (no bloquear el hang-up)
+    if (audioBlob && audioBlob.size > 0) {
+      procesarGrabacion(audioBlob);
+    }
+
     setDuracion(0);
     await finalizarLlamadaConSignaling();
   };
@@ -229,7 +317,15 @@ export const DailyCallModal: React.FC = () => {
     initDaily();
   };
 
-  if (!llamadaActiva || !roomUrl || !userProfile) return null;
+  // Si no hay llamada activa, solo mostrar toast de procesamiento si existe
+  if (!llamadaActiva || !roomUrl || !userProfile) {
+    return processingIntelId ? (
+      <CallProcessingToast
+        intelId={processingIntelId}
+        onDismiss={() => setProcessingIntelId(null)}
+      />
+    ) : null;
+  }
 
   const minutos = String(Math.floor(duracion / 60)).padStart(2, '0');
   const segundos = String(duracion % 60).padStart(2, '0');
@@ -295,6 +391,13 @@ export const DailyCallModal: React.FC = () => {
               </span>
             )}
 
+            {grabando && (
+              <span className="flex items-center gap-1 text-red-400 text-xs shrink-0">
+                <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                REC
+              </span>
+            )}
+
             <div className="flex-1" />
 
             <div className="flex items-center gap-0.5 shrink-0">
@@ -335,6 +438,33 @@ export const DailyCallModal: React.FC = () => {
                 </button>
               )}
 
+              {/* Botón de grabación */}
+              {subiendoAudio ? (
+                <button
+                  disabled
+                  className="p-1.5 rounded-lg bg-yellow-600/50 text-yellow-200 cursor-wait"
+                  title="Subiendo grabación..."
+                >
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleToggleGrabacion}
+                  className={`p-1.5 rounded-lg transition-colors ${
+                    grabando
+                      ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 ring-1 ring-red-500/50'
+                      : 'hover:bg-white/10 text-gray-300 hover:text-white'
+                  }`}
+                  title={grabando ? 'Detener grabación' : 'Grabar llamada (IA)'}
+                >
+                  {grabando ? (
+                    <MicOff className="h-3.5 w-3.5" />
+                  ) : (
+                    <Mic className="h-3.5 w-3.5" />
+                  )}
+                </button>
+              )}
+
               <button
                 onClick={handleColgar}
                 className="ml-1 p-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors"
@@ -369,6 +499,14 @@ export const DailyCallModal: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Toast de procesamiento post-llamada */}
+      {processingIntelId && !llamadaActiva && (
+        <CallProcessingToast
+          intelId={processingIntelId}
+          onDismiss={() => setProcessingIntelId(null)}
+        />
+      )}
     </>
   );
 };

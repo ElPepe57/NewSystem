@@ -66,6 +66,9 @@ export interface Etiqueta {
   colorTexto?: string;               // Color hex del texto
   colorBorde?: string;               // Color hex del borde
 
+  // Lineas de negocio asociadas
+  lineaNegocioIds?: string[];  // Si vacio/undefined = disponible para todas las lineas
+
   // Estado
   estado: EstadoEtiqueta;
   mostrarEnFiltros: boolean;         // Si aparece en filtros de busqueda
@@ -109,6 +112,7 @@ export interface EtiquetaFormData {
   colorBorde?: string;
   mostrarEnFiltros?: boolean;
   ordenDisplay?: number;
+  lineaNegocioIds?: string[];
 }
 
 /**

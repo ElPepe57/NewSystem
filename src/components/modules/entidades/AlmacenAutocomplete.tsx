@@ -25,7 +25,7 @@ interface AlmacenAutocompleteProps {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
-  filterPais?: 'USA' | 'Peru';
+  filterPais?: string;
   soloViajeros?: boolean;
   className?: string;
 }

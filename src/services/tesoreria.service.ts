@@ -11,8 +11,10 @@ import {
   Timestamp,
   writeBatch,
   serverTimestamp,
-  limit
+  limit,
+  increment
 } from 'firebase/firestore';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import { tipoCambioService } from './tipoCambio.service';
@@ -111,24 +113,7 @@ export const tesoreriaService = {
    */
   async generateNumeroMovimiento(): Promise<string> {
     const year = new Date().getFullYear();
-    const q = query(
-      collection(db, MOVIMIENTOS_COLLECTION),
-      orderBy('fechaCreacion', 'desc'),
-      limit(1)
-    );
-    const snapshot = await getDocs(q);
-
-    let nextNumber = 1;
-    if (!snapshot.empty) {
-      const lastDoc = snapshot.docs[0].data();
-      const lastNumero = lastDoc.numeroMovimiento as string;
-      const match = lastNumero.match(/MOV-\d{4}-(\d+)/);
-      if (match) {
-        nextNumber = parseInt(match[1], 10) + 1;
-      }
-    }
-
-    return `MOV-${year}-${nextNumber.toString().padStart(4, '0')}`;
+    return getNextSequenceNumber(`MOV-${year}`, 4);
   },
 
   /**
@@ -532,30 +517,53 @@ export const tesoreriaService = {
    * Obtener movimientos con filtros
    */
   async getMovimientos(filtros?: MovimientoTesoreriaFiltros): Promise<MovimientoTesoreria[]> {
-    let q = query(
-      collection(db, MOVIMIENTOS_COLLECTION),
-      orderBy('fecha', 'desc')
-    );
+    const buildQuery = (cuentaField?: string, cuentaValue?: string) => {
+      let q = query(
+        collection(db, MOVIMIENTOS_COLLECTION),
+        orderBy('fecha', 'desc')
+      );
 
-    if (filtros?.tipo) {
-      q = query(q, where('tipo', '==', filtros.tipo));
-    }
-    if (filtros?.estado) {
-      q = query(q, where('estado', '==', filtros.estado));
-    }
-    if (filtros?.moneda) {
-      q = query(q, where('moneda', '==', filtros.moneda));
-    }
+      if (filtros?.tipo) {
+        q = query(q, where('tipo', '==', filtros.tipo));
+      }
+      if (filtros?.estado) {
+        q = query(q, where('estado', '==', filtros.estado));
+      }
+      if (filtros?.moneda) {
+        q = query(q, where('moneda', '==', filtros.moneda));
+      }
+      if (cuentaField && cuentaValue) {
+        q = query(q, where(cuentaField, '==', cuentaValue));
+      }
+      return q;
+    };
+
+    let movimientos: MovimientoTesoreria[];
+
     if (filtros?.cuentaId) {
-      // Buscar en origen o destino
-      q = query(q, where('cuentaOrigen', '==', filtros.cuentaId));
-    }
+      // Ejecutar dos queries: una por cuentaOrigen, otra por cuentaDestino
+      const [snapOrigen, snapDestino] = await Promise.all([
+        getDocs(buildQuery('cuentaOrigen', filtros.cuentaId)),
+        getDocs(buildQuery('cuentaDestino', filtros.cuentaId))
+      ]);
 
-    const snapshot = await getDocs(q);
-    let movimientos = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as MovimientoTesoreria));
+      const movMap = new Map<string, MovimientoTesoreria>();
+      for (const d of snapOrigen.docs) {
+        movMap.set(d.id, { id: d.id, ...d.data() } as MovimientoTesoreria);
+      }
+      for (const d of snapDestino.docs) {
+        movMap.set(d.id, { id: d.id, ...d.data() } as MovimientoTesoreria);
+      }
+      movimientos = Array.from(movMap.values());
+      // Re-sort since we merged two queries
+      movimientos.sort((a, b) => (b.fecha?.seconds ?? 0) - (a.fecha?.seconds ?? 0));
+    } else {
+      const snapshot = await getDocs(buildQuery());
+      movimientos = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      } as MovimientoTesoreria));
+    }
 
     // Filtros adicionales en memoria
     if (filtros?.fechaInicio) {
@@ -579,24 +587,7 @@ export const tesoreriaService = {
    */
   async generateNumeroConversion(): Promise<string> {
     const year = new Date().getFullYear();
-    const q = query(
-      collection(db, CONVERSIONES_COLLECTION),
-      orderBy('fechaCreacion', 'desc'),
-      limit(1)
-    );
-    const snapshot = await getDocs(q);
-
-    let nextNumber = 1;
-    if (!snapshot.empty) {
-      const lastDoc = snapshot.docs[0].data();
-      const lastNumero = lastDoc.numeroConversion as string;
-      const match = lastNumero.match(/CONV-\d{4}-(\d+)/);
-      if (match) {
-        nextNumber = parseInt(match[1], 10) + 1;
-      }
-    }
-
-    return `CONV-${year}-${nextNumber.toString().padStart(4, '0')}`;
+    return getNextSequenceNumber(`CONV-${year}`, 4);
   },
 
   /**
@@ -1122,13 +1113,13 @@ export const tesoreriaService = {
       }
 
       if (monedaMovimiento === 'USD') {
-        updates.saldoUSD = (cuenta.saldoUSD || 0) + diferencia;
+        updates.saldoUSD = increment(diferencia);
       } else {
-        updates.saldoPEN = (cuenta.saldoPEN || 0) + diferencia;
+        updates.saldoPEN = increment(diferencia);
       }
     } else {
-      // Cuenta mono-moneda: actualizar saldoActual
-      updates.saldoActual = cuenta.saldoActual + diferencia;
+      // Cuenta mono-moneda: actualizar saldoActual con increment atómico
+      updates.saldoActual = increment(diferencia);
     }
 
     await updateDoc(doc(db, CUENTAS_COLLECTION, cuentaId), updates);
@@ -1144,37 +1135,69 @@ export const tesoreriaService = {
       throw new Error('Cuenta no encontrada');
     }
 
-    // Obtener todos los movimientos relacionados con esta cuenta
-    const todosMovimientos = await this.getMovimientos({});
-    const movimientosCuenta = todosMovimientos.filter(
-      m => m.cuentaOrigen === cuentaId || m.cuentaDestino === cuentaId
+    // Obtener movimientos donde esta cuenta es ORIGEN (query directa, no cargar todo)
+    const qOrigen = query(
+      collection(db, MOVIMIENTOS_COLLECTION),
+      where('cuentaOrigen', '==', cuentaId)
+    );
+    const qDestino = query(
+      collection(db, MOVIMIENTOS_COLLECTION),
+      where('cuentaDestino', '==', cuentaId)
     );
 
-    // Calcular saldos basándose en los movimientos
+    const [snapOrigen, snapDestino] = await Promise.all([
+      getDocs(qOrigen),
+      getDocs(qDestino)
+    ]);
+
+    // Combinar movimientos sin duplicados (un movimiento puede tener la misma cuenta como origen y destino)
+    const movsMap = new Map<string, { data: MovimientoTesoreria; esOrigen: boolean; esDestino: boolean }>();
+
+    for (const d of snapOrigen.docs) {
+      movsMap.set(d.id, {
+        data: { id: d.id, ...d.data() } as MovimientoTesoreria,
+        esOrigen: true,
+        esDestino: false
+      });
+    }
+    for (const d of snapDestino.docs) {
+      if (movsMap.has(d.id)) {
+        movsMap.get(d.id)!.esDestino = true;
+      } else {
+        movsMap.set(d.id, {
+          data: { id: d.id, ...d.data() } as MovimientoTesoreria,
+          esOrigen: false,
+          esDestino: true
+        });
+      }
+    }
+
+    // Calcular saldos basándose en movimientos ACTIVOS (excluir anulados)
     let saldoPEN = 0;
     let saldoUSD = 0;
+    let movimientosContados = 0;
 
-    for (const mov of movimientosCuenta) {
+    for (const [, { data: mov, esOrigen, esDestino }] of movsMap) {
+      // FILTRAR ANULADOS — este era el bug principal
+      if (mov.estado === 'anulado') continue;
+
+      movimientosContados++;
+
       const esIngreso = esMovimientoIngreso(mov.tipo, mov);
       const esEgreso = esMovimientoEgreso(mov.tipo, mov);
 
-      // Si es cuenta destino y es ingreso, suma
-      // Si es cuenta origen y es egreso, resta
-      const esCuentaDestino = mov.cuentaDestino === cuentaId;
-      const esCuentaOrigen = mov.cuentaOrigen === cuentaId;
-
       let diferencia = 0;
-      if (esCuentaDestino && esIngreso) {
+      if (esDestino && esIngreso) {
         // Dinero que entra a esta cuenta
         diferencia = mov.monto;
-      } else if (esCuentaOrigen && esEgreso) {
+      } else if (esOrigen && esEgreso) {
         // Dinero que sale de esta cuenta
         diferencia = -mov.monto;
-      } else if (esCuentaDestino) {
-        // Para movimientos que llegan a destino, siempre sumar
+      } else if (esDestino) {
+        // Para movimientos que llegan a destino (transferencias, etc.), sumar
         diferencia = mov.monto;
-      } else if (esCuentaOrigen) {
-        // Para movimientos que salen de origen, siempre restar
+      } else if (esOrigen) {
+        // Para movimientos que salen de origen (transferencias, etc.), restar
         diferencia = -mov.monto;
       }
 
@@ -1207,7 +1230,7 @@ export const tesoreriaService = {
     return {
       saldoAnterior,
       saldoNuevo: cuenta.esBiMoneda ? saldoPEN : (cuenta.moneda === 'USD' ? saldoUSD : saldoPEN),
-      movimientos: movimientosCuenta.length
+      movimientos: movimientosContados
     };
   },
 

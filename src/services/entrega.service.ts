@@ -36,6 +36,7 @@ import { auditoriaService } from './auditoria.service';
 import { inventarioService } from './inventario.service';
 import { actividadService } from './actividad.service';
 import { COLLECTIONS } from '../config/collections';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 
 const COLLECTION_NAME = COLLECTIONS.ENTREGAS;
 
@@ -45,27 +46,7 @@ const COLLECTION_NAME = COLLECTIONS.ENTREGAS;
  */
 async function generarCodigoEntrega(): Promise<string> {
   const year = new Date().getFullYear();
-  const prefix = `ENT-${year}`;
-
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith(prefix)) {
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber(`ENT-${year}`, 3);
 }
 
 export const entregaService = {
@@ -86,6 +67,23 @@ export const entregaService = {
       const fechaB = b.fechaProgramada?.toMillis() || 0;
       return fechaB - fechaA;
     });
+  },
+
+  /**
+   * Obtener entregas programadas o reprogramadas (pendientes de despacho).
+   */
+  async getProgramadas(): Promise<Entrega[]> {
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where('estado', 'in', ['programada', 'reprogramada']),
+      orderBy('fechaProgramada', 'desc'),
+      limit(100)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    } as Entrega));
   },
 
   /**
@@ -404,6 +402,9 @@ export const entregaService = {
     if (data.horaProgramada) newEntrega.horaProgramada = data.horaProgramada;
     if (data.observaciones) newEntrega.observaciones = data.observaciones;
     if (data.coordenadas) newEntrega.coordenadas = data.coordenadas;
+    // Propagar línea de negocio desde venta
+    if (venta.lineaNegocioId) newEntrega.lineaNegocioId = venta.lineaNegocioId;
+    if (venta.lineaNegocioNombre) newEntrega.lineaNegocioNombre = venta.lineaNegocioNombre;
     if (data.costoEnvio && data.costoEnvio > 0) newEntrega.costoEnvio = data.costoEnvio;
 
     const docRef = await addDoc(collection(db, COLLECTION_NAME), newEntrega);
@@ -421,25 +422,8 @@ export const entregaService = {
     }
     await updateDoc(ventaRef, ventaUpdateData);
 
-    // Crear gasto GD inmediatamente (el costo se incurre al entregar al driver)
-    try {
-      const gastoId = await gastoService.crearGastoDistribucion({
-        entregaId: docRef.id,
-        entregaCodigo: codigo,
-        ventaId: data.ventaId,
-        ventaNumero: venta.numeroVenta,
-        transportistaId: data.transportistaId,
-        transportistaNombre: transportista.nombre,
-        costoEntrega: costoFinal,
-        distrito: data.distrito
-      }, userId);
-
-      // Guardar referencia al gasto en la entrega
-      await updateDoc(docRef, { gastoDistribucionId: gastoId });
-      console.log(`[Entrega ${codigo}] Gasto GD creado al programar: ${gastoId} por S/${costoFinal.toFixed(2)}`);
-    } catch (error) {
-      console.error(`[Entrega ${codigo}] Error creando gasto GD al programar:`, error);
-    }
+    // NOTA: El gasto GD se crea al despachar (marcarEnCamino), no al programar.
+    // El costoTransportista ya queda guardado en el documento de entrega.
 
     // Broadcast actividad (fire-and-forget)
     actividadService.registrar({
@@ -488,6 +472,27 @@ export const entregaService = {
     }
 
     await batch.commit();
+
+    // Crear gasto GD al despachar (momento unificado para registrar el costo de delivery)
+    if (!entrega.gastoDistribucionId && entrega.costoTransportista > 0) {
+      try {
+        const gastoId = await gastoService.crearGastoDistribucion({
+          entregaId: id,
+          entregaCodigo: entrega.codigo,
+          ventaId: entrega.ventaId,
+          ventaNumero: entrega.numeroVenta,
+          transportistaId: entrega.transportistaId,
+          transportistaNombre: entrega.nombreTransportista,
+          costoEntrega: entrega.costoTransportista,
+          distrito: entrega.distrito
+        }, userId);
+
+        await updateDoc(entregaRef, { gastoDistribucionId: gastoId });
+        console.log(`[Entrega ${entrega.codigo}] Gasto GD creado al despachar: ${gastoId} por S/${entrega.costoTransportista.toFixed(2)}`);
+      } catch (error) {
+        console.error(`[Entrega ${entrega.codigo}] Error creando gasto GD al despachar:`, error);
+      }
+    }
   },
 
   async registrarResultado(data: ResultadoEntregaData, userId: string): Promise<void> {
@@ -584,13 +589,24 @@ export const entregaService = {
       batch.update(docRef, entregaUpdate);
 
       // A2. Marcar unidades como vendidas (reservada → vendida)
-      const precioUnitario = unidadIds.length > 0
+      // Construir mapa unidadId → precioUnitario del producto correspondiente
+      const preciosPorUnidad = new Map<string, number>();
+      for (const producto of entrega.productos) {
+        const precioProducto = producto.precioUnitario || 0;
+        for (const uid of (producto.unidadesAsignadas || [])) {
+          preciosPorUnidad.set(uid, precioProducto);
+        }
+      }
+      // Fallback: si alguna unidad no tiene precio mapeado, usar promedio general
+      const precioFallback = unidadIds.length > 0
         ? entrega.subtotalPEN / unidadIds.length
         : 0;
 
       for (const unidadId of unidadIds) {
         const unidad = unidadesMap.get(unidadId);
         if (!unidad) continue;
+
+        const precioUnitario = preciosPorUnidad.get(unidadId) ?? precioFallback;
 
         const movimientoVenta: MovimientoUnidad = {
           id: crypto.randomUUID(),
@@ -1024,6 +1040,7 @@ export const entregaService = {
   },
 
   async cancelar(id: string, motivo: string, userId: string): Promise<void> {
+    const entrega = await this.getById(id);
     const docRef = doc(db, COLLECTION_NAME, id);
     await updateDoc(docRef, {
       estado: 'cancelada',
@@ -1031,6 +1048,16 @@ export const entregaService = {
       editadoPor: userId,
       ultimaEdicion: Timestamp.now()
     });
+
+    // Anular gasto GD si existe
+    if (entrega?.gastoDistribucionId) {
+      try {
+        await gastoService.delete(entrega.gastoDistribucionId);
+        console.log(`[Entrega ${entrega.codigo}] Gasto GD anulado por cancelación: ${entrega.gastoDistribucionId}`);
+      } catch (error) {
+        console.error(`[Entrega ${entrega.codigo}] Error anulando gasto GD al cancelar:`, error);
+      }
+    }
   },
 
   // ============================================
@@ -1279,35 +1306,37 @@ export const entregaService = {
     await updateDoc(docRef, updates);
 
     // ============================================
-    // CASCADA PARA ENTREGAS YA COMPLETADAS
+    // ACTUALIZAR GASTO GD ASOCIADO (cualquier estado)
+    // ============================================
+    if (entrega.gastoDistribucionId && (costoNuevo !== costoAnterior || transportistaCambio)) {
+      const gastoUpdates: Record<string, unknown> = {
+        editadoPor: userId,
+        ultimaEdicion: Timestamp.now()
+      };
+
+      if (costoNuevo !== costoAnterior) {
+        gastoUpdates.montoOriginal = costoNuevo;
+        gastoUpdates.montoPEN = costoNuevo;
+      }
+
+      if (transportistaCambio) {
+        gastoUpdates.transportistaId = data.transportistaId;
+        gastoUpdates.transportistaNombre = nombreTransportistaActualizado;
+        gastoUpdates.proveedor = nombreTransportistaActualizado;
+        gastoUpdates.descripcion = `Entrega ${entrega.codigo} - ${nombreTransportistaActualizado}${entrega.distrito ? ` (${entrega.distrito})` : ''}`;
+      }
+
+      const gastoRef = doc(db, 'gastos', entrega.gastoDistribucionId);
+      await updateDoc(gastoRef, gastoUpdates);
+      console.log(`[Entrega ${entrega.codigo}] Gasto GD ${entrega.gastoDistribucionId} actualizado (estado: ${entrega.estado})`);
+    }
+
+    // ============================================
+    // CASCADA ADICIONAL PARA ENTREGAS YA COMPLETADAS
     // ============================================
     if (entrega.estado === 'entregada') {
 
-      // 1. Actualizar gasto GD asociado
-      if (entrega.gastoDistribucionId) {
-        const gastoUpdates: Record<string, unknown> = {
-          editadoPor: userId,
-          ultimaEdicion: Timestamp.now()
-        };
-
-        if (costoNuevo !== costoAnterior) {
-          gastoUpdates.montoOriginal = costoNuevo;
-          gastoUpdates.montoPEN = costoNuevo;
-        }
-
-        if (transportistaCambio) {
-          gastoUpdates.transportistaId = data.transportistaId;
-          gastoUpdates.transportistaNombre = nombreTransportistaActualizado;
-          gastoUpdates.proveedor = nombreTransportistaActualizado;
-          gastoUpdates.descripcion = `Entrega ${entrega.codigo} - ${nombreTransportistaActualizado}${entrega.distrito ? ` (${entrega.distrito})` : ''}`;
-        }
-
-        const gastoRef = doc(db, 'gastos', entrega.gastoDistribucionId);
-        await updateDoc(gastoRef, gastoUpdates);
-        console.log(`[Entrega ${entrega.codigo}] Gasto GD ${entrega.gastoDistribucionId} actualizado`);
-      }
-
-      // 2. Corregir metricas de transportistas
+      // 1. Corregir metricas de transportistas
       try {
         if (transportistaCambio) {
           // Revertir metricas del transportista anterior
