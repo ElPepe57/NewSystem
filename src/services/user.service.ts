@@ -14,6 +14,8 @@ import { db } from '../lib/firebase';
 import type { UserProfile, UserRole } from '../types/auth.types';
 import { DEFAULT_PERMISOS, PERMISOS } from '../types/auth.types';
 import { auditoriaService } from './auditoria.service';
+import { presenciaService } from './presencia.service';
+import { COLLECTIONS } from '../config/collections';
 
 // Inicializar Cloud Functions
 const functions = getFunctions();
@@ -34,51 +36,50 @@ interface CloudFunctionResponse {
   success: boolean;
 }
 
-// Descripciones de permisos para la UI
+// Descripciones de permisos para la UI (30 permisos agrupados)
 export const PERMISOS_INFO: Record<string, { label: string; descripcion: string; grupo: string }> = {
-  [PERMISOS.VER_DASHBOARD]: {
-    label: 'Ver Dashboard',
-    descripcion: 'Acceso al panel principal con métricas',
-    grupo: 'General'
-  },
-  [PERMISOS.VER_VENTAS]: {
-    label: 'Ver Ventas',
-    descripcion: 'Ver listado de ventas y cotizaciones',
-    grupo: 'Ventas'
-  },
-  [PERMISOS.CREAR_VENTA]: {
-    label: 'Crear Ventas',
-    descripcion: 'Crear nuevas ventas y cotizaciones',
-    grupo: 'Ventas'
-  },
-  [PERMISOS.EDITAR_VENTA]: {
-    label: 'Editar Ventas',
-    descripcion: 'Modificar ventas existentes',
-    grupo: 'Ventas'
-  },
-  [PERMISOS.VER_INVENTARIO]: {
-    label: 'Ver Inventario',
-    descripcion: 'Ver productos, almacenes e inventario',
-    grupo: 'Inventario'
-  },
-  [PERMISOS.GESTIONAR_INVENTARIO]: {
-    label: 'Gestionar Inventario',
-    descripcion: 'Mover, transferir y gestionar unidades',
-    grupo: 'Inventario'
-  },
-  [PERMISOS.VER_FINANZAS]: {
-    label: 'Ver Finanzas',
-    descripcion: 'Acceso a reportes, gastos, tipo de cambio y CTRU',
-    grupo: 'Finanzas'
-  },
-  [PERMISOS.ADMIN_TOTAL]: {
-    label: 'Administración Total',
-    descripcion: 'Gestión de usuarios y configuración del sistema',
-    grupo: 'Administración'
-  }
+  // === General ===
+  [PERMISOS.VER_DASHBOARD]: { label: 'Ver Dashboard', descripcion: 'Acceso al panel principal con métricas y resúmenes', grupo: 'General' },
+  // === Ventas ===
+  [PERMISOS.VER_VENTAS]: { label: 'Ver Ventas', descripcion: 'Ver listado de ventas y sus detalles', grupo: 'Ventas' },
+  [PERMISOS.CREAR_VENTA]: { label: 'Crear Ventas', descripcion: 'Registrar nuevas ventas en el sistema', grupo: 'Ventas' },
+  [PERMISOS.EDITAR_VENTA]: { label: 'Editar Ventas', descripcion: 'Modificar ventas existentes (precios, productos, datos)', grupo: 'Ventas' },
+  [PERMISOS.CONFIRMAR_VENTA]: { label: 'Confirmar Ventas', descripcion: 'Marcar ventas como confirmadas/pagadas', grupo: 'Ventas' },
+  [PERMISOS.CANCELAR_VENTA]: { label: 'Cancelar Ventas', descripcion: 'Cancelar ventas y liberar unidades reservadas', grupo: 'Ventas' },
+  // === Cotizaciones ===
+  [PERMISOS.VER_COTIZACIONES]: { label: 'Ver Cotizaciones', descripcion: 'Ver listado de cotizaciones y sus detalles', grupo: 'Cotizaciones' },
+  [PERMISOS.CREAR_COTIZACION]: { label: 'Crear Cotizaciones', descripcion: 'Generar nuevas cotizaciones para clientes', grupo: 'Cotizaciones' },
+  [PERMISOS.VALIDAR_COTIZACION]: { label: 'Validar Cotizaciones', descripcion: 'Aprobar cotizaciones y convertirlas en ventas', grupo: 'Cotizaciones' },
+  // === Entregas ===
+  [PERMISOS.VER_ENTREGAS]: { label: 'Ver Entregas', descripcion: 'Ver programación de entregas y su estado', grupo: 'Entregas' },
+  [PERMISOS.PROGRAMAR_ENTREGA]: { label: 'Programar Entregas', descripcion: 'Crear y programar entregas a clientes', grupo: 'Entregas' },
+  [PERMISOS.REGISTRAR_ENTREGA]: { label: 'Registrar Entregas', descripcion: 'Registrar resultado de entregas (exitosa o fallida)', grupo: 'Entregas' },
+  // === Compras ===
+  [PERMISOS.VER_REQUERIMIENTOS]: { label: 'Ver Requerimientos', descripcion: 'Ver listado de requerimientos de compra', grupo: 'Compras' },
+  [PERMISOS.CREAR_REQUERIMIENTO]: { label: 'Crear Requerimientos', descripcion: 'Generar nuevos requerimientos de compra', grupo: 'Compras' },
+  [PERMISOS.APROBAR_REQUERIMIENTO]: { label: 'Aprobar Requerimientos', descripcion: 'Aprobar requerimientos para generar OC', grupo: 'Compras' },
+  [PERMISOS.VER_ORDENES_COMPRA]: { label: 'Ver Órdenes de Compra', descripcion: 'Ver listado de OC y sus detalles', grupo: 'Compras' },
+  [PERMISOS.CREAR_OC]: { label: 'Crear Órdenes de Compra', descripcion: 'Generar órdenes de compra a proveedores', grupo: 'Compras' },
+  [PERMISOS.RECIBIR_OC]: { label: 'Recibir Órdenes de Compra', descripcion: 'Registrar recepción de mercadería', grupo: 'Compras' },
+  // === Inventario ===
+  [PERMISOS.VER_INVENTARIO]: { label: 'Ver Inventario', descripcion: 'Ver productos, almacenes, stock y unidades', grupo: 'Inventario' },
+  [PERMISOS.GESTIONAR_INVENTARIO]: { label: 'Gestionar Inventario', descripcion: 'Modificar productos, organizar stock y almacenes', grupo: 'Inventario' },
+  [PERMISOS.TRANSFERIR_UNIDADES]: { label: 'Transferir Unidades', descripcion: 'Mover unidades entre almacenes', grupo: 'Inventario' },
+  // === Finanzas ===
+  [PERMISOS.VER_GASTOS]: { label: 'Ver Gastos', descripcion: 'Ver listado de gastos operativos y de entrega', grupo: 'Finanzas' },
+  [PERMISOS.CREAR_GASTO]: { label: 'Crear Gastos', descripcion: 'Registrar nuevos gastos en el sistema', grupo: 'Finanzas' },
+  [PERMISOS.VER_TESORERIA]: { label: 'Ver Tesorería', descripcion: 'Ver movimientos de caja, cuentas y conversiones', grupo: 'Finanzas' },
+  [PERMISOS.GESTIONAR_TESORERIA]: { label: 'Gestionar Tesorería', descripcion: 'Registrar movimientos, aportes, retiros y conversiones', grupo: 'Finanzas' },
+  [PERMISOS.VER_REPORTES]: { label: 'Ver Reportes', descripcion: 'Acceso a reportes financieros y de gestión', grupo: 'Finanzas' },
+  [PERMISOS.VER_CTRU]: { label: 'Ver CTRU', descripcion: 'Costo Total Real Unitario y análisis de márgenes', grupo: 'Finanzas' },
+  // === Administración ===
+  [PERMISOS.GESTIONAR_USUARIOS]: { label: 'Gestionar Usuarios', descripcion: 'Crear, editar y eliminar usuarios del sistema', grupo: 'Administración' },
+  [PERMISOS.GESTIONAR_CONFIGURACION]: { label: 'Gestionar Configuración', descripcion: 'Modificar configuración, maestros y almacenes', grupo: 'Administración' },
+  [PERMISOS.VER_AUDITORIA]: { label: 'Ver Auditoría', descripcion: 'Acceso al registro de auditoría del sistema', grupo: 'Administración' },
+  [PERMISOS.ADMIN_TOTAL]: { label: 'Administración Total', descripcion: 'Poder absoluto sobre todo el sistema', grupo: 'Administración' },
 };
 
-const COLLECTION_NAME = 'users';
+const COLLECTION_NAME = COLLECTIONS.USERS;
 
 export const userService = {
   /**
@@ -107,7 +108,8 @@ export const userService = {
     email: string,
     displayName: string,
     role: UserRole = 'invitado',
-    permisos?: string[]
+    permisos?: string[],
+    activo: boolean = true
   ): Promise<UserProfile> {
     try {
       const userProfile: Omit<UserProfile, 'uid'> = {
@@ -115,7 +117,7 @@ export const userService = {
         displayName,
         role,
         permisos: permisos || DEFAULT_PERMISOS[role],
-        activo: true,
+        activo,
         fechaCreacion: Timestamp.now(),
         ultimaConexion: Timestamp.now()
       };
@@ -181,6 +183,23 @@ export const userService = {
       await updateDoc(docRef, { activo });
     } catch (error) {
       console.error('Error al cambiar estado de usuario:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Aprobar usuario pendiente: activar + asignar rol + permisos
+   */
+  async aprobarUsuario(uid: string, role: UserRole): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTION_NAME, uid);
+      await updateDoc(docRef, {
+        activo: true,
+        role,
+        permisos: DEFAULT_PERMISOS[role]
+      });
+    } catch (error) {
+      console.error('Error al aprobar usuario:', error);
       throw error;
     }
   },
@@ -418,6 +437,9 @@ export const userService = {
         throw new Error('Error al eliminar usuario');
       }
 
+      // Limpiar documento de presencia
+      await presenciaService.eliminarPresencia(uid);
+
       // Registrar en auditoría
       if (usuario) {
         await auditoriaService.logEliminar(
@@ -503,7 +525,100 @@ export const userService = {
     });
 
     return grupos;
-  }
+  },
+
+  /**
+   * Subir foto de perfil a Firebase Storage
+   */
+  async uploadProfilePhoto(uid: string, file: File): Promise<string> {
+    try {
+      const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+      const { storage } = await import('../lib/firebase');
+      const storageRef = ref(storage, `profile-photos/${uid}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      // Actualizar documento del usuario con la nueva URL
+      await this.updateProfile(uid, { photoURL: url });
+      return url;
+    } catch (error) {
+      console.error('Error al subir foto de perfil:', error);
+      throw new Error('Error al subir la foto. Intenta con una imagen más pequeña.');
+    }
+  },
+
+  /**
+   * Cambiar contraseña propia usando Cloud Function
+   * Usa context.auth.uid en el servidor (no uid del cliente) para seguridad
+   */
+  async changeOwnPassword(newPassword: string): Promise<void> {
+    try {
+      const changePasswordFn = httpsCallable<
+        { newPassword: string },
+        CloudFunctionResponse
+      >(functions, 'changeOwnPassword');
+
+      const result = await changePasswordFn({ newPassword });
+
+      if (!result.data.success) {
+        throw new Error('Error al cambiar contraseña');
+      }
+    } catch (error: any) {
+      console.error('Error al cambiar contraseña:', error);
+
+      if (error.code === 'functions/invalid-argument') {
+        throw new Error(error.message || 'La contraseña debe tener al menos 6 caracteres');
+      }
+      if (error.code === 'functions/unauthenticated') {
+        throw new Error('Debes iniciar sesión para cambiar tu contraseña');
+      }
+
+      throw new Error(error.message || 'Error al cambiar contraseña');
+    }
+  },
+
+  /**
+   * Forzar desconexión de un usuario (solo admin)
+   */
+  async forceDisconnectUser(uid: string): Promise<void> {
+    try {
+      const forceDisconnectFn = httpsCallable<
+        { uid: string },
+        CloudFunctionResponse
+      >(functions, 'forceDisconnectUser');
+
+      const result = await forceDisconnectFn({ uid });
+
+      if (!result.data.success) {
+        throw new Error('Error al desconectar usuario');
+      }
+    } catch (error: any) {
+      console.error('Error al desconectar usuario:', error);
+      throw new Error(error.message || 'Error al desconectar usuario');
+    }
+  },
+
+  /**
+   * Forzar desconexión de TODOS los usuarios (solo admin)
+   */
+  async forceDisconnectAll(): Promise<number> {
+    try {
+      const forceDisconnectAllFn = httpsCallable<
+        unknown,
+        CloudFunctionResponse & { disconnected?: number }
+      >(functions, 'forceDisconnectAll');
+
+      const result = await forceDisconnectAllFn({});
+
+      if (!result.data.success) {
+        throw new Error('Error al desconectar usuarios');
+      }
+
+      return result.data.disconnected || 0;
+    } catch (error: any) {
+      console.error('Error al desconectar todos los usuarios:', error);
+      throw new Error(error.message || 'Error al desconectar usuarios');
+    }
+  },
 };
 
 export const UserService = userService;

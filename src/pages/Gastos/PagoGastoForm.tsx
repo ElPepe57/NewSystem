@@ -23,12 +23,20 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
   const { registrarPagoGasto } = useGastoStore();
   const { getTCDelDia } = useTipoCambioStore();
 
+  // Calcular monto pendiente (compat con gastos sin pagos[])
+  const pendientePEN = gasto.montoPendiente !== undefined ? gasto.montoPendiente : gasto.montoPEN;
+  const pendienteOriginal = gasto.moneda === 'USD'
+    ? pendientePEN / (gasto.tipoCambio || 3.70)
+    : pendientePEN;
+
   // Estado del formulario
   const [fechaPago, setFechaPago] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
   const [monedaPago, setMonedaPago] = useState<'USD' | 'PEN'>(gasto.moneda);
-  const [montoPago, setMontoPago] = useState<number>(gasto.montoOriginal);
+  const [montoPago, setMontoPago] = useState<number>(
+    gasto.moneda === 'PEN' ? pendientePEN : pendienteOriginal
+  );
   const [tipoCambio, setTipoCambio] = useState<number>(gasto.tipoCambio || 3.70);
   const [metodoPago, setMetodoPago] = useState<MetodoTesoreria>('efectivo');
   const [cuentaOrigenId, setCuentaOrigenId] = useState<string>('');
@@ -92,6 +100,12 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
   const montoUSD = monedaPago === 'USD' ? montoPago : montoPago / tipoCambio;
   const montoPEN = monedaPago === 'PEN' ? montoPago : montoPago * tipoCambio;
 
+  // Determinar si es pago parcial o total
+  const esPagoTotal = montoPEN >= pendientePEN - 0.01;
+
+  // Calcular máximo permitido en la moneda seleccionada
+  const maxMonto = monedaPago === 'PEN' ? pendientePEN : pendientePEN / tipoCambio;
+
   // Calcular saldo nuevo
   const saldoActualCuenta = cuentaSeleccionada
     ? (cuentaSeleccionada.esBiMoneda
@@ -123,6 +137,12 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
       return;
     }
 
+    // Validar que no exceda el pendiente
+    if (montoPEN > pendientePEN + 0.01) {
+      alert(`El monto excede el saldo pendiente: S/ ${pendientePEN.toFixed(2)}`);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -137,7 +157,7 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
         notas: notas || undefined
       }, user.uid);
 
-      alert('✅ Pago registrado exitosamente');
+      alert(esPagoTotal ? '✅ Pago completo registrado' : '✅ Pago parcial registrado');
       onSuccess();
     } catch (error: any) {
       alert(`❌ Error al registrar pago: ${error.message}`);
@@ -150,26 +170,26 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-          <div className="flex items-center gap-3">
-            <CreditCard className="h-6 w-6 text-green-600" />
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Registrar Pago de Gasto</h2>
-              <p className="text-sm text-gray-600 mt-0.5">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 flex-shrink-0" />
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-xl font-bold text-gray-900">Registrar Pago</h2>
+              <p className="text-xs sm:text-sm text-gray-600 mt-0.5 truncate">
                 {gasto.numeroGasto} - {gasto.descripcion}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X className="h-6 w-6" />
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+            <X className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Resumen del Gasto */}
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
             <h3 className="text-sm font-semibold text-amber-800 mb-2">Gasto a Pagar</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
               <div>
                 <span className="text-gray-600">Tipo:</span>
                 <span className="font-medium text-gray-900 ml-2">{gasto.tipo}</span>
@@ -191,6 +211,31 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
                 </span>
               </div>
             </div>
+
+            {/* Info de pagos anteriores si existen */}
+            {gasto.pagos && gasto.pagos.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-amber-200">
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-600">Pagado ({gasto.pagos.length} pago{gasto.pagos.length > 1 ? 's' : ''}):</span>
+                  <span className="font-medium text-green-700">
+                    S/ {(gasto.montoPagado || 0).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 font-semibold">Pendiente:</span>
+                  <span className="font-bold text-red-600">
+                    S/ {pendientePEN.toFixed(2)}
+                  </span>
+                </div>
+                {/* Barra de progreso */}
+                <div className="w-full bg-amber-200 rounded-full h-2 mt-2">
+                  <div
+                    className="bg-green-500 h-2 rounded-full transition-all"
+                    style={{ width: `${Math.min(((gasto.montoPagado || 0) / gasto.montoPEN) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Fecha de Pago */}
@@ -211,53 +256,50 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
           {/* Moneda de Pago */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Moneda de Pago *</label>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setMonedaPago('PEN');
-                  if (gasto.moneda === 'PEN') {
-                    setMontoPago(gasto.montoOriginal);
-                  } else {
-                    setMontoPago(gasto.montoPEN);
-                  }
+                  setMontoPago(pendientePEN);
                 }}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                   monedaPago === 'PEN'
                     ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
                     : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                <Banknote className="h-5 w-5" />
-                S/ Soles (PEN)
+                <Banknote className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="sm:hidden">S/ PEN</span>
+                <span className="hidden sm:inline">S/ Soles (PEN)</span>
               </button>
               <button
                 type="button"
                 onClick={() => {
                   setMonedaPago('USD');
-                  if (gasto.moneda === 'USD') {
-                    setMontoPago(gasto.montoOriginal);
-                  } else {
-                    setMontoPago(gasto.montoOriginal / tipoCambio);
-                  }
+                  setMontoPago(pendientePEN / tipoCambio);
                 }}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                   monedaPago === 'USD'
                     ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-200'
                     : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                <DollarSign className="h-5 w-5" />
-                $ Dólares (USD)
+                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="sm:hidden">$ USD</span>
+                <span className="hidden sm:inline">$ Dólares (USD)</span>
               </button>
             </div>
           </div>
 
           {/* Monto y TC */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Monto a Pagar ({monedaPago === 'USD' ? '$' : 'S/'}) *
+                <span className="text-xs text-gray-400 ml-1">
+                  (Máx: {monedaPago === 'USD' ? '$' : 'S/'} {maxMonto.toFixed(2)})
+                </span>
               </label>
               <input
                 type="number"
@@ -302,13 +344,29 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
             </div>
           )}
 
+          {/* Indicador de tipo de pago */}
+          {montoPago > 0 && (
+            <div className={`text-center text-sm font-medium rounded-lg py-2 ${
+              esPagoTotal
+                ? 'bg-green-100 text-green-700'
+                : 'bg-blue-100 text-blue-700'
+            }`}>
+              {esPagoTotal ? 'Pago Total' : 'Pago Parcial'}
+              {!esPagoTotal && (
+                <span className="text-xs ml-1 opacity-75">
+                  — Quedará pendiente: S/ {(pendientePEN - montoPEN).toFixed(2)}
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Método de Pago */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
-            <div className="grid grid-cols-3 gap-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
               {[
                 { value: 'efectivo', label: 'Efectivo', icon: '💵' },
-                { value: 'transferencia_bancaria', label: 'Transferencia', icon: '🏦' },
+                { value: 'transferencia_bancaria', label: 'Transfer.', icon: '🏦' },
                 { value: 'yape', label: 'Yape', icon: '📱' },
                 { value: 'plin', label: 'Plin', icon: '📲' },
                 { value: 'tarjeta_credito', label: 'T. Crédito', icon: '💳' },
@@ -318,13 +376,13 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
                   key={metodo.value}
                   type="button"
                   onClick={() => setMetodoPago(metodo.value as MetodoTesoreria)}
-                  className={`py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                  className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all ${
                     metodoPago === metodo.value
                       ? 'border-green-500 bg-green-50 text-green-700'
                       : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                   }`}
                 >
-                  <span className="mr-1">{metodo.icon}</span>
+                  <span className="mr-0.5 sm:mr-1">{metodo.icon}</span>
                   {metodo.label}
                 </button>
               ))}
@@ -429,6 +487,33 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
             />
           </div>
 
+          {/* Historial de Pagos Anteriores */}
+          {gasto.pagos && gasto.pagos.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Historial de Pagos ({gasto.pagos.length})
+              </label>
+              <div className="bg-gray-50 rounded-lg border border-gray-200 divide-y divide-gray-200 max-h-40 overflow-y-auto">
+                {gasto.pagos.map((pago, idx) => (
+                  <div key={pago.id} className="px-3 py-2 text-sm flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 font-mono">#{idx + 1}</span>
+                      <span className="font-medium text-gray-900">
+                        {pago.monedaPago === 'USD' ? '$' : 'S/'} {pago.montoOriginal.toFixed(2)}
+                      </span>
+                      <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                        {pago.metodoPago}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {pago.fecha?.toDate?.()?.toLocaleDateString('es-PE') || '-'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Acciones */}
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <Button
@@ -444,7 +529,12 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
               disabled={loading || !cuentaOrigenId}
               className="bg-green-600 hover:bg-green-700"
             >
-              {loading ? 'Registrando...' : 'Registrar Pago'}
+              {loading
+                ? 'Registrando...'
+                : esPagoTotal
+                  ? 'Registrar Pago Total'
+                  : 'Registrar Pago Parcial'
+              }
             </Button>
           </div>
         </form>

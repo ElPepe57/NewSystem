@@ -21,7 +21,7 @@ interface MarcaAutocompleteProps {
   required?: boolean;
   disabled?: boolean;
   allowCreate?: boolean;
-  defaultTipoMarca?: 'farmaceutica' | 'suplementos' | 'cosmetica' | 'tecnologia' | 'otro';
+  defaultTipoMarca?: 'farmaceutica' | 'suplementos' | 'skincare' | 'cosmetica' | 'tecnologia' | 'otro';
   className?: string;
 }
 
@@ -158,6 +158,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
     const colores: Record<string, string> = {
       farmaceutica: 'bg-blue-100 text-blue-800',
       suplementos: 'bg-green-100 text-green-800',
+      skincare: 'bg-rose-100 text-rose-800',
       cosmetica: 'bg-pink-100 text-pink-800',
       tecnologia: 'bg-purple-100 text-purple-800',
       otro: 'bg-gray-100 text-gray-800'
@@ -350,8 +351,9 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
                   onChange={(e) => setNuevaMarca({ ...nuevaMarca, tipoMarca: e.target.value as any })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                 >
-                  <option value="farmaceutica">Farmacéutica</option>
                   <option value="suplementos">Suplementos</option>
+                  <option value="skincare">Skincare</option>
+                  <option value="farmaceutica">Farmacéutica</option>
                   <option value="cosmetica">Cosmética</option>
                   <option value="tecnologia">Tecnología</option>
                   <option value="otro">Otro</option>

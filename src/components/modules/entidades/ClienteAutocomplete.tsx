@@ -12,6 +12,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useClienteStore } from '../../../store/clienteStore';
+import { CanalAutocomplete } from '../canalVenta/CanalAutocomplete';
 import type { Cliente, ClienteFormData, ClienteSnapshot } from '../../../types/entidadesMaestras.types';
 
 interface ClienteAutocompleteProps {
@@ -61,7 +62,7 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [nuevoCliente, setNuevoCliente] = useState<Partial<ClienteFormData>>({
-    canalOrigen: 'whatsapp',
+    canalOrigen: '',
     tipoCliente: 'persona'
   });
   const [creando, setCreando] = useState(false);
@@ -143,7 +144,7 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
   const handleShowCreate = () => {
     setNuevoCliente({
       nombre: inputValue,
-      canalOrigen: 'whatsapp',
+      canalOrigen: '',
       tipoCliente: 'persona'
     });
     setShowCreateForm(true);
@@ -419,22 +420,12 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Canal de origen
-              </label>
-              <select
-                value={nuevoCliente.canalOrigen}
-                onChange={(e) => setNuevoCliente({ ...nuevoCliente, canalOrigen: e.target.value as any })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="whatsapp">WhatsApp</option>
-                <option value="facebook">Facebook</option>
-                <option value="instagram">Instagram</option>
-                <option value="mercadolibre">MercadoLibre</option>
-                <option value="referido">Referido</option>
-                <option value="web">Web</option>
-                <option value="otro">Otro</option>
-              </select>
+              <CanalAutocomplete
+                value={nuevoCliente.canalOrigen || ''}
+                onChange={(canalId) => setNuevoCliente({ ...nuevoCliente, canalOrigen: canalId })}
+                label="Canal de origen"
+                placeholder="Buscar o crear canal..."
+              />
             </div>
 
             <div className="flex justify-end space-x-2 pt-2">

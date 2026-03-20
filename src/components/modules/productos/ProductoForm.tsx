@@ -27,6 +27,11 @@ import { tipoProductoService } from '../../../services/tipoProducto.service';
 import { categoriaService } from '../../../services/categoria.service';
 import { etiquetaService } from '../../../services/etiqueta.service';
 import { useAuthStore } from '../../../store/authStore';
+import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
+import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
+import { METODO_ENVIO_LABELS } from '../../../types/paisOrigen.types';
+import type { MetodoEnvio } from '../../../types/paisOrigen.types';
+import { Globe, Building2, Plus, MapPin, Truck } from 'lucide-react';
 import type { ProductoFormData, Producto, InvestigacionMercado } from '../../../types/producto.types';
 import type { MarcaSnapshot, MarcaFormData } from '../../../types/entidadesMaestras.types';
 import type { TipoProductoSnapshot } from '../../../types/tipoProducto.types';
@@ -61,25 +66,19 @@ interface DemandaDetectada {
 }
 
 interface SugerenciasInteligentes {
-  precioSugerido: number;
-  margenMinimo: number;
-  margenObjetivo: number;
   stockMinimo: number;
   stockMaximo: number;
   razonamientos: {
-    precio?: string;
-    margen?: string;
     stock?: string;
   };
 }
 
 // Definicion de tabs del formulario
 const FORM_TABS: Tab[] = [
+  { id: 'origen', label: 'Linea y Origen', icon: <Globe className="h-4 w-4" /> },
   { id: 'basico', label: 'Informacion Basica', icon: <Tag className="h-4 w-4" /> },
   { id: 'clasificacion', label: 'Clasificacion', icon: <Layers className="h-4 w-4" /> },
-  { id: 'comercial', label: 'Datos Comerciales', icon: <DollarSign className="h-4 w-4" /> },
   { id: 'inventario', label: 'Inventario', icon: <Package className="h-4 w-4" /> },
-  { id: 'marketplace', label: 'Mercado Libre', icon: <ShoppingBag className="h-4 w-4" /> }
 ];
 
 export const ProductoForm: React.FC<ProductoFormProps> = ({
@@ -90,7 +89,24 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   productosExistentes = []
 }) => {
   const { user } = useAuthStore();
-  const { activeTab, setActiveTab } = useTabs('basico');
+  const { activeTab, setActiveTab } = useTabs('origen');
+  const { lineasActivas, fetchLineasActivas } = useLineaNegocioStore();
+  const { paisesActivos, fetchPaisesActivos, createPais } = usePaisOrigenStore();
+
+  // Cargar líneas de negocio y países activos
+  useEffect(() => {
+    fetchLineasActivas();
+    fetchPaisesActivos();
+  }, [fetchLineasActivas, fetchPaisesActivos]);
+
+  // Estado para crear nuevo país inline
+  const [mostrarNuevoPais, setMostrarNuevoPais] = useState(false);
+  const [nuevoPaisNombre, setNuevoPaisNombre] = useState('');
+  const [nuevoPaisCodigo, setNuevoPaisCodigo] = useState('');
+  const [nuevoPaisTarifaFlete, setNuevoPaisTarifaFlete] = useState('');
+  const [nuevoPaisMetodoEnvio, setNuevoPaisMetodoEnvio] = useState('');
+  const [nuevoPaisTiempoTransito, setNuevoPaisTiempoTransito] = useState('');
+  const [creandoPais, setCreandoPais] = useState(false);
 
   // Marca inteligente del maestro
   const [marcaSeleccionada, setMarcaSeleccionada] = useState<MarcaSnapshot | null>(null);
@@ -114,19 +130,16 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     categoriaIds: initialData?.categoriaIds || [],
     categoriaPrincipalId: initialData?.categoriaPrincipalId,
     etiquetaIds: initialData?.etiquetaIds || [],
-    enlaceProveedor: initialData?.enlaceProveedor || '',
     codigoUPC: initialData?.codigoUPC || '',
-    precioSugerido: initialData?.precioSugerido || 0,
-    margenMinimo: initialData?.margenMinimo || 20,
-    margenObjetivo: initialData?.margenObjetivo || 35,
     stockMinimo: initialData?.stockMinimo || 10,
     stockMaximo: initialData?.stockMaximo || 100,
-    habilitadoML: initialData?.habilitadoML || false,
-    restriccionML: initialData?.restriccionML || '',
-    costoFleteUSAPeru: initialData?.costoFleteUSAPeru || 0,
+    costoFleteInternacional: initialData?.costoFleteInternacional ?? 0,
     // Ciclo de recompra
     servingsPerDay: initialData?.servingsPerDay,
-    cicloRecompraDias: initialData?.cicloRecompraDias
+    cicloRecompraDias: initialData?.cicloRecompraDias,
+    // Línea de negocio y origen
+    lineaNegocioId: initialData?.lineaNegocioId || '',
+    paisOrigen: initialData?.paisOrigen || 'USA',
   });
 
   // Estados para snapshots de clasificacion (para guardar datos desnormalizados)
@@ -157,16 +170,29 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   // Demanda detectada (simulada por ahora, se conectara a ventas/requerimientos reales)
   const [demandaDetectada, setDemandaDetectada] = useState<DemandaDetectada | null>(null);
 
-  // Cargar el proximo SKU al montar el componente (solo en modo creacion)
+  // Resolver código de línea seleccionada para generar SKU
+  const lineaSeleccionadaCodigo = useMemo(() => {
+    const linea = lineasActivas.find(l => l.id === formData.lineaNegocioId);
+    return linea?.codigo || 'BMN';
+  }, [formData.lineaNegocioId, lineasActivas]);
+
+  // Cargar el proximo SKU — reactivo a la línea seleccionada
   useEffect(() => {
     if (!initialData) {
       setLoadingSKU(true);
-      ProductoService.getProximoSKU()
+      ProductoService.getProximoSKU(lineaSeleccionadaCodigo)
         .then(sku => setProximoSKU(sku))
         .catch(err => console.error('Error al obtener SKU:', err))
         .finally(() => setLoadingSKU(false));
     }
-  }, [initialData]);
+  }, [initialData, lineaSeleccionadaCodigo]);
+
+  // Determinar si la línea seleccionada es de suplementos (para campos condicionales)
+  const esSuplemento = useMemo(() => {
+    const linea = lineasActivas.find(l => l.id === formData.lineaNegocioId);
+    if (!linea) return true; // Default: suplementos (comportamiento legacy)
+    return linea.codigo === 'SUP';
+  }, [formData.lineaNegocioId, lineasActivas]);
 
   // Inicializar clasificacion cuando se edita un producto existente
   useEffect(() => {
@@ -322,45 +348,6 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     const inv = investigacionSeleccionada;
     const demanda = demandaDetectada;
 
-    // Calcular precio sugerido
-    let precioSugerido = formData.precioSugerido;
-    let razonPrecio = '';
-    if (inv) {
-      if (inv.precioEntrada && inv.precioEntrada > 0) {
-        precioSugerido = inv.precioEntrada;
-        razonPrecio = `Precio entrada competitivo (-5% del minimo ${inv.precioPERUMin?.toFixed(2)})`;
-      } else if (inv.precioSugeridoCalculado > 0) {
-        precioSugerido = inv.precioSugeridoCalculado;
-        razonPrecio = `Basado en CTRU S/${inv.ctruEstimado?.toFixed(2)} + margen objetivo`;
-      }
-    }
-
-    // Calcular margenes sugeridos
-    let margenMinimo = 20;
-    let margenObjetivo = 35;
-    let razonMargen = 'Margenes estandar conservadores';
-
-    if (inv) {
-      const margenEstimado = inv.margenEstimado || 0;
-      if (margenEstimado >= 40) {
-        margenMinimo = 25;
-        margenObjetivo = 40;
-        razonMargen = `Margen alto detectado (${margenEstimado.toFixed(1)}%), margenes optimistas`;
-      } else if (margenEstimado >= 25) {
-        margenMinimo = 20;
-        margenObjetivo = 30;
-        razonMargen = `Margen moderado (${margenEstimado.toFixed(1)}%), margenes balanceados`;
-      } else if (margenEstimado >= 15) {
-        margenMinimo = 15;
-        margenObjetivo = 25;
-        razonMargen = `Margen ajustado (${margenEstimado.toFixed(1)}%), margenes conservadores`;
-      } else {
-        margenMinimo = 10;
-        margenObjetivo = 20;
-        razonMargen = `Margen bajo (${margenEstimado.toFixed(1)}%), revisar viabilidad`;
-      }
-    }
-
     // Calcular stocks basados en demanda
     let stockMinimo = 10;
     let stockMaximo = 100;
@@ -379,18 +366,13 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     }
 
     return {
-      precioSugerido,
-      margenMinimo,
-      margenObjetivo,
       stockMinimo,
       stockMaximo,
       razonamientos: {
-        precio: razonPrecio,
-        margen: razonMargen,
         stock: razonStock
       }
     };
-  }, [investigacionSeleccionada, demandaDetectada, formData.precioSugerido]);
+  }, [investigacionSeleccionada, demandaDetectada]);
 
   // Aplicar datos de investigacion seleccionada
   const aplicarInvestigacion = (producto: Producto) => {
@@ -409,7 +391,6 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
       contenido: producto.contenido,
       grupo: producto.grupo,
       subgrupo: producto.subgrupo,
-      enlaceProveedor: producto.enlaceProveedor || '',
       codigoUPC: producto.codigoUPC || ''
     }));
 
@@ -423,9 +404,6 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
     setFormData(prev => ({
       ...prev,
-      precioSugerido: sugerenciasInteligentes.precioSugerido,
-      margenMinimo: sugerenciasInteligentes.margenMinimo,
-      margenObjetivo: sugerenciasInteligentes.margenObjetivo,
       stockMinimo: sugerenciasInteligentes.stockMinimo,
       stockMaximo: sugerenciasInteligentes.stockMaximo
     }));
@@ -496,7 +474,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
-    } else if (['precioSugerido', 'margenMinimo', 'margenObjetivo', 'stockMinimo', 'stockMaximo', 'costoFleteUSAPeru', 'cicloRecompraDias', 'servingsPerDay'].includes(name)) {
+    } else if (['stockMinimo', 'stockMaximo', 'costoFleteInternacional', 'cicloRecompraDias', 'servingsPerDay'].includes(name)) {
       setFormData(prev => ({ ...prev, [name]: value ? parseFloat(value) : undefined }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -720,22 +698,247 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
         />
 
         <TabsProvider activeTab={activeTab}>
-          {/* TAB 1: INFORMACION BASICA */}
-          <TabPanel tabId="basico" className="mt-6 space-y-4">
-            {/* SKU Automatico - Solo mostrar en modo creacion */}
-            {!initialData && (
-              <div className="bg-primary-50 border border-primary-200 rounded-lg p-3 flex items-center justify-between">
-                <div>
-                  <span className="text-sm text-primary-700 font-medium">SKU que se asignara:</span>
-                  <span className="ml-2 font-mono text-primary-900 font-bold">
-                    {loadingSKU ? 'Generando...' : proximoSKU}
-                  </span>
+          {/* TAB 0: LÍNEA DE NEGOCIO Y ORIGEN */}
+          <TabPanel tabId="origen" className="mt-6 space-y-6">
+            {/* Línea de Negocio */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-indigo-600" />
+                Línea de Negocio <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {lineasActivas.map(linea => (
+                  <button
+                    key={linea.id}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, lineaNegocioId: linea.id }))}
+                    className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
+                      formData.lineaNegocioId === linea.id
+                        ? 'border-indigo-500 bg-indigo-50 shadow-md ring-2 ring-indigo-200'
+                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                    }`}
+                  >
+                    <span className="text-2xl">{linea.icono || '📦'}</span>
+                    <div className="text-left">
+                      <p className={`font-semibold ${formData.lineaNegocioId === linea.id ? 'text-indigo-900' : 'text-gray-900'}`}>
+                        {linea.nombre}
+                      </p>
+                      <p className="text-xs text-gray-500">Código: {linea.codigo}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {!formData.lineaNegocioId && (
+                <p className="text-xs text-amber-600 flex items-center gap-1 mt-1">
+                  <span>⚠</span> Selecciona una línea de negocio para continuar
+                </p>
+              )}
+            </div>
+
+            {/* País de Origen */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Globe className="h-4 w-4 text-blue-600" />
+                País de Origen
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {paisesActivos.map(pais => (
+                  <button
+                    key={pais.id}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, paisOrigen: pais.codigo }))}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                      formData.paisOrigen === pais.codigo
+                        ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200'
+                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                    }`}
+                  >
+                    <MapPin className={`h-5 w-5 ${formData.paisOrigen === pais.codigo ? 'text-blue-600' : 'text-gray-400'}`} />
+                    <div className="text-center">
+                      <p className={`text-sm font-medium ${formData.paisOrigen === pais.codigo ? 'text-blue-900' : 'text-gray-900'}`}>
+                        {pais.nombre}
+                      </p>
+                      <p className="text-xs text-gray-500">{pais.codigo}</p>
+                      {pais.tiempoTransitoEstimadoDias != null && pais.tiempoTransitoEstimadoDias > 0 && (
+                        <p className="text-xs text-gray-400 mt-0.5">~{pais.tiempoTransitoEstimadoDias}d tránsito</p>
+                      )}
+                    </div>
+                  </button>
+                ))}
+
+                {/* Botón Agregar País */}
+                <button
+                  type="button"
+                  onClick={() => setMostrarNuevoPais(!mostrarNuevoPais)}
+                  className="flex flex-col items-center justify-center gap-2 p-3 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-blue-400 hover:text-blue-500 transition-all"
+                >
+                  <Plus className="h-5 w-5" />
+                  <p className="text-xs font-medium">Nuevo país</p>
+                </button>
+              </div>
+
+              {/* Formulario inline para crear nuevo país */}
+              {mostrarNuevoPais && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-3 space-y-3">
+                  <h5 className="text-sm font-medium text-blue-800">Agregar nuevo país de origen</h5>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">Nombre del país</label>
+                      <input
+                        type="text"
+                        value={nuevoPaisNombre}
+                        onChange={(e) => setNuevoPaisNombre(e.target.value)}
+                        placeholder="ej: Japón"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">Código (3 letras)</label>
+                      <input
+                        type="text"
+                        value={nuevoPaisCodigo}
+                        onChange={(e) => setNuevoPaisCodigo(e.target.value.toUpperCase().slice(0, 3))}
+                        placeholder="ej: JPN"
+                        maxLength={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Freight / shipping fields */}
+                  <div className="border-t border-blue-200 pt-3 mt-2">
+                    <h6 className="text-xs font-medium text-blue-700 mb-2 flex items-center gap-1">
+                      <Truck className="h-3.5 w-3.5" /> Tarifa de flete estimada (ruta hacia Perú)
+                    </h6>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Flete USD/unidad</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={nuevoPaisTarifaFlete}
+                          onChange={(e) => setNuevoPaisTarifaFlete(e.target.value)}
+                          placeholder="ej: 3.50"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Método de envío</label>
+                        <select
+                          value={nuevoPaisMetodoEnvio}
+                          onChange={(e) => setNuevoPaisMetodoEnvio(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        >
+                          <option value="">-- Seleccionar --</option>
+                          {Object.entries(METODO_ENVIO_LABELS).map(([val, label]) => (
+                            <option key={val} value={val}>{label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Tránsito (días)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={nuevoPaisTiempoTransito}
+                          onChange={(e) => setNuevoPaisTiempoTransito(e.target.value)}
+                          placeholder="ej: 5"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={!nuevoPaisNombre || !nuevoPaisCodigo || creandoPais}
+                      onClick={async () => {
+                        if (!user || !nuevoPaisNombre || !nuevoPaisCodigo) return;
+                        setCreandoPais(true);
+                        try {
+                          await createPais({
+                            nombre: nuevoPaisNombre,
+                            codigo: nuevoPaisCodigo,
+                            activo: true,
+                            tarifaFleteEstimadaUSD: nuevoPaisTarifaFlete ? parseFloat(nuevoPaisTarifaFlete) : undefined,
+                            metodoEnvio: (nuevoPaisMetodoEnvio || undefined) as MetodoEnvio | undefined,
+                            tiempoTransitoDias: nuevoPaisTiempoTransito ? parseInt(nuevoPaisTiempoTransito) : undefined,
+                          }, user.uid);
+                          await fetchPaisesActivos();
+                          setFormData(prev => ({ ...prev, paisOrigen: nuevoPaisCodigo }));
+                          setNuevoPaisNombre('');
+                          setNuevoPaisCodigo('');
+                          setNuevoPaisTarifaFlete('');
+                          setNuevoPaisMetodoEnvio('');
+                          setNuevoPaisTiempoTransito('');
+                          setMostrarNuevoPais(false);
+                        } catch (err: any) {
+                          alert(err.message || 'Error al crear país');
+                        } finally {
+                          setCreandoPais(false);
+                        }
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {creandoPais ? 'Creando...' : 'Crear país'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMostrarNuevoPais(false);
+                        setNuevoPaisNombre('');
+                        setNuevoPaisCodigo('');
+                        setNuevoPaisTarifaFlete('');
+                        setNuevoPaisMetodoEnvio('');
+                        setNuevoPaisTiempoTransito('');
+                      }}
+                      className="px-4 py-2 text-gray-600 text-sm rounded-lg hover:bg-gray-100"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
                 </div>
-                <span className="text-xs text-primary-600 bg-primary-100 px-2 py-1 rounded">Automatico</span>
+              )}
+
+              {/* Freight info for selected country */}
+              {(() => {
+                const paisSel = paisesActivos.find(p => p.codigo === formData.paisOrigen);
+                if (!paisSel || (!paisSel.tarifaFleteEstimadaUSD && !paisSel.metodoEnvio && !paisSel.tiempoTransitoDias)) return null;
+                return (
+                  <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                    <Truck className="h-4 w-4 text-amber-600 flex-shrink-0" />
+                    <span>
+                      Flete estimado:{' '}
+                      {paisSel.tarifaFleteEstimadaUSD != null ? `$${paisSel.tarifaFleteEstimadaUSD.toFixed(2)}/unidad` : 'N/D'}
+                      {paisSel.metodoEnvio && ` | ${METODO_ENVIO_LABELS[paisSel.metodoEnvio as MetodoEnvio] || paisSel.metodoEnvio}`}
+                      {paisSel.tiempoTransitoDias != null && paisSel.tiempoTransitoDias > 0 && ` | ~${paisSel.tiempoTransitoDias} días`}
+                    </span>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* SKU Preview */}
+            {!initialData && formData.lineaNegocioId && (
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm text-green-700 font-medium">SKU que se asignará:</span>
+                    <span className="ml-2 font-mono text-green-900 font-bold text-lg">
+                      {loadingSKU ? 'Generando...' : proximoSKU}
+                    </span>
+                  </div>
+                  <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">Automático</span>
+                </div>
               </div>
             )}
+          </TabPanel>
 
-            {/* Marca Inteligente con Autocomplete del Maestro */}
+          {/* TAB 1: INFORMACION BASICA */}
+          <TabPanel tabId="basico" className="mt-6 space-y-4">
+            {/* Marca — Compartida entre todas las líneas */}
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -751,7 +954,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                   placeholder="Buscar o crear marca..."
                   required
                   allowCreate
-                  defaultTipoMarca="suplementos"
+                  defaultTipoMarca={esSuplemento ? 'suplementos' : 'skincare'}
                 />
               </div>
 
@@ -788,7 +991,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                   onChange={handleAutocompleteChange('marca')}
                   suggestions={sugerencias.marcas}
                   required
-                  placeholder="ej: Nordic Naturals"
+                  placeholder={esSuplemento ? 'ej: Nordic Naturals' : 'ej: COSRX'}
                   allowCreate
                   createLabel="Crear marca"
                 />
@@ -800,123 +1003,185 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                 onChange={handleAutocompleteChange('nombreComercial')}
                 suggestions={sugerencias.nombresComerciales}
                 required
-                placeholder="ej: Ultimate Omega"
+                placeholder={esSuplemento ? 'ej: Ultimate Omega' : 'ej: Advanced Snail Mucin'}
                 allowCreate
                 createLabel="Crear nombre"
                 className={marcaSeleccionada ? 'md:col-span-2' : ''}
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <AutocompleteInput
-                label="Presentacion"
-                value={formData.presentacion}
-                onChange={handleAutocompleteChange('presentacion')}
-                suggestions={['Tabletas', 'Gomitas', 'Capsulas', 'Capsulas Blandas', 'Polvo', 'Liquido', ...sugerencias.presentaciones]}
-                required
-                placeholder="ej: Capsulas"
-                allowCreate
-                createLabel="Crear presentacion"
-              />
+            {/* === CAMPOS ESPECÍFICOS POR LÍNEA DE NEGOCIO === */}
+            {esSuplemento ? (
+              <>
+                {/* SUPLEMENTOS: Presentación, Dosaje, Contenido, Sabor */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <AutocompleteInput
+                    label="Presentacion"
+                    value={formData.presentacion}
+                    onChange={handleAutocompleteChange('presentacion')}
+                    suggestions={['Tabletas', 'Gomitas', 'Capsulas', 'Capsulas Blandas', 'Polvo', 'Liquido', ...sugerencias.presentaciones]}
+                    required
+                    placeholder="ej: Capsulas"
+                    allowCreate
+                    createLabel="Crear presentacion"
+                  />
 
-              <AutocompleteInput
-                label="Dosaje"
-                value={formData.dosaje}
-                onChange={handleAutocompleteChange('dosaje')}
-                suggestions={sugerencias.dosajes}
-                placeholder="ej: 1000mg"
-                allowCreate
-                createLabel="Crear dosaje"
-              />
+                  <AutocompleteInput
+                    label="Dosaje"
+                    value={formData.dosaje}
+                    onChange={handleAutocompleteChange('dosaje')}
+                    suggestions={sugerencias.dosajes}
+                    placeholder="ej: 1000mg"
+                    allowCreate
+                    createLabel="Crear dosaje"
+                  />
 
-              <AutocompleteInput
-                label="Contenido"
-                value={formData.contenido}
-                onChange={handleAutocompleteChange('contenido')}
-                suggestions={sugerencias.contenidos}
-                placeholder="ej: 60 softgels"
-                allowCreate
-                createLabel="Crear contenido"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Sabor (opcional)"
-                name="sabor"
-                value={formData.sabor}
-                onChange={handleChange}
-                placeholder="ej: Limon, Fresa, Natural, Sin sabor"
-              />
-
-              <Input
-                label="Codigo UPC/EAN (opcional)"
-                name="codigoUPC"
-                value={formData.codigoUPC}
-                onChange={handleChange}
-                placeholder="ej: 768990014307"
-              />
-            </div>
-
-            {/* Seccion Ciclo de Recompra */}
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                <Calculator className="h-4 w-4 text-primary-600" />
-                Ciclo de Recompra
-              </h4>
-              <p className="text-xs text-gray-500 mb-4">
-                El contenido (arriba) representa el total de porciones. Indica cuantas porciones al dia para calcular la duracion.
-              </p>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-xs text-gray-500 mb-1">Contenido (Total Porciones)</p>
-                  <p className="text-lg font-semibold text-gray-900">
-                    {formData.contenido || 'Sin especificar'}
-                  </p>
+                  <AutocompleteInput
+                    label="Contenido"
+                    value={formData.contenido}
+                    onChange={handleAutocompleteChange('contenido')}
+                    suggestions={sugerencias.contenidos}
+                    placeholder="ej: 60 softgels"
+                    allowCreate
+                    createLabel="Crear contenido"
+                  />
                 </div>
 
-                <Input
-                  label="Porciones/Dia"
-                  name="servingsPerDay"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={formData.servingsPerDay || ''}
-                  onChange={handleChange}
-                  placeholder="ej: 2"
-                  helperText="Consumo diario recomendado"
-                />
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Sabor (opcional)"
+                    name="sabor"
+                    value={formData.sabor}
+                    onChange={handleChange}
+                    placeholder="ej: Limon, Fresa, Natural, Sin sabor"
+                  />
 
-              {/* Calculo automatico del ciclo de recompra */}
-              {(() => {
-                const contenidoNumero = formData.contenido ? parseInt(formData.contenido.replace(/\D/g, '')) : 0;
-                const mostrar = contenidoNumero > 0 && formData.servingsPerDay && formData.servingsPerDay > 0;
-                if (!mostrar) return null;
-                const ciclo = Math.round(contenidoNumero / (formData.servingsPerDay || 1));
-                return (
-                  <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Package className="h-5 w-5 text-green-600" />
-                        <span className="text-sm font-medium text-green-800">
-                          Ciclo de Recompra Calculado
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-2xl font-bold text-green-700">
-                          {ciclo} dias
-                        </span>
-                        <p className="text-xs text-green-600">
-                          {contenidoNumero} porciones / {formData.servingsPerDay} al dia
-                        </p>
-                      </div>
+                  <Input
+                    label="Codigo UPC/EAN (opcional)"
+                    name="codigoUPC"
+                    value={formData.codigoUPC}
+                    onChange={handleChange}
+                    placeholder="ej: 768990014307"
+                  />
+                </div>
+
+                {/* Ciclo de Recompra — solo suplementos */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <Calculator className="h-4 w-4 text-primary-600" />
+                    Ciclo de Recompra
+                  </h4>
+                  <p className="text-xs text-gray-500 mb-4">
+                    El contenido (arriba) representa el total de porciones. Indica cuantas porciones al dia para calcular la duracion.
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <p className="text-xs text-gray-500 mb-1">Contenido (Total Porciones)</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {formData.contenido || 'Sin especificar'}
+                      </p>
                     </div>
+
+                    <Input
+                      label="Porciones/Dia"
+                      name="servingsPerDay"
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={formData.servingsPerDay || ''}
+                      onChange={handleChange}
+                      placeholder="ej: 2"
+                      helperText="Consumo diario recomendado"
+                    />
                   </div>
-                );
-              })()}
-            </div>
+
+                  {(() => {
+                    const contenidoNumero = formData.contenido ? parseInt(formData.contenido.replace(/\D/g, '')) : 0;
+                    const mostrar = contenidoNumero > 0 && formData.servingsPerDay && formData.servingsPerDay > 0;
+                    if (!mostrar) return null;
+                    const ciclo = Math.round(contenidoNumero / (formData.servingsPerDay || 1));
+                    return (
+                      <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Package className="h-5 w-5 text-green-600" />
+                            <span className="text-sm font-medium text-green-800">
+                              Ciclo de Recompra Calculado
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-2xl font-bold text-green-700">
+                              {ciclo} dias
+                            </span>
+                            <p className="text-xs text-green-600">
+                              {contenidoNumero} porciones / {formData.servingsPerDay} al dia
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* SKINCARE / OTRAS LÍNEAS: Tipo, Volumen, Ingredientes, Tipo Piel */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <AutocompleteInput
+                    label="Tipo de Producto"
+                    value={formData.presentacion}
+                    onChange={handleAutocompleteChange('presentacion')}
+                    suggestions={['Serum', 'Crema', 'Tonico', 'Limpiador', 'Mascarilla', 'Protector Solar', 'Exfoliante', 'Aceite', 'Esencia', 'Parches', 'Contorno de Ojos', 'Bruma Facial']}
+                    required
+                    placeholder="ej: Serum"
+                    allowCreate
+                    createLabel="Crear tipo"
+                  />
+
+                  <AutocompleteInput
+                    label="Volumen / Peso"
+                    value={formData.contenido}
+                    onChange={handleAutocompleteChange('contenido')}
+                    suggestions={['30ml', '50ml', '100ml', '150ml', '200ml', '250ml', '300ml', '50g', '100g', '150g']}
+                    placeholder="ej: 50ml"
+                    allowCreate
+                    createLabel="Crear volumen"
+                  />
+
+                  <AutocompleteInput
+                    label="Ingrediente Clave"
+                    value={formData.dosaje}
+                    onChange={handleAutocompleteChange('dosaje')}
+                    suggestions={['Niacinamida', 'Acido Hialuronico', 'Retinol', 'Vitamina C', 'AHA/BHA', 'Centella Asiatica', 'Snail Mucin', 'Ceramidas', 'Peptidos', 'Acido Salicilico', 'Tea Tree', 'Collageno']}
+                    placeholder="ej: Niacinamida"
+                    allowCreate
+                    createLabel="Crear ingrediente"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <AutocompleteInput
+                    label="Tipo de Piel (opcional)"
+                    value={formData.sabor || ''}
+                    onChange={handleAutocompleteChange('sabor')}
+                    suggestions={['Todo tipo de piel', 'Piel grasa', 'Piel seca', 'Piel mixta', 'Piel sensible', 'Piel madura', 'Piel con acne']}
+                    placeholder="ej: Piel mixta"
+                    allowCreate
+                    createLabel="Crear tipo de piel"
+                  />
+
+                  <Input
+                    label="Codigo UPC/EAN (opcional)"
+                    name="codigoUPC"
+                    value={formData.codigoUPC}
+                    onChange={handleChange}
+                    placeholder="ej: 768990014307"
+                  />
+                </div>
+              </>
+            )}
+
           </TabPanel>
 
           {/* TAB 2: CLASIFICACION */}
@@ -924,6 +1189,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             {/* Tipo de Producto */}
             <TipoProductoSelector
               value={formData.tipoProductoId}
+              lineaNegocioId={formData.lineaNegocioId}
               onChange={(tipoId, snapshot) => {
                 setFormData(prev => ({ ...prev, tipoProductoId: tipoId }));
                 setTipoProductoSnapshot(snapshot);
@@ -937,6 +1203,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             {/* Categorias */}
             <CategoriaSelector
               value={formData.categoriaIds || []}
+              lineaNegocioId={formData.lineaNegocioId}
               onChange={(categoriaIds, snapshots) => {
                 setFormData(prev => ({ ...prev, categoriaIds }));
                 setCategoriasSnapshots(snapshots);
@@ -963,6 +1230,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             {/* Etiquetas */}
             <EtiquetaSelector
               value={formData.etiquetaIds || []}
+              lineaNegocioId={formData.lineaNegocioId}
               onChange={(etiquetaIds, snapshots) => {
                 setFormData(prev => ({ ...prev, etiquetaIds }));
                 setEtiquetasSnapshots(snapshots);
@@ -1057,130 +1325,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             </div>
           </TabPanel>
 
-          {/* TAB 3: DATOS COMERCIALES */}
-          <TabPanel tabId="comercial" className="mt-6 space-y-4">
-            {sugerenciasInteligentes && (
-              <div className="flex items-center justify-end">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={aplicarSugerencias}
-                  className="text-amber-600 hover:text-amber-800"
-                >
-                  <Lightbulb className="h-4 w-4 mr-1" />
-                  Aplicar sugerencias
-                </Button>
-              </div>
-            )}
-
-            {sugerenciasInteligentes && usarSugerenciasInteligentes && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Lightbulb className="h-4 w-4 text-amber-600" />
-                  <span className="text-sm font-medium text-amber-800">Sugerencias basadas en investigacion</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  {sugerenciasInteligentes.razonamientos.precio && (
-                    <div className="bg-white/50 rounded p-2">
-                      <p className="text-xs text-gray-500">Precio</p>
-                      <p className="font-medium">S/{sugerenciasInteligentes.precioSugerido.toFixed(2)}</p>
-                      <p className="text-xs text-amber-600 mt-1">{sugerenciasInteligentes.razonamientos.precio}</p>
-                    </div>
-                  )}
-                  {sugerenciasInteligentes.razonamientos.margen && (
-                    <div className="bg-white/50 rounded p-2">
-                      <p className="text-xs text-gray-500">Margenes</p>
-                      <p className="font-medium">{sugerenciasInteligentes.margenMinimo}% - {sugerenciasInteligentes.margenObjetivo}%</p>
-                      <p className="text-xs text-amber-600 mt-1">{sugerenciasInteligentes.razonamientos.margen}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <Input
-              label="Enlace Proveedor"
-              name="enlaceProveedor"
-              value={formData.enlaceProveedor}
-              onChange={handleChange}
-              placeholder="https://..."
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
-                <Input
-                  label="Precio Sugerido (S/)"
-                  name="precioSugerido"
-                  type="number"
-                  step="0.01"
-                  value={formData.precioSugerido}
-                  onChange={handleChange}
-                />
-                {investigacionSeleccionada && investigacionSeleccionada.precioEntrada && (
-                  <p className="text-xs text-green-600 mt-1">
-                    Precio entrada: S/{investigacionSeleccionada.precioEntrada.toFixed(2)}
-                  </p>
-                )}
-              </div>
-
-              <div className="relative">
-                <Input
-                  label="Margen Minimo (%)"
-                  name="margenMinimo"
-                  type="number"
-                  step="1"
-                  value={formData.margenMinimo}
-                  onChange={handleChange}
-                  required
-                />
-                {investigacionSeleccionada && (
-                  <p className={`text-xs mt-1 ${
-                    formData.margenMinimo > (investigacionSeleccionada.margenEstimado || 0)
-                      ? 'text-red-600' : 'text-green-600'
-                  }`}>
-                    Margen inv: {investigacionSeleccionada.margenEstimado?.toFixed(1)}%
-                  </p>
-                )}
-              </div>
-
-              <Input
-                label="Margen Objetivo (%)"
-                name="margenObjetivo"
-                type="number"
-                step="1"
-                value={formData.margenObjetivo}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <Input
-              label="Costo Flete USA-Peru (USD/unidad)"
-              name="costoFleteUSAPeru"
-              type="number"
-              step="0.01"
-              value={formData.costoFleteUSAPeru}
-              onChange={handleChange}
-              helperText="Costo fijo que cobra el viajero por traer este producto"
-            />
-
-            {investigacionSeleccionada && investigacionSeleccionada.ctruEstimado > 0 && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Calculator className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-800">CTRU Estimado (de investigacion)</span>
-                  </div>
-                  <span className="text-lg font-bold text-blue-700">
-                    S/{investigacionSeleccionada.ctruEstimado.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            )}
-          </TabPanel>
-
-          {/* TAB 4: INVENTARIO */}
+          {/* TAB 3: INVENTARIO */}
           <TabPanel tabId="inventario" className="mt-6 space-y-4">
             {sugerenciasInteligentes && sugerenciasInteligentes.razonamientos.stock && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -1270,56 +1415,6 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
           </TabPanel>
 
           {/* TAB 5: MERCADO LIBRE */}
-          <TabPanel tabId="marketplace" className="mt-6 space-y-4">
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="habilitadoML"
-                name="habilitadoML"
-                checked={formData.habilitadoML}
-                onChange={handleChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="habilitadoML" className="text-sm text-gray-700">
-                Habilitado para publicar en Mercado Libre
-              </label>
-            </div>
-
-            {formData.habilitadoML && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Restriccion o Nota para ML (opcional)
-                </label>
-                <textarea
-                  name="restriccionML"
-                  value={formData.restriccionML}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="ej: No publicar en color azul"
-                />
-              </div>
-            )}
-
-            {investigacionSeleccionada && investigacionSeleccionada.presenciaML && investigacionSeleccionada.nivelCompetencia === 'alta' && (
-              <div className="flex items-center gap-2 text-amber-600 text-sm bg-amber-50 p-2 rounded">
-                <AlertTriangle className="h-4 w-4" />
-                Competencia alta en ML ({investigacionSeleccionada.numeroCompetidores} competidores detectados)
-              </div>
-            )}
-
-            {!formData.habilitadoML && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-                <ShoppingBag className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">
-                  Este producto no sera publicado en Mercado Libre.
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Activa la opcion de arriba para habilitar la publicacion.
-                </p>
-              </div>
-            )}
-          </TabPanel>
         </TabsProvider>
       </div>
 

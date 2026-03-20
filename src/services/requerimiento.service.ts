@@ -12,6 +12,7 @@ import {
   serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
 import type {
   Requerimiento,
@@ -28,8 +29,9 @@ import type {
   ResumenAsignaciones
 } from '../types/requerimiento.types';
 import { almacenService } from './almacen.service';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'requerimientos';
+const COLLECTION_NAME = COLLECTIONS.REQUERIMIENTOS;
 
 export const requerimientoService = {
   /**
@@ -129,14 +131,19 @@ export const requerimientoService = {
       // Preparar productos con cantidades iniciales
       const productos: ProductoRequerimiento[] = data.productos.map(p => ({
         productoId: p.productoId,
-        sku: p.sku,
-        marca: p.marca,
-        nombreComercial: p.nombreComercial,
+        sku: p.sku || '',
+        marca: p.marca || '',
+        nombreComercial: p.nombreComercial || '',
         presentacion: p.presentacion,
+        contenido: p.contenido,
+        dosaje: p.dosaje,
+        sabor: p.sabor,
         cantidadSolicitada: p.cantidadSolicitada,
         cantidadAsignada: 0,
         cantidadRecibida: 0,
         cantidadPendiente: p.cantidadSolicitada,
+        cantidadEnOC: 0,
+        pendienteCompra: p.cantidadSolicitada,
         precioEstimadoUSD: p.precioEstimadoUSD,
         precioVentaPEN: p.precioVentaPEN,
         completado: false
@@ -684,29 +691,8 @@ export const requerimientoService = {
    * Generar número de requerimiento
    */
   async generateNumero(): Promise<string> {
-    try {
-      const year = new Date().getFullYear();
-      const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-      if (snapshot.empty) {
-        return `REQ-${year}-0001`;
-      }
-
-      let maxNumber = 0;
-      snapshot.docs.forEach(docSnap => {
-        const data = docSnap.data();
-        const numero = data.numeroRequerimiento;
-        const match = numero?.match(/REQ-\d{4}-(\d+)/);
-        if (match) {
-          const num = parseInt(match[1], 10);
-          if (num > maxNumber) maxNumber = num;
-        }
-      });
-
-      return `REQ-${year}-${(maxNumber + 1).toString().padStart(4, '0')}`;
-    } catch (error) {
-      return `REQ-${new Date().getFullYear()}-0001`;
-    }
+    const year = new Date().getFullYear();
+    return getNextSequenceNumber(`REQ-${year}`, 4);
   },
 
   /**

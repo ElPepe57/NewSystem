@@ -87,14 +87,14 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
   return (
     <div className="space-y-4">
       {/* Header con estadísticas */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
         <div className="flex items-center gap-2">
           <DollarSign className="h-5 w-5 text-blue-600" />
           <h4 className="font-medium text-gray-900">Proveedores USA</h4>
           <span className="text-sm text-gray-500">({proveedores.length})</span>
         </div>
         {proveedores.length > 0 && (
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
             <span className="text-gray-500">
               Min: <span className="font-medium text-green-600">${min.toFixed(2)}</span>
             </span>
@@ -119,12 +119,12 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
           >
             {/* Fila compacta */}
             <div
-              className="p-3 flex items-center gap-3 cursor-pointer"
+              className="p-2 sm:p-3 flex items-center gap-2 sm:gap-3 cursor-pointer"
               onClick={() => setExpandedId(expandedId === proveedor.id ? null : proveedor.id)}
             >
               <span className="text-sm font-medium text-gray-400 w-6">#{index + 1}</span>
 
-              <div className="flex-1 grid grid-cols-4 gap-3">
+              <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-3">
                 <div className="flex items-center gap-2">
                   <Package className="h-4 w-4 text-gray-400" />
                   <span className={proveedor.nombre ? 'font-medium' : 'text-gray-400 italic'}>

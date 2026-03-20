@@ -25,7 +25,7 @@ interface ReporteState {
   fetchProductosRentabilidad: (rango?: RangoFechas) => Promise<void>;
   fetchInventarioValorizado: () => Promise<void>;
   fetchVentasPorCanal: (rango?: RangoFechas) => Promise<void>;
-  fetchTendenciaVentas: (dias?: number) => Promise<void>;
+  fetchTendenciaVentas: (rango?: RangoFechas) => Promise<void>;
   fetchAlertasInventario: () => Promise<void>;
   fetchAll: (rango?: RangoFechas) => Promise<void>;
 }
@@ -81,10 +81,10 @@ export const useReporteStore = create<ReporteState>((set, get) => ({
     }
   },
   
-  fetchTendenciaVentas: async (dias: number = 30) => {
+  fetchTendenciaVentas: async (rango?: RangoFechas) => {
     set({ loading: true, error: null });
     try {
-      const tendenciaVentas = await ReporteService.getTendenciaVentas(dias);
+      const tendenciaVentas = await ReporteService.getTendenciaVentas(rango);
       set({ tendenciaVentas, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
@@ -109,7 +109,7 @@ export const useReporteStore = create<ReporteState>((set, get) => ({
         get().fetchProductosRentabilidad(rango),
         get().fetchInventarioValorizado(),
         get().fetchVentasPorCanal(rango),
-        get().fetchTendenciaVentas(),
+        get().fetchTendenciaVentas(rango),
         get().fetchAlertasInventario()
       ]);
       set({ loading: false });

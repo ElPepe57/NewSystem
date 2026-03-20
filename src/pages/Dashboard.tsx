@@ -21,7 +21,7 @@ import {
   Users,
   Truck
 } from 'lucide-react';
-import { Card, Badge, DashboardSkeleton } from '../components/common';
+import { Card, Badge, DashboardSkeleton, LineaFiltroActivoBanner } from '../components/common';
 import {
   UsuariosActivosWidget,
   VencimientosWidget,
@@ -40,6 +40,7 @@ import { useAuthStore } from '../store/authStore';
 import { cuentasPendientesService } from '../services/cuentasPendientes.service';
 import type { DashboardCuentasPendientes } from '../types/tesoreria.types';
 import { Link } from 'react-router-dom';
+import { useLineaNegocioStore } from '../store/lineaNegocioStore';
 import type { Producto } from '../types/producto.types';
 import {
   LineChart,
@@ -68,6 +69,10 @@ const formatCurrencyShort = (value: number): string => {
   return `S/${value.toFixed(0)}`;
 };
 
+// Staleness threshold: skip re-fetch if data was loaded less than 5 minutes ago
+const STALE_TIME_MS = 5 * 60 * 1000;
+let dashboardLastFetchedAt = 0;
+
 export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
@@ -80,12 +85,24 @@ export const Dashboard: React.FC = () => {
   const { userProfile } = useAuthStore();
 
   const isAdmin = userProfile?.role === 'admin';
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+  const setLineaFiltroGlobal = useLineaNegocioStore(state => state.setLineaFiltroGlobal);
 
   const [tipoCambioDelDia, setTipoCambioDelDia] = useState<any>(null);
   const [dashboardCxPCxC, setDashboardCxPCxC] = useState<DashboardCuentasPendientes | null>(null);
 
-  // Cargar todos los datos al montar
+  // Cargar todos los datos al montar (con staleness check)
   useEffect(() => {
+    const now = Date.now();
+    const isStale = now - dashboardLastFetchedAt > STALE_TIME_MS;
+    const hasData = productos.length > 0 || ventas.length > 0;
+
+    // Si datos frescos existen, mostrar inmediatamente sin re-fetch
+    if (!isStale && hasData) {
+      setLoading(false);
+      return;
+    }
+
     const loadDashboardData = async () => {
       try {
         setLoading(true);
@@ -120,6 +137,7 @@ export const Dashboard: React.FC = () => {
           console.warn('No se pudieron cargar cuentas pendientes:', error);
         }
 
+        dashboardLastFetchedAt = Date.now();
         setLoading(false);
       } catch (error) {
         console.error('Error cargando datos del dashboard:', error);
@@ -130,12 +148,35 @@ export const Dashboard: React.FC = () => {
     loadDashboardData();
   }, []);
 
+  // Filtrar datos por línea de negocio global
+  const productosLN = useMemo(() => {
+    if (!lineaFiltroGlobal) return productos || [];
+    return (productos || []).filter(p => p.lineaNegocioId === lineaFiltroGlobal);
+  }, [productos, lineaFiltroGlobal]);
+
+  const ventasLN = useMemo(() => {
+    if (!lineaFiltroGlobal) return ventas || [];
+    return (ventas || []).filter(v => v.lineaNegocioId === lineaFiltroGlobal);
+  }, [ventas, lineaFiltroGlobal]);
+
+  const ordenesLN = useMemo(() => {
+    if (!lineaFiltroGlobal) return ordenes || [];
+    return (ordenes || []).filter(o => o.lineaNegocioId === lineaFiltroGlobal);
+  }, [ordenes, lineaFiltroGlobal]);
+
+  const inventarioLN = useMemo(() => {
+    if (!lineaFiltroGlobal) return inventario || [];
+    // Filter inventario items whose producto belongs to the selected linea
+    const productoIdsLN = new Set(productosLN.map(p => p.id));
+    return (inventario || []).filter(inv => productoIdsLN.has(inv.productoId));
+  }, [inventario, lineaFiltroGlobal, productosLN]);
+
   // Calcular métricas derivadas
-  const productosActivos = productos?.filter(p => p.estado === 'activo').length || 0;
+  const productosActivos = productosLN.filter(p => p.estado === 'activo').length || 0;
 
   // Stock crítico usando inventario agregado (array)
-  const stockCritico = inventario?.filter(inv => {
-    const producto = productos?.find(p => p.id === inv.productoId);
+  const stockCritico = inventarioLN.filter(inv => {
+    const producto = productosLN.find(p => p.id === inv.productoId);
     return inv.stockCritico || (inv.disponibles > 0 && producto?.stockMinimo && inv.disponibles <= producto.stockMinimo);
   }).length || 0;
 
@@ -146,13 +187,13 @@ export const Dashboard: React.FC = () => {
 
   // Ventas del mes
   const ahora = new Date();
-  const ventasMesActual = ventas?.filter(v => {
+  const ventasMesActual = ventasLN.filter(v => {
     if (!v.fechaCreacion || !v.fechaCreacion.toDate) return false;
     const fecha = v.fechaCreacion.toDate();
     return fecha.getMonth() === ahora.getMonth() &&
            fecha.getFullYear() === ahora.getFullYear() &&
            v.estado !== 'cancelada';
-  }) || [];
+  });
 
   const totalVentasMes = ventasMesActual.reduce((sum, v) => sum + v.totalPEN, 0);
   const utilidadMes = ventasMesActual.reduce((sum, v) => sum + (v.utilidadBrutaPEN || 0), 0);
@@ -162,22 +203,22 @@ export const Dashboard: React.FC = () => {
 
   // Anticipos pendientes (pasivo): ventas reservadas con dinero adelantado
   const anticiposPendientes = useMemo(() => {
-    const ventasConAnticipo = (ventas || []).filter(v =>
+    const ventasConAnticipo = ventasLN.filter(v =>
       v.estado === 'reservada' && v.montoPagado > 0
     );
     const totalAnticipado = ventasConAnticipo.reduce((sum, v) => sum + v.montoPagado, 0);
     return { cantidad: ventasConAnticipo.length, monto: totalAnticipado };
-  }, [ventas]);
+  }, [ventasLN]);
 
   // Órdenes en proceso
-  const ordenesEnProceso = ordenes?.filter(o =>
+  const ordenesEnProceso = ordenesLN.filter(o =>
     ['enviada', 'pagada', 'en_transito'].includes(o.estado)
-  ) || [];
+  );
 
   // === MÉTRICAS DE ROI ===
   const metricsROI = useMemo(() => {
     // Productos con investigación válida
-    const productosConInvestigacion = (productos || []).filter(p =>
+    const productosConInvestigacion = productosLN.filter(p =>
       p.investigacion &&
       p.investigacion.ctruEstimado > 0 &&
       p.investigacion.precioPERUPromedio > 0
@@ -213,7 +254,7 @@ export const Dashboard: React.FC = () => {
       .slice(0, 5);
 
     // Productos recomendados para importar (con investigación vigente y recomendación "importar")
-    const oportunidadesInversion = (productos || []).filter(p => {
+    const oportunidadesInversion = productosLN.filter(p => {
       if (!p.investigacion) return false;
       const inv = p.investigacion;
       const vigenciaHasta = inv.vigenciaHasta?.toDate?.();
@@ -227,7 +268,7 @@ export const Dashboard: React.FC = () => {
     }).sort((a, b) => b.roiCalculado - a.roiCalculado);
 
     // Productos sin investigar (activos)
-    const productosSinInvestigar = (productos || []).filter(p =>
+    const productosSinInvestigar = productosLN.filter(p =>
       p.estado === 'activo' && !p.investigacion
     ).length;
 
@@ -239,7 +280,7 @@ export const Dashboard: React.FC = () => {
       oportunidadesInversion,
       productosSinInvestigar
     };
-  }, [productos]);
+  }, [productosLN]);
 
   // === DATOS PARA GRÁFICOS ===
 
@@ -261,7 +302,7 @@ export const Dashboard: React.FC = () => {
     }
 
     // Agrupar ventas por día
-    (ventas || []).forEach(v => {
+    ventasLN.forEach(v => {
       if (!v.fechaCreacion?.toDate || v.estado === 'cancelada') return;
       const fechaVenta = v.fechaCreacion.toDate();
       if (fechaVenta < hace30Dias) return;
@@ -276,7 +317,7 @@ export const Dashboard: React.FC = () => {
     });
 
     return dias;
-  }, [ventas]);
+  }, [ventasLN]);
 
   // Distribución de inventario por país
   const distribucionInventario = useMemo(() => {
@@ -302,7 +343,7 @@ export const Dashboard: React.FC = () => {
 
   // Top productos vendidos (basado en ventas reales)
   const topProductosVendidos = useMemo(() => {
-    const ventasEntregadas = (ventas || []).filter(v => v.estado === 'entregada');
+    const ventasEntregadas = ventasLN.filter(v => v.estado === 'entregada');
     const productosMap = new Map<string, {
       productoId: string;
       sku: string;
@@ -343,11 +384,11 @@ export const Dashboard: React.FC = () => {
       }))
       .sort((a, b) => b.ventasTotalPEN - a.ventasTotalPEN)
       .slice(0, 10);
-  }, [ventas]);
+  }, [ventasLN]);
 
   // Datos para VentasPorCanalWidget (gráfico circular)
   const ventasPorCanalPie = useMemo(() => {
-    const ventasEntregadas = (ventas || []).filter(v => v.estado === 'entregada');
+    const ventasEntregadas = ventasLN.filter(v => v.estado === 'entregada');
     const stats = {
       mercadoLibre: { cantidad: 0, totalPEN: 0, porcentaje: 0 },
       directo: { cantidad: 0, totalPEN: 0, porcentaje: 0 },
@@ -376,14 +417,14 @@ export const Dashboard: React.FC = () => {
     }
 
     return stats;
-  }, [ventas]);
+  }, [ventasLN]);
 
   // Actividad reciente (últimas operaciones)
   const actividadReciente = useMemo((): ActividadItem[] => {
     const actividades: ActividadItem[] = [];
 
     // Agregar ventas recientes
-    (ventas || []).slice(0, 10).forEach(v => {
+    ventasLN.slice(0, 10).forEach(v => {
       const fecha = v.fechaCreacion?.toDate?.() || new Date();
       const tipo: TipoActividad = v.estado === 'entregada' ? 'venta_entregada' : 'venta_nueva';
       actividades.push({
@@ -397,7 +438,7 @@ export const Dashboard: React.FC = () => {
     });
 
     // Agregar órdenes recientes
-    (ordenes || []).slice(0, 5).forEach(o => {
+    ordenesLN.slice(0, 5).forEach(o => {
       const fecha = o.fechaCreacion?.toDate?.() || new Date();
       const tipo: TipoActividad = o.estado === 'recibida' ? 'orden_recibida' : 'orden_creada';
       actividades.push({
@@ -412,7 +453,7 @@ export const Dashboard: React.FC = () => {
 
     // Ordenar por fecha descendente
     return actividades.sort((a, b) => b.fecha.getTime() - a.fecha.getTime()).slice(0, 15);
-  }, [ventas, ordenes]);
+  }, [ventasLN, ordenesLN]);
 
   // Colores para el PieChart
   const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'];
@@ -450,6 +491,9 @@ export const Dashboard: React.FC = () => {
           })}
         </p>
       </div>
+
+      {/* Banner de filtro activo por línea de negocio */}
+      <LineaFiltroActivoBanner onClear={() => setLineaFiltroGlobal(null)} />
 
       {/* Métricas Principales */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
@@ -1140,7 +1184,8 @@ export const Dashboard: React.FC = () => {
                       <Badge
                         variant={
                           venta.estado === 'entregada' ? 'success' :
-                          venta.estado === 'en_entrega' ? 'info' :
+                          venta.estado === 'despachada' ? 'info' :
+                          venta.estado === 'en_entrega' ? 'warning' :
                           venta.estado === 'confirmada' ? 'warning' :
                           'default'
                         }
@@ -1362,7 +1407,7 @@ export const Dashboard: React.FC = () => {
       {/* Quick Actions */}
       <Card padding="sm" className="lg:hidden">
         <h3 className="text-base font-semibold text-gray-900 mb-3">Acciones Rápidas</h3>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
           <Link to="/productos" className="p-2 border border-gray-200 rounded-lg hover:bg-primary-50 text-center">
             <Package className="h-5 w-5 mx-auto mb-1 text-primary-600" />
             <div className="text-[10px] font-medium text-gray-700">Producto</div>

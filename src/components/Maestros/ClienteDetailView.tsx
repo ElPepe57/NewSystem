@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import {
   User, Phone, Mail, MapPin, Calendar, ShoppingCart, DollarSign,
   TrendingUp, TrendingDown, Package, Star, AlertTriangle, Clock,
@@ -6,6 +7,7 @@ import {
 } from 'lucide-react';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import type { Cliente } from '../../types/entidadesMaestras.types';
+import { useCanalVentaStore } from '../../store/canalVentaStore';
 import {
   clienteAnalyticsService,
   type ClienteAnalytics,
@@ -26,6 +28,12 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
   const [activeTab, setActiveTab] = useState<DetailTab>('resumen');
   const [analytics, setAnalytics] = useState<ClienteAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+  const { canales } = useCanalVentaStore();
+
+  const resolverNombreCanal = (canalOrigen: string) => {
+    const canal = canales.find(c => c.id === canalOrigen || c.codigo === canalOrigen || c.nombre.toLowerCase() === canalOrigen.toLowerCase());
+    return canal?.nombre || canalOrigen.replace('_', ' ');
+  };
 
   // Registrar modal abierto
   useLayoutEffect(() => {
@@ -63,13 +71,6 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
     }).format(value);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).format(date);
-  };
 
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 
@@ -165,8 +166,8 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
               }`}>
                 {cliente.estado}
               </span>
-              <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
-                {cliente.canalOrigen}
+              <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 capitalize">
+                {resolverNombreCanal(cliente.canalOrigen)}
               </span>
             </div>
           </div>

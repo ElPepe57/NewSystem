@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Input, Select } from '../../common';
+import { almacenService } from '../../../services/almacen.service';
 
 // Tipos locales para este formulario
 interface RecepcionFormData {
@@ -24,10 +25,9 @@ interface RecepcionFormProps {
   loading?: boolean;
 }
 
-const almacenOptions = [
-  { value: 'miami_1', label: 'Miami 1' },
-  { value: 'miami_2', label: 'Miami 2' },
-  { value: 'utah', label: 'Utah' },
+// NOTE: Almacen options should be passed as props or fetched from almacen.service
+// Fallback options for backward compatibility
+const almacenOptionsFallback = [
   { value: 'peru_principal', label: 'Perú Principal' },
   { value: 'peru_secundario', label: 'Perú Secundario' }
 ];
@@ -39,6 +39,27 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
   onCancel,
   loading = false
 }) => {
+  const [almacenOptions, setAlmacenOptions] = useState(almacenOptionsFallback);
+
+  // Load almacenes dynamically
+  useEffect(() => {
+    const loadAlmacenes = async () => {
+      try {
+        const almacenes = await almacenService.getAll();
+        const options = almacenes
+          .filter(a => a.estadoAlmacen !== 'inactivo')
+          .map(a => ({ value: a.id, label: `${a.nombre} (${a.pais})` }));
+        if (options.length > 0) {
+          setAlmacenOptions(options);
+          setFormData(prev => ({ ...prev, almacenDestinoId: prev.almacenDestinoId || options[0].value }));
+        }
+      } catch (error) {
+        console.error('Error loading almacenes:', error);
+      }
+    };
+    loadAlmacenes();
+  }, []);
+
   const [formData, setFormData] = useState<RecepcionFormData>({
     productoId,
     cantidad: 1,
@@ -46,7 +67,7 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
     costoUnitarioUSD: 0,
     tcCompra: 0,
     tcPago: 0,
-    almacenDestinoId: 'miami_1',
+    almacenDestinoId: '',
     observaciones: ''
   });
 

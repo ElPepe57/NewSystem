@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import {
   Truck, Phone, Mail, Calendar, DollarSign,
   TrendingUp, TrendingDown, AlertTriangle, Clock, BarChart3,
@@ -66,13 +67,6 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
     }).format(value);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).format(date);
-  };
 
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 

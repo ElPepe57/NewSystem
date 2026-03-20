@@ -489,7 +489,7 @@ class CompetidorAnalyticsService {
       );
 
       if (competidorPeru && competidorPeru.precio && competidorPeru.precio > 0) {
-        const nuestroPrecio = producto.precioSugerido || 0;
+        const nuestroPrecio = producto.investigacion?.precioEntrada || 0;
         const precioCompetidor = competidorPeru.precio;
         const diferencia = nuestroPrecio - precioCompetidor;
         const diferenciaPorcentaje = nuestroPrecio > 0 ? (diferencia / nuestroPrecio) * 100 : 0;

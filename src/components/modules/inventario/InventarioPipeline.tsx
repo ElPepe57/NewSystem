@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export interface PipelineStats {
-  recibidaUSA: number;
+  enOrigen: number;
   enTransito: number;
   disponiblePeru: number;
   reservada: number;
@@ -43,11 +43,11 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
 }) => {
   const stages: PipelineStage[] = [
     {
-      id: 'recibida_usa',
-      label: 'En USA',
+      id: 'en_origen',
+      label: 'En Origen',
       sublabel: 'Recibidas',
       icon: <Package className="h-5 w-5" />,
-      count: stats.recibidaUSA,
+      count: stats.enOrigen,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
@@ -56,7 +56,7 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
     {
       id: 'en_transito',
       label: 'En Tránsito',
-      sublabel: 'USA → Perú',
+      sublabel: 'Origen → Perú',
       icon: <Plane className="h-5 w-5" />,
       count: stats.enTransito,
       color: 'text-amber-600',

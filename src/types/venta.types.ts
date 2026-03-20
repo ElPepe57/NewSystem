@@ -1,4 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { EstadoCotizacion } from './cotizacion.types';
+export type { EstadoCotizacion };
 
 /**
  * Canal de venta - ahora acepta IDs de canales dinámicos
@@ -12,7 +14,8 @@ export type EstadoVenta =
   | 'confirmada'      // Venta confirmada, pendiente de asignación
   | 'parcial'         // Algunos productos asignados, otros pendientes de stock
   | 'asignada'        // Unidades asignadas del inventario
-  | 'en_entrega'      // En proceso de entrega
+  | 'en_entrega'      // Entrega programada, producto aun en almacen
+  | 'despachada'      // Producto despachado, transportista en camino
   | 'entrega_parcial' // Se entregó parte, quedan productos pendientes
   | 'entregada'       // Completada (todos los productos entregados)
   | 'cancelada'         // Cancelada
@@ -23,15 +26,6 @@ export type EstadoVenta =
  * Tipo de reserva de stock
  */
 export type TipoReserva = 'fisica' | 'virtual';
-
-/**
- * Estado del flujo de cotización (antes de convertirse en venta)
- * Flujo: nueva → validada → con_abono → (se convierte en reservada)
- */
-export type EstadoCotizacion =
-  | 'nueva'       // Cotización recién creada, pendiente de validación del cliente
-  | 'validada'    // Cliente confirmó interés, pendiente de adelanto
-  | 'con_abono';  // Adelanto recibido, se creará reserva
 
 /**
  * Estado de asignación de un producto individual
@@ -186,6 +180,9 @@ export interface ProductoVenta {
   marca: string;
   nombreComercial: string;
   presentacion: string;
+  contenido?: string;        // Ej: "60 cápsulas", "500g"
+  dosaje?: string;           // Ej: "150mg", "1000 UI"
+  sabor?: string;            // Ej: "Limón", "Fresa", "Natural"
 
   cantidad: number;
   precioUnitario: number;    // Precio de venta en PEN
@@ -219,10 +216,23 @@ export interface Venta {
   emailCliente?: string;
   telefonoCliente?: string;
   direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
   dniRuc?: string;
+
+  // Línea de negocio (desnormalizado del producto principal)
+  lineaNegocioId?: string;
+  lineaNegocioNombre?: string;
 
   // Canal
   canal: CanalVenta;
+  canalNombre?: string;           // Nombre legible del canal (para display)
 
   // Productos
   productos: ProductoVenta[];
@@ -307,6 +317,8 @@ export interface Venta {
   fechaCreacion: Timestamp;
   fechaConfirmacion?: Timestamp;
   fechaAsignacion?: Timestamp;
+  fechaEnEntrega?: Timestamp;
+  fechaDespacho?: Timestamp;
   fechaEntrega?: Timestamp;
 
   // Entrega
@@ -315,6 +327,11 @@ export interface Venta {
 
   // ML específico
   mercadoLibreId?: string;     // ID de la venta en ML
+  metodoEnvio?: 'flex' | 'urbano' | null; // Método de envío ML (Flex / Urbano)
+  mlOrderId?: number;          // ID numérico de la orden ML
+  packId?: number;             // Pack ID para multi-producto ML
+  subOrderIds?: number[];      // Sub-órdenes ML del pack
+  cargoEnvioML?: number;       // Cargo por envío ML al vendedor (Urbano)
 
   // Observaciones
   observaciones?: string;
@@ -364,8 +381,17 @@ export interface VentaFormData {
   emailCliente?: string;
   telefonoCliente?: string;
   direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
   dniRuc?: string;
   canal: CanalVenta;
+  canalNombre?: string;
   productos: Array<{
     productoId: string;
     cantidad: number;
@@ -421,18 +447,44 @@ export interface VentaStats {
   ventasOtro: number;
 }
 
+export interface EditarVentaData {
+  productos?: Array<{
+    productoId: string;
+    precioUnitario: number;
+    cantidad: number;
+  }>;
+  costoEnvio?: number;
+  descuento?: number;
+  incluyeEnvio?: boolean;
+  nombreCliente?: string;
+  telefonoCliente?: string;
+  emailCliente?: string;
+  direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  dniRuc?: string;
+  observaciones?: string;
+}
+
 export interface ProductoDisponible {
   productoId: string;
   sku: string;
   marca: string;
   nombreComercial: string;
   presentacion: string;
+  contenido?: string;
+  dosaje?: string;
+  sabor?: string;
 
   unidadesDisponibles: number;   // Stock en Perú
   unidadesUSA: number;           // Stock en USA
   unidadesEnTransito: number;    // En tránsito USA → Perú
-  precioSugerido: number;
-  margenObjetivo: number;
+  /** @deprecated Always 0. Use investigacion.precioEntrada instead */
+  precioSugerido?: number;
+  /** @deprecated Always 0. Use category margenObjetivo instead */
+  margenObjetivo?: number;
 
   // Datos de investigación de mercado (si existe)
   investigacion?: {

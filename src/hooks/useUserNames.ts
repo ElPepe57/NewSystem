@@ -38,13 +38,13 @@ export function useUserName(userId: string | undefined | null): string {
     // Crear nueva petición
     const request = userService.getByUid(userId)
       .then(user => {
-        const name = user?.displayName || userId;
+        const name = user?.displayName || 'Usuario del sistema';
         userNameCache.set(userId, name);
         pendingRequests.delete(userId);
         return name;
       })
       .catch(() => {
-        const name = userId; // En caso de error, mostrar el ID
+        const name = 'Usuario del sistema';
         userNameCache.set(userId, name);
         pendingRequests.delete(userId);
         return name;
@@ -57,7 +57,7 @@ export function useUserName(userId: string | undefined | null): string {
     });
   }, [userId]);
 
-  return displayName || userId || '';
+  return displayName || '';
 }
 
 /**
@@ -99,15 +99,15 @@ export function useUserNames(userIds: (string | undefined | null)[]): Map<string
 
         const request = userService.getByUid(id)
           .then(user => {
-            const name = user?.displayName || id;
+            const name = user?.displayName || 'Usuario del sistema';
             userNameCache.set(id, name);
             pendingRequests.delete(id);
             return name;
           })
           .catch(() => {
-            userNameCache.set(id, id);
+            userNameCache.set(id, 'Usuario del sistema');
             pendingRequests.delete(id);
-            return id;
+            return 'Usuario del sistema';
           });
 
         pendingRequests.set(id, request);
@@ -133,7 +133,7 @@ export function useUserNames(userIds: (string | undefined | null)[]): Map<string
  */
 export function getUserNameSync(userId: string | undefined | null): string {
   if (!userId) return '';
-  return userNameCache.get(userId) || userId;
+  return userNameCache.get(userId) || 'Cargando...';
 }
 
 /**
@@ -151,9 +151,9 @@ export async function preloadUserNames(userIds: string[]): Promise<void> {
 
       try {
         const user = await userService.getByUid(id);
-        userNameCache.set(id, user?.displayName || id);
+        userNameCache.set(id, user?.displayName || 'Usuario del sistema');
       } catch {
-        userNameCache.set(id, id);
+        userNameCache.set(id, 'Usuario del sistema');
       }
     })
   );

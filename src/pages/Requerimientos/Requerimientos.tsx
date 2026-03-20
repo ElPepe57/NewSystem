@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -36,12 +37,16 @@ import {
   Square,
   Layers
 } from 'lucide-react';
-import { Button, Card, Modal, Badge, useConfirmDialog, ConfirmDialog } from '../../components/common';
+import { Button, Card, Modal, Badge, useConfirmDialog, ConfirmDialog, LineaNegocioBadge } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
 import { VincularOCModal } from '../../components/modules/requerimiento/VincularOCModal';
+import { OCBuilder, PendientesCompraPanel } from '../../components/modules/ordenCompra';
 import { ProductoSearchRequerimientos, type ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
+import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
+import type { ClienteSnapshot } from '../../types/entidadesMaestras.types';
 import { useProductoStore } from '../../store/productoStore';
+import { useExpectativaStore } from '../../store/expectativaStore';
 import type { ProductoFormData } from '../../types/producto.types';
 import { ExpectativaService } from '../../services/expectativa.service';
 import { ProductoService } from '../../services/producto.service';
@@ -50,6 +55,8 @@ import { VentaService } from '../../services/venta.service';
 import { inventarioService } from '../../services/inventario.service';
 import { tipoCambioService } from '../../services/tipoCambio.service';
 import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../store/toastStore';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type {
   Requerimiento,
   RequerimientoFormData,
@@ -59,6 +66,7 @@ import type {
 import type { AsignacionResponsable } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
 import type { Venta } from '../../types/venta.types';
+import { esEstadoEnAlmacenOrigen, getLabelEstadoAsignacion } from '../../utils/multiOrigen.helpers';
 
 // Tipo para información de investigación de mercado
 interface InvestigacionProducto {
@@ -95,6 +103,7 @@ interface SugerenciaStock {
 const KANBAN_COLUMNS: { id: EstadoRequerimiento; label: string; color: string; icon: React.ReactNode }[] = [
   { id: 'pendiente', label: 'Pendientes', color: 'bg-yellow-500', icon: <Clock className="h-4 w-4" /> },
   { id: 'aprobado', label: 'Aprobados', color: 'bg-blue-500', icon: <Check className="h-4 w-4" /> },
+  { id: 'parcial', label: 'OC Parcial', color: 'bg-indigo-500', icon: <Link2 className="h-4 w-4" /> },
   { id: 'en_proceso', label: 'En Proceso', color: 'bg-purple-500', icon: <Link2 className="h-4 w-4" /> },
   { id: 'completado', label: 'Completados', color: 'bg-green-500', icon: <Check className="h-4 w-4" /> }
 ];
@@ -102,14 +111,30 @@ const KANBAN_COLUMNS: { id: EstadoRequerimiento; label: string; color: string; i
 export const Requerimientos: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const toast = useToastStore();
   const { productos: productosStore, createProducto, fetchProductos } = useProductoStore();
+  const {
+    requerimientos,
+    loading: loadingReqs,
+    fetchRequerimientos,
+    actualizarEstado: storeActualizarEstado,
+    limpiarDatosVinculacion: storeLimpiarDatos
+  } = useExpectativaStore();
+
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+
+  // Filtrar requerimientos por línea de negocio global
+  const requerimientosLN = useMemo(() => {
+    if (!lineaFiltroGlobal) return requerimientos;
+    return requerimientos.filter(r => r.lineaNegocioId === lineaFiltroGlobal);
+  }, [requerimientos, lineaFiltroGlobal]);
 
   // TC del día
   const [tcDelDia, setTcDelDia] = useState<{ venta: number; compra: number } | null>(null);
 
-  // Estados principales
-  const [loading, setLoading] = useState(true);
-  const [requerimientos, setRequerimientos] = useState<Requerimiento[]>([]);
+  // Estados principales (loading combina store + local)
+  const [loadingLocal, setLoadingLocal] = useState(true);
+  const loading = loadingReqs || loadingLocal;
   const [productos, setProductos] = useState<Producto[]>([]);
   const [cotizacionesConfirmadas, setCotizacionesConfirmadas] = useState<Venta[]>([]);
   const [sugerenciasStock, setSugerenciasStock] = useState<SugerenciaStock[]>([]);
@@ -140,6 +165,11 @@ export const Requerimientos: React.FC = () => {
   // Selección múltiple para OC consolidada
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedReqIds, setSelectedReqIds] = useState<Set<string>>(new Set());
+
+  // OC Builder wizard
+  const [isOCBuilderOpen, setIsOCBuilderOpen] = useState(false);
+  const [ocBuilderReqs, setOcBuilderReqs] = useState<Requerimiento[]>([]);
+  const [isPendientesOpen, setIsPendientesOpen] = useState(false);
 
   // Form
   const [formData, setFormData] = useState<Partial<RequerimientoFormData>>({
@@ -191,29 +221,32 @@ export const Requerimientos: React.FC = () => {
   };
 
   const loadData = async () => {
-    setLoading(true);
+    setLoadingLocal(true);
     try {
-      const [reqs, prods, ventas] = await Promise.all([
-        ExpectativaService.getRequerimientos(),
+      const [, prods, ventas] = await Promise.all([
+        fetchRequerimientos(),
         ProductoService.getAll(),
         VentaService.getAll()
       ]);
-      setRequerimientos(reqs);
       setProductos(prods);
 
       // Filtrar cotizaciones confirmadas que requieren stock
       // y que NO tengan ya un requerimiento activo (no cancelado)
+      // Nota: usamos requerimientos del store (se actualiza via fetchRequerimientos)
+      const reqs = useExpectativaStore.getState().requerimientos;
       const reqVentaIds = new Set(
         reqs
           .filter(r => r.estado !== 'cancelado')
           .flatMap(r => [
             (r as any).ventaRelacionadaId,
-            r.cotizacionId,
-            r.ventaId
+            (r as any).cotizacionId,
+            (r as any).ventaId
           ].filter(Boolean))
       );
       const cotizacionesConFaltante = ventas.filter(
-        v => v.estado === 'confirmada' && v.requiereStock === true && !reqVentaIds.has(v.id)
+        v => v.estado === 'confirmada' && v.requiereStock === true &&
+          !reqVentaIds.has(v.id) &&
+          !(v.cotizacionOrigenId && reqVentaIds.has(v.cotizacionOrigenId))
       );
       setCotizacionesConfirmadas(cotizacionesConFaltante);
 
@@ -222,7 +255,7 @@ export const Requerimientos: React.FC = () => {
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
-      setLoading(false);
+      setLoadingLocal(false);
     }
   };
 
@@ -315,19 +348,20 @@ export const Requerimientos: React.FC = () => {
       borrador: [],
       pendiente: [],
       aprobado: [],
+      parcial: [],
       en_proceso: [],
       completado: [],
       cancelado: []
     };
 
-    requerimientos.forEach(req => {
+    requerimientosLN.forEach(req => {
       if (grouped[req.estado]) {
         grouped[req.estado].push(req);
       }
     });
 
     return grouped;
-  }, [requerimientos]);
+  }, [requerimientosLN]);
 
   // Handler para selección desde el buscador inteligente
   const handleProductoSnapshotSelect = async (snapshot: ProductoRequerimientoSnapshot | null) => {
@@ -470,11 +504,11 @@ export const Requerimientos: React.FC = () => {
   };
 
   const handleCrearRequerimiento = async () => {
-    if (!user || !formData.productos?.length) return;
+    if (!user || !formData.productos?.length || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      await ExpectativaService.crearRequerimiento(
+      await useExpectativaStore.getState().crearRequerimiento(
         formData as RequerimientoFormData,
         user.uid
       );
@@ -482,7 +516,7 @@ export const Requerimientos: React.FC = () => {
       setFormData({ origen: 'manual', prioridad: 'media', tipoSolicitante: 'administracion', productos: [] });
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message, 'Error al crear requerimiento');
     } finally {
       setIsSubmitting(false);
     }
@@ -499,9 +533,9 @@ export const Requerimientos: React.FC = () => {
       await fetchProductos();
       loadData(); // Refrescar también los datos locales
       setShowProductoModal(false);
-      alert('✅ Producto creado correctamente');
+      toast.success('Producto creado correctamente');
     } catch (error: any) {
-      alert(`❌ Error al crear producto: ${error.message}`);
+      toast.error(error.message, 'Error al crear producto');
     } finally {
       setIsCreatingProducto(false);
     }
@@ -539,7 +573,7 @@ export const Requerimientos: React.FC = () => {
     });
 
     if (productosVenta.length === 0) {
-      alert('No hay productos con faltante de stock en esta venta');
+      toast.warning('No hay productos con faltante de stock en esta venta');
       return;
     }
 
@@ -581,11 +615,12 @@ export const Requerimientos: React.FC = () => {
   const handleAprobar = async (req: Requerimiento) => {
     if (!user) return;
     try {
-      await ExpectativaService.actualizarEstado(req.id, 'aprobado', user.uid);
+      await storeActualizarEstado(req.id, 'aprobado', user.uid);
+      toast.success('Requerimiento aprobado');
       loadData();
     } catch (error: any) {
       console.error('Error al aprobar:', error);
-      alert('Error al aprobar el requerimiento');
+      toast.error('Error al aprobar el requerimiento');
     }
   };
 
@@ -600,11 +635,12 @@ export const Requerimientos: React.FC = () => {
     });
     if (!confirmar) return;
     try {
-      await ExpectativaService.actualizarEstado(req.id, 'cancelado', user.uid);
+      await storeActualizarEstado(req.id, 'cancelado', user.uid);
+      toast.success('Requerimiento cancelado');
       loadData();
     } catch (error: any) {
       console.error('Error al cancelar:', error);
-      alert('Error al cancelar el requerimiento');
+      toast.error('Error al cancelar el requerimiento');
     }
   };
 
@@ -619,110 +655,26 @@ export const Requerimientos: React.FC = () => {
     });
     if (!confirmar) return;
     try {
-      const result = await ExpectativaService.limpiarDatosVinculacion(user.uid);
-      alert(result.resumen);
+      const result = await storeLimpiarDatos(user.uid);
+      toast.success(result.resumen, 'Limpieza completada');
       loadData();
     } catch (error: any) {
       console.error('Error al limpiar datos:', error);
-      alert('Error: ' + error.message);
+      toast.error(error.message, 'Error en limpieza');
     }
   };
 
-  // Navegar a Órdenes de Compra con datos del requerimiento pre-cargados
+  // Abrir OC Builder wizard desde un requerimiento
   const handleGenerarOC = (req: Requerimiento) => {
-    // Preparar los productos del requerimiento para el formulario de OC
-    const productosParaOC = req.productos.map(prod => ({
-      productoId: prod.productoId,
-      sku: prod.sku,
-      marca: prod.marca,
-      nombreComercial: prod.nombreComercial,
-      cantidad: prod.cantidadSolicitada,
-      precioUnitarioUSD: prod.precioEstimadoUSD || 0,
-      proveedorSugerido: prod.proveedorSugerido,
-      urlReferencia: prod.urlReferencia
-    }));
-
-    // Navegar a /compras con el state que contiene los datos del requerimiento
-    navigate('/compras', {
-      state: {
-        fromRequerimiento: {
-          id: req.id,
-          numeroRequerimiento: req.numeroRequerimiento,
-          productos: productosParaOC,
-          tcInvestigacion: req.expectativa.tcInvestigacion,
-          prioridad: req.prioridad
-        }
-      }
-    });
+    setOcBuilderReqs([req]);
+    setIsOCBuilderOpen(true);
   };
 
-  // Generar OCs separadas por cada viajero asignado
+  // Generar OCs desde viajeros — ahora usa el OC Builder
   const handleGenerarOCsPorViajero = async (req: Requerimiento) => {
-    if (!user) return;
-
-    const asignaciones = (req as any).asignaciones as AsignacionResponsable[] | undefined;
-    if (!asignaciones || asignaciones.length === 0) {
-      alert('No hay viajeros asignados para generar OCs');
-      return;
-    }
-
-    // Filtrar solo asignaciones pendientes sin OC
-    const asignacionesSinOC = asignaciones.filter(
-      a => a.estado === 'pendiente' && !a.ordenCompraId
-    );
-
-    if (asignacionesSinOC.length === 0) {
-      alert('Todas las asignaciones ya tienen OC generada');
-      return;
-    }
-
-    const confirmar = await confirm({
-      title: 'Generar Ordenes de Compra',
-      message: (
-        <div className="space-y-2">
-          <p>Se generaran {asignacionesSinOC.length} Orden(es) de Compra:</p>
-          <ul className="list-disc pl-4 text-sm text-gray-600">
-            {asignacionesSinOC.map(a => (
-              <li key={a.id}>{a.responsableNombre}: {a.productos.reduce((s, p) => s + p.cantidadAsignada, 0)} unidades</li>
-            ))}
-          </ul>
-        </div>
-      ),
-      confirmText: 'Generar OCs',
-      variant: 'info'
-    });
-    if (!confirmar) return;
-
-    // Navegar a /compras con todas las asignaciones para crear OCs múltiples
-    navigate('/compras', {
-      state: {
-        fromRequerimientoMultiViajero: {
-          id: req.id,
-          numeroRequerimiento: req.numeroRequerimiento,
-          tcInvestigacion: req.expectativa?.tcInvestigacion,
-          prioridad: req.prioridad,
-          asignaciones: asignacionesSinOC.map(asig => ({
-            asignacionId: asig.id,
-            viajeroId: asig.responsableId,
-            viajeroNombre: asig.responsableNombre,
-            viajeroCodigo: asig.responsableCodigo,
-            productos: asig.productos.map(prod => {
-              // Buscar precio estimado del producto en el requerimiento original
-              const prodReq = req.productos.find(p => p.productoId === prod.productoId);
-              return {
-                productoId: prod.productoId,
-                sku: prod.sku,
-                marca: prod.marca,
-                nombreComercial: prod.nombreComercial,
-                cantidad: prod.cantidadAsignada,
-                precioUnitarioUSD: prod.precioCompraUSD || prodReq?.precioEstimadoUSD || 0
-              };
-            }),
-            costoEstimadoUSD: asig.costoEstimadoUSD
-          }))
-        }
-      }
-    });
+    // El OC Builder maneja la agrupación por viajero/proveedor
+    setOcBuilderReqs([req]);
+    setIsOCBuilderOpen(true);
   };
 
   // =============== Selección múltiple y OC Consolidada ===============
@@ -740,46 +692,14 @@ export const Requerimientos: React.FC = () => {
   };
 
   const handleGenerarOCConsolidada = () => {
-    const selectedReqs = requerimientos.filter(r => selectedReqIds.has(r.id!));
+    const selectedReqs = requerimientosLN.filter(r => selectedReqIds.has(r.id!));
     if (selectedReqs.length === 0) return;
 
-    const { productosConsolidados } = ExpectativaService.consolidarProductosRequerimientos(selectedReqs);
-
-    const productosParaOC = productosConsolidados.map(p => ({
-      productoId: p.productoId,
-      sku: p.sku,
-      marca: p.marca,
-      nombreComercial: p.nombreComercial,
-      cantidad: p.cantidadTotal,
-      precioUnitarioUSD: p.precioEstimadoUSD || 0
-    }));
-
-    const productosOrigen = productosConsolidados.flatMap(p =>
-      p.origenes.map(o => ({
-        productoId: p.productoId,
-        requerimientoId: o.requerimientoId,
-        cantidad: o.cantidad,
-        cotizacionId: o.cotizacionId,
-        clienteNombre: o.clienteNombre
-      }))
-    );
-
-    navigate('/compras', {
-      state: {
-        fromMultipleRequerimientos: {
-          requerimientoIds: selectedReqs.map(r => r.id!),
-          requerimientoNumeros: selectedReqs.map(r => r.numeroRequerimiento),
-          productos: productosParaOC,
-          productosOrigen,
-          clientes: selectedReqs.map(r => ({
-            requerimientoId: r.id!,
-            requerimientoNumero: r.numeroRequerimiento,
-            clienteNombre: r.nombreClienteSolicitante || 'Stock interno'
-          })),
-          tcInvestigacion: Math.max(...selectedReqs.map(r => r.expectativa?.tcInvestigacion || 3.70))
-        }
-      }
-    });
+    // Abrir OC Builder con múltiples requerimientos
+    setOcBuilderReqs(selectedReqs);
+    setIsOCBuilderOpen(true);
+    setSelectionMode(false);
+    setSelectedReqIds(new Set());
   };
 
   // Vincular OC retroactiva desde cotización con faltante
@@ -794,6 +714,7 @@ export const Requerimientos: React.FC = () => {
       borrador: { color: 'bg-gray-100 text-gray-800', icon: <Clock className="h-3 w-3" /> },
       pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
       aprobado: { color: 'bg-blue-100 text-blue-800', icon: <Check className="h-3 w-3" /> },
+      parcial: { color: 'bg-indigo-100 text-indigo-800', icon: <Link2 className="h-3 w-3" /> },
       en_proceso: { color: 'bg-purple-100 text-purple-800', icon: <Link2 className="h-3 w-3" /> },
       completado: { color: 'bg-green-100 text-green-800', icon: <Check className="h-3 w-3" /> },
       cancelado: { color: 'bg-red-100 text-red-800', icon: <XCircle className="h-3 w-3" /> }
@@ -808,16 +729,18 @@ export const Requerimientos: React.FC = () => {
     );
   };
 
-  const getPrioridadBadge = (prioridad: 'alta' | 'media' | 'baja') => {
-    const config = {
+  const getPrioridadBadge = (prioridad: string) => {
+    const config: Record<string, string> = {
+      urgente: 'bg-red-200 text-red-900 border-red-300',
       alta: 'bg-red-100 text-red-800 border-red-200',
       media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      normal: 'bg-yellow-100 text-yellow-800 border-yellow-200',
       baja: 'bg-gray-100 text-gray-800 border-gray-200'
     };
 
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config[prioridad]}`}>
-        {prioridad === 'alta' && <AlertTriangle className="h-3 w-3 mr-1" />}
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config[prioridad] || config.baja}`}>
+        {(prioridad === 'alta' || prioridad === 'urgente') && <AlertTriangle className="h-3 w-3 mr-1" />}
         {prioridad}
       </span>
     );
@@ -845,15 +768,6 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
 
   const formatCurrency = (value: number, currency: 'USD' | 'PEN' = 'USD') => {
     const symbol = currency === 'USD' ? '$' : 'S/';
@@ -861,17 +775,19 @@ export const Requerimientos: React.FC = () => {
   };
 
   // Badge para estados de asignación
-  const getAsignacionEstadoBadge = (estado: string) => {
-    const config: Record<string, { variant: 'warning' | 'info' | 'success' | 'default' | 'danger'; label: string }> = {
-      pendiente: { variant: 'warning', label: 'Pendiente' },
-      comprando: { variant: 'info', label: 'Comprando' },
-      comprado: { variant: 'info', label: 'Comprado' },
-      en_almacen_usa: { variant: 'info', label: 'En Almacén USA' },
-      en_transito: { variant: 'info', label: 'En Tránsito' },
-      recibido: { variant: 'success', label: 'Recibido' },
-      cancelado: { variant: 'danger', label: 'Cancelado' }
+  const getAsignacionEstadoBadge = (estado: string, paisOrigen?: string) => {
+    const variantMap: Record<string, 'warning' | 'info' | 'success' | 'default' | 'danger'> = {
+      pendiente: 'warning',
+      comprando: 'info',
+      comprado: 'info',
+      en_almacen_usa: 'info',
+      en_almacen_origen: 'info',
+      en_transito: 'info',
+      recibido: 'success',
+      cancelado: 'danger'
     };
-    const { variant, label } = config[estado] || { variant: 'default' as const, label: estado };
+    const variant = variantMap[estado] || 'default';
+    const label = getLabelEstadoAsignacion(estado as any, paisOrigen);
     return <Badge variant={variant}>{label}</Badge>;
   };
 
@@ -883,10 +799,11 @@ export const Requerimientos: React.FC = () => {
 
   // Estadísticas calculadas
   const stats = useMemo(() => {
-    const activos = requerimientos.filter(r => r.estado !== 'cancelado' && r.estado !== 'completado');
-    const pendientes = requerimientos.filter(r => r.estado === 'pendiente');
-    const aprobados = requerimientos.filter(r => r.estado === 'aprobado');
-    const enProceso = requerimientos.filter(r => r.estado === 'en_proceso');
+    const activos = requerimientosLN.filter(r => r.estado !== 'cancelado' && r.estado !== 'completado');
+    const pendientes = requerimientosLN.filter(r => r.estado === 'pendiente');
+    const aprobados = requerimientosLN.filter(r => r.estado === 'aprobado');
+    const parciales = requerimientosLN.filter(r => r.estado === 'parcial');
+    const enProceso = requerimientosLN.filter(r => r.estado === 'en_proceso' || r.estado === 'parcial');
 
     const costoEstimadoPendiente = [...pendientes, ...aprobados].reduce(
       (sum, r) => sum + (r.expectativa?.costoTotalEstimadoUSD || 0), 0
@@ -895,7 +812,7 @@ export const Requerimientos: React.FC = () => {
     const reqUrgentes = activos.filter(r => r.prioridad === 'alta').length;
 
     return {
-      total: requerimientos.length,
+      total: requerimientosLN.length,
       activos: activos.length,
       pendientes: pendientes.length,
       aprobados: aprobados.length,
@@ -904,7 +821,7 @@ export const Requerimientos: React.FC = () => {
       costoEstimadoPendiente,
       alertasStock: sugerenciasStock.filter(s => s.urgencia === 'critica' || s.urgencia === 'alta').length
     };
-  }, [requerimientos, sugerenciasStock]);
+  }, [requerimientosLN, sugerenciasStock]);
 
   // Info del producto seleccionado para el form
   const infoProductoSeleccionado = productoTemp.productoId
@@ -954,10 +871,13 @@ export const Requerimientos: React.FC = () => {
         <span className="ml-1.5 truncate">{getSolicitanteLabel(req)}</span>
       </div>
 
-      {/* Productos */}
-      <div className="flex items-center text-sm text-gray-500 mb-3">
-        <Package className="h-4 w-4 mr-1.5" />
-        {req.productos.length} producto(s)
+      {/* Productos + Línea */}
+      <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+        <div className="flex items-center">
+          <Package className="h-4 w-4 mr-1.5" />
+          {req.productos.length} producto(s)
+        </div>
+        <LineaNegocioBadge lineaNegocioId={req.lineaNegocioId} />
       </div>
 
       {/* Costo estimado */}
@@ -997,7 +917,8 @@ export const Requerimientos: React.FC = () => {
         </div>
       )}
 
-      {req.estado === 'aprobado' && !req.ordenCompraId && (
+      {/* OC Actions: Generar / Continuar / Info */}
+      {req.estado === 'aprobado' && (
         <div className="mt-3 pt-2 border-t border-gray-100 flex gap-2">
           <Button
             variant="primary"
@@ -1022,6 +943,47 @@ export const Requerimientos: React.FC = () => {
           >
             <XCircle className="h-4 w-4 text-red-500" />
           </Button>
+        </div>
+      )}
+      {req.estado === 'parcial' && req.ocCoverage && (
+        <div className="mt-3 pt-2 border-t border-gray-100 space-y-2">
+          <div className="flex items-center gap-2 text-xs text-indigo-600">
+            <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+              <div
+                className="bg-indigo-500 rounded-full h-1.5 transition-all"
+                style={{ width: `${req.ocCoverage.porcentaje}%` }}
+              />
+            </div>
+            <span className="font-medium">{req.ocCoverage.porcentaje}%</span>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <span>{req.ocCoverage.productosPendientes} pendiente(s)</span>
+            {req.ordenCompraNumeros && req.ordenCompraNumeros.length > 0 && (
+              <span className="ml-auto text-indigo-600 font-medium">
+                {req.ordenCompraNumeros.join(', ')}
+              </span>
+            )}
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            className="w-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleGenerarOC(req);
+            }}
+          >
+            <ShoppingCart className="h-4 w-4 mr-1" />
+            Continuar OC
+          </Button>
+        </div>
+      )}
+      {req.estado === 'en_proceso' && req.ordenCompraNumeros && req.ordenCompraNumeros.length > 0 && (
+        <div className="mt-3 pt-2 border-t border-gray-100">
+          <div className="flex items-center gap-1.5 text-xs text-purple-600">
+            <ShoppingCart className="h-3.5 w-3.5" />
+            <span className="font-medium">{req.ordenCompraNumeros.join(', ')}</span>
+          </div>
         </div>
       )}
     </div>
@@ -1078,6 +1040,17 @@ export const Requerimientos: React.FC = () => {
               <RefreshCw className="h-4 w-4" />
             </Button>
           )}
+
+          {/* Botón pendientes de compra */}
+          <Button
+            variant="outline"
+            onClick={() => setIsPendientesOpen(true)}
+            className="hidden sm:flex"
+            title="Ver productos pendientes de compra"
+          >
+            <AlertCircle className="h-4 w-4 mr-1 text-indigo-500" />
+            Pendientes
+          </Button>
 
           {/* Botón selección para OC consolidada */}
           <Button
@@ -1370,7 +1343,7 @@ export const Requerimientos: React.FC = () => {
         <Card padding="none">
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">
-              Requerimientos ({requerimientos.length})
+              Requerimientos ({requerimientosLN.length})
             </h3>
             <Button variant="ghost" size="sm" onClick={loadData}>
               <RefreshCw className="h-4 w-4" />
@@ -1395,12 +1368,12 @@ export const Requerimientos: React.FC = () => {
                   <tr>
                     <td colSpan={8} className="px-6 py-8 text-center text-gray-500">Cargando...</td>
                   </tr>
-                ) : requerimientos.length === 0 ? (
+                ) : requerimientosLN.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-8 text-center text-gray-500">No hay requerimientos registrados</td>
                   </tr>
                 ) : (
-                  requerimientos.map((req) => (
+                  requerimientosLN.map((req) => (
                     <tr key={req.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="font-medium text-primary-600">{req.numeroRequerimiento}</span>
@@ -1505,7 +1478,7 @@ export const Requerimientos: React.FC = () => {
           {/* Solicitante - Cards visuales */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">¿Quién solicita este requerimiento?</label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
               {[
                 { id: 'administracion', label: 'Administración', sublabel: 'Mantener stock', icon: <Building2 className="h-5 w-5" />, color: 'gray' },
                 { id: 'ventas', label: 'Ventas', sublabel: 'Equipo comercial', icon: <Target className="h-5 w-5" />, color: 'green' },
@@ -1517,7 +1490,9 @@ export const Requerimientos: React.FC = () => {
                   onClick={() => setFormData({
                     ...formData,
                     tipoSolicitante: tipo.id as TipoSolicitante,
-                    nombreClienteSolicitante: tipo.id !== 'cliente' ? undefined : formData.nombreClienteSolicitante
+                    nombreClienteSolicitante: tipo.id !== 'cliente' ? undefined : formData.nombreClienteSolicitante,
+                    clienteId: tipo.id !== 'cliente' ? undefined : formData.clienteId,
+                    clienteNombre: tipo.id !== 'cliente' ? undefined : formData.clienteNombre
                   })}
                   className={`p-4 rounded-xl border-2 text-left transition-all ${
                     formData.tipoSolicitante === tipo.id
@@ -1533,15 +1508,33 @@ export const Requerimientos: React.FC = () => {
                 </button>
               ))}
             </div>
-            {/* Campo de cliente si es necesario */}
+            {/* Campo de cliente inteligente con autocompletado */}
             {formData.tipoSolicitante === 'cliente' && (
               <div className="mt-3">
-                <input
-                  type="text"
-                  value={formData.nombreClienteSolicitante || ''}
-                  onChange={(e) => setFormData({ ...formData, nombreClienteSolicitante: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 focus:border-blue-500 focus:ring-0 bg-blue-50"
-                  placeholder="Nombre del cliente..."
+                <ClienteAutocomplete
+                  value={formData.clienteId ? {
+                    clienteId: formData.clienteId,
+                    nombre: formData.clienteNombre || formData.nombreClienteSolicitante || '',
+                  } as ClienteSnapshot : null}
+                  onChange={(cliente) => {
+                    if (cliente) {
+                      setFormData({
+                        ...formData,
+                        clienteId: cliente.clienteId,
+                        clienteNombre: cliente.nombre,
+                        nombreClienteSolicitante: cliente.nombre
+                      });
+                    } else {
+                      setFormData({
+                        ...formData,
+                        clienteId: undefined,
+                        clienteNombre: undefined,
+                        nombreClienteSolicitante: undefined
+                      });
+                    }
+                  }}
+                  placeholder="Buscar cliente por nombre, teléfono o DNI..."
+                  allowCreate
                 />
               </div>
             )}
@@ -1794,6 +1787,8 @@ export const Requerimientos: React.FC = () => {
                 {formData.productos.map((prod, index) => {
                   const producto = productos.find((p) => p.id === prod.productoId);
                   const subtotal = (prod.precioEstimadoUSD || 0) * prod.cantidadSolicitada;
+                  const detailParts = [producto?.presentacion, producto?.contenido, producto?.dosaje, producto?.sabor].filter(Boolean);
+                  const detailStr = detailParts.join(' · ');
                   return (
                     <div key={index} className="flex items-center justify-between bg-white rounded-xl border p-4 hover:shadow-sm transition-shadow">
                       <div className="flex items-center space-x-4">
@@ -1804,6 +1799,9 @@ export const Requerimientos: React.FC = () => {
                           <div className="font-medium text-gray-900">
                             {producto?.marca} {producto?.nombreComercial}
                           </div>
+                          {detailStr && (
+                            <div className="text-xs text-gray-400">{detailStr}</div>
+                          )}
                           <div className="text-sm text-gray-500">
                             {producto?.sku}
                             {prod.proveedorSugerido && ` • ${prod.proveedorSugerido}`}
@@ -2097,42 +2095,49 @@ export const Requerimientos: React.FC = () => {
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Productos ({selectedRequerimiento.productos.length})</h4>
               <div className="border rounded-lg divide-y">
-                {selectedRequerimiento.productos.map((prod, index) => (
-                  <div key={index} className="p-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {prod.sku} - {prod.marca} {prod.nombreComercial}
-                        </div>
-                        <div className="text-sm text-gray-500">Cantidad: {prod.cantidadSolicitada}</div>
-                      </div>
-                      {prod.precioEstimadoUSD && (
-                        <div className="text-right">
-                          <div className="font-medium text-gray-900">{formatCurrency(prod.precioEstimadoUSD)}</div>
-                          <div className="text-xs text-gray-500">
-                            Total: {formatCurrency(prod.precioEstimadoUSD * prod.cantidadSolicitada)}
+                {selectedRequerimiento.productos.map((prod, index) => {
+                  const detailParts = [prod.presentacion, prod.contenido, prod.dosaje, prod.sabor].filter(Boolean);
+                  const detailStr = detailParts.join(' · ');
+                  return (
+                    <div key={index} className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="min-w-0 flex-1 mr-3">
+                          <div className="font-medium text-gray-900">
+                            {prod.sku} - {prod.marca} {prod.nombreComercial}
                           </div>
+                          {detailStr && (
+                            <div className="text-xs text-gray-400 mt-0.5">{detailStr}</div>
+                          )}
+                          <div className="text-sm text-gray-500 mt-0.5">Cantidad: {prod.cantidadSolicitada}</div>
+                        </div>
+                        {prod.precioEstimadoUSD && (
+                          <div className="text-right flex-shrink-0">
+                            <div className="font-medium text-gray-900">{formatCurrency(prod.precioEstimadoUSD)}</div>
+                            <div className="text-xs text-gray-500">
+                              Total: {formatCurrency(prod.precioEstimadoUSD * prod.cantidadSolicitada)}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      {(prod.proveedorSugerido || prod.urlReferencia) && (
+                        <div className="mt-2 text-sm text-gray-500">
+                          {prod.proveedorSugerido && <span className="mr-4">Proveedor: {prod.proveedorSugerido}</span>}
+                          {prod.urlReferencia && (
+                            <a
+                              href={prod.urlReferencia}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary-600 hover:underline inline-flex items-center"
+                            >
+                              Ver referencia
+                              <ExternalLink className="h-3 w-3 ml-1" />
+                            </a>
+                          )}
                         </div>
                       )}
                     </div>
-                    {(prod.proveedorSugerido || prod.urlReferencia) && (
-                      <div className="mt-2 text-sm text-gray-500">
-                        {prod.proveedorSugerido && <span className="mr-4">Proveedor: {prod.proveedorSugerido}</span>}
-                        {prod.urlReferencia && (
-                          <a
-                            href={prod.urlReferencia}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary-600 hover:underline inline-flex items-center"
-                          >
-                            Ver referencia
-                            <ExternalLink className="h-3 w-3 ml-1" />
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -2223,14 +2228,61 @@ export const Requerimientos: React.FC = () => {
               </div>
             )}
 
-            {/* OC vinculada */}
-            {selectedRequerimiento.ordenCompraId && (
+            {/* OC(s) vinculada(s) */}
+            {(selectedRequerimiento.ordenCompraIds?.length || selectedRequerimiento.ordenCompraId) && (
               <div className="bg-purple-50 p-4 rounded-lg">
                 <h4 className="font-medium text-purple-900 flex items-center">
                   <Link2 className="h-5 w-5 mr-2" />
-                  Orden de Compra Vinculada
+                  {(selectedRequerimiento.ordenCompraIds?.length || 0) > 1
+                    ? `Órdenes de Compra (${selectedRequerimiento.ordenCompraIds!.length})`
+                    : 'Orden de Compra Vinculada'
+                  }
                 </h4>
-                <div className="mt-2 font-bold text-purple-900">{selectedRequerimiento.ordenCompraNumero}</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(selectedRequerimiento.ordenCompraNumeros || [selectedRequerimiento.ordenCompraNumero]).filter(Boolean).map((num, i) => (
+                    <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-purple-100 text-purple-900">
+                      {num}
+                    </span>
+                  ))}
+                </div>
+                {/* OC Coverage progress */}
+                {selectedRequerimiento.ocCoverage && selectedRequerimiento.ocCoverage.porcentaje < 100 && (
+                  <div className="mt-3 space-y-1">
+                    <div className="flex items-center gap-2 text-xs text-purple-700">
+                      <div className="flex-1 bg-purple-200 rounded-full h-2">
+                        <div
+                          className="bg-purple-600 rounded-full h-2 transition-all"
+                          style={{ width: `${selectedRequerimiento.ocCoverage.porcentaje}%` }}
+                        />
+                      </div>
+                      <span className="font-medium">{selectedRequerimiento.ocCoverage.porcentaje}% cubierto</span>
+                    </div>
+                    <p className="text-xs text-purple-600">
+                      {selectedRequerimiento.ocCoverage.productosPendientes} producto(s) pendientes de compra
+                    </p>
+                  </div>
+                )}
+                {/* Per-product OC breakdown */}
+                {selectedRequerimiento.productos.some(p => p.ordenCompraRefs && p.ordenCompraRefs.length > 0) && (
+                  <div className="mt-3 space-y-1.5">
+                    {selectedRequerimiento.productos.map((p, idx) => {
+                      const enOC = p.cantidadEnOC || 0;
+                      const pendiente = p.cantidadSolicitada - enOC;
+                      return (
+                        <div key={idx} className="flex items-center gap-2 text-xs">
+                          <span className="text-purple-800 font-medium truncate flex-1">{p.sku}</span>
+                          <span className="text-purple-600">{enOC}/{p.cantidadSolicitada}</span>
+                          {pendiente > 0 && (
+                            <span className="text-amber-600 font-medium">{pendiente} pend.</span>
+                          )}
+                          {pendiente <= 0 && (
+                            <Check className="h-3.5 w-3.5 text-green-500" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -2246,8 +2298,8 @@ export const Requerimientos: React.FC = () => {
             <div className="flex justify-end space-x-3 pt-4 border-t">
               <Button variant="ghost" onClick={() => setIsDetailModalOpen(false)}>Cerrar</Button>
 
-              {/* Botón para asignar responsable (disponible cuando está aprobado o en proceso) */}
-              {(selectedRequerimiento.estado === 'aprobado' || selectedRequerimiento.estado === 'en_proceso') && (
+              {/* Botón para asignar responsable (disponible cuando está aprobado, parcial o en proceso) */}
+              {(selectedRequerimiento.estado === 'aprobado' || selectedRequerimiento.estado === 'parcial' || selectedRequerimiento.estado === 'en_proceso') && (
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -2260,7 +2312,7 @@ export const Requerimientos: React.FC = () => {
               )}
 
               {/* Botón para generar OCs por viajero (cuando hay asignaciones sin OC) */}
-              {(selectedRequerimiento.estado === 'aprobado' || selectedRequerimiento.estado === 'en_proceso') &&
+              {(selectedRequerimiento.estado === 'aprobado' || selectedRequerimiento.estado === 'parcial' || selectedRequerimiento.estado === 'en_proceso') &&
                (selectedRequerimiento as any).asignaciones?.some((a: AsignacionResponsable) =>
                  a.estado === 'pendiente' && !a.ordenCompraId
                ) && (
@@ -2282,12 +2334,12 @@ export const Requerimientos: React.FC = () => {
                   Aprobar
                 </Button>
               )}
-              {selectedRequerimiento.estado === 'aprobado' && !selectedRequerimiento.ordenCompraId && (
+              {(selectedRequerimiento.estado === 'aprobado' || selectedRequerimiento.estado === 'parcial') && (
                 <Button variant="primary" onClick={() => {
                   handleGenerarOC(selectedRequerimiento);
                 }}>
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  Generar OC
+                  {selectedRequerimiento.estado === 'parcial' ? 'Continuar OC' : 'Generar OC'}
                 </Button>
               )}
             </div>
@@ -2368,6 +2420,34 @@ export const Requerimientos: React.FC = () => {
           </Button>
         </div>
       )}
+
+      {/* OC Builder Wizard */}
+      <OCBuilder
+        isOpen={isOCBuilderOpen}
+        onClose={() => {
+          setIsOCBuilderOpen(false);
+          setOcBuilderReqs([]);
+        }}
+        requerimientos={ocBuilderReqs}
+        tcSugerido={tcDelDia?.compra}
+        onComplete={(ordenesCreadas) => {
+          setIsOCBuilderOpen(false);
+          setOcBuilderReqs([]);
+          toast.success(`${ordenesCreadas.length} OC(s) creadas exitosamente`);
+          loadData();
+        }}
+      />
+
+      <PendientesCompraPanel
+        isOpen={isPendientesOpen}
+        onClose={() => setIsPendientesOpen(false)}
+        requerimientos={requerimientosLN}
+        onEnviarAlBuilder={(reqs) => {
+          setIsPendientesOpen(false);
+          setOcBuilderReqs(reqs);
+          setIsOCBuilderOpen(true);
+        }}
+      />
     </div>
   );
 };

@@ -6,8 +6,11 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { Producto, Unidad } from '../types/producto.types';
+import type { Producto } from '../types/producto.types';
+import type { Unidad } from '../types/unidad.types';
 import type { Venta } from '../types/venta.types';
+import { getCTRU } from '../utils/ctru.utils';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../utils/multiOrigen.helpers';
 
 // ============ TIPOS ============
 
@@ -19,8 +22,12 @@ export interface ClasificacionMetricas {
 
   // Stock
   stockTotal: number;
+  /** Stock en destino (legacy: Peru) */
   stockPeru: number;
+  /** Stock en origen (legacy: USA) */
   stockUSA: number;
+  /** Genérico: stock por país */
+  stockPorPais?: Record<string, number>;
   stockTransito: number;
   valorInventario: number; // Stock * CTRU promedio
   productosStockCritico: number;
@@ -51,7 +58,9 @@ export interface ProductoEnClasificacion {
   marca: string;
   nombreComercial: string;
   estado: string;
+  /** Stock en destino (legacy: Peru) */
   stockPeru: number;
+  /** Stock en origen (legacy: USA) */
   stockUSA: number;
   ctruPromedio: number;
   precioSugerido: number;
@@ -196,29 +205,21 @@ class ClasificacionAnalyticsService {
         const stock = stockRealPorProducto.get(unidad.productoId);
         if (!stock) continue;
 
-        // Solo contar unidades activas (no vendidas, vencidas, dañadas)
-        switch (unidad.estado) {
-          case 'recibida_usa':
-            stock.usa++;
-            stock.ctruTotal += unidad.ctruDinamico || unidad.ctruBase || 0;
-            break;
-          case 'disponible_peru':
-            stock.peru++;
-            stock.ctruTotal += unidad.ctruDinamico || unidad.ctruBase || 0;
-            break;
-          case 'en_transito_usa':
-          case 'en_transito_peru':
-            stock.transito++;
-            stock.ctruTotal += unidad.ctruDinamico || unidad.ctruBase || 0;
-            break;
-          case 'asignada_pedido':
-          case 'en_despacho':
-            // Estas cuentan como stock Perú pero reservadas
-            stock.peru++;
-            stock.ctruTotal += unidad.ctruDinamico || unidad.ctruBase || 0;
-            break;
-          // Estados terminales no cuentan: vendida, entregada, devuelta, danada, vencida
+        // Solo contar unidades activas (no vendidas, vencidas, dañadas) — multi-origen compatible
+        if (esEstadoEnOrigen(unidad.estado)) {
+          stock.usa++;
+          stock.ctruTotal += getCTRU(unidad as any);
+        } else if (unidad.estado === 'disponible_peru') {
+          stock.peru++;
+          stock.ctruTotal += getCTRU(unidad as any);
+        } else if (esEstadoEnTransitoOrigen(unidad.estado) || unidad.estado === 'en_transito_peru') {
+          stock.transito++;
+          stock.ctruTotal += getCTRU(unidad as any);
+        } else if (unidad.estado === 'reservada') {
+          stock.peru++;
+          stock.ctruTotal += getCTRU(unidad as any);
         }
+        // Estados terminales no cuentan: vendida, entregada, devuelta, danada, vencida
       }
     }
 
@@ -307,7 +308,7 @@ class ClasificacionAnalyticsService {
         stockPeru: pStock,
         stockUSA: uStock,
         ctruPromedio: ctruPromedioReal,
-        precioSugerido: producto.precioSugerido || 0,
+        precioSugerido: 0,
         unidadesVendidas: ventasProd.unidades,
         ventasPEN: ventasProd.ventas,
         margen

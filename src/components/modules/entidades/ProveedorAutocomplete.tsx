@@ -12,6 +12,8 @@ import {
   Mail
 } from 'lucide-react';
 import { useProveedorStore } from '../../../store/proveedorStore';
+import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
+import { PAISES_CONFIG } from '../../../types/almacen.types';
 import type { Proveedor, ProveedorFormData, TipoProveedor } from '../../../types/ordenCompra.types';
 
 export interface ProveedorSnapshot {
@@ -57,8 +59,14 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
   const [creando, setCreando] = useState(false);
   const [nuevoProveedor, setNuevoProveedor] = useState<Partial<ProveedorFormData>>({
     tipo: 'distribuidor',
-    pais: 'USA'
+    pais: ''
   });
+
+  const { paisesActivos, fetchPaisesActivos } = usePaisOrigenStore();
+
+  useEffect(() => {
+    if (paisesActivos.length === 0) fetchPaisesActivos();
+  }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -140,7 +148,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
     setNuevoProveedor({
       nombre: inputValue,
       tipo: 'distribuidor',
-      pais: 'USA'
+      pais: ''
     });
     setShowCreateForm(true);
   };
@@ -372,10 +380,16 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
                   onChange={(e) => setNuevoProveedor({ ...nuevoProveedor, pais: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                 >
-                  <option value="USA">USA</option>
-                  <option value="China">China</option>
-                  <option value="Alemania">Alemania</option>
-                  <option value="India">India</option>
+                  <option value="">Seleccionar...</option>
+                  {Object.entries(PAISES_CONFIG).filter(([, cfg]) => cfg.esOrigen).map(([code, cfg]) => (
+                    <option key={code} value={code}>{cfg.emoji} {cfg.nombre}</option>
+                  ))}
+                  {paisesActivos
+                    .filter(p => !PAISES_CONFIG[p.codigo])
+                    .map(p => (
+                      <option key={p.codigo} value={p.codigo}>{p.nombre}</option>
+                    ))
+                  }
                   <option value="Otro">Otro</option>
                 </select>
               </div>

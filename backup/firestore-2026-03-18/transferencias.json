@@ -1,0 +1,4333 @@
+[
+  {
+    "_id": "1OIO2gTRa7X8lCVeXhSn",
+    "numeroTransferencia": "ENV-2026-010",
+    "almacenOrigenId": "YTsfduhN9DAlOot1fUQG",
+    "almacenOrigenNombre": "Lila Toscano",
+    "almacenOrigenCodigo": "VIA-006",
+    "almacenDestinoId": "E0YWnoD1a5vdoAbMrg7Y",
+    "almacenDestinoNombre": "Jose Luis Pinto Toscano",
+    "almacenDestinoCodigo": "ALM-PE-001",
+    "totalUnidades": 2,
+    "productosSummary": [
+      {
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "sku": "BMN-0082",
+        "nombre": "Gomitas de Melatonina para Niños",
+        "cantidad": 1
+      },
+      {
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "sku": "BMN-0077",
+        "nombre": "Vitamina C Liposomal",
+        "cantidad": 1
+      }
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:48:49.000Z",
+      "_seconds": 1773031729
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "costoFleteTotal": 10,
+    "monedaFlete": "USD",
+    "viajeroId": "YTsfduhN9DAlOot1fUQG",
+    "viajeroNombre": "Lila Toscano",
+    "fechaPreparacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:48:53.000Z",
+      "_seconds": 1773031733
+    },
+    "actualizadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:48:57.000Z",
+      "_seconds": 1773031737
+    },
+    "recepcionesTransferencia": [
+      {
+        "id": "REC-TRF-1773031750143-oi0a4a",
+        "numero": 1,
+        "fechaRecepcion": {
+          "_type": "timestamp",
+          "iso": "2026-03-09T04:49:09.000Z",
+          "_seconds": 1773031749
+        },
+        "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "unidadesEsperadas": 2,
+        "unidadesRecibidas": 2,
+        "unidadesFaltantes": 0,
+        "unidadesDanadas": 0,
+        "unidadesProcesadas": [
+          {
+            "unidadId": "XRJkX7DfheMhV8ina4T6",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "zL3mzIhqkcn0MP6e9ksn",
+            "resultado": "recibida"
+          }
+        ]
+      }
+    ],
+    "totalUnidadesFaltantes": 0,
+    "estado": "recibida_completa",
+    "totalUnidadesDanadas": 0,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:49:09.000Z",
+      "_seconds": 1773031749
+    },
+    "fechaLlegadaReal": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:49:09.000Z",
+      "_seconds": 1773031749
+    },
+    "recepcion": {
+      "fechaRecepcion": {
+        "_type": "timestamp",
+        "iso": "2026-03-09T04:49:09.000Z",
+        "_seconds": 1773031749
+      },
+      "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "unidadesEsperadas": 2,
+      "unidadesRecibidas": 2,
+      "unidadesFaltantes": 0,
+      "unidadesDanadas": 0
+    },
+    "totalUnidadesRecibidas": 2,
+    "diasEnTransito": 1,
+    "tipo": "internacional_peru",
+    "tipoLegacy": "usa_peru",
+    "paisOrigen": "USA",
+    "unidades": [
+      {
+        "codigoUnidad": "BMN-0082-OC-OC-2026-012",
+        "sku": "SUP-0082",
+        "lote": "OC-OC-2026-012",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5,
+        "unidadId": "XRJkX7DfheMhV8ina4T6",
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-09T04:47:57.000Z",
+          "_seconds": 1804567677
+        }
+      },
+      {
+        "lote": "OC-OC-2026-012",
+        "sku": "SUP-0077",
+        "codigoUnidad": "BMN-0077-OC-OC-2026-012",
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-09T04:47:58.000Z",
+          "_seconds": 1804567678
+        },
+        "unidadId": "zL3mzIhqkcn0MP6e9ksn",
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "recibida"
+      }
+    ]
+  },
+  {
+    "_id": "BRkIl8HSfxqZjicWdAML",
+    "numeroTransferencia": "ENV-2026-006",
+    "almacenOrigenId": "KJ517wENHMAiNdOJXnU0",
+    "almacenOrigenNombre": "Angie Price",
+    "almacenOrigenCodigo": "VIA-002",
+    "almacenDestinoId": "E0YWnoD1a5vdoAbMrg7Y",
+    "almacenDestinoNombre": "Jose Luis Pinto Toscano",
+    "almacenDestinoCodigo": "ALM-PE-001",
+    "totalUnidades": 32,
+    "productosSummary": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "nombre": "Magnesio Glicinato",
+        "cantidad": 4
+      },
+      {
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "BMN-0095",
+        "nombre": "Omega 3",
+        "cantidad": 1
+      },
+      {
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "sku": "BMN-0040",
+        "nombre": "D3 + K2",
+        "cantidad": 2
+      },
+      {
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "BMN-0036",
+        "nombre": "Artic-D",
+        "cantidad": 2
+      },
+      {
+        "productoId": "mL7byXOYc2GptBZTUxmI",
+        "sku": "BMN-0096",
+        "nombre": "D3 + K2",
+        "cantidad": 2
+      },
+      {
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "sku": "BMN-0088",
+        "nombre": "Omega 3",
+        "cantidad": 1
+      },
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "nombre": "Berberina",
+        "cantidad": 3
+      },
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "BMN-0076",
+        "nombre": "Complejo B",
+        "cantidad": 6
+      },
+      {
+        "productoId": "tdwV1884DBT2UvJY5vsl",
+        "sku": "BMN-0111",
+        "nombre": "Gomitas de Melatonina para Adultos",
+        "cantidad": 2
+      },
+      {
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "sku": "BMN-0077",
+        "nombre": "Vitamina C Liposomal",
+        "cantidad": 1
+      },
+      {
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "sku": "BMN-0082",
+        "nombre": "Gomitas de Melatonina para Niños",
+        "cantidad": 1
+      },
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "BMN-0004",
+        "nombre": "Ashwagandha",
+        "cantidad": 1
+      },
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "nombre": "Melena de León",
+        "cantidad": 3
+      },
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "BMN-0117",
+        "nombre": "CoQ10",
+        "cantidad": 1
+      },
+      {
+        "productoId": "KrwI76t7RMt2ryWTvKoM",
+        "sku": "BMN-0032",
+        "nombre": "Gomitas Multivitamínicas de Niño",
+        "cantidad": 1
+      },
+      {
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "sku": "BMN-0066",
+        "nombre": "DHA para Bebés",
+        "cantidad": 1
+      }
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T08:46:18.000Z",
+      "_seconds": 1771663578
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "costoFleteTotal": 161,
+    "monedaFlete": "USD",
+    "viajeroId": "KJ517wENHMAiNdOJXnU0",
+    "viajeroNombre": "Angie Price",
+    "fechaPreparacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T08:47:39.000Z",
+      "_seconds": 1771663659
+    },
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T08:47:45.000Z",
+      "_seconds": 1771663665
+    },
+    "estado": "recibida_completa",
+    "fechaLlegadaReal": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T08:48:04.000Z",
+      "_seconds": 1771663684
+    },
+    "recepcion": {
+      "fechaRecepcion": {
+        "_type": "timestamp",
+        "iso": "2026-02-21T08:48:04.000Z",
+        "_seconds": 1771663684
+      },
+      "recibidoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "unidadesEsperadas": 32,
+      "unidadesRecibidas": 32,
+      "unidadesFaltantes": 0,
+      "unidadesDanadas": 0
+    },
+    "diasEnTransito": 1,
+    "montoPagadoUSD": 161,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T08:14:46.000Z",
+      "_seconds": 1772784886
+    },
+    "actualizadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "montoPendienteUSD": 0,
+    "estadoPagoViajero": "pagado",
+    "pagosViajero": [
+      {
+        "id": "PAG-VIA-1772784886064-uwwhvf",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-06T00:00:00.000Z",
+          "_seconds": 1772755200
+        },
+        "monedaPago": "USD",
+        "montoOriginal": 161,
+        "montoUSD": 161,
+        "montoPEN": 558.509,
+        "tipoCambio": 3.469,
+        "metodoPago": "transferencia_bancaria",
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-03-06T08:14:46.000Z",
+          "_seconds": 1772784886
+        },
+        "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+        "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+        "movimientoTesoreriaId": "16fQckteFd7rMUWKrhyb"
+      }
+    ],
+    "pagoViajero": {
+      "id": "PAG-VIA-1772784886064-uwwhvf",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-03-06T00:00:00.000Z",
+        "_seconds": 1772755200
+      },
+      "monedaPago": "USD",
+      "montoOriginal": 161,
+      "montoUSD": 161,
+      "montoPEN": 558.509,
+      "tipoCambio": 3.469,
+      "metodoPago": "transferencia_bancaria",
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "fechaRegistro": {
+        "_type": "timestamp",
+        "iso": "2026-03-06T08:14:46.000Z",
+        "_seconds": 1772784886
+      },
+      "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+      "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+      "movimientoTesoreriaId": "16fQckteFd7rMUWKrhyb"
+    },
+    "tipo": "internacional_peru",
+    "tipoLegacy": "usa_peru",
+    "paisOrigen": "USA",
+    "unidades": [
+      {
+        "codigoUnidad": "BMN-0123-OC-OC-2026-003",
+        "costoFleteUSD": 5,
+        "sku": "SUP-0123",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:39.000Z",
+          "_seconds": 1802128599
+        },
+        "lote": "OC-OC-2026-003",
+        "estadoTransferencia": "recibida",
+        "unidadId": "128iivjzzcYLB792oawd"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-003",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-003",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "costoFleteUSD": 5,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:39.000Z",
+          "_seconds": 1802128599
+        },
+        "sku": "SUP-0123",
+        "unidadId": "5vSofYnd0homp6fT3Wzd"
+      },
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-003",
+        "estadoTransferencia": "recibida",
+        "unidadId": "9cXl6b2DCFre8RcxeAG4",
+        "lote": "OC-OC-2026-003",
+        "costoFleteUSD": 5,
+        "sku": "SUP-0123",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:39.000Z",
+          "_seconds": 1802128599
+        }
+      },
+      {
+        "sku": "SUP-0123",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "costoFleteUSD": 5,
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:39.000Z",
+          "_seconds": 1802128599
+        },
+        "unidadId": "dWCye1KXbsHiDf0AhDYA",
+        "estadoTransferencia": "recibida",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-003"
+      },
+      {
+        "unidadId": "3JM0R2GapOWLB6Oo1MGf",
+        "codigoUnidad": "BMN-0095-OC-OC-2026-003",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0095",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:31.000Z",
+          "_seconds": 1802128591
+        },
+        "lote": "OC-OC-2026-003",
+        "costoFleteUSD": 5,
+        "productoId": "m0dwINFHyHU64jt1gSnf"
+      },
+      {
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "costoFleteUSD": 5,
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:41.000Z",
+          "_seconds": 1802128601
+        },
+        "unidadId": "6SDFV9ZKf1LdipzEK9zO",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0040",
+        "codigoUnidad": "BMN-0040-OC-OC-2026-003"
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:41.000Z",
+          "_seconds": 1802128601
+        },
+        "sku": "SUP-0040",
+        "unidadId": "VP6xv2gL1Uz9dSt7YjEV",
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "estadoTransferencia": "recibida",
+        "codigoUnidad": "BMN-0040-OC-OC-2026-003",
+        "costoFleteUSD": 5,
+        "lote": "OC-OC-2026-003"
+      },
+      {
+        "unidadId": "BhWwddUKvEPUIt9ojxr0",
+        "estadoTransferencia": "recibida",
+        "codigoUnidad": "BMN-0036-OC-OC-2026-003",
+        "sku": "SUP-0036",
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:33.000Z",
+          "_seconds": 1802128593
+        },
+        "lote": "OC-OC-2026-003",
+        "costoFleteUSD": 5
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "unidadId": "TpZm0mRbK9RR0EmXaJKg",
+        "lote": "OC-OC-2026-003",
+        "codigoUnidad": "BMN-0036-OC-OC-2026-003",
+        "sku": "SUP-0036",
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "costoFleteUSD": 5,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:33.000Z",
+          "_seconds": 1802128593
+        }
+      },
+      {
+        "productoId": "mL7byXOYc2GptBZTUxmI",
+        "sku": "SUP-0096",
+        "lote": "OC-OC-2026-006",
+        "estadoTransferencia": "recibida",
+        "codigoUnidad": "BMN-0096-OC-OC-2026-006",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-21T08:44:35.000Z",
+          "_seconds": 1803199475
+        },
+        "unidadId": "BpetWVgQousuCqW0cQyv",
+        "costoFleteUSD": 5
+      },
+      {
+        "lote": "OC-OC-2026-004",
+        "estadoTransferencia": "recibida",
+        "productoId": "mL7byXOYc2GptBZTUxmI",
+        "unidadId": "KlVqT5FEdtwIKJkOOWV0",
+        "costoFleteUSD": 5,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:15:47.000Z",
+          "_seconds": 1802128547
+        },
+        "codigoUnidad": "BMN-0096-OC-OC-2026-004",
+        "sku": "SUP-0096"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5,
+        "codigoUnidad": "BMN-0088-OC-OC-2026-003",
+        "unidadId": "FX5uyWPzh2jjxFUUFn9l",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:34.000Z",
+          "_seconds": 1802128594
+        },
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "sku": "SUP-0088"
+      },
+      {
+        "costoFleteUSD": 5,
+        "sku": "SUP-0118",
+        "codigoUnidad": "BMN-0118-OC-OC-2026-003",
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:43.000Z",
+          "_seconds": 1802128603
+        },
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "lote": "OC-OC-2026-003",
+        "unidadId": "JWUOSOf5Xq8BQBOcUzX3"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "unidadId": "ltcRwipZhWRtT231T3O5",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:43.000Z",
+          "_seconds": 1802128603
+        },
+        "codigoUnidad": "BMN-0118-OC-OC-2026-003",
+        "sku": "SUP-0118",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "costoFleteUSD": 5,
+        "lote": "OC-OC-2026-003"
+      },
+      {
+        "lote": "OC-OC-2026-003",
+        "unidadId": "mNqOQ9ptLKCLf3bHWajo",
+        "codigoUnidad": "BMN-0118-OC-OC-2026-003",
+        "sku": "SUP-0118",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:43.000Z",
+          "_seconds": 1802128603
+        },
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "unidadId": "NQBSGpYjgEByXAHRd6H1",
+        "sku": "SUP-0076",
+        "costoFleteUSD": 5,
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        }
+      },
+      {
+        "lote": "OC-OC-2026-003",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "unidadId": "PFzSh37etDYdLlqspmj8",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0076",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        }
+      },
+      {
+        "costoFleteUSD": 5,
+        "sku": "SUP-0076",
+        "estadoTransferencia": "recibida",
+        "unidadId": "RKVC62oAfTG8WS9x5WCW",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        }
+      },
+      {
+        "unidadId": "Ux2cTpyKxbOTA5B9Owaa",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        },
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-003",
+        "costoFleteUSD": 5
+      },
+      {
+        "lote": "OC-OC-2026-003",
+        "costoFleteUSD": 5,
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        },
+        "unidadId": "YMdDgOOOCdVHu7pcr1T6",
+        "sku": "SUP-0076",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "lote": "OC-OC-2026-003",
+        "sku": "SUP-0076",
+        "unidadId": "yrvUXnQpgBN1WpObqnB1",
+        "estadoTransferencia": "recibida",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "costoFleteUSD": 5,
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        }
+      },
+      {
+        "codigoUnidad": "BMN-0111-OC-OC-2026-003",
+        "costoFleteUSD": 5,
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:37.000Z",
+          "_seconds": 1802128597
+        },
+        "estadoTransferencia": "recibida",
+        "productoId": "tdwV1884DBT2UvJY5vsl",
+        "sku": "SUP-0111",
+        "unidadId": "QXEE2ZYWpfxsKzZnRYDk"
+      },
+      {
+        "codigoUnidad": "BMN-0111-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "unidadId": "xVBmvC51rv7naZ2zbKdF",
+        "sku": "SUP-0111",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:37.000Z",
+          "_seconds": 1802128597
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "recibida",
+        "productoId": "tdwV1884DBT2UvJY5vsl"
+      },
+      {
+        "lote": "OC-OC-2026-003",
+        "unidadId": "Wp5MAf1Vw7mV3W32Ebtd",
+        "codigoUnidad": "BMN-0077-OC-OC-2026-003",
+        "sku": "SUP-0077",
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:38.000Z",
+          "_seconds": 1802128598
+        },
+        "costoFleteUSD": 5
+      },
+      {
+        "sku": "SUP-0082",
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:44.000Z",
+          "_seconds": 1802128604
+        },
+        "estadoTransferencia": "recibida",
+        "codigoUnidad": "BMN-0082-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "costoFleteUSD": 5,
+        "unidadId": "WwUGZPQbDgfzJmFxGBJA"
+      },
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "unidadId": "d1kcxjsXjcNP01jiIKNJ",
+        "lote": "OC-OC-2026-003",
+        "sku": "SUP-0004",
+        "codigoUnidad": "BMN-0004-OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:35.000Z",
+          "_seconds": 1802128595
+        },
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5
+      },
+      {
+        "costoFleteUSD": 5,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:36.000Z",
+          "_seconds": 1802128596
+        },
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "SUP-0052",
+        "estadoTransferencia": "recibida",
+        "unidadId": "eUiKbmGkGR8V0XoY5R1D",
+        "lote": "OC-OC-2026-003",
+        "codigoUnidad": "BMN-0052-OC-OC-2026-003"
+      },
+      {
+        "codigoUnidad": "BMN-0052-OC-OC-2026-003",
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:36.000Z",
+          "_seconds": 1802128596
+        },
+        "sku": "SUP-0052",
+        "costoFleteUSD": 5,
+        "lote": "OC-OC-2026-003",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "unidadId": "tUMDYy392MJ4YDAXwzym"
+      },
+      {
+        "lote": "OC-OC-2026-003",
+        "sku": "SUP-0052",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "codigoUnidad": "BMN-0052-OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:36.000Z",
+          "_seconds": 1802128596
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "recibida",
+        "unidadId": "vIkEVc8Ij2VmtIfNn73Y"
+      },
+      {
+        "codigoUnidad": "BMN-0117-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:32.000Z",
+          "_seconds": 1802128592
+        },
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5,
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "SUP-0117",
+        "unidadId": "mOltjJbgWFvW6AurO82B"
+      },
+      {
+        "sku": "SUP-0032",
+        "costoFleteUSD": 6,
+        "unidadId": "ptA8V4119U1yhkwX6Clc",
+        "productoId": "KrwI76t7RMt2ryWTvKoM",
+        "codigoUnidad": "BMN-0032-OC-OC-2026-005",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-09T22:53:13.000Z",
+          "_seconds": 1802213593
+        },
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-005"
+      },
+      {
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:42.000Z",
+          "_seconds": 1802128602
+        },
+        "sku": "SUP-0066",
+        "unidadId": "zTBspGu4ixWQ39tPMuzS",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5,
+        "codigoUnidad": "BMN-0066-OC-OC-2026-003"
+      }
+    ]
+  },
+  {
+    "_id": "FQW4mazaerX0Zc1oqh3m",
+    "numeroTransferencia": "ENV-2026-007",
+    "almacenOrigenId": "TJRB5PEKQSfXu0WIjnaK",
+    "almacenOrigenNombre": "Anghely Henriquez",
+    "almacenOrigenCodigo": "VIA-001",
+    "almacenDestinoId": "E0YWnoD1a5vdoAbMrg7Y",
+    "almacenDestinoNombre": "Jose Luis Pinto Toscano",
+    "almacenDestinoCodigo": "ALM-PE-001",
+    "totalUnidades": 14,
+    "productosSummary": [
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "BMN-0004",
+        "nombre": "Ashwagandha",
+        "cantidad": 2
+      },
+      {
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "sku": "BMN-0054",
+        "nombre": "D3 + K2",
+        "cantidad": 3
+      },
+      {
+        "productoId": "dD5C2rEimsJJzWopvVaO",
+        "sku": "BMN-0079",
+        "nombre": "Vitamina B Complex",
+        "cantidad": 1
+      },
+      {
+        "productoId": "YEw5uIo5jiTSeI9UPXim",
+        "sku": "BMN-0062",
+        "nombre": "Luteína",
+        "cantidad": 1
+      },
+      {
+        "productoId": "R5xj1rg2mfxKdKA6UeHo",
+        "sku": "BMN-0043",
+        "nombre": "Melatonina para Adultos",
+        "cantidad": 1
+      },
+      {
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "sku": "BMN-0057",
+        "nombre": "Vitamina B12",
+        "cantidad": 2
+      },
+      {
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "BMN-0095",
+        "nombre": "Omega 3",
+        "cantidad": 2
+      },
+      {
+        "productoId": "5aINpRBokq1yTCp3hMlY",
+        "sku": "BMN-0133",
+        "nombre": "DHA para Niños",
+        "cantidad": 1
+      },
+      {
+        "productoId": "SHXJveI0XKFu8IoWSpd2",
+        "sku": "BMN-0127",
+        "nombre": "Myo Inositol",
+        "cantidad": 1
+      }
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T07:00:58.000Z",
+      "_seconds": 1772002858
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "monedaFlete": "USD",
+    "viajeroId": "TJRB5PEKQSfXu0WIjnaK",
+    "viajeroNombre": "Anghely Henriquez",
+    "fechaPreparacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T07:01:09.000Z",
+      "_seconds": 1772002869
+    },
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T07:01:16.000Z",
+      "_seconds": 1772002876
+    },
+    "costoFleteTotal": 64.5,
+    "actualizadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "totalUnidadesDanadas": 0,
+    "fechaLlegadaReal": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T06:08:37.000Z",
+      "_seconds": 1772777317
+    },
+    "montoPagadoUSD": 64.5,
+    "montoPendienteUSD": 0,
+    "estadoPagoViajero": "pagado",
+    "pagosViajero": [
+      {
+        "id": "PAG-VIA-1773120835539-tlt4jl",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T00:00:00.000Z",
+          "_seconds": 1773100800
+        },
+        "monedaPago": "USD",
+        "montoOriginal": 64.5,
+        "montoUSD": 64.5,
+        "montoPEN": 225.36300000000003,
+        "tipoCambio": 3.494,
+        "metodoPago": "transferencia_bancaria",
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T05:33:55.000Z",
+          "_seconds": 1773120835
+        },
+        "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+        "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+        "notas": "Pago a Anghely. Cuenta - Baesk Scotiabank pago $226.",
+        "movimientoTesoreriaId": "GqBv5hXAyGfkg8cKiEP6"
+      }
+    ],
+    "pagoViajero": {
+      "id": "PAG-VIA-1773120835539-tlt4jl",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-03-10T00:00:00.000Z",
+        "_seconds": 1773100800
+      },
+      "monedaPago": "USD",
+      "montoOriginal": 64.5,
+      "montoUSD": 64.5,
+      "montoPEN": 225.36300000000003,
+      "tipoCambio": 3.494,
+      "metodoPago": "transferencia_bancaria",
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "fechaRegistro": {
+        "_type": "timestamp",
+        "iso": "2026-03-10T05:33:55.000Z",
+        "_seconds": 1773120835
+      },
+      "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+      "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+      "notas": "Pago a Anghely. Cuenta - Baesk Scotiabank pago $226.",
+      "movimientoTesoreriaId": "GqBv5hXAyGfkg8cKiEP6"
+    },
+    "recepcionesTransferencia": [
+      {
+        "fechaRecepcion": {
+          "_type": "timestamp",
+          "iso": "2026-03-06T06:08:37.000Z",
+          "_seconds": 1772777317
+        },
+        "unidadesDanadas": 0,
+        "unidadesRecibidas": 13,
+        "unidadesFaltantes": 1,
+        "id": "REC-TRF-1772777320092-qhx091",
+        "unidadesProcesadas": [
+          {
+            "resultado": "recibida",
+            "unidadId": "HTw5JYkzG2hekhXwCLUB"
+          },
+          {
+            "unidadId": "sfOTsFCM5WYCXteNE1gC",
+            "resultado": "recibida"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "NPuvd7HWneUfhG1LXkA8"
+          },
+          {
+            "unidadId": "bzXo4MMnJTf7u3YnvSCe",
+            "resultado": "recibida"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "jJYImzDw5mxCzTqgJa7Z"
+          },
+          {
+            "unidadId": "RvfhMbKCyQXGNgjdZ4KJ",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "YPGCKyi2fJlr6UKmoap2",
+            "resultado": "recibida"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "vyBl5shnUCBqi4ZiC8OY"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "QnBvMSC8Lvw01QGpl63Z"
+          },
+          {
+            "unidadId": "oHxJeAQ65A3sEPmyS3uu",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "Cf0YSyhyY0Er7g63hiei",
+            "resultado": "recibida"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "gKIFWNrzq48e1YG444h9"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "Lyv0DcDnc4oEbyNqpr6t"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "nSKBWkksTBybvUkPHZeD"
+          }
+        ],
+        "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "unidadesEsperadas": 14,
+        "numero": 1
+      },
+      {
+        "id": "REC-TRF-1773176342304-46w98j",
+        "numero": 2,
+        "fechaRecepcion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T20:59:01.000Z",
+          "_seconds": 1773176341
+        },
+        "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "unidadesEsperadas": 14,
+        "unidadesRecibidas": 1,
+        "unidadesFaltantes": 0,
+        "unidadesDanadas": 0,
+        "unidadesProcesadas": [
+          {
+            "unidadId": "nSKBWkksTBybvUkPHZeD",
+            "resultado": "recibida"
+          }
+        ]
+      }
+    ],
+    "totalUnidadesFaltantes": 0,
+    "estado": "recibida_completa",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T20:59:01.000Z",
+      "_seconds": 1773176341
+    },
+    "recepcion": {
+      "fechaRecepcion": {
+        "_type": "timestamp",
+        "iso": "2026-03-10T20:59:01.000Z",
+        "_seconds": 1773176341
+      },
+      "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "unidadesEsperadas": 14,
+      "unidadesRecibidas": 14,
+      "unidadesFaltantes": 0,
+      "unidadesDanadas": 0
+    },
+    "totalUnidadesRecibidas": 14,
+    "diasEnTransito": 14,
+    "tipo": "internacional_peru",
+    "tipoLegacy": "usa_peru",
+    "paisOrigen": "USA",
+    "unidades": [
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:01.000Z",
+          "_seconds": 1803358201
+        },
+        "codigoUnidad": "BMN-0004-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007",
+        "costoFleteUSD": 7,
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "SUP-0004",
+        "unidadId": "HTw5JYkzG2hekhXwCLUB",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:01.000Z",
+          "_seconds": 1803358201
+        },
+        "codigoUnidad": "BMN-0004-OC-OC-2026-007",
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "costoFleteUSD": 7,
+        "sku": "SUP-0004",
+        "estadoTransferencia": "recibida",
+        "unidadId": "sfOTsFCM5WYCXteNE1gC"
+      },
+      {
+        "sku": "SUP-0054",
+        "costoFleteUSD": 3.5,
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "estadoTransferencia": "recibida",
+        "unidadId": "NPuvd7HWneUfhG1LXkA8",
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:08.000Z",
+          "_seconds": 1803358208
+        },
+        "codigoUnidad": "BMN-0054-OC-OC-2026-007"
+      },
+      {
+        "codigoUnidad": "BMN-0054-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:08.000Z",
+          "_seconds": 1803358208
+        },
+        "lote": "OC-OC-2026-007",
+        "estadoTransferencia": "recibida",
+        "unidadId": "bzXo4MMnJTf7u3YnvSCe",
+        "sku": "SUP-0054",
+        "costoFleteUSD": 3.5,
+        "productoId": "UkAyIBBPihxhR8yRscDX"
+      },
+      {
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:08.000Z",
+          "_seconds": 1803358208
+        },
+        "codigoUnidad": "BMN-0054-OC-OC-2026-007",
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "costoFleteUSD": 3.5,
+        "sku": "SUP-0054",
+        "estadoTransferencia": "recibida",
+        "unidadId": "jJYImzDw5mxCzTqgJa7Z"
+      },
+      {
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0079-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:11.000Z",
+          "_seconds": 1803358211
+        },
+        "unidadId": "RvfhMbKCyQXGNgjdZ4KJ",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 3,
+        "productoId": "dD5C2rEimsJJzWopvVaO",
+        "sku": "SUP-0079"
+      },
+      {
+        "unidadId": "YPGCKyi2fJlr6UKmoap2",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0062",
+        "productoId": "YEw5uIo5jiTSeI9UPXim",
+        "costoFleteUSD": 3,
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0062-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:49:59.000Z",
+          "_seconds": 1803358199
+        }
+      },
+      {
+        "costoFleteUSD": 3,
+        "sku": "SUP-0043",
+        "productoId": "R5xj1rg2mfxKdKA6UeHo",
+        "estadoTransferencia": "recibida",
+        "unidadId": "vyBl5shnUCBqi4ZiC8OY",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:07.000Z",
+          "_seconds": 1803358207
+        },
+        "codigoUnidad": "BMN-0043-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007"
+      },
+      {
+        "unidadId": "QnBvMSC8Lvw01QGpl63Z",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 3,
+        "sku": "SUP-0057",
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "codigoUnidad": "BMN-0057-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:03.000Z",
+          "_seconds": 1803358203
+        },
+        "lote": "OC-OC-2026-007"
+      },
+      {
+        "unidadId": "oHxJeAQ65A3sEPmyS3uu",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0057",
+        "costoFleteUSD": 3,
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "codigoUnidad": "BMN-0057-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:03.000Z",
+          "_seconds": 1803358203
+        },
+        "lote": "OC-OC-2026-007"
+      },
+      {
+        "sku": "SUP-0095",
+        "costoFleteUSD": 5,
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "estadoTransferencia": "recibida",
+        "unidadId": "Cf0YSyhyY0Er7g63hiei",
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:00.000Z",
+          "_seconds": 1803358200
+        },
+        "codigoUnidad": "BMN-0095-OC-OC-2026-007"
+      },
+      {
+        "codigoUnidad": "BMN-0095-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:00.000Z",
+          "_seconds": 1803358200
+        },
+        "lote": "OC-OC-2026-007",
+        "estadoTransferencia": "recibida",
+        "unidadId": "gKIFWNrzq48e1YG444h9",
+        "costoFleteUSD": 5,
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "SUP-0095"
+      },
+      {
+        "productoId": "5aINpRBokq1yTCp3hMlY",
+        "costoFleteUSD": 5,
+        "sku": "SUP-0133",
+        "estadoTransferencia": "recibida",
+        "unidadId": "Lyv0DcDnc4oEbyNqpr6t",
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:14.000Z",
+          "_seconds": 1803358214
+        },
+        "codigoUnidad": "BMN-0133-OC-OC-2026-007"
+      },
+      {
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0127-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:05.000Z",
+          "_seconds": 1803358205
+        },
+        "unidadId": "nSKBWkksTBybvUkPHZeD",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 10,
+        "sku": "SUP-0127",
+        "productoId": "SHXJveI0XKFu8IoWSpd2"
+      }
+    ]
+  },
+  {
+    "_id": "JMNOeEXNoXtQh5iVObev",
+    "numeroTransferencia": "ENV-2026-004",
+    "almacenOrigenId": "KJ517wENHMAiNdOJXnU0",
+    "almacenOrigenNombre": "Angie Price",
+    "almacenOrigenCodigo": "VIA-002",
+    "almacenDestinoId": "E0YWnoD1a5vdoAbMrg7Y",
+    "almacenDestinoNombre": "Jose Luis Pinto Toscano",
+    "almacenDestinoCodigo": "ALM-PE-001",
+    "totalUnidades": 34,
+    "productosSummary": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "nombre": "Magnesio Glicinato",
+        "cantidad": 4
+      },
+      {
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "BMN-0095",
+        "nombre": "Omega 3",
+        "cantidad": 1
+      },
+      {
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "sku": "BMN-0040",
+        "nombre": "D3 + K2",
+        "cantidad": 2
+      },
+      {
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "BMN-0036",
+        "nombre": "Artic-D",
+        "cantidad": 2
+      },
+      {
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "sku": "BMN-0088",
+        "nombre": "Omega 3",
+        "cantidad": 1
+      },
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "BMN-0124",
+        "nombre": "Collagen + Biotin Verisol",
+        "cantidad": 3
+      },
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "nombre": "Berberina",
+        "cantidad": 3
+      },
+      {
+        "productoId": "mL7byXOYc2GptBZTUxmI",
+        "sku": "BMN-0096",
+        "nombre": "D3 + K2",
+        "cantidad": 1
+      },
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "BMN-0076",
+        "nombre": "Complejo B",
+        "cantidad": 6
+      },
+      {
+        "productoId": "tdwV1884DBT2UvJY5vsl",
+        "sku": "BMN-0111",
+        "nombre": "Gomitas de Melatonina para Adultos",
+        "cantidad": 2
+      },
+      {
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "sku": "BMN-0077",
+        "nombre": "Vitamina C Liposomal",
+        "cantidad": 1
+      },
+      {
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "sku": "BMN-0082",
+        "nombre": "Gomitas de Melatonina para Niños",
+        "cantidad": 1
+      },
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "BMN-0004",
+        "nombre": "Ashwagandha",
+        "cantidad": 1
+      },
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "nombre": "Melena de León",
+        "cantidad": 3
+      },
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "BMN-0117",
+        "nombre": "CoQ10",
+        "cantidad": 1
+      },
+      {
+        "productoId": "KrwI76t7RMt2ryWTvKoM",
+        "sku": "BMN-0032",
+        "nombre": "Gomitas Multivitamínicas de Niño",
+        "cantidad": 1
+      },
+      {
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "sku": "BMN-0066",
+        "nombre": "DHA para Bebés",
+        "cantidad": 1
+      }
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T04:04:47.000Z",
+      "_seconds": 1771473887
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "costoFleteTotal": 174,
+    "monedaFlete": "USD",
+    "viajeroId": "KJ517wENHMAiNdOJXnU0",
+    "viajeroNombre": "Angie Price",
+    "estado": "cancelada",
+    "notas": "[CANCELADA] Error de contabilidad de productos.",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T04:06:37.000Z",
+      "_seconds": 1771473997
+    },
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "tipo": "internacional_peru",
+    "tipoLegacy": "usa_peru",
+    "paisOrigen": "USA",
+    "unidades": [
+      {
+        "unidadId": "128iivjzzcYLB792oawd",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:39.000Z",
+          "_seconds": 1802128599
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "5vSofYnd0homp6fT3Wzd",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:39.000Z",
+          "_seconds": 1802128599
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "9cXl6b2DCFre8RcxeAG4",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:39.000Z",
+          "_seconds": 1802128599
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "dWCye1KXbsHiDf0AhDYA",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:39.000Z",
+          "_seconds": 1802128599
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "3JM0R2GapOWLB6Oo1MGf",
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "SUP-0095",
+        "codigoUnidad": "BMN-0095-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:31.000Z",
+          "_seconds": 1802128591
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "6SDFV9ZKf1LdipzEK9zO",
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "sku": "SUP-0040",
+        "codigoUnidad": "BMN-0040-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:41.000Z",
+          "_seconds": 1802128601
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "VP6xv2gL1Uz9dSt7YjEV",
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "sku": "SUP-0040",
+        "codigoUnidad": "BMN-0040-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:41.000Z",
+          "_seconds": 1802128601
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "BhWwddUKvEPUIt9ojxr0",
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "SUP-0036",
+        "codigoUnidad": "BMN-0036-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:33.000Z",
+          "_seconds": 1802128593
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "TpZm0mRbK9RR0EmXaJKg",
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "SUP-0036",
+        "codigoUnidad": "BMN-0036-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:33.000Z",
+          "_seconds": 1802128593
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "FX5uyWPzh2jjxFUUFn9l",
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "sku": "SUP-0088",
+        "codigoUnidad": "BMN-0088-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:34.000Z",
+          "_seconds": 1802128594
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "GifhG6fynDmqqzvCTA8J",
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "SUP-0124",
+        "codigoUnidad": "BMN-0124-OC-OC-2026-005",
+        "lote": "OC-OC-2026-005",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-09T22:53:12.000Z",
+          "_seconds": 1802213592
+        },
+        "costoFleteUSD": 6,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "qWX9RXhyAJyLnoHENvtZ",
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "SUP-0124",
+        "codigoUnidad": "BMN-0124-OC-OC-2026-005",
+        "lote": "OC-OC-2026-005",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-09T22:53:12.000Z",
+          "_seconds": 1802213592
+        },
+        "costoFleteUSD": 6,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "vlC1NHk24aUUAQHQP2Pm",
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "SUP-0124",
+        "codigoUnidad": "BMN-0124-OC-OC-2026-005",
+        "lote": "OC-OC-2026-005",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-09T22:53:12.000Z",
+          "_seconds": 1802213592
+        },
+        "costoFleteUSD": 6,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "JWUOSOf5Xq8BQBOcUzX3",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "codigoUnidad": "BMN-0118-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:43.000Z",
+          "_seconds": 1802128603
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "ltcRwipZhWRtT231T3O5",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "codigoUnidad": "BMN-0118-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:43.000Z",
+          "_seconds": 1802128603
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "mNqOQ9ptLKCLf3bHWajo",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "codigoUnidad": "BMN-0118-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:43.000Z",
+          "_seconds": 1802128603
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "KlVqT5FEdtwIKJkOOWV0",
+        "productoId": "mL7byXOYc2GptBZTUxmI",
+        "sku": "SUP-0096",
+        "codigoUnidad": "BMN-0096-OC-OC-2026-004",
+        "lote": "OC-OC-2026-004",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:15:47.000Z",
+          "_seconds": 1802128547
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "NQBSGpYjgEByXAHRd6H1",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "PFzSh37etDYdLlqspmj8",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "RKVC62oAfTG8WS9x5WCW",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "Ux2cTpyKxbOTA5B9Owaa",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "YMdDgOOOCdVHu7pcr1T6",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "yrvUXnQpgBN1WpObqnB1",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "codigoUnidad": "BMN-0076-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:45.000Z",
+          "_seconds": 1802128605
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "QXEE2ZYWpfxsKzZnRYDk",
+        "productoId": "tdwV1884DBT2UvJY5vsl",
+        "sku": "SUP-0111",
+        "codigoUnidad": "BMN-0111-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:37.000Z",
+          "_seconds": 1802128597
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "xVBmvC51rv7naZ2zbKdF",
+        "productoId": "tdwV1884DBT2UvJY5vsl",
+        "sku": "SUP-0111",
+        "codigoUnidad": "BMN-0111-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:37.000Z",
+          "_seconds": 1802128597
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "Wp5MAf1Vw7mV3W32Ebtd",
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "sku": "SUP-0077",
+        "codigoUnidad": "BMN-0077-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:38.000Z",
+          "_seconds": 1802128598
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "WwUGZPQbDgfzJmFxGBJA",
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "sku": "SUP-0082",
+        "codigoUnidad": "BMN-0082-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:44.000Z",
+          "_seconds": 1802128604
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "d1kcxjsXjcNP01jiIKNJ",
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "SUP-0004",
+        "codigoUnidad": "BMN-0004-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:35.000Z",
+          "_seconds": 1802128595
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "eUiKbmGkGR8V0XoY5R1D",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "SUP-0052",
+        "codigoUnidad": "BMN-0052-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:36.000Z",
+          "_seconds": 1802128596
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "tUMDYy392MJ4YDAXwzym",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "SUP-0052",
+        "codigoUnidad": "BMN-0052-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:36.000Z",
+          "_seconds": 1802128596
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "vIkEVc8Ij2VmtIfNn73Y",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "SUP-0052",
+        "codigoUnidad": "BMN-0052-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:36.000Z",
+          "_seconds": 1802128596
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "mOltjJbgWFvW6AurO82B",
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "SUP-0117",
+        "codigoUnidad": "BMN-0117-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:32.000Z",
+          "_seconds": 1802128592
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "ptA8V4119U1yhkwX6Clc",
+        "productoId": "KrwI76t7RMt2ryWTvKoM",
+        "sku": "SUP-0032",
+        "codigoUnidad": "BMN-0032-OC-OC-2026-005",
+        "lote": "OC-OC-2026-005",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-09T22:53:13.000Z",
+          "_seconds": 1802213593
+        },
+        "costoFleteUSD": 6,
+        "estadoTransferencia": "pendiente"
+      },
+      {
+        "unidadId": "zTBspGu4ixWQ39tPMuzS",
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "sku": "SUP-0066",
+        "codigoUnidad": "BMN-0066-OC-OC-2026-003",
+        "lote": "OC-OC-2026-003",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-08T23:16:42.000Z",
+          "_seconds": 1802128602
+        },
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "pendiente"
+      }
+    ]
+  },
+  {
+    "_id": "REq7WFh17rZwKQQnv6lk",
+    "numeroTransferencia": "ENV-2026-005",
+    "almacenOrigenId": "KJ517wENHMAiNdOJXnU0",
+    "almacenOrigenNombre": "Angie Price",
+    "almacenOrigenCodigo": "VIA-002",
+    "almacenDestinoId": "E0YWnoD1a5vdoAbMrg7Y",
+    "almacenDestinoNombre": "Jose Luis Pinto Toscano",
+    "almacenDestinoCodigo": "ALM-PE-001",
+    "totalUnidades": 3,
+    "productosSummary": [
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "BMN-0124",
+        "nombre": "Collagen + Biotin Verisol",
+        "cantidad": 3
+      }
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T16:34:00.000Z",
+      "_seconds": 1771605240
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "costoFleteTotal": 24,
+    "monedaFlete": "USD",
+    "viajeroId": "WkGJXUBgZEzho8QxGk2V",
+    "viajeroNombre": "Isabel (Amiga de Angie)",
+    "fechaPreparacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T16:34:04.000Z",
+      "_seconds": 1771605244
+    },
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T16:34:07.000Z",
+      "_seconds": 1771605247
+    },
+    "estado": "recibida_completa",
+    "fechaLlegadaReal": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T16:34:15.000Z",
+      "_seconds": 1771605255
+    },
+    "recepcion": {
+      "fechaRecepcion": {
+        "_type": "timestamp",
+        "iso": "2026-02-20T16:34:15.000Z",
+        "_seconds": 1771605255
+      },
+      "recibidoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "unidadesEsperadas": 3,
+      "unidadesRecibidas": 3,
+      "unidadesFaltantes": 0,
+      "unidadesDanadas": 0
+    },
+    "diasEnTransito": 1,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T08:12:30.000Z",
+      "_seconds": 1772352750
+    },
+    "actualizadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estadoPagoViajero": "pagado",
+    "pagoViajero": {
+      "id": "PAG-VIA-1772352750732-g3f9kj",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-01T00:00:00.000Z",
+        "_seconds": 1769904000
+      },
+      "monedaPago": "PEN",
+      "montoOriginal": 81.6,
+      "montoUSD": 24,
+      "montoPEN": 81.6,
+      "tipoCambio": 3.4,
+      "metodoPago": "yape",
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "fechaRegistro": {
+        "_type": "timestamp",
+        "iso": "2026-03-01T08:12:30.000Z",
+        "_seconds": 1772352750
+      },
+      "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+      "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+      "movimientoTesoreriaId": "SX6aCTT2psYfQbInG7GH"
+    },
+    "tipo": "internacional_peru",
+    "tipoLegacy": "usa_peru",
+    "paisOrigen": "USA",
+    "unidades": [
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "lote": "OC-OC-2026-005",
+        "unidadId": "GifhG6fynDmqqzvCTA8J",
+        "sku": "SUP-0124",
+        "costoFleteUSD": 8,
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-09T22:53:12.000Z",
+          "_seconds": 1802213592
+        },
+        "codigoUnidad": "BMN-0124-OC-OC-2026-005"
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-09T22:53:12.000Z",
+          "_seconds": 1802213592
+        },
+        "lote": "OC-OC-2026-005",
+        "sku": "SUP-0124",
+        "codigoUnidad": "BMN-0124-OC-OC-2026-005",
+        "unidadId": "qWX9RXhyAJyLnoHENvtZ",
+        "costoFleteUSD": 8,
+        "estadoTransferencia": "recibida",
+        "productoId": "74CoJ5vsITU5wOkTvAtf"
+      },
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "costoFleteUSD": 8,
+        "lote": "OC-OC-2026-005",
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-09T22:53:12.000Z",
+          "_seconds": 1802213592
+        },
+        "codigoUnidad": "BMN-0124-OC-OC-2026-005",
+        "sku": "SUP-0124",
+        "unidadId": "vlC1NHk24aUUAQHQP2Pm"
+      }
+    ]
+  },
+  {
+    "_id": "RggrKitRBuqL6fMw1Uyh",
+    "numeroTransferencia": "ENV-2026-003",
+    "almacenOrigenId": "KJ517wENHMAiNdOJXnU0",
+    "almacenOrigenNombre": "Angie Price",
+    "almacenOrigenCodigo": "VIA-002",
+    "almacenDestinoId": "E0YWnoD1a5vdoAbMrg7Y",
+    "almacenDestinoNombre": "Jose Luis Pinto Toscano",
+    "almacenDestinoCodigo": "ALM-PE-001",
+    "totalUnidades": 16,
+    "productosSummary": [
+      {
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "sku": "BMN-0060",
+        "nombre": "NAD + Resveratrol",
+        "cantidad": 4
+      },
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "BMN-0117",
+        "nombre": "CoQ10",
+        "cantidad": 1
+      },
+      {
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "sku": "BMN-0063",
+        "nombre": "Alaska Omega 3",
+        "cantidad": 3
+      },
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "nombre": "Melena de León",
+        "cantidad": 2
+      },
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "nombre": "Magnesio Glicinato",
+        "cantidad": 3
+      },
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "nombre": "Berberina",
+        "cantidad": 2
+      },
+      {
+        "productoId": "Hc6nsorCzjmBoa2Rctgw",
+        "sku": "BMN-0026",
+        "nombre": "Magnesio Glicinato",
+        "cantidad": 1
+      }
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:34:36.000Z",
+      "_seconds": 1768786476
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "costoFleteTotal": 80,
+    "monedaFlete": "USD",
+    "viajeroId": "KJ517wENHMAiNdOJXnU0",
+    "viajeroNombre": "Angie Price",
+    "fechaPreparacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:34:43.000Z",
+      "_seconds": 1768786483
+    },
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:34:45.000Z",
+      "_seconds": 1768786485
+    },
+    "estado": "recibida_completa",
+    "fechaLlegadaReal": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:34:56.000Z",
+      "_seconds": 1768786496
+    },
+    "recepcion": {
+      "fechaRecepcion": {
+        "_type": "timestamp",
+        "iso": "2026-01-19T01:34:56.000Z",
+        "_seconds": 1768786496
+      },
+      "recibidoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "unidadesEsperadas": 16,
+      "unidadesRecibidas": 16,
+      "unidadesFaltantes": 0,
+      "unidadesDanadas": 0
+    },
+    "diasEnTransito": 1,
+    "actualizadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "montoPagadoUSD": 80,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T08:13:10.000Z",
+      "_seconds": 1772784790
+    },
+    "montoPendienteUSD": 0,
+    "estadoPagoViajero": "pagado",
+    "pagosViajero": [
+      {
+        "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+        "montoOriginal": 40,
+        "tipoCambio": 3.36,
+        "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-02-28T00:00:00.000Z",
+          "_seconds": 1772236800
+        },
+        "id": "PAG-VIA-1772358163244-2qgkav",
+        "monedaPago": "USD",
+        "metodoPago": "efectivo",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-03-01T09:42:43.000Z",
+          "_seconds": 1772358163
+        },
+        "montoUSD": 40,
+        "movimientoTesoreriaId": "cCQyNjgWZKUNz11obU3A",
+        "montoPEN": 134.4
+      },
+      {
+        "id": "PAG-VIA-1772784790877-b0yw40",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-06T00:00:00.000Z",
+          "_seconds": 1772755200
+        },
+        "monedaPago": "USD",
+        "montoOriginal": 40,
+        "montoUSD": 40,
+        "montoPEN": 138.76,
+        "tipoCambio": 3.469,
+        "metodoPago": "transferencia_bancaria",
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-03-06T08:13:10.000Z",
+          "_seconds": 1772784790
+        },
+        "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+        "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+        "movimientoTesoreriaId": "laMyU4vZyDXvmHhDB9SF"
+      }
+    ],
+    "pagoViajero": {
+      "id": "PAG-VIA-1772784790877-b0yw40",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-03-06T00:00:00.000Z",
+        "_seconds": 1772755200
+      },
+      "monedaPago": "USD",
+      "montoOriginal": 40,
+      "montoUSD": 40,
+      "montoPEN": 138.76,
+      "tipoCambio": 3.469,
+      "metodoPago": "transferencia_bancaria",
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "fechaRegistro": {
+        "_type": "timestamp",
+        "iso": "2026-03-06T08:13:10.000Z",
+        "_seconds": 1772784790
+      },
+      "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+      "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+      "movimientoTesoreriaId": "laMyU4vZyDXvmHhDB9SF"
+    },
+    "tipo": "internacional_peru",
+    "tipoLegacy": "usa_peru",
+    "paisOrigen": "USA",
+    "unidades": [
+      {
+        "sku": "SUP-0060",
+        "codigoUnidad": "BMN-0060-OC-OC-2026-002",
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:25.000Z",
+          "_seconds": 1800322405
+        },
+        "unidadId": "2BbmC7P4W9h291MTyvlW",
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "lote": "OC-OC-2026-002",
+        "costoFleteUSD": 5
+      },
+      {
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "codigoUnidad": "BMN-0060-OC-OC-2026-002",
+        "unidadId": "8GdwrljfZUgXIKYlqQzs",
+        "sku": "SUP-0060",
+        "lote": "OC-OC-2026-002",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:25.000Z",
+          "_seconds": 1800322405
+        },
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5
+      },
+      {
+        "costoFleteUSD": 5,
+        "codigoUnidad": "BMN-0060-OC-OC-2026-002",
+        "lote": "OC-OC-2026-002",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:25.000Z",
+          "_seconds": 1800322405
+        },
+        "sku": "SUP-0060",
+        "unidadId": "ejhr5ElLnmgoTrO6Lpo4",
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "costoFleteUSD": 5,
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "sku": "SUP-0060",
+        "codigoUnidad": "BMN-0060-OC-OC-2026-002",
+        "estadoTransferencia": "recibida",
+        "unidadId": "hOTUR7bTavsuZBAwPkc9",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:25.000Z",
+          "_seconds": 1800322405
+        },
+        "lote": "OC-OC-2026-002"
+      },
+      {
+        "lote": "OC-OC-2026-002",
+        "costoFleteUSD": 5,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:24.000Z",
+          "_seconds": 1800322404
+        },
+        "sku": "SUP-0117",
+        "unidadId": "4jLOHq8Hov5LRXDr6FEh",
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "codigoUnidad": "BMN-0117-OC-OC-2026-002",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:27.000Z",
+          "_seconds": 1800322407
+        },
+        "lote": "OC-OC-2026-002",
+        "unidadId": "7iYOlAC6KR3440uOCNPc",
+        "costoFleteUSD": 5,
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "sku": "SUP-0063",
+        "codigoUnidad": "BMN-0063-OC-OC-2026-002"
+      },
+      {
+        "unidadId": "T50tN9SAONzN9iJXmUC8",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:27.000Z",
+          "_seconds": 1800322407
+        },
+        "costoFleteUSD": 5,
+        "sku": "SUP-0063",
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-002",
+        "codigoUnidad": "BMN-0063-OC-OC-2026-002",
+        "productoId": "YkrUxQlBTzmsB1MQP2nf"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "costoFleteUSD": 5,
+        "sku": "SUP-0063",
+        "codigoUnidad": "BMN-0063-OC-OC-2026-002",
+        "unidadId": "dvmdqf1fq6PUo9z7S3rY",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:27.000Z",
+          "_seconds": 1800322407
+        },
+        "lote": "OC-OC-2026-002"
+      },
+      {
+        "unidadId": "AEdeK5ndb2udcwEX0h1Q",
+        "lote": "OC-OC-2026-002",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:29.000Z",
+          "_seconds": 1800322409
+        },
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "SUP-0052",
+        "codigoUnidad": "BMN-0052-OC-OC-2026-002",
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "costoFleteUSD": 5,
+        "codigoUnidad": "BMN-0052-OC-OC-2026-002",
+        "estadoTransferencia": "recibida",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "SUP-0052",
+        "unidadId": "W6VIuZN2WeqTH2hxH4Cc",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:29.000Z",
+          "_seconds": 1800322409
+        },
+        "lote": "OC-OC-2026-002"
+      },
+      {
+        "unidadId": "Hu8CmQIUsXeVJAG8JrcR",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-002",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:28.000Z",
+          "_seconds": 1800322408
+        },
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5,
+        "lote": "OC-OC-2026-002",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123"
+      },
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "unidadId": "IQcHVzWgOs8323eiOMN3",
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "recibida",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-002",
+        "sku": "SUP-0123",
+        "lote": "OC-OC-2026-002",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:28.000Z",
+          "_seconds": 1800322408
+        }
+      },
+      {
+        "codigoUnidad": "BMN-0123-OC-OC-2026-002",
+        "costoFleteUSD": 5,
+        "lote": "OC-OC-2026-002",
+        "unidadId": "gaCefs78GVQ4J5PAUNGw",
+        "sku": "SUP-0123",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:28.000Z",
+          "_seconds": 1800322408
+        },
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:26.000Z",
+          "_seconds": 1800322406
+        },
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "codigoUnidad": "BMN-0118-OC-OC-2026-002",
+        "unidadId": "OWduyS89Xqdz7oMVOPiU",
+        "costoFleteUSD": 5,
+        "sku": "SUP-0118",
+        "lote": "OC-OC-2026-002",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "unidadId": "xaedM2jB3CJePPoWB7tK",
+        "codigoUnidad": "BMN-0118-OC-OC-2026-002",
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0118",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:26.000Z",
+          "_seconds": 1800322406
+        },
+        "lote": "OC-OC-2026-002",
+        "productoId": "x2PZdgiMDsum9EL3zdVw"
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-01-19T01:33:25.000Z",
+          "_seconds": 1800322405
+        },
+        "lote": "OC-OC-2026-002",
+        "sku": "SUP-0026",
+        "productoId": "Hc6nsorCzjmBoa2Rctgw",
+        "unidadId": "ut58q8UM0p3XybkYy3Z5",
+        "codigoUnidad": "BMN-0026-OC-OC-2026-002",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5
+      }
+    ]
+  },
+  {
+    "_id": "ar12Rr2uwXjeQot09be4",
+    "numeroTransferencia": "ENV-2026-011",
+    "almacenOrigenId": "WkGJXUBgZEzho8QxGk2V",
+    "almacenOrigenNombre": "Isabel (Amiga de Angie)",
+    "almacenOrigenCodigo": "VIA-008",
+    "almacenDestinoId": "E0YWnoD1a5vdoAbMrg7Y",
+    "almacenDestinoNombre": "Jose Luis Pinto Toscano",
+    "almacenDestinoCodigo": "ALM-PE-001",
+    "totalUnidades": 28,
+    "productosSummary": [
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "BMN-0117",
+        "nombre": "CoQ10",
+        "cantidad": 2
+      },
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "nombre": "Berberina",
+        "cantidad": 6
+      },
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "nombre": "Melena de León",
+        "cantidad": 2
+      },
+      {
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "sku": "BMN-0057",
+        "nombre": "Vitamina B12",
+        "cantidad": 6
+      },
+      {
+        "productoId": "3O3ecZ0fNfNu76r1CpUs",
+        "sku": "BMN-0007",
+        "nombre": "Melatonina",
+        "cantidad": 2
+      },
+      {
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "sku": "BMN-0054",
+        "nombre": "D3 + K2",
+        "cantidad": 4
+      },
+      {
+        "productoId": "XLePXD9pIQbYTlsVe7uX",
+        "sku": "BMN-0059",
+        "nombre": "Cápsulas de Aceite de Semilla de Calabaza",
+        "cantidad": 1
+      },
+      {
+        "productoId": "YpMdltCdRfYtnqMA6vYA",
+        "sku": "BMN-0126",
+        "nombre": "Triple Magnesium Complex",
+        "cantidad": 2
+      },
+      {
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "sku": "BMN-0082",
+        "nombre": "Gomitas de Melatonina para Niños",
+        "cantidad": 2
+      },
+      {
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "sku": "BMN-0088",
+        "nombre": "Omega 3",
+        "cantidad": 1
+      }
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:29:15.000Z",
+      "_seconds": 1773278955
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "costoFleteTotal": 0,
+    "monedaFlete": "USD",
+    "fechaPreparacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:29:22.000Z",
+      "_seconds": 1773278962
+    },
+    "actualizadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:29:32.000Z",
+      "_seconds": 1773278972
+    },
+    "totalUnidadesDanadas": 0,
+    "fechaLlegadaReal": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:33:40.000Z",
+      "_seconds": 1773279220
+    },
+    "tipo": "internacional_peru",
+    "tipoLegacy": "usa_peru",
+    "paisOrigen": "USA",
+    "recepcionesTransferencia": [
+      {
+        "unidadesRecibidas": 1,
+        "unidadesEsperadas": 28,
+        "unidadesFaltantes": 27,
+        "fechaRecepcion": {
+          "_type": "timestamp",
+          "iso": "2026-03-12T01:33:40.000Z",
+          "_seconds": 1773279220
+        },
+        "unidadesDanadas": 0,
+        "unidadesProcesadas": [
+          {
+            "unidadId": "2RGsAVrLnBP9PCix9Gkb",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "SWSch7tKPU52lcsoBJOw",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "4zL6bx9GVeOUXwybsGHI",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "L5bmSUlhvyymn7wYVXee"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "OvkAuL3ZyUig3fVN4T4D"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "c8lF5SUP8atsdchHGcFD"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "nU9MrD96CTGHli3VUgjB"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "ns4LxuY3N6ybX84NaTCj"
+          },
+          {
+            "unidadId": "7X4LqOUXJHocaOt1QI71",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "8VfJSLNsMGtv87qe8s41",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "8iB7ZiT8nAtzIWKcK7br"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "H3sSeC2IIVzOMwvSTgTJ"
+          },
+          {
+            "unidadId": "UEREY9UTm5jjaDJLWb8I",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "hrZzbb855hi0yM7P1yL9"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "uS2LkiACLZ8Zp8Hg6fPC"
+          },
+          {
+            "unidadId": "xvIdsDwaNqFoxxwzY0K7",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "AbSd47FWTBOiqQEGXf2c",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "hAjOnXM81Nv5FgmzmdJF",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "GWkjMzb48Unyub7lH0N5"
+          },
+          {
+            "unidadId": "dM9IDwIzauhAXtI1TlsY",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "smNvtRfBvUnLZ0pMtRfu",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "vFzvFwqfPmCkchOTmxHF",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "K52ji10xf4lWPCTkCosO",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "K7i7JGfL45w3SZqxjRxA",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "ucL7XhZjUsDeHFZi7e9o"
+          },
+          {
+            "unidadId": "Lk8qnhHzaEVdbsgvgQn0",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "QlZEgvTUmpLoy1n1CGgh",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "PpwAWL0ouOkV6X6lzO8R"
+          }
+        ],
+        "numero": 1,
+        "id": "REC-TRF-1773279232749-5dvjde",
+        "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+      },
+      {
+        "unidadesEsperadas": 28,
+        "unidadesFaltantes": 23,
+        "fechaRecepcion": {
+          "_type": "timestamp",
+          "iso": "2026-03-12T01:35:30.000Z",
+          "_seconds": 1773279330
+        },
+        "unidadesRecibidas": 4,
+        "id": "REC-TRF-1773279342133-plsopv",
+        "numero": 2,
+        "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "unidadesDanadas": 0,
+        "unidadesProcesadas": [
+          {
+            "resultado": "faltante",
+            "unidadId": "2RGsAVrLnBP9PCix9Gkb"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "SWSch7tKPU52lcsoBJOw"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "4zL6bx9GVeOUXwybsGHI"
+          },
+          {
+            "unidadId": "L5bmSUlhvyymn7wYVXee",
+            "resultado": "recibida"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "OvkAuL3ZyUig3fVN4T4D"
+          },
+          {
+            "unidadId": "c8lF5SUP8atsdchHGcFD",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "nU9MrD96CTGHli3VUgjB"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "ns4LxuY3N6ybX84NaTCj"
+          },
+          {
+            "unidadId": "7X4LqOUXJHocaOt1QI71",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "8VfJSLNsMGtv87qe8s41"
+          },
+          {
+            "unidadId": "8iB7ZiT8nAtzIWKcK7br",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "H3sSeC2IIVzOMwvSTgTJ",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "UEREY9UTm5jjaDJLWb8I",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "hrZzbb855hi0yM7P1yL9",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "uS2LkiACLZ8Zp8Hg6fPC"
+          },
+          {
+            "unidadId": "xvIdsDwaNqFoxxwzY0K7",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "AbSd47FWTBOiqQEGXf2c"
+          },
+          {
+            "unidadId": "hAjOnXM81Nv5FgmzmdJF",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "GWkjMzb48Unyub7lH0N5",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "dM9IDwIzauhAXtI1TlsY",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "smNvtRfBvUnLZ0pMtRfu"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "vFzvFwqfPmCkchOTmxHF"
+          },
+          {
+            "unidadId": "K7i7JGfL45w3SZqxjRxA",
+            "resultado": "faltante"
+          },
+          {
+            "unidadId": "ucL7XhZjUsDeHFZi7e9o",
+            "resultado": "faltante"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "Lk8qnhHzaEVdbsgvgQn0"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "QlZEgvTUmpLoy1n1CGgh"
+          },
+          {
+            "unidadId": "PpwAWL0ouOkV6X6lzO8R",
+            "resultado": "faltante"
+          }
+        ]
+      },
+      {
+        "id": "REC-TRF-1773798306657-fd9cxf",
+        "numero": 3,
+        "fechaRecepcion": {
+          "_type": "timestamp",
+          "iso": "2026-03-18T01:45:00.000Z",
+          "_seconds": 1773798300
+        },
+        "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "unidadesEsperadas": 28,
+        "unidadesRecibidas": 23,
+        "unidadesFaltantes": 0,
+        "unidadesDanadas": 0,
+        "unidadesProcesadas": [
+          {
+            "unidadId": "2RGsAVrLnBP9PCix9Gkb",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "SWSch7tKPU52lcsoBJOw",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "c8lF5SUP8atsdchHGcFD",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "nU9MrD96CTGHli3VUgjB",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "ns4LxuY3N6ybX84NaTCj",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "7X4LqOUXJHocaOt1QI71",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "8VfJSLNsMGtv87qe8s41",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "8iB7ZiT8nAtzIWKcK7br",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "H3sSeC2IIVzOMwvSTgTJ",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "UEREY9UTm5jjaDJLWb8I",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "hrZzbb855hi0yM7P1yL9",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "uS2LkiACLZ8Zp8Hg6fPC",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "xvIdsDwaNqFoxxwzY0K7",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "AbSd47FWTBOiqQEGXf2c",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "hAjOnXM81Nv5FgmzmdJF",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "GWkjMzb48Unyub7lH0N5",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "dM9IDwIzauhAXtI1TlsY",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "smNvtRfBvUnLZ0pMtRfu",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "vFzvFwqfPmCkchOTmxHF",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "K7i7JGfL45w3SZqxjRxA",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "ucL7XhZjUsDeHFZi7e9o",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "QlZEgvTUmpLoy1n1CGgh",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "PpwAWL0ouOkV6X6lzO8R",
+            "resultado": "recibida"
+          }
+        ]
+      }
+    ],
+    "totalUnidadesFaltantes": 0,
+    "estado": "recibida_completa",
+    "unidades": [
+      {
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0117",
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "lote": "OC-OC-2026-014",
+        "unidadId": "2RGsAVrLnBP9PCix9Gkb",
+        "codigoUnidad": "BMN-0117-OC-OC-2026-014",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:04.000Z",
+          "_seconds": 1804814884
+        },
+        "costoFleteUSD": 0
+      },
+      {
+        "lote": "OC-OC-2026-014",
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "unidadId": "SWSch7tKPU52lcsoBJOw",
+        "sku": "SUP-0117",
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:04.000Z",
+          "_seconds": 1804814884
+        },
+        "costoFleteUSD": 0,
+        "codigoUnidad": "BMN-0117-OC-OC-2026-014"
+      },
+      {
+        "codigoUnidad": "BMN-0118-OC-OC-2026-014",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:03.000Z",
+          "_seconds": 1804814883
+        },
+        "sku": "SUP-0118",
+        "estadoTransferencia": "recibida",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "unidadId": "4zL6bx9GVeOUXwybsGHI",
+        "lote": "OC-OC-2026-014"
+      },
+      {
+        "codigoUnidad": "BMN-0118-OC-OC-2026-014",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:03.000Z",
+          "_seconds": 1804814883
+        },
+        "sku": "SUP-0118",
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-014",
+        "unidadId": "L5bmSUlhvyymn7wYVXee",
+        "productoId": "x2PZdgiMDsum9EL3zdVw"
+      },
+      {
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:03.000Z",
+          "_seconds": 1804814883
+        },
+        "codigoUnidad": "BMN-0118-OC-OC-2026-014",
+        "unidadId": "OvkAuL3ZyUig3fVN4T4D",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "lote": "OC-OC-2026-014",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0118"
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:03.000Z",
+          "_seconds": 1804814883
+        },
+        "costoFleteUSD": 0,
+        "codigoUnidad": "BMN-0118-OC-OC-2026-014",
+        "unidadId": "c8lF5SUP8atsdchHGcFD",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "lote": "OC-OC-2026-014",
+        "sku": "SUP-0118",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "codigoUnidad": "BMN-0118-OC-OC-2026-014",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:03.000Z",
+          "_seconds": 1804814883
+        },
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0118",
+        "unidadId": "nU9MrD96CTGHli3VUgjB",
+        "lote": "OC-OC-2026-014",
+        "productoId": "x2PZdgiMDsum9EL3zdVw"
+      },
+      {
+        "unidadId": "ns4LxuY3N6ybX84NaTCj",
+        "lote": "OC-OC-2026-014",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:03.000Z",
+          "_seconds": 1804814883
+        },
+        "codigoUnidad": "BMN-0118-OC-OC-2026-014"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0052",
+        "unidadId": "7X4LqOUXJHocaOt1QI71",
+        "lote": "OC-OC-2026-014",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "codigoUnidad": "BMN-0052-OC-OC-2026-014",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:03.000Z",
+          "_seconds": 1804814883
+        },
+        "costoFleteUSD": 0
+      },
+      {
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:03.000Z",
+          "_seconds": 1804814883
+        },
+        "codigoUnidad": "BMN-0052-OC-OC-2026-014",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "lote": "OC-OC-2026-014",
+        "unidadId": "8VfJSLNsMGtv87qe8s41",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0052"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0057",
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "unidadId": "8iB7ZiT8nAtzIWKcK7br",
+        "lote": "OC-OC-2026-014",
+        "codigoUnidad": "BMN-0057-OC-OC-2026-014",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:06.000Z",
+          "_seconds": 1804814886
+        },
+        "costoFleteUSD": 0
+      },
+      {
+        "codigoUnidad": "BMN-0057-OC-OC-2026-014",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:06.000Z",
+          "_seconds": 1804814886
+        },
+        "sku": "SUP-0057",
+        "estadoTransferencia": "recibida",
+        "unidadId": "H3sSeC2IIVzOMwvSTgTJ",
+        "lote": "OC-OC-2026-014",
+        "productoId": "XBd57B5pUvq7yATdourU"
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:06.000Z",
+          "_seconds": 1804814886
+        },
+        "costoFleteUSD": 0,
+        "codigoUnidad": "BMN-0057-OC-OC-2026-014",
+        "lote": "OC-OC-2026-014",
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "unidadId": "UEREY9UTm5jjaDJLWb8I",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0057"
+      },
+      {
+        "sku": "SUP-0057",
+        "estadoTransferencia": "recibida",
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "lote": "OC-OC-2026-014",
+        "unidadId": "hrZzbb855hi0yM7P1yL9",
+        "codigoUnidad": "BMN-0057-OC-OC-2026-014",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:06.000Z",
+          "_seconds": 1804814886
+        },
+        "costoFleteUSD": 0
+      },
+      {
+        "unidadId": "uS2LkiACLZ8Zp8Hg6fPC",
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "lote": "OC-OC-2026-014",
+        "sku": "SUP-0057",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:06.000Z",
+          "_seconds": 1804814886
+        },
+        "codigoUnidad": "BMN-0057-OC-OC-2026-014"
+      },
+      {
+        "unidadId": "xvIdsDwaNqFoxxwzY0K7",
+        "lote": "OC-OC-2026-014",
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0057",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:06.000Z",
+          "_seconds": 1804814886
+        },
+        "costoFleteUSD": 0,
+        "codigoUnidad": "BMN-0057-OC-OC-2026-014"
+      },
+      {
+        "codigoUnidad": "BMN-0007-OC-OC-2026-014",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:08.000Z",
+          "_seconds": 1804814888
+        },
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0007",
+        "unidadId": "AbSd47FWTBOiqQEGXf2c",
+        "productoId": "3O3ecZ0fNfNu76r1CpUs",
+        "lote": "OC-OC-2026-014"
+      },
+      {
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:08.000Z",
+          "_seconds": 1804814888
+        },
+        "codigoUnidad": "BMN-0007-OC-OC-2026-014",
+        "lote": "OC-OC-2026-014",
+        "unidadId": "hAjOnXM81Nv5FgmzmdJF",
+        "productoId": "3O3ecZ0fNfNu76r1CpUs",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0007"
+      },
+      {
+        "codigoUnidad": "BMN-0054-OC-OC-2026-014",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:05.000Z",
+          "_seconds": 1804814885
+        },
+        "sku": "SUP-0054",
+        "estadoTransferencia": "recibida",
+        "unidadId": "GWkjMzb48Unyub7lH0N5",
+        "lote": "OC-OC-2026-014",
+        "productoId": "UkAyIBBPihxhR8yRscDX"
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:05.000Z",
+          "_seconds": 1804814885
+        },
+        "costoFleteUSD": 0,
+        "codigoUnidad": "BMN-0054-OC-OC-2026-014",
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "unidadId": "dM9IDwIzauhAXtI1TlsY",
+        "lote": "OC-OC-2026-014",
+        "sku": "SUP-0054",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:05.000Z",
+          "_seconds": 1804814885
+        },
+        "codigoUnidad": "BMN-0054-OC-OC-2026-014",
+        "lote": "OC-OC-2026-014",
+        "unidadId": "smNvtRfBvUnLZ0pMtRfu",
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "sku": "SUP-0054",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "sku": "SUP-0054",
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-014",
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "unidadId": "vFzvFwqfPmCkchOTmxHF",
+        "codigoUnidad": "BMN-0054-OC-OC-2026-014",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:05.000Z",
+          "_seconds": 1804814885
+        }
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:08.000Z",
+          "_seconds": 1804814888
+        },
+        "costoFleteUSD": 0,
+        "codigoUnidad": "BMN-0059-OC-OC-2026-014",
+        "unidadId": "K52ji10xf4lWPCTkCosO",
+        "productoId": "XLePXD9pIQbYTlsVe7uX",
+        "lote": "OC-OC-2026-014",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0059"
+      },
+      {
+        "codigoUnidad": "BMN-0126-OC-OC-2026-014",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:09.000Z",
+          "_seconds": 1804814889
+        },
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0126",
+        "lote": "OC-OC-2026-014",
+        "productoId": "YpMdltCdRfYtnqMA6vYA",
+        "unidadId": "K7i7JGfL45w3SZqxjRxA"
+      },
+      {
+        "productoId": "YpMdltCdRfYtnqMA6vYA",
+        "lote": "OC-OC-2026-014",
+        "unidadId": "ucL7XhZjUsDeHFZi7e9o",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0126",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:09.000Z",
+          "_seconds": 1804814889
+        },
+        "codigoUnidad": "BMN-0126-OC-OC-2026-014"
+      },
+      {
+        "codigoUnidad": "BMN-0082-OC-OC-2026-014",
+        "costoFleteUSD": 0,
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:07.000Z",
+          "_seconds": 1804814887
+        },
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0082",
+        "unidadId": "Lk8qnhHzaEVdbsgvgQn0",
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "lote": "OC-OC-2026-014"
+      },
+      {
+        "codigoUnidad": "BMN-0082-OC-OC-2026-014",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:07.000Z",
+          "_seconds": 1804814887
+        },
+        "costoFleteUSD": 0,
+        "sku": "SUP-0082",
+        "estadoTransferencia": "recibida",
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "lote": "OC-OC-2026-014",
+        "unidadId": "QlZEgvTUmpLoy1n1CGgh"
+      },
+      {
+        "codigoUnidad": "BMN-0088-OC-OC-2026-014",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-12T01:28:06.000Z",
+          "_seconds": 1804814886
+        },
+        "costoFleteUSD": 0,
+        "sku": "SUP-0088",
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-014",
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "unidadId": "PpwAWL0ouOkV6X6lzO8R"
+      }
+    ],
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-18T01:45:00.000Z",
+      "_seconds": 1773798300
+    },
+    "recepcion": {
+      "fechaRecepcion": {
+        "_type": "timestamp",
+        "iso": "2026-03-18T01:45:00.000Z",
+        "_seconds": 1773798300
+      },
+      "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "unidadesEsperadas": 28,
+      "unidadesRecibidas": 28,
+      "unidadesFaltantes": 0,
+      "unidadesDanadas": 0
+    },
+    "totalUnidadesRecibidas": 28,
+    "diasEnTransito": 7
+  },
+  {
+    "_id": "kw2oOxZPKfm3kIA12ElF",
+    "numeroTransferencia": "ENV-2026-009",
+    "almacenOrigenId": "TJRB5PEKQSfXu0WIjnaK",
+    "almacenOrigenNombre": "Anghely Henriquez",
+    "almacenOrigenCodigo": "VIA-001",
+    "almacenDestinoId": "E0YWnoD1a5vdoAbMrg7Y",
+    "almacenDestinoNombre": "Jose Luis Pinto Toscano",
+    "almacenDestinoCodigo": "ALM-PE-001",
+    "totalUnidades": 34,
+    "productosSummary": [
+      {
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "sku": "BMN-0063",
+        "nombre": "Alaska Omega 3",
+        "cantidad": 4
+      },
+      {
+        "productoId": "pusBFJ6IEHwsEfZJk9ad",
+        "sku": "BMN-0132",
+        "nombre": "Omega 3",
+        "cantidad": 1
+      },
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "BMN-0117",
+        "nombre": "CoQ10",
+        "cantidad": 2
+      },
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "nombre": "Berberina",
+        "cantidad": 4
+      },
+      {
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "sku": "BMN-0066",
+        "nombre": "DHA para Bebés",
+        "cantidad": 2
+      },
+      {
+        "productoId": "GsRcmGnBCvDqItBFwBop",
+        "sku": "BMN-0125",
+        "nombre": "Magnesium Complex",
+        "cantidad": 1
+      },
+      {
+        "productoId": "CnX6JddWDI96rxPaKckx",
+        "sku": "BMN-0131",
+        "nombre": "Magnesio Glicinato",
+        "cantidad": 1
+      },
+      {
+        "productoId": "RcNhEpQQYf0Op8GQhQVh",
+        "sku": "BMN-0129",
+        "nombre": "D3 + K2",
+        "cantidad": 2
+      },
+      {
+        "productoId": "0lj2gv5pFrVzy31ttTHx",
+        "sku": "BMN-0003",
+        "nombre": "Magnesio Bisglicinato",
+        "cantidad": 2
+      },
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "nombre": "Magnesio Glicinato",
+        "cantidad": 6
+      },
+      {
+        "productoId": "SUHKb5zZf7PBJBfiRD7H",
+        "sku": "BMN-0050",
+        "nombre": "Ultimate Omega Teen",
+        "cantidad": 1
+      },
+      {
+        "productoId": "Y8QSJkux0TRbfpyR1ZDU",
+        "sku": "BMN-0061",
+        "nombre": "Myo Inositol",
+        "cantidad": 1
+      },
+      {
+        "productoId": "W7iAr3D0VU1uVynM29cv",
+        "sku": "BMN-0056",
+        "nombre": "Complejo B",
+        "cantidad": 2
+      },
+      {
+        "productoId": "SJy7nOtm5ZxeXnECz4sr",
+        "sku": "BMN-0048",
+        "nombre": "Ultimate Omega Kids",
+        "cantidad": 1
+      },
+      {
+        "productoId": "fTddWPfJ60hwXBGRZfwa",
+        "sku": "BMN-0128",
+        "nombre": "Vitamina C Liposomal",
+        "cantidad": 1
+      },
+      {
+        "productoId": "VPe8d0O6AWtv9rS4f2X8",
+        "sku": "BMN-0130",
+        "nombre": "Myo Inositol",
+        "cantidad": 1
+      },
+      {
+        "productoId": "Hc6nsorCzjmBoa2Rctgw",
+        "sku": "BMN-0026",
+        "nombre": "Magnesio Glicinato",
+        "cantidad": 1
+      },
+      {
+        "productoId": "YpMdltCdRfYtnqMA6vYA",
+        "sku": "BMN-0126",
+        "nombre": "Triple Magnesium Complex",
+        "cantidad": 1
+      }
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:01:31.000Z",
+      "_seconds": 1772643691
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "monedaFlete": "USD",
+    "viajeroId": "TJRB5PEKQSfXu0WIjnaK",
+    "viajeroNombre": "Anghely Henriquez",
+    "fechaPreparacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:16:14.000Z",
+      "_seconds": 1772644574
+    },
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:16:24.000Z",
+      "_seconds": 1772644584
+    },
+    "totalUnidadesDanadas": 0,
+    "fechaLlegadaReal": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T06:12:39.000Z",
+      "_seconds": 1772777559
+    },
+    "costoFleteTotal": 161.5,
+    "montoPagadoUSD": 161.5,
+    "montoPendienteUSD": 0,
+    "estadoPagoViajero": "pagado",
+    "pagosViajero": [
+      {
+        "id": "PAG-VIA-1773120793530-eo1n9l",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T00:00:00.000Z",
+          "_seconds": 1773100800
+        },
+        "monedaPago": "USD",
+        "montoOriginal": 161.5,
+        "montoUSD": 161.5,
+        "montoPEN": 564.2810000000001,
+        "tipoCambio": 3.494,
+        "metodoPago": "transferencia_bancaria",
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T05:33:13.000Z",
+          "_seconds": 1773120793
+        },
+        "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+        "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+        "notas": "Pago a Anghely - Cuenta Scotia Baesk Total abono de $226",
+        "movimientoTesoreriaId": "gXScseCdj8zg586auO5t"
+      }
+    ],
+    "pagoViajero": {
+      "id": "PAG-VIA-1773120793530-eo1n9l",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-03-10T00:00:00.000Z",
+        "_seconds": 1773100800
+      },
+      "monedaPago": "USD",
+      "montoOriginal": 161.5,
+      "montoUSD": 161.5,
+      "montoPEN": 564.2810000000001,
+      "tipoCambio": 3.494,
+      "metodoPago": "transferencia_bancaria",
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "fechaRegistro": {
+        "_type": "timestamp",
+        "iso": "2026-03-10T05:33:13.000Z",
+        "_seconds": 1773120793
+      },
+      "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+      "cuentaOrigenNombre": "Cuenta BCP - Jossie",
+      "notas": "Pago a Anghely - Cuenta Scotia Baesk Total abono de $226",
+      "movimientoTesoreriaId": "gXScseCdj8zg586auO5t"
+    },
+    "recepcionesTransferencia": [
+      {
+        "unidadesRecibidas": 28,
+        "unidadesProcesadas": [
+          {
+            "resultado": "recibida",
+            "unidadId": "4RhscirAOYCaq9zAmzJh"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "5BuoSlpqAYF3K0DvLYL1"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "dGmZDZkrbejdqFKrJuFj"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "vVBiNIvxKi3N0V57FmOd"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "6UqHZ4z9oXdx35z1TILf"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "8HeXOGJdXLYVK5eYtz4t"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "Sg3eH4O6DykOLYGu5SwL"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "9OHnMS5t8ROY1KpxpsX6"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "BCNfD31P8HoTTYPHkpUo"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "oPsbxKesANZFdTzoyFBu"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "zLUGn9gtjT6VxG63jY20"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "CyzOr4PPRM5bjTPgeZNf"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "mnJnV5pqcGBSrADOs98W"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "HXKjSAowvfk0TSnEWP2x"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "I90uQXdgM1fdwVVssGVv"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "IDLx1uQlR2sOheaAYQlR"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "KlHT8wpmyDVPkdiSNkDn"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "Ik2o56szFBSCTrU4cHon"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "chCgbGVIqBjz4dTiNmy7"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "Jyh9uXFtT8esZn6smwjY"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "Kvy8JKObCdnmWCWdZDaA"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "M7Z1R8bL8UXaHEiVtGVZ"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "R8iE2jbxoLhqEdMsbjKT"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "j0k2s0tPVb1uiezxqacP"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "zSftNciHKLpqNcJnNTRz"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "OOAbxBhKBzT5zNO3XPAf"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "Sohdfn6qBEnmrL8zjpNS"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "Xfye89oMptnFvqjEb4Po"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "Xox89XgjQg1wOAnFJxkn"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "lLV8AZUhBiOlIZpqBuyI"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "qDNISwm9lcQJuLUmf5Tk"
+          },
+          {
+            "resultado": "faltante",
+            "unidadId": "rT9hDErEaKZwKZOF1fbn"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "upkUPVlZ5ZTCtckBYqtO"
+          },
+          {
+            "resultado": "recibida",
+            "unidadId": "zzm7m5CSfxC9Jgxgl5FR"
+          }
+        ],
+        "id": "REC-TRF-1772777566354-dpe8mg",
+        "unidadesFaltantes": 6,
+        "unidadesEsperadas": 34,
+        "numero": 1,
+        "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "unidadesDanadas": 0,
+        "fechaRecepcion": {
+          "_type": "timestamp",
+          "iso": "2026-03-06T06:12:39.000Z",
+          "_seconds": 1772777559
+        }
+      },
+      {
+        "id": "REC-TRF-1773522172127-qoekgq",
+        "numero": 2,
+        "fechaRecepcion": {
+          "_type": "timestamp",
+          "iso": "2026-03-14T21:02:50.000Z",
+          "_seconds": 1773522170
+        },
+        "recibidoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+        "unidadesEsperadas": 34,
+        "unidadesRecibidas": 6,
+        "unidadesFaltantes": 0,
+        "unidadesDanadas": 0,
+        "unidadesProcesadas": [
+          {
+            "unidadId": "6UqHZ4z9oXdx35z1TILf",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "KlHT8wpmyDVPkdiSNkDn",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "zSftNciHKLpqNcJnNTRz",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "Sohdfn6qBEnmrL8zjpNS",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "Xox89XgjQg1wOAnFJxkn",
+            "resultado": "recibida"
+          },
+          {
+            "unidadId": "rT9hDErEaKZwKZOF1fbn",
+            "resultado": "recibida"
+          }
+        ]
+      }
+    ],
+    "totalUnidadesFaltantes": 0,
+    "estado": "recibida_completa",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:02:50.000Z",
+      "_seconds": 1773522170
+    },
+    "recepcion": {
+      "fechaRecepcion": {
+        "_type": "timestamp",
+        "iso": "2026-03-14T21:02:50.000Z",
+        "_seconds": 1773522170
+      },
+      "recibidoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+      "unidadesEsperadas": 34,
+      "unidadesRecibidas": 34,
+      "unidadesFaltantes": 0,
+      "unidadesDanadas": 0
+    },
+    "actualizadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "totalUnidadesRecibidas": 34,
+    "diasEnTransito": 11,
+    "tipo": "internacional_peru",
+    "tipoLegacy": "usa_peru",
+    "paisOrigen": "USA",
+    "unidades": [
+      {
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0063-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:15.000Z",
+          "_seconds": 1803358215
+        },
+        "estadoTransferencia": "recibida",
+        "unidadId": "4RhscirAOYCaq9zAmzJh",
+        "sku": "SUP-0063",
+        "costoFleteUSD": 4.5,
+        "productoId": "YkrUxQlBTzmsB1MQP2nf"
+      },
+      {
+        "sku": "SUP-0063",
+        "costoFleteUSD": 4.5,
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "codigoUnidad": "BMN-0063-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:15.000Z",
+          "_seconds": 1803358215
+        },
+        "lote": "OC-OC-2026-007",
+        "unidadId": "5BuoSlpqAYF3K0DvLYL1",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "unidadId": "dGmZDZkrbejdqFKrJuFj",
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:15.000Z",
+          "_seconds": 1803358215
+        },
+        "codigoUnidad": "BMN-0063-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007",
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "costoFleteUSD": 4.5,
+        "sku": "SUP-0063"
+      },
+      {
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:15.000Z",
+          "_seconds": 1803358215
+        },
+        "codigoUnidad": "BMN-0063-OC-OC-2026-007",
+        "estadoTransferencia": "recibida",
+        "unidadId": "vVBiNIvxKi3N0V57FmOd",
+        "costoFleteUSD": 4.5,
+        "sku": "SUP-0063",
+        "productoId": "YkrUxQlBTzmsB1MQP2nf"
+      },
+      {
+        "sku": "SUP-0132",
+        "costoFleteUSD": 10,
+        "productoId": "pusBFJ6IEHwsEfZJk9ad",
+        "codigoUnidad": "BMN-0132-OC-OC-2026-010",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-03-03T04:40:23.000Z",
+          "_seconds": 1804048823
+        },
+        "lote": "OC-OC-2026-010",
+        "estadoTransferencia": "recibida",
+        "unidadId": "6UqHZ4z9oXdx35z1TILf"
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:13.000Z",
+          "_seconds": 1803358213
+        },
+        "codigoUnidad": "BMN-0117-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007",
+        "unidadId": "8HeXOGJdXLYVK5eYtz4t",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0117",
+        "costoFleteUSD": 3,
+        "productoId": "wvujLliOFs2nVCXuXrs9"
+      },
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "costoFleteUSD": 3,
+        "sku": "SUP-0117",
+        "unidadId": "Sg3eH4O6DykOLYGu5SwL",
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:13.000Z",
+          "_seconds": 1803358213
+        },
+        "codigoUnidad": "BMN-0117-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007"
+      },
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:10.000Z",
+          "_seconds": 1803358210
+        },
+        "codigoUnidad": "BMN-0118-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007",
+        "estadoTransferencia": "recibida",
+        "unidadId": "9OHnMS5t8ROY1KpxpsX6",
+        "sku": "SUP-0118",
+        "costoFleteUSD": 3,
+        "productoId": "x2PZdgiMDsum9EL3zdVw"
+      },
+      {
+        "sku": "SUP-0118",
+        "costoFleteUSD": 3,
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "codigoUnidad": "BMN-0118-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:10.000Z",
+          "_seconds": 1803358210
+        },
+        "lote": "OC-OC-2026-007",
+        "unidadId": "BCNfD31P8HoTTYPHkpUo",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "unidadId": "oPsbxKesANZFdTzoyFBu",
+        "estadoTransferencia": "recibida",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:10.000Z",
+          "_seconds": 1803358210
+        },
+        "codigoUnidad": "BMN-0118-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "costoFleteUSD": 3,
+        "sku": "SUP-0118"
+      },
+      {
+        "sku": "SUP-0118",
+        "costoFleteUSD": 3,
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0118-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:10.000Z",
+          "_seconds": 1803358210
+        },
+        "unidadId": "zLUGn9gtjT6VxG63jY20",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "costoFleteUSD": 3,
+        "sku": "SUP-0066",
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-25T22:57:33.000Z",
+          "_seconds": 1803596253
+        },
+        "codigoUnidad": "BMN-0066-OC-OC-2026-008",
+        "lote": "OC-OC-2026-008",
+        "estadoTransferencia": "recibida",
+        "unidadId": "CyzOr4PPRM5bjTPgeZNf"
+      },
+      {
+        "codigoUnidad": "BMN-0066-OC-OC-2026-008",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-25T22:57:33.000Z",
+          "_seconds": 1803596253
+        },
+        "lote": "OC-OC-2026-008",
+        "estadoTransferencia": "recibida",
+        "unidadId": "mnJnV5pqcGBSrADOs98W",
+        "sku": "SUP-0066",
+        "costoFleteUSD": 3,
+        "productoId": "ZBnpv34W2XfRX700HPMu"
+      },
+      {
+        "productoId": "GsRcmGnBCvDqItBFwBop",
+        "sku": "SUP-0125",
+        "costoFleteUSD": 5,
+        "estadoTransferencia": "recibida",
+        "unidadId": "HXKjSAowvfk0TSnEWP2x",
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:01.000Z",
+          "_seconds": 1803358201
+        },
+        "codigoUnidad": "BMN-0125-OC-OC-2026-007"
+      },
+      {
+        "unidadId": "I90uQXdgM1fdwVVssGVv",
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:12.000Z",
+          "_seconds": 1803358212
+        },
+        "codigoUnidad": "BMN-0131-OC-OC-2026-007",
+        "productoId": "CnX6JddWDI96rxPaKckx",
+        "costoFleteUSD": 3,
+        "sku": "SUP-0131"
+      },
+      {
+        "costoFleteUSD": 3.5,
+        "sku": "SUP-0129",
+        "productoId": "RcNhEpQQYf0Op8GQhQVh",
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0129-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:09.000Z",
+          "_seconds": 1803358209
+        },
+        "unidadId": "IDLx1uQlR2sOheaAYQlR",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "unidadId": "KlHT8wpmyDVPkdiSNkDn",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:09.000Z",
+          "_seconds": 1803358209
+        },
+        "codigoUnidad": "BMN-0129-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007",
+        "productoId": "RcNhEpQQYf0Op8GQhQVh",
+        "costoFleteUSD": 3.5,
+        "sku": "SUP-0129"
+      },
+      {
+        "unidadId": "Ik2o56szFBSCTrU4cHon",
+        "estadoTransferencia": "recibida",
+        "codigoUnidad": "BMN-0003-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:10.000Z",
+          "_seconds": 1803358210
+        },
+        "lote": "OC-OC-2026-007",
+        "productoId": "0lj2gv5pFrVzy31ttTHx",
+        "costoFleteUSD": 7,
+        "sku": "SUP-0003"
+      },
+      {
+        "codigoUnidad": "BMN-0003-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:10.000Z",
+          "_seconds": 1803358210
+        },
+        "lote": "OC-OC-2026-007",
+        "estadoTransferencia": "recibida",
+        "unidadId": "chCgbGVIqBjz4dTiNmy7",
+        "costoFleteUSD": 7,
+        "sku": "SUP-0003",
+        "productoId": "0lj2gv5pFrVzy31ttTHx"
+      },
+      {
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:05.000Z",
+          "_seconds": 1803358205
+        },
+        "unidadId": "Jyh9uXFtT8esZn6smwjY",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 6,
+        "sku": "SUP-0123",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG"
+      },
+      {
+        "codigoUnidad": "BMN-0123-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:05.000Z",
+          "_seconds": 1803358205
+        },
+        "lote": "OC-OC-2026-007",
+        "unidadId": "Kvy8JKObCdnmWCWdZDaA",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0123",
+        "costoFleteUSD": 6,
+        "productoId": "zvgeNdMI7J0Qd6na0FzG"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "unidadId": "M7Z1R8bL8UXaHEiVtGVZ",
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0123-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:05.000Z",
+          "_seconds": 1803358205
+        },
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "costoFleteUSD": 6,
+        "sku": "SUP-0123"
+      },
+      {
+        "unidadId": "R8iE2jbxoLhqEdMsbjKT",
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:05.000Z",
+          "_seconds": 1803358205
+        },
+        "codigoUnidad": "BMN-0123-OC-OC-2026-007",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "costoFleteUSD": 6
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "unidadId": "j0k2s0tPVb1uiezxqacP",
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:05.000Z",
+          "_seconds": 1803358205
+        },
+        "codigoUnidad": "BMN-0123-OC-OC-2026-007",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "costoFleteUSD": 6
+      },
+      {
+        "codigoUnidad": "BMN-0123-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:05.000Z",
+          "_seconds": 1803358205
+        },
+        "lote": "OC-OC-2026-007",
+        "unidadId": "zSftNciHKLpqNcJnNTRz",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 6,
+        "sku": "SUP-0123",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG"
+      },
+      {
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:12.000Z",
+          "_seconds": 1803358212
+        },
+        "codigoUnidad": "BMN-0050-OC-OC-2026-007",
+        "unidadId": "OOAbxBhKBzT5zNO3XPAf",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 3,
+        "sku": "SUP-0050",
+        "productoId": "SUHKb5zZf7PBJBfiRD7H"
+      },
+      {
+        "productoId": "Y8QSJkux0TRbfpyR1ZDU",
+        "costoFleteUSD": 6.5,
+        "sku": "SUP-0061",
+        "unidadId": "Sohdfn6qBEnmrL8zjpNS",
+        "estadoTransferencia": "recibida",
+        "lote": "OC-OC-2026-008",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-25T22:57:34.000Z",
+          "_seconds": 1803596254
+        },
+        "codigoUnidad": "BMN-0061-OC-OC-2026-008"
+      },
+      {
+        "sku": "SUP-0056",
+        "costoFleteUSD": 3.5,
+        "productoId": "W7iAr3D0VU1uVynM29cv",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:02.000Z",
+          "_seconds": 1803358202
+        },
+        "codigoUnidad": "BMN-0056-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007",
+        "unidadId": "Xfye89oMptnFvqjEb4Po",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "unidadId": "Xox89XgjQg1wOAnFJxkn",
+        "estadoTransferencia": "recibida",
+        "codigoUnidad": "BMN-0056-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:02.000Z",
+          "_seconds": 1803358202
+        },
+        "lote": "OC-OC-2026-007",
+        "productoId": "W7iAr3D0VU1uVynM29cv",
+        "costoFleteUSD": 3.5,
+        "sku": "SUP-0056"
+      },
+      {
+        "codigoUnidad": "BMN-0048-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:14.000Z",
+          "_seconds": 1803358214
+        },
+        "lote": "OC-OC-2026-007",
+        "unidadId": "lLV8AZUhBiOlIZpqBuyI",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0048",
+        "costoFleteUSD": 3,
+        "productoId": "SJy7nOtm5ZxeXnECz4sr"
+      },
+      {
+        "sku": "SUP-0128",
+        "costoFleteUSD": 6.5,
+        "productoId": "fTddWPfJ60hwXBGRZfwa",
+        "lote": "OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:06.000Z",
+          "_seconds": 1803358206
+        },
+        "codigoUnidad": "BMN-0128-OC-OC-2026-007",
+        "unidadId": "qDNISwm9lcQJuLUmf5Tk",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "estadoTransferencia": "recibida",
+        "unidadId": "rT9hDErEaKZwKZOF1fbn",
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0130-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:08.000Z",
+          "_seconds": 1803358208
+        },
+        "productoId": "VPe8d0O6AWtv9rS4f2X8",
+        "costoFleteUSD": 5,
+        "sku": "SUP-0130"
+      },
+      {
+        "sku": "SUP-0026",
+        "costoFleteUSD": 7,
+        "productoId": "Hc6nsorCzjmBoa2Rctgw",
+        "lote": "OC-OC-2026-007",
+        "codigoUnidad": "BMN-0026-OC-OC-2026-007",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:03.000Z",
+          "_seconds": 1803358203
+        },
+        "unidadId": "upkUPVlZ5ZTCtckBYqtO",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "costoFleteUSD": 6.5,
+        "sku": "SUP-0126",
+        "productoId": "YpMdltCdRfYtnqMA6vYA",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-23T04:50:04.000Z",
+          "_seconds": 1803358204
+        },
+        "codigoUnidad": "BMN-0126-OC-OC-2026-007",
+        "lote": "OC-OC-2026-007",
+        "estadoTransferencia": "recibida",
+        "unidadId": "zzm7m5CSfxC9Jgxgl5FR"
+      }
+    ]
+  },
+  {
+    "_id": "x6C6D4vzirR0lFL5Lzx7",
+    "numeroTransferencia": "ENV-2026-008",
+    "almacenOrigenId": "h9rKjK5V4Z2KZYtXZ02G",
+    "almacenOrigenNombre": "Felicitas Mendoza",
+    "almacenOrigenCodigo": "VIA-005",
+    "almacenDestinoId": "E0YWnoD1a5vdoAbMrg7Y",
+    "almacenDestinoNombre": "Jose Luis Pinto Toscano",
+    "almacenDestinoCodigo": "ALM-PE-001",
+    "totalUnidades": 5,
+    "productosSummary": [
+      {
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "BMN-0036",
+        "nombre": "Artic-D",
+        "cantidad": 2
+      },
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "nombre": "Melena de León",
+        "cantidad": 2
+      },
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "BMN-0004",
+        "nombre": "Ashwagandha",
+        "cantidad": 1
+      }
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T05:57:20.000Z",
+      "_seconds": 1772603840
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "costoFleteTotal": 25,
+    "monedaFlete": "USD",
+    "viajeroId": "h9rKjK5V4Z2KZYtXZ02G",
+    "viajeroNombre": "Felicitas Mendoza",
+    "fechaPreparacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T05:57:31.000Z",
+      "_seconds": 1772603851
+    },
+    "actualizadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T05:57:38.000Z",
+      "_seconds": 1772603858
+    },
+    "estado": "recibida_completa",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T05:58:03.000Z",
+      "_seconds": 1772603883
+    },
+    "fechaLlegadaReal": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T05:58:03.000Z",
+      "_seconds": 1772603883
+    },
+    "recepcion": {
+      "fechaRecepcion": {
+        "_type": "timestamp",
+        "iso": "2026-03-04T05:58:03.000Z",
+        "_seconds": 1772603883
+      },
+      "recibidoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "unidadesEsperadas": 5,
+      "unidadesRecibidas": 5,
+      "unidadesFaltantes": 0,
+      "unidadesDanadas": 0
+    },
+    "diasEnTransito": 1,
+    "tipo": "internacional_peru",
+    "tipoLegacy": "usa_peru",
+    "paisOrigen": "USA",
+    "unidades": [
+      {
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-27T02:03:36.000Z",
+          "_seconds": 1803693816
+        },
+        "codigoUnidad": "BMN-0036-OC-OC-2026-009",
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "lote": "OC-OC-2026-009",
+        "sku": "SUP-0036",
+        "unidadId": "2429vC4q42NU1VvTy0F7",
+        "estadoTransferencia": "recibida",
+        "costoFleteUSD": 5
+      },
+      {
+        "lote": "OC-OC-2026-009",
+        "unidadId": "qG53QGGhytIAPXE9P9Fv",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0036",
+        "costoFleteUSD": 5,
+        "codigoUnidad": "BMN-0036-OC-OC-2026-009",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-27T02:03:36.000Z",
+          "_seconds": 1803693816
+        },
+        "productoId": "MBEXCRC2sVNAuVwQP22i"
+      },
+      {
+        "lote": "OC-OC-2026-009",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0052",
+        "unidadId": "Gi7H7Xmjrl1YxkNp4jQH",
+        "costoFleteUSD": 5,
+        "codigoUnidad": "BMN-0052-OC-OC-2026-009",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-27T02:03:36.000Z",
+          "_seconds": 1803693816
+        },
+        "productoId": "T1jSnECR6ZJEWRZnvJSu"
+      },
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "codigoUnidad": "BMN-0052-OC-OC-2026-009",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-27T02:03:36.000Z",
+          "_seconds": 1803693816
+        },
+        "costoFleteUSD": 5,
+        "lote": "OC-OC-2026-009",
+        "sku": "SUP-0052",
+        "unidadId": "auuWr1TFOmt2SBObbj7U",
+        "estadoTransferencia": "recibida"
+      },
+      {
+        "codigoUnidad": "BMN-0004-OC-OC-2026-009",
+        "fechaVencimiento": {
+          "_type": "timestamp",
+          "iso": "2027-02-27T02:03:32.000Z",
+          "_seconds": 1803693812
+        },
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "lote": "OC-OC-2026-009",
+        "unidadId": "M3hSt3vjgQvpaJLJLxjv",
+        "estadoTransferencia": "recibida",
+        "sku": "SUP-0004",
+        "costoFleteUSD": 5
+      }
+    ]
+  }
+]

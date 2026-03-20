@@ -5,16 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:test": "vite --mode test",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "emulators": "npx firebase emulators:start --only auth,firestore,storage",
+    "emulators:seed": "node scripts/seed-test-data.mjs",
+    "test:entregas": "start /B npx firebase emulators:start --only auth,firestore,storage && timeout /T 5 && vite --mode test"
   },
   "dependencies": {
+    "@daily-co/daily-js": "^0.87.0",
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.90.12",
     "@types/qrcode": "^1.5.6",
     "date-fns": "^4.1.0",
     "firebase": "^12.6.0",
+    "html5-qrcode": "^2.3.8",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.556.0",
@@ -30,6 +36,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/google.maps": "^3.58.1",
     "@types/node": "^24.10.4",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",

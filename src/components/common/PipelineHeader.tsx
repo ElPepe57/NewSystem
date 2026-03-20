@@ -82,7 +82,7 @@ export const PipelineHeader: React.FC<PipelineHeaderProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 p-4 ${className}`}>
+    <div className={`bg-white rounded-lg border border-gray-200 p-3 sm:p-4 ${className}`}>
       {title && (
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-medium text-gray-700">{title}</h3>
@@ -97,7 +97,7 @@ export const PipelineHeader: React.FC<PipelineHeaderProps> = ({
         </div>
       )}
 
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1">
         {stages.map((stage, index) => {
           const colors = colorStyles[stage.color];
           const isActive = activeStage === stage.id;
@@ -107,7 +107,7 @@ export const PipelineHeader: React.FC<PipelineHeaderProps> = ({
             <React.Fragment key={stage.id}>
               {index > 0 && (
                 <ChevronRight
-                  className="h-4 w-4 text-gray-300 flex-shrink-0"
+                  className="h-4 w-4 text-gray-300 flex-shrink-0 hidden sm:block"
                   aria-hidden="true"
                 />
               )}
@@ -116,7 +116,7 @@ export const PipelineHeader: React.FC<PipelineHeaderProps> = ({
                 onClick={() => handleClick(stage.id)}
                 disabled={!isClickable}
                 className={`
-                  flex items-center gap-2 px-3 py-2 rounded-lg border transition-all
+                  flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border transition-all
                   ${isActive ? colors.bgActive : colors.bg}
                   ${colors.border}
                   ${isClickable ? 'cursor-pointer hover:shadow-sm' : 'cursor-default'}
@@ -131,7 +131,7 @@ export const PipelineHeader: React.FC<PipelineHeaderProps> = ({
                     {stage.icon}
                   </span>
                 )}
-                <span className={`text-sm font-medium ${colors.text} whitespace-nowrap`}>
+                <span className={`text-xs sm:text-sm font-medium ${colors.text} whitespace-nowrap`}>
                   {stage.label}
                 </span>
                 <span className={`

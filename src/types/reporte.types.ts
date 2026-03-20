@@ -27,15 +27,20 @@ export interface ProductoRentabilidad {
   sku: string;
   marca: string;
   nombreComercial: string;
-  
+
   unidadesVendidas: number;
   ventasTotalPEN: number;
   costoTotalPEN: number;
   utilidadPEN: number;
   margenPromedio: number;
-  
+
   precioPromedioVenta: number;
   costoPromedioUnidad: number;
+
+  // Desglose de costos (modelo completo)
+  costoBasePEN?: number;     // Compra + Flete (puesto en Perú)
+  costoGVGDPEN?: number;     // Gastos de Venta + Distribución
+  costoGAGOPEN?: number;     // Gastos Administrativos + Operativos
 }
 
 export interface InventarioValorizado {
@@ -51,9 +56,16 @@ export interface InventarioValorizado {
   valorTotalPEN: number;
   costoPromedioUnidad: number;
   
-  unidadesMiami: number;
-  unidadesUtah: number;
-  unidadesPeru: number;
+  /** @deprecated Usar unidadesPorAlmacen en su lugar */
+  unidadesMiami?: number;
+  /** @deprecated Usar unidadesPorAlmacen en su lugar */
+  unidadesUtah?: number;
+  /** @deprecated Usar unidadesPorAlmacen en su lugar */
+  unidadesPeru?: number;
+
+  // Genérico: desglose por almacén/país
+  unidadesPorAlmacen?: Record<string, number>;   // { 'ALM-MIA': 5, 'ALM-PE': 10, ... }
+  unidadesPorPais?: Record<string, number>;       // { 'USA': 8, 'Peru': 10, 'China': 3, ... }
 }
 
 export interface ResumenEjecutivo {
@@ -62,6 +74,11 @@ export interface ResumenEjecutivo {
   ventasMes: number;
   ventasSemana: number;
   ventasHoy: number;
+
+  // Ventas del rango seleccionado
+  ventasRangoPEN: number;
+  ventasRangoCantidad: number;
+  utilidadRangoPEN: number;
 
   // Rentabilidad
   utilidadTotalPEN: number;

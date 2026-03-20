@@ -23,10 +23,12 @@ import type { Requerimiento } from './expectativa.types';
  * Fuente de disponibilidad del stock
  */
 export type FuenteStock =
-  | 'peru'           // Stock en almacén Perú (disponible inmediato)
-  | 'usa_viajero'    // Stock en USA con viajero que tiene viaje programado
-  | 'usa_almacen'    // Stock en almacén USA sin viaje programado
-  | 'virtual';       // Sin stock, requiere compra
+  | 'peru'              // Stock en almacén Perú (disponible inmediato)
+  | 'origen_viajero'    // Stock en origen con viajero/courier que tiene viaje programado
+  | 'origen_almacen'    // Stock en almacén origen sin viaje programado
+  | 'usa_viajero'       // Legacy: alias de origen_viajero
+  | 'usa_almacen'       // Legacy: alias de origen_almacen
+  | 'virtual';          // Sin stock, requiere compra
 
 /**
  * Estado de disponibilidad para reserva

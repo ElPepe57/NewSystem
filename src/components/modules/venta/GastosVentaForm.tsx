@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Trash2, Loader2, AlertCircle, CheckCircle, Info } from 'lucide-react';
-import { Button } from '../../common';
+import { AutocompleteInput, Button } from '../../common';
 import type { Venta } from '../../../types/venta.types';
 import type { Gasto, TipoGasto, CategoriaGasto } from '../../../types/gasto.types';
-import { CATEGORIAS_GASTO_INFO, CATEGORIAS_GASTO_VENTA, TIPOS_GASTO_LABELS } from '../../../types/gasto.types';
+import { CATEGORIAS_GASTO, CATEGORIAS_GASTO_VENTA, TIPOS_GASTO_LABELS } from '../../../types/gasto.types';
 import { gastoService } from '../../../services/gasto.service';
+import { useGastoStore } from '../../../store/gastoStore';
 
 interface GastoItem {
   id: string;
-  tipo: TipoGasto;
+  tipo: string;
   categoria: CategoriaGasto;
   descripcion: string;
   monto: number;
@@ -36,18 +37,43 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
   const [nuevosGastos, setNuevosGastos] = useState<GastoItem[]>([]);
 
   // Estado del formulario para agregar un nuevo item
-  // NOTA: Solo GV (Gasto de Venta) - GD ahora se gestiona en Transportistas
-  const [nuevaCategoria] = useState<CategoriaGasto>('GV');
-  const [nuevoTipo, setNuevoTipo] = useState<TipoGasto>('comision_ml');
+  const [nuevaCategoria, setNuevaCategoria] = useState<CategoriaGasto>('GV');
+  const [nuevoTipo, setNuevoTipo] = useState<string>('');
   const [nuevoMonto, setNuevoMonto] = useState<string>('');
   const [nuevaDescripcion, setNuevaDescripcion] = useState<string>('');
 
-  // Tipos disponibles para Gastos de Venta (GV)
-  // NOTA: GD (Gasto de Distribución) ahora se gestiona en el módulo de Transportistas
-  const tiposGastoVenta: TipoGasto[] = ['comision_ml', 'marketing', 'otros'];
-  const tiposDisponibles = tiposGastoVenta;
+  // Obtener gastos del sistema para sugerencias compartidas
+  const { gastos: todosLosGastos, fetchGastos } = useGastoStore();
 
-  // Cargar gastos existentes
+  useEffect(() => {
+    if (todosLosGastos.length === 0) fetchGastos();
+  }, []);
+
+  // Construir sugerencias dinámicas (mismo patrón que GastoForm.tsx)
+  const sugerenciasPorCategoria = useMemo(() => {
+    const result: Record<string, string[]> = { GV: [], GD: [] };
+
+    // 1. Tipos ya usados en gastos existentes del sistema
+    todosLosGastos.forEach(g => {
+      if (g.categoria && g.tipo && (g.categoria === 'GV' || g.categoria === 'GD')) {
+        if (!result[g.categoria].includes(g.tipo)) {
+          result[g.categoria].push(g.tipo);
+        }
+      }
+    });
+
+    // 2. Agregar ejemplos predefinidos que no estén ya
+    (['GV', 'GD'] as CategoriaGasto[]).forEach(cat => {
+      const ejemplos = CATEGORIAS_GASTO[cat]?.ejemplos || [];
+      ejemplos.forEach(ej => {
+        if (!result[cat].includes(ej)) result[cat].push(ej);
+      });
+    });
+
+    return result;
+  }, [todosLosGastos]);
+
+  // Cargar gastos existentes de esta venta
   useEffect(() => {
     const cargarGastosExistentes = async () => {
       if (!venta.id) {
@@ -71,12 +97,10 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
     cargarGastosExistentes();
   }, [venta.id]);
 
-  // Actualizar tipo cuando cambia la categoría
+  // Limpiar tipo cuando cambia la categoría
   useEffect(() => {
-    if (tiposDisponibles.length > 0 && !tiposDisponibles.includes(nuevoTipo)) {
-      setNuevoTipo(tiposDisponibles[0]);
-    }
-  }, [nuevaCategoria, tiposDisponibles, nuevoTipo]);
+    setNuevoTipo('');
+  }, [nuevaCategoria]);
 
   // Calcular totales
   const totalGastosExistentes = gastosExistentes.reduce((sum, g) => sum + g.montoPEN, 0);
@@ -90,19 +114,20 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
 
   // Agregar nuevo gasto a la lista
   const handleAgregarGasto = () => {
-    if (!nuevoTipo || !nuevoMonto || Number(nuevoMonto) <= 0) return;
+    if (!nuevoTipo.trim() || !nuevoMonto || Number(nuevoMonto) <= 0) return;
 
     const nuevoItem: GastoItem = {
       id: `temp-${Date.now()}`,
-      tipo: nuevoTipo,
+      tipo: nuevoTipo.trim(),
       categoria: nuevaCategoria,
-      descripcion: nuevaDescripcion || `${TIPOS_GASTO_LABELS[nuevoTipo]} ${venta.numeroVenta} - ${venta.nombreCliente}`,
+      descripcion: nuevaDescripcion || `${nuevoTipo.trim()} - ${venta.numeroVenta} - ${venta.nombreCliente}`,
       monto: Number(nuevoMonto)
     };
 
     setNuevosGastos([...nuevosGastos, nuevoItem]);
 
-    // Limpiar formulario (mantener categoría y tipo)
+    // Limpiar formulario (mantener categoría)
+    setNuevoTipo('');
     setNuevoMonto('');
     setNuevaDescripcion('');
   };
@@ -201,42 +226,61 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
         <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
           <Plus className="h-5 w-5" />
-          Agregar nuevo gasto de venta
+          Agregar nuevo gasto
         </h4>
 
-        {/* Info de Gastos de Venta */}
-        <div className="p-3 rounded-lg border mb-4 bg-purple-50 border-purple-200">
+        {/* Selector de categoría */}
+        <div className="flex gap-2 mb-4">
+          {CATEGORIAS_GASTO_VENTA.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setNuevaCategoria(cat)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                nuevaCategoria === cat
+                  ? getCategoriaColor(cat)
+                  : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              {cat === 'GV' ? 'Gasto de Venta (GV)' : 'Distribución (GD)'}
+            </button>
+          ))}
+        </div>
+
+        <div className={`p-3 rounded-lg border mb-4 ${nuevaCategoria === 'GD' ? 'bg-blue-50 border-blue-200' : 'bg-purple-50 border-purple-200'}`}>
           <div className="flex items-start gap-2">
-            <Info className="h-4 w-4 flex-shrink-0 text-purple-600 mt-0.5" />
+            <Info className={`h-4 w-4 flex-shrink-0 mt-0.5 ${nuevaCategoria === 'GD' ? 'text-blue-600' : 'text-purple-600'}`} />
             <div>
-              <p className="text-sm font-medium text-purple-800">Gastos de Venta (GV)</p>
-              <p className="text-xs text-purple-600 mt-0.5">
-                Comisiones, pasarelas de pago, fees de plataformas, marketing directo
-              </p>
-              <p className="text-xs text-gray-500 mt-1 italic">
-                Los gastos de distribución (delivery, flete) se gestionan en el módulo de Transportistas
-              </p>
+              {nuevaCategoria === 'GV' ? (
+                <>
+                  <p className="text-sm font-medium text-purple-800">Gastos de Venta (GV)</p>
+                  <p className="text-xs text-purple-600 mt-0.5">
+                    Comisiones, pasarelas de pago, fees de plataformas, marketing directo
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-blue-800">Gastos de Distribución (GD)</p>
+                  <p className="text-xs text-blue-600 mt-0.5">
+                    Costos adicionales de transporte, recargos, empaque extra
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo de gasto
-            </label>
-            <select
+            <AutocompleteInput
+              label="Tipo de gasto"
               value={nuevoTipo}
-              onChange={(e) => setNuevoTipo(e.target.value as TipoGasto)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            >
-              {tiposDisponibles.map((tipo) => (
-                <option key={tipo} value={tipo}>
-                  {TIPOS_GASTO_LABELS[tipo]}
-                </option>
-              ))}
-              <option value="otros">Otros</option>
-            </select>
+              onChange={(value) => setNuevoTipo(value)}
+              suggestions={sugerenciasPorCategoria[nuevaCategoria] || []}
+              placeholder="Escribe o selecciona..."
+              allowCreate={true}
+              createLabel="Crear tipo"
+            />
           </div>
 
           <div className="md:col-span-2">
@@ -273,7 +317,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
               variant="primary"
               size="md"
               onClick={handleAgregarGasto}
-              disabled={!nuevoTipo || !nuevoMonto || Number(nuevoMonto) <= 0}
+              disabled={!nuevoTipo.trim() || !nuevoMonto || Number(nuevoMonto) <= 0}
               className="w-full"
             >
               <Plus className="h-4 w-4 mr-1" />
@@ -301,7 +345,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
                   </span>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      {TIPOS_GASTO_LABELS[gasto.tipo] || gasto.tipo}
+                      {TIPOS_GASTO_LABELS[gasto.tipo as TipoGasto] || gasto.tipo}
                     </p>
                     <p className="text-xs text-gray-500">{gasto.descripcion}</p>
                   </div>

@@ -8,6 +8,7 @@ interface EtiquetaSelectorProps {
   value: string[];                   // IDs de etiquetas seleccionadas
   onChange: (etiquetaIds: string[], snapshots: EtiquetaSnapshot[]) => void;
   tiposPermitidos?: TipoEtiqueta[];  // Filtrar por tipos
+  lineaNegocioId?: string;           // Filtrar por linea de negocio
   disabled?: boolean;
   className?: string;
 }
@@ -24,6 +25,7 @@ export function EtiquetaSelector({
   value = [],
   onChange,
   tiposPermitidos = ['atributo', 'marketing', 'origen'],
+  lineaNegocioId,
   disabled = false,
   className = ''
 }: EtiquetaSelectorProps) {
@@ -70,10 +72,18 @@ export function EtiquetaSelector({
   // Obtener etiquetas seleccionadas
   const etiquetasSeleccionadas = etiquetasActivas.filter(e => value.includes(e.id));
 
-  // Filtrar etiquetas por busqueda
+  // Helper para filtrar por linea de negocio
+  const matchesLinea = (item: any) => {
+    if (!lineaNegocioId) return true;
+    const lineaIds = item.lineaNegocioIds as string[] | undefined;
+    return !lineaIds || lineaIds.length === 0 || lineaIds.includes(lineaNegocioId);
+  };
+
+  // Filtrar etiquetas por busqueda y linea
   const etiquetasFiltradas = searchTerm
     ? etiquetasActivas.filter(e => {
         if (!tiposPermitidos.includes(e.tipo)) return false;
+        if (!matchesLinea(e)) return false;
         const term = searchTerm.toLowerCase();
         return (
           e.nombre.toLowerCase().includes(term) ||
@@ -352,10 +362,10 @@ export function EtiquetaSelector({
                     )
                   )
                 ) : (
-                  // Mostrar agrupadas por tipo
+                  // Mostrar agrupadas por tipo (filtrado por linea)
                   etiquetasAgrupadas && (
                     TIPO_ORDER.filter(tipo => tiposPermitidos.includes(tipo)).map(tipo => {
-                      const etiquetasDelTipo = etiquetasAgrupadas[tipo];
+                      const etiquetasDelTipo = (etiquetasAgrupadas[tipo] || []).filter(e => matchesLinea(e));
                       if (etiquetasDelTipo.length === 0) return null;
 
                       return (

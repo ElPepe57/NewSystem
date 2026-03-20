@@ -11,6 +11,7 @@ import {
   orderBy
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Transportista,
   TransportistaFormData,
@@ -18,33 +19,16 @@ import type {
   TransportistaFilters,
   TipoTransportista
 } from '../types/transportista.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'transportistas';
+const COLLECTION_NAME = COLLECTIONS.TRANSPORTISTAS;
 
 /**
  * Genera el siguiente código de transportista automáticamente
  * TR-001, TR-002, etc.
  */
 async function generarCodigoTransportista(): Promise<string> {
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith('TR-')) {
-      const match = codigo.match(/TR-(\d+)/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `TR-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber('TR', 3);
 }
 
 export const transportistaService = {

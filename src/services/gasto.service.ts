@@ -5,6 +5,8 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  deleteDoc,
+  deleteField,
   query,
   where,
   Timestamp,
@@ -17,14 +19,18 @@ import type {
   GastoFiltros,
   ResumenGastosMes,
   GastoStats,
-  CategoriaGasto
+  CategoriaGasto,
+  PagoGasto
 } from '../types/gasto.types';
 import { getClaseGasto } from '../types/gasto.types';
 import { ctruService } from './ctru.service';
 import { tesoreriaService } from './tesoreria.service';
 import type { MetodoTesoreria, MonedaTesoreria } from '../types/tesoreria.types';
+import { actividadService } from './actividad.service';
+import { COLLECTIONS } from '../config/collections';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 
-const GASTOS_COLLECTION = 'gastos';
+const GASTOS_COLLECTION = COLLECTIONS.GASTOS;
 
 export const gastoService = {
   /**
@@ -82,16 +88,88 @@ export const gastoService = {
       if (data.estado === 'pagado') gasto.fechaPago = Timestamp.now();
       if (data.numeroComprobante) gasto.numeroComprobante = data.numeroComprobante;
       if (data.notas) gasto.notas = data.notas;
+      if (data.lineaNegocioId !== undefined) {
+        gasto.lineaNegocioId = data.lineaNegocioId;
+      }
+      if (data.lineaNegocioNombre !== undefined) {
+        gasto.lineaNegocioNombre = data.lineaNegocioNombre;
+      }
 
       const docRef = await addDoc(collection(db, GASTOS_COLLECTION), gasto);
 
-      // NOTA: El recálculo automático de CTRU se deshabilitó porque es muy costoso
-      // (actualiza todas las unidades y productos). El usuario puede recalcular
-      // manualmente desde el botón "Recalcular CTRU" cuando lo necesite.
-      // El gasto queda marcado con ctruRecalculado: false para procesarse después.
-      if (data.esProrrateable && (data.categoria === 'GA' || data.categoria === 'GO')) {
-        console.log('[CTRU] Gasto GA/GO prorrateable creado. Recálculo pendiente (usar botón "Recalcular CTRU").');
+      // Si el gasto se crea directamente como "pagado" con cuenta de origen,
+      // registrar el movimiento de tesorería y crear el registro de pago
+      if (data.estado === 'pagado' && data.cuentaOrigenId) {
+        try {
+          const monedaPago: MonedaTesoreria = (data.moneda === 'USD' ? 'USD' : 'PEN') as MonedaTesoreria;
+          const movimientoId = await tesoreriaService.registrarMovimiento({
+            tipo: 'gasto_operativo',
+            moneda: monedaPago,
+            monto: data.montoOriginal,
+            tipoCambio: data.tipoCambio || 1,
+            metodo: (data.metodoPago || 'efectivo') as MetodoTesoreria,
+            concepto: `Pago ${numeroGasto}: ${data.descripcion}`,
+            fecha: data.fecha,
+            cuentaOrigen: data.cuentaOrigenId,
+            gastoId: docRef.id,
+            gastoNumero: numeroGasto,
+            referencia: data.referenciaPago,
+            notas: data.notas
+          }, userId);
+
+          // Crear registro de pago en el gasto
+          const pagoId = `PAG-GAS-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+          const nuevoPago: PagoGasto = {
+            id: pagoId,
+            fecha: Timestamp.fromDate(data.fecha),
+            monedaPago: monedaPago,
+            montoOriginal: data.montoOriginal,
+            montoUSD: data.moneda === 'USD' ? data.montoOriginal : data.montoOriginal / (data.tipoCambio || 1),
+            montoPEN: montoPEN,
+            tipoCambio: data.tipoCambio || 1,
+            metodoPago: (data.metodoPago || 'efectivo') as MetodoTesoreria,
+            registradoPor: userId,
+            fechaRegistro: Timestamp.now()
+          };
+          if (data.cuentaOrigenId) nuevoPago.cuentaOrigenId = data.cuentaOrigenId;
+          if (movimientoId) nuevoPago.movimientoTesoreriaId = movimientoId;
+          if (data.referenciaPago) nuevoPago.referencia = data.referenciaPago;
+
+          await updateDoc(doc(db, GASTOS_COLLECTION, docRef.id), {
+            pagos: [nuevoPago],
+            montoPagado: montoPEN,
+            montoPendiente: 0
+          });
+        } catch (tesoreriaError) {
+          console.error('Error registrando movimiento en tesorería al crear gasto pagado:', tesoreriaError);
+          // No bloquear la creación del gasto, pero logear el error
+        }
       }
+
+      // Auto-recálculo de CTRU cuando se crea un gasto GA/GO prorrateable
+      // Se ejecuta en background (no bloquea la creación del gasto)
+      if (data.esProrrateable && (data.categoria === 'GA' || data.categoria === 'GO')) {
+        ctruService.recalcularCTRUDinamicoSafe()
+          .then(result => {
+            if (result) {
+              console.log(`[CTRU] Auto-recálculo completado: ${result.unidadesActualizadas} unidades actualizadas, ${result.gastosAplicados} gastos aplicados`);
+            } else {
+              console.log('[CTRU] Auto-recálculo encolado (otro en ejecución)');
+            }
+          })
+          .catch(error => {
+            console.error('[CTRU] Error en auto-recálculo (no bloqueante):', error);
+          });
+      }
+
+      // Broadcast actividad (fire-and-forget)
+      actividadService.registrar({
+        tipo: 'gasto_creado',
+        mensaje: `Gasto ${numeroGasto} creado: ${data.descripcion} - ${data.moneda} ${data.montoOriginal.toFixed(2)}`,
+        userId,
+        displayName: userId,
+        metadata: { entidadId: docRef.id, entidadTipo: 'gasto', monto: data.montoOriginal, moneda: data.moneda }
+      }).catch(() => {});
 
       return docRef.id;
     } catch (error: any) {
@@ -101,32 +179,12 @@ export const gastoService = {
   },
 
   /**
-   * Generar número de gasto correlativo (busca el máximo para evitar duplicados)
+   * Generar número de gasto usando contador atómico.
+   * Formato: GAS-NNNN (ej: GAS-0043)
+   * Usa runTransaction para evitar duplicados en acceso concurrente.
    */
   async generateNumeroGasto(): Promise<string> {
-    const snapshot = await getDocs(collection(db, GASTOS_COLLECTION));
-
-    if (snapshot.empty) {
-      return 'GAS-0001';
-    }
-
-    // Buscar el número máximo existente
-    let maxNumber = 0;
-    snapshot.docs.forEach(docSnap => {
-      const data = docSnap.data() as Gasto;
-      const numero = data.numeroGasto;
-
-      // Extraer el número del formato GAS-NNNN
-      const match = numero?.match(/GAS-(\d+)/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    });
-
-    return `GAS-${(maxNumber + 1).toString().padStart(4, '0')}`;
+    return getNextSequenceNumber('GAS', 4);
   },
 
   /**
@@ -183,31 +241,33 @@ export const gastoService = {
     try {
       const docRef = doc(db, GASTOS_COLLECTION, id);
 
-      // Si cambió el monto o TC, recalcular montoPEN
-      let montoPEN: number | undefined;
-      if (data.montoOriginal !== undefined || data.tipoCambio !== undefined) {
-        const gastoActual = await this.getById(id);
-        if (!gastoActual) {
-          throw new Error('Gasto no encontrado');
-        }
-
-        const montoOriginal = data.montoOriginal ?? gastoActual.montoOriginal;
-        const moneda = data.moneda ?? gastoActual.moneda;
-        const tipoCambio = data.tipoCambio ?? gastoActual.tipoCambio;
-
-        if (moneda === 'USD') {
-          if (!tipoCambio) {
-            throw new Error('Debe proporcionar el tipo de cambio para gastos en USD');
-          }
-          montoPEN = montoOriginal * tipoCambio;
-        } else {
-          montoPEN = montoOriginal;
-        }
+      // Siempre obtener el gasto actual para detectar transiciones de estado
+      const gastoActual = await this.getById(id);
+      if (!gastoActual) {
+        throw new Error('Gasto no encontrado');
       }
 
+      // Recalcular montoPEN
+      const montoOriginal = data.montoOriginal ?? gastoActual.montoOriginal;
+      const moneda = data.moneda ?? gastoActual.moneda;
+      const tipoCambio = data.tipoCambio ?? gastoActual.tipoCambio;
+      let montoPEN: number;
+
+      if (moneda === 'USD') {
+        if (!tipoCambio) {
+          throw new Error('Debe proporcionar el tipo de cambio para gastos en USD');
+        }
+        montoPEN = montoOriginal * tipoCambio;
+      } else {
+        montoPEN = montoOriginal;
+      }
+
+      // Limpiar campos internos que no deben ir al updateData
+      const { cuentaOrigenId, referenciaPago, ...dataParaFirestore } = data as any;
+
       const updateData: any = {
-        ...data,
-        ...(montoPEN && { montoPEN }),
+        ...dataParaFirestore,
+        montoPEN,
         ultimaEdicion: Timestamp.now(),
         editadoPor: userId
       };
@@ -219,18 +279,208 @@ export const gastoService = {
         updateData.fecha = Timestamp.fromDate(data.fecha);
       }
 
-      // Si se marca como pagado, registrar fecha de pago
-      if (data.estado === 'pagado') {
-        updateData.fechaPago = Timestamp.now();
+      // --- TRANSICIONES DE ESTADO CON TESORERÍA ---
+      const oldEstado = gastoActual.estado;
+      const newEstado = data.estado ?? oldEstado;
+      const isLegacyPagado = oldEstado === 'pagado' && (!gastoActual.pagos || gastoActual.pagos.length === 0);
+      const tienePagosMultiples = (gastoActual.pagos?.length || 0) > 1;
+
+      // Bloquear cambios de estado/monto en gastos con múltiples pagos parciales
+      if (tienePagosMultiples && (data.estado !== undefined && data.estado !== oldEstado)) {
+        throw new Error('No se puede cambiar el estado de un gasto con múltiples pagos parciales. Use la opción de pago para gestionar pagos individuales.');
       }
+      if (tienePagosMultiples && (data.montoOriginal !== undefined && data.montoOriginal !== gastoActual.montoOriginal)) {
+        throw new Error('No se puede cambiar el monto de un gasto con múltiples pagos parciales.');
+      }
+
+      // CASO A: X → pagado (crear movimiento de tesorería)
+      if (newEstado === 'pagado' && (oldEstado !== 'pagado' || isLegacyPagado)) {
+        updateData.fechaPago = Timestamp.now();
+
+        if (cuentaOrigenId) {
+          const monedaPago: MonedaTesoreria = (moneda === 'USD' ? 'USD' : 'PEN') as MonedaTesoreria;
+          const movimientoId = await tesoreriaService.registrarMovimiento({
+            tipo: 'gasto_operativo',
+            moneda: monedaPago,
+            monto: montoOriginal,
+            tipoCambio: tipoCambio || 1,
+            metodo: (data.metodoPago || 'efectivo') as MetodoTesoreria,
+            concepto: `Pago ${gastoActual.numeroGasto}: ${data.descripcion ?? gastoActual.descripcion}`,
+            fecha: data.fecha ?? gastoActual.fecha.toDate(),
+            cuentaOrigen: cuentaOrigenId,
+            gastoId: id,
+            gastoNumero: gastoActual.numeroGasto,
+            referencia: referenciaPago,
+            notas: data.notas ?? gastoActual.notas
+          }, userId);
+
+          const nuevoPago = this._buildPagoGasto({
+            monedaPago, montoOriginal, montoPEN, moneda, tipoCambio: tipoCambio || 1,
+            metodoPago: data.metodoPago, cuentaOrigenId, referenciaPago,
+            fecha: data.fecha ?? gastoActual.fecha.toDate(),
+            movimientoId, userId
+          });
+
+          updateData.pagos = [nuevoPago];
+          updateData.montoPagado = montoPEN;
+          updateData.montoPendiente = 0;
+        }
+      }
+      // CASO B: pagado → pendiente (reversar pago)
+      else if (oldEstado === 'pagado' && newEstado === 'pendiente') {
+        // Anular movimientos de tesorería existentes
+        if (gastoActual.pagos && gastoActual.pagos.length > 0) {
+          for (const pago of gastoActual.pagos) {
+            if (pago.movimientoTesoreriaId) {
+              try {
+                await tesoreriaService.eliminarMovimiento(pago.movimientoTesoreriaId, userId);
+              } catch (err) {
+                console.warn(`Error anulando movimiento ${pago.movimientoTesoreriaId}:`, err);
+              }
+            }
+          }
+        }
+        updateData.pagos = [];
+        updateData.montoPagado = 0;
+        updateData.montoPendiente = montoPEN;
+        updateData.fechaPago = deleteField();
+      }
+      // CASO C: pagado → pagado (editar gasto pagado — monto, cuenta, método)
+      else if (oldEstado === 'pagado' && newEstado === 'pagado' && !isLegacyPagado && !tienePagosMultiples) {
+        const pagoExistente = gastoActual.pagos?.[0];
+
+        // Detectar si cambió algo relevante para tesorería
+        const cambioMonto = data.montoOriginal !== undefined && data.montoOriginal !== gastoActual.montoOriginal;
+        const cambioCuenta = cuentaOrigenId && pagoExistente?.cuentaOrigenId && cuentaOrigenId !== pagoExistente.cuentaOrigenId;
+        const cambioMetodo = data.metodoPago && pagoExistente?.metodoPago && data.metodoPago !== pagoExistente.metodoPago;
+        const cambioMoneda = data.moneda !== undefined && data.moneda !== gastoActual.moneda;
+        const cambioTC = data.tipoCambio !== undefined && data.tipoCambio !== gastoActual.tipoCambio;
+
+        if (cambioMonto || cambioCuenta || cambioMetodo || cambioMoneda || cambioTC) {
+          // Anular movimiento viejo
+          if (pagoExistente?.movimientoTesoreriaId) {
+            try {
+              await tesoreriaService.eliminarMovimiento(pagoExistente.movimientoTesoreriaId, userId);
+            } catch (err) {
+              console.warn('Error anulando movimiento viejo:', err);
+            }
+          }
+
+          // Crear movimiento nuevo con datos actualizados
+          const cuentaFinal = cuentaOrigenId || pagoExistente?.cuentaOrigenId;
+          if (cuentaFinal) {
+            const monedaPago: MonedaTesoreria = (moneda === 'USD' ? 'USD' : 'PEN') as MonedaTesoreria;
+            const nuevoMovId = await tesoreriaService.registrarMovimiento({
+              tipo: 'gasto_operativo',
+              moneda: monedaPago,
+              monto: montoOriginal,
+              tipoCambio: tipoCambio || 1,
+              metodo: (data.metodoPago || pagoExistente?.metodoPago || 'efectivo') as MetodoTesoreria,
+              concepto: `Pago ${gastoActual.numeroGasto}: ${data.descripcion ?? gastoActual.descripcion}`,
+              fecha: data.fecha ?? gastoActual.fecha.toDate(),
+              cuentaOrigen: cuentaFinal,
+              gastoId: id,
+              gastoNumero: gastoActual.numeroGasto,
+              referencia: referenciaPago || pagoExistente?.referencia,
+              notas: data.notas ?? gastoActual.notas
+            }, userId);
+
+            const nuevoPago = this._buildPagoGasto({
+              monedaPago, montoOriginal, montoPEN, moneda, tipoCambio: tipoCambio || 1,
+              metodoPago: data.metodoPago || pagoExistente?.metodoPago,
+              cuentaOrigenId: cuentaFinal,
+              referenciaPago: referenciaPago || pagoExistente?.referencia,
+              fecha: data.fecha ?? gastoActual.fecha.toDate(),
+              movimientoId: nuevoMovId, userId
+            });
+
+            updateData.pagos = [nuevoPago];
+            updateData.montoPagado = montoPEN;
+            updateData.montoPendiente = 0;
+          }
+        }
+      }
+      // CASO D: sin cambio de estado, solo campos básicos → no tocar tesorería
+
+      // Limpiar valores undefined que Firestore no acepta
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === undefined) {
+          delete updateData[key];
+        }
+      });
 
       await updateDoc(docRef, updateData);
 
-      // NOTA: El recálculo automático de CTRU se deshabilitó porque es muy costoso.
-      // El usuario puede recalcular manualmente desde el botón "Recalcular CTRU".
     } catch (error: any) {
       console.error('Error al actualizar gasto:', error);
       throw new Error(`Error al actualizar gasto: ${error.message}`);
+    }
+  },
+
+  /**
+   * Helper: construir objeto PagoGasto
+   */
+  _buildPagoGasto(params: {
+    monedaPago: MonedaTesoreria;
+    montoOriginal: number;
+    montoPEN: number;
+    moneda: string;
+    tipoCambio: number;
+    metodoPago?: string;
+    cuentaOrigenId?: string;
+    referenciaPago?: string;
+    fecha: Date;
+    movimientoId: string;
+    userId: string;
+  }): PagoGasto {
+    const pagoId = `PAG-GAS-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+    const pago: PagoGasto = {
+      id: pagoId,
+      fecha: Timestamp.fromDate(params.fecha),
+      monedaPago: params.monedaPago,
+      montoOriginal: params.montoOriginal,
+      montoUSD: params.moneda === 'USD' ? params.montoOriginal : params.montoOriginal / (params.tipoCambio || 1),
+      montoPEN: params.montoPEN,
+      tipoCambio: params.tipoCambio || 1,
+      metodoPago: (params.metodoPago || 'efectivo') as MetodoTesoreria,
+      registradoPor: params.userId,
+      fechaRegistro: Timestamp.now()
+    };
+    if (params.cuentaOrigenId) pago.cuentaOrigenId = params.cuentaOrigenId;
+    if (params.movimientoId) pago.movimientoTesoreriaId = params.movimientoId;
+    if (params.referenciaPago) pago.referencia = params.referenciaPago;
+    return pago;
+  },
+
+  /**
+   * Eliminar un gasto
+   * Solo se permite eliminar gastos en estado pendiente o cancelado.
+   * Gastos con pagos registrados no se pueden eliminar.
+   */
+  async delete(id: string): Promise<void> {
+    try {
+      const gasto = await this.getById(id);
+      if (!gasto) {
+        throw new Error('Gasto no encontrado');
+      }
+
+      if (gasto.estado === 'pagado') {
+        throw new Error('No se puede eliminar un gasto que ya fue pagado');
+      }
+
+      if (gasto.estado === 'parcial') {
+        throw new Error('No se puede eliminar un gasto con pagos parciales registrados');
+      }
+
+      if (gasto.pagos && gasto.pagos.length > 0) {
+        throw new Error('No se puede eliminar un gasto que tiene pagos registrados');
+      }
+
+      const docRef = doc(db, GASTOS_COLLECTION, id);
+      await deleteDoc(docRef);
+    } catch (error: any) {
+      console.error('Error al eliminar gasto:', error);
+      throw new Error(`Error al eliminar gasto: ${error.message}`);
     }
   },
 
@@ -398,9 +648,17 @@ export const gastoService = {
     const mesesConGastos = new Set(gastosAnioActual.map(g => g.mes)).size;
     const promedioMensualAnioActual = mesesConGastos > 0 ? totalAnioActual / mesesConGastos : 0;
 
-    // Gastos pendientes de pago
+    // Gastos pendientes de pago (incluye pendientes + parciales)
     const gastosPendientes = await this.buscar({ estado: 'pendiente' });
-    const totalPendientePago = gastosPendientes.reduce((sum, g) => sum + g.montoPEN, 0);
+    const gastosParciales = await this.buscar({ estado: 'parcial' });
+    const todosConDeuda = [...gastosPendientes, ...gastosParciales];
+    const totalPendientePago = todosConDeuda.reduce((sum, g) => {
+      // Para parciales, usar montoPendiente; para pendientes, usar montoPEN completo
+      if (g.estado === 'parcial' && g.montoPendiente !== undefined) {
+        return sum + g.montoPendiente;
+      }
+      return sum + g.montoPEN;
+    }, 0);
 
     // Mes anterior para comparación
     const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
@@ -424,7 +682,7 @@ export const gastoService = {
       totalAnioActual,
       promedioMensualAnioActual,
       totalPendientePago,
-      cantidadPendientePago: gastosPendientes.length,
+      cantidadPendientePago: todosConDeuda.length,
       variacionVsMesAnterior,
       variacionVsPromedioAnual
     };
@@ -554,7 +812,7 @@ export const gastoService = {
           id: doc.id,
           ...doc.data()
         } as Gasto))
-        .filter(g => g.impactaCTRU === true && g.ctruRecalculado === false);
+        .filter(g => (g.categoria === 'GA' || g.categoria === 'GO') && g.ctruRecalculado === false);
 
       // Ordenar por fecha ascendente en memoria
       return gastos.sort((a, b) => {
@@ -569,8 +827,9 @@ export const gastoService = {
   },
 
   /**
-   * Registrar pago de un gasto pendiente
-   * Crea un movimiento de tesorería y actualiza el estado del gasto
+   * Registrar pago de un gasto (soporta pagos parciales)
+   * Crea un movimiento de tesorería, registra el pago en el array pagos[]
+   * y actualiza montoPagado/montoPendiente/estado
    */
   async registrarPago(
     gastoId: string,
@@ -593,43 +852,107 @@ export const gastoService = {
         throw new Error('Gasto no encontrado');
       }
 
-      if (gasto.estado === 'pagado') {
+      // Permitir gastos "pagados" sin pagos[] registrados (corrección retroactiva)
+      const esPagadoSinRegistro = gasto.estado === 'pagado' && (!gasto.pagos || gasto.pagos.length === 0);
+      if (gasto.estado === 'pagado' && !esPagadoSinRegistro) {
         throw new Error('Este gasto ya está pagado');
       }
 
-      // Registrar movimiento de tesorería (egreso)
-      await tesoreriaService.registrarMovimiento({
-        tipo: 'gasto_operativo',
-        moneda: data.monedaPago,
-        monto: data.montoPago,
-        tipoCambio: data.tipoCambio,
-        metodo: data.metodoPago,
-        concepto: `Pago ${gasto.numeroGasto}: ${gasto.descripcion}`,
-        fecha: data.fechaPago,
-        cuentaOrigen: data.cuentaOrigenId,
-        gastoId: gastoId,
-        gastoNumero: gasto.numeroGasto,
-        referencia: data.referenciaPago,
-        notas: data.notas
-      }, userId);
+      if (gasto.estado === 'cancelado') {
+        throw new Error('No se puede pagar un gasto cancelado');
+      }
 
-      // Actualizar el gasto a estado pagado
+      if (data.montoPago <= 0) {
+        throw new Error('El monto debe ser mayor a 0');
+      }
+
+      // Calcular monto pendiente actual desde pagos existentes
+      const pagosAnteriores: PagoGasto[] = gasto.pagos || [];
+      const montoPagadoAnterior = pagosAnteriores.reduce((sum, p) => sum + p.montoPEN, 0);
+      const montoPendienteActual = gasto.montoPEN - montoPagadoAnterior;
+
+      // Calcular equivalencias de ESTE pago
+      const montoUSD = data.monedaPago === 'USD'
+        ? data.montoPago
+        : data.montoPago / data.tipoCambio;
+      const montoPENPago = data.monedaPago === 'PEN'
+        ? data.montoPago
+        : data.montoPago * data.tipoCambio;
+
+      // Validar que no exceda el saldo pendiente
+      if (montoPENPago > montoPendienteActual + 0.01) {
+        throw new Error(
+          `El monto excede el saldo pendiente. Pendiente: S/ ${montoPendienteActual.toFixed(2)}`
+        );
+      }
+
+      // Calcular nuevos totales
+      const nuevoMontoPagado = montoPagadoAnterior + montoPENPago;
+      const nuevoMontoPendiente = gasto.montoPEN - nuevoMontoPagado;
+      const nuevoEstado = nuevoMontoPendiente <= 0.01 ? 'pagado' : 'parcial';
+      const esPagoCompleto = nuevoEstado === 'pagado';
+
+      // Crear registro de pago (PagoGasto)
+      const pagoId = `PAG-GAS-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+      const nuevoPago: PagoGasto = {
+        id: pagoId,
+        fecha: Timestamp.fromDate(data.fechaPago),
+        monedaPago: data.monedaPago,
+        montoOriginal: data.montoPago,
+        montoUSD,
+        montoPEN: montoPENPago,
+        tipoCambio: data.tipoCambio,
+        metodoPago: data.metodoPago,
+        registradoPor: userId,
+        fechaRegistro: Timestamp.now()
+      };
+
+      // Agregar campos opcionales solo si tienen valor
+      if (data.cuentaOrigenId) nuevoPago.cuentaOrigenId = data.cuentaOrigenId;
+      if (data.referenciaPago) nuevoPago.referencia = data.referenciaPago;
+      if (data.notas) nuevoPago.notas = data.notas;
+
+      // Registrar movimiento de tesorería (egreso)
+      try {
+        const movimientoId = await tesoreriaService.registrarMovimiento({
+          tipo: 'gasto_operativo',
+          moneda: data.monedaPago,
+          monto: data.montoPago,
+          tipoCambio: data.tipoCambio,
+          metodo: data.metodoPago,
+          concepto: `Pago ${esPagoCompleto ? '' : 'parcial '}${gasto.numeroGasto}: ${gasto.descripcion}`,
+          fecha: data.fechaPago,
+          cuentaOrigen: data.cuentaOrigenId,
+          gastoId: gastoId,
+          gastoNumero: gasto.numeroGasto,
+          referencia: data.referenciaPago,
+          notas: data.notas
+        }, userId);
+
+        if (movimientoId) {
+          nuevoPago.movimientoTesoreriaId = movimientoId;
+        }
+      } catch (tesoreriaError) {
+        console.error('Error registrando movimiento en tesorería:', tesoreriaError);
+        throw tesoreriaError;
+      }
+
+      // Actualizar el gasto en Firestore
       const docRef = doc(db, GASTOS_COLLECTION, gastoId);
       const updateData: Record<string, any> = {
-        estado: 'pagado',
-        fechaPago: Timestamp.fromDate(data.fechaPago),
-        metodoPago: data.metodoPago,
-        cuentaOrigenId: data.cuentaOrigenId,
-        monedaPago: data.monedaPago,
-        montoPagado: data.montoPago,
-        tipoCambioPago: data.tipoCambio,
+        estado: nuevoEstado,
+        pagos: [...pagosAnteriores, nuevoPago],
+        montoPagado: nuevoMontoPagado,
+        montoPendiente: Math.max(0, nuevoMontoPendiente),
         ultimaEdicion: Timestamp.now(),
         editadoPor: userId
       };
 
-      // Solo agregar campos opcionales si tienen valor (Firebase no acepta undefined)
-      if (data.referenciaPago) updateData.referenciaPago = data.referenciaPago;
-      if (data.notas) updateData.notasPago = data.notas;
+      // Si se completó el pago, escribir campos legacy para compat
+      if (esPagoCompleto) {
+        updateData.fechaPago = Timestamp.fromDate(data.fechaPago);
+        updateData.metodoPago = data.metodoPago;
+      }
 
       await updateDoc(docRef, updateData);
 
@@ -664,20 +987,39 @@ export const gastoService = {
     transportistaNombre: string;
     costoEntrega: number;
     distrito?: string;
+    /** Descripción personalizada (para costos extra) */
+    descripcionExtra?: string;
   }, userId: string): Promise<string> {
     try {
+      // Idempotency check: si ya existe un gasto GD para esta entrega, retornar su ID
+      const existingQ = query(
+        collection(db, GASTOS_COLLECTION),
+        where('entregaId', '==', data.entregaId),
+        where('tipo', '==', 'delivery')
+      );
+      const existingSnap = await getDocs(existingQ);
+      if (!existingSnap.empty) {
+        const existingId = existingSnap.docs[0].id;
+        console.warn(`[Gasto GD] Ya existe gasto para entrega ${data.entregaCodigo}: ${existingId} — omitiendo duplicado`);
+        return existingId;
+      }
+
       const numeroGasto = await this.generateNumeroGasto();
       const ahora = new Date();
 
       // GD = Gasto de Distribución (delivery)
       const claseGasto = getClaseGasto('GD');
 
+      const descripcionBase = `Entrega ${data.entregaCodigo} - ${data.transportistaNombre}${data.distrito ? ` (${data.distrito})` : ''}`;
+
       const gasto: Record<string, unknown> = {
         numeroGasto,
         tipo: 'delivery',
         categoria: 'GD',
         claseGasto,
-        descripcion: `Entrega ${data.entregaCodigo} - ${data.transportistaNombre}${data.distrito ? ` (${data.distrito})` : ''}`,
+        descripcion: data.descripcionExtra
+          ? `${descripcionBase} - ${data.descripcionExtra}`
+          : descripcionBase,
         moneda: 'PEN',
         montoOriginal: data.costoEntrega,
         montoPEN: data.costoEntrega,
@@ -699,7 +1041,9 @@ export const gastoService = {
         impactaCTRU: false,
         ctruRecalculado: false,
         proveedor: data.transportistaNombre,
-        notas: `Gasto de distribución generado automáticamente por entrega ${data.entregaCodigo}`,
+        notas: data.descripcionExtra
+          ? `Costo adicional: ${data.descripcionExtra} - Entrega ${data.entregaCodigo}`
+          : `Gasto de distribución generado automáticamente por entrega ${data.entregaCodigo}`,
         creadoPor: userId,
         fechaCreacion: Timestamp.now()
       };

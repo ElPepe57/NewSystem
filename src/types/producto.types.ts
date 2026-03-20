@@ -302,14 +302,10 @@ export interface Producto {
   etiquetaIds?: string[];
   etiquetasData?: EtiquetaSnapshot[];
 
-  enlaceProveedor: string;
   codigoUPC: string;
 
   estado: EstadoProducto;
   etiquetas: string[];
-
-  habilitadoML: boolean;
-  restriccionML: string;
 
   // === COSTOS ===
   /**
@@ -317,23 +313,28 @@ export interface Producto {
    * Antes llamado "ctruPromedio"
    */
   ctruPromedio: number;
-  precioSugerido: number;
-  margenMinimo: number;
-  margenObjetivo: number;
 
   /**
-   * Costo FIJO de flete USA → Perú por unidad (USD)
-   * Este es el costo que cobra el viajero por traer este producto específico.
+   * Costo FIJO de flete internacional por unidad (USD)
    * Es intrínseco al producto porque depende de su peso/volumen.
    */
-  costoFleteUSAPeru: number;
+  costoFleteInternacional?: number;
+
+  // === ORIGEN Y LÍNEA DE NEGOCIO ===
+  paisOrigen?: string;                    // País de origen del producto ('USA', 'China', 'Corea', 'Peru')
+  lineaNegocioId?: string;                // ID de la línea de negocio
+  lineaNegocioNombre?: string;            // Desnormalizado para display
 
   // === STOCK ===
+  /** @deprecated Usar stockOrigen para multi-país */
   stockUSA: number;
   stockPeru: number;
   stockTransito: number;
   stockReservado: number;
   stockDisponible: number;
+  stockDisponiblePeru?: number; // Solo disponible_peru (lo que ML puede vender)
+  stockPendienteML?: number;    // Unidades comprometidas en órdenes ML no procesadas aún
+  stockEfectivoML?: number;     // stockDisponiblePeru - stockPendienteML (lo que se pushea a ML)
 
   stockMinimo: number;
   stockMaximo: number;
@@ -396,19 +397,12 @@ export interface ProductoFormData {
   /** IDs de etiquetas seleccionadas */
   etiquetaIds?: string[];
 
-  enlaceProveedor: string;
   codigoUPC: string;
-  precioSugerido: number;
-  margenMinimo: number;
-  margenObjetivo: number;
   stockMinimo: number;
   stockMaximo: number;
-  habilitadoML: boolean;
-  restriccionML: string;
-  /**
-   * Costo FIJO de flete USA → Perú por unidad (USD)
-   */
-  costoFleteUSAPeru: number;
+  costoFleteInternacional?: number;
+  paisOrigen?: string;                      // País de origen del producto
+  lineaNegocioId?: string;                  // ID de la línea de negocio
 
   // === CICLO DE RECOMPRA ===
   /**
@@ -423,189 +417,5 @@ export interface ProductoFormData {
   cicloRecompraDias?: number;
 }
 
-// ============================================
-// TIPOS DE INVENTARIO / UNIDADES
-// ============================================
-
-/**
- * Estados de una unidad con trazabilidad completa USA → Perú
- */
-export type EstadoUnidad =
-  | 'recibida_usa'        // Recibida en almacén/viajero USA
-  | 'en_transito_usa'     // En tránsito entre almacenes USA (transferencia interna)
-  | 'en_transito_peru'    // En tránsito USA → Perú
-  | 'disponible_peru'     // Disponible para venta en Perú
-  | 'asignada_pedido'     // Asignada a un pedido/cotización
-  | 'en_despacho'         // En proceso de entrega
-  | 'entregada'           // Entregada al cliente
-  | 'devuelta'            // Devuelta por cliente
-  | 'danada'              // Dañada/perdida
-  | 'vencida';            // Vencida
-
-/**
- * Unidad individual de producto
- * Representa cada producto físico con trazabilidad completa
- */
-export interface Unidad {
-  id: string;
-  productoId: string;
-  sku: string;
-  productoNombre: string;          // Desnormalizado para display
-
-  // Identificación
-  numeroUnidad: number;            // Número secuencial por OC
-  codigoUnidad: string;            // OC-001-001, OC-001-002, etc.
-  lote?: string;
-  fechaVencimiento?: Timestamp;
-
-  // === COSTOS ===
-  costoUnitarioUSD: number;        // Costo de compra en USA
-  costoFleteUSD: number;           // Costo flete (del Producto.costoFleteUSAPeru)
-  costoTotalUSD: number;           // costoUnitarioUSD + costoFleteUSD
-  tcCompra: number;                // TC al momento de la OC
-  tcPago: number;                  // TC al momento del pago de la OC
-
-  // === COSTOS EN PEN (CMV - Costo de Mercadería Vendida) ===
-  // Nota: Los campos ctru* se mantienen por compatibilidad, usar cmv* en código nuevo
-
-  /**
-   * Costo de Mercadería Vendida base en PEN = costoTotalUSD × tcPago
-   * Antes llamado "ctruBase"
-   */
-  ctruBase: number;
-
-  /**
-   * @deprecated No usar. Los gastos del período no deben mezclarse con el costo unitario.
-   * Se mantiene por compatibilidad, pero su valor debería ser 0.
-   */
-  ctruGastos: number;
-
-  /**
-   * CMV (Costo de Mercadería Vendida) = ctruBase
-   * Antes llamado "ctruDinamico". Ahora es igual a ctruBase.
-   * Este es el costo real de la unidad para calcular rentabilidad.
-   */
-  ctruDinamico: number;
-
-  // === UBICACIÓN Y ESTADO ===
-  estado: EstadoUnidad;
-  almacenActualId: string;         // ID del almacén/viajero actual
-  almacenActualNombre: string;     // Desnormalizado
-  almacenActualCodigo: string;     // Desnormalizado
-  paisActual: 'USA' | 'Peru';
-
-  // === FECHAS DE TRAZABILIDAD ===
-  fechaCreacion: Timestamp;        // Cuando se creó la unidad (recepción OC en USA)
-  fechaRecepcionUSA: Timestamp;    // Cuando llegó al primer almacén USA
-  fechaSalidaUSA?: Timestamp;      // Cuando salió de USA hacia Perú
-  fechaLlegadaPeru?: Timestamp;    // Cuando llegó a Perú
-  fechaAsignacion?: Timestamp;     // Cuando se asignó a un pedido
-  fechaEntrega?: Timestamp;        // Cuando se entregó al cliente
-
-  // Tiempo en almacén actual (calculado)
-  diasEnAlmacenActual?: number;
-
-  // === REFERENCIAS ===
-  ordenCompraId: string;
-  numeroOrden: string;             // Desnormalizado
-  proveedorId?: string;
-
-  ventaId?: string;
-  numeroVenta?: string;
-
-  // Transferencia actual (si está en tránsito)
-  transferenciaActualId?: string;
-  numeroTransferencia?: string;
-
-  // === HISTORIAL DE MOVIMIENTOS ===
-  historial: MovimientoUnidad[];
-
-  // === AUDITORÍA ===
-  creadoPor: string;
-  actualizadoPor?: string;
-  ultimaEdicion?: Timestamp;
-}
-
-/**
- * Movimiento/cambio de estado de una unidad
- */
-export interface MovimientoUnidad {
-  id: string;
-  fecha: Timestamp;
-  tipo: 'recepcion_usa' | 'transferencia_interna' | 'envio_peru' | 'recepcion_peru' | 'asignacion' | 'despacho' | 'entrega' | 'devolucion' | 'ajuste' | 'danio' | 'vencimiento';
-  estadoAnterior: EstadoUnidad;
-  estadoNuevo: EstadoUnidad;
-
-  // Almacenes involucrados
-  almacenOrigenId?: string;
-  almacenOrigenNombre?: string;
-  almacenDestinoId?: string;
-  almacenDestinoNombre?: string;
-
-  // Referencia a documento relacionado
-  referenciaId?: string;           // ID de transferencia, venta, etc.
-  referenciaTipo?: 'transferencia' | 'venta' | 'ajuste' | 'orden_compra';
-  referenciaNumero?: string;
-
-  // Detalles
-  motivo: string;
-  observaciones?: string;
-  realizadoPor: string;
-}
-
-/**
- * Datos para crear unidades (al recibir OC en USA)
- */
-export interface UnidadFormData {
-  productoId: string;
-  cantidad: number;
-  lote?: string;
-  fechaVencimiento?: Date;
-  costoUnitarioUSD: number;
-  tcCompra: number;
-  tcPago: number;
-  almacenDestinoId: string;        // ID del viajero/almacén USA
-  ordenCompraId: string;
-  numeroOrden: string;
-  observaciones?: string;
-}
-
-/**
- * Resumen de stock por almacén
- */
-export interface StockPorAlmacen {
-  almacenId: string;
-  almacenNombre: string;
-  almacenCodigo: string;
-  pais: 'USA' | 'Peru';
-  esViajero: boolean;
-  cantidad: number;
-  valorUSD: number;
-  valorPEN: number;
-  tiempoPromedioAlmacenamiento: number;
-}
-
-/**
- * Resumen general de inventario
- */
-export interface ResumenInventario {
-  // Totales
-  totalUnidades: number;
-  unidadesUSA: number;
-  unidadesPeru: number;
-  unidadesTransito: number;
-  unidadesDisponibles: number;
-  unidadesAsignadas: number;
-
-  // Valores
-  valorTotalUSD: number;
-  valorTotalPEN: number;
-  ctruPromedioPEN: number;
-
-  // Por almacén
-  stockPorAlmacen: StockPorAlmacen[];
-
-  // Alertas
-  unidadesProximasVencer: number;  // < 90 días
-  unidadesMuchoTiempoUSA: number;  // > 30 días en USA
-}
+// Los tipos de Unidad, EstadoUnidad, MovimientoUnidad, UnidadFormData
+// están definidos en unidad.types.ts (fuente canónica)

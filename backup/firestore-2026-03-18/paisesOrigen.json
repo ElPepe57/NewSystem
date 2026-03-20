@@ -1,0 +1,82 @@
+[
+  {
+    "_id": "306AtKNOF9LprpSfBOBR",
+    "nombre": "China",
+    "codigo": "CHN",
+    "codigoISO": "CN",
+    "activo": true,
+    "tiempoTransitoEstimadoDias": 45,
+    "modeloLogistico": "courier",
+    "monedaCompra": "USD",
+    "creadoPor": "seed-script",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T06:18:15.000Z",
+      "_seconds": 1773641895
+    }
+  },
+  {
+    "_id": "FD38Wthht2GSYQRSPtDB",
+    "nombre": "Peru",
+    "codigo": "PER",
+    "codigoISO": "PE",
+    "activo": true,
+    "tiempoTransitoEstimadoDias": 0,
+    "modeloLogistico": "local",
+    "monedaCompra": "PEN",
+    "creadoPor": "seed-script",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T06:18:17.000Z",
+      "_seconds": 1773641897
+    }
+  },
+  {
+    "_id": "Ol8bcfPjfgrCCNeUKfH9",
+    "nombre": "USA",
+    "codigo": "US",
+    "codigoISO": null,
+    "activo": true,
+    "tiempoTransitoEstimadoDias": null,
+    "modeloLogistico": null,
+    "monedaCompra": null,
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T06:55:04.000Z",
+      "_seconds": 1773644104
+    }
+  },
+  {
+    "_id": "OyFWC421vtXG6ebSAOql",
+    "nombre": "Estados Unidos",
+    "codigo": "USA",
+    "codigoISO": "US",
+    "activo": true,
+    "tiempoTransitoEstimadoDias": 5,
+    "modeloLogistico": "viajero",
+    "monedaCompra": "USD",
+    "creadoPor": "seed-script",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T06:18:13.000Z",
+      "_seconds": 1773641893
+    }
+  },
+  {
+    "_id": "fgGaHfdGXixCFWiiyNH8",
+    "nombre": "Corea del Sur",
+    "codigo": "KOR",
+    "codigoISO": "KR",
+    "activo": true,
+    "tiempoTransitoEstimadoDias": 20,
+    "modeloLogistico": "courier",
+    "monedaCompra": "USD",
+    "creadoPor": "seed-script",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-16T06:18:16.000Z",
+      "_seconds": 1773641896
+    }
+  }
+]

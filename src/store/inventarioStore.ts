@@ -32,7 +32,7 @@ interface InventarioState {
 
   // Acciones
   fetchInventario: (filtros?: InventarioFiltros) => Promise<void>;
-  fetchInventarioPorPais: (pais: 'USA' | 'Peru') => Promise<InventarioPorPais>;
+  fetchInventarioPorPais: (pais: string) => Promise<InventarioPorPais>;
   fetchResumen: () => Promise<void>;
   fetchStats: () => Promise<void>;
   sincronizarCompleto: () => Promise<SincronizacionResultado>;
@@ -58,7 +58,7 @@ export const useInventarioStore = create<InventarioState>((set, get) => ({
     }
   },
 
-  fetchInventarioPorPais: async (pais: 'USA' | 'Peru') => {
+  fetchInventarioPorPais: async (pais: string) => {
     set({ loading: true, error: null });
     try {
       const data = await inventarioService.getInventarioPorPais(pais);

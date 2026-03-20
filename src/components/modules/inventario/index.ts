@@ -10,5 +10,6 @@ export { InventarioAnalytics } from './InventarioAnalytics';
 export { AlertasInventario } from './AlertasInventario';
 export { PromocionModal } from './PromocionModal';
 export type { PromocionData } from './PromocionModal';
+export { EditarVencimientoModal } from './EditarVencimientoModal';
 export { RecepcionForm } from './RecepcionForm';
 export { UnidadTable } from './UnidadTable';

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, FlaskConical } from 'lucide-react';
 import { Button, Input, Modal } from '../../common';
 import { useTipoProductoStore } from '../../../store/tipoProductoStore';
+import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { useAuthStore } from '../../../store/authStore';
 import type { TipoProducto, TipoProductoFormData } from '../../../types/tipoProducto.types';
 
@@ -20,6 +21,7 @@ export function TipoProductoForm({
 }: TipoProductoFormProps) {
   const { user } = useAuthStore();
   const { create, update, loading, error, clearError } = useTipoProductoStore();
+  const { lineasActivas, fetchLineasActivas } = useLineaNegocioStore();
 
   const [formData, setFormData] = useState<TipoProductoFormData>({
     nombre: '',
@@ -29,8 +31,16 @@ export function TipoProductoForm({
     beneficiosPrincipales: []
   });
 
+  const [selectedLineas, setSelectedLineas] = useState<string[]>([]);
   const [aliasInput, setAliasInput] = useState('');
   const [beneficioInput, setBeneficioInput] = useState('');
+
+  // Cargar lineas activas
+  useEffect(() => {
+    if (lineasActivas.length === 0) {
+      fetchLineasActivas();
+    }
+  }, []);
 
   // Cargar datos si es edicion
   useEffect(() => {
@@ -42,6 +52,7 @@ export function TipoProductoForm({
         principioActivo: tipoProducto.principioActivo || '',
         beneficiosPrincipales: tipoProducto.beneficiosPrincipales || []
       });
+      setSelectedLineas(tipoProducto.lineaNegocioIds || []);
     } else {
       setFormData({
         nombre: '',
@@ -50,6 +61,7 @@ export function TipoProductoForm({
         principioActivo: '',
         beneficiosPrincipales: []
       });
+      setSelectedLineas([]);
     }
     clearError();
   }, [tipoProducto, isOpen]);
@@ -93,15 +105,25 @@ export function TipoProductoForm({
     }));
   };
 
+  const toggleLinea = (lineaId: string) => {
+    setSelectedLineas(prev =>
+      prev.includes(lineaId)
+        ? prev.filter(id => id !== lineaId)
+        : [...prev, lineaId]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
+    const dataToSave = { ...formData, lineaNegocioIds: selectedLineas };
+
     try {
       if (tipoProducto) {
-        await update(tipoProducto.id, formData, user.uid);
+        await update(tipoProducto.id, dataToSave, user.uid);
       } else {
-        await create(formData, user.uid);
+        await create(dataToSave, user.uid);
       }
       onSuccess?.();
       onClose();
@@ -236,6 +258,37 @@ export function TipoProductoForm({
               ))}
             </div>
           )}
+        </div>
+
+        {/* Lineas de Negocio */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Lineas de negocio
+          </label>
+          <p className="text-xs text-gray-500 mb-2">
+            Dejar vacio para disponible en todas las lineas
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {lineasActivas.map(linea => {
+              const isSelected = selectedLineas.includes(linea.id);
+              return (
+                <button
+                  key={linea.id}
+                  type="button"
+                  onClick={() => toggleLinea(linea.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    isSelected
+                      ? 'border-transparent text-white'
+                      : 'border-gray-300 text-gray-600 hover:border-gray-400'
+                  }`}
+                  style={isSelected ? { backgroundColor: linea.color } : undefined}
+                >
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: linea.color }} />
+                  {linea.icono} {linea.nombre}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-4 border-t">

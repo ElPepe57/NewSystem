@@ -4,8 +4,9 @@ import { Timestamp } from 'firebase/firestore';
  * Tipos de gasto según su naturaleza
  */
 export type TipoGasto =
-  | 'flete_usa_peru'           // Logística internacional
-  | 'almacenaje'                // Almacenamiento USA o Perú
+  | 'flete_internacional'       // Logística internacional (genérico, reemplaza flete_usa_peru)
+  | 'flete_usa_peru'           // Legacy: equivale a flete_internacional (backward compat)
+  | 'almacenaje'                // Almacenamiento origen o Perú
   | 'administrativo'            // Gastos administrativos
   | 'operativo'                 // Gastos operativos
   | 'marketing'                 // Marketing y publicidad
@@ -186,13 +187,14 @@ export const CATEGORIAS_GASTO_INFO = CATEGORIAS_GASTO;
  * Solo GV (Gasto de Venta) - comisiones, pasarelas, fees, etc.
  * NOTA: GD (Gasto de Distribución) ahora se gestiona en el módulo de Transportistas
  */
-export const CATEGORIAS_GASTO_VENTA: CategoriaGasto[] = ['GV'];
+export const CATEGORIAS_GASTO_VENTA: CategoriaGasto[] = ['GV', 'GD'];
 
 /**
  * Labels para mostrar tipos de gasto en la UI
  */
 export const TIPOS_GASTO_LABELS: Record<TipoGasto, string> = {
-  flete_usa_peru: 'Flete USA-Perú',
+  flete_internacional: 'Flete Internacional',
+  flete_usa_peru: 'Flete USA-Perú (legacy)',
   almacenaje: 'Almacenaje',
   administrativo: 'Administrativo',
   operativo: 'Operativo',
@@ -222,8 +224,42 @@ export type FrecuenciaGasto =
  */
 export type EstadoGasto =
   | 'pendiente'
+  | 'parcial'
   | 'pagado'
   | 'cancelado';
+
+/**
+ * Registro de un pago individual de gasto
+ * Sigue el patrón de PagoOrdenCompra para consistencia
+ */
+export interface PagoGasto {
+  id: string;                       // PAG-GAS-{timestamp}-{random}
+  fecha: Timestamp;                 // Fecha real del pago
+
+  // Moneda y montos
+  monedaPago: 'USD' | 'PEN';       // Moneda en la que se pagó
+  montoOriginal: number;            // Monto en la moneda de pago
+  montoUSD: number;                 // Equivalente en USD
+  montoPEN: number;                 // Equivalente en PEN
+
+  // Tipo de cambio
+  tipoCambio: number;               // TC usado para conversión
+
+  // Cuenta y método
+  metodoPago: string;               // efectivo, transferencia_bancaria, yape, etc.
+  cuentaOrigenId?: string;          // ID de la cuenta de tesorería
+
+  // Referencias
+  referencia?: string;              // Nro de operación, voucher, etc.
+  notas?: string;
+
+  // Tesorería
+  movimientoTesoreriaId?: string;   // ID del movimiento en tesorería
+
+  // Auditoría
+  registradoPor: string;
+  fechaRegistro: Timestamp;
+}
 
 /**
  * Gasto del negocio
@@ -246,6 +282,10 @@ export interface Gasto {
   montoOriginal: number;          // En la moneda original
   montoPEN: number;                // Convertido a PEN
   tipoCambio?: number;             // Si es USD, el TC usado
+
+  // Línea de negocio (null = compartido, se prorratea por % ventas entre líneas)
+  lineaNegocioId?: string | null;
+  lineaNegocioNombre?: string | null;
 
   // Prorrateo
   esProrrateable: boolean;         // Si se debe prorratear entre unidades
@@ -270,9 +310,14 @@ export interface Gasto {
 
   // Pago
   estado: EstadoGasto;
-  metodoPago?: string;             // Efectivo, Tarjeta, Transferencia
-  fechaPago?: Timestamp;
+  metodoPago?: string;             // Efectivo, Tarjeta, Transferencia (legacy)
+  fechaPago?: Timestamp;           // Legacy: fecha del pago único
   numeroComprobante?: string;      // Factura, boleta, etc.
+
+  // Pagos parciales
+  pagos?: PagoGasto[];             // Historial de pagos
+  montoPagado?: number;            // Suma de todos los pagos en PEN
+  montoPendiente?: number;         // montoPEN - montoPagado
 
   // Impacto en CTRU
   impactaCTRU: boolean;            // Si afecta el cálculo de CTRU
@@ -316,6 +361,9 @@ export interface GastoFormData {
   numeroComprobante?: string;
   impactaCTRU: boolean;
   notas?: string;
+  // Línea de negocio (null = compartido entre todas las líneas)
+  lineaNegocioId?: string | null;
+  lineaNegocioNombre?: string | null;
 }
 
 /**

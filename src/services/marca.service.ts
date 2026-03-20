@@ -14,6 +14,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Marca,
   MarcaFormData,
@@ -22,8 +23,9 @@ import type {
   MarcaStats,
   DuplicadoEncontrado
 } from '../types/entidadesMaestras.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'marcas';
+const COLLECTION_NAME = COLLECTIONS.MARCAS;
 
 /**
  * Normalizar texto para búsqueda y comparación
@@ -93,27 +95,7 @@ const levenshteinDistance = (s1: string, s2: string): number => {
  * Formato: MRC-001, MRC-002, etc.
  */
 async function generarCodigoMarca(): Promise<string> {
-  const prefix = 'MRC';
-
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith(prefix)) {
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber('MRC', 3);
 }
 
 export const marcaService = {

@@ -17,8 +17,9 @@ import type {
   ResumenCuentaTransportista
 } from '../types/transportista.types';
 import type { Entrega } from '../types/entrega.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'movimientos_transportista';
+const COLLECTION_NAME = COLLECTIONS.MOVIMIENTOS_TRANSPORTISTA;
 
 export const movimientoTransportistaService = {
   /**
@@ -161,6 +162,45 @@ export const movimientoTransportistaService = {
     };
 
     const docRef = await addDoc(collection(db, COLLECTION_NAME), movimiento);
+    return docRef.id;
+  },
+
+  /**
+   * Registrar movimiento de ajuste (corrección de entrega)
+   * delta > 0: le debemos más al transportista
+   * delta < 0: le debemos menos (o nos debe)
+   */
+  async registrarAjuste(
+    transportistaId: string,
+    transportistaNombre: string,
+    delta: number,
+    observaciones: string,
+    entregaId: string,
+    entregaCodigo: string,
+    userId: string
+  ): Promise<string> {
+    const saldoAnterior = await this.getSaldoActual(transportistaId);
+    const saldoNuevo = saldoAnterior + delta;
+    const now = Timestamp.now();
+
+    const movimiento: Omit<MovimientoTransportista, 'id'> = {
+      transportistaId,
+      transportistaNombre,
+      tipo: 'ajuste',
+      entregaId,
+      entregaCodigo,
+      costoEntrega: 0,
+      saldoAnterior,
+      movimientoNeto: delta,
+      saldoNuevo,
+      fecha: now,
+      observaciones,
+      creadoPor: userId,
+      fechaCreacion: now
+    };
+
+    const docRef = await addDoc(collection(db, COLLECTION_NAME), movimiento);
+    console.log(`[Ajuste] ${transportistaNombre}: delta S/${delta.toFixed(2)}, saldo ${saldoAnterior.toFixed(2)} → ${saldoNuevo.toFixed(2)}`);
     return docRef.id;
   },
 

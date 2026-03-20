@@ -30,7 +30,50 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
 
   return (
     <div>
-      <div className="overflow-x-auto">
+      {/* Mobile: Card layout */}
+      <div className="sm:hidden space-y-2">
+        {productosPaginados.map((producto) => (
+          <div key={producto.productoId} className="border border-gray-100 rounded-lg p-2.5">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-medium text-gray-900 truncate">
+                  {producto.marca} {producto.nombreComercial}
+                </div>
+                <div className="text-[10px] text-gray-400">{producto.sku}</div>
+              </div>
+              <div className="flex items-center shrink-0">
+                {producto.margenPromedio >= 0 ? (
+                  <TrendingUp className="h-3 w-3 text-success-500 mr-0.5" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 text-danger-500 mr-0.5" />
+                )}
+                <span className={`text-xs font-bold ${
+                  producto.margenPromedio >= 0 ? 'text-success-600' : 'text-danger-600'
+                }`}>
+                  {producto.margenPromedio.toFixed(1)}%
+                </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5 text-[10px]">
+              <div>
+                <span className="text-gray-400">Uds</span>
+                <div className="font-semibold text-gray-900">{producto.unidadesVendidas}</div>
+              </div>
+              <div>
+                <span className="text-gray-400">Ventas</span>
+                <div className="font-semibold text-gray-900">S/ {producto.ventasTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+              </div>
+              <div>
+                <span className="text-gray-400">Utilidad</span>
+                <div className="font-semibold text-success-600">S/ {producto.utilidadPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: Table layout */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>

@@ -42,8 +42,10 @@ interface GastoState {
   buscarGastos: (filtros: GastoFiltros) => Promise<void>;
   crearGasto: (data: GastoFormData, userId: string) => Promise<string>;
   actualizarGasto: (id: string, data: Partial<GastoFormData>, userId: string) => Promise<void>;
+  eliminarGasto: (id: string) => Promise<void>;
   registrarPagoGasto: (gastoId: string, datoPago: PagoGastoData, userId: string) => Promise<void>;
   getGastosPendientesRecalculo: () => Promise<Gasto[]>;
+  fetchGastosPendientesYParciales: () => Promise<void>;
   setViewMode: (mode: ViewMode, mes?: number, anio?: number) => void;
   reloadCurrentView: () => Promise<void>;
   clearError: () => void;
@@ -154,11 +156,38 @@ export const useGastoStore = create<GastoState>((set, get) => ({
     }
   },
 
+  eliminarGasto: async (id: string) => {
+    set({ loading: true, error: null });
+    try {
+      await gastoService.delete(id);
+      await get().reloadCurrentView();
+      await get().fetchStats();
+      set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
   getGastosPendientesRecalculo: async () => {
     try {
       return await gastoService.getGastosPendientesRecalculoCTRU();
     } catch (error: any) {
       set({ error: error.message });
+      throw error;
+    }
+  },
+
+  fetchGastosPendientesYParciales: async () => {
+    set({ loading: true, error: null });
+    try {
+      const allGastos = await gastoService.getAll();
+      const gastos = allGastos.filter(
+        g => g.estado === 'pendiente' || g.estado === 'parcial'
+      );
+      set({ gastos, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
       throw error;
     }
   },
@@ -198,7 +227,7 @@ export const useGastoStore = create<GastoState>((set, get) => ({
     if (currentViewMode === 'all') {
       await get().fetchGastos();
     } else if (currentViewMode === 'pending') {
-      await get().buscarGastos({ estado: 'pendiente' });
+      await get().fetchGastosPendientesYParciales();
     } else {
       await get().fetchGastosMes(currentMonth, currentYear);
     }

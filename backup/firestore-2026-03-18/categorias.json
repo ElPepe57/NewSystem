@@ -1,0 +1,658 @@
+[
+  {
+    "_id": "0ZltIcwO16j3HvjFmuNN",
+    "nombreNormalizado": "piel-y-articulaciones",
+    "nivel": 1,
+    "ruta": [
+      "Piel y Articulaciones"
+    ],
+    "categoriaPadreId": null,
+    "ordenDisplay": 16,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:49.000Z",
+      "_seconds": 1767427189
+    },
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombre": "Piel y Articulaciones",
+    "codigo": "CAT-016",
+    "icono": "Layers",
+    "slug": "piel-y-articulaciones",
+    "mostrarEnWeb": true,
+    "orden": 16,
+    "color": "#FB923C",
+    "descripcion": "Colágeno y productos para piel y articulaciones",
+    "imagenUrl": "",
+    "estado": "activa",
+    "metricas": {
+      "subcategorias": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    },
+    "productosTotal": 2,
+    "productosActivos": 2,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    }
+  },
+  {
+    "_id": "17SOpbcFfOqdYgPYvRyY",
+    "nivel": 1,
+    "imagenUrl": "",
+    "mostrarEnWeb": true,
+    "nombreNormalizado": "energia-y-vitalidad",
+    "slug": "energia-y-vitalidad",
+    "ordenDisplay": 6,
+    "color": "#EC4899",
+    "ruta": [
+      "Energía y Vitalidad"
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:45.000Z",
+      "_seconds": 1767427185
+    },
+    "orden": 6,
+    "nombre": "Energía y Vitalidad",
+    "categoriaPadreId": null,
+    "codigo": "CAT-006",
+    "descripcion": "Vitaminas B, adaptógenos para energía",
+    "icono": "Zap",
+    "estado": "activa",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "productosActivos": 11,
+    "productosTotal": 11,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "subcategorias": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 12,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "5bhhD9Sc4bj2dIM5rHMS",
+    "descripcion": "Productos de aplicación externa",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:49.000Z",
+      "_seconds": 1767427189
+    },
+    "estado": "activa",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "color": "#64748B",
+    "categoriaPadreId": null,
+    "nombre": "Uso Tópico",
+    "orden": 15,
+    "ruta": [
+      "Uso Tópico"
+    ],
+    "imagenUrl": "",
+    "ordenDisplay": 15,
+    "nombreNormalizado": "uso-topico",
+    "mostrarEnWeb": true,
+    "nivel": 1,
+    "icono": "Hand",
+    "slug": "uso-topico",
+    "codigo": "CAT-015",
+    "metricas": {
+      "margenPromedio": 0,
+      "subcategorias": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    },
+    "productosTotal": 2,
+    "productosActivos": 2,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:01.000Z",
+      "_seconds": 1767499561
+    }
+  },
+  {
+    "_id": "EGx2049mZLyyEMuVePHR",
+    "nivel": 1,
+    "orden": 9,
+    "color": "#F472B6",
+    "slug": "salud-hormonal",
+    "ordenDisplay": 9,
+    "ruta": [
+      "Salud Hormonal"
+    ],
+    "categoriaPadreId": null,
+    "nombreNormalizado": "salud-hormonal",
+    "estado": "activa",
+    "icono": "Activity",
+    "descripcion": "Productos para balance hormonal",
+    "mostrarEnWeb": true,
+    "codigo": "CAT-009",
+    "nombre": "Salud Hormonal",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:46.000Z",
+      "_seconds": 1767427186
+    },
+    "imagenUrl": "",
+    "productosTotal": 4,
+    "productosActivos": 4,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:01.000Z",
+      "_seconds": 1767499561
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "subcategorias": 0,
+      "margenPromedio": 0,
+      "productosTotal": 4,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "GAgq6uBjQobfqGLNxbSD",
+    "mostrarEnWeb": true,
+    "nivel": 1,
+    "orden": 13,
+    "estado": "activa",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "icono": "Droplet",
+    "nombre": "Salud Hepática",
+    "nombreNormalizado": "salud-hepatica",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:48.000Z",
+      "_seconds": 1767427188
+    },
+    "imagenUrl": "",
+    "ordenDisplay": 13,
+    "categoriaPadreId": null,
+    "color": "#84CC16",
+    "descripcion": "Cardo mariano y productos para el hígado",
+    "ruta": [
+      "Salud Hepática"
+    ],
+    "slug": "salud-hepatica",
+    "codigo": "CAT-013",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "subcategorias": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    },
+    "productosTotal": 2,
+    "productosActivos": 2,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    }
+  },
+  {
+    "_id": "dBHJjh56f6PFVPsUdD0z",
+    "nombreNormalizado": "manejo-del-estres",
+    "codigo": "CAT-007",
+    "color": "#14B8A6",
+    "slug": "manejo-del-estres",
+    "ordenDisplay": 7,
+    "creadoPor": "SYSTEM_MIGRATION",
+    "mostrarEnWeb": true,
+    "categoriaPadreId": null,
+    "nivel": 1,
+    "icono": "Leaf",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:45.000Z",
+      "_seconds": 1767427185
+    },
+    "estado": "activa",
+    "orden": 7,
+    "descripcion": "Ashwagandha y productos para el estrés",
+    "nombre": "Manejo del Estrés",
+    "imagenUrl": "",
+    "ruta": [
+      "Manejo del Estrés"
+    ],
+    "productosActivos": 5,
+    "productosTotal": 5,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "subcategorias": 0,
+      "productosTotal": 6,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "f2YmV66m9kw0VwpvnhcK",
+    "mostrarEnWeb": true,
+    "icono": "Sparkles",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "descripcion": "NAD+, resveratrol, productos antienvejecimiento",
+    "slug": "antioxidantes-y-metabolismo",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:47.000Z",
+      "_seconds": 1767427187
+    },
+    "ruta": [
+      "Antioxidantes y Metabolismo"
+    ],
+    "nombreNormalizado": "antioxidantes-y-metabolismo",
+    "nombre": "Antioxidantes y Metabolismo",
+    "imagenUrl": "",
+    "categoriaPadreId": null,
+    "ordenDisplay": 10,
+    "color": "#A855F7",
+    "estado": "activa",
+    "orden": 10,
+    "codigo": "CAT-010",
+    "nivel": 1,
+    "productosTotal": 10,
+    "productosActivos": 10,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:01.000Z",
+      "_seconds": 1767499561
+    },
+    "metricas": {
+      "subcategorias": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 10,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "fwh91Ftx55o8DXTSJKBt",
+    "orden": 14,
+    "nombre": "Salud Celular",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activa",
+    "descripcion": "Folato y productos para la salud celular",
+    "ordenDisplay": 14,
+    "nombreNormalizado": "salud-celular",
+    "categoriaPadreId": null,
+    "icono": "Circle",
+    "imagenUrl": "",
+    "slug": "salud-celular",
+    "mostrarEnWeb": true,
+    "ruta": [
+      "Salud Celular"
+    ],
+    "codigo": "CAT-014",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:48.000Z",
+      "_seconds": 1767427188
+    },
+    "color": "#0EA5E9",
+    "nivel": 1,
+    "metricas": {
+      "margenPromedio": 0,
+      "subcategorias": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 3,
+      "productosActivos": 3
+    },
+    "productosTotal": 3,
+    "productosActivos": 3,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:01.000Z",
+      "_seconds": 1767499561
+    }
+  },
+  {
+    "_id": "hwD1vUG7bXJK5FIkgbRc",
+    "orden": 4,
+    "nivel": 1,
+    "color": "#8B5CF6",
+    "slug": "salud-cerebral",
+    "mostrarEnWeb": true,
+    "nombreNormalizado": "salud-cerebral",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "descripcion": "Productos para la función cognitiva y cerebral",
+    "imagenUrl": "",
+    "codigo": "CAT-004",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:43.000Z",
+      "_seconds": 1767427183
+    },
+    "ruta": [
+      "Salud Cerebral"
+    ],
+    "categoriaPadreId": null,
+    "ordenDisplay": 4,
+    "icono": "Brain",
+    "nombre": "Salud Cerebral",
+    "estado": "activa",
+    "productosTotal": 28,
+    "productosActivos": 28,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "subcategorias": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "productosTotal": 31,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "jmux2hVtQi6EGXDzP3wS",
+    "nivel": 1,
+    "mostrarEnWeb": true,
+    "color": "#F59E0B",
+    "icono": "Salad",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:41.000Z",
+      "_seconds": 1767427181
+    },
+    "ruta": [
+      "Salud Digestiva"
+    ],
+    "categoriaPadreId": null,
+    "nombreNormalizado": "salud-digestiva",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "slug": "salud-digestiva",
+    "estado": "activa",
+    "orden": 2,
+    "descripcion": "Probióticos, enzimas y productos para la digestión",
+    "nombre": "Salud Digestiva",
+    "ordenDisplay": 2,
+    "codigo": "CAT-002",
+    "productosTotal": 7,
+    "productosActivos": 7,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:01.000Z",
+      "_seconds": 1767499561
+    },
+    "metricas": {
+      "subcategorias": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 7,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "kPINIUJXUAuo6JX5Oi78",
+    "color": "#3B82F6",
+    "ruta": [
+      "Multivitamínicos"
+    ],
+    "imagenUrl": "",
+    "icono": "Pill",
+    "ordenDisplay": 11,
+    "nivel": 1,
+    "mostrarEnWeb": true,
+    "categoriaPadreId": null,
+    "slug": "multivitaminicos",
+    "estado": "activa",
+    "codigo": "CAT-011",
+    "nombre": "Multivitamínicos",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:47.000Z",
+      "_seconds": 1767427187
+    },
+    "orden": 11,
+    "nombreNormalizado": "multivitaminicos",
+    "descripcion": "Multivitamínicos para todas las edades",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "subcategorias": 0,
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 12,
+      "productosActivos": 12
+    },
+    "productosTotal": 12,
+    "productosActivos": 12,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:01.000Z",
+      "_seconds": 1767499561
+    }
+  },
+  {
+    "_id": "l7tF7eHXt1QVfVVqMjtQ",
+    "color": "#EF4444",
+    "codigo": "CAT-003",
+    "ordenDisplay": 3,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:42.000Z",
+      "_seconds": 1767427182
+    },
+    "icono": "Heart",
+    "ruta": [
+      "Salud Cardiovascular"
+    ],
+    "estado": "activa",
+    "categoriaPadreId": null,
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "descripcion": "Omega 3, CoQ10 y productos para el corazón",
+    "nivel": 1,
+    "nombreNormalizado": "salud-cardiovascular",
+    "mostrarEnWeb": true,
+    "slug": "salud-cardiovascular",
+    "nombre": "Salud Cardiovascular",
+    "orden": 3,
+    "productosTotal": 24,
+    "productosActivos": 24,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    },
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "subcategorias": 0,
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 27,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "lMnuJZ8CpnklZTd1GwpX",
+    "estado": "activa",
+    "categoriaPadreId": null,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:44.000Z",
+      "_seconds": 1767427184
+    },
+    "icono": "Moon",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "mostrarEnWeb": true,
+    "ordenDisplay": 5,
+    "nombre": "Sueño y Relajación",
+    "codigo": "CAT-005",
+    "color": "#6366F1",
+    "descripcion": "Melatonina, magnesio y productos para el descanso",
+    "ruta": [
+      "Sueño y Relajación"
+    ],
+    "imagenUrl": "",
+    "nivel": 1,
+    "orden": 5,
+    "nombreNormalizado": "sueno-y-relajacion",
+    "slug": "sueno-y-relajacion",
+    "productosActivos": 19,
+    "productosTotal": 19,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "subcategorias": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 23,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "oulktbC2apNdEBcu5teG",
+    "estado": "activa",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:46.000Z",
+      "_seconds": 1767427186
+    },
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "icono": "Bone",
+    "nivel": 1,
+    "orden": 8,
+    "descripcion": "Calcio, vitamina D, colágeno para huesos",
+    "mostrarEnWeb": true,
+    "nombreNormalizado": "salud-osea",
+    "nombre": "Salud Ósea",
+    "categoriaPadreId": null,
+    "ruta": [
+      "Salud Ósea"
+    ],
+    "slug": "salud-osea",
+    "codigo": "CAT-008",
+    "color": "#78716C",
+    "ordenDisplay": 8,
+    "productosActivos": 13,
+    "productosTotal": 13,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "subcategorias": 0,
+      "productosTotal": 14,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "qmqDYhlbrrkW3TOzuq2T",
+    "ruta": [
+      "Sistema Inmune"
+    ],
+    "icono": "Shield",
+    "nombreNormalizado": "sistema-inmune",
+    "color": "#10B981",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:40.000Z",
+      "_seconds": 1767427180
+    },
+    "slug": "sistema-inmune",
+    "descripcion": "Productos para fortalecer el sistema inmunológico",
+    "mostrarEnWeb": true,
+    "nivel": 1,
+    "estado": "activa",
+    "nombre": "Sistema Inmune",
+    "categoriaPadreId": null,
+    "codigo": "CAT-001",
+    "imagenUrl": "",
+    "orden": 1,
+    "ordenDisplay": 1,
+    "creadoPor": "SYSTEM_MIGRATION",
+    "metricas": {
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "subcategorias": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 13,
+      "productosActivos": 13
+    },
+    "productosTotal": 13,
+    "productosActivos": 13,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:01.000Z",
+      "_seconds": 1767499561
+    }
+  },
+  {
+    "_id": "txBrB1BjSURlrW7V67pW",
+    "mostrarEnWeb": true,
+    "icono": "Eye",
+    "categoriaPadreId": null,
+    "ruta": [
+      "Salud Visual"
+    ],
+    "codigo": "CAT-012",
+    "orden": 12,
+    "color": "#06B6D4",
+    "descripcion": "Luteína y productos para la vista",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "slug": "salud-visual",
+    "estado": "activa",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:48.000Z",
+      "_seconds": 1767427188
+    },
+    "nivel": 1,
+    "imagenUrl": "",
+    "ordenDisplay": 12,
+    "nombre": "Salud Visual",
+    "nombreNormalizado": "salud-visual",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "subcategorias": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    },
+    "productosActivos": 1,
+    "productosTotal": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    }
+  }
+]

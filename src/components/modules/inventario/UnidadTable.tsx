@@ -1,7 +1,9 @@
 import React from 'react';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { Package, TrendingUp, MapPin, Calendar, Clock } from 'lucide-react';
 import { Badge } from '../../common';
 import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
+import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../utils/multiOrigen.helpers';
 
 interface UnidadTableProps {
   unidades: Unidad[];
@@ -9,15 +11,19 @@ interface UnidadTableProps {
   loading?: boolean;
 }
 
-const estadoLabels: Record<EstadoUnidad, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
-  recibida_usa: { label: 'Recibida USA', variant: 'info' },
-  en_transito_usa: { label: 'En Tránsito USA', variant: 'warning' },
-  en_transito_peru: { label: 'En Tránsito a Perú', variant: 'warning' },
-  disponible_peru: { label: 'Disponible', variant: 'success' },
-  reservada: { label: 'Reservada', variant: 'warning' },
-  vendida: { label: 'Vendida', variant: 'default' },
-  vencida: { label: 'Vencida', variant: 'danger' },
-  danada: { label: 'Dañada', variant: 'danger' }
+const getEstadoVariant = (estado: EstadoUnidad): 'success' | 'warning' | 'danger' | 'info' | 'default' => {
+  if (esEstadoEnOrigen(estado)) return 'info';
+  if (esEstadoEnTransitoOrigen(estado)) return 'warning';
+  switch (estado) {
+    case 'en_transito_peru': return 'warning';
+    case 'disponible_peru': return 'success';
+    case 'reservada': return 'warning';
+    case 'asignada_pedido': return 'warning';
+    case 'vendida': return 'default';
+    case 'vencida': return 'danger';
+    case 'danada': return 'danger';
+    default: return 'default';
+  }
 };
 
 export const UnidadTable: React.FC<UnidadTableProps> = ({
@@ -43,20 +49,6 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
     );
   }
 
-  const formatDate = (timestamp: unknown) => {
-    if (!timestamp) return '-';
-    // Handle Firestore Timestamp
-    const ts = timestamp as { toDate?: () => Date };
-    if (ts.toDate) {
-      const date = ts.toDate();
-      return date.toLocaleDateString('es-PE', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    }
-    return '-';
-  };
 
   return (
     <div className="overflow-x-auto">
@@ -91,7 +83,10 @@ export const UnidadTable: React.FC<UnidadTableProps> = ({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {unidades.map((unidad) => {
-            const estadoInfo = estadoLabels[unidad.estado] || { label: unidad.estado, variant: 'default' as const };
+            const estadoInfo = {
+              label: getLabelEstadoUnidad(unidad.estado, unidad.paisOrigen || unidad.pais),
+              variant: getEstadoVariant(unidad.estado)
+            };
 
             return (
               <tr key={unidad.id} className="hover:bg-gray-50">

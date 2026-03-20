@@ -68,9 +68,9 @@ const variantStyles = {
     }
   },
   pills: {
-    container: 'bg-gray-100 p-1 rounded-lg inline-flex',
+    container: 'bg-gray-100 p-1 rounded-lg flex sm:inline-flex',
     tab: {
-      base: 'px-4 py-2 font-medium text-gray-600 rounded-md transition-all',
+      base: 'px-2.5 sm:px-4 py-1.5 sm:py-2 font-medium text-gray-600 rounded-md transition-all',
       active: 'bg-white text-gray-900 shadow-sm',
       disabled: 'text-gray-400 cursor-not-allowed'
     }
@@ -180,9 +180,9 @@ export const Tabs: React.FC<TabsProps> = ({
               ${isActive ? styles.tab.active : ''}
               ${isDisabled ? styles.tab.disabled : ''}
               ${sizeStyles[size]}
-              ${fullWidth ? 'flex-1' : ''}
+              ${fullWidth ? 'flex-1' : 'flex-1 sm:flex-initial'}
               ${scrollable ? 'whitespace-nowrap flex-shrink-0' : ''}
-              flex items-center justify-center gap-2
+              flex items-center justify-center gap-1.5 sm:gap-2
             `}
           >
             {tab.icon && <span className="flex-shrink-0">{tab.icon}</span>}
@@ -190,7 +190,7 @@ export const Tabs: React.FC<TabsProps> = ({
             {tab.badge !== undefined && (
               <span
                 className={`
-                  px-1.5 py-0.5 rounded-full text-xs font-medium
+                  px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium
                   ${isActive ? 'bg-primary-100 text-primary-700' : 'bg-gray-200 text-gray-600'}
                 `}
               >

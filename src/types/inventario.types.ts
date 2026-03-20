@@ -18,7 +18,7 @@ export interface InventarioProducto {
   // Ubicación
   almacenId: string;
   almacenNombre: string;
-  pais: 'USA' | 'Peru';
+  pais: string;                   // PaisAlmacen genérico ('USA', 'Peru', 'China', 'Corea', etc.)
 
   // Cantidades agregadas
   totalUnidades: number;
@@ -51,7 +51,7 @@ export interface InventarioProducto {
  * Resumen de inventario por país
  */
 export interface InventarioPorPais {
-  pais: 'USA' | 'Peru';
+  pais: string;                      // PaisAlmacen genérico
   totalProductos: number;         // Productos únicos
   totalUnidades: number;          // Total de unidades
   disponibles: number;
@@ -120,7 +120,7 @@ export interface InventarioFiltros {
   productoId?: string;
   productoSKU?: string;
   almacenId?: string;
-  pais?: 'USA' | 'Peru';
+  pais?: string;
   grupo?: string;
   subgrupo?: string;
   marca?: string;
@@ -176,7 +176,7 @@ export interface AlertaInventario {
   productoNombre: string;
   almacenId: string;
   almacenNombre: string;
-  pais: 'USA' | 'Peru';
+  pais: string;
   mensaje: string;
   cantidadActual: number;
   cantidadRequerida?: number;

@@ -375,8 +375,8 @@ export const StepContent: React.FC<StepContentProps> = ({
     <div
       className={`
         ${className}
-        ${animate ? 'transition-all duration-150 ease-out' : ''}
-        ${isAnimating ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'}
+        ${animate ? 'transition-opacity duration-150 ease-out' : ''}
+        ${isAnimating ? 'opacity-100' : 'opacity-0'}
       `}
       role="region"
       aria-live="polite"

@@ -1,25 +1,27 @@
-import { jsPDF } from 'jspdf';
+// Lazy import: jsPDF (~490KB) solo se carga cuando el usuario genera un PDF
+const getJsPDF = () => import('jspdf').then(m => m.jsPDF);
+import { formatFecha as formatDate } from '../utils/dateFormatters';
 import type { Cotizacion } from '../types/cotizacion.types';
 import type { EmpresaInfo } from '../types/configuracion.types';
 
 /**
  * Configuración de colores para el PDF
- * Tema: Dorado/Amarillo similar al modelo "Buy Me Now!"
+ * Tema: Teal/Verde — Vita Skin Peru
  */
 const COLORS = {
-  primary: { r: 218, g: 165, b: 32 },      // Dorado
-  primaryDark: { r: 184, g: 134, b: 11 },  // Dorado oscuro
+  primary: { r: 26, g: 107, b: 90 },       // Teal brand
+  primaryDark: { r: 17, g: 78, b: 65 },    // Teal oscuro
   black: { r: 0, g: 0, b: 0 },
   gray: { r: 128, g: 128, b: 128 },
   lightGray: { r: 200, g: 200, b: 200 },
   white: { r: 255, g: 255, b: 255 },
-  // Nuevos colores para estados
+  // Colores para estados
   amber: { r: 245, g: 158, b: 11 },        // Ámbar para alertas
   amberLight: { r: 254, g: 243, b: 199 },  // Ámbar claro fondo
   blue: { r: 59, g: 130, b: 246 },         // Azul info
   blueDark: { r: 30, g: 64, b: 175 },      // Azul oscuro
   green: { r: 34, g: 139, b: 34 },         // Verde
-  greenLight: { r: 230, g: 255, b: 230 }   // Verde claro
+  greenLight: { r: 232, g: 245, b: 241 }   // Teal claro fondo
 };
 
 /**
@@ -29,17 +31,6 @@ const formatCurrency = (amount: number): string => {
   return `S/ ${amount.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-/**
- * Formatea una fecha
- */
-const formatDate = (date: Date | { toDate: () => Date }): string => {
-  const d = 'toDate' in date ? date.toDate() : date;
-  return d.toLocaleDateString('es-PE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-};
 
 /**
  * Calcula fecha de vencimiento
@@ -64,7 +55,8 @@ export class CotizacionPdfService {
    * Genera un PDF de cotización formal
    */
   static async generatePdf(cotizacion: Cotizacion, empresa: EmpresaInfo): Promise<Blob> {
-    const doc = new jsPDF({
+    const JsPDF = await getJsPDF();
+    const doc = new JsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4'
@@ -347,12 +339,12 @@ export class CotizacionPdfService {
     const esAdelantoPagado = cotizacion.estado === 'adelanto_pagado' || cotizacion.estado === 'con_abono';
 
     // ========== BLOQUE DE VALIDEZ (siempre visible) ==========
-    doc.setFillColor(254, 243, 199); // Amarillo claro
-    doc.setDrawColor(COLORS.amber.r, COLORS.amber.g, COLORS.amber.b);
+    doc.setFillColor(COLORS.greenLight.r, COLORS.greenLight.g, COLORS.greenLight.b);
+    doc.setDrawColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b);
     doc.setLineWidth(1);
     doc.roundedRect(margin, yPosition, pageWidth - margin * 2, 16, 2, 2, 'FD');
 
-    doc.setTextColor(COLORS.amber.r, COLORS.amber.g, COLORS.amber.b);
+    doc.setTextColor(COLORS.primaryDark.r, COLORS.primaryDark.g, COLORS.primaryDark.b);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
 

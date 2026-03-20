@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { X, CreditCard, AlertCircle, Wallet, Calendar, DollarSign, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button, Input, Card, Select, Badge } from '../../common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
@@ -150,11 +151,6 @@ export const PagoForm: React.FC<PagoFormProps> = ({
     return `${symbol} ${amount.toFixed(2)}`;
   };
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
-  };
 
   // ========== Submit ==========
   const handleSubmit = (e: React.FormEvent) => {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import {
   Users, Globe, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
   BarChart3, Target, Shield, ShieldAlert, ShieldCheck, Eye, X,
@@ -65,13 +66,6 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
     }).format(value);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).format(date);
-  };
 
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 

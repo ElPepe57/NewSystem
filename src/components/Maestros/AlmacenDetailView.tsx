@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import {
   Warehouse, MapPin, Phone, Mail, Calendar, Package, DollarSign,
   TrendingUp, TrendingDown, AlertTriangle, Clock, BarChart3, Truck,
@@ -64,13 +65,6 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
     }).format(value);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).format(date);
-  };
 
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 

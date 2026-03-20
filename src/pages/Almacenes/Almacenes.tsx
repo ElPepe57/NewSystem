@@ -32,6 +32,7 @@ import { useAuthStore } from "../../store/authStore";
 import type { Almacen, AlmacenFormData } from "../../types/almacen.types";
 import { AlmacenForm } from "../../components/modules/almacen/AlmacenForm";
 import { unidadService } from "../../services/unidad.service";
+import { getPaisEmoji } from "../../utils/multiOrigen.helpers";
 
 export const Almacenes: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -85,7 +86,7 @@ export const Almacenes: React.FC = () => {
 
     const confirmed = await confirm({
       title: 'Crear Almacenes por Defecto',
-      message: '¿Deseas crear los almacenes por defecto (Viajero USA y Almacen Peru)?',
+      message: '¿Deseas crear los almacenes por defecto (Almacenes de origen y destino)?',
       confirmText: 'Crear',
       variant: 'info'
     });
@@ -105,7 +106,7 @@ export const Almacenes: React.FC = () => {
       title: 'Recalcular Costos de Flete',
       message: (
         <div className="space-y-2">
-          <p>Esto buscara unidades en Peru que no tengan costo de flete registrado y lo recuperara desde las transferencias USA→Peru correspondientes.</p>
+          <p>Esto buscara unidades en Peru que no tengan costo de flete registrado y lo recuperara desde las transferencias internacionales correspondientes.</p>
           <p className="text-sm text-gray-500">Es util para corregir discrepancias en costos de ventas.</p>
         </div>
       ),
@@ -230,7 +231,7 @@ export const Almacenes: React.FC = () => {
 
     const tags = [
       { label: almacen.estadoAlmacen === "activo" ? "Activo" : "Inactivo", variant: almacen.estadoAlmacen === "activo" ? "success" as const : "default" as const },
-      { label: almacen.pais === 'USA' ? 'USA' : 'Perú', variant: almacen.pais === 'USA' ? "info" as const : "warning" as const }
+      { label: `${getPaisEmoji(almacen.pais)} ${almacen.pais}`, variant: almacen.pais === 'Peru' ? "warning" as const : "info" as const }
     ];
 
     const stats = [
@@ -269,7 +270,7 @@ export const Almacenes: React.FC = () => {
       {/* Header Profesional con Gradiente */}
       <GradientHeader
         title="Almacenes y Viajeros"
-        subtitle="Gestiona viajeros en USA y almacenes de inventario"
+        subtitle="Gestiona viajeros, couriers y almacenes"
         icon={Warehouse}
         variant="dark"
         actions={
@@ -306,8 +307,8 @@ export const Almacenes: React.FC = () => {
         }
         stats={[
           { label: 'Viajeros Activos', value: viajeros.length },
-          { label: 'Unidades USA', value: resumenUSA?.totalUnidadesUSA || 0 },
-          { label: 'Valor USA', value: `$${(resumenUSA?.valorTotalUSA_USD || 0).toLocaleString()}` },
+          { label: 'Unidades Origen', value: resumenUSA?.totalUnidadesUSA || 0 },
+          { label: 'Valor Origen', value: `$${(resumenUSA?.valorTotalUSA_USD || 0).toLocaleString()}` },
           { label: 'Almacenes Perú', value: almacenesPeru.length }
         ]}
       />
@@ -323,14 +324,14 @@ export const Almacenes: React.FC = () => {
           active={activeTab === 'usa'}
         />
         <StatCard
-          label="Unidades en USA"
+          label="Unidades en Origen"
           value={resumenUSA?.totalUnidadesUSA || 0}
           icon={Package}
           variant="blue"
           onClick={() => setActiveTab('usa')}
         />
         <StatCard
-          label="Valor Inventario USA"
+          label="Valor Inventario Origen"
           value={`$${(resumenUSA?.valorTotalUSA_USD || 0).toLocaleString()}`}
           icon={DollarSign}
           variant="green"
@@ -361,8 +362,8 @@ export const Almacenes: React.FC = () => {
       ) : almacenes.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="No hay viajeros ni almacenes registrados"
-          description="Crea un viajero para empezar a gestionar tu inventario en USA"
+          title="No hay almacenes registrados"
+          description="Crea un viajero o almacén para empezar a gestionar tu inventario"
           action={
             <div className="flex justify-center space-x-4">
               <Button variant="secondary" onClick={handleSeedAlmacenes}>
@@ -417,8 +418,8 @@ export const Almacenes: React.FC = () => {
               {almacenesUSA.length === 0 && (
                 <EmptyState
                   icon={Users}
-                  title="No hay viajeros ni almacenes en USA"
-                  description="Crea tu primer viajero para empezar"
+                  title="No hay almacenes registrados"
+                  description="Crea tu primer viajero o almacén para empezar"
                   action={
                     <Button variant="primary" onClick={openCreateModal}>
                       <Plus className="h-4 w-4 mr-2" />

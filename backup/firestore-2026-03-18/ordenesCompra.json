@@ -1,0 +1,2848 @@
+[
+  {
+    "_id": "5jfzwQH2HOJkxjSO1lKu",
+    "numeroOrden": "OC-2026-014",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "subtotalUSD": 453.86000000000007,
+    "totalUSD": 456.93580000000003,
+    "estadoPago": "pendiente",
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "impuestoUSD": 13.615800000000002,
+    "descuentoUSD": 10.54,
+    "tcCompra": 3.443,
+    "almacenDestino": "WkGJXUBgZEzho8QxGk2V",
+    "nombreAlmacenDestino": "Isabel (Amiga de Angie)",
+    "requerimientoId": "4eAYseh6xcJXRzJ4EpJd",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:17:04.000Z",
+      "_seconds": 1773278224
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:27:35.000Z",
+      "_seconds": 1773278855
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:27:44.000Z",
+      "_seconds": 1773278864
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:28:12.000Z",
+      "_seconds": 1773278892
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": null,
+    "recepcionesParciales": [
+      {
+        "id": "REC-1773278890995",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-12T01:28:10.000Z",
+          "_seconds": 1773278890
+        },
+        "numero": 1,
+        "productosRecibidos": [
+          {
+            "productoId": "T1jSnECR6ZJEWRZnvJSu",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "x2PZdgiMDsum9EL3zdVw",
+            "cantidadRecibida": 6,
+            "cantidadAcumulada": 6
+          },
+          {
+            "productoId": "wvujLliOFs2nVCXuXrs9",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "UkAyIBBPihxhR8yRscDX",
+            "cantidadRecibida": 4,
+            "cantidadAcumulada": 4
+          },
+          {
+            "productoId": "iGlTXVGSF0xo2KjM9hDC",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "XBd57B5pUvq7yATdourU",
+            "cantidadRecibida": 6,
+            "cantidadAcumulada": 6
+          },
+          {
+            "productoId": "ee5BnaREkJzON1mk99JL",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "3O3ecZ0fNfNu76r1CpUs",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "XLePXD9pIQbYTlsVe7uX",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "YpMdltCdRfYtnqMA6vYA",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          }
+        ],
+        "unidadesGeneradas": [
+          "7X4LqOUXJHocaOt1QI71",
+          "8VfJSLNsMGtv87qe8s41",
+          "L5bmSUlhvyymn7wYVXee",
+          "nU9MrD96CTGHli3VUgjB",
+          "ns4LxuY3N6ybX84NaTCj",
+          "OvkAuL3ZyUig3fVN4T4D",
+          "c8lF5SUP8atsdchHGcFD",
+          "4zL6bx9GVeOUXwybsGHI",
+          "SWSch7tKPU52lcsoBJOw",
+          "2RGsAVrLnBP9PCix9Gkb",
+          "smNvtRfBvUnLZ0pMtRfu",
+          "GWkjMzb48Unyub7lH0N5",
+          "dM9IDwIzauhAXtI1TlsY",
+          "vFzvFwqfPmCkchOTmxHF",
+          "PpwAWL0ouOkV6X6lzO8R",
+          "8iB7ZiT8nAtzIWKcK7br",
+          "uS2LkiACLZ8Zp8Hg6fPC",
+          "xvIdsDwaNqFoxxwzY0K7",
+          "H3sSeC2IIVzOMwvSTgTJ",
+          "hrZzbb855hi0yM7P1yL9",
+          "UEREY9UTm5jjaDJLWb8I",
+          "QlZEgvTUmpLoy1n1CGgh",
+          "Lk8qnhHzaEVdbsgvgQn0",
+          "AbSd47FWTBOiqQEGXf2c",
+          "hAjOnXM81Nv5FgmzmdJF",
+          "K52ji10xf4lWPCTkCosO",
+          "ucL7XhZjUsDeHFZi7e9o",
+          "K7i7JGfL45w3SZqxjRxA"
+        ],
+        "unidadesReservadas": [],
+        "unidadesDisponibles": [
+          "7X4LqOUXJHocaOt1QI71",
+          "8VfJSLNsMGtv87qe8s41",
+          "L5bmSUlhvyymn7wYVXee",
+          "nU9MrD96CTGHli3VUgjB",
+          "ns4LxuY3N6ybX84NaTCj",
+          "OvkAuL3ZyUig3fVN4T4D",
+          "c8lF5SUP8atsdchHGcFD",
+          "4zL6bx9GVeOUXwybsGHI",
+          "SWSch7tKPU52lcsoBJOw",
+          "2RGsAVrLnBP9PCix9Gkb",
+          "smNvtRfBvUnLZ0pMtRfu",
+          "GWkjMzb48Unyub7lH0N5",
+          "dM9IDwIzauhAXtI1TlsY",
+          "vFzvFwqfPmCkchOTmxHF",
+          "PpwAWL0ouOkV6X6lzO8R",
+          "8iB7ZiT8nAtzIWKcK7br",
+          "uS2LkiACLZ8Zp8Hg6fPC",
+          "xvIdsDwaNqFoxxwzY0K7",
+          "H3sSeC2IIVzOMwvSTgTJ",
+          "hrZzbb855hi0yM7P1yL9",
+          "UEREY9UTm5jjaDJLWb8I",
+          "QlZEgvTUmpLoy1n1CGgh",
+          "Lk8qnhHzaEVdbsgvgQn0",
+          "AbSd47FWTBOiqQEGXf2c",
+          "hAjOnXM81Nv5FgmzmdJF",
+          "K52ji10xf4lWPCTkCosO",
+          "ucL7XhZjUsDeHFZi7e9o",
+          "K7i7JGfL45w3SZqxjRxA"
+        ],
+        "totalUnidadesRecepcion": 28,
+        "costoAdicionalPorUnidad": 0.1098500000000001,
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+      }
+    ],
+    "totalUnidadesRecibidas": 28,
+    "unidadesGeneradas": [
+      "7X4LqOUXJHocaOt1QI71",
+      "8VfJSLNsMGtv87qe8s41",
+      "L5bmSUlhvyymn7wYVXee",
+      "nU9MrD96CTGHli3VUgjB",
+      "ns4LxuY3N6ybX84NaTCj",
+      "OvkAuL3ZyUig3fVN4T4D",
+      "c8lF5SUP8atsdchHGcFD",
+      "4zL6bx9GVeOUXwybsGHI",
+      "SWSch7tKPU52lcsoBJOw",
+      "2RGsAVrLnBP9PCix9Gkb",
+      "smNvtRfBvUnLZ0pMtRfu",
+      "GWkjMzb48Unyub7lH0N5",
+      "dM9IDwIzauhAXtI1TlsY",
+      "vFzvFwqfPmCkchOTmxHF",
+      "PpwAWL0ouOkV6X6lzO8R",
+      "8iB7ZiT8nAtzIWKcK7br",
+      "uS2LkiACLZ8Zp8Hg6fPC",
+      "xvIdsDwaNqFoxxwzY0K7",
+      "H3sSeC2IIVzOMwvSTgTJ",
+      "hrZzbb855hi0yM7P1yL9",
+      "UEREY9UTm5jjaDJLWb8I",
+      "QlZEgvTUmpLoy1n1CGgh",
+      "Lk8qnhHzaEVdbsgvgQn0",
+      "AbSd47FWTBOiqQEGXf2c",
+      "hAjOnXM81Nv5FgmzmdJF",
+      "K52ji10xf4lWPCTkCosO",
+      "ucL7XhZjUsDeHFZi7e9o",
+      "K7i7JGfL45w3SZqxjRxA"
+    ],
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:28:13.000Z",
+      "_seconds": 1773278893
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "marca": "Horbaach",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "cantidad": 2,
+        "subtotal": 35.98,
+        "costoUnitario": 17.99,
+        "sku": "SUP-0052",
+        "nombreComercial": "Melena de León",
+        "presentacion": "capsulas",
+        "cantidadRecibida": 2,
+        "contenido": "120",
+        "dosaje": "4200 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "marca": "Carlyle",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "cantidad": 6,
+        "subtotal": 59.34,
+        "costoUnitario": 9.89,
+        "sku": "SUP-0118",
+        "nombreComercial": "Berberina",
+        "cantidadRecibida": 6,
+        "presentacion": "capsulas",
+        "contenido": "60",
+        "dosaje": "500000 mcg",
+        "sabor": "Neutral"
+      },
+      {
+        "cantidad": 2,
+        "subtotal": 60.76,
+        "marca": "Life Extension",
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "SUP-0117",
+        "nombreComercial": "CoQ10",
+        "costoUnitario": 30.38,
+        "cantidadRecibida": 2,
+        "presentacion": "capsulas_blandas",
+        "contenido": "60",
+        "dosaje": "100 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "presentacion": "capsulas_blandas",
+        "cantidadRecibida": 4,
+        "costoUnitario": 15.99,
+        "nombreComercial": "D3 + K2",
+        "sku": "SUP-0054",
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "marca": "Carlyle",
+        "cantidad": 4,
+        "subtotal": 63.96,
+        "contenido": "300",
+        "dosaje": "10000 IU + 200 mcg",
+        "sabor": "Neutral"
+      },
+      {
+        "cantidad": 1,
+        "subtotal": 33.99,
+        "marca": "Microingredients",
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "costoUnitario": 33.99,
+        "sku": "SUP-0088",
+        "nombreComercial": "Omega 3",
+        "presentacion": "capsulas_blandas",
+        "cantidadRecibida": 1,
+        "contenido": "240",
+        "dosaje": "4200 mg",
+        "sabor": "Limón"
+      },
+      {
+        "cantidadRecibida": 6,
+        "presentacion": "tabletas",
+        "costoUnitario": 9.99,
+        "nombreComercial": "Vitamina B12",
+        "sku": "SUP-0057",
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "marca": "Horbaach",
+        "cantidad": 6,
+        "subtotal": 59.94,
+        "contenido": "120",
+        "dosaje": "5000 mcg",
+        "sabor": "Bayas"
+      },
+      {
+        "sku": "SUP-0082",
+        "costoUnitario": 15.99,
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "presentacion": "gomitas",
+        "cantidadRecibida": 2,
+        "marca": "Natrol",
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "subtotal": 31.98,
+        "cantidad": 2,
+        "contenido": "140",
+        "dosaje": "1 mg",
+        "sabor": "Fresa"
+      },
+      {
+        "costoUnitario": 11.49,
+        "sku": "SUP-0007",
+        "nombreComercial": "Melatonina",
+        "cantidadRecibida": 2,
+        "presentacion": "tabletas",
+        "subtotal": 22.98,
+        "cantidad": 2,
+        "marca": "Carlyle",
+        "productoId": "3O3ecZ0fNfNu76r1CpUs",
+        "contenido": "300",
+        "dosaje": "5 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "presentacion": "capsulas_blandas",
+        "cantidadRecibida": 1,
+        "sku": "SUP-0059",
+        "nombreComercial": "Cápsulas de Aceite de Semilla de Calabaza",
+        "costoUnitario": 34.95,
+        "subtotal": 34.95,
+        "cantidad": 1,
+        "productoId": "XLePXD9pIQbYTlsVe7uX",
+        "marca": "Microingredients",
+        "contenido": "300",
+        "dosaje": "3000 mg",
+        "sabor": "Calabaza"
+      },
+      {
+        "presentacion": "Capsulas",
+        "cantidadRecibida": 2,
+        "costoUnitario": 24.99,
+        "nombreComercial": "Triple Magnesium Complex",
+        "sku": "SUP-0126",
+        "productoId": "YpMdltCdRfYtnqMA6vYA",
+        "marca": "Microingredients",
+        "cantidad": 2,
+        "subtotal": 49.98,
+        "contenido": "300",
+        "dosaje": "400 mg",
+        "sabor": "Sin sabor"
+      }
+    ]
+  },
+  {
+    "_id": "8YAGUgQFWKmV1OJSKLBn",
+    "numeroOrden": "OC-2026-006",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "tcCompra": 3.343,
+    "almacenDestino": "KJ517wENHMAiNdOJXnU0",
+    "nombreAlmacenDestino": "Angie Price",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T08:43:52.000Z",
+      "_seconds": 1771663432
+    },
+    "impuestoUSD": 0.2613000000000001,
+    "subtotalUSD": 8.71,
+    "totalUSD": 8.971300000000001,
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T08:44:19.000Z",
+      "_seconds": 1771663459
+    },
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T08:44:25.000Z",
+      "_seconds": 1771663465
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T08:44:37.000Z",
+      "_seconds": 1771663477
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": null,
+    "recepcionesParciales": [
+      {
+        "id": "REC-1771663476662",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-02-21T08:44:36.000Z",
+          "_seconds": 1771663476
+        },
+        "numero": 1,
+        "productosRecibidos": [
+          {
+            "productoId": "mL7byXOYc2GptBZTUxmI",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          }
+        ],
+        "unidadesGeneradas": [
+          "BpetWVgQousuCqW0cQyv"
+        ],
+        "unidadesReservadas": [],
+        "unidadesDisponibles": [
+          "BpetWVgQousuCqW0cQyv"
+        ],
+        "totalUnidadesRecepcion": 1,
+        "costoAdicionalPorUnidad": 0.2613000000000001,
+        "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+      }
+    ],
+    "totalUnidadesRecibidas": 1,
+    "unidadesGeneradas": [
+      "BpetWVgQousuCqW0cQyv"
+    ],
+    "totalPEN": 31.354693500000003,
+    "diferenciaCambiaria": 1.3636376000000006,
+    "tcPago": 3.495,
+    "historialPagos": [
+      {
+        "id": "PAG-OC-1773375304424-5tmoi0",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-13T00:00:00.000Z",
+          "_seconds": 1773360000
+        },
+        "monedaPago": "USD",
+        "montoOriginal": 8.971300000000001,
+        "montoUSD": 8.971300000000001,
+        "montoPEN": 31.354693500000003,
+        "tipoCambio": 3.495,
+        "metodoPago": "transferencia_bancaria",
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-03-13T04:15:04.000Z",
+          "_seconds": 1773375304
+        },
+        "cuentaOrigenId": "nlIJ1Eegox0LfdjSl8w3",
+        "cuentaOrigenNombre": "Cuenta IBK - Jossie"
+      }
+    ],
+    "estadoPago": "pagada",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T04:15:04.000Z",
+      "_seconds": 1773375304
+    },
+    "fechaPago": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T00:00:00.000Z",
+      "_seconds": 1773360000
+    },
+    "montoPendiente": 0,
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "subtotal": 8.71,
+        "cantidad": 1,
+        "marca": "Now Foods",
+        "productoId": "mL7byXOYc2GptBZTUxmI",
+        "costoUnitario": 8.71,
+        "sku": "SUP-0096",
+        "nombreComercial": "D3 + K2",
+        "cantidadRecibida": 1,
+        "presentacion": "capsulas",
+        "contenido": "120",
+        "dosaje": "1000 IU + 45 mcg",
+        "sabor": "Neutral"
+      }
+    ]
+  },
+  {
+    "_id": "HA4YxtOC4XYUSB82dRbw",
+    "numeroOrden": "OC-2026-004",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "subtotalUSD": 8.71,
+    "totalUSD": 8.971300000000001,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "impuestoUSD": 0.26130000000000003,
+    "tcCompra": 3.343,
+    "almacenDestino": "KJ517wENHMAiNdOJXnU0",
+    "nombreAlmacenDestino": "Angie Price",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T06:45:00.000Z",
+      "_seconds": 1770533100
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T06:45:04.000Z",
+      "_seconds": 1770533104
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T23:15:49.000Z",
+      "_seconds": 1770592549
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "unidadesDisponibles": [
+      "KlVqT5FEdtwIKJkOOWV0"
+    ],
+    "unidadesReservadas": null,
+    "cotizacionVinculada": null,
+    "unidadesGeneradas": [
+      "KlVqT5FEdtwIKJkOOWV0"
+    ],
+    "totalPEN": 31.345722200000004,
+    "diferenciaCambiaria": 1.3546663000000017,
+    "tcPago": 3.494,
+    "historialPagos": [
+      {
+        "id": "PAG-OC-1773375269790-5fqbfp",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-13T00:00:00.000Z",
+          "_seconds": 1773360000
+        },
+        "monedaPago": "USD",
+        "montoOriginal": 8.971300000000001,
+        "montoUSD": 8.971300000000001,
+        "montoPEN": 31.345722200000004,
+        "tipoCambio": 3.494,
+        "metodoPago": "transferencia_bancaria",
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-03-13T04:14:29.000Z",
+          "_seconds": 1773375269
+        },
+        "cuentaOrigenId": "nlIJ1Eegox0LfdjSl8w3",
+        "cuentaOrigenNombre": "Cuenta IBK - Jossie"
+      }
+    ],
+    "estadoPago": "pagada",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T04:14:29.000Z",
+      "_seconds": 1773375269
+    },
+    "fechaPago": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T00:00:00.000Z",
+      "_seconds": 1773360000
+    },
+    "montoPendiente": 0,
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "subtotal": 8.71,
+        "cantidad": 1,
+        "presentacion": "capsulas",
+        "productoId": "mL7byXOYc2GptBZTUxmI",
+        "sku": "SUP-0096",
+        "marca": "Now Foods",
+        "nombreComercial": "D3 + K2",
+        "costoUnitario": 8.71,
+        "contenido": "120",
+        "dosaje": "1000 IU + 45 mcg",
+        "sabor": "Neutral"
+      }
+    ]
+  },
+  {
+    "_id": "HTQXUqqsPGI5NPsDP5wA",
+    "numeroOrden": "OC-2026-008",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "subtotalUSD": 89.35,
+    "totalUSD": 92.03049999999999,
+    "estadoPago": "pendiente",
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "impuestoUSD": 2.6804999999999994,
+    "tcCompra": 3.373,
+    "almacenDestino": "TJRB5PEKQSfXu0WIjnaK",
+    "nombreAlmacenDestino": "Anghely Henriquez",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T04:56:53.000Z",
+      "_seconds": 1771822613
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T04:57:01.000Z",
+      "_seconds": 1771822621
+    },
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T04:57:09.000Z",
+      "_seconds": 1771822629
+    },
+    "fechaPrimeraRecepcion": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T22:57:36.000Z",
+      "_seconds": 1772060256
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:53:55.000Z",
+      "_seconds": 1773525235
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": null,
+    "recepcionesParciales": [
+      {
+        "numero": 1,
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-02-25T22:57:35.000Z",
+          "_seconds": 1772060255
+        },
+        "id": "REC-1772060255551",
+        "productosRecibidos": [
+          {
+            "cantidadAcumulada": 2,
+            "cantidadRecibida": 2,
+            "productoId": "ZBnpv34W2XfRX700HPMu"
+          },
+          {
+            "cantidadAcumulada": 1,
+            "cantidadRecibida": 1,
+            "productoId": "Y8QSJkux0TRbfpyR1ZDU"
+          }
+        ],
+        "totalUnidadesRecepcion": 3,
+        "unidadesDisponibles": [
+          "mnJnV5pqcGBSrADOs98W",
+          "CyzOr4PPRM5bjTPgeZNf",
+          "Sohdfn6qBEnmrL8zjpNS"
+        ],
+        "unidadesReservadas": [],
+        "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+        "unidadesGeneradas": [
+          "mnJnV5pqcGBSrADOs98W",
+          "CyzOr4PPRM5bjTPgeZNf",
+          "Sohdfn6qBEnmrL8zjpNS"
+        ],
+        "costoAdicionalPorUnidad": 0.5360999999999999
+      },
+      {
+        "id": "REC-1773525234413",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-14T21:53:54.000Z",
+          "_seconds": 1773525234
+        },
+        "numero": 2,
+        "productosRecibidos": [
+          {
+            "productoId": "PMHT325MbPSS6vlAZjYP",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          }
+        ],
+        "unidadesGeneradas": [
+          "QyoXdRmyPj9WrZJv3Wxk",
+          "T4YI9ubSLN2yTW7IoRA8"
+        ],
+        "unidadesReservadas": [],
+        "unidadesDisponibles": [
+          "QyoXdRmyPj9WrZJv3Wxk",
+          "T4YI9ubSLN2yTW7IoRA8"
+        ],
+        "totalUnidadesRecepcion": 2,
+        "costoAdicionalPorUnidad": 0.5360999999999999,
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+      }
+    ],
+    "totalUnidadesRecibidas": 5,
+    "unidadesGeneradas": [
+      "mnJnV5pqcGBSrADOs98W",
+      "CyzOr4PPRM5bjTPgeZNf",
+      "Sohdfn6qBEnmrL8zjpNS",
+      "QyoXdRmyPj9WrZJv3Wxk",
+      "T4YI9ubSLN2yTW7IoRA8"
+    ],
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:53:54.000Z",
+      "_seconds": 1773525234
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "productoId": "Y8QSJkux0TRbfpyR1ZDU",
+        "subtotal": 15.29,
+        "costoUnitario": 15.29,
+        "cantidad": 1,
+        "nombreComercial": "Myo Inositol",
+        "marca": "Carlyle",
+        "sabor": "Neutral",
+        "contenido": "150",
+        "cantidadRecibida": 1,
+        "sku": "SUP-0061",
+        "dosaje": "2060 mg",
+        "presentacion": "capsulas"
+      },
+      {
+        "marca": "Nordic Naturals",
+        "nombreComercial": "DHA para Bebés",
+        "sabor": "Neutral",
+        "costoUnitario": 14.53,
+        "subtotal": 29.06,
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "cantidad": 2,
+        "presentacion": "liquido",
+        "dosaje": "300 IU + 1050 mg",
+        "sku": "SUP-0066",
+        "contenido": "2 oz",
+        "cantidadRecibida": 2
+      },
+      {
+        "nombreComercial": "D3 + K2",
+        "marca": "Microingredients",
+        "sabor": "Coco",
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "costoUnitario": 22.5,
+        "subtotal": 45,
+        "cantidad": 2,
+        "sku": "SUP-0040",
+        "dosaje": "10000 IU + 200 mcg",
+        "presentacion": "capsulas_blandas",
+        "contenido": "300",
+        "cantidadRecibida": 2
+      }
+    ]
+  },
+  {
+    "_id": "I4IWv9AHmjL6nzjvusTV",
+    "numeroOrden": "OC-2026-013",
+    "proveedorId": "9RbnYoQIu5nlMRAhVKbE",
+    "nombreProveedor": "Walmart",
+    "subtotalUSD": 56.64,
+    "totalUSD": 58.3392,
+    "estadoPago": "pendiente",
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "impuestoUSD": 1.6992000000000003,
+    "tcCompra": 3.453,
+    "almacenDestino": "TJRB5PEKQSfXu0WIjnaK",
+    "nombreAlmacenDestino": "Anghely Henriquez",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T18:40:04.000Z",
+      "_seconds": 1773168004
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T18:40:13.000Z",
+      "_seconds": 1773168013
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T18:42:57.000Z",
+      "_seconds": 1773168177
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:53:35.000Z",
+      "_seconds": 1773525215
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": null,
+    "recepcionesParciales": [
+      {
+        "id": "REC-1773525214553",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-14T21:53:34.000Z",
+          "_seconds": 1773525214
+        },
+        "numero": 1,
+        "productosRecibidos": [
+          {
+            "productoId": "cm1DlC2fgngkGl8eIckM",
+            "cantidadRecibida": 6,
+            "cantidadAcumulada": 6
+          }
+        ],
+        "unidadesGeneradas": [
+          "LdO87hikvrygsFSBY3Rb",
+          "HQiUioTL8dvydgSNAvUK",
+          "RT39yV37H57iNw0i2a9q",
+          "wgV3WCoUHGwKpbvScJcC",
+          "70oUiKRuJvtHxwBahCz2",
+          "FQmxQZLI0B9IZJPDrVA7"
+        ],
+        "unidadesReservadas": [],
+        "unidadesDisponibles": [
+          "LdO87hikvrygsFSBY3Rb",
+          "HQiUioTL8dvydgSNAvUK",
+          "RT39yV37H57iNw0i2a9q",
+          "wgV3WCoUHGwKpbvScJcC",
+          "70oUiKRuJvtHxwBahCz2",
+          "FQmxQZLI0B9IZJPDrVA7"
+        ],
+        "totalUnidadesRecepcion": 6,
+        "costoAdicionalPorUnidad": 0.28320000000000006,
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+      }
+    ],
+    "totalUnidadesRecibidas": 6,
+    "unidadesGeneradas": [
+      "LdO87hikvrygsFSBY3Rb",
+      "HQiUioTL8dvydgSNAvUK",
+      "RT39yV37H57iNw0i2a9q",
+      "wgV3WCoUHGwKpbvScJcC",
+      "70oUiKRuJvtHxwBahCz2",
+      "FQmxQZLI0B9IZJPDrVA7"
+    ],
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:53:34.000Z",
+      "_seconds": 1773525214
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "contenido": "90",
+        "sku": "SUP-0077",
+        "dosaje": "2200 mg",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 6,
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "costoUnitario": 9.44,
+        "subtotal": 56.64,
+        "sabor": "Naranja",
+        "nombreComercial": "Vitamina C Liposomal",
+        "marca": "Carlyle",
+        "cantidadRecibida": 6
+      }
+    ]
+  },
+  {
+    "_id": "IlymT63UuI5w3qGW7TyV",
+    "numeroOrden": "OC-2026-007",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "subtotalUSD": 815.9300000000001,
+    "totalUSD": 840.4079,
+    "estadoPago": "pendiente",
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "impuestoUSD": 24.477899999999998,
+    "tcCompra": 3.373,
+    "almacenDestino": "TJRB5PEKQSfXu0WIjnaK",
+    "nombreAlmacenDestino": "Anghely Henriquez",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T04:49:19.000Z",
+      "_seconds": 1771822159
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T04:49:26.000Z",
+      "_seconds": 1771822166
+    },
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T04:49:42.000Z",
+      "_seconds": 1771822182
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T04:50:18.000Z",
+      "_seconds": 1771822218
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": null,
+    "recepcionesParciales": [
+      {
+        "id": "REC-1771822216535",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-02-23T04:50:16.000Z",
+          "_seconds": 1771822216
+        },
+        "numero": 1,
+        "productosRecibidos": [
+          {
+            "productoId": "YEw5uIo5jiTSeI9UPXim",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "m0dwINFHyHU64jt1gSnf",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "GsRcmGnBCvDqItBFwBop",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "1VDeFEayBxezNWGhhH2S",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "W7iAr3D0VU1uVynM29cv",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "XBd57B5pUvq7yATdourU",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "Hc6nsorCzjmBoa2Rctgw",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "YpMdltCdRfYtnqMA6vYA",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "zvgeNdMI7J0Qd6na0FzG",
+            "cantidadRecibida": 6,
+            "cantidadAcumulada": 6
+          },
+          {
+            "productoId": "SHXJveI0XKFu8IoWSpd2",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "fTddWPfJ60hwXBGRZfwa",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "R5xj1rg2mfxKdKA6UeHo",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "UkAyIBBPihxhR8yRscDX",
+            "cantidadRecibida": 3,
+            "cantidadAcumulada": 3
+          },
+          {
+            "productoId": "VPe8d0O6AWtv9rS4f2X8",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "RcNhEpQQYf0Op8GQhQVh",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "0lj2gv5pFrVzy31ttTHx",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "x2PZdgiMDsum9EL3zdVw",
+            "cantidadRecibida": 4,
+            "cantidadAcumulada": 4
+          },
+          {
+            "productoId": "dD5C2rEimsJJzWopvVaO",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "CnX6JddWDI96rxPaKckx",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "SUHKb5zZf7PBJBfiRD7H",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "wvujLliOFs2nVCXuXrs9",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "SJy7nOtm5ZxeXnECz4sr",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "5aINpRBokq1yTCp3hMlY",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "YkrUxQlBTzmsB1MQP2nf",
+            "cantidadRecibida": 4,
+            "cantidadAcumulada": 4
+          }
+        ],
+        "unidadesGeneradas": [
+          "YPGCKyi2fJlr6UKmoap2",
+          "gKIFWNrzq48e1YG444h9",
+          "Cf0YSyhyY0Er7g63hiei",
+          "HXKjSAowvfk0TSnEWP2x",
+          "sfOTsFCM5WYCXteNE1gC",
+          "HTw5JYkzG2hekhXwCLUB",
+          "Xfye89oMptnFvqjEb4Po",
+          "Xox89XgjQg1wOAnFJxkn",
+          "oHxJeAQ65A3sEPmyS3uu",
+          "QnBvMSC8Lvw01QGpl63Z",
+          "upkUPVlZ5ZTCtckBYqtO",
+          "zzm7m5CSfxC9Jgxgl5FR",
+          "Kvy8JKObCdnmWCWdZDaA",
+          "Jyh9uXFtT8esZn6smwjY",
+          "R8iE2jbxoLhqEdMsbjKT",
+          "M7Z1R8bL8UXaHEiVtGVZ",
+          "zSftNciHKLpqNcJnNTRz",
+          "j0k2s0tPVb1uiezxqacP",
+          "nSKBWkksTBybvUkPHZeD",
+          "qDNISwm9lcQJuLUmf5Tk",
+          "vyBl5shnUCBqi4ZiC8OY",
+          "bzXo4MMnJTf7u3YnvSCe",
+          "jJYImzDw5mxCzTqgJa7Z",
+          "NPuvd7HWneUfhG1LXkA8",
+          "rT9hDErEaKZwKZOF1fbn",
+          "KlHT8wpmyDVPkdiSNkDn",
+          "IDLx1uQlR2sOheaAYQlR",
+          "chCgbGVIqBjz4dTiNmy7",
+          "Ik2o56szFBSCTrU4cHon",
+          "BCNfD31P8HoTTYPHkpUo",
+          "9OHnMS5t8ROY1KpxpsX6",
+          "oPsbxKesANZFdTzoyFBu",
+          "zLUGn9gtjT6VxG63jY20",
+          "RvfhMbKCyQXGNgjdZ4KJ",
+          "I90uQXdgM1fdwVVssGVv",
+          "OOAbxBhKBzT5zNO3XPAf",
+          "8HeXOGJdXLYVK5eYtz4t",
+          "Sg3eH4O6DykOLYGu5SwL",
+          "lLV8AZUhBiOlIZpqBuyI",
+          "Lyv0DcDnc4oEbyNqpr6t",
+          "dGmZDZkrbejdqFKrJuFj",
+          "5BuoSlpqAYF3K0DvLYL1",
+          "vVBiNIvxKi3N0V57FmOd",
+          "4RhscirAOYCaq9zAmzJh"
+        ],
+        "unidadesReservadas": [],
+        "unidadesDisponibles": [
+          "YPGCKyi2fJlr6UKmoap2",
+          "gKIFWNrzq48e1YG444h9",
+          "Cf0YSyhyY0Er7g63hiei",
+          "HXKjSAowvfk0TSnEWP2x",
+          "sfOTsFCM5WYCXteNE1gC",
+          "HTw5JYkzG2hekhXwCLUB",
+          "Xfye89oMptnFvqjEb4Po",
+          "Xox89XgjQg1wOAnFJxkn",
+          "oHxJeAQ65A3sEPmyS3uu",
+          "QnBvMSC8Lvw01QGpl63Z",
+          "upkUPVlZ5ZTCtckBYqtO",
+          "zzm7m5CSfxC9Jgxgl5FR",
+          "Kvy8JKObCdnmWCWdZDaA",
+          "Jyh9uXFtT8esZn6smwjY",
+          "R8iE2jbxoLhqEdMsbjKT",
+          "M7Z1R8bL8UXaHEiVtGVZ",
+          "zSftNciHKLpqNcJnNTRz",
+          "j0k2s0tPVb1uiezxqacP",
+          "nSKBWkksTBybvUkPHZeD",
+          "qDNISwm9lcQJuLUmf5Tk",
+          "vyBl5shnUCBqi4ZiC8OY",
+          "bzXo4MMnJTf7u3YnvSCe",
+          "jJYImzDw5mxCzTqgJa7Z",
+          "NPuvd7HWneUfhG1LXkA8",
+          "rT9hDErEaKZwKZOF1fbn",
+          "KlHT8wpmyDVPkdiSNkDn",
+          "IDLx1uQlR2sOheaAYQlR",
+          "chCgbGVIqBjz4dTiNmy7",
+          "Ik2o56szFBSCTrU4cHon",
+          "BCNfD31P8HoTTYPHkpUo",
+          "9OHnMS5t8ROY1KpxpsX6",
+          "oPsbxKesANZFdTzoyFBu",
+          "zLUGn9gtjT6VxG63jY20",
+          "RvfhMbKCyQXGNgjdZ4KJ",
+          "I90uQXdgM1fdwVVssGVv",
+          "OOAbxBhKBzT5zNO3XPAf",
+          "8HeXOGJdXLYVK5eYtz4t",
+          "Sg3eH4O6DykOLYGu5SwL",
+          "lLV8AZUhBiOlIZpqBuyI",
+          "Lyv0DcDnc4oEbyNqpr6t",
+          "dGmZDZkrbejdqFKrJuFj",
+          "5BuoSlpqAYF3K0DvLYL1",
+          "vVBiNIvxKi3N0V57FmOd",
+          "4RhscirAOYCaq9zAmzJh"
+        ],
+        "totalUnidadesRecepcion": 44,
+        "costoAdicionalPorUnidad": 0.556315909090909,
+        "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+      }
+    ],
+    "totalUnidadesRecibidas": 44,
+    "unidadesGeneradas": [
+      "YPGCKyi2fJlr6UKmoap2",
+      "gKIFWNrzq48e1YG444h9",
+      "Cf0YSyhyY0Er7g63hiei",
+      "HXKjSAowvfk0TSnEWP2x",
+      "sfOTsFCM5WYCXteNE1gC",
+      "HTw5JYkzG2hekhXwCLUB",
+      "Xfye89oMptnFvqjEb4Po",
+      "Xox89XgjQg1wOAnFJxkn",
+      "oHxJeAQ65A3sEPmyS3uu",
+      "QnBvMSC8Lvw01QGpl63Z",
+      "upkUPVlZ5ZTCtckBYqtO",
+      "zzm7m5CSfxC9Jgxgl5FR",
+      "Kvy8JKObCdnmWCWdZDaA",
+      "Jyh9uXFtT8esZn6smwjY",
+      "R8iE2jbxoLhqEdMsbjKT",
+      "M7Z1R8bL8UXaHEiVtGVZ",
+      "zSftNciHKLpqNcJnNTRz",
+      "j0k2s0tPVb1uiezxqacP",
+      "nSKBWkksTBybvUkPHZeD",
+      "qDNISwm9lcQJuLUmf5Tk",
+      "vyBl5shnUCBqi4ZiC8OY",
+      "bzXo4MMnJTf7u3YnvSCe",
+      "jJYImzDw5mxCzTqgJa7Z",
+      "NPuvd7HWneUfhG1LXkA8",
+      "rT9hDErEaKZwKZOF1fbn",
+      "KlHT8wpmyDVPkdiSNkDn",
+      "IDLx1uQlR2sOheaAYQlR",
+      "chCgbGVIqBjz4dTiNmy7",
+      "Ik2o56szFBSCTrU4cHon",
+      "BCNfD31P8HoTTYPHkpUo",
+      "9OHnMS5t8ROY1KpxpsX6",
+      "oPsbxKesANZFdTzoyFBu",
+      "zLUGn9gtjT6VxG63jY20",
+      "RvfhMbKCyQXGNgjdZ4KJ",
+      "I90uQXdgM1fdwVVssGVv",
+      "OOAbxBhKBzT5zNO3XPAf",
+      "8HeXOGJdXLYVK5eYtz4t",
+      "Sg3eH4O6DykOLYGu5SwL",
+      "lLV8AZUhBiOlIZpqBuyI",
+      "Lyv0DcDnc4oEbyNqpr6t",
+      "dGmZDZkrbejdqFKrJuFj",
+      "5BuoSlpqAYF3K0DvLYL1",
+      "vVBiNIvxKi3N0V57FmOd",
+      "4RhscirAOYCaq9zAmzJh"
+    ],
+    "requerimientoNumero": "REQ-2026-0022",
+    "productosOrigen": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "requerimientoId": "wqLXOcrJKE2Z2z5N4Zu2",
+        "requerimientoNumero": "REQ-2026-0022",
+        "cotizacionId": "Yn6jN0PTUKRDniefsjRC",
+        "clienteNombre": "Daniela Jauregui Bernal",
+        "cantidad": 1
+      }
+    ],
+    "requerimientoId": "wqLXOcrJKE2Z2z5N4Zu2",
+    "requerimientoIds": [
+      "wqLXOcrJKE2Z2z5N4Zu2"
+    ],
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T21:14:19.000Z",
+      "_seconds": 1772658859
+    },
+    "requerimientoNumeros": [
+      "REQ-2026-0022"
+    ],
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "marca": "Carlyle",
+        "productoId": "YEw5uIo5jiTSeI9UPXim",
+        "subtotal": 14.87,
+        "cantidad": 1,
+        "sku": "SUP-0062",
+        "nombreComercial": "Luteína",
+        "costoUnitario": 14.87,
+        "cantidadRecibida": 1,
+        "presentacion": "capsulas_blandas",
+        "contenido": "180",
+        "dosaje": "40 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "cantidad": 2,
+        "subtotal": 48.76,
+        "marca": "Nordic Naturals",
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "nombreComercial": "Omega 3",
+        "costoUnitario": 24.38,
+        "sku": "SUP-0095",
+        "presentacion": "liquido",
+        "cantidadRecibida": 2,
+        "contenido": "8 oz",
+        "dosaje": "1560 mg",
+        "sabor": "Limón"
+      },
+      {
+        "cantidad": 1,
+        "subtotal": 21.55,
+        "marca": "Naturebell",
+        "productoId": "GsRcmGnBCvDqItBFwBop",
+        "sku": "SUP-0125",
+        "costoUnitario": 21.55,
+        "nombreComercial": "Magnesium Complex",
+        "cantidadRecibida": 1,
+        "presentacion": "Capsulas",
+        "contenido": "300",
+        "dosaje": "500 mg",
+        "sabor": "Sin Sabor"
+      },
+      {
+        "cantidad": 2,
+        "subtotal": 33.98,
+        "marca": "Carlyle",
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "SUP-0004",
+        "nombreComercial": "Ashwagandha",
+        "costoUnitario": 16.99,
+        "cantidadRecibida": 2,
+        "presentacion": "capsulas_blandas",
+        "contenido": "300",
+        "dosaje": "3000 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "sku": "SUP-0056",
+        "costoUnitario": 8.55,
+        "nombreComercial": "Complejo B",
+        "cantidadRecibida": 2,
+        "presentacion": "capsulas",
+        "subtotal": 17.1,
+        "cantidad": 2,
+        "marca": "Life Extension",
+        "productoId": "W7iAr3D0VU1uVynM29cv",
+        "contenido": "60",
+        "dosaje": "-",
+        "sabor": "Neutral"
+      },
+      {
+        "nombreComercial": "Vitamina B12",
+        "sku": "SUP-0057",
+        "costoUnitario": 9.99,
+        "cantidadRecibida": 2,
+        "presentacion": "tabletas",
+        "subtotal": 19.98,
+        "cantidad": 2,
+        "marca": "Horbaach",
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "contenido": "120",
+        "dosaje": "5000 mcg",
+        "sabor": "Bayas"
+      },
+      {
+        "cantidadRecibida": 1,
+        "presentacion": "capsulas",
+        "costoUnitario": 28.34,
+        "nombreComercial": "Magnesio Glicinato",
+        "sku": "SUP-0026",
+        "cantidad": 1,
+        "subtotal": 28.34,
+        "productoId": "Hc6nsorCzjmBoa2Rctgw",
+        "marca": "Solaray",
+        "contenido": "275",
+        "dosaje": "350 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "cantidadRecibida": 1,
+        "presentacion": "Capsulas",
+        "nombreComercial": "Triple Magnesium Complex",
+        "costoUnitario": 22.49,
+        "sku": "SUP-0126",
+        "cantidad": 1,
+        "subtotal": 22.49,
+        "productoId": "YpMdltCdRfYtnqMA6vYA",
+        "marca": "Microingredients",
+        "contenido": "300",
+        "dosaje": "400 mg",
+        "sabor": "Sin sabor"
+      },
+      {
+        "nombreComercial": "Magnesio Glicinato",
+        "costoUnitario": 15.7,
+        "sku": "SUP-0123",
+        "presentacion": "capsulas",
+        "cantidadRecibida": 6,
+        "marca": "Double Wood",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "cantidad": 6,
+        "subtotal": 94.19999999999999,
+        "contenido": "180",
+        "dosaje": "400 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "sku": "SUP-0127",
+        "nombreComercial": "Myo Inositol",
+        "costoUnitario": 26.95,
+        "cantidadRecibida": 1,
+        "presentacion": "Polvo",
+        "marca": "MicroIngredients",
+        "productoId": "SHXJveI0XKFu8IoWSpd2",
+        "subtotal": 26.95,
+        "cantidad": 1,
+        "contenido": "1 lb",
+        "dosaje": "2000 mg + 50 mg",
+        "sabor": "Sin sabor"
+      },
+      {
+        "productoId": "fTddWPfJ60hwXBGRZfwa",
+        "marca": "Naturebell",
+        "subtotal": 19.79,
+        "cantidad": 1,
+        "presentacion": "Capsulas",
+        "cantidadRecibida": 1,
+        "nombreComercial": "Vitamina C Liposomal",
+        "costoUnitario": 19.79,
+        "sku": "SUP-0128",
+        "contenido": "240",
+        "dosaje": "2000 mg",
+        "sabor": "Sin sabor"
+      },
+      {
+        "presentacion": "tabletas",
+        "cantidadRecibida": 1,
+        "costoUnitario": 9.99,
+        "nombreComercial": "Melatonina para Adultos",
+        "sku": "SUP-0043",
+        "productoId": "R5xj1rg2mfxKdKA6UeHo",
+        "marca": "Carlyle",
+        "subtotal": 9.99,
+        "cantidad": 1,
+        "contenido": "300",
+        "dosaje": "12 mg",
+        "sabor": "Bayas"
+      },
+      {
+        "cantidadRecibida": 3,
+        "presentacion": "capsulas_blandas",
+        "costoUnitario": 15.19,
+        "nombreComercial": "D3 + K2",
+        "sku": "SUP-0054",
+        "cantidad": 3,
+        "subtotal": 45.57,
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "marca": "Carlyle",
+        "contenido": "300",
+        "dosaje": "10000 IU + 200 mcg",
+        "sabor": "Neutral"
+      },
+      {
+        "subtotal": 21.59,
+        "cantidad": 1,
+        "productoId": "VPe8d0O6AWtv9rS4f2X8",
+        "marca": "Deal Supplement",
+        "presentacion": "Capsulas Vegetales",
+        "cantidadRecibida": 1,
+        "costoUnitario": 21.59,
+        "sku": "SUP-0130",
+        "nombreComercial": "Myo Inositol",
+        "contenido": "240",
+        "dosaje": "2000 mg + 50 mg",
+        "sabor": "Sin sabor"
+      },
+      {
+        "marca": "Deal Supplement",
+        "productoId": "RcNhEpQQYf0Op8GQhQVh",
+        "cantidad": 2,
+        "subtotal": 36,
+        "sku": "SUP-0129",
+        "costoUnitario": 18,
+        "nombreComercial": "D3 + K2",
+        "presentacion": "Capsulas Blandas",
+        "cantidadRecibida": 2,
+        "contenido": "250",
+        "dosaje": "5000 IU + 100 mcg",
+        "sabor": "Sin sabor"
+      },
+      {
+        "sku": "SUP-0003",
+        "costoUnitario": 16.23,
+        "nombreComercial": "Magnesio Bisglicinato",
+        "presentacion": "capsulas",
+        "cantidadRecibida": 2,
+        "cantidad": 2,
+        "subtotal": 32.46,
+        "marca": "Carlyle",
+        "productoId": "0lj2gv5pFrVzy31ttTHx",
+        "contenido": "250",
+        "dosaje": "665 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "presentacion": "capsulas",
+        "cantidadRecibida": 4,
+        "costoUnitario": 9.89,
+        "nombreComercial": "Berberina",
+        "sku": "SUP-0118",
+        "cantidad": 4,
+        "subtotal": 39.56,
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "marca": "Carlyle",
+        "contenido": "60",
+        "dosaje": "500000 mcg",
+        "sabor": "Neutral"
+      },
+      {
+        "costoUnitario": 8.99,
+        "nombreComercial": "Vitamina B Complex",
+        "sku": "SUP-0079",
+        "presentacion": "tabletas",
+        "cantidadRecibida": 1,
+        "marca": "Carlyle",
+        "productoId": "dD5C2rEimsJJzWopvVaO",
+        "cantidad": 1,
+        "subtotal": 8.99,
+        "contenido": "300",
+        "dosaje": "-",
+        "sabor": "Neutral"
+      },
+      {
+        "costoUnitario": 26,
+        "nombreComercial": "Magnesio Glicinato",
+        "sku": "SUP-0131",
+        "presentacion": "Capsulas",
+        "cantidadRecibida": 1,
+        "cantidad": 1,
+        "subtotal": 26,
+        "marca": "Pure Encapsulations",
+        "productoId": "CnX6JddWDI96rxPaKckx",
+        "contenido": "90",
+        "dosaje": "120",
+        "sabor": "Sin sabor"
+      },
+      {
+        "marca": "Nordic Naturals",
+        "productoId": "SUHKb5zZf7PBJBfiRD7H",
+        "cantidad": 1,
+        "subtotal": 29.89,
+        "costoUnitario": 29.89,
+        "sku": "SUP-0050",
+        "nombreComercial": "Ultimate Omega Teen",
+        "presentacion": "capsulas_blandas",
+        "cantidadRecibida": 1,
+        "contenido": "60",
+        "dosaje": "1120 mg",
+        "sabor": "Fresa"
+      },
+      {
+        "marca": "Life Extension",
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "cantidad": 2,
+        "subtotal": 57.72,
+        "costoUnitario": 28.86,
+        "sku": "SUP-0117",
+        "nombreComercial": "CoQ10",
+        "cantidadRecibida": 2,
+        "presentacion": "capsulas_blandas",
+        "contenido": "60",
+        "dosaje": "100 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "subtotal": 31.33,
+        "cantidad": 1,
+        "productoId": "SJy7nOtm5ZxeXnECz4sr",
+        "marca": "Nordic Naturals",
+        "presentacion": "capsulas_blandas",
+        "cantidadRecibida": 1,
+        "nombreComercial": "Ultimate Omega Kids",
+        "costoUnitario": 31.33,
+        "sku": "SUP-0048",
+        "contenido": "90",
+        "dosaje": "680 mg",
+        "sabor": "Fresa"
+      },
+      {
+        "cantidad": 1,
+        "subtotal": 28.22,
+        "marca": "Nordic Naturals",
+        "productoId": "5aINpRBokq1yTCp3hMlY",
+        "nombreComercial": "DHA para Niños",
+        "sku": "SUP-0133",
+        "costoUnitario": 28.22,
+        "presentacion": "Liquido",
+        "cantidadRecibida": 1,
+        "contenido": "8 oz",
+        "dosaje": "530 mg",
+        "sabor": "Fresa"
+      },
+      {
+        "cantidad": 4,
+        "subtotal": 100.6,
+        "marca": "Sports Research",
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "costoUnitario": 25.15,
+        "nombreComercial": "Alaska Omega 3",
+        "sku": "SUP-0063",
+        "cantidadRecibida": 4,
+        "presentacion": "capsulas_blandas",
+        "contenido": "90",
+        "dosaje": "1040 mg",
+        "sabor": "Neutral"
+      }
+    ]
+  },
+  {
+    "_id": "JpGh5kzJKiZ8JyBu3Z7x",
+    "numeroOrden": "OC-2026-012",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "subtotalUSD": 25.98,
+    "totalUSD": 26.7594,
+    "estadoPago": "pendiente",
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "impuestoUSD": 0.7794,
+    "tcCompra": 3.48,
+    "almacenDestino": "YTsfduhN9DAlOot1fUQG",
+    "nombreAlmacenDestino": "Lila Toscano",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:45:10.000Z",
+      "_seconds": 1773031510
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:47:48.000Z",
+      "_seconds": 1773031668
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:47:52.000Z",
+      "_seconds": 1773031672
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:48:01.000Z",
+      "_seconds": 1773031681
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": null,
+    "recepcionesParciales": [
+      {
+        "id": "REC-1773031679737",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-09T04:47:59.000Z",
+          "_seconds": 1773031679
+        },
+        "numero": 1,
+        "productosRecibidos": [
+          {
+            "productoId": "ee5BnaREkJzON1mk99JL",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "cm1DlC2fgngkGl8eIckM",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          }
+        ],
+        "unidadesGeneradas": [
+          "XRJkX7DfheMhV8ina4T6",
+          "zL3mzIhqkcn0MP6e9ksn"
+        ],
+        "unidadesReservadas": [],
+        "unidadesDisponibles": [
+          "XRJkX7DfheMhV8ina4T6",
+          "zL3mzIhqkcn0MP6e9ksn"
+        ],
+        "totalUnidadesRecepcion": 2,
+        "costoAdicionalPorUnidad": 0.3897,
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+      }
+    ],
+    "totalUnidadesRecibidas": 2,
+    "unidadesGeneradas": [
+      "XRJkX7DfheMhV8ina4T6",
+      "zL3mzIhqkcn0MP6e9ksn"
+    ],
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:48:01.000Z",
+      "_seconds": 1773031681
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "subtotal": 15.99,
+        "cantidad": 1,
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "marca": "Natrol",
+        "cantidadRecibida": 1,
+        "presentacion": "gomitas",
+        "costoUnitario": 15.99,
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "sku": "SUP-0082",
+        "contenido": "140",
+        "dosaje": "1 mg",
+        "sabor": "Fresa"
+      },
+      {
+        "presentacion": "capsulas_blandas",
+        "cantidadRecibida": 1,
+        "costoUnitario": 9.99,
+        "nombreComercial": "Vitamina C Liposomal",
+        "sku": "SUP-0077",
+        "cantidad": 1,
+        "subtotal": 9.99,
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "marca": "Carlyle",
+        "contenido": "90",
+        "dosaje": "2200 mg",
+        "sabor": "Naranja"
+      }
+    ]
+  },
+  {
+    "_id": "UoOtqraxeESX2osKYAB4",
+    "numeroOrden": "OC-2026-003",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "subtotalUSD": 522.73,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "tcCompra": 3.343,
+    "almacenDestino": "KJ517wENHMAiNdOJXnU0",
+    "nombreAlmacenDestino": "Angie Price",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T06:40:24.000Z",
+      "_seconds": 1770532824
+    },
+    "impuestoUSD": 15.6819,
+    "totalUSD": 538.4119000000001,
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T06:41:06.000Z",
+      "_seconds": 1770532866
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T23:16:47.000Z",
+      "_seconds": 1770592607
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "unidadesDisponibles": [
+      "3JM0R2GapOWLB6Oo1MGf",
+      "mOltjJbgWFvW6AurO82B",
+      "BhWwddUKvEPUIt9ojxr0",
+      "TpZm0mRbK9RR0EmXaJKg",
+      "FX5uyWPzh2jjxFUUFn9l",
+      "d1kcxjsXjcNP01jiIKNJ",
+      "eUiKbmGkGR8V0XoY5R1D",
+      "vIkEVc8Ij2VmtIfNn73Y",
+      "tUMDYy392MJ4YDAXwzym",
+      "xVBmvC51rv7naZ2zbKdF",
+      "QXEE2ZYWpfxsKzZnRYDk",
+      "Wp5MAf1Vw7mV3W32Ebtd",
+      "5vSofYnd0homp6fT3Wzd",
+      "9cXl6b2DCFre8RcxeAG4",
+      "dWCye1KXbsHiDf0AhDYA",
+      "128iivjzzcYLB792oawd",
+      "VP6xv2gL1Uz9dSt7YjEV",
+      "6SDFV9ZKf1LdipzEK9zO",
+      "zTBspGu4ixWQ39tPMuzS",
+      "mNqOQ9ptLKCLf3bHWajo",
+      "ltcRwipZhWRtT231T3O5",
+      "JWUOSOf5Xq8BQBOcUzX3",
+      "WwUGZPQbDgfzJmFxGBJA",
+      "PFzSh37etDYdLlqspmj8",
+      "NQBSGpYjgEByXAHRd6H1",
+      "YMdDgOOOCdVHu7pcr1T6",
+      "Ux2cTpyKxbOTA5B9Owaa",
+      "yrvUXnQpgBN1WpObqnB1",
+      "RKVC62oAfTG8WS9x5WCW"
+    ],
+    "unidadesReservadas": null,
+    "cotizacionVinculada": null,
+    "unidadesGeneradas": [
+      "3JM0R2GapOWLB6Oo1MGf",
+      "mOltjJbgWFvW6AurO82B",
+      "BhWwddUKvEPUIt9ojxr0",
+      "TpZm0mRbK9RR0EmXaJKg",
+      "FX5uyWPzh2jjxFUUFn9l",
+      "d1kcxjsXjcNP01jiIKNJ",
+      "eUiKbmGkGR8V0XoY5R1D",
+      "vIkEVc8Ij2VmtIfNn73Y",
+      "tUMDYy392MJ4YDAXwzym",
+      "xVBmvC51rv7naZ2zbKdF",
+      "QXEE2ZYWpfxsKzZnRYDk",
+      "Wp5MAf1Vw7mV3W32Ebtd",
+      "5vSofYnd0homp6fT3Wzd",
+      "9cXl6b2DCFre8RcxeAG4",
+      "dWCye1KXbsHiDf0AhDYA",
+      "128iivjzzcYLB792oawd",
+      "VP6xv2gL1Uz9dSt7YjEV",
+      "6SDFV9ZKf1LdipzEK9zO",
+      "zTBspGu4ixWQ39tPMuzS",
+      "mNqOQ9ptLKCLf3bHWajo",
+      "ltcRwipZhWRtT231T3O5",
+      "JWUOSOf5Xq8BQBOcUzX3",
+      "WwUGZPQbDgfzJmFxGBJA",
+      "PFzSh37etDYdLlqspmj8",
+      "NQBSGpYjgEByXAHRd6H1",
+      "YMdDgOOOCdVHu7pcr1T6",
+      "Ux2cTpyKxbOTA5B9Owaa",
+      "yrvUXnQpgBN1WpObqnB1",
+      "RKVC62oAfTG8WS9x5WCW"
+    ],
+    "requerimientoNumero": "REQ-2026-0004",
+    "requerimientoId": "PijR23vhSKeag4kEYy9i",
+    "productosOrigen": [
+      {
+        "cotizacionId": "pA9DWKhmhU9TRCrHwmAS",
+        "cantidad": 1,
+        "requerimientoId": "PijR23vhSKeag4kEYy9i",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "requerimientoNumero": "REQ-2026-0004",
+        "clienteNombre": "Emilio González"
+      },
+      {
+        "cotizacionId": "rPwmrRRraaerWBCXC62M",
+        "requerimientoNumero": "REQ-2026-0005",
+        "cantidad": 1,
+        "clienteNombre": "Greta Peru SAC",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "requerimientoId": "dKBJCgmddjvrf1AoYHvR"
+      },
+      {
+        "requerimientoNumero": "REQ-2026-0006",
+        "cotizacionId": "pA9DWKhmhU9TRCrHwmAS",
+        "clienteNombre": "Emilio González",
+        "cantidad": 1,
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "requerimientoId": "m1celfsO1n7LvvDMYlZn"
+      },
+      {
+        "cotizacionId": "rPwmrRRraaerWBCXC62M",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "clienteNombre": "Greta Peru SAC",
+        "requerimientoNumero": "REQ-2026-0007",
+        "requerimientoId": "8cqcuNfJj2mKNqDAYTTb",
+        "cantidad": 1
+      },
+      {
+        "cantidad": 1,
+        "requerimientoNumero": "REQ-2026-0008",
+        "clienteNombre": "Daniela Jauregui Bernal",
+        "requerimientoId": "s8KKrj4z4kGUJfyoUrg7",
+        "cotizacionId": "rKfnavWz5vPLN9FiDftb",
+        "productoId": "x2PZdgiMDsum9EL3zdVw"
+      },
+      {
+        "cotizacionId": "U4DwYMZjw2CyII1TJftx",
+        "cantidad": 1,
+        "requerimientoNumero": "REQ-2026-0010",
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "requerimientoId": "JKq5Zagyh8w7QT4LG1ZE",
+        "clienteNombre": "Francesca Rivera Torres"
+      },
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "requerimientoId": "zfxN0TPd0q8hAkN9AApa",
+        "clienteNombre": "Bolivar Rodriguez Jatniel",
+        "cantidad": 1,
+        "cotizacionId": "JpWZ7VDMhZBrZtSJtJew",
+        "requerimientoNumero": "REQ-2026-0011"
+      },
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "requerimientoNumero": "REQ-2026-0012",
+        "requerimientoId": "RLiqeXsAN8TeZCudi2JB",
+        "cotizacionId": "zAmoVmSIob76ZRJHO7J0",
+        "clienteNombre": "Philip Carl Staaf",
+        "cantidad": 1
+      },
+      {
+        "requerimientoId": "yVqMcpUdideNiZXl8KRP",
+        "cotizacionId": "WaJIl6tnLWYDWgDUl3UE",
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "cantidad": 1,
+        "clienteNombre": "Dante Cunti Pérez",
+        "requerimientoNumero": "REQ-2026-0013"
+      },
+      {
+        "requerimientoId": "rmXHRw9oKWKF1lXac4rg",
+        "requerimientoNumero": "REQ-2026-0014",
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "cantidad": 1,
+        "cotizacionId": "Os4D6fL9hxAFB6dXSBFf",
+        "clienteNombre": "Luis Alberto Mesahuanca Huamani"
+      },
+      {
+        "requerimientoNumero": "REQ-2026-0015",
+        "clienteNombre": "Maritere Armas Vargas",
+        "cotizacionId": "sw2wkWBHPYZiHvCZF4z4",
+        "cantidad": 1,
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "requerimientoId": "gGCoqnKhGD2jhKx7cu6k"
+      },
+      {
+        "requerimientoNumero": "REQ-2026-0016",
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "requerimientoId": "aXh12KoQK4P2bZMA15bi",
+        "cotizacionId": "QoWdzPA9KVjr0l9BBrlF",
+        "cantidad": 1,
+        "clienteNombre": "Josafat Vara"
+      },
+      {
+        "cotizacionId": "MtozMe6KVXf74nsIfPPY",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "requerimientoId": "Uhkfhbs6WxadM196UY2a",
+        "cantidad": 1,
+        "requerimientoNumero": "REQ-2026-0018",
+        "clienteNombre": "Jonatan Calderón"
+      },
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "requerimientoId": "HrEYNLu44lh7JcamaPc7",
+        "requerimientoNumero": "REQ-2026-0019",
+        "cotizacionId": "UMRZg6uC4t43MpYhUB8e",
+        "clienteNombre": "Eduardo Isaac Ugaz",
+        "cantidad": 1
+      }
+    ],
+    "requerimientoIds": [
+      "PijR23vhSKeag4kEYy9i",
+      "dKBJCgmddjvrf1AoYHvR",
+      "m1celfsO1n7LvvDMYlZn",
+      "8cqcuNfJj2mKNqDAYTTb",
+      "s8KKrj4z4kGUJfyoUrg7",
+      "JKq5Zagyh8w7QT4LG1ZE",
+      "zfxN0TPd0q8hAkN9AApa",
+      "RLiqeXsAN8TeZCudi2JB",
+      "yVqMcpUdideNiZXl8KRP",
+      "rmXHRw9oKWKF1lXac4rg",
+      "gGCoqnKhGD2jhKx7cu6k",
+      "aXh12KoQK4P2bZMA15bi",
+      "Uhkfhbs6WxadM196UY2a",
+      "HrEYNLu44lh7JcamaPc7"
+    ],
+    "requerimientoNumeros": [
+      "REQ-2026-0004",
+      "REQ-2026-0005",
+      "REQ-2026-0006",
+      "REQ-2026-0007",
+      "REQ-2026-0008",
+      "REQ-2026-0010",
+      "REQ-2026-0011",
+      "REQ-2026-0012",
+      "REQ-2026-0013",
+      "REQ-2026-0014",
+      "REQ-2026-0015",
+      "REQ-2026-0016",
+      "REQ-2026-0018",
+      "REQ-2026-0019"
+    ],
+    "totalPEN": 1881.2111786000003,
+    "diferenciaCambiaria": 81.30019690000017,
+    "tcPago": 3.494,
+    "historialPagos": [
+      {
+        "id": "PAG-OC-1773375210855-ikcyt3",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-13T00:00:00.000Z",
+          "_seconds": 1773360000
+        },
+        "monedaPago": "USD",
+        "montoOriginal": 538.4119000000001,
+        "montoUSD": 538.4119000000001,
+        "montoPEN": 1881.2111786000003,
+        "tipoCambio": 3.494,
+        "metodoPago": "transferencia_bancaria",
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-03-13T04:13:30.000Z",
+          "_seconds": 1773375210
+        },
+        "cuentaOrigenId": "nlIJ1Eegox0LfdjSl8w3",
+        "cuentaOrigenNombre": "Cuenta IBK - Jossie"
+      }
+    ],
+    "estadoPago": "pagada",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T04:13:32.000Z",
+      "_seconds": 1773375212
+    },
+    "fechaPago": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T00:00:00.000Z",
+      "_seconds": 1773360000
+    },
+    "montoPendiente": 0,
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "presentacion": "liquido",
+        "nombreComercial": "Omega 3",
+        "costoUnitario": 23.38,
+        "marca": "Nordic Naturals",
+        "sku": "SUP-0095",
+        "subtotal": 23.38,
+        "cantidad": 1,
+        "contenido": "8 oz",
+        "dosaje": "1560 mg",
+        "sabor": "Limón"
+      },
+      {
+        "costoUnitario": 27.57,
+        "nombreComercial": "CoQ10",
+        "sku": "SUP-0117",
+        "marca": "Life Extension",
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "presentacion": "capsulas_blandas",
+        "subtotal": 27.57,
+        "cantidad": 1,
+        "contenido": "60",
+        "dosaje": "100 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "subtotal": 54.84,
+        "cantidad": 2,
+        "sku": "SUP-0036",
+        "marca": "Nordic Naturals",
+        "costoUnitario": 27.42,
+        "nombreComercial": "Artic-D",
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "presentacion": "liquido",
+        "contenido": "8 oz",
+        "dosaje": "1000 UI + 1060 mg",
+        "sabor": "Limón"
+      },
+      {
+        "costoUnitario": 30.59,
+        "nombreComercial": "Omega 3",
+        "sku": "SUP-0088",
+        "marca": "Microingredients",
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "presentacion": "capsulas_blandas",
+        "subtotal": 30.59,
+        "cantidad": 1,
+        "contenido": "240",
+        "dosaje": "4200 mg",
+        "sabor": "Limón"
+      },
+      {
+        "subtotal": 16.99,
+        "cantidad": 1,
+        "presentacion": "capsulas_blandas",
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "costoUnitario": 16.99,
+        "nombreComercial": "Ashwagandha",
+        "marca": "Carlyle",
+        "sku": "SUP-0004",
+        "contenido": "300",
+        "dosaje": "3000 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "presentacion": "capsulas",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "costoUnitario": 16.19,
+        "nombreComercial": "Melena de León",
+        "marca": "Horbaach",
+        "sku": "SUP-0052",
+        "subtotal": 48.57000000000001,
+        "cantidad": 3,
+        "contenido": "120",
+        "dosaje": "4200 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "productoId": "tdwV1884DBT2UvJY5vsl",
+        "presentacion": "gomitas",
+        "costoUnitario": 19.23,
+        "nombreComercial": "Gomitas de Melatonina para Adultos",
+        "sku": "SUP-0111",
+        "marca": "Natrol",
+        "subtotal": 38.46,
+        "cantidad": 2,
+        "contenido": "190",
+        "dosaje": "10 mg",
+        "sabor": "Fresa"
+      },
+      {
+        "presentacion": "capsulas_blandas",
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "nombreComercial": "Vitamina C Liposomal",
+        "costoUnitario": 8.97,
+        "sku": "SUP-0077",
+        "marca": "Carlyle",
+        "subtotal": 8.97,
+        "cantidad": 1,
+        "contenido": "90",
+        "dosaje": "2200 mg",
+        "sabor": "Naranja"
+      },
+      {
+        "subtotal": 61,
+        "cantidad": 4,
+        "nombreComercial": "Magnesio Glicinato",
+        "costoUnitario": 15.25,
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "presentacion": "capsulas",
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "contenido": "180",
+        "dosaje": "400 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "subtotal": 45,
+        "cantidad": 2,
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "presentacion": "capsulas_blandas",
+        "costoUnitario": 22.5,
+        "nombreComercial": "D3 + K2",
+        "sku": "SUP-0040",
+        "marca": "Microingredients",
+        "contenido": "300",
+        "dosaje": "10000 IU + 200 mcg",
+        "sabor": "Coco"
+      },
+      {
+        "presentacion": "liquido",
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "sku": "SUP-0066",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "DHA para Bebés",
+        "costoUnitario": 14.5,
+        "subtotal": 14.5,
+        "cantidad": 1,
+        "contenido": "2 oz",
+        "dosaje": "300 IU + 1050 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "sku": "SUP-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "costoUnitario": 9.89,
+        "presentacion": "capsulas",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "subtotal": 29.67,
+        "cantidad": 3,
+        "contenido": "60",
+        "dosaje": "500000 mcg",
+        "sabor": "Neutral"
+      },
+      {
+        "subtotal": 15.19,
+        "cantidad": 1,
+        "sku": "SUP-0082",
+        "marca": "Natrol",
+        "costoUnitario": 15.19,
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "presentacion": "gomitas",
+        "contenido": "140",
+        "dosaje": "1 mg",
+        "sabor": "Fresa"
+      },
+      {
+        "costoUnitario": 18,
+        "nombreComercial": "Complejo B",
+        "marca": "Microingredients",
+        "sku": "SUP-0076",
+        "presentacion": "capsulas",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "subtotal": 108,
+        "cantidad": 6,
+        "contenido": "240",
+        "dosaje": "-",
+        "sabor": "Neutral"
+      }
+    ]
+  },
+  {
+    "_id": "hSPK1SGdigNshQSgB0jK",
+    "numeroOrden": "OC-2026-005",
+    "proveedorId": "v6D5Sp1WfXZCddYURTuj",
+    "nombreProveedor": "Costco",
+    "subtotalUSD": 84.46,
+    "totalUSD": 86.9938,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "impuestoUSD": 2.5338,
+    "tcCompra": 3.343,
+    "almacenDestino": "KJ517wENHMAiNdOJXnU0",
+    "nombreAlmacenDestino": "Angie Price",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:52:23.000Z",
+      "_seconds": 1770677543
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:52:56.000Z",
+      "_seconds": 1770677576
+    },
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:53:03.000Z",
+      "_seconds": 1770677583
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:53:15.000Z",
+      "_seconds": 1770677595
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": null,
+    "recepcionesParciales": [
+      {
+        "id": "REC-1770677593798",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-02-09T22:53:13.000Z",
+          "_seconds": 1770677593
+        },
+        "numero": 1,
+        "productosRecibidos": [
+          {
+            "productoId": "74CoJ5vsITU5wOkTvAtf",
+            "cantidadRecibida": 3,
+            "cantidadAcumulada": 3
+          },
+          {
+            "productoId": "KrwI76t7RMt2ryWTvKoM",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          }
+        ],
+        "unidadesGeneradas": [
+          "qWX9RXhyAJyLnoHENvtZ",
+          "vlC1NHk24aUUAQHQP2Pm",
+          "GifhG6fynDmqqzvCTA8J",
+          "ptA8V4119U1yhkwX6Clc"
+        ],
+        "unidadesReservadas": [],
+        "unidadesDisponibles": [
+          "qWX9RXhyAJyLnoHENvtZ",
+          "vlC1NHk24aUUAQHQP2Pm",
+          "GifhG6fynDmqqzvCTA8J",
+          "ptA8V4119U1yhkwX6Clc"
+        ],
+        "totalUnidadesRecepcion": 4,
+        "costoAdicionalPorUnidad": 0.63345,
+        "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+      }
+    ],
+    "totalUnidadesRecibidas": 4,
+    "unidadesGeneradas": [
+      "qWX9RXhyAJyLnoHENvtZ",
+      "vlC1NHk24aUUAQHQP2Pm",
+      "GifhG6fynDmqqzvCTA8J",
+      "ptA8V4119U1yhkwX6Clc"
+    ],
+    "requerimientoNumero": "REQ-2026-0009",
+    "productosOrigen": [
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "requerimientoId": "hfcqj5S1GyIQcbkvwjrf",
+        "requerimientoNumero": "REQ-2026-0009",
+        "cotizacionId": "ZjxOXqMEn16OYqRS7KF8",
+        "clienteNombre": "Fabricio Omar Rios",
+        "cantidad": 1
+      }
+    ],
+    "requerimientoId": "hfcqj5S1GyIQcbkvwjrf",
+    "requerimientoIds": [
+      "hfcqj5S1GyIQcbkvwjrf"
+    ],
+    "requerimientoNumeros": [
+      "REQ-2026-0009"
+    ],
+    "totalPEN": 301.78149219999995,
+    "diferenciaCambiaria": 10.961218799999983,
+    "tcPago": 3.469,
+    "historialPagos": [
+      {
+        "id": "PAG-OC-1772785059544-hbvkti",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-06T00:00:00.000Z",
+          "_seconds": 1772755200
+        },
+        "monedaPago": "USD",
+        "montoOriginal": 86.9938,
+        "montoUSD": 86.9938,
+        "montoPEN": 301.78149219999995,
+        "tipoCambio": 3.469,
+        "metodoPago": "transferencia_bancaria",
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-03-06T08:17:39.000Z",
+          "_seconds": 1772785059
+        },
+        "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+        "cuentaOrigenNombre": "Cuenta BCP - Jossie"
+      }
+    ],
+    "estadoPago": "pagada",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T08:17:39.000Z",
+      "_seconds": 1772785059
+    },
+    "fechaPago": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T00:00:00.000Z",
+      "_seconds": 1772755200
+    },
+    "montoPendiente": 0,
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "sku": "SUP-0124",
+        "nombreComercial": "Collagen + Biotin Verisol",
+        "costoUnitario": 23.99,
+        "cantidadRecibida": 3,
+        "presentacion": "Capsulas Blandas",
+        "cantidad": 3,
+        "subtotal": 71.97,
+        "marca": "Youtheory",
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "contenido": "345",
+        "dosaje": "2500 mg + 1500 mcg",
+        "sabor": "Neutral"
+      },
+      {
+        "marca": "Lil Critter's",
+        "productoId": "KrwI76t7RMt2ryWTvKoM",
+        "cantidad": 1,
+        "subtotal": 12.49,
+        "sku": "SUP-0032",
+        "costoUnitario": 12.49,
+        "nombreComercial": "Gomitas Multivitamínicas de Niño",
+        "presentacion": "gomitas",
+        "cantidadRecibida": 1,
+        "contenido": "300",
+        "dosaje": "-",
+        "sabor": "Frutas Tropicales"
+      }
+    ]
+  },
+  {
+    "_id": "jwgszsKGyNKSPrIbORf6",
+    "numeroOrden": "OC-2026-002",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "tcCompra": 3.37,
+    "almacenDestino": "KJ517wENHMAiNdOJXnU0",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-13T19:04:18.000Z",
+      "_seconds": 1768331058
+    },
+    "impuestoUSD": 8.521500000000001,
+    "subtotalUSD": 284.05,
+    "totalUSD": 292.5715,
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:31:14.000Z",
+      "_seconds": 1768786274
+    },
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:33:11.000Z",
+      "_seconds": 1768786391
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:33:31.000Z",
+      "_seconds": 1768786411
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "unidadesDisponibles": [
+      "4jLOHq8Hov5LRXDr6FEh",
+      "ut58q8UM0p3XybkYy3Z5",
+      "8GdwrljfZUgXIKYlqQzs",
+      "2BbmC7P4W9h291MTyvlW",
+      "hOTUR7bTavsuZBAwPkc9",
+      "ejhr5ElLnmgoTrO6Lpo4",
+      "OWduyS89Xqdz7oMVOPiU",
+      "xaedM2jB3CJePPoWB7tK",
+      "7iYOlAC6KR3440uOCNPc",
+      "T50tN9SAONzN9iJXmUC8",
+      "dvmdqf1fq6PUo9z7S3rY",
+      "IQcHVzWgOs8323eiOMN3",
+      "gaCefs78GVQ4J5PAUNGw",
+      "Hu8CmQIUsXeVJAG8JrcR",
+      "W6VIuZN2WeqTH2hxH4Cc",
+      "AEdeK5ndb2udcwEX0h1Q"
+    ],
+    "unidadesReservadas": null,
+    "cotizacionVinculada": null,
+    "unidadesGeneradas": [
+      "4jLOHq8Hov5LRXDr6FEh",
+      "ut58q8UM0p3XybkYy3Z5",
+      "8GdwrljfZUgXIKYlqQzs",
+      "2BbmC7P4W9h291MTyvlW",
+      "hOTUR7bTavsuZBAwPkc9",
+      "ejhr5ElLnmgoTrO6Lpo4",
+      "OWduyS89Xqdz7oMVOPiU",
+      "xaedM2jB3CJePPoWB7tK",
+      "7iYOlAC6KR3440uOCNPc",
+      "T50tN9SAONzN9iJXmUC8",
+      "dvmdqf1fq6PUo9z7S3rY",
+      "IQcHVzWgOs8323eiOMN3",
+      "gaCefs78GVQ4J5PAUNGw",
+      "Hu8CmQIUsXeVJAG8JrcR",
+      "W6VIuZN2WeqTH2hxH4Cc",
+      "AEdeK5ndb2udcwEX0h1Q"
+    ],
+    "totalPEN": 986.551098,
+    "diferenciaCambiaria": 0.5851429999999027,
+    "tcPago": 3.372,
+    "historialPagos": [
+      {
+        "id": "PAG-OC-1771653461341-5463mp",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-02-21T00:00:00.000Z",
+          "_seconds": 1771632000
+        },
+        "monedaPago": "USD",
+        "montoOriginal": 292.5715,
+        "montoUSD": 292.5715,
+        "montoPEN": 986.551098,
+        "tipoCambio": 3.372,
+        "metodoPago": "transferencia_bancaria",
+        "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+        "fechaRegistro": {
+          "_type": "timestamp",
+          "iso": "2026-02-21T05:57:41.000Z",
+          "_seconds": 1771653461
+        },
+        "cuentaOrigenId": "4L7GHZfCKWTcSnkd5fdg",
+        "cuentaOrigenNombre": "Cuenta BCP - Jossie"
+      }
+    ],
+    "estadoPago": "pagada",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T05:57:41.000Z",
+      "_seconds": 1771653461
+    },
+    "fechaPago": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T00:00:00.000Z",
+      "_seconds": 1771632000
+    },
+    "montoPendiente": 0,
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "subtotal": 30.11,
+        "cantidad": 1,
+        "presentacion": "capsulas_blandas",
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "SUP-0117",
+        "marca": "Life Extension",
+        "nombreComercial": "CoQ10",
+        "costoUnitario": 30.11,
+        "contenido": "60",
+        "dosaje": "100 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "presentacion": "capsulas",
+        "productoId": "Hc6nsorCzjmBoa2Rctgw",
+        "costoUnitario": 21.26,
+        "nombreComercial": "Magnesio Glicinato",
+        "marca": "Solaray",
+        "sku": "SUP-0026",
+        "subtotal": 21.26,
+        "cantidad": 1,
+        "contenido": "275",
+        "dosaje": "350 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "subtotal": 59.32,
+        "cantidad": 4,
+        "marca": "Wellness Labs Rx",
+        "sku": "SUP-0060",
+        "costoUnitario": 14.83,
+        "nombreComercial": "NAD + Resveratrol",
+        "presentacion": "capsulas",
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "contenido": "90",
+        "dosaje": "300 mg + 1200 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "subtotal": 19.78,
+        "cantidad": 2,
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "presentacion": "capsulas",
+        "costoUnitario": 9.89,
+        "nombreComercial": "Berberina",
+        "sku": "SUP-0118",
+        "marca": "Carlyle",
+        "contenido": "60",
+        "dosaje": "500000 mcg",
+        "sabor": "Neutral"
+      },
+      {
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "presentacion": "capsulas_blandas",
+        "sku": "SUP-0063",
+        "marca": "Sports Research",
+        "costoUnitario": 25.15,
+        "nombreComercial": "Alaska Omega 3",
+        "subtotal": 75.44999999999999,
+        "cantidad": 3,
+        "contenido": "90",
+        "dosaje": "1040 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "presentacion": "capsulas",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "costoUnitario": 15.25,
+        "nombreComercial": "Magnesio Glicinato",
+        "subtotal": 45.75,
+        "cantidad": 3,
+        "contenido": "180",
+        "dosaje": "400 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "presentacion": "capsulas",
+        "sku": "SUP-0052",
+        "marca": "Horbaach",
+        "costoUnitario": 16.19,
+        "nombreComercial": "Melena de León",
+        "subtotal": 32.38,
+        "cantidad": 2,
+        "contenido": "120",
+        "dosaje": "4200 mg",
+        "sabor": "Neutral"
+      }
+    ]
+  },
+  {
+    "_id": "knuyqf9IqX37hJZbWBrx",
+    "numeroOrden": "OC-2026-009",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "subtotalUSD": 104.21000000000001,
+    "totalUSD": 107.33630000000001,
+    "estadoPago": "pendiente",
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "impuestoUSD": 3.1263,
+    "tcCompra": 3.373,
+    "almacenDestino": "h9rKjK5V4Z2KZYtXZ02G",
+    "nombreAlmacenDestino": "Felicitas Mendoza",
+    "requerimientoId": "WX7goIiVCzIPXTmON8cd",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:28:30.000Z",
+      "_seconds": 1772087310
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T19:44:12.000Z",
+      "_seconds": 1772135052
+    },
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T19:44:23.000Z",
+      "_seconds": 1772135063
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T02:03:40.000Z",
+      "_seconds": 1772157820
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": "wTey8z8HW7D4aZAhxUaN",
+    "recepcionesParciales": [
+      {
+        "id": "REC-1772157818370",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-02-27T02:03:38.000Z",
+          "_seconds": 1772157818
+        },
+        "numero": 1,
+        "productosRecibidos": [
+          {
+            "productoId": "1VDeFEayBxezNWGhhH2S",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          },
+          {
+            "productoId": "MBEXCRC2sVNAuVwQP22i",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          },
+          {
+            "productoId": "T1jSnECR6ZJEWRZnvJSu",
+            "cantidadRecibida": 2,
+            "cantidadAcumulada": 2
+          }
+        ],
+        "unidadesGeneradas": [
+          "M3hSt3vjgQvpaJLJLxjv",
+          "2429vC4q42NU1VvTy0F7",
+          "qG53QGGhytIAPXE9P9Fv",
+          "Gi7H7Xmjrl1YxkNp4jQH",
+          "auuWr1TFOmt2SBObbj7U"
+        ],
+        "unidadesReservadas": [
+          "M3hSt3vjgQvpaJLJLxjv"
+        ],
+        "unidadesDisponibles": [
+          "2429vC4q42NU1VvTy0F7",
+          "qG53QGGhytIAPXE9P9Fv",
+          "Gi7H7Xmjrl1YxkNp4jQH",
+          "auuWr1TFOmt2SBObbj7U"
+        ],
+        "totalUnidadesRecepcion": 5,
+        "costoAdicionalPorUnidad": 0.62526,
+        "registradoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2"
+      }
+    ],
+    "totalUnidadesRecibidas": 5,
+    "unidadesGeneradas": [
+      "M3hSt3vjgQvpaJLJLxjv",
+      "2429vC4q42NU1VvTy0F7",
+      "qG53QGGhytIAPXE9P9Fv",
+      "Gi7H7Xmjrl1YxkNp4jQH",
+      "auuWr1TFOmt2SBObbj7U"
+    ],
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T02:03:40.000Z",
+      "_seconds": 1772157820
+    },
+    "editadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "cantidad": 1,
+        "subtotal": 16.99,
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "marca": "Carlyle",
+        "presentacion": "capsulas_blandas",
+        "cantidadRecibida": 1,
+        "nombreComercial": "Ashwagandha",
+        "costoUnitario": 16.99,
+        "sku": "SUP-0004",
+        "contenido": "300",
+        "dosaje": "3000 mg",
+        "sabor": "Neutral"
+      },
+      {
+        "subtotal": 54.84,
+        "cantidad": 2,
+        "marca": "Nordic Naturals",
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "SUP-0036",
+        "costoUnitario": 27.42,
+        "nombreComercial": "Artic-D",
+        "cantidadRecibida": 2,
+        "presentacion": "liquido",
+        "contenido": "8 oz",
+        "dosaje": "1000 UI + 1060 mg",
+        "sabor": "Limón"
+      },
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "marca": "Horbaach",
+        "cantidad": 2,
+        "subtotal": 32.38,
+        "presentacion": "capsulas",
+        "cantidadRecibida": 2,
+        "sku": "SUP-0052",
+        "costoUnitario": 16.19,
+        "nombreComercial": "Melena de León",
+        "contenido": "120",
+        "dosaje": "4200 mg",
+        "sabor": "Neutral"
+      }
+    ]
+  },
+  {
+    "_id": "u4qK7RLsLjMOMlxdWtFT",
+    "numeroOrden": "OC-2026-010",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "subtotalUSD": 40.45,
+    "totalUSD": 48.65350000000001,
+    "estadoPago": "pendiente",
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "impuestoUSD": 1.2135,
+    "gastosEnvioUSD": 6.99,
+    "tcCompra": 3.333,
+    "almacenDestino": "TJRB5PEKQSfXu0WIjnaK",
+    "nombreAlmacenDestino": "Anghely Henriquez",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T04:39:58.000Z",
+      "_seconds": 1772512798
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T04:40:03.000Z",
+      "_seconds": 1772512803
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T04:40:12.000Z",
+      "_seconds": 1772512812
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T04:40:26.000Z",
+      "_seconds": 1772512826
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": null,
+    "recepcionesParciales": [
+      {
+        "id": "REC-1772512825202",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-03T04:40:25.000Z",
+          "_seconds": 1772512825
+        },
+        "numero": 1,
+        "productosRecibidos": [
+          {
+            "productoId": "pusBFJ6IEHwsEfZJk9ad",
+            "cantidadRecibida": 1,
+            "cantidadAcumulada": 1
+          }
+        ],
+        "unidadesGeneradas": [
+          "6UqHZ4z9oXdx35z1TILf"
+        ],
+        "unidadesReservadas": [],
+        "unidadesDisponibles": [
+          "6UqHZ4z9oXdx35z1TILf"
+        ],
+        "totalUnidadesRecepcion": 1,
+        "costoAdicionalPorUnidad": 8.2035,
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+      }
+    ],
+    "totalUnidadesRecibidas": 1,
+    "unidadesGeneradas": [
+      "6UqHZ4z9oXdx35z1TILf"
+    ],
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T04:40:26.000Z",
+      "_seconds": 1772512826
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "productoId": "pusBFJ6IEHwsEfZJk9ad",
+        "marca": "MAV Nutrition",
+        "cantidad": 1,
+        "subtotal": 40.45,
+        "presentacion": "Capsulas Blandas",
+        "cantidadRecibida": 1,
+        "nombreComercial": "Omega 3",
+        "costoUnitario": 40.45,
+        "sku": "SUP-0132",
+        "contenido": "180",
+        "dosaje": "2160 mg",
+        "sabor": "Limon"
+      }
+    ]
+  },
+  {
+    "_id": "zXbpc6Lbip2ygowJOA9y",
+    "numeroOrden": "OC-2026-015",
+    "proveedorId": "a6GCKMQt6vCbvcOsrTQM",
+    "nombreProveedor": "Amazon",
+    "subtotalUSD": 143.96,
+    "totalUSD": 148.27880000000002,
+    "estadoPago": "pendiente",
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "impuestoUSD": 4.3188,
+    "tcCompra": 3.423,
+    "almacenDestino": "TJRB5PEKQSfXu0WIjnaK",
+    "nombreAlmacenDestino": "Anghely Henriquez",
+    "requerimientoId": "4eAYseh6xcJXRzJ4EpJd",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:56:26.000Z",
+      "_seconds": 1773525386
+    },
+    "fechaEnviada": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:56:46.000Z",
+      "_seconds": 1773525406
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaEnTransito": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:56:52.000Z",
+      "_seconds": 1773525412
+    },
+    "fechaRecibida": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:57:01.000Z",
+      "_seconds": 1773525421
+    },
+    "inventarioGenerado": true,
+    "estado": "recibida",
+    "cotizacionVinculada": null,
+    "recepcionesParciales": [
+      {
+        "id": "REC-1773525420707",
+        "fecha": {
+          "_type": "timestamp",
+          "iso": "2026-03-14T21:57:00.000Z",
+          "_seconds": 1773525420
+        },
+        "numero": 1,
+        "productosRecibidos": [
+          {
+            "productoId": "c6OgoqaPmVZ0KuUuayEh",
+            "cantidadRecibida": 8,
+            "cantidadAcumulada": 8
+          }
+        ],
+        "unidadesGeneradas": [
+          "LOby6jnsCNElMLZ6bwp4",
+          "QAIqSBTA49FdOSU0fW07",
+          "foW4OtbGN1ea1tUPbnFp",
+          "HZcpTplHqg6SE04d5nfm",
+          "rbMbrlQul28j6we8rQvG",
+          "jOlMTjcc0SeOZ7zRvMUB",
+          "cGhlCH65bYgxDwojabfu",
+          "l6DgOWXNPQ1vvzyheVIp"
+        ],
+        "unidadesReservadas": [],
+        "unidadesDisponibles": [
+          "LOby6jnsCNElMLZ6bwp4",
+          "QAIqSBTA49FdOSU0fW07",
+          "foW4OtbGN1ea1tUPbnFp",
+          "HZcpTplHqg6SE04d5nfm",
+          "rbMbrlQul28j6we8rQvG",
+          "jOlMTjcc0SeOZ7zRvMUB",
+          "cGhlCH65bYgxDwojabfu",
+          "l6DgOWXNPQ1vvzyheVIp"
+        ],
+        "totalUnidadesRecepcion": 8,
+        "costoAdicionalPorUnidad": 0.53985,
+        "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+      }
+    ],
+    "totalUnidadesRecibidas": 8,
+    "unidadesGeneradas": [
+      "LOby6jnsCNElMLZ6bwp4",
+      "QAIqSBTA49FdOSU0fW07",
+      "foW4OtbGN1ea1tUPbnFp",
+      "HZcpTplHqg6SE04d5nfm",
+      "rbMbrlQul28j6we8rQvG",
+      "jOlMTjcc0SeOZ7zRvMUB",
+      "cGhlCH65bYgxDwojabfu",
+      "l6DgOWXNPQ1vvzyheVIp"
+    ],
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:57:00.000Z",
+      "_seconds": 1773525420
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "paisOrigen": "USA",
+    "productos": [
+      {
+        "cantidad": 8,
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "costoUnitario": 17.995,
+        "subtotal": 143.96,
+        "nombreComercial": "Complejo B",
+        "marca": "Microingredients",
+        "sku": "SUP-0076",
+        "presentacion": "capsulas",
+        "cantidadRecibida": 8
+      }
+    ]
+  }
+]

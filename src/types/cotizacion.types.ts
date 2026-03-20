@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { ExpectativaCotizacion } from './expectativa.types';
 import type {
   CanalVenta,
   MetodoPago,
@@ -188,7 +189,19 @@ export interface Cotizacion {
   emailCliente?: string;
   telefonoCliente?: string;
   direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
   dniRuc?: string;
+
+  // Línea de negocio (desnormalizado del producto principal)
+  lineaNegocioId?: string;
+  lineaNegocioNombre?: string;
 
   // Canal
   canal: CanalVenta;
@@ -259,6 +272,9 @@ export interface Cotizacion {
 
   // Observaciones
   observaciones?: string;
+
+  // Expectativa financiera al cotizar (TC momento 1)
+  expectativaCotizacion?: ExpectativaCotizacion;
 }
 
 /**
@@ -270,6 +286,14 @@ export interface CotizacionFormData {
   emailCliente?: string;
   telefonoCliente?: string;
   direccionEntrega?: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
   dniRuc?: string;
   canal: CanalVenta;
   productos: Array<{

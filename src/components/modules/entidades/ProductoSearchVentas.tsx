@@ -11,8 +11,10 @@ import {
   Boxes,
   Lock,
   ChevronRight,
-  Info
+  Info,
+  ScanLine
 } from 'lucide-react';
+import { BarcodeScanner } from '../../common/BarcodeScanner';
 import type { ProductoDisponible } from '../../../types/venta.types';
 
 /**
@@ -27,7 +29,6 @@ export interface ProductoVentaSnapshot {
   stockDisponible: number;
   stockReservado: number;
   stockLibre: number;  // disponible - reservado
-  precioSugerido: number;
   ctruPromedio?: number;
   margenEstimado?: number;
   proximoVencimiento?: Date;
@@ -69,6 +70,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 300 });
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [showScanner, setShowScanner] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -131,9 +133,17 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
         const sku = (p.sku ?? '').toLowerCase();
         const marca = (p.marca ?? '').toLowerCase();
         const nombreComercial = (p.nombreComercial ?? '').toLowerCase();
+        const presentacion = (p.presentacion ?? '').toLowerCase();
+        const contenido = (p.contenido ?? '').toLowerCase();
+        const dosaje = (p.dosaje ?? '').toLowerCase();
+        const sabor = (p.sabor ?? '').toLowerCase();
         return sku.includes(searchLower) ||
                marca.includes(searchLower) ||
                nombreComercial.includes(searchLower) ||
+               presentacion.includes(searchLower) ||
+               contenido.includes(searchLower) ||
+               dosaje.includes(searchLower) ||
+               sabor.includes(searchLower) ||
                `${marca} ${nombreComercial}`.toLowerCase().includes(searchLower);
       });
 
@@ -170,6 +180,21 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
     return ((precio - ctru) / precio) * 100;
   };
 
+  // Handler de escaneo de codigo de barras
+  const handleBarcodeScan = useCallback((barcode: string) => {
+    setShowScanner(false);
+    const productosArr = Array.isArray(productos) ? productos : [];
+    const found = productosArr.find(
+      p => (p as any).codigoUPC === barcode || p.sku === barcode
+    );
+    if (found) {
+      handleSelectProducto(found);
+    } else {
+      setInputValue(barcode);
+      setIsOpen(true);
+    }
+  }, [productos]);
+
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
     setInputValue(valor);
@@ -187,7 +212,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
   const handleSelectProducto = (producto: ProductoDisponible) => {
     const stockExt = getStockExtendido(producto.productoId, producto);
     const diasVencer = getDiasParaVencer(stockExt.proximoVencimiento);
-    const margen = calcularMargen(producto.precioSugerido, stockExt.ctruPromedio);
+    const margen = calcularMargen(producto.precioSugerido || 0, stockExt.ctruPromedio);
 
     const snapshot: ProductoVentaSnapshot = {
       productoId: producto.productoId,
@@ -198,7 +223,6 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
       stockDisponible: stockExt.disponible,
       stockReservado: stockExt.reservado,
       stockLibre: stockExt.libre,
-      precioSugerido: producto.precioSugerido,
       ctruPromedio: stockExt.ctruPromedio,
       margenEstimado: margen ?? undefined,
       proximoVencimiento: stockExt.proximoVencimiento,
@@ -264,56 +288,96 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       {/* Input principal */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Package className="h-5 w-5 text-gray-400" />
+      <div className="relative flex gap-2">
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none">
+            <Package className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+          </div>
+
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={() => inputValue.length >= 1 && setIsOpen(true)}
+            onClick={() => !isOpen && inputValue.length >= 1 && setIsOpen(true)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            disabled={disabled}
+            required={required}
+            className={`
+              block w-full pl-8 sm:pl-10 pr-10 py-2 text-sm sm:text-base border rounded-md shadow-sm
+              focus:ring-primary-500 focus:border-primary-500
+              ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+              ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
+            `}
+          />
+
+          {/* Indicador de selección */}
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+            {value ? (
+              <div className="flex items-center space-x-1">
+                <Check className="h-4 w-4 text-green-500" />
+                {!disabled && (
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            ) : inputValue && !disabled ? (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
+          </div>
         </div>
 
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={() => inputValue.length >= 1 && setIsOpen(true)}
-          onClick={() => !isOpen && inputValue.length >= 1 && setIsOpen(true)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={disabled}
-          required={required}
-          className={`
-            block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
-            focus:ring-primary-500 focus:border-primary-500
-            ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-            ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
-          `}
-        />
+        {/* Boton escanear */}
+        {!disabled && !value && (
+          <button
+            type="button"
+            onClick={() => setShowScanner(!showScanner)}
+            title="Escanear codigo de barras"
+            className={`px-3 py-2 border rounded-md shadow-sm transition-colors flex-shrink-0 ${
+              showScanner
+                ? 'bg-primary-50 border-primary-300 text-primary-700'
+                : 'bg-white border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300 active:bg-gray-50'
+            }`}
+          >
+            <ScanLine className="h-5 w-5" />
+          </button>
+        )}
+      </div>
 
-        {/* Indicador de selección */}
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-          {value ? (
-            <div className="flex items-center space-x-1">
-              <Check className="h-4 w-4 text-green-500" />
-              {!disabled && (
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          ) : inputValue && !disabled ? (
+      {/* Scanner inline */}
+      {showScanner && !disabled && !value && (
+        <div className="mt-2 p-3 sm:p-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 relative">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-500">Escanear codigo de barras</span>
             <button
               type="button"
-              onClick={handleClear}
-              className="text-gray-400 hover:text-gray-600"
+              onClick={() => setShowScanner(false)}
+              className="p-1 text-gray-400 hover:text-gray-600 active:bg-gray-100 rounded"
             >
               <X className="h-4 w-4" />
             </button>
-          ) : null}
+          </div>
+          <BarcodeScanner
+            onScan={handleBarcodeScan}
+            mode="both"
+            compact
+            placeholder="Escanear o escribir UPC..."
+          />
         </div>
-      </div>
+      )}
 
       {/* Dropdown de resultados */}
       {isOpen && (
@@ -330,20 +394,20 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
           {filteredProductos.length > 0 ? (
             <>
               {/* Header */}
-              <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+              <div className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''} encontrado{filteredProductos.length !== 1 ? 's' : ''}
+                  <span className="text-[10px] sm:text-xs text-gray-500">
+                    {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''}
                   </span>
-                  <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <Boxes className="h-3 w-3" /> Stock
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-gray-400">
+                    <span className="flex items-center gap-0.5">
+                      <Boxes className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Stock
                     </span>
-                    <span className="flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3" /> Margen
+                    <span className="flex items-center gap-0.5">
+                      <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Marg.
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" /> Vence
+                    <span className="flex items-center gap-0.5">
+                      <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Vence
                     </span>
                   </div>
                 </div>
@@ -353,7 +417,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
               {filteredProductos.map((producto, index) => {
                 const stockExt = getStockExtendido(producto.productoId, producto);
                 const diasVencer = getDiasParaVencer(stockExt.proximoVencimiento);
-                const margen = calcularMargen(producto.precioSugerido, stockExt.ctruPromedio);
+                const margen = calcularMargen(producto.precioSugerido || 0, stockExt.ctruPromedio);
                 const sinStockLibre = stockExt.libre <= 0;
 
                 return (
@@ -362,103 +426,86 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                     type="button"
                     onClick={() => handleSelectProducto(producto)}
                     className={`
-                      w-full px-4 py-3 text-left border-b border-gray-100 last:border-0 transition-colors
+                      w-full px-2.5 sm:px-4 py-2 sm:py-3 text-left border-b border-gray-100 last:border-0 transition-colors
                       ${highlightedIndex === index ? 'bg-primary-50' : 'hover:bg-gray-50'}
                       ${sinStockLibre ? 'opacity-60' : ''}
                     `}
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      {/* Info principal del producto */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-mono text-sm text-primary-600 font-medium">
-                            {producto.sku}
+                    {/* Top: SKU + badges + chevron */}
+                    <div className="flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1 sm:gap-2 flex-wrap min-w-0">
+                        <span className="font-mono text-xs sm:text-sm text-primary-600 font-medium flex-shrink-0">
+                          {producto.sku}
+                        </span>
+                        {producto.investigacion && (
+                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-blue-100 text-blue-700 flex items-center flex-shrink-0">
+                            <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
+                            Inv
                           </span>
-                          {producto.investigacion && (
-                            <span className="px-1.5 py-0.5 text-xs rounded bg-blue-100 text-blue-700 flex items-center">
-                              <TrendingUp className="h-3 w-3 mr-0.5" />
-                              Inv
-                            </span>
-                          )}
-                          {sinStockLibre && (
-                            <span className="px-1.5 py-0.5 text-xs rounded bg-red-100 text-red-700 flex items-center">
-                              <AlertTriangle className="h-3 w-3 mr-0.5" />
-                              Sin stock
-                            </span>
-                          )}
-                        </div>
-                        <div className="font-medium text-gray-900 mt-0.5 truncate">
-                          {producto.marca} - {producto.nombreComercial}
-                        </div>
-                        <div className="text-xs text-gray-500 truncate">
-                          {producto.presentacion}
-                        </div>
+                        )}
+                        {sinStockLibre && (
+                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-red-100 text-red-700 flex items-center flex-shrink-0">
+                            <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
+                            <span className="hidden sm:inline">Sin stock</span>
+                            <span className="sm:hidden">0</span>
+                          </span>
+                        )}
                       </div>
+                      <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-300 flex-shrink-0" />
+                    </div>
 
-                      {/* Métricas contextuales */}
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {/* Stock */}
-                        <div className="text-center min-w-[60px]">
-                          <div className="flex items-center justify-center gap-1">
-                            <Boxes className="h-3 w-3 text-gray-400" />
-                            <span className={`font-bold text-sm ${
-                              stockExt.libre > 5 ? 'text-green-600' :
-                              stockExt.libre > 0 ? 'text-amber-600' : 'text-red-600'
-                            }`}>
-                              {stockExt.libre}
-                            </span>
-                          </div>
-                          {stockExt.reservado > 0 && (
-                            <div className="flex items-center justify-center text-xs text-gray-400 mt-0.5">
-                              <Lock className="h-2.5 w-2.5 mr-0.5" />
-                              {stockExt.reservado}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* CTRU */}
-                        {stockExt.ctruPromedio && (
-                          <div className="text-center min-w-[55px] px-2 py-1 bg-gray-100 rounded">
-                            <div className="text-xs text-gray-500">CTRU</div>
-                            <div className="font-semibold text-gray-700 text-sm">
-                              S/{stockExt.ctruPromedio.toFixed(0)}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Margen */}
-                        {margen !== null && (
-                          <div className={`text-center min-w-[50px] px-2 py-1 rounded ${getMargenColor(margen)}`}>
-                            <div className="text-xs opacity-80">Marg.</div>
-                            <div className="font-bold text-sm">
-                              {margen.toFixed(0)}%
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Vencimiento */}
-                        {diasVencer !== null && (
-                          <div className={`text-center min-w-[50px] px-2 py-1 rounded ${getVencimientoColor(diasVencer)}`}>
-                            <div className="text-xs opacity-80">Vence</div>
-                            <div className="font-bold text-sm">
-                              {diasVencer}d
-                            </div>
-                          </div>
-                        )}
-
-                        <ChevronRight className="h-4 w-4 text-gray-300" />
+                    {/* Product name + presentation + details */}
+                    <div className="mt-0.5 sm:mt-1">
+                      <div className="font-medium text-gray-900 text-xs sm:text-sm truncate">
+                        {producto.marca} - {producto.nombreComercial}
+                      </div>
+                      <div className="text-[10px] sm:text-xs text-gray-500">
+                        {[producto.presentacion, producto.contenido, producto.dosaje, producto.sabor].filter(Boolean).join(' · ')}
                       </div>
                     </div>
 
-                    {/* Precio sugerido */}
-                    {producto.precioSugerido > 0 && (
-                      <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between">
-                        <span className="text-xs text-gray-500">Precio sugerido:</span>
-                        <span className="font-semibold text-primary-600">
-                          S/ {producto.precioSugerido.toFixed(2)}
+                    {/* Metrics row: compact horizontal pills */}
+                    <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-1.5 flex-wrap">
+                      {/* Stock */}
+                      <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-50 rounded text-[10px] sm:text-xs">
+                        <Boxes className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-gray-400" />
+                        <span className={`font-bold ${
+                          stockExt.libre > 5 ? 'text-green-600' :
+                          stockExt.libre > 0 ? 'text-amber-600' : 'text-red-600'
+                        }`}>
+                          {stockExt.libre}
                         </span>
+                        {stockExt.reservado > 0 && (
+                          <span className="text-gray-400 flex items-center">
+                            <Lock className="h-2 w-2 sm:h-2.5 sm:w-2.5 mr-0.5" />
+                            {stockExt.reservado}
+                          </span>
+                        )}
                       </div>
-                    )}
+
+                      {/* CTRU */}
+                      {stockExt.ctruPromedio && (
+                        <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 rounded text-[10px] sm:text-xs">
+                          <span className="text-gray-500">CTRU:</span>
+                          <span className="font-semibold text-gray-700">S/{stockExt.ctruPromedio.toFixed(0)}</span>
+                        </div>
+                      )}
+
+                      {/* Margen */}
+                      {margen !== null && (
+                        <div className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold ${getMargenColor(margen)}`}>
+                          {margen.toFixed(0)}%
+                        </div>
+                      )}
+
+                      {/* Vencimiento */}
+                      {diasVencer !== null && (
+                        <div className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-bold ${getVencimientoColor(diasVencer)}`}>
+                          {diasVencer}d
+                        </div>
+                      )}
+
+                    </div>
                   </button>
                 );
               })}
@@ -480,52 +527,50 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
 
       {/* Panel de info del producto seleccionado */}
       {value && (
-        <div className="mt-2 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Info className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">
-                Información del producto
-              </span>
-            </div>
+        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-blue-800">
+              Info del producto
+            </span>
           </div>
 
-          <div className="grid grid-cols-4 gap-3 mt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-3 mt-2">
             {/* Stock libre */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                <Boxes className="h-3 w-3" /> Stock libre
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+                <Boxes className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Stock libre
               </p>
-              <p className={`font-bold text-lg ${
+              <p className={`font-bold text-sm sm:text-lg ${
                 value.stockLibre > 5 ? 'text-green-600' :
                 value.stockLibre > 0 ? 'text-amber-600' : 'text-red-600'
               }`}>
                 {value.stockLibre}
               </p>
               {value.stockReservado > 0 && (
-                <p className="text-xs text-gray-400 flex items-center justify-center gap-0.5">
-                  <Lock className="h-2.5 w-2.5" />
+                <p className="text-[10px] sm:text-xs text-gray-400 flex items-center justify-center gap-0.5">
+                  <Lock className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
                   {value.stockReservado} reserv.
                 </p>
               )}
             </div>
 
             {/* CTRU */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                <DollarSign className="h-3 w-3" /> CTRU Prom.
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+                <DollarSign className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> CTRU
               </p>
-              <p className="font-bold text-lg text-gray-700">
+              <p className="font-bold text-sm sm:text-lg text-gray-700">
                 {value.ctruPromedio ? `S/${value.ctruPromedio.toFixed(2)}` : '-'}
               </p>
             </div>
 
             {/* Margen */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                <TrendingUp className="h-3 w-3" /> Margen Est.
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+                <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Margen
               </p>
-              <p className={`font-bold text-lg ${
+              <p className={`font-bold text-sm sm:text-lg ${
                 value.margenEstimado
                   ? value.margenEstimado >= 20 ? 'text-green-600' :
                     value.margenEstimado >= 10 ? 'text-yellow-600' : 'text-red-600'
@@ -536,11 +581,11 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
             </div>
 
             {/* Vencimiento */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                <Calendar className="h-3 w-3" /> Vencimiento
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+                <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Vence
               </p>
-              <p className={`font-bold text-lg ${
+              <p className={`font-bold text-sm sm:text-lg ${
                 value.diasParaVencer
                   ? value.diasParaVencer <= 30 ? 'text-red-600' :
                     value.diasParaVencer <= 90 ? 'text-amber-600' : 'text-green-600'
@@ -549,7 +594,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                 {value.diasParaVencer ? `${value.diasParaVencer}d` : '-'}
               </p>
               {value.proximoVencimiento && (
-                <p className="text-xs text-gray-400">
+                <p className="text-[10px] sm:text-xs text-gray-400">
                   {value.proximoVencimiento.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
                 </p>
               )}

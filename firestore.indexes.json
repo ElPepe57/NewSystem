@@ -1,6 +1,14 @@
 {
   "indexes": [
     {
+      "collectionGroup": "llamadasIntel",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "creadoEn", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "productos",
       "queryScope": "COLLECTION",
       "fields": [
@@ -36,7 +44,24 @@
       "collectionGroup": "unidades",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "productoId", "order": "ASCENDING" },
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "fechaVencimiento", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "unidades",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "almacenActualId", "order": "ASCENDING" },
+        { "fieldPath": "estado", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "unidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "almacenId", "order": "ASCENDING" },
         { "fieldPath": "estado", "order": "ASCENDING" }
       ]
     },
@@ -57,6 +82,14 @@
       ]
     },
     {
+      "collectionGroup": "ventas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "fechaCreacion", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "gastos",
       "queryScope": "COLLECTION",
       "fields": [
@@ -65,10 +98,90 @@
       ]
     },
     {
+      "collectionGroup": "gastos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "gastos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "entregaId", "order": "ASCENDING" },
+        { "fieldPath": "tipo", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "transferencias",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "fechaCreacion", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "chat_mensajes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "canalId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "llamadas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "participantes", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "estado", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "entregas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "fechaProgramada", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "mlOrderSync",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "crearVentaDespuesDe", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "mlOrderSync",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "lineasNegocio",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "activa", "order": "ASCENDING" },
+        { "fieldPath": "nombre", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "whatsapp_messages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "from", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notificaciones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "usuarioId", "order": "ASCENDING" },
         { "fieldPath": "fechaCreacion", "order": "DESCENDING" }
       ]
     }

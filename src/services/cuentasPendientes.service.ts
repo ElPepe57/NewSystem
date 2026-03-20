@@ -228,11 +228,15 @@ export const cuentasPendientesService = {
           : calcularDiasPendiente(t.fechaCreacion);
 
         const moneda: MonedaTesoreria = t.monedaFlete || 'USD';
-        const montoPendiente = t.costoFleteTotal;
+        const montoPagadoUSD = t.montoPagadoUSD || 0;
+        const montoPendienteUSD = t.montoPendienteUSD !== undefined
+          ? t.montoPendienteUSD
+          : t.costoFleteTotal;
+        const esParcial = montoPagadoUSD > 0 && t.estadoPagoViajero === 'parcial';
 
-        let montoEquivalentePEN = montoPendiente;
+        let montoEquivalentePEN = montoPendienteUSD;
         if (moneda === 'USD') {
-          montoEquivalentePEN = montoPendiente * tc;
+          montoEquivalentePEN = montoPendienteUSD * tc;
         }
 
         pendientes.push({
@@ -243,8 +247,8 @@ export const cuentasPendientesService = {
           contraparteNombre: t.viajeroNombre || 'Viajero sin nombre',
           contraparteId: t.viajeroId,
           montoTotal: t.costoFleteTotal,
-          montoPagado: 0,
-          montoPendiente,
+          montoPagado: montoPagadoUSD,
+          montoPendiente: montoPendienteUSD,
           moneda,
           tipoCambio: moneda === 'USD' ? tc : undefined,
           montoEquivalentePEN,
@@ -252,7 +256,7 @@ export const cuentasPendientesService = {
           diasPendiente,
           estadoDocumento: t.estado,
           esVencido: diasPendiente > 7,
-          esParcial: false,
+          esParcial,
           notas: t.notas
         });
       }

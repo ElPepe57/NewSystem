@@ -66,11 +66,14 @@ export interface Almacen {
   id: string;
   codigo: string;
   nombre: string;
-  tipo: 'miami' | 'utah' | 'peru';
+  /** @deprecated Usar paisAlmacen + ciudad en su lugar. Legacy: 'miami' | 'utah' | 'peru' */
+  tipo: string;
+  paisAlmacen?: string;              // PaisAlmacen genérico
+  ciudad?: string;
   direccion?: string;
   responsable?: string;
   activo: boolean;
-  
+
   // Auditoría
   creadoPor: string;
   fechaCreacion: Timestamp;
@@ -132,7 +135,10 @@ export interface ConfiguracionFormData {
 export interface AlmacenFormData {
   codigo: string;
   nombre: string;
-  tipo: 'miami' | 'utah' | 'peru';
+  /** @deprecated Usar paisAlmacen + ciudad en su lugar */
+  tipo: string;
+  paisAlmacen?: string;
+  ciudad?: string;
   direccion?: string;
   responsable?: string;
 }

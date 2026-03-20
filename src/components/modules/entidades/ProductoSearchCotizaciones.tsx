@@ -12,8 +12,10 @@ import {
   Plane,
   ChevronRight,
   Info,
-  Truck
+  Truck,
+  ScanLine
 } from 'lucide-react';
+import { BarcodeScanner } from '../../common/BarcodeScanner';
 import type { ProductoDisponible } from '../../../types/venta.types';
 
 /**
@@ -29,13 +31,12 @@ export interface ProductoCotizacionSnapshot {
   stockPeru: number;
   stockUSA: number;
   stockTotal: number;
-  fuenteRecomendada: 'peru' | 'usa_viajero' | 'usa_almacen' | 'virtual';
+  fuenteRecomendada: 'peru' | 'usa_viajero' | 'usa_almacen' | 'origen_viajero' | 'origen_almacen' | 'virtual';
   // Precios de referencia
   precioPERUMin?: number;
   precioPERUPromedio?: number;
   precioPERUMax?: number;
   precioEntrada?: number;
-  precioSugerido: number;
   // Tiempos
   tiempoEntregaEstimado: number; // días
   mensajeDisponibilidad: string;
@@ -80,6 +81,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 300 });
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [showScanner, setShowScanner] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -142,9 +144,17 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
         const sku = (p.sku ?? '').toLowerCase();
         const marca = (p.marca ?? '').toLowerCase();
         const nombreComercial = (p.nombreComercial ?? '').toLowerCase();
+        const presentacion = (p.presentacion ?? '').toLowerCase();
+        const contenido = (p.contenido ?? '').toLowerCase();
+        const dosaje = (p.dosaje ?? '').toLowerCase();
+        const sabor = (p.sabor ?? '').toLowerCase();
         return sku.includes(searchLower) ||
                marca.includes(searchLower) ||
                nombreComercial.includes(searchLower) ||
+               presentacion.includes(searchLower) ||
+               contenido.includes(searchLower) ||
+               dosaje.includes(searchLower) ||
+               sabor.includes(searchLower) ||
                `${marca} ${nombreComercial}`.toLowerCase().includes(searchLower);
       });
 
@@ -172,7 +182,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
   }, [disponibilidadData]);
 
   // Determinar fuente recomendada y mensaje
-  const getFuenteYMensaje = (disp: DisponibilidadExtendida): { fuente: 'peru' | 'usa_viajero' | 'usa_almacen' | 'virtual'; mensaje: string; dias: number } => {
+  const getFuenteYMensaje = (disp: DisponibilidadExtendida): { fuente: 'peru' | 'usa_viajero' | 'usa_almacen' | 'origen_viajero' | 'origen_almacen' | 'virtual'; mensaje: string; dias: number } => {
     if (disp.peru > 0) {
       return {
         fuente: 'peru',
@@ -183,7 +193,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
     if (disp.usa > 0) {
       if (disp.proximoViajeDias !== undefined && disp.proximoViajeDias <= 15) {
         return {
-          fuente: 'usa_viajero',
+          fuente: 'origen_viajero',
           mensaje: disp.viajeroNombre
             ? `${disp.viajeroNombre} viaja en ${disp.proximoViajeDias}d`
             : `Viajero en ${disp.proximoViajeDias} días`,
@@ -191,14 +201,14 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
         };
       }
       return {
-        fuente: 'usa_almacen',
-        mensaje: 'Stock en USA (sin viaje programado)',
+        fuente: 'origen_almacen',
+        mensaje: 'Stock en origen (sin viaje programado)',
         dias: 20
       };
     }
     if (disp.enTransito > 0) {
       return {
-        fuente: 'usa_almacen',
+        fuente: 'origen_almacen',
         mensaje: 'En tránsito a Perú',
         dias: disp.tiempoEstimadoDias
       };
@@ -243,7 +253,6 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
       precioPERUPromedio: inv?.precioPERUPromedio,
       precioPERUMax: inv?.precioPERUMax,
       precioEntrada: inv?.precioEntrada,
-      precioSugerido: producto.precioSugerido,
       tiempoEntregaEstimado: dias,
       mensajeDisponibilidad: mensaje
     };
@@ -289,16 +298,36 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
     }
   };
 
+  // Handler de escaneo de codigo de barras
+  const handleBarcodeScan = useCallback((barcode: string) => {
+    setShowScanner(false);
+    const productosArr = Array.isArray(productos) ? productos : [];
+    // Buscar por codigoUPC o SKU
+    const found = productosArr.find(
+      p => (p as any).codigoUPC === barcode || p.sku === barcode
+    );
+    if (found) {
+      handleSelectProducto(found);
+    } else {
+      // Poner el barcode en el input como fallback de búsqueda
+      setInputValue(barcode);
+      setIsOpen(true);
+    }
+  }, [productos]);
+
   // Colores según disponibilidad
-  const getDisponibilidadStyle = (fuente: 'peru' | 'usa_viajero' | 'usa_almacen' | 'virtual') => {
+  const getDisponibilidadStyle = (fuente: string) => {
     switch (fuente) {
       case 'peru':
         return { bg: 'bg-green-100', text: 'text-green-700', icon: MapPin };
       case 'usa_viajero':
+      case 'origen_viajero':
         return { bg: 'bg-blue-100', text: 'text-blue-700', icon: Plane };
       case 'usa_almacen':
+      case 'origen_almacen':
         return { bg: 'bg-indigo-100', text: 'text-indigo-700', icon: Plane };
       case 'virtual':
+      default:
         return { bg: 'bg-amber-100', text: 'text-amber-700', icon: Truck };
     }
   };
@@ -306,48 +335,88 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       {/* Input principal */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Package className="h-5 w-5 text-gray-400" />
+      <div className="relative flex gap-2">
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none">
+            <Package className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+          </div>
+
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={() => inputValue.length >= 1 && setIsOpen(true)}
+            onClick={() => !isOpen && inputValue.length >= 1 && setIsOpen(true)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            disabled={disabled}
+            required={required}
+            className={`
+              block w-full pl-8 sm:pl-10 pr-10 py-2 text-sm sm:text-base border rounded-md shadow-sm
+              focus:ring-primary-500 focus:border-primary-500
+              ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+              ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
+            `}
+          />
+
+          {/* Indicador */}
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+            {value ? (
+              <div className="flex items-center space-x-1">
+                <Check className="h-4 w-4 text-green-500" />
+                {!disabled && (
+                  <button type="button" onClick={handleClear} className="text-gray-400 hover:text-gray-600">
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            ) : inputValue && !disabled ? (
+              <button type="button" onClick={handleClear} className="text-gray-400 hover:text-gray-600">
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
+          </div>
         </div>
 
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={() => inputValue.length >= 1 && setIsOpen(true)}
-          onClick={() => !isOpen && inputValue.length >= 1 && setIsOpen(true)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={disabled}
-          required={required}
-          className={`
-            block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
-            focus:ring-primary-500 focus:border-primary-500
-            ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-            ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
-          `}
-        />
+        {/* Boton escanear - touch friendly */}
+        {!disabled && !value && (
+          <button
+            type="button"
+            onClick={() => setShowScanner(!showScanner)}
+            title="Escanear codigo de barras"
+            className={`px-3 py-2 border rounded-md shadow-sm transition-colors flex-shrink-0 ${
+              showScanner
+                ? 'bg-primary-50 border-primary-300 text-primary-700'
+                : 'bg-white border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300 active:bg-gray-50'
+            }`}
+          >
+            <ScanLine className="h-5 w-5" />
+          </button>
+        )}
+      </div>
 
-        {/* Indicador */}
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-          {value ? (
-            <div className="flex items-center space-x-1">
-              <Check className="h-4 w-4 text-green-500" />
-              {!disabled && (
-                <button type="button" onClick={handleClear} className="text-gray-400 hover:text-gray-600">
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          ) : inputValue && !disabled ? (
-            <button type="button" onClick={handleClear} className="text-gray-400 hover:text-gray-600">
+      {/* Scanner popover - fullwidth on mobile */}
+      {showScanner && !disabled && !value && (
+        <div className="mt-2 p-3 sm:p-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 relative">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-500">Escanear codigo de barras</span>
+            <button
+              type="button"
+              onClick={() => setShowScanner(false)}
+              className="p-1 text-gray-400 hover:text-gray-600 active:bg-gray-100 rounded"
+            >
               <X className="h-4 w-4" />
             </button>
-          ) : null}
+          </div>
+          <BarcodeScanner
+            onScan={handleBarcodeScan}
+            mode="both"
+            compact
+            placeholder="Escanear o escribir UPC..."
+          />
         </div>
-      </div>
+      )}
 
       {/* Dropdown */}
       {isOpen && (
@@ -364,20 +433,20 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
           {filteredProductos.length > 0 ? (
             <>
               {/* Header */}
-              <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+              <div className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-[10px] sm:text-xs text-gray-500">
                     {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''}
                   </span>
-                  <div className="flex items-center gap-3 text-xs text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-green-500" /> Perú
+                  <div className="flex items-center gap-1.5 sm:gap-3 text-[10px] sm:text-xs text-gray-400">
+                    <span className="flex items-center gap-0.5">
+                      <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-500" /> PE
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Plane className="h-3 w-3 text-blue-500" /> USA
+                    <span className="flex items-center gap-0.5">
+                      <Plane className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-blue-500" /> US
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> Entrega
+                    <span className="flex items-center gap-0.5">
+                      <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Entrega
                     </span>
                   </div>
                 </div>
@@ -397,78 +466,74 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
                     type="button"
                     onClick={() => handleSelectProducto(producto)}
                     className={`
-                      w-full px-4 py-3 text-left border-b border-gray-100 last:border-0 transition-colors
+                      w-full px-2.5 sm:px-4 py-2 sm:py-3 text-left border-b border-gray-100 last:border-0 transition-colors
                       ${highlightedIndex === index ? 'bg-primary-50' : 'hover:bg-gray-50'}
                       ${sinStock ? 'opacity-70' : ''}
                     `}
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      {/* Info producto */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-mono text-sm text-primary-600 font-medium">
-                            {producto.sku}
-                          </span>
-                          {inv && (
-                            <span className="px-1.5 py-0.5 text-xs rounded bg-blue-100 text-blue-700">
-                              <TrendingUp className="h-3 w-3 inline mr-0.5" />
-                              Precios ref.
-                            </span>
-                          )}
-                        </div>
-                        <div className="font-medium text-gray-900 mt-0.5 truncate">
-                          {producto.marca} - {producto.nombreComercial}
-                        </div>
-                        <div className="text-xs text-gray-500">{producto.presentacion}</div>
-                      </div>
-
-                      {/* Métricas */}
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {/* Stock por ubicación */}
-                        <div className="flex items-center gap-1">
-                          <div className="text-center min-w-[40px] px-1.5 py-1 bg-green-50 rounded">
-                            <MapPin className="h-3 w-3 text-green-600 mx-auto" />
-                            <div className="font-bold text-sm text-green-700">{disp.peru}</div>
-                          </div>
-                          <div className="text-center min-w-[40px] px-1.5 py-1 bg-blue-50 rounded">
-                            <Plane className="h-3 w-3 text-blue-600 mx-auto" />
-                            <div className="font-bold text-sm text-blue-700">{disp.usa}</div>
-                          </div>
-                        </div>
-
-                        {/* Tiempo entrega */}
-                        <div className={`text-center min-w-[50px] px-2 py-1 rounded ${dispStyle.bg}`}>
-                          <Clock className={`h-3 w-3 ${dispStyle.text} mx-auto`} />
-                          <div className={`font-bold text-sm ${dispStyle.text}`}>
-                            {dias}d
-                          </div>
-                        </div>
-
-                        {/* Precio referencia */}
+                    {/* Top: SKU + badge + chevron */}
+                    <div className="flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1 sm:gap-2 flex-wrap min-w-0">
+                        <span className="font-mono text-xs sm:text-sm text-primary-600 font-medium flex-shrink-0">
+                          {producto.sku}
+                        </span>
                         {inv && (
-                          <div className="text-center min-w-[65px] px-2 py-1 bg-gray-100 rounded">
-                            <div className="text-xs text-gray-500">Ref.</div>
-                            <div className="font-semibold text-gray-700 text-sm">
-                              S/{inv.precioPERUPromedio.toFixed(0)}
-                            </div>
-                          </div>
+                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-blue-100 text-blue-700 flex items-center flex-shrink-0">
+                            <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
+                            <span className="hidden sm:inline">Precios ref.</span>
+                            <span className="sm:hidden">Ref.</span>
+                          </span>
                         )}
+                      </div>
+                      <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-300 flex-shrink-0" />
+                    </div>
 
-                        <ChevronRight className="h-4 w-4 text-gray-300" />
+                    {/* Product name + presentation */}
+                    <div className="mt-0.5 sm:mt-1">
+                      <div className="font-medium text-gray-900 text-xs sm:text-sm truncate">
+                        {producto.marca} - {producto.nombreComercial}
+                      </div>
+                      <div className="text-[10px] sm:text-xs text-gray-500">
+                        {[producto.presentacion, producto.contenido, producto.dosaje, producto.sabor].filter(Boolean).join(' · ')}
                       </div>
                     </div>
 
+                    {/* Metrics row: compact horizontal pills */}
+                    <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-1.5 flex-wrap">
+                      {/* Stock Perú */}
+                      <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-50 rounded text-[10px] sm:text-xs">
+                        <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-600" />
+                        <span className="font-bold text-green-700">{disp.peru}</span>
+                      </div>
+
+                      {/* Stock USA */}
+                      <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-50 rounded text-[10px] sm:text-xs">
+                        <Plane className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-blue-600" />
+                        <span className="font-bold text-blue-700">{disp.usa}</span>
+                      </div>
+
+                      {/* Tiempo entrega */}
+                      <div className={`flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs ${dispStyle.bg}`}>
+                        <Clock className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${dispStyle.text}`} />
+                        <span className={`font-bold ${dispStyle.text}`}>{dias}d</span>
+                      </div>
+
+                      {/* Precio referencia */}
+                      {inv && (
+                        <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 rounded text-[10px] sm:text-xs">
+                          <span className="text-gray-500">Ref:</span>
+                          <span className="font-semibold text-gray-700">S/{inv.precioPERUPromedio.toFixed(0)}</span>
+                        </div>
+                      )}
+
+                    </div>
+
                     {/* Mensaje de disponibilidad */}
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${dispStyle.bg} ${dispStyle.text}`}>
-                        {React.createElement(dispStyle.icon, { className: 'h-3 w-3' })}
+                    <div className="mt-1 sm:mt-1.5">
+                      <span className={`inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs ${dispStyle.bg} ${dispStyle.text}`}>
+                        {React.createElement(dispStyle.icon, { className: 'h-2.5 w-2.5 sm:h-3 sm:w-3' })}
                         {mensaje}
                       </span>
-                      {producto.precioSugerido > 0 && (
-                        <span className="text-xs text-gray-500">
-                          Sug: <span className="font-semibold text-primary-600">S/{producto.precioSugerido.toFixed(2)}</span>
-                        </span>
-                      )}
                     </div>
                   </button>
                 );
@@ -489,59 +554,60 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
 
       {/* Panel de info del producto seleccionado */}
       {value && (
-        <div className="mt-2 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Info className="h-4 w-4 text-indigo-600" />
-              <span className="text-sm font-medium text-indigo-800">
-                Información para cotizar
+        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg">
+          <div className="flex items-center justify-between gap-1 mb-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+              <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-indigo-600 flex-shrink-0" />
+              <span className="text-xs sm:text-sm font-medium text-indigo-800 truncate">
+                Info para cotizar
               </span>
             </div>
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
+            <span className={`inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs flex-shrink-0 ${
               getDisponibilidadStyle(value.fuenteRecomendada).bg
             } ${getDisponibilidadStyle(value.fuenteRecomendada).text}`}>
-              {React.createElement(getDisponibilidadStyle(value.fuenteRecomendada).icon, { className: 'h-3 w-3' })}
-              {value.mensajeDisponibilidad}
+              {React.createElement(getDisponibilidadStyle(value.fuenteRecomendada).icon, { className: 'h-2.5 w-2.5 sm:h-3 sm:w-3' })}
+              <span className="hidden sm:inline">{value.mensajeDisponibilidad}</span>
+              <span className="sm:hidden">{value.fuenteRecomendada === 'peru' ? 'Inmediato' : value.fuenteRecomendada === 'virtual' ? 'Comprar' : 'Origen'}</span>
             </span>
           </div>
 
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2">
             {/* Stock Perú */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                <MapPin className="h-3 w-3 text-green-500" /> Perú
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+                <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-500" /> Perú
               </p>
-              <p className="font-bold text-lg text-green-600">{value.stockPeru}</p>
+              <p className="font-bold text-sm sm:text-lg text-green-600">{value.stockPeru}</p>
             </div>
 
             {/* Stock USA */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                <Plane className="h-3 w-3 text-blue-500" /> USA
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+                <Plane className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-blue-500" /> USA
               </p>
-              <p className="font-bold text-lg text-blue-600">{value.stockUSA}</p>
+              <p className="font-bold text-sm sm:text-lg text-blue-600">{value.stockUSA}</p>
             </div>
 
             {/* Tiempo entrega */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                <Clock className="h-3 w-3" /> Entrega
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+                <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Entrega
               </p>
-              <p className="font-bold text-lg text-indigo-600">{value.tiempoEntregaEstimado}d</p>
+              <p className="font-bold text-sm sm:text-lg text-indigo-600">{value.tiempoEntregaEstimado}d</p>
             </div>
 
             {/* Precio referencia promedio */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">Precio Prom.</p>
-              <p className="font-bold text-lg text-gray-700">
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">Prom.</p>
+              <p className="font-bold text-sm sm:text-lg text-gray-700">
                 {value.precioPERUPromedio ? `S/${value.precioPERUPromedio.toFixed(0)}` : '-'}
               </p>
             </div>
 
             {/* Precio entrada */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">P. Entrada</p>
-              <p className="font-bold text-lg text-amber-600">
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">Entrada</p>
+              <p className="font-bold text-sm sm:text-lg text-amber-600">
                 {value.precioEntrada ? `S/${value.precioEntrada.toFixed(0)}` : '-'}
               </p>
             </div>
@@ -550,7 +616,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
           {/* Rango de precios si hay investigación */}
           {value.precioPERUMin && value.precioPERUMax && (
             <div className="mt-2 pt-2 border-t border-indigo-200">
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-[10px] sm:text-xs">
                 <span className="text-gray-600">Rango mercado:</span>
                 <span className="font-medium text-gray-700">
                   S/{value.precioPERUMin.toFixed(0)} - S/{value.precioPERUMax.toFixed(0)}

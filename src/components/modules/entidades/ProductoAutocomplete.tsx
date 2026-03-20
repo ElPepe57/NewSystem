@@ -80,7 +80,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProducto, setSelectedProducto] = useState<Producto | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 300 });
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 300, openUp: false });
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -118,10 +118,15 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
       const updatePosition = () => {
         const rect = containerRef.current?.getBoundingClientRect();
         if (rect) {
+          const dropdownMaxH = 256; // max-h-64 = 16rem = 256px
+          const spaceBelow = window.innerHeight - rect.bottom;
+          const spaceAbove = rect.top;
+          const openUp = spaceBelow < dropdownMaxH + 8 && spaceAbove > spaceBelow;
           setDropdownPosition({
-            top: rect.bottom + 4,
+            top: openUp ? rect.top - 4 : rect.bottom + 4,
             left: rect.left,
-            width: rect.width
+            width: rect.width,
+            openUp,
           });
         }
       };
@@ -311,8 +316,8 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
     <div ref={containerRef} className={`relative ${className}`}>
       {/* Input principal */}
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Package className="h-5 w-5 text-gray-400" />
+        <div className="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none">
+          <Package className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
         </div>
 
         <input
@@ -336,7 +341,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
           disabled={disabled}
           required={required}
           className={`
-            block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
+            block w-full pl-8 sm:pl-10 pr-10 py-2 text-sm sm:text-base border rounded-md shadow-sm
             focus:ring-primary-500 focus:border-primary-500
             ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
             ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
@@ -378,8 +383,10 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
           style={{
             boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
             width: dropdownPosition.width,
-            top: dropdownPosition.top,
-            left: dropdownPosition.left
+            left: dropdownPosition.left,
+            ...(dropdownPosition.openUp
+              ? { bottom: window.innerHeight - dropdownPosition.top }
+              : { top: dropdownPosition.top })
           }}
         >
           {filteredProductos.length > 0 ? (
@@ -400,92 +407,85 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
                     key={producto.id}
                     type="button"
                     onClick={() => handleSelectProducto(producto)}
-                    className="w-full px-4 py-3 text-left hover:bg-primary-50 border-b border-gray-100 last:border-0 transition-colors"
+                    className="w-full px-2.5 sm:px-4 py-2 sm:py-3 text-left hover:bg-primary-50 border-b border-gray-100 last:border-0 transition-colors"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 flex-wrap">
-                          <span className="font-mono text-sm text-primary-600">{producto.sku}</span>
-                          {tieneInvestigacion && (
-                            <span className="px-1.5 py-0.5 text-xs rounded bg-green-100 text-green-700 flex items-center">
-                              <TrendingUp className="h-3 w-3 mr-1" />
-                              Investigado
-                            </span>
-                          )}
-                          {historial && historial.totalCompras && historial.totalCompras > 0 && (
-                            <span className="px-1.5 py-0.5 text-xs rounded bg-purple-100 text-purple-700 flex items-center">
-                              <History className="h-3 w-3 mr-1" />
-                              {historial.totalCompras} compras
-                            </span>
-                          )}
-                        </div>
-                        <div className="font-medium text-gray-900 mt-0.5 truncate">
-                          {producto.marca} - {producto.nombreComercial}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {producto.presentacion} {producto.dosaje} {producto.contenido}
-                        </div>
+                    {/* Top: SKU + badges + chevron */}
+                    <div className="flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1 sm:gap-2 flex-wrap min-w-0">
+                        <span className="font-mono text-xs sm:text-sm text-primary-600 flex-shrink-0">{producto.sku}</span>
+                        {tieneInvestigacion && (
+                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-green-100 text-green-700 flex items-center flex-shrink-0">
+                            <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+                            <span className="hidden sm:inline">Investigado</span>
+                            <span className="sm:hidden">Invest.</span>
+                          </span>
+                        )}
+                        {historial && historial.totalCompras && historial.totalCompras > 0 && (
+                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-purple-100 text-purple-700 flex items-center flex-shrink-0">
+                            <History className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+                            {historial.totalCompras}<span className="hidden sm:inline ml-0.5">compras</span>
+                          </span>
+                        )}
                       </div>
+                      <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-300 flex-shrink-0" />
+                    </div>
 
-                      {/* Métricas: Precio sugerido + historial */}
-                      <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                    {/* Product name + presentation */}
+                    <div className="mt-0.5 sm:mt-1">
+                      <div className="font-medium text-gray-900 text-xs sm:text-sm truncate">
+                        {producto.marca} - {producto.nombreComercial}
+                      </div>
+                      <div className="text-[10px] sm:text-xs text-gray-500 truncate">
+                        {producto.presentacion} {producto.dosaje} {producto.contenido}
+                      </div>
+                    </div>
+
+                    {/* Metrics row: compact horizontal pills */}
+                    {(historial?.ultimoPrecioUSD || diasDesdeCompra !== null || mejorPrecio) && (
+                      <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-1.5 flex-wrap">
                         {/* Precio histórico */}
                         {historial?.ultimoPrecioUSD && (
-                          <div className="text-center min-w-[55px] px-2 py-1 bg-gray-100 rounded">
-                            <div className="text-xs text-gray-500">Últ. precio</div>
-                            <div className="font-semibold text-gray-700 text-sm">
-                              ${historial.ultimoPrecioUSD.toFixed(2)}
-                            </div>
+                          <div className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 rounded text-[10px] sm:text-xs">
+                            <span className="text-gray-500">Últ:</span>
+                            <span className="font-semibold text-gray-700">${historial.ultimoPrecioUSD.toFixed(2)}</span>
                             {tendenciaStyle && historial.variacionPorcentaje && (
-                              <div className={`text-xs ${tendenciaStyle.color} flex items-center justify-center`}>
-                                {React.createElement(tendenciaStyle.icon, { className: 'h-2.5 w-2.5 mr-0.5' })}
+                              <span className={`${tendenciaStyle.color} flex items-center`}>
+                                {React.createElement(tendenciaStyle.icon, { className: 'h-2.5 w-2.5' })}
                                 {Math.abs(historial.variacionPorcentaje).toFixed(0)}%
-                              </div>
+                              </span>
                             )}
                           </div>
                         )}
 
                         {/* Días desde última compra */}
                         {diasDesdeCompra !== null && (
-                          <div className={`text-center min-w-[45px] px-2 py-1 rounded ${
-                            diasDesdeCompra > 90 ? 'bg-amber-50' : 'bg-blue-50'
+                          <div className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold ${
+                            diasDesdeCompra > 90 ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
                           }`}>
-                            <div className="text-xs text-gray-500">Hace</div>
-                            <div className={`font-semibold text-sm ${
-                              diasDesdeCompra > 90 ? 'text-amber-600' : 'text-blue-600'
-                            }`}>
-                              {diasDesdeCompra}d
-                            </div>
+                            {diasDesdeCompra}d
                           </div>
                         )}
 
                         {/* Precio sugerido si hay investigación */}
                         {mejorPrecio && (
-                          <div className="text-center min-w-[60px] px-2 py-1 bg-green-50 rounded">
-                            <div className="text-xs text-gray-500">Sug.</div>
-                            <div className="flex items-center justify-center text-green-600">
-                              <DollarSign className="h-3 w-3" />
-                              <span className="font-bold text-sm">{mejorPrecio.precioConImpuesto.toFixed(2)}</span>
-                            </div>
+                          <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-50 rounded text-[10px] sm:text-xs">
+                            <span className="text-gray-500">Sug:</span>
+                            <span className="font-bold text-green-600">${mejorPrecio.precioConImpuesto.toFixed(2)}</span>
                             {mejorPrecio.impuesto && mejorPrecio.impuesto > 0 && (
-                              <div className="text-xs text-amber-600">
-                                +{mejorPrecio.impuesto}%
-                              </div>
+                              <span className="text-amber-600">+{mejorPrecio.impuesto}%</span>
                             )}
                           </div>
                         )}
-
-                        <ChevronRight className="h-4 w-4 text-gray-300" />
                       </div>
-                    </div>
+                    )}
 
                     {/* Info de última compra */}
                     {historial?.ultimaCompraProveedor && (
-                      <div className="mt-1.5 pt-1.5 border-t border-gray-100 flex items-center text-xs text-gray-500">
-                        <History className="h-3 w-3 mr-1" />
-                        <span>Último: {historial.ultimaCompraProveedor}</span>
+                      <div className="mt-1 sm:mt-1.5 pt-1 sm:pt-1.5 border-t border-gray-100 flex items-center text-[10px] sm:text-xs text-gray-500 truncate">
+                        <History className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1 flex-shrink-0" />
+                        <span className="truncate">Último: {historial.ultimaCompraProveedor}</span>
                         {historial.ultimaCompraFecha && (
-                          <span className="text-gray-400 ml-1">
+                          <span className="text-gray-400 ml-1 flex-shrink-0">
                             ({historial.ultimaCompraFecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })})
                           </span>
                         )}
@@ -509,11 +509,11 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
 
       {/* Panel de sugerencia de investigación */}
       {showInvestigacionSugerencia && investigacionInfo && investigacionInfo.mejorProveedor && (
-        <div className="mt-2 p-3 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <Lightbulb className="h-4 w-4 text-amber-600" />
-              <span className="text-sm font-medium text-amber-800">
+        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg">
+          <div className="flex items-start justify-between gap-1">
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+              <Lightbulb className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-600 flex-shrink-0" />
+              <span className="text-xs sm:text-sm font-medium text-amber-800 truncate">
                 Sugerencia de Investigación
               </span>
             </div>
@@ -522,41 +522,42 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
                 href={investigacionInfo.mejorProveedor.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                className="text-[10px] sm:text-xs text-blue-600 hover:text-blue-800 flex items-center flex-shrink-0"
               >
-                Ver en {investigacionInfo.mejorProveedor.nombreProveedor}
-                <ExternalLink className="h-3 w-3 ml-1" />
+                <span className="hidden sm:inline">Ver en {investigacionInfo.mejorProveedor.nombreProveedor}</span>
+                <span className="sm:hidden">Ver</span>
+                <ExternalLink className="h-3 w-3 ml-0.5 sm:ml-1" />
               </a>
             )}
           </div>
 
-          <div className="grid grid-cols-4 gap-3 mt-2">
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">Proveedor</p>
-              <p className="font-medium text-gray-900 text-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-3 mt-2">
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">Proveedor</p>
+              <p className="font-medium text-gray-900 text-xs sm:text-sm truncate">
                 {investigacionInfo.mejorProveedor.nombreProveedor}
               </p>
             </div>
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">Precio USD</p>
-              <p className="font-bold text-green-600">
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">Precio USD</p>
+              <p className="font-bold text-green-600 text-xs sm:text-sm">
                 ${investigacionInfo.mejorProveedor.precioConImpuesto.toFixed(2)}
               </p>
               {investigacionInfo.mejorProveedor.impuesto && investigacionInfo.mejorProveedor.impuesto > 0 && (
-                <p className="text-xs text-amber-600">
-                  (${investigacionInfo.mejorProveedor.precioUSD.toFixed(2)} + {investigacionInfo.mejorProveedor.impuesto}% tax)
+                <p className="text-[10px] sm:text-xs text-amber-600">
+                  (${investigacionInfo.mejorProveedor.precioUSD.toFixed(2)} +{investigacionInfo.mejorProveedor.impuesto}%)
                 </p>
               )}
             </div>
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">CTRU Estimado</p>
-              <p className="font-medium text-gray-900">
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">CTRU Est.</p>
+              <p className="font-medium text-gray-900 text-xs sm:text-sm">
                 S/{investigacionInfo.ctruEstimado?.toFixed(2) || '-'}
               </p>
             </div>
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">Margen Est.</p>
-              <p className={`font-bold ${
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">Margen Est.</p>
+              <p className={`font-bold text-xs sm:text-sm ${
                 (investigacionInfo.margenEstimado || 0) >= 20 ? 'text-green-600' : 'text-amber-600'
               }`}>
                 {investigacionInfo.margenEstimado?.toFixed(1) || '-'}%
@@ -567,45 +568,45 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
           <button
             type="button"
             onClick={() => handleUsarSugerencia(investigacionInfo.mejorProveedor!)}
-            className="mt-2 w-full py-1.5 text-sm font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 rounded-md transition-colors flex items-center justify-center"
+            className="mt-2 w-full py-1.5 text-xs sm:text-sm font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 rounded-md transition-colors flex items-center justify-center"
           >
-            <Star className="h-4 w-4 mr-1" />
-            Usar este precio sugerido
+            <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+            Usar precio sugerido
           </button>
         </div>
       )}
 
       {/* Panel de historial de compras */}
       {showHistorialCompra && historialInfo && (historialInfo.ultimoPrecioUSD || historialInfo.ultimaCompraFecha) && (
-        <div className="mt-2 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <History className="h-4 w-4 text-purple-600" />
-            <span className="text-sm font-medium text-purple-800">
+        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2">
+            <History className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-purple-800">
               Historial de Compras
             </span>
             {historialInfo.totalCompras && (
-              <span className="px-2 py-0.5 text-xs bg-purple-100 text-purple-700 rounded-full">
-                {historialInfo.totalCompras} compras previas
+              <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs bg-purple-100 text-purple-700 rounded-full flex-shrink-0">
+                {historialInfo.totalCompras} previas
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-3">
             {/* Último precio */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">Último Precio</p>
-              <p className="font-bold text-gray-900">
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">Últ. Precio</p>
+              <p className="font-bold text-gray-900 text-xs sm:text-sm">
                 ${historialInfo.ultimoPrecioUSD?.toFixed(2) || '-'}
               </p>
               {historialInfo.tendenciaPrecio && historialInfo.variacionPorcentaje && (
-                <p className={`text-xs flex items-center justify-center ${
+                <p className={`text-[10px] sm:text-xs flex items-center justify-center ${
                   historialInfo.tendenciaPrecio === 'subiendo' ? 'text-red-600' :
                   historialInfo.tendenciaPrecio === 'bajando' ? 'text-green-600' : 'text-gray-500'
                 }`}>
                   {historialInfo.tendenciaPrecio === 'subiendo' ? (
-                    <TrendingUp className="h-3 w-3 mr-0.5" />
+                    <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
                   ) : historialInfo.tendenciaPrecio === 'bajando' ? (
-                    <TrendingDown className="h-3 w-3 mr-0.5" />
+                    <TrendingDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
                   ) : null}
                   {historialInfo.tendenciaPrecio === 'subiendo' ? '+' : '-'}
                   {Math.abs(historialInfo.variacionPorcentaje).toFixed(1)}%
@@ -614,33 +615,33 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
             </div>
 
             {/* Precio promedio */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">Precio Promedio</p>
-              <p className="font-bold text-gray-900">
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">Prom.</p>
+              <p className="font-bold text-gray-900 text-xs sm:text-sm">
                 ${historialInfo.precioPromedioUSD?.toFixed(2) || '-'}
               </p>
             </div>
 
             {/* Última compra */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">Última Compra</p>
-              <p className="font-medium text-gray-900">
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">Últ. Compra</p>
+              <p className="font-medium text-gray-900 text-[11px] sm:text-sm">
                 {historialInfo.ultimaCompraFecha
                   ? historialInfo.ultimaCompraFecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: '2-digit' })
                   : '-'
                 }
               </p>
               {historialInfo.ultimaCompraFecha && (
-                <p className="text-xs text-gray-500">
+                <p className="text-[10px] sm:text-xs text-gray-500">
                   hace {getDiasDesdeCompra(historialInfo.ultimaCompraFecha)} días
                 </p>
               )}
             </div>
 
             {/* Proveedor */}
-            <div className="bg-white/60 rounded p-2 text-center">
-              <p className="text-xs text-gray-600">Últ. Proveedor</p>
-              <p className="font-medium text-gray-900 text-sm truncate" title={historialInfo.ultimaCompraProveedor}>
+            <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
+              <p className="text-[10px] sm:text-xs text-gray-600">Últ. Proveedor</p>
+              <p className="font-medium text-gray-900 text-[11px] sm:text-sm truncate" title={historialInfo.ultimaCompraProveedor}>
                 {historialInfo.ultimaCompraProveedor || '-'}
               </p>
             </div>
@@ -656,8 +657,8 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
                 const porcentaje = (diferencia / precioAnterior) * 100;
 
                 return (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-600">vs. precio sugerido actual:</span>
+                  <div className="flex items-center justify-between text-[10px] sm:text-xs gap-1">
+                    <span className="text-gray-600">vs. sug. actual:</span>
                     <span className={`font-medium ${diferencia > 0 ? 'text-red-600' : 'text-green-600'}`}>
                       {diferencia > 0 ? '+' : ''}{porcentaje.toFixed(1)}%
                       ({diferencia > 0 ? '+' : ''}${diferencia.toFixed(2)})

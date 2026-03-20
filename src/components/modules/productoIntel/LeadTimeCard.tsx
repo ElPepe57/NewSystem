@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatFecha } from '../../../utils/dateFormatters';
 import { Truck, Clock, TrendingUp, AlertTriangle } from 'lucide-react';
 import type { MetricasLeadTime } from '../../../types/productoIntel.types';
 
@@ -7,13 +8,6 @@ interface LeadTimeCardProps {
 }
 
 export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
-  const formatFecha = (fecha: Date): string => {
-    return new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).format(fecha);
-  };
 
   // Determinar si el lead time es bueno, normal o malo
   const getLeadTimeStatus = (dias: number): { color: string; label: string } => {

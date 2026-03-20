@@ -1,0 +1,4899 @@
+[
+  {
+    "_id": "069wW9TzI6bQTVwjkbQo",
+    "codigo": "ENT-2026-061",
+    "ventaId": "venta-ml-2000015463770048",
+    "numeroVenta": "VT-2026-064",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Juliana Trujillo",
+    "direccionEntrega": "Calle Holanda Mz.H3 Lote 56 Palmeras de Oquendo SN",
+    "productos": [
+      {
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "sku": "BMN-0054",
+        "marca": "Carlyle",
+        "nombreComercial": "D3 + K2",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "NPuvd7HWneUfhG1LXkA8"
+        ],
+        "precioUnitario": 137,
+        "subtotal": 137
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 137,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:00:00.000Z",
+      "_seconds": 1773061200
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T16:46:36.000Z",
+      "_seconds": 1773074796
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Callao",
+    "provincia": "Lima Metropolitana",
+    "referencia": "Referencia: casa de tres pisos de mayolica azul  frente posta médica de Palmeras de Oquendo",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lng": -77.120709,
+      "lat": -11.973244
+    },
+    "costoEnvio": 7.25,
+    "gastoDistribucionId": "3kzhydXFX3V6h6Lseupg",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:31.000Z",
+      "_seconds": 1773077611
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:31.000Z",
+      "_seconds": 1773077611
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "2QYQqNYSpnHIIpI6F5pf",
+    "codigo": "ENT-2026-042",
+    "ventaId": "jzhHnosyLrhoZ6Od0kpU",
+    "numeroVenta": "VT-2026-041",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Ruth Cavero Contreras",
+    "direccionEntrega": "Pasaje San Felipe Lt 1 Dpto 106",
+    "productos": [
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "marca": "Horbaach",
+        "nombreComercial": "Melena de León",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "eUiKbmGkGR8V0XoY5R1D"
+        ],
+        "precioUnitario": 134,
+        "subtotal": 134
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 134,
+    "cobroPendiente": false,
+    "costoTransportista": 4.17,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-02T00:00:00.000Z",
+      "_seconds": 1772409600
+    },
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-02T20:03:11.000Z",
+      "_seconds": 1772481791
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Piura",
+    "provincia": "Piura",
+    "horaProgramada": "flexible",
+    "gastoDistribucionId": "2mf0CfN54lWL6ZXmzvZe",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T01:54:59.000Z",
+      "_seconds": 1772502899
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T01:54:59.000Z",
+      "_seconds": 1772502899
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "3F1z3IAubTNnNNIXjdCK",
+    "codigo": "ENT-2026-056",
+    "ventaId": "K1RXyANPOhxAHpNvrF4z",
+    "numeroVenta": "VT-2026-058",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Farix Daniel Romero Manrique",
+    "direccionEntrega": "Jr. Carlos Arrieta 380",
+    "productos": [
+      {
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "sku": "BMN-0063",
+        "marca": "Sports Research",
+        "nombreComercial": "Alaska Omega 3",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "4RhscirAOYCaq9zAmzJh"
+        ],
+        "precioUnitario": 172,
+        "subtotal": 172
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 172,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T13:00:00.000Z",
+      "_seconds": 1772888400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T15:20:15.000Z",
+      "_seconds": 1772896815
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Barranco",
+    "provincia": "Lima Metropolitana",
+    "referencia": "607 Referencia: Edificio Invent Patria piso 607",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lng": -77.019895,
+      "lat": -12.13716
+    },
+    "costoEnvio": 8.95,
+    "gastoDistribucionId": "fE1k1726uOkKfG30HJ5C",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T17:33:16.000Z",
+      "_seconds": 1772904796
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 199,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T20:52:00.000Z",
+      "_seconds": 1772916720
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T20:53:00.000Z",
+      "_seconds": 1772916780
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "3PLrO7FWUEICBaCLLZI2",
+    "codigo": "ENT-2026-033",
+    "ventaId": "LgboD8ZPRv3MuflME8Od",
+    "numeroVenta": "VT-2026-033",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Emiliano Julio Santillan Rimac",
+    "direccionEntrega": "MZ E LOTE 2 Referencia: Pasaje El Expreso Mz E Lote 2 Urbanización Martires del Periodismo",
+    "productos": [
+      {
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "BMN-0036",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Artic-D",
+        "presentacion": "liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "BhWwddUKvEPUIt9ojxr0"
+        ],
+        "precioUnitario": 212,
+        "subtotal": 212
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 212,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T00:00:00.000Z",
+      "_seconds": 1771891200
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T05:39:15.000Z",
+      "_seconds": 1771911555
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "San Juan de Lurigancho",
+    "horaProgramada": "16:00-20:00",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T05:39:27.000Z",
+      "_seconds": 1771911567
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 1076,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T23:35:12.000Z",
+      "_seconds": 1771976112
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T23:35:12.000Z",
+      "_seconds": 1771976112
+    },
+    "gastoDistribucionId": "WQz6lytiVdrsUwbBerFX"
+  },
+  {
+    "_id": "52ju5XYbnzFIPCzkELos",
+    "codigo": "ENT-2026-064",
+    "ventaId": "G9cGackfODP8A8KnWJlW",
+    "numeroVenta": "VT-2026-063",
+    "numeroEntrega": 1,
+    "transportistaId": "mJh848VTjkRPkqW6ESyB",
+    "nombreTransportista": "Jose Pinto",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Guliana Fernandez",
+    "direccionEntrega": "Pasaje 2 Manuel Cipriano Dulanto 180 Dpto 508",
+    "productos": [
+      {
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "sku": "BMN-0082",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "presentacion": "gomitas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "XRJkX7DfheMhV8ina4T6"
+        ],
+        "precioUnitario": 125,
+        "subtotal": 125
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 125,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:00:00.000Z",
+      "_seconds": 1773061200
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:29:46.000Z",
+      "_seconds": 1773077386
+    },
+    "telefonoTransportista": "988404418",
+    "telefonoCliente": "985017617",
+    "distrito": "pueblo libre",
+    "provincia": "lima",
+    "referencia": "Cuadra 18de Av manuel cipriano dulanto ",
+    "horaProgramada": "flexible",
+    "costoEnvio": 10,
+    "gastoDistribucionId": "xjWjlP1t220B8MFNDpCO",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:30:25.000Z",
+      "_seconds": 1773077425
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:30:00.000Z",
+      "_seconds": 1773077400
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:30:47.000Z",
+      "_seconds": 1773077447
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "6x3grx1wAZhQArXA5tRd",
+    "codigo": "ENT-2026-029",
+    "ventaId": "MtozMe6KVXf74nsIfPPY",
+    "numeroVenta": "VT-2026-029",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Jonatan Calderón",
+    "direccionEntrega": "Avenida General Santa Cruz 427",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "dWCye1KXbsHiDf0AhDYA"
+        ],
+        "precioUnitario": 153,
+        "subtotal": 153
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 153,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T00:00:00.000Z",
+      "_seconds": 1771718400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:03:30.000Z",
+      "_seconds": 1771736610
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Jesus Maria",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:03:45.000Z",
+      "_seconds": 1771736625
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:03:45.000Z",
+      "_seconds": 1771736625
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "OhRspAmRyHNHrceBn8Nn"
+  },
+  {
+    "_id": "78sF3rum4R2w1DLY5g9W",
+    "codigo": "ENT-2026-053",
+    "ventaId": "CuxilqwSHmpLWB0JK0PC",
+    "numeroVenta": "VT-2026-055",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Fanny Benavides Guevara",
+    "direccionEntrega": "Calle 6 Mz J Lote 1 urb alameda de el pinar SN",
+    "productos": [
+      {
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "BMN-0036",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Artic-D",
+        "presentacion": "liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "2429vC4q42NU1VvTy0F7"
+        ],
+        "precioUnitario": 205,
+        "subtotal": 205
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 205,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T13:00:00.000Z",
+      "_seconds": 1772888400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T21:55:44.000Z",
+      "_seconds": 1772834144
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Comas",
+    "provincia": "Lima Metropolitana",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lng": -77.059861,
+      "lat": -11.904732
+    },
+    "costoEnvio": 7.25,
+    "gastoDistribucionId": "iIeLk51OxwqXoxUe0DwT",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T17:32:54.000Z",
+      "_seconds": 1772904774
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 253,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T21:46:00.000Z",
+      "_seconds": 1772919960
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T21:46:30.000Z",
+      "_seconds": 1772919990
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "8NOXmeGvZFtPBi3LVh95",
+    "codigo": "ENT-2026-013",
+    "ventaId": "Sz6bVhX304lxcjS8xqWq",
+    "numeroVenta": "VT-2026-014",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Elizabeth Cortez Fuster",
+    "direccionEntrega": "Avenida Universitaria 620",
+    "productos": [
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "BMN-0117",
+        "marca": "Life Extension",
+        "nombreComercial": "CoQ10",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "4jLOHq8Hov5LRXDr6FEh"
+        ],
+        "precioUnitario": 249,
+        "subtotal": 249
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 249,
+    "cobroPendiente": true,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T00:00:00.000Z",
+      "_seconds": 1770076800
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T18:00:53.000Z",
+      "_seconds": 1770141653
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "San Miguel",
+    "montoPorCobrar": 249,
+    "metodoPagoEsperado": "transferencia",
+    "horaProgramada": "12:00-16:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T18:01:04.000Z",
+      "_seconds": 1770141664
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T18:01:04.000Z",
+      "_seconds": 1770141664
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "5FypvPQsCuORXTTbPSgA"
+  },
+  {
+    "_id": "9bVv1YebG93eGOLuBN6R",
+    "codigo": "ENT-2026-059",
+    "ventaId": "pFDmZ4Y0gZ2Swfz62qdB",
+    "numeroVenta": "VT-2026-061",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Henry Ventura Quispe",
+    "direccionEntrega": "Avenida vienrich 264",
+    "productos": [
+      {
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "sku": "BMN-0057",
+        "marca": "Horbaach",
+        "nombreComercial": "Vitamina B12",
+        "presentacion": "tabletas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "oHxJeAQ65A3sEPmyS3uu"
+        ],
+        "precioUnitario": 108,
+        "subtotal": 108
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 108,
+    "cobroPendiente": false,
+    "costoTransportista": 4.17,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:00:00.000Z",
+      "_seconds": 1773061200
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T01:53:04.000Z",
+      "_seconds": 1772934784
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Tarma",
+    "provincia": "Junin",
+    "referencia": "primer piso Referencia: Restaurante Matt",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lat": -11.417521,
+      "lng": -75.693687
+    },
+    "costoEnvio": 4.17,
+    "gastoDistribucionId": "8r6NTqh1S1E2pDIWYXU8",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:17.000Z",
+      "_seconds": 1773077597
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:17.000Z",
+      "_seconds": 1773077597
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "AEQJxTdk3TzV1ZAt3qsD",
+    "codigo": "ENT-2026-075",
+    "ventaId": "venta-ml-2000015508642888",
+    "numeroVenta": "VT-2026-076",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Angie Garcia",
+    "direccionEntrega": "Calle Santa Teresa de villa MZ 4 Lote 11",
+    "productos": [
+      {
+        "productoId": "Hc6nsorCzjmBoa2Rctgw",
+        "sku": "BMN-0026",
+        "marca": "Solaray",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "Capsulas Vegetales",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "upkUPVlZ5ZTCtckBYqtO"
+        ],
+        "precioUnitario": 268,
+        "subtotal": 268
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 268,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T13:00:00.000Z",
+      "_seconds": 1773320400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T00:49:22.000Z",
+      "_seconds": 1773276562
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Chorrillos",
+    "provincia": "Lima Metropolitana",
+    "referencia": "Casa Referencia: Espalda de la comisaría que está en el mismo ovalo de la curva ,casa vereda roja ,puerta de vidrio",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lat": -12.184726,
+      "lng": -77.007983
+    },
+    "costoEnvio": 8.95,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T17:01:01.000Z",
+      "_seconds": 1773334861
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T17:01:01.000Z",
+      "_seconds": 1773334861
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "aTYdU1g1g0Ux48RATEoF"
+  },
+  {
+    "_id": "AcZUNVf0dUVJNfUy9ALQ",
+    "codigo": "ENT-2026-014",
+    "ventaId": "FEw49cZhUDsbxAnvB2hS",
+    "numeroVenta": "VT-2026-015",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Junior Felix Mayta ",
+    "direccionEntrega": "Avenida Daniel Alcides Carrion SN",
+    "productos": [
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "marca": "Horbaach",
+        "nombreComercial": "Melena de León",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "W6VIuZN2WeqTH2hxH4Cc"
+        ],
+        "precioUnitario": 141,
+        "subtotal": 141
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 141,
+    "cobroPendiente": true,
+    "costoTransportista": 4.5,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T00:00:00.000Z",
+      "_seconds": 1770249600
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T05:29:25.000Z",
+      "_seconds": 1770269365
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Ate",
+    "referencia": "Cerca de Precio Uno santa clara",
+    "montoPorCobrar": 141,
+    "metodoPagoEsperado": "transferencia",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T05:29:35.000Z",
+      "_seconds": 1770269375
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T05:29:35.000Z",
+      "_seconds": 1770269375
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "wGFjhMOEu7Y4N6vveGw3"
+  },
+  {
+    "_id": "BYtLaQH7ujSDMFAKEpjX",
+    "codigo": "ENT-2026-068",
+    "ventaId": "venta-ml-pack-2000011948808569",
+    "numeroVenta": "VT-2026-069",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Marisela Romina Augusto",
+    "direccionEntrega": "Calle Monte frio 137",
+    "productos": [
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "BMN-0117",
+        "marca": "Life Extension",
+        "nombreComercial": "CoQ10",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "8HeXOGJdXLYVK5eYtz4t"
+        ],
+        "precioUnitario": 225,
+        "subtotal": 225
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 225,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T13:00:00.000Z",
+      "_seconds": 1773147600
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T01:53:39.000Z",
+      "_seconds": 1773107619
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Santiago de Surco",
+    "provincia": "Lima Metropolitana",
+    "referencia": "401 Referencia: Frente a parque César Vallejo",
+    "coordenadas": {
+      "lng": -76.980653,
+      "lat": -12.115658
+    },
+    "costoEnvio": 8.95,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:45:34.000Z",
+      "_seconds": 1773161134
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:45:34.000Z",
+      "_seconds": 1773161134
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "5RiUyHMvBC59NHv2nmBn"
+  },
+  {
+    "_id": "CRURBymUFsYHM7DT0KMp",
+    "codigo": "ENT-2026-022",
+    "ventaId": "rKfnavWz5vPLN9FiDftb",
+    "numeroVenta": "VT-2026-018",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Daniela Jauregui Bernal",
+    "direccionEntrega": "Jirón Manuel quintana 155",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "ltcRwipZhWRtT231T3O5"
+        ],
+        "precioUnitario": 121,
+        "subtotal": 121
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 121,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T00:00:00.000Z",
+      "_seconds": 1771632000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T17:24:03.000Z",
+      "_seconds": 1771694643
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Rimac",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T17:24:19.000Z",
+      "_seconds": 1771694659
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T17:24:19.000Z",
+      "_seconds": 1771694659
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "wN0rSOQvRQJXoUKPzFLp"
+  },
+  {
+    "_id": "CfV14u33T4VAS0BiC4fP",
+    "codigo": "ENT-2026-035",
+    "ventaId": "r4DnK3lwt8OrfRQ1ntcQ",
+    "numeroVenta": "VT-2026-035",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Herbert Perez",
+    "direccionEntrega": "JR TARAPACA 268",
+    "productos": [
+      {
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "sku": "BMN-0077",
+        "marca": "Carlyle",
+        "nombreComercial": "Vitamina C Liposomal",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "Wp5MAf1Vw7mV3W32Ebtd"
+        ],
+        "precioUnitario": 119,
+        "subtotal": 119
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 119,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T00:00:00.000Z",
+      "_seconds": 1771977600
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T05:45:34.000Z",
+      "_seconds": 1771998334
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "La Punta",
+    "horaProgramada": "flexible",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T05:46:03.000Z",
+      "_seconds": 1771998363
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 1032,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T22:58:17.000Z",
+      "_seconds": 1772060297
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T22:58:17.000Z",
+      "_seconds": 1772060297
+    },
+    "gastoDistribucionId": "4lFEI6vVUF0XetZLTGY0"
+  },
+  {
+    "_id": "Dlvipgj8fL45qhOYbfeI",
+    "codigo": "ENT-2026-074",
+    "ventaId": "venta-ml-pack-2000011980202269",
+    "numeroVenta": "VT-2026-075",
+    "numeroEntrega": 1,
+    "nombreCliente": "Ronald Tacilla",
+    "direccionEntrega": "Avenida Hoyos Rubio 1801",
+    "productos": [
+      {
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "sku": "BMN-0063",
+        "marca": "Sports Research",
+        "nombreComercial": "Alaska Omega 3",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 2,
+        "unidadesAsignadas": [
+          "dGmZDZkrbejdqFKrJuFj",
+          "vVBiNIvxKi3N0V57FmOd"
+        ],
+        "precioUnitario": 166,
+        "subtotal": 332
+      }
+    ],
+    "cantidadItems": 2,
+    "subtotalPEN": 332,
+    "cobroPendiente": false,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T13:00:00.000Z",
+      "_seconds": 1773320400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T00:48:53.000Z",
+      "_seconds": 1773276533
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Cajamarca",
+    "provincia": "Cajamarca",
+    "referencia": "interior B Referencia: Frente al colegio Davy college al costado de planta de revisiones técnicas Infaservis",
+    "coordenadas": {
+      "lat": -7.145781,
+      "lng": -78.495519
+    },
+    "costoEnvio": 13.9,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T00:49:00.000Z",
+      "_seconds": 1773276540
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "Vg2z3BkjYnMqizb7cew3",
+    "courierExterno": "mercado_envios",
+    "tipoTransportista": "externo",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T04:48:41.000Z",
+      "_seconds": 1773377321
+    },
+    "costoTransportista": 13.9,
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "transportistaId": "5f8PRrYVwc15CuDinokN"
+  },
+  {
+    "_id": "DsyXBrXfSMqz5IxYN98E",
+    "codigo": "ENT-2026-063",
+    "ventaId": "oT62lh9MR8RWM7dg9DCc",
+    "numeroVenta": "VT-2026-062",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Lita Magali Huertas Romero",
+    "direccionEntrega": "Urbanizacion san fernando Mz J Lt 17 SN",
+    "productos": [
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "marca": "Horbaach",
+        "nombreComercial": "Melena de León",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "auuWr1TFOmt2SBObbj7U"
+        ],
+        "precioUnitario": 134,
+        "subtotal": 134
+      },
+      {
+        "productoId": "SJy7nOtm5ZxeXnECz4sr",
+        "sku": "BMN-0048",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Ultimate Omega Kids",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "lLV8AZUhBiOlIZpqBuyI"
+        ],
+        "precioUnitario": 213,
+        "subtotal": 213
+      }
+    ],
+    "cantidadItems": 2,
+    "subtotalPEN": 347,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:00:00.000Z",
+      "_seconds": 1773061200
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T16:47:27.000Z",
+      "_seconds": 1773074847
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Callao",
+    "provincia": "Lima Metropolitana",
+    "referencia": "Referencia: Es una casa BLANCA al frente del Condominio IQUIQUE. En la calle paralela a Calle El Sol.",
+    "coordenadas": {
+      "lng": -77.110459,
+      "lat": -12.051845
+    },
+    "costoEnvio": 7.25,
+    "gastoDistribucionId": "LSSLd9BqE25ABkgmRG7r",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:24.000Z",
+      "_seconds": 1773077604
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:24.000Z",
+      "_seconds": 1773077604
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "FZ3r2lCngv5NqgbAQSaw",
+    "codigo": "ENT-2026-072",
+    "ventaId": "venta-ml-pack-2000011957609441",
+    "numeroVenta": "VT-2026-073",
+    "numeroEntrega": 1,
+    "nombreCliente": "Jorge Castro",
+    "direccionEntrega": "Avenida Miguel Grau 124",
+    "productos": [
+      {
+        "productoId": "YpMdltCdRfYtnqMA6vYA",
+        "sku": "BMN-0126",
+        "marca": "Microingredients",
+        "nombreComercial": "Triple Magnesium Complex",
+        "presentacion": "Capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "zzm7m5CSfxC9Jgxgl5FR"
+        ],
+        "precioUnitario": 230,
+        "subtotal": 230
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 230,
+    "cobroPendiente": false,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T13:00:00.000Z",
+      "_seconds": 1773147600
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:42:23.000Z",
+      "_seconds": 1773160943
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Arequipa",
+    "provincia": "Arequipa",
+    "referencia": "Referencia: tiene rejas negras y la fachada es de color amarillo",
+    "coordenadas": {
+      "lng": -71.593413,
+      "lat": -16.447297
+    },
+    "costoEnvio": 6.95,
+    "courierExterno": "mercado_envios",
+    "tipoTransportista": "externo",
+    "costoTransportista": 6.95,
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T21:03:07.000Z",
+      "_seconds": 1773176587
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T21:03:07.000Z",
+      "_seconds": 1773176587
+    },
+    "gastoDistribucionId": "ASbqETCehsn02TJKy92B"
+  },
+  {
+    "_id": "G3EziuHcQKv9Ez0bIVgu",
+    "codigo": "ENT-2026-044",
+    "ventaId": "S3GajkDfmPhnED60okY3",
+    "numeroVenta": "VT-2026-046",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Martha Elena Bonifaz",
+    "direccionEntrega": "AV. HUAROCHIRI MZ 47 LOTE 3 III ETAPA SN",
+    "productos": [
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "BMN-0076",
+        "marca": "Microingredients",
+        "nombreComercial": "Complejo B",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "RKVC62oAfTG8WS9x5WCW"
+        ],
+        "precioUnitario": 226,
+        "subtotal": 226
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 226,
+    "cobroPendiente": false,
+    "costoTransportista": 7.45,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T00:00:00.000Z",
+      "_seconds": 1772496000
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:21:28.000Z",
+      "_seconds": 1772504488
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Cieneguilla",
+    "provincia": "Lima",
+    "codigoPostal": "15593",
+    "referencia": "A 200 metros del restaurante.",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lng": -76.76863019999999,
+      "lat": -12.0804763
+    },
+    "gastoDistribucionId": "mK4gJbxyUFx2XkCYh8Lg",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T06:06:27.000Z",
+      "_seconds": 1772604387
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 654,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:00:00.000Z",
+      "_seconds": 1772643600
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:47:20.000Z",
+      "_seconds": 1772646440
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "JgFqQ1svnmIbP9NVpBTp",
+    "codigo": "ENT-2026-080",
+    "ventaId": "jBBf2Bpb0BkiCBY6WihE",
+    "numeroVenta": "VT-2026-089",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Jessica Saldaña Flores",
+    "direccionEntrega": "Jirón la Floresta 299, Lima 15023, Perú",
+    "productos": [
+      {
+        "productoId": "SHXJveI0XKFu8IoWSpd2",
+        "sku": "SUP-0127",
+        "marca": "MicroIngredients",
+        "nombreComercial": "Myo Inositol",
+        "presentacion": "Polvo",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "nSKBWkksTBybvUkPHZeD"
+        ],
+        "precioUnitario": 283,
+        "subtotal": 283
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 283,
+    "cobroPendiente": true,
+    "costoTransportista": 10,
+    "estado": "programada",
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-17T13:00:00.000Z",
+      "_seconds": 1773752400
+    },
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-17T16:10:35.000Z",
+      "_seconds": 1773763835
+    },
+    "telefonoTransportista": "948 267 915",
+    "telefonoCliente": "975 767 709",
+    "distrito": "Camacho",
+    "provincia": "Lima",
+    "codigoPostal": "15023",
+    "montoPorCobrar": 283,
+    "metodoPagoEsperado": "yape",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lat": -12.0794725,
+      "lng": -76.97399469999999
+    }
+  },
+  {
+    "_id": "JotUU7m6SGTbBPjM2S21",
+    "codigo": "ENT-2026-008",
+    "ventaId": "WobByrEHqPmIJGImO90a",
+    "numeroVenta": "VT-2026-008",
+    "numeroEntrega": 1,
+    "transportistaId": "BxibbOErFpOxOySfgf8j",
+    "nombreTransportista": "Shalom - Av Lima Cuadra 38",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Mariela Cinthia García Palacios",
+    "direccionEntrega": "Calle Prolongacion Cuzco 800, Huancayo",
+    "productos": [
+      {
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "sku": "BMN-0060",
+        "marca": "Wellness Labs Rx",
+        "nombreComercial": "NAD + Resveratrol",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "2BbmC7P4W9h291MTyvlW"
+        ],
+        "precioUnitario": 189,
+        "subtotal": 189
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 189,
+    "cobroPendiente": true,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T00:00:00.000Z",
+      "_seconds": 1769040000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T16:52:20.000Z",
+      "_seconds": 1769100740
+    },
+    "telefonoTransportista": "922133629",
+    "courierExterno": "shalom",
+    "montoPorCobrar": 189,
+    "metodoPagoEsperado": "transferencia",
+    "horaProgramada": "16:00-20:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T16:52:31.000Z",
+      "_seconds": 1769100751
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T16:52:31.000Z",
+      "_seconds": 1769100751
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "8D95SrZIstPOSdURW0kd"
+  },
+  {
+    "_id": "L7H2xc2ivMSTWr4qI3AZ",
+    "codigo": "ENT-2026-041",
+    "ventaId": "2LDIOfXqdZgC9kh5tnHM",
+    "numeroVenta": "VT-2026-044",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Kevin Vargas Bautista",
+    "direccionEntrega": "Urb la Aurora, Arequipa 04002, Perú",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "JWUOSOf5Xq8BQBOcUzX3"
+        ],
+        "precioUnitario": 109,
+        "subtotal": 109
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 109,
+    "cobroPendiente": false,
+    "costoTransportista": 4.17,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-02T00:00:00.000Z",
+      "_seconds": 1772409600
+    },
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-02T04:56:01.000Z",
+      "_seconds": 1772427361
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Urb la Aurora",
+    "provincia": "Arequipa",
+    "codigoPostal": "04002",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lat": -16.4095509,
+      "lng": -71.5200929
+    },
+    "gastoDistribucionId": "Yf3K7hXkOwuIrCzB3IVT",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-02T20:00:54.000Z",
+      "_seconds": 1772481654
+    },
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 355,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T01:56:08.000Z",
+      "_seconds": 1772502968
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T01:56:08.000Z",
+      "_seconds": 1772502968
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "LYvGngxlQckRAHweS7KG",
+    "codigo": "ENT-2026-009",
+    "ventaId": "DCsqPCyPfoPedzF6OSxG",
+    "numeroVenta": "VT-2026-009",
+    "numeroEntrega": 1,
+    "transportistaId": "mJh848VTjkRPkqW6ESyB",
+    "nombreTransportista": "Jose Pinto",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Fabricio Omar Rios",
+    "direccionEntrega": "Av Lima 3631",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "gaCefs78GVQ4J5PAUNGw"
+        ],
+        "precioUnitario": 140,
+        "subtotal": 140
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 140,
+    "cobroPendiente": true,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-01-26T00:00:00.000Z",
+      "_seconds": 1769385600
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-26T16:44:13.000Z",
+      "_seconds": 1769445853
+    },
+    "telefonoTransportista": "988404418",
+    "telefonoCliente": "971403753",
+    "distrito": "SMP",
+    "montoPorCobrar": 140,
+    "metodoPagoEsperado": "efectivo",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-01-26T16:47:24.000Z",
+      "_seconds": 1769446044
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-26T16:47:24.000Z",
+      "_seconds": 1769446044
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "9SxHtiP7IObKZJFq9h9I"
+  },
+  {
+    "_id": "Ljj2XN7JBMVTRZTTCUjy",
+    "codigo": "ENT-2026-031",
+    "ventaId": "ojFIl12OIOK1zG19Kkee",
+    "numeroVenta": "VT-2026-031",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Chantal Victoria Arizapana",
+    "direccionEntrega": "Jirón Hildauro Castro 416",
+    "productos": [
+      {
+        "productoId": "KrwI76t7RMt2ryWTvKoM",
+        "sku": "BMN-0032",
+        "marca": "Lil Critter's",
+        "nombreComercial": "Gomitas Multivitamínicas de Niño",
+        "presentacion": "gomitas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "ptA8V4119U1yhkwX6Clc"
+        ],
+        "precioUnitario": 139,
+        "subtotal": 139
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 139,
+    "cobroPendiente": false,
+    "costoTransportista": 4.5,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T00:00:00.000Z",
+      "_seconds": 1771718400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:28:13.000Z",
+      "_seconds": 1771738093
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Huancavelica",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:28:32.000Z",
+      "_seconds": 1771738112
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:28:32.000Z",
+      "_seconds": 1771738112
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "bnZ3MosI1YuIj1dw80u3"
+  },
+  {
+    "_id": "M0v2qO34s9PHCsX4rtqT",
+    "codigo": "ENT-2026-026",
+    "ventaId": "Os4D6fL9hxAFB6dXSBFf",
+    "numeroVenta": "VT-2026-025",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Luis Alberto Mesahuanca Huamani",
+    "direccionEntrega": "PPJJ viva el Perú comite 3 ll- 3",
+    "productos": [
+      {
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "sku": "BMN-0066",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "DHA para Bebés",
+        "presentacion": "liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "zTBspGu4ixWQ39tPMuzS"
+        ],
+        "precioUnitario": 133,
+        "subtotal": 133
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 133,
+    "cobroPendiente": false,
+    "costoTransportista": 4.5,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T00:00:00.000Z",
+      "_seconds": 1771718400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T04:41:04.000Z",
+      "_seconds": 1771735264
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Cusco",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T04:41:20.000Z",
+      "_seconds": 1771735280
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T04:41:20.000Z",
+      "_seconds": 1771735280
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "8hI5lnDy3B9CnmHO93Oe"
+  },
+  {
+    "_id": "MJdN6jAK6wcZV96llxDF",
+    "codigo": "ENT-2026-019",
+    "ventaId": "zAmoVmSIob76ZRJHO7J0",
+    "numeroVenta": "VT-2026-023",
+    "numeroEntrega": 1,
+    "transportistaId": "mJh848VTjkRPkqW6ESyB",
+    "nombreTransportista": "Jose Pinto",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Philip Carl Staaf",
+    "direccionEntrega": "Jirón Tacna 951",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "5vSofYnd0homp6fT3Wzd"
+        ],
+        "precioUnitario": 153,
+        "subtotal": 153
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 153,
+    "cobroPendiente": false,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T00:00:00.000Z",
+      "_seconds": 1771632000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T09:04:07.000Z",
+      "_seconds": 1771664647
+    },
+    "telefonoTransportista": "988404418",
+    "distrito": "Magdalena",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T09:04:23.000Z",
+      "_seconds": 1771664663
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T09:04:23.000Z",
+      "_seconds": 1771664663
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "E533Prhn45hT3rRDBxrg"
+  },
+  {
+    "_id": "MWRQsM2n01behzDVlqCB",
+    "codigo": "ENT-2026-025",
+    "ventaId": "WaJIl6tnLWYDWgDUl3UE",
+    "numeroVenta": "VT-2026-024",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Dante Cunti Pérez",
+    "direccionEntrega": "Daniel Portocarrero 217",
+    "productos": [
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "BMN-0004",
+        "marca": "Carlyle",
+        "nombreComercial": "Ashwagandha",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "d1kcxjsXjcNP01jiIKNJ"
+        ],
+        "precioUnitario": 158,
+        "subtotal": 158
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 158,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T00:00:00.000Z",
+      "_seconds": 1771718400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T04:38:42.000Z",
+      "_seconds": 1771735122
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Chorrillos",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T04:38:57.000Z",
+      "_seconds": 1771735137
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T04:38:57.000Z",
+      "_seconds": 1771735137
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "noRKHRW44ouUP81V0U3W"
+  },
+  {
+    "_id": "OG0XGtCXwrSEOt0Xoo5V",
+    "codigo": "ENT-2026-052",
+    "ventaId": "Bfizilptt9WWcGSVwe6B",
+    "numeroVenta": "VT-2026-054",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Joy Gustavo Del Aguila Reategui",
+    "direccionEntrega": "Jirón 16 de noviembre A.h Micaela Bastidas 144",
+    "productos": [
+      {
+        "productoId": "0lj2gv5pFrVzy31ttTHx",
+        "sku": "BMN-0003",
+        "marca": "Carlyle",
+        "nombreComercial": "Magnesio Bisglicinato",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "Ik2o56szFBSCTrU4cHon"
+        ],
+        "precioUnitario": 152,
+        "subtotal": 152
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 152,
+    "cobroPendiente": false,
+    "costoTransportista": 6.95,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T13:00:00.000Z",
+      "_seconds": 1772974800
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T21:54:25.000Z",
+      "_seconds": 1772834065
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Coronel Portillo",
+    "provincia": "Ucayali",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lat": -8.388119,
+      "lng": -74.548644
+    },
+    "costoEnvio": 6.95,
+    "gastoDistribucionId": "S3zkW42i3wvjY8oz7TDQ",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T21:54:47.000Z",
+      "_seconds": 1772834087
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 11,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T22:06:00.000Z",
+      "_seconds": 1772834760
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T03:06:55.000Z",
+      "_seconds": 1772852815
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "P9M2yYDIzLCXYif5KeQq",
+    "codigo": "ENT-2026-027",
+    "ventaId": "sw2wkWBHPYZiHvCZF4z4",
+    "numeroVenta": "VT-2026-026",
+    "numeroEntrega": 1,
+    "transportistaId": "mJh848VTjkRPkqW6ESyB",
+    "nombreTransportista": "Jose Pinto",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Maritere Armas Vargas",
+    "direccionEntrega": "Jr Rimac 501",
+    "productos": [
+      {
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "sku": "BMN-0040",
+        "marca": "Microingredients",
+        "nombreComercial": "D3 + K2",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "VP6xv2gL1Uz9dSt7YjEV"
+        ],
+        "precioUnitario": 140,
+        "subtotal": 140
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 140,
+    "cobroPendiente": true,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T00:00:00.000Z",
+      "_seconds": 1771718400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T04:44:13.000Z",
+      "_seconds": 1771735453
+    },
+    "telefonoTransportista": "988404418",
+    "telefonoCliente": "917257796",
+    "distrito": "SMP",
+    "montoPorCobrar": 130,
+    "metodoPagoEsperado": "efectivo",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada con cobro de S/ 130.00 (efectivo)",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T04:44:36.000Z",
+      "_seconds": 1771735476
+    },
+    "montoRecaudado": 130,
+    "cobroRealizado": true,
+    "metodoPagoRecibido": "efectivo",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T04:44:36.000Z",
+      "_seconds": 1771735476
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "4d4VvXIXQvnqstVao5PM"
+  },
+  {
+    "_id": "PJnsq7VLqFiWr9aBoNC3",
+    "codigo": "ENT-2026-038",
+    "ventaId": "KmP3qbAeaGHRKJLhSjCF",
+    "numeroVenta": "VT-2026-039",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Vivi Calza",
+    "direccionEntrega": "Avenida Angamos Oeste 729 ",
+    "productos": [
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "BMN-0076",
+        "marca": "Microingredients",
+        "nombreComercial": "Complejo B",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "PFzSh37etDYdLlqspmj8"
+        ],
+        "precioUnitario": 226,
+        "subtotal": 226
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 226,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-28T00:00:00.000Z",
+      "_seconds": 1772236800
+    },
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T17:18:34.000Z",
+      "_seconds": 1772212714
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Miraflores ",
+    "referencia": "Rappi turbo Market",
+    "horaProgramada": "flexible",
+    "gastoDistribucionId": "rpfIvfcRuXcieRBDk0kf",
+    "estado": "entregada",
+    "notasEntrega": "Completada automáticamente al marcar venta como entregada",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T23:56:46.000Z",
+      "_seconds": 1772236606
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T23:56:46.000Z",
+      "_seconds": 1772236606
+    },
+    "editadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC",
+      "metricas_transportista: FirebaseError: [code=permission-denied]: Missing or insufficient permissions."
+    ]
+  },
+  {
+    "_id": "Ra4xzgjS1edjjaSkcVIc",
+    "codigo": "ENT-2026-047",
+    "ventaId": "NfOCnZYNaX4TsnAnEM2l",
+    "numeroVenta": "VT-2026-050",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Guillermo Torres",
+    "direccionEntrega": "C. el Diamante 170, Santiago de Surco 15023, Perú",
+    "productos": [
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "marca": "Horbaach",
+        "nombreComercial": "Melena de León",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "Gi7H7Xmjrl1YxkNp4jQH"
+        ],
+        "precioUnitario": 134,
+        "subtotal": 134
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 134,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T00:00:00.000Z",
+      "_seconds": 1772582400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:30:13.000Z",
+      "_seconds": 1772645413
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Surco",
+    "provincia": "Lima",
+    "codigoPostal": "15023",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lat": -12.0849864,
+      "lng": -76.9613347
+    },
+    "gastoDistribucionId": "CdkkNLDl54kFh2tMYJ1M",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:30:44.000Z",
+      "_seconds": 1772645444
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:00:00.000Z",
+      "_seconds": 1772643600
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T01:53:29.000Z",
+      "_seconds": 1772675609
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "SDkZPennkYJlCfOditN3",
+    "codigo": "ENT-2026-048",
+    "ventaId": "1Oasz6Xp5K8CxKoHhGnR",
+    "numeroVenta": "VT-2026-051",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Lucia del Carmen Carbajal Gutierrez",
+    "direccionEntrega": "Av. las Gaviotas 889, dpto 203, Chorrillos 15063, Perú",
+    "productos": [
+      {
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "sku": "BMN-0082",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "presentacion": "gomitas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "WwUGZPQbDgfzJmFxGBJA"
+        ],
+        "precioUnitario": 127,
+        "subtotal": 127
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 127,
+    "cobroPendiente": true,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T13:00:00.000Z",
+      "_seconds": 1772715600
+    },
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T15:44:40.000Z",
+      "_seconds": 1772725480
+    },
+    "telefonoTransportista": "948 267 915",
+    "telefonoCliente": "987702524",
+    "distrito": "Urb Ariosto Matellini Etapa 1",
+    "provincia": "Lima",
+    "codigoPostal": "15063",
+    "referencia": "Dejar con el conserje",
+    "montoPorCobrar": 137,
+    "metodoPagoEsperado": "yape",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lat": -12.1701708,
+      "lng": -77.0000691
+    },
+    "gastoDistribucionId": "muDXZ7wzoM3Oa10fbOkk",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T16:38:35.000Z",
+      "_seconds": 1772728715
+    },
+    "editadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 353,
+    "notasEntrega": "Entrega completada con cobro de S/ 137.00 (yape)",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T22:32:00.000Z",
+      "_seconds": 1772749920
+    },
+    "montoRecaudado": 137,
+    "cobroRealizado": true,
+    "metodoPagoRecibido": "yape",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T22:33:04.000Z",
+      "_seconds": 1772749984
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC",
+      "metricas_transportista: FirebaseError: [code=permission-denied]: Missing or insufficient permissions."
+    ]
+  },
+  {
+    "_id": "SLz2Wbn4pmMvwg5RaYI7",
+    "codigo": "ENT-2026-054",
+    "ventaId": "7OxiwOcppctdEtI6injO",
+    "numeroVenta": "VT-2026-056",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "HUBBER",
+    "direccionEntrega": "JR. UNION 342",
+    "productos": [
+      {
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "sku": "BMN-0057",
+        "marca": "Horbaach",
+        "nombreComercial": "Vitamina B12",
+        "presentacion": "tabletas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "QnBvMSC8Lvw01QGpl63Z"
+        ],
+        "precioUnitario": 108,
+        "subtotal": 108
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 108,
+    "cobroPendiente": false,
+    "costoTransportista": 4.17,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T13:00:00.000Z",
+      "_seconds": 1772888400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T03:13:58.000Z",
+      "_seconds": 1772853238
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Celendín",
+    "provincia": "Cajamarca",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lng": -78.14625,
+      "lat": -6.865009
+    },
+    "gastoDistribucionId": "84eYjeWnROCoM6XC0q9g",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T17:33:01.000Z",
+      "_seconds": 1772904781
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T17:33:01.000Z",
+      "_seconds": 1772904781
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "SMcRp87OfoTwTpljWThf",
+    "codigo": "ENT-2026-046",
+    "ventaId": "Zbqg1WyaqvhWS3qNKrcd",
+    "numeroVenta": "VT-2026-049",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Silvia Soledad Montalvan",
+    "direccionEntrega": "Calle Puerto Principe 120, Comas 15311, Perú",
+    "productos": [
+      {
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "sku": "BMN-0088",
+        "marca": "Microingredients",
+        "nombreComercial": "Omega 3",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "FX5uyWPzh2jjxFUUFn9l"
+        ],
+        "precioUnitario": 242,
+        "subtotal": 242
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 242,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T00:00:00.000Z",
+      "_seconds": 1772582400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:22:52.000Z",
+      "_seconds": 1772644972
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Comas",
+    "provincia": "Lima",
+    "codigoPostal": "15311",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lat": -11.9529473,
+      "lng": -77.05519319999999
+    },
+    "gastoDistribucionId": "h6bo9XlfcGrgD2nuk06z",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:23:37.000Z",
+      "_seconds": 1772645017
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:00:00.000Z",
+      "_seconds": 1772643600
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T21:42:42.000Z",
+      "_seconds": 1772660562
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "SMqKDaT1FQFmwaYRpESG",
+    "codigo": "ENT-2026-023",
+    "ventaId": "U4DwYMZjw2CyII1TJftx",
+    "numeroVenta": "VT-2026-019",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Francesca Rivera Torres",
+    "direccionEntrega": "Calle General clement 150",
+    "productos": [
+      {
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "BMN-0095",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Omega 3",
+        "presentacion": "liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "3JM0R2GapOWLB6Oo1MGf"
+        ],
+        "precioUnitario": 232,
+        "subtotal": 232
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 232,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T00:00:00.000Z",
+      "_seconds": 1771632000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T20:39:32.000Z",
+      "_seconds": 1771706372
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "San Isidro",
+    "horaProgramada": "12:00-16:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T20:39:42.000Z",
+      "_seconds": 1771706382
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T20:39:42.000Z",
+      "_seconds": 1771706382
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "1q961dVMEW59BzeIE9Pp"
+  },
+  {
+    "_id": "SXouq8XcYqjHGNB4XUHU",
+    "codigo": "ENT-2026-060",
+    "ventaId": "SkMDUHj6SeF9S7uUZzWT",
+    "numeroVenta": "VT-2026-047",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Jessica Fierro",
+    "direccionEntrega": "Los Jilgueros 171, Lima 15009, Perú",
+    "productos": [
+      {
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "sku": "BMN-0077",
+        "marca": "Carlyle",
+        "nombreComercial": "Vitamina C Liposomal",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "zL3mzIhqkcn0MP6e9ksn"
+        ],
+        "precioUnitario": 118,
+        "subtotal": 118
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 118,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:00:00.000Z",
+      "_seconds": 1773061200
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:49:58.000Z",
+      "_seconds": 1773031798
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Santa Anita",
+    "provincia": "Lima",
+    "codigoPostal": "15009",
+    "referencia": "1er piso Referencia: Recta del centro médico Mayo",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lat": -12.0499418,
+      "lng": -76.966016
+    },
+    "costoEnvio": 8.95,
+    "gastoDistribucionId": "HQIDfa1K3Ih7YuLayvld",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:50:09.000Z",
+      "_seconds": 1773031809
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:50:00.000Z",
+      "_seconds": 1773031800
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:50:23.000Z",
+      "_seconds": 1773031823
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "SfKkJF4koIYGMOGZv8PY",
+    "codigo": "ENT-2026-065",
+    "ventaId": "venta-ml-pack-2000011942167953",
+    "numeroVenta": "VT-2026-068",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "MeléNdez Factori",
+    "direccionEntrega": "Jr. Condamine 402 las américas 402",
+    "productos": [
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "BMN-0076",
+        "marca": "Microingredients",
+        "nombreComercial": "Complejo B",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "Ux2cTpyKxbOTA5B9Owaa"
+        ],
+        "precioUnitario": 223,
+        "subtotal": 223
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 223,
+    "cobroPendiente": false,
+    "costoTransportista": 7.45,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:00:00.000Z",
+      "_seconds": 1773061200
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:52:11.000Z",
+      "_seconds": 1773089531
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Alto Amazonas",
+    "provincia": "Loreto",
+    "referencia": "402 Referencia: Meléndez factori , en la misma esquina",
+    "coordenadas": {
+      "lat": -5.899457,
+      "lng": -76.113424
+    },
+    "costoEnvio": 7.45,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:56:46.000Z",
+      "_seconds": 1773089806
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:56:46.000Z",
+      "_seconds": 1773089806
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "1XITywKSdQN0NAuhvetC"
+  },
+  {
+    "_id": "TRTo7zU5LbNCndwd8Fu1",
+    "codigo": "ENT-2026-077",
+    "ventaId": "venta-ml-2000015534380058",
+    "numeroVenta": "VT-2026-078",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Lisbeth Colupu",
+    "direccionEntrega": "Calle José Belaunde Terry Juan PABLO II Catacaos SN",
+    "productos": [
+      {
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "sku": "BMN-0066",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "DHA para Bebés",
+        "presentacion": "liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "CyzOr4PPRM5bjTPgeZNf"
+        ],
+        "precioUnitario": 142,
+        "subtotal": 142
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 142,
+    "cobroPendiente": false,
+    "costoTransportista": 4.17,
+    "estado": "programada",
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T13:00:00.000Z",
+      "_seconds": 1773406800
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T22:02:33.000Z",
+      "_seconds": 1773439353
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Piura",
+    "provincia": "Piura",
+    "referencia": "Referencia: Una esquina antes del fundo chepita Catacaos",
+    "coordenadas": {
+      "lng": -80.672061,
+      "lat": -5.271495
+    }
+  },
+  {
+    "_id": "UZFbv5vAoHTYLnbub9Zg",
+    "codigo": "ENT-2026-058",
+    "ventaId": "4IGiSIqrtIonA7rMhaFu",
+    "numeroVenta": "VT-2026-060",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Stefany Alvarez",
+    "direccionEntrega": "Jirón jean francoi Millet D6-lote1",
+    "productos": [
+      {
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "sku": "BMN-0040",
+        "marca": "Microingredients",
+        "nombreComercial": "D3 + K2",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "6SDFV9ZKf1LdipzEK9zO"
+        ],
+        "precioUnitario": 218,
+        "subtotal": 218
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 218,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T13:00:00.000Z",
+      "_seconds": 1772974800
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T01:11:15.000Z",
+      "_seconds": 1772932275
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Santiago de Surco",
+    "provincia": "Lima Metropolitana",
+    "referencia": "Casa Referencia: Casa de 3 piso color mostaza con gris en una esquina",
+    "coordenadas": {
+      "lng": -76.992608,
+      "lat": -12.162265
+    },
+    "costoEnvio": 8.95,
+    "gastoDistribucionId": "yj6Ourq4yQdsiWhdnTOG",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:11.000Z",
+      "_seconds": 1773077591
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:11.000Z",
+      "_seconds": 1773077591
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "UyucCmNUiZCyMVLkGxK0",
+    "codigo": "ENT-2026-070",
+    "ventaId": "venta-ml-pack-2000011951006709",
+    "numeroVenta": "VT-2026-071",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Miguel Angel Atencio Picho",
+    "direccionEntrega": "Calle Artemio Ocaña 112 210",
+    "productos": [
+      {
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "sku": "BMN-0054",
+        "marca": "Carlyle",
+        "nombreComercial": "D3 + K2",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "bzXo4MMnJTf7u3YnvSCe"
+        ],
+        "precioUnitario": 137,
+        "subtotal": 137
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 137,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T13:00:00.000Z",
+      "_seconds": 1773147600
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T05:30:53.000Z",
+      "_seconds": 1773120653
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "San Borja",
+    "provincia": "Lima Metropolitana",
+    "referencia": "Referencia: Altura cuadra 24 y 25 de javier Prado Este, costado del nuevo edificio del Banco de la Naciòn y el centro de comvenciones",
+    "coordenadas": {
+      "lng": -76.999699,
+      "lat": -12.086903
+    },
+    "costoEnvio": 7.25,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:45:48.000Z",
+      "_seconds": 1773161148
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:45:48.000Z",
+      "_seconds": 1773161148
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "lSJoSHciXm56bz4DcmJP"
+  },
+  {
+    "_id": "VziZxZfLupJvCBA1MhwA",
+    "codigo": "ENT-2026-006",
+    "ventaId": "nNqeKEErZw0Gr4sdPrKf",
+    "numeroVenta": "VT-2026-006",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Jhosselyn Martinez",
+    "direccionEntrega": "Calle 72 Mz I Lt 2",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "Hu8CmQIUsXeVJAG8JrcR"
+        ],
+        "precioUnitario": 157,
+        "subtotal": 157
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 157,
+    "cobroPendiente": false,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T00:00:00.000Z",
+      "_seconds": 1768780800
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:43:33.000Z",
+      "_seconds": 1768787013
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Ancon",
+    "referencia": "A dos cuadras del óvalo chacas",
+    "horaProgramada": "flexible",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:44:09.000Z",
+      "_seconds": 1768787049
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 0,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:44:12.000Z",
+      "_seconds": 1768787052
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:44:12.000Z",
+      "_seconds": 1768787052
+    },
+    "gastoDistribucionId": "P34L06mvi1xawA4bDpnJ"
+  },
+  {
+    "_id": "WXAqfLw1zc2cFAPW0vxS",
+    "codigo": "ENT-2026-071",
+    "ventaId": "venta-ml-pack-2000011954165105",
+    "numeroVenta": "VT-2026-072",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Geraldine Oliver",
+    "direccionEntrega": "Malecón Bernales 295",
+    "productos": [
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "BMN-0117",
+        "marca": "Life Extension",
+        "nombreComercial": "CoQ10",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "Sg3eH4O6DykOLYGu5SwL"
+        ],
+        "precioUnitario": 225,
+        "subtotal": 225
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 225,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T13:00:00.000Z",
+      "_seconds": 1773147600
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T13:56:24.000Z",
+      "_seconds": 1773150984
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Magdalena del Mar",
+    "provincia": "Lima Metropolitana",
+    "referencia": "501 Referencia: Frente al parque de la pera",
+    "coordenadas": {
+      "lng": -77.060134,
+      "lat": -12.104997
+    },
+    "costoEnvio": 7.25,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:45:56.000Z",
+      "_seconds": 1773161156
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:45:56.000Z",
+      "_seconds": 1773161156
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "KHX3Cpj5LZgdfwkiALde"
+  },
+  {
+    "_id": "WiLk42VVo6jkCmXXRMqM",
+    "codigo": "ENT-2026-067",
+    "ventaId": "venta-ml-pack-2000011940231279",
+    "numeroVenta": "VT-2026-067",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Henry Reyes Ramos",
+    "direccionEntrega": "Sector 2 grupo 13 manzana K Lote 24",
+    "productos": [
+      {
+        "productoId": "RcNhEpQQYf0Op8GQhQVh",
+        "sku": "BMN-0129",
+        "marca": "Deal Supplement",
+        "nombreComercial": "D3 + K2",
+        "presentacion": "Capsulas Blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "IDLx1uQlR2sOheaAYQlR"
+        ],
+        "precioUnitario": 166,
+        "subtotal": 166
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 166,
+    "cobroPendiente": false,
+    "costoTransportista": 6.95,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:00:00.000Z",
+      "_seconds": 1773061200
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:56:19.000Z",
+      "_seconds": 1773089779
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Villa El Salvador",
+    "provincia": "Lima Metropolitana",
+    "referencia": "24 Referencia: St. 2, Gr. 13, Mz. K Lt. 24 .Por el ovalo de la mujer, cruce de alamos con santa rosa.",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lng": -76.942527,
+      "lat": -12.208169
+    },
+    "costoEnvio": 6.95,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:56:38.000Z",
+      "_seconds": 1773089798
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:56:38.000Z",
+      "_seconds": 1773089798
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "xnfnFyedRGefl59OdJt3"
+  },
+  {
+    "_id": "adPQbY5pBlxqhxb07ZNc",
+    "codigo": "ENT-2026-069",
+    "ventaId": "venta-ml-pack-2000011950444541",
+    "numeroVenta": "VT-2026-070",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Mario Cardenas",
+    "direccionEntrega": "Avenida arequipa 4405",
+    "productos": [
+      {
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "BMN-0036",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Artic-D",
+        "presentacion": "liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "qG53QGGhytIAPXE9P9Fv"
+        ],
+        "precioUnitario": 198,
+        "subtotal": 198
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 198,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T13:00:00.000Z",
+      "_seconds": 1773147600
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T04:18:54.000Z",
+      "_seconds": 1773116334
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Miraflores",
+    "provincia": "Lima Metropolitana",
+    "referencia": "1505 Referencia: cruce av arequipa con calle salaverry",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lng": -77.030224,
+      "lat": -12.109748
+    },
+    "costoEnvio": 7.25,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:45:41.000Z",
+      "_seconds": 1773161141
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T16:45:41.000Z",
+      "_seconds": 1773161141
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "DMbOr5PEakqWSUzppxnv"
+  },
+  {
+    "_id": "bGoTSlXTzR0TfqPQHYlW",
+    "codigo": "ENT-2026-021",
+    "ventaId": "pA9DWKhmhU9TRCrHwmAS",
+    "numeroVenta": "VT-2026-017",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Emilio González",
+    "direccionEntrega": "Jirón Manuel Villavicencio 825",
+    "productos": [
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "BMN-0076",
+        "marca": "Microingredients",
+        "nombreComercial": "Complejo B",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "NQBSGpYjgEByXAHRd6H1"
+        ],
+        "precioUnitario": 237,
+        "subtotal": 237
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 237,
+    "cobroPendiente": false,
+    "costoTransportista": 7.5,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T00:00:00.000Z",
+      "_seconds": 1771632000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T17:21:37.000Z",
+      "_seconds": 1771694497
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Lince",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T17:22:32.000Z",
+      "_seconds": 1771694552
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T17:22:32.000Z",
+      "_seconds": 1771694552
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "xkF1GyHAFZBWsUy5MkzC"
+  },
+  {
+    "_id": "bpQtHoukCbrWo6moenJi",
+    "codigo": "ENT-2026-043",
+    "ventaId": "QQfYc4xn2ODPx0oFajjD",
+    "numeroVenta": "VT-2026-045",
+    "numeroEntrega": 1,
+    "transportistaId": "mJh848VTjkRPkqW6ESyB",
+    "nombreTransportista": "Jose Pinto",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Fabricio Omar Rios",
+    "direccionEntrega": "Av Lima 3131, San Martín de Porres 15106, Perú",
+    "productos": [
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "BMN-0124",
+        "marca": "Youtheory",
+        "nombreComercial": "Collagen + Biotin Verisol",
+        "presentacion": "Capsulas Blandas",
+        "cantidad": 2,
+        "unidadesAsignadas": [
+          "qWX9RXhyAJyLnoHENvtZ",
+          "vlC1NHk24aUUAQHQP2Pm"
+        ],
+        "precioUnitario": 140,
+        "subtotal": 280
+      }
+    ],
+    "cantidadItems": 2,
+    "subtotalPEN": 280,
+    "cobroPendiente": true,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T00:00:00.000Z",
+      "_seconds": 1772496000
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:01:10.000Z",
+      "_seconds": 1772503270
+    },
+    "telefonoTransportista": "988404418",
+    "telefonoCliente": "971403753",
+    "distrito": "San Martín de Porres",
+    "provincia": "Lima",
+    "codigoPostal": "15106",
+    "montoPorCobrar": 280,
+    "metodoPagoEsperado": "plin",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lat": -12.0295289,
+      "lng": -77.07940719999999
+    },
+    "gastoDistribucionId": "fERZxVLW0TEkvF1uCDAK",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:01:24.000Z",
+      "_seconds": 1772503284
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 0,
+    "notasEntrega": "Entrega completada con cobro de S/ 280.00 (plin)",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:01:39.000Z",
+      "_seconds": 1772503299
+    },
+    "montoRecaudado": 280,
+    "cobroRealizado": true,
+    "metodoPagoRecibido": "plin",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:01:39.000Z",
+      "_seconds": 1772503299
+    },
+    "referenciaCobroId": "PAG-1772503303456-azo2p3cwt",
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "e75tOGz1sSBao54mJeav",
+    "codigo": "ENT-2026-057",
+    "ventaId": "y18Dr8ZxhwBo7gXrY0xS",
+    "numeroVenta": "VT-2026-059",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Maychyure Miranda Matos",
+    "direccionEntrega": "Avenida Brasil 863",
+    "productos": [
+      {
+        "productoId": "0lj2gv5pFrVzy31ttTHx",
+        "sku": "BMN-0003",
+        "marca": "Carlyle",
+        "nombreComercial": "Magnesio Bisglicinato",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "chCgbGVIqBjz4dTiNmy7"
+        ],
+        "precioUnitario": 138.9,
+        "subtotal": 138.9
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 138.9,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T13:00:00.000Z",
+      "_seconds": 1772888400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T23:54:49.000Z",
+      "_seconds": 1772927689
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Jesús María",
+    "provincia": "Lima Metropolitana",
+    "referencia": "Dpto 2003 Torre A Referencia: Al frente de la Rambla de Breña",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lat": -12.067974,
+      "lng": -77.047579
+    },
+    "costoEnvio": 7.25,
+    "gastoDistribucionId": "AWvd5P0BpJVjQhuWFTmY",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:32:59.000Z",
+      "_seconds": 1773077579
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:32:59.000Z",
+      "_seconds": 1773077579
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "erMmVttq4KQ2iz0KSsBq",
+    "codigo": "ENT-2026-078",
+    "ventaId": "venta-ml-pack-2000012022553733",
+    "numeroVenta": "VT-2026-079",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Rosina Pamela Velit",
+    "direccionEntrega": "Calle enrique palacios 240",
+    "productos": [
+      {
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "BMN-0095",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Omega 3",
+        "presentacion": "liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "gKIFWNrzq48e1YG444h9"
+        ],
+        "precioUnitario": 221,
+        "subtotal": 221
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 221,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T01:47:01.000Z",
+      "_seconds": 1773452821
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T01:47:02.000Z",
+      "_seconds": 1773452822
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Miraflores",
+    "provincia": "Lima Metropolitana",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T01:57:24.000Z",
+      "_seconds": 1773453444
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T01:57:24.000Z",
+      "_seconds": 1773453444
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "1DVrVQTeRofcQKPbnf9r"
+  },
+  {
+    "_id": "f0F8ATFwHaYx7fc3YhMX",
+    "codigo": "ENT-2026-045",
+    "ventaId": "B3gbamCUnBHQ7cPa7ivJ",
+    "numeroVenta": "VT-2026-037",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Carmen Shimabukuro",
+    "direccionEntrega": "C. 14 147, Lima 15036, Perú",
+    "productos": [
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "BMN-0004",
+        "marca": "Carlyle",
+        "nombreComercial": "Ashwagandha",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "M3hSt3vjgQvpaJLJLxjv"
+        ],
+        "precioUnitario": 158,
+        "subtotal": 158
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 158,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T00:00:00.000Z",
+      "_seconds": 1772064000
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T06:03:00.000Z",
+      "_seconds": 1772604180
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "San Isidro",
+    "provincia": "Lima",
+    "codigoPostal": "15036",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lat": -12.0932621,
+      "lng": -77.0156201
+    },
+    "gastoDistribucionId": "al4ylpLuMn4aFxd4aogW",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T06:04:10.000Z",
+      "_seconds": 1772604250
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T17:00:00.000Z",
+      "_seconds": 1772125200
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T06:04:24.000Z",
+      "_seconds": 1772604264
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "f4W9Chj4FUEiH05phgZb",
+    "codigo": "ENT-2026-049",
+    "ventaId": "Yn6jN0PTUKRDniefsjRC",
+    "numeroVenta": "VT-2026-048",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Daniela Jauregui Bernal",
+    "direccionEntrega": "Jr. Manuel Quintana 155, Lima 15096, Perú",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "9OHnMS5t8ROY1KpxpsX6"
+        ],
+        "precioUnitario": 109,
+        "subtotal": 109
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 109,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T13:00:00.000Z",
+      "_seconds": 1772802000
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T06:16:24.000Z",
+      "_seconds": 1772777784
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Rimac",
+    "provincia": "Lima",
+    "codigoPostal": "15096",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lng": -77.03035249999999,
+      "lat": -12.0190093
+    },
+    "costoEnvio": 7.25,
+    "gastoDistribucionId": "LSR4YcPTsdC8s8ITg7JG",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T06:16:43.000Z",
+      "_seconds": 1772777803
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T22:30:00.000Z",
+      "_seconds": 1772663400
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T06:17:09.000Z",
+      "_seconds": 1772777829
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "fGzLRTPkCYIXCevNjPub",
+    "codigo": "ENT-2026-079",
+    "ventaId": "venta-ml-pack-2000012030155889",
+    "numeroVenta": "VT-2026-080",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Alexia YañEz",
+    "direccionEntrega": "Calle geranios F-10 residencial Barcelona urb. La florida 10",
+    "productos": [
+      {
+        "productoId": "5aINpRBokq1yTCp3hMlY",
+        "sku": "BMN-0133",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "DHA para Niños",
+        "presentacion": "Liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "Lyv0DcDnc4oEbyNqpr6t"
+        ],
+        "precioUnitario": 216,
+        "subtotal": 216
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 216,
+    "cobroPendiente": false,
+    "costoTransportista": 7.45,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T19:23:56.000Z",
+      "_seconds": 1773516236
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T19:23:58.000Z",
+      "_seconds": 1773516238
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Cusco",
+    "provincia": "Cusco",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T19:25:09.000Z",
+      "_seconds": 1773516309
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T19:25:09.000Z",
+      "_seconds": 1773516309
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "QDhXPRnWTCrJ5LZ8ZNUG"
+  },
+  {
+    "_id": "ff2WFnf0H6OpzNso3oMn",
+    "codigo": "ENT-2026-028",
+    "ventaId": "QoWdzPA9KVjr0l9BBrlF",
+    "numeroVenta": "VT-2026-028",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Josafat Vara",
+    "direccionEntrega": "Calle Urb Previ Mz 34 Lt 5 SN",
+    "productos": [
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "BMN-0117",
+        "marca": "Life Extension",
+        "nombreComercial": "CoQ10",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "mOltjJbgWFvW6AurO82B"
+        ],
+        "precioUnitario": 238,
+        "subtotal": 238
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 238,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T00:00:00.000Z",
+      "_seconds": 1771718400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:01:53.000Z",
+      "_seconds": 1771736513
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Callao",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:02:10.000Z",
+      "_seconds": 1771736530
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:02:10.000Z",
+      "_seconds": 1771736530
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "5WbmnTPUsMEtrVGNopUN"
+  },
+  {
+    "_id": "fofvvQeppcN6oyMLLwr0",
+    "codigo": "ENT-2026-039",
+    "ventaId": "PXK7aUnukf7UPLffSdZY",
+    "numeroVenta": "VT-2026-040",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Annette Larrabure Washburn ",
+    "direccionEntrega": "Av Jorge Vanderghen 450 dpto 401",
+    "productos": [
+      {
+        "productoId": "tdwV1884DBT2UvJY5vsl",
+        "sku": "BMN-0111",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Adultos",
+        "presentacion": "gomitas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "xVBmvC51rv7naZ2zbKdF"
+        ],
+        "precioUnitario": 205,
+        "subtotal": 205
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 205,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-28T00:00:00.000Z",
+      "_seconds": 1772236800
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-28T00:37:17.000Z",
+      "_seconds": 1772239037
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Miraflores",
+    "horaProgramada": "flexible",
+    "gastoDistribucionId": "2TtEM5DgGSB0gqZNyXt2",
+    "estado": "entregada",
+    "notasEntrega": "Completada automáticamente al marcar venta como entregada",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-28T21:58:44.000Z",
+      "_seconds": 1772315924
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-28T21:58:44.000Z",
+      "_seconds": 1772315924
+    },
+    "editadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC",
+      "metricas_transportista: FirebaseError: [code=permission-denied]: Missing or insufficient permissions."
+    ]
+  },
+  {
+    "_id": "hk6C1sloKxmesQUipgRB",
+    "codigo": "ENT-2026-010",
+    "ventaId": "g55FuGC7zMxIflhfpJ0T",
+    "numeroVenta": "VT-2026-010",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Anthony Alfonso Ortiz Garcia",
+    "direccionEntrega": "Calle Santa Teresa 285, Ate",
+    "productos": [
+      {
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "sku": "BMN-0063",
+        "marca": "Sports Research",
+        "nombreComercial": "Alaska Omega 3",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "7iYOlAC6KR3440uOCNPc"
+        ],
+        "precioUnitario": 176,
+        "subtotal": 176
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 176,
+    "cobroPendiente": true,
+    "costoTransportista": 6,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T00:00:00.000Z",
+      "_seconds": 1769558400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T06:47:54.000Z",
+      "_seconds": 1769582874
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Ate",
+    "referencia": "Acuario Lil dragon Fish, hay una tienda al costado de la entrada.",
+    "montoPorCobrar": 176,
+    "metodoPagoEsperado": "transferencia",
+    "horaProgramada": "16:00-20:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T06:48:07.000Z",
+      "_seconds": 1769582887
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T06:48:07.000Z",
+      "_seconds": 1769582887
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "sk8bksfcenxwQxycSAuV"
+  },
+  {
+    "_id": "hpx2ZaCzApi7kL13ZH2H",
+    "codigo": "ENT-2026-032",
+    "ventaId": "8GpMxoTrqSm9l8qQrj9S",
+    "numeroVenta": "VT-2026-032",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Juan José Arroyo Rojas",
+    "direccionEntrega": "Calle Teodoro Cárdenas 214",
+    "productos": [
+      {
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "sku": "BMN-0060",
+        "marca": "Wellness Labs Rx",
+        "nombreComercial": "NAD + Resveratrol",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "8GdwrljfZUgXIKYlqQzs"
+        ],
+        "precioUnitario": 168,
+        "subtotal": 168
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 168,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T00:00:00.000Z",
+      "_seconds": 1771891200
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T05:33:01.000Z",
+      "_seconds": 1771911181
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Lima",
+    "referencia": "Cuadra 13 Av. Arequipa",
+    "horaProgramada": "16:00-20:00",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T05:33:40.000Z",
+      "_seconds": 1771911220
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 1081,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T23:34:52.000Z",
+      "_seconds": 1771976092
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T23:34:52.000Z",
+      "_seconds": 1771976092
+    },
+    "gastoDistribucionId": "TGjkoaG90SZDrWDr6CSk"
+  },
+  {
+    "_id": "jw1Y8YjseoPOFJi75jdU",
+    "codigo": "ENT-2026-076",
+    "ventaId": "venta-ml-pack-2000012002306205",
+    "numeroVenta": "VT-2026-077",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Anabel Alexandra Morey Serrato",
+    "direccionEntrega": "Monteverde Galilea Mz g lote 11- Castilla Piura SN",
+    "productos": [
+      {
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "BMN-0095",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Omega 3",
+        "presentacion": "liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "Cf0YSyhyY0Er7g63hiei"
+        ],
+        "precioUnitario": 221,
+        "subtotal": 221
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 221,
+    "cobroPendiente": false,
+    "costoTransportista": 7.45,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T13:00:00.000Z",
+      "_seconds": 1773406800
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T05:01:27.000Z",
+      "_seconds": 1773378087
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Piura",
+    "provincia": "Piura",
+    "referencia": "Mz g lote 11 Referencia: Monteverde galilea, referencia antes de aqualandis",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lng": -80.664472,
+      "lat": -5.185674
+    },
+    "costoEnvio": 7.45,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T19:46:55.000Z",
+      "_seconds": 1773431215
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T19:46:55.000Z",
+      "_seconds": 1773431215
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "vJmWFTlOMVvArdrZxRkV"
+  },
+  {
+    "_id": "kA5ThxW5Q4hUDYl5ncd2",
+    "codigo": "ENT-2026-037",
+    "ventaId": "kMaRM2mwyC9eIDO5aJof",
+    "numeroVenta": "VT-2026-038",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Bertha Aparicio",
+    "direccionEntrega": "Avenida jose pardo 582",
+    "productos": [
+      {
+        "productoId": "tdwV1884DBT2UvJY5vsl",
+        "sku": "BMN-0111",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Adultos",
+        "presentacion": "gomitas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "QXEE2ZYWpfxsKzZnRYDk"
+        ],
+        "precioUnitario": 205,
+        "subtotal": 205
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 205,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T00:00:00.000Z",
+      "_seconds": 1772150400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T20:39:03.000Z",
+      "_seconds": 1772138343
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Miraflores",
+    "horaProgramada": "flexible",
+    "gastoDistribucionId": "x1sFsQHrCNrbzvpjeFHx",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T16:46:56.000Z",
+      "_seconds": 1772210816
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 405,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T23:32:20.000Z",
+      "_seconds": 1772235140
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T23:32:20.000Z",
+      "_seconds": 1772235140
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "kWT7fP1Q7oHdAge4Ftdd",
+    "codigo": "ENT-2026-055",
+    "ventaId": "ittZOBs6ewmHA4mxXqwg",
+    "numeroVenta": "VT-2026-057",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Diana Guardia",
+    "direccionEntrega": "Avenida Pardo 272",
+    "productos": [
+      {
+        "productoId": "R5xj1rg2mfxKdKA6UeHo",
+        "sku": "BMN-0043",
+        "marca": "Carlyle",
+        "nombreComercial": "Melatonina para Adultos",
+        "presentacion": "tabletas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "vyBl5shnUCBqi4ZiC8OY"
+        ],
+        "precioUnitario": 95,
+        "subtotal": 95
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 95,
+    "cobroPendiente": false,
+    "costoTransportista": 4.17,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T13:00:00.000Z",
+      "_seconds": 1772888400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T07:20:45.000Z",
+      "_seconds": 1772868045
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Santa",
+    "provincia": "Ancash",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lng": -78.595576,
+      "lat": -9.075049
+    },
+    "gastoDistribucionId": "ymw5dMutkEhcyHQo5ND7",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T17:33:10.000Z",
+      "_seconds": 1772904790
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T17:33:10.000Z",
+      "_seconds": 1772904790
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "l3EBrwa5N6YterRCXMn5",
+    "codigo": "ENT-2026-051",
+    "ventaId": "Rte7cotOdfpkKdoRID8x",
+    "numeroVenta": "VT-2026-053",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "GAVI HINOSTROZA CRISTOBAL",
+    "direccionEntrega": "Jr augusto B. Leguía MZ N5 LT 28 MARISCAL CACERES- SJL SN",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "cantidad": 2,
+        "unidadesAsignadas": [
+          "oPsbxKesANZFdTzoyFBu",
+          "zLUGn9gtjT6VxG63jY20"
+        ],
+        "precioUnitario": 109,
+        "subtotal": 218
+      }
+    ],
+    "cantidadItems": 2,
+    "subtotalPEN": 218,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T13:00:00.000Z",
+      "_seconds": 1772802000
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T19:19:48.000Z",
+      "_seconds": 1772824788
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "San Juan de Lurigancho",
+    "provincia": "Lima Metropolitana",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lng": -76.981259,
+      "lat": -11.948774
+    },
+    "costoEnvio": 8.95,
+    "gastoDistribucionId": "eQbnupV52Dra254l0dKE",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T19:58:03.000Z",
+      "_seconds": 1772827083
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 248,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T00:06:00.000Z",
+      "_seconds": 1772841960
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T03:06:26.000Z",
+      "_seconds": 1772852786
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "lvL1AKW2WSDuNulqq18T",
+    "codigo": "ENT-2026-050",
+    "ventaId": "XksTZbRbG2xiYHO2itTw",
+    "numeroVenta": "VT-2026-052",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "PM20251229214155",
+    "direccionEntrega": "Calle el derecho MzV4 Lt 20",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "BCNfD31P8HoTTYPHkpUo"
+        ],
+        "precioUnitario": 109,
+        "subtotal": 109
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 109,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T13:00:00.000Z",
+      "_seconds": 1772802000
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T16:34:24.000Z",
+      "_seconds": 1772814864
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Los Olivos",
+    "provincia": "Lima Metropolitana",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lng": -77.075969,
+      "lat": -11.942763
+    },
+    "gastoDistribucionId": "nOHwVHFAueEoNgFxE02P",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T17:13:08.000Z",
+      "_seconds": 1772817188
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 354,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T23:07:00.000Z",
+      "_seconds": 1772838420
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T03:07:25.000Z",
+      "_seconds": 1772852845
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "piJinUtd9GZXTAz89IST",
+    "codigo": "ENT-2026-016",
+    "ventaId": "cJlfxGnzzSXuYrmc3DkV",
+    "numeroVenta": "VT-2026-022",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Brandon Stefano Paredes Quispe",
+    "direccionEntrega": "Avenida Los Constructores 237",
+    "productos": [
+      {
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "sku": "BMN-0063",
+        "marca": "Sports Research",
+        "nombreComercial": "Alaska Omega 3",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "dvmdqf1fq6PUo9z7S3rY"
+        ],
+        "precioUnitario": 198,
+        "subtotal": 198
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 198,
+    "cobroPendiente": true,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T00:00:00.000Z",
+      "_seconds": 1770768000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T15:35:04.000Z",
+      "_seconds": 1770824104
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "La Molina",
+    "referencia": "Caja Piura agencia la Molina",
+    "montoPorCobrar": 198,
+    "metodoPagoEsperado": "transferencia",
+    "horaProgramada": "12:00-16:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T15:35:19.000Z",
+      "_seconds": 1770824119
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T15:35:19.000Z",
+      "_seconds": 1770824119
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "ejDvgrpPnXnbE5LrXYVX"
+  },
+  {
+    "_id": "qJ3L5PbNAc9j6NplMYl9",
+    "codigo": "ENT-2026-018",
+    "ventaId": "ZjxOXqMEn16OYqRS7KF8",
+    "numeroVenta": "VT-2026-013",
+    "numeroEntrega": 1,
+    "transportistaId": "mJh848VTjkRPkqW6ESyB",
+    "nombreTransportista": "Jose Pinto",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Fabricio Omar Rios",
+    "direccionEntrega": "Av Lima 3131",
+    "productos": [
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "BMN-0124",
+        "marca": "Youtheory",
+        "nombreComercial": "Collagen + Biotin Verisol",
+        "presentacion": "Capsulas Blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "GifhG6fynDmqqzvCTA8J"
+        ],
+        "precioUnitario": 160,
+        "subtotal": 160
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 160,
+    "cobroPendiente": false,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T00:00:00.000Z",
+      "_seconds": 1771545600
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T22:28:33.000Z",
+      "_seconds": 1771626513
+    },
+    "telefonoTransportista": "988404418",
+    "telefonoCliente": "971403753",
+    "distrito": "San Martin de Porres",
+    "horaProgramada": "12:00-16:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T22:29:52.000Z",
+      "_seconds": 1771626592
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T22:29:52.000Z",
+      "_seconds": 1771626592
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "IWtLG0oMG4SLGroimco8"
+  },
+  {
+    "_id": "qQPeExHydLoT7qxQYx6h",
+    "codigo": "ENT-2026-024",
+    "ventaId": "JpWZ7VDMhZBrZtSJtJew",
+    "numeroVenta": "VT-2026-021",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Bolivar Rodriguez Jatniel",
+    "direccionEntrega": "Av. Manuel A. Odria S.N Hospital Solidaridad Consultorios 10 y 11 SN",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "mNqOQ9ptLKCLf3bHWajo"
+        ],
+        "precioUnitario": 121,
+        "subtotal": 121
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 121,
+    "cobroPendiente": false,
+    "costoTransportista": 4.5,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T00:00:00.000Z",
+      "_seconds": 1771632000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T20:41:03.000Z",
+      "_seconds": 1771706463
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Tacna",
+    "horaProgramada": "12:00-16:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T20:41:20.000Z",
+      "_seconds": 1771706480
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T20:41:20.000Z",
+      "_seconds": 1771706480
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "Kq3PHG7Dqy3wG0XUlpga"
+  },
+  {
+    "_id": "s8IZXCmxqgkgl0YqsQmD",
+    "codigo": "ENT-2026-034",
+    "ventaId": "1WqFNRbfU1ZHx2G9Uj0Z",
+    "numeroVenta": "VT-2026-034",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Luis Caja",
+    "direccionEntrega": "Urbanización la colina 2 mz g lt 14 SN",
+    "productos": [
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "marca": "Horbaach",
+        "nombreComercial": "Melena de León",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "vIkEVc8Ij2VmtIfNn73Y"
+        ],
+        "precioUnitario": 134,
+        "subtotal": 134
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 134,
+    "cobroPendiente": false,
+    "costoTransportista": 4.17,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T00:00:00.000Z",
+      "_seconds": 1772064000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T23:34:40.000Z",
+      "_seconds": 1771976080
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Arequipa",
+    "horaProgramada": "flexible",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T23:36:07.000Z",
+      "_seconds": 1771976167
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-24T23:36:07.000Z",
+      "_seconds": 1771976167
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "iHvGL4euSTnE4Tv0qV7N"
+  },
+  {
+    "_id": "sKU6SD2aFwMWxD0Kc1QM",
+    "codigo": "ENT-2026-030",
+    "ventaId": "UMRZg6uC4t43MpYhUB8e",
+    "numeroVenta": "VT-2026-030",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Eduardo Isaac Ugaz",
+    "direccionEntrega": "Jirón Monte Real 479",
+    "productos": [
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "marca": "Horbaach",
+        "nombreComercial": "Melena de León",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "tUMDYy392MJ4YDAXwzym"
+        ],
+        "precioUnitario": 141,
+        "subtotal": 141
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 141,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T00:00:00.000Z",
+      "_seconds": 1771718400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:04:46.000Z",
+      "_seconds": 1771736686
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Surco",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:04:55.000Z",
+      "_seconds": 1771736695
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-22T05:04:55.000Z",
+      "_seconds": 1771736695
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "MIeMrm3EGWNxiwkBLmOG"
+  },
+  {
+    "_id": "sYwdXCjDbWyDGqdweAwJ",
+    "codigo": "ENT-2026-066",
+    "ventaId": "venta-ml-pack-2000011939984135",
+    "numeroVenta": "VT-2026-066",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Liliana Valera Wesember",
+    "direccionEntrega": "Jirón 7 de Junio 465",
+    "productos": [
+      {
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "sku": "BMN-0060",
+        "marca": "Wellness Labs Rx",
+        "nombreComercial": "NAD + Resveratrol",
+        "presentacion": "capsulas",
+        "cantidad": 2,
+        "unidadesAsignadas": [
+          "ejhr5ElLnmgoTrO6Lpo4",
+          "hOTUR7bTavsuZBAwPkc9"
+        ],
+        "precioUnitario": 146,
+        "subtotal": 292
+      }
+    ],
+    "cantidadItems": 2,
+    "subtotalPEN": 292,
+    "cobroPendiente": false,
+    "costoTransportista": 8.34,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:00:00.000Z",
+      "_seconds": 1773061200
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:54:44.000Z",
+      "_seconds": 1773089684
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Coronel Portillo",
+    "provincia": "Ucayali",
+    "referencia": "Referencia: Entrega a domicilio desde las 7 am 2 pm",
+    "horaProgramada": "flexible",
+    "coordenadas": {
+      "lng": -74.535286,
+      "lat": -8.383989
+    },
+    "costoEnvio": 8.34,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:56:29.000Z",
+      "_seconds": 1773089789
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T20:56:29.000Z",
+      "_seconds": 1773089789
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "kkclK6mv8KziO8bfcvik"
+  },
+  {
+    "_id": "tLYlB7rTSBp0hOkLgQWM",
+    "codigo": "ENT-2026-015",
+    "ventaId": "FAeS4jaPQZdWEhS9iCj4",
+    "numeroVenta": "VT-2026-020",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Hospedaje Miami EIRL",
+    "direccionEntrega": "Calle Las Acacias 33",
+    "productos": [
+      {
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "sku": "BMN-0063",
+        "marca": "Sports Research",
+        "nombreComercial": "Alaska Omega 3",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "T50tN9SAONzN9iJXmUC8"
+        ],
+        "precioUnitario": 198,
+        "subtotal": 198
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 198,
+    "cobroPendiente": true,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T00:00:00.000Z",
+      "_seconds": 1770768000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T22:21:21.000Z",
+      "_seconds": 1770762081
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Chiclayo",
+    "referencia": "Urb. Santa Victoria",
+    "montoPorCobrar": 198,
+    "metodoPagoEsperado": "transferencia",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T22:21:30.000Z",
+      "_seconds": 1770762090
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T22:21:30.000Z",
+      "_seconds": 1770762090
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "3pLK8WEDLSmWgoebT3oz"
+  },
+  {
+    "_id": "uBNvjsAY821rG8HWqf6p",
+    "codigo": "ENT-2026-020",
+    "ventaId": "rPwmrRRraaerWBCXC62M",
+    "numeroVenta": "VT-2026-016",
+    "numeroEntrega": 1,
+    "tipoTransportista": "externo",
+    "nombreCliente": "Greta Peru SAC",
+    "direccionEntrega": "Avenida Jose Pardo 434",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "128iivjzzcYLB792oawd"
+        ],
+        "precioUnitario": 154,
+        "subtotal": 154
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 154,
+    "cobroPendiente": false,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T00:00:00.000Z",
+      "_seconds": 1771632000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T16:32:59.000Z",
+      "_seconds": 1771691579
+    },
+    "telefonoTransportista": "922133629",
+    "distrito": "Miraflores",
+    "horaProgramada": "08:00-12:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T16:33:13.000Z",
+      "_seconds": 1771691593
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "VmNDFII1zwZMozryqQvj",
+    "courierExterno": "mercado_envios",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T17:00:15.000Z",
+      "_seconds": 1771693215
+    },
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "transportistaId": "5f8PRrYVwc15CuDinokN"
+  },
+  {
+    "_id": "unyvpekhBBixUAiGo3bn",
+    "codigo": "ENT-2026-062",
+    "ventaId": "venta-ml-2000015467278476",
+    "numeroVenta": "VT-2026-065",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Andrea Alexandra Navarro",
+    "direccionEntrega": "Aguamarina 157",
+    "productos": [
+      {
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "sku": "BMN-0063",
+        "marca": "Sports Research",
+        "nombreComercial": "Alaska Omega 3",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "5BuoSlpqAYF3K0DvLYL1"
+        ],
+        "precioUnitario": 172,
+        "subtotal": 172
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 172,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T13:00:00.000Z",
+      "_seconds": 1773061200
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T16:47:01.000Z",
+      "_seconds": 1773074821
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "El Agustino",
+    "provincia": "Lima Metropolitana",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lat": -12.033329,
+      "lng": -76.988922
+    },
+    "costoEnvio": 8.95,
+    "gastoDistribucionId": "ZOWMB3A7y1ojMdT3hLNE",
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:37.000Z",
+      "_seconds": 1773077617
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:33:37.000Z",
+      "_seconds": 1773077617
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+  },
+  {
+    "_id": "ur3cuEZxcUX52lEKrSXH",
+    "codigo": "ENT-2026-017",
+    "ventaId": "dIpmmMMRNpO3EaqvsP2r",
+    "numeroVenta": "VT-2026-027",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Luis Ugaz",
+    "direccionEntrega": "Calle Los Zapotes 135",
+    "cantidadItems": 1,
+    "cobroPendiente": true,
+    "costoTransportista": 7,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-18T00:00:00.000Z",
+      "_seconds": 1771372800
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-18T16:52:59.000Z",
+      "_seconds": 1771433579
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Santa Victoria, Chiclayo",
+    "referencia": "Por la parroquia nuestra señora de la Consolación, Chiclayo.",
+    "metodoPagoEsperado": "transferencia",
+    "horaProgramada": "16:00-20:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-18T16:53:14.000Z",
+      "_seconds": 1771433594
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-18T16:53:14.000Z",
+      "_seconds": 1771433594
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "0x8d1v3w5fK0uCOjaH57",
+    "subtotalPEN": 257,
+    "productos": [
+      {
+        "unidadesAsignadas": [
+          "ut58q8UM0p3XybkYy3Z5"
+        ],
+        "precioUnitario": 257,
+        "subtotal": 257,
+        "marca": "Solaray",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "nombreComercial": "Magnesio Glicinato",
+        "sku": "BMN-0026",
+        "productoId": "Hc6nsorCzjmBoa2Rctgw"
+      }
+    ],
+    "montoPorCobrar": 257
+  },
+  {
+    "_id": "x8tLXodP92gFHhOQPw4O",
+    "codigo": "ENT-2026-040",
+    "ventaId": "bon12g6x3PiJ8ThE2xLv",
+    "numeroVenta": "VT-2026-043",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Victor Raul Alva",
+    "direccionEntrega": "Avenida Prolongación Iquitos 1542",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "9cXl6b2DCFre8RcxeAG4"
+        ],
+        "precioUnitario": 146,
+        "subtotal": 146
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 146,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-02T00:00:00.000Z",
+      "_seconds": 1772409600
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-01T01:16:59.000Z",
+      "_seconds": 1772327819
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Lince",
+    "horaProgramada": "flexible",
+    "gastoDistribucionId": "B4oqIFy2SFf4ruui3nHM",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T01:55:21.000Z",
+      "_seconds": 1772502921
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 0,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T01:55:42.000Z",
+      "_seconds": 1772502942
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T01:55:42.000Z",
+      "_seconds": 1772502942
+    },
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC"
+    ]
+  },
+  {
+    "_id": "xPBCBYaK0JpLUAm7ZiG3",
+    "codigo": "ENT-2026-012",
+    "ventaId": "9NaXj3c3wboNPfOKvuPP",
+    "numeroVenta": "VT-2026-012",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Elizabeth Vila Cabezas",
+    "direccionEntrega": "Calle Jr Manchego Muñoz 341, Huancayo",
+    "productos": [
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "BMN-0052",
+        "marca": "Horbaach",
+        "nombreComercial": "Melena de León",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "AEdeK5ndb2udcwEX0h1Q"
+        ],
+        "precioUnitario": 142,
+        "subtotal": 142
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 142,
+    "cobroPendiente": true,
+    "costoTransportista": 4.5,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T00:00:00.000Z",
+      "_seconds": 1769558400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T21:10:23.000Z",
+      "_seconds": 1769634623
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Junin",
+    "referencia": "X El Instituto San Pedro - Huancayo, Huancayo, Junin",
+    "montoPorCobrar": 142,
+    "metodoPagoEsperado": "transferencia",
+    "horaProgramada": "flexible",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T21:10:33.000Z",
+      "_seconds": 1769634633
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T21:10:33.000Z",
+      "_seconds": 1769634633
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "ITSh3YIPPIWCzAFWss1m"
+  },
+  {
+    "_id": "z2X7PrrUUzil5tYC3Fxm",
+    "codigo": "ENT-2026-011",
+    "ventaId": "QSM4AaGmLUt9PKhuX92H",
+    "numeroVenta": "VT-2026-011",
+    "numeroEntrega": 1,
+    "transportistaId": "5f8PRrYVwc15CuDinokN",
+    "nombreTransportista": "Urbano - Av Lima Cuadra 34",
+    "tipoTransportista": "externo",
+    "nombreCliente": "Anthony Juarez Solis",
+    "direccionEntrega": "Avenida Peru 346",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "BMN-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "cantidad": 2,
+        "unidadesAsignadas": [
+          "OWduyS89Xqdz7oMVOPiU",
+          "xaedM2jB3CJePPoWB7tK"
+        ],
+        "precioUnitario": 133,
+        "subtotal": 266
+      }
+    ],
+    "cantidadItems": 2,
+    "subtotalPEN": 266,
+    "cobroPendiente": true,
+    "costoTransportista": 8.5,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T00:00:00.000Z",
+      "_seconds": 1769558400
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T06:55:07.000Z",
+      "_seconds": 1769583307
+    },
+    "courierExterno": "mercado_envios",
+    "distrito": "Andahuaylas, Apurimac",
+    "referencia": "Entrada de ladrillos, costado de BBVA - Andahuaylas, Andahuaylas, Apurimac",
+    "montoPorCobrar": 266,
+    "metodoPagoEsperado": "transferencia",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T06:55:18.000Z",
+      "_seconds": 1769583318
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-28T06:55:18.000Z",
+      "_seconds": 1769583318
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "TUjKw7G9BVjREVPZ699q"
+  },
+  {
+    "_id": "zFZv6pb5ih2fDQVlBVzH",
+    "codigo": "ENT-2026-036",
+    "ventaId": "SNqKq4rvTm0ag7t5Hoh5",
+    "numeroVenta": "VT-2026-036",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Sandro Huanca",
+    "direccionEntrega": "Calle Jazmines 110",
+    "productos": [
+      {
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "sku": "BMN-0036",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Artic-D",
+        "presentacion": "liquido",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "TpZm0mRbK9RR0EmXaJKg"
+        ],
+        "precioUnitario": 205,
+        "subtotal": 205
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 205,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T00:00:00.000Z",
+      "_seconds": 1772064000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-25T23:02:55.000Z",
+      "_seconds": 1772060575
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Los Olivos",
+    "horaProgramada": "flexible",
+    "gastoDistribucionId": "ef1NNlDQ80tsaF4jj2kH",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T17:35:11.000Z",
+      "_seconds": 1772127311
+    },
+    "estado": "entregada",
+    "tiempoEntregaMinutos": 518,
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T02:13:33.000Z",
+      "_seconds": 1772158413
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T02:13:33.000Z",
+      "_seconds": 1772158413
+    },
+    "editadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "_needsRecovery": true,
+    "_secondaryErrors": [
+      "movimiento_transportista: FirebaseError: [code=failed-precondition]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/businessmn-269c9/firestore/indexes?create_composite=CmJwcm9qZWN0cy9idXNpbmVzc21uLTI2OWM5L2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9tb3ZpbWllbnRvc190cmFuc3BvcnRpc3RhL2luZGV4ZXMvXxABGhMKD3RyYW5zcG9ydGlzdGFJZBABGhEKDWZlY2hhQ3JlYWNpb24QAhoMCghfX25hbWVfXxAC",
+      "metricas_transportista: FirebaseError: [code=permission-denied]: Missing or insufficient permissions."
+    ]
+  },
+  {
+    "_id": "zet5FB48bjqMkBFnYHqj",
+    "codigo": "ENT-2026-073",
+    "ventaId": "venta-ml-pack-2000011960167689",
+    "numeroVenta": "VT-2026-074",
+    "numeroEntrega": 1,
+    "transportistaId": "NQFQnouGv0ENZwBpLvyN",
+    "nombreTransportista": "GK Express",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Flor   Sobrino",
+    "direccionEntrega": "Petit Thouars 4364",
+    "productos": [
+      {
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "sku": "BMN-0054",
+        "marca": "Carlyle",
+        "nombreComercial": "D3 + K2",
+        "presentacion": "capsulas_blandas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "jJYImzDw5mxCzTqgJa7Z"
+        ],
+        "precioUnitario": 137,
+        "subtotal": 137
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 137,
+    "cobroPendiente": false,
+    "costoTransportista": 10,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-03-11T13:00:00.000Z",
+      "_seconds": 1773234000
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T21:04:19.000Z",
+      "_seconds": 1773176659
+    },
+    "telefonoTransportista": "948 267 915",
+    "distrito": "Miraflores",
+    "provincia": "Lima Metropolitana",
+    "horaProgramada": "14:00-20:00",
+    "coordenadas": {
+      "lng": -77.030131,
+      "lat": -12.106086
+    },
+    "costoEnvio": 7.25,
+    "estado": "en_camino",
+    "fechaSalida": {
+      "_type": "timestamp",
+      "iso": "2026-03-11T18:26:13.000Z",
+      "_seconds": 1773253573
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-11T18:26:13.000Z",
+      "_seconds": 1773253573
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "gastoDistribucionId": "nN7z407MQcP77QoVbHxJ"
+  },
+  {
+    "_id": "zhK724ixkoGBTgi8gMyL",
+    "codigo": "ENT-2026-007",
+    "ventaId": "q2eefWlTA2ppc2JYzWdP",
+    "numeroVenta": "VT-2026-007",
+    "numeroEntrega": 1,
+    "transportistaId": "mJh848VTjkRPkqW6ESyB",
+    "nombreTransportista": "Jose Pinto",
+    "tipoTransportista": "interno",
+    "nombreCliente": "Fabricio Omar Rios",
+    "direccionEntrega": "Av Lima 3131",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "BMN-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "unidadesAsignadas": [
+          "IQcHVzWgOs8323eiOMN3"
+        ],
+        "precioUnitario": 157,
+        "subtotal": 157
+      }
+    ],
+    "cantidadItems": 1,
+    "subtotalPEN": 157,
+    "cobroPendiente": true,
+    "costoTransportista": 6,
+    "fechaProgramada": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T00:00:00.000Z",
+      "_seconds": 1769040000
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T16:48:10.000Z",
+      "_seconds": 1769100490
+    },
+    "telefonoTransportista": "988404418",
+    "telefonoCliente": "971403753",
+    "montoPorCobrar": 157,
+    "metodoPagoEsperado": "efectivo",
+    "horaProgramada": "12:00-16:00",
+    "estado": "entregada",
+    "notasEntrega": "Entrega completada desde panel de ventas",
+    "fechaEntrega": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T16:48:32.000Z",
+      "_seconds": 1769100512
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-22T16:48:32.000Z",
+      "_seconds": 1769100512
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "gastoDistribucionId": "rwEfUTsalYVNCMkMnIFh"
+  }
+]

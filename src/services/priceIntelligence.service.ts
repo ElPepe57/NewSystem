@@ -12,6 +12,7 @@
 import { OrdenCompraService } from './ordenCompra.service';
 import { ProductoService } from './producto.service';
 import type { Producto } from '../types/producto.types';
+import { getCostoFleteInternacional } from '../utils/multiOrigen.helpers';
 import type {
   PriceIntelligenceResult,
   PriceIntelligenceInput,
@@ -383,11 +384,12 @@ export class PriceIntelligenceService {
     producto: Producto,
     config: PriceIntelligenceConfig
   ): ProyeccionRentabilidad {
-    const { tipoCambio, costoFleteUSAPeru, logisticaAdicional = 0, margenObjetivo, margenMinimo } = config;
+    const { tipoCambio, logisticaAdicional = 0, margenObjetivo, margenMinimo } = config;
+    const costoFlete = config.costoFleteInternacional ?? 0;
     const inv = producto.investigacion;
 
     // Calcular CTRU
-    const costoTotalUSD = precioCompra + costoFleteUSAPeru + logisticaAdicional;
+    const costoTotalUSD = precioCompra + costoFlete + logisticaAdicional;
     const ctruProyectadoUSD = costoTotalUSD;
     const ctruProyectado = costoTotalUSD * tipoCambio;
 
@@ -395,7 +397,7 @@ export class PriceIntelligenceService {
     const precioVentaSugerido = ctruProyectado / (1 - margenObjetivo / 100);
 
     // Si tiene precio sugerido en el producto, usar ese
-    const precioVentaFinal = producto.precioSugerido > 0 ? producto.precioSugerido : precioVentaSugerido;
+    const precioVentaFinal = precioVentaSugerido;
 
     // Calcular margen estimado
     const margenEstimado = precioVentaFinal > 0
@@ -450,10 +452,11 @@ export class PriceIntelligenceService {
     const porcentajeAhorro = (ahorroPorUnidad / precioIngresado) * 100;
 
     // Calcular impacto en margen
-    const { tipoCambio, costoFleteUSAPeru, margenObjetivo } = config;
-    const ctruActual = (precioIngresado + costoFleteUSAPeru) * tipoCambio;
-    const ctruAlternativo = (mejorProveedor.precioConImpuesto + costoFleteUSAPeru) * tipoCambio;
-    const precioVenta = producto.precioSugerido || ctruActual / (1 - margenObjetivo / 100);
+    const { tipoCambio, margenObjetivo } = config;
+    const costoFleteAhorro = config.costoFleteInternacional ?? 0;
+    const ctruActual = (precioIngresado + costoFleteAhorro) * tipoCambio;
+    const ctruAlternativo = (mejorProveedor.precioConImpuesto + costoFleteAhorro) * tipoCambio;
+    const precioVenta = ctruActual / (1 - margenObjetivo / 100);
 
     const margenActual = precioVenta > 0 ? ((precioVenta - ctruActual) / precioVenta) * 100 : 0;
     const margenAlternativo = precioVenta > 0 ? ((precioVenta - ctruAlternativo) / precioVenta) * 100 : 0;

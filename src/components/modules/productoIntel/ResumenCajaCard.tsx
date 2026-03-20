@@ -119,23 +119,23 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
   const tienePreventas = resumen.preventasVirtuales && resumen.preventasVirtuales.cantidad > 0;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
+    <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-5">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Wallet className="h-5 w-5 text-blue-600" />
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
+            <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-900">Distribución de Caja</h3>
-            <p className="text-xs text-gray-500">Capital invertido en inventario</p>
+          <div className="min-w-0">
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Distribución de Caja</h3>
+            <p className="text-[10px] sm:text-xs text-gray-500">Capital invertido en inventario</p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-xl font-bold text-gray-900">
+        <div className="text-right flex-shrink-0">
+          <p className="text-lg sm:text-xl font-bold text-gray-900">
             {formatCurrency(resumen.totalInventarioPEN)}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">
             {resumen.cajaActiva.unidades + resumen.cajaComprometida.unidades +
              resumen.cajaTransito.unidades + resumen.cajaCongelada.unidades} unidades
           </p>
@@ -158,7 +158,7 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
       </div>
 
       {/* Grid de 4 categorías (2x2) */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
         {categorias.map(cat => {
           const colors = colorClasses[cat.color];
           const Icon = cat.icon;
@@ -167,39 +167,41 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
             <div
               key={cat.key}
               className={`
-                ${colors.bg} ${colors.border} border rounded-lg p-3
+                ${colors.bg} ${colors.border} border rounded-lg p-2 sm:p-3 overflow-hidden
                 ${onClickCategoria ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}
               `}
               onClick={() => onClickCategoria?.(cat.key)}
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className={`p-1.5 ${colors.iconBg} rounded`}>
-                    <Icon className={`h-4 w-4 ${colors.text}`} />
+              {/* Header: label + porcentaje */}
+              <div className="flex items-start justify-between gap-1 mb-1.5 sm:mb-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <div className={`p-1 sm:p-1.5 ${colors.iconBg} rounded flex-shrink-0`}>
+                    <Icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${colors.text}`} />
                   </div>
-                  <div>
-                    <p className={`text-sm font-medium ${colors.text}`}>{cat.label}</p>
-                    <p className="text-[10px] text-gray-500">{cat.sublabel}</p>
+                  <div className="min-w-0">
+                    <p className={`text-xs sm:text-sm font-medium ${colors.text} truncate`}>{cat.label}</p>
+                    <p className="text-[9px] sm:text-[10px] text-gray-500 truncate">{cat.sublabel}</p>
                   </div>
                 </div>
-                <span className={`text-xs font-bold ${colors.text}`}>{cat.porcentaje}%</span>
+                <span className={`text-[10px] sm:text-xs font-bold ${colors.text} flex-shrink-0`}>{cat.porcentaje}%</span>
               </div>
 
-              <div className="space-y-1">
+              {/* Values */}
+              <div className="space-y-0.5 sm:space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600">Valor</span>
-                  <span className="font-semibold text-gray-900 text-sm">
+                  <span className="text-[10px] sm:text-xs text-gray-600">Valor</span>
+                  <span className="font-semibold text-gray-900 text-xs sm:text-sm">
                     {formatCurrency(cat.data.valorInventarioPEN)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600">Uds</span>
-                  <span className="text-sm text-gray-700">{cat.data.unidades}</span>
+                  <span className="text-[10px] sm:text-xs text-gray-600">Uds</span>
+                  <span className="text-xs sm:text-sm text-gray-700">{cat.data.unidades}</span>
                 </div>
                 {cat.extraInfo && (
-                  <div className="flex justify-between items-center pt-1 border-t border-gray-200/50">
-                    <span className="text-[10px] text-gray-500 flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
+                  <div className="flex items-center pt-0.5 sm:pt-1 border-t border-gray-200/50">
+                    <span className="text-[9px] sm:text-[10px] text-gray-500 flex items-center gap-0.5 sm:gap-1 truncate">
+                      <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0" />
                       {cat.extraInfo}
                     </span>
                   </div>
@@ -309,16 +311,16 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
       )}
 
       {/* Resumen de potencial */}
-      <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4">
+      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200 grid grid-cols-2 gap-2 sm:gap-4">
         <div>
-          <p className="text-xs text-gray-500 mb-1">Potencial de Venta</p>
-          <p className="text-lg font-bold text-gray-900">
+          <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">Potencial de Venta</p>
+          <p className="text-base sm:text-lg font-bold text-gray-900">
             {formatCurrency(resumen.totalPotencialVentaPEN)}
           </p>
         </div>
         <div>
-          <p className="text-xs text-gray-500 mb-1">Utilidad Potencial</p>
-          <p className="text-lg font-bold text-green-600">
+          <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">Utilidad Potencial</p>
+          <p className="text-base sm:text-lg font-bold text-green-600">
             {formatCurrency(resumen.totalPotencialUtilidadPEN)}
           </p>
         </div>

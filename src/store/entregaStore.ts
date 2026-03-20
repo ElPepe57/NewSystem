@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { Unsubscribe } from 'firebase/firestore';
 import { entregaService } from '../services/entrega.service';
 import type {
   Entrega,
@@ -21,6 +22,11 @@ interface EntregaState {
   loading: boolean;
   error: string | null;
 
+  // Suscripción en tiempo real
+  unsubscribeEntregas: Unsubscribe | null;
+  iniciarSuscripcion: () => void;
+  detenerSuscripcion: () => void;
+
   // Acciones
   fetchEntregas: () => Promise<void>;
   fetchPendientes: () => Promise<void>;
@@ -35,6 +41,7 @@ interface EntregaState {
   registrarResultado: (data: ResultadoEntregaData, userId: string) => Promise<void>;
   cancelar: (id: string, motivo: string, userId: string) => Promise<void>;
   registrarTracking: (id: string, tracking: string, userId: string) => Promise<void>;
+  corregirEntrega: (id: string, data: { transportistaId?: string; costoTransportista?: number }, userId: string) => Promise<void>;
   setSelectedEntrega: (entrega: Entrega | null) => void;
   clearError: () => void;
 }
@@ -48,6 +55,27 @@ export const useEntregaStore = create<EntregaState>((set, get) => ({
   selectedEntrega: null,
   loading: false,
   error: null,
+  unsubscribeEntregas: null,
+
+  iniciarSuscripcion: () => {
+    const { unsubscribeEntregas } = get();
+    if (unsubscribeEntregas) return; // Ya hay una suscripción activa
+
+    const unsub = entregaService.suscribirEntregasActivas((entregas) => {
+      // Actualizar entregas pendientes con datos en tiempo real
+      set({ entregasPendientes: entregas });
+    });
+
+    set({ unsubscribeEntregas: unsub });
+  },
+
+  detenerSuscripcion: () => {
+    const { unsubscribeEntregas } = get();
+    if (unsubscribeEntregas) {
+      unsubscribeEntregas();
+      set({ unsubscribeEntregas: null });
+    }
+  },
 
   fetchEntregas: async () => {
     set({ loading: true, error: null });
@@ -153,6 +181,7 @@ export const useEntregaStore = create<EntregaState>((set, get) => ({
     try {
       const id = await entregaService.programar(data, venta, userId);
       await get().fetchPendientes();
+      await get().fetchEntregas();
       set({ loading: false });
       return id;
     } catch (error: unknown) {
@@ -167,6 +196,7 @@ export const useEntregaStore = create<EntregaState>((set, get) => ({
     try {
       await entregaService.marcarEnCamino(id, userId);
       await get().fetchPendientes();
+      await get().fetchEntregas();
       set({ loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
@@ -180,6 +210,7 @@ export const useEntregaStore = create<EntregaState>((set, get) => ({
     try {
       await entregaService.registrarResultado(data, userId);
       await get().fetchPendientes();
+      await get().fetchEntregas();
       set({ loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
@@ -193,6 +224,7 @@ export const useEntregaStore = create<EntregaState>((set, get) => ({
     try {
       await entregaService.cancelar(id, motivo, userId);
       await get().fetchPendientes();
+      await get().fetchEntregas();
       set({ loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
@@ -205,6 +237,22 @@ export const useEntregaStore = create<EntregaState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await entregaService.registrarTracking(id, tracking, userId);
+      await get().fetchPendientes();
+      await get().fetchEntregas();
+      set({ loading: false });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      set({ error: message, loading: false });
+      throw error;
+    }
+  },
+
+  corregirEntrega: async (id: string, data: { transportistaId?: string; costoTransportista?: number }, userId: string) => {
+    set({ loading: true, error: null });
+    try {
+      await entregaService.corregirEntrega(id, data, userId);
+      await get().fetchPendientes();
+      await get().fetchEntregas();
       set({ loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';

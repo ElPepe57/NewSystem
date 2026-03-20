@@ -19,9 +19,10 @@ import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
 import type { Venta } from '../types/venta.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
+import { COLLECTIONS } from '../config/collections';
 
-const CLIENTES_COLLECTION = 'clientes';
-const MARCAS_COLLECTION = 'marcas';
+const CLIENTES_COLLECTION = COLLECTIONS.CLIENTES;
+const MARCAS_COLLECTION = COLLECTIONS.MARCAS;
 
 export const metricasService = {
   /**
@@ -583,12 +584,24 @@ export const metricasService = {
         const nombreMarcaNorm = producto.marca.toLowerCase().trim();
         let marcaEncontrada = marcasPorNombre.get(nombreMarcaNorm);
 
-        // Si no existe la marca, crearla
+        // Si no existe la marca, crearla con código secuencial
         if (!marcaEncontrada) {
           try {
+            // Generar código secuencial MRC-001, MRC-002, etc.
+            const marcasSnap = await getDocs(collection(db, MARCAS_COLLECTION));
+            let maxNum = 0;
+            marcasSnap.docs.forEach(d => {
+              const cod = d.data().codigo as string;
+              if (cod?.startsWith('MRC')) {
+                const m = cod.match(/-(\d+)$/);
+                if (m) maxNum = Math.max(maxNum, parseInt(m[1], 10));
+              }
+            });
+            const codigoMarca = `MRC-${String(maxNum + 1).padStart(3, '0')}`;
+
             const nuevaMarca = {
               nombre: producto.marca,
-              codigo: `MRC-${Date.now()}`,
+              codigo: codigoMarca,
               estado: 'activa',
               tipoMarca: 'farmaceutica',
               alias: [],

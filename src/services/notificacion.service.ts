@@ -15,8 +15,9 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Notificacion, NotificacionCreate } from '../types/notificacion.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'notificaciones';
+const COLLECTION_NAME = COLLECTIONS.NOTIFICACIONES;
 
 class NotificacionService {
   private collectionRef = collection(db, COLLECTION_NAME);
@@ -82,16 +83,17 @@ class NotificacionService {
     usuarioId: string,
     callback: (notificaciones: Notificacion[]) => void
   ): () => void {
+    // Filtrar por usuario directamente en Firestore (no descargar notificaciones de otros)
     const q = query(
       this.collectionRef,
+      where('usuarioId', '==', usuarioId),
       orderBy('fechaCreacion', 'desc'),
       limit(50)
     );
 
     return onSnapshot(q, (snapshot) => {
       const notificaciones = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() } as Notificacion))
-        .filter(n => !n.usuarioId || n.usuarioId === usuarioId);
+        .map(doc => ({ id: doc.id, ...doc.data() } as Notificacion));
       callback(notificaciones);
     }, (error) => {
       console.error('Error en suscripción de notificaciones:', error);

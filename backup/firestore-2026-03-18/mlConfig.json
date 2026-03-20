@@ -1,0 +1,57 @@
+[
+  {
+    "_id": "settings",
+    "connected": true,
+    "userId": 649761480,
+    "firstName": "Josselin",
+    "lastName": "Gambini",
+    "nickname": "JOSSELINGAMBINI",
+    "autoCreateClientes": true,
+    "email": "jgambini2511@gmail.com",
+    "connectedAt": {
+      "_type": "timestamp",
+      "iso": "2026-03-02T22:47:38.000Z",
+      "_seconds": 1772491658
+    },
+    "defaultComisionPorcentaje": 15,
+    "autoCreateVentas": true,
+    "webhookRegisteredAt": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T23:28:52.000Z",
+      "_seconds": 1772926132
+    },
+    "webhookRegistered": true,
+    "webhookUrl": "https://us-central1-businessmn-269c9.cloudfunctions.net/mlwebhook",
+    "lastHistoricalImport": {
+      "_type": "timestamp",
+      "iso": "2026-03-11T19:08:20.000Z",
+      "_seconds": 1773256100
+    },
+    "lastSync": {
+      "_type": "timestamp",
+      "iso": "2026-03-15T04:32:35.000Z",
+      "_seconds": 1773549155
+    },
+    "tokenExpiresAt": {
+      "_type": "timestamp",
+      "iso": "2026-03-19T01:23:41.000Z",
+      "_seconds": 1773883421
+    }
+  },
+  {
+    "_id": "tokens",
+    "userId": 649761480,
+    "lastRefreshed": {
+      "_type": "timestamp",
+      "iso": "2026-03-18T19:23:41.000Z",
+      "_seconds": 1773861821
+    },
+    "accessToken": "APP_USR-6805464699623168-031815-34fa0f33e09fb566821efe3d53dc3070-649761480",
+    "expiresAt": {
+      "_type": "timestamp",
+      "iso": "2026-03-19T01:23:41.000Z",
+      "_seconds": 1773883421
+    },
+    "refreshToken": "TG-69bafbbd622ea60001bde2c2-649761480"
+  }
+]

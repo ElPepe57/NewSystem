@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
+import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import {
   X,
   Truck,
@@ -117,14 +118,6 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
     return `${symbol}${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
 
   const getClasificacionConfig = (clasificacion?: ClasificacionProveedor) => {
     const configs: Record<ClasificacionProveedor, { color: string; bg: string; icon: React.ReactNode; label: string }> = {

@@ -1,0 +1,889 @@
+[
+  {
+    "_id": "21J1RyjMD1ImPaZoPWNW",
+    "icono": "",
+    "estado": "activa",
+    "nombre": "Sin Gluten",
+    "nombreNormalizado": "sin gluten",
+    "mostrarEnProducto": true,
+    "ordenDisplay": 0,
+    "color": "#F59E0B",
+    "descripcion": "Libre de gluten",
+    "slug": "sin-gluten",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "codigo": "ETQ-013",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:21.000Z",
+      "_seconds": 1767427221
+    },
+    "mostrarEnFiltros": true,
+    "tipo": "dieta",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 78,
+      "productosActivos": 78
+    }
+  },
+  {
+    "_id": "4RY5KgxjTDmxqzFyvpvm",
+    "descripcion": "Empresa B certificada - compromiso social y ambiental",
+    "estado": "activa",
+    "mostrarEnFiltros": true,
+    "icono": "",
+    "ordenDisplay": 0,
+    "tipo": "certificacion",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:19.000Z",
+      "_seconds": 1767427219
+    },
+    "slug": "b-corp-certified",
+    "nombre": "B Corp Certified",
+    "nombreNormalizado": "b corp certified",
+    "color": "#10B981",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "mostrarEnProducto": true,
+    "codigo": "ETQ-009",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 3,
+      "productosActivos": 3
+    }
+  },
+  {
+    "_id": "4n5L57jTWG5go7hm1qui",
+    "mostrarEnProducto": true,
+    "tipo": "certificacion",
+    "mostrarEnFiltros": true,
+    "nombreNormalizado": "third-party tested",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:19.000Z",
+      "_seconds": 1767427219
+    },
+    "slug": "third-party-tested",
+    "color": "#14B8A6",
+    "nombre": "Third-Party Tested",
+    "descripcion": "Testeado por laboratorios independientes",
+    "estado": "activa",
+    "ordenDisplay": 0,
+    "icono": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "codigo": "ETQ-007",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 101,
+      "productosActivos": 101
+    }
+  },
+  {
+    "_id": "6GPxCdkP2KvE0Wsgm30N",
+    "icono": "",
+    "nombre": "Presentación Líquida",
+    "estado": "activa",
+    "tipo": "presentacion",
+    "ordenDisplay": 0,
+    "creadoPor": "SYSTEM_MIGRATION",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:28.000Z",
+      "_seconds": 1767427228
+    },
+    "nombreNormalizado": "presentacion liquida",
+    "color": "#2563EB",
+    "mostrarEnFiltros": true,
+    "descripcion": "Formato líquido - absorción rápida",
+    "codigo": "ETQ-027",
+    "mostrarEnProducto": true,
+    "slug": "presentacion-liquida",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 15,
+      "productosActivos": 15
+    }
+  },
+  {
+    "_id": "ANqVl24VjNFpWIfPfbJl",
+    "mostrarEnFiltros": true,
+    "slug": "drug-free",
+    "nombreNormalizado": "drug-free",
+    "nombre": "Drug-Free",
+    "ordenDisplay": 0,
+    "creadoPor": "SYSTEM_MIGRATION",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:23.000Z",
+      "_seconds": 1767427223
+    },
+    "codigo": "ETQ-017",
+    "tipo": "dieta",
+    "estado": "activa",
+    "descripcion": "Libre de medicamentos - no adictivo",
+    "icono": "",
+    "mostrarEnProducto": true,
+    "color": "#6366F1",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 7,
+      "productosActivos": 7
+    }
+  },
+  {
+    "_id": "ATooOxkATe1ncEBFxQPV",
+    "color": "#8B5CF6",
+    "mostrarEnProducto": true,
+    "descripcion": "Certificado por NSF International",
+    "nombre": "NSF Certified",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "icono": "",
+    "mostrarEnFiltros": true,
+    "slug": "nsf-certified",
+    "tipo": "certificacion",
+    "codigo": "ETQ-005",
+    "estado": "activa",
+    "ordenDisplay": 0,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:18.000Z",
+      "_seconds": 1767427218
+    },
+    "nombreNormalizado": "nsf certified",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 8,
+      "productosActivos": 8
+    }
+  },
+  {
+    "_id": "Ak3WoHmt6kMSGoqRFAVN",
+    "nombreNormalizado": "non-gmo project verified",
+    "mostrarEnFiltros": true,
+    "ordenDisplay": 0,
+    "creadoPor": "SYSTEM_MIGRATION",
+    "color": "#F97316",
+    "estado": "activa",
+    "tipo": "certificacion",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:16.000Z",
+      "_seconds": 1767427216
+    },
+    "nombre": "Non-GMO Project Verified",
+    "mostrarEnProducto": true,
+    "icono": "",
+    "slug": "non-gmo-project-verified",
+    "codigo": "ETQ-001",
+    "descripcion": "Certificado por Non-GMO Project - organismo independiente",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 16,
+      "productosActivos": 16
+    }
+  },
+  {
+    "_id": "Biw8XAIm6WYkFhzIY2YP",
+    "icono": "",
+    "codigo": "ETQ-024",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "color": "#A78BFA",
+    "descripcion": "Formulado para adolescentes",
+    "nombre": "Para Adolescentes",
+    "slug": "para-adolescentes",
+    "estado": "activa",
+    "nombreNormalizado": "para adolescentes",
+    "mostrarEnFiltros": true,
+    "mostrarEnProducto": true,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:27.000Z",
+      "_seconds": 1767427227
+    },
+    "ordenDisplay": 0,
+    "tipo": "publico",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "BqG1r5fBfjZ2TiiQc7kj",
+    "nombreNormalizado": "usda organic",
+    "nombre": "USDA Organic",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:17.000Z",
+      "_seconds": 1767427217
+    },
+    "color": "#22C55E",
+    "tipo": "certificacion",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activa",
+    "mostrarEnProducto": true,
+    "descripcion": "Certificación orgánica USDA - mínimo 95% ingredientes orgánicos",
+    "ordenDisplay": 0,
+    "mostrarEnFiltros": true,
+    "slug": "usda-organic",
+    "icono": "",
+    "codigo": "ETQ-003",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 4,
+      "productosActivos": 4
+    }
+  },
+  {
+    "_id": "EVvdnZWtEodQcdUw0YER",
+    "mostrarEnFiltros": true,
+    "icono": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombreNormalizado": "sin azucar",
+    "tipo": "dieta",
+    "nombre": "Sin Azúcar",
+    "descripcion": "Sin azúcares añadidos",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:22.000Z",
+      "_seconds": 1767427222
+    },
+    "color": "#EF4444",
+    "slug": "sin-azucar",
+    "ordenDisplay": 0,
+    "estado": "activa",
+    "mostrarEnProducto": true,
+    "codigo": "ETQ-016",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 7,
+      "productosActivos": 7
+    }
+  },
+  {
+    "_id": "Fo5bv97KtFYjZWOk0eUS",
+    "nombreNormalizado": "clean label project",
+    "nombre": "Clean Label Project",
+    "color": "#84CC16",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:20.000Z",
+      "_seconds": 1767427220
+    },
+    "estado": "activa",
+    "ordenDisplay": 0,
+    "creadoPor": "SYSTEM_MIGRATION",
+    "mostrarEnFiltros": true,
+    "tipo": "certificacion",
+    "mostrarEnProducto": true,
+    "slug": "clean-label-project",
+    "descripcion": "Certificado por Clean Label Project - pureza verificada",
+    "icono": "",
+    "codigo": "ETQ-010",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 3,
+      "productosActivos": 3
+    }
+  },
+  {
+    "_id": "IYV7i8oIHCw4JQmC5HHT",
+    "mostrarEnProducto": true,
+    "codigo": "ETQ-031",
+    "slug": "marca-valor",
+    "descripcion": "Excelente relación calidad-precio",
+    "tipo": "calidad",
+    "color": "#059669",
+    "nombre": "Marca Valor",
+    "icono": "",
+    "ordenDisplay": 0,
+    "mostrarEnFiltros": true,
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activa",
+    "nombreNormalizado": "marca valor",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:30.000Z",
+      "_seconds": 1767427230
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 59,
+      "productosActivos": 59
+    }
+  },
+  {
+    "_id": "LFdVcdd3PDe5kPMlrxdt",
+    "mostrarEnFiltros": true,
+    "ordenDisplay": 0,
+    "tipo": "publico",
+    "nombreNormalizado": "para hombres",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:25.000Z",
+      "_seconds": 1767427225
+    },
+    "descripcion": "Formulado específicamente para hombres",
+    "icono": "",
+    "estado": "activa",
+    "nombre": "Para Hombres",
+    "color": "#0891B2",
+    "slug": "para-hombres",
+    "mostrarEnProducto": true,
+    "codigo": "ETQ-021",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 3,
+      "productosActivos": 3
+    }
+  },
+  {
+    "_id": "P55qFmYh7PxzbhnmFcr4",
+    "descripcion": "Pescado de fuentes sostenibles certificadas",
+    "slug": "friend-of-the-sea",
+    "nombreNormalizado": "friend of the sea",
+    "ordenDisplay": 0,
+    "color": "#0EA5E9",
+    "nombre": "Friend of the Sea",
+    "tipo": "certificacion",
+    "estado": "activa",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "codigo": "ETQ-006",
+    "mostrarEnProducto": true,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:18.000Z",
+      "_seconds": 1767427218
+    },
+    "mostrarEnFiltros": true,
+    "icono": "",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 10,
+      "productosActivos": 10
+    }
+  },
+  {
+    "_id": "QfeHUbGKgKrNtWUDIzve",
+    "ordenDisplay": 0,
+    "icono": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:30.000Z",
+      "_seconds": 1767427230
+    },
+    "descripcion": "Fórmula basada en investigación científica",
+    "tipo": "calidad",
+    "color": "#9333EA",
+    "estado": "activa",
+    "mostrarEnFiltros": true,
+    "nombre": "Science-Based",
+    "mostrarEnProducto": true,
+    "nombreNormalizado": "science-based",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "slug": "science-based",
+    "codigo": "ETQ-032",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 12,
+      "productosActivos": 12
+    }
+  },
+  {
+    "_id": "R1qgM4ITI7AqRmYd2wnc",
+    "estado": "activa",
+    "mostrarEnProducto": true,
+    "icono": "",
+    "color": "#0D9488",
+    "nombre": "Fácil de Tragar",
+    "mostrarEnFiltros": true,
+    "codigo": "ETQ-026",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombreNormalizado": "facil de tragar",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:28.000Z",
+      "_seconds": 1767427228
+    },
+    "descripcion": "Cápsulas pequeñas o gomitas",
+    "ordenDisplay": 0,
+    "slug": "facil-de-tragar",
+    "tipo": "presentacion",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 18,
+      "productosActivos": 18
+    }
+  },
+  {
+    "_id": "SlbQagQysLeRAApaEVBz",
+    "ordenDisplay": 0,
+    "color": "#B45309",
+    "nombre": "Marca Premium",
+    "tipo": "calidad",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "mostrarEnFiltros": true,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:30.000Z",
+      "_seconds": 1767427230
+    },
+    "mostrarEnProducto": true,
+    "icono": "",
+    "descripcion": "Marca de alta gama con estándares superiores",
+    "codigo": "ETQ-030",
+    "estado": "activa",
+    "slug": "marca-premium",
+    "nombreNormalizado": "marca premium",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 26,
+      "productosActivos": 26
+    }
+  },
+  {
+    "_id": "UQXd4FeEzkkADtGDtN8y",
+    "tipo": "dieta",
+    "nombreNormalizado": "vegano",
+    "mostrarEnProducto": true,
+    "slug": "vegano",
+    "color": "#22C55E",
+    "mostrarEnFiltros": true,
+    "nombre": "Vegano",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "ordenDisplay": 0,
+    "icono": "",
+    "codigo": "ETQ-011",
+    "descripcion": "Sin ingredientes de origen animal",
+    "estado": "activa",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:20.000Z",
+      "_seconds": 1767427220
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 23,
+      "productosActivos": 23
+    }
+  },
+  {
+    "_id": "V1k8egA1mOELtuvFvizy",
+    "slug": "kosher",
+    "descripcion": "Certificación Kosher",
+    "ordenDisplay": 0,
+    "codigo": "ETQ-008",
+    "color": "#64748B",
+    "mostrarEnFiltros": true,
+    "nombreNormalizado": "kosher",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:19.000Z",
+      "_seconds": 1767427219
+    },
+    "tipo": "certificacion",
+    "nombre": "Kosher",
+    "icono": "",
+    "estado": "activa",
+    "mostrarEnProducto": true,
+    "creadoPor": "SYSTEM_MIGRATION",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "productosActivos": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 0
+    }
+  },
+  {
+    "_id": "YpNXyDOTjFb5dla93gas",
+    "icono": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:24.000Z",
+      "_seconds": 1767427224
+    },
+    "creadoPor": "SYSTEM_MIGRATION",
+    "color": "#6366F1",
+    "nombreNormalizado": "para adultos",
+    "slug": "para-adultos",
+    "tipo": "publico",
+    "nombre": "Para Adultos",
+    "codigo": "ETQ-019",
+    "estado": "activa",
+    "mostrarEnFiltros": true,
+    "descripcion": "Formulado para adultos",
+    "mostrarEnProducto": true,
+    "ordenDisplay": 0,
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 4,
+      "productosActivos": 4
+    }
+  },
+  {
+    "_id": "b8tSRz3Jmn6mqu5r5SW0",
+    "icono": "",
+    "ordenDisplay": 0,
+    "mostrarEnFiltros": true,
+    "color": "#1D4ED8",
+    "slug": "made-in-usa",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "descripcion": "Fabricado en Estados Unidos",
+    "mostrarEnProducto": true,
+    "tipo": "calidad",
+    "codigo": "ETQ-029",
+    "nombreNormalizado": "made in usa",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:29.000Z",
+      "_seconds": 1767427229
+    },
+    "nombre": "Made in USA",
+    "estado": "activa",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 131,
+      "productosActivos": 131
+    }
+  },
+  {
+    "_id": "euqQCRDlRwF3Hdi80mRD",
+    "icono": "",
+    "nombreNormalizado": "vegetariano",
+    "mostrarEnProducto": true,
+    "slug": "vegetariano",
+    "codigo": "ETQ-012",
+    "estado": "activa",
+    "descripcion": "Apto para vegetarianos (puede contener derivados animales)",
+    "color": "#84CC16",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:21.000Z",
+      "_seconds": 1767427221
+    },
+    "creadoPor": "SYSTEM_MIGRATION",
+    "mostrarEnFiltros": true,
+    "ordenDisplay": 0,
+    "tipo": "dieta",
+    "nombre": "Vegetariano",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 33,
+      "productosActivos": 33
+    }
+  },
+  {
+    "_id": "fCwicBfTlJGVx3ro4TL3",
+    "codigo": "ETQ-033",
+    "nombre": "Original Formula",
+    "nombreNormalizado": "original formula",
+    "slug": "original-formula",
+    "tipo": "atributo",
+    "grupo": "",
+    "icono": "",
+    "colorFondo": "#F3F4F6",
+    "colorTexto": "#4B5563",
+    "colorBorde": "#D1D5DB",
+    "estado": "activa",
+    "mostrarEnFiltros": true,
+    "ordenDisplay": 1,
+    "productosActivos": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T07:24:36.000Z",
+      "_seconds": 1770103476
+    }
+  },
+  {
+    "_id": "fMA6eImowdFzXTYUURL9",
+    "codigo": "ETQ-004",
+    "descripcion": "Fabricado en instalaciones GMP certificadas",
+    "color": "#3B82F6",
+    "nombre": "GMP Certified",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:17.000Z",
+      "_seconds": 1767427217
+    },
+    "nombreNormalizado": "gmp certified",
+    "tipo": "certificacion",
+    "estado": "activa",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "icono": "",
+    "ordenDisplay": 0,
+    "mostrarEnProducto": true,
+    "mostrarEnFiltros": true,
+    "slug": "gmp-certified",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 82,
+      "productosActivos": 82
+    }
+  },
+  {
+    "_id": "fWnQD2GIiVfGTSVdPzCs",
+    "codigo": "ETQ-022",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombre": "Para Mayores +50",
+    "mostrarEnProducto": true,
+    "mostrarEnFiltros": true,
+    "ordenDisplay": 0,
+    "slug": "para-mayores-50",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:26.000Z",
+      "_seconds": 1767427226
+    },
+    "tipo": "publico",
+    "descripcion": "Formulado para adultos mayores de 50 años",
+    "estado": "activa",
+    "color": "#78716C",
+    "icono": "",
+    "nombreNormalizado": "para mayores 50",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "hKKecgD1ySzzmqtDurEE",
+    "descripcion": "Formulado específicamente para mujeres",
+    "estado": "activa",
+    "codigo": "ETQ-020",
+    "slug": "para-mujeres",
+    "ordenDisplay": 0,
+    "icono": "",
+    "tipo": "publico",
+    "nombre": "Para Mujeres",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "mostrarEnProducto": true,
+    "color": "#F472B6",
+    "mostrarEnFiltros": true,
+    "nombreNormalizado": "para mujeres",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:24.000Z",
+      "_seconds": 1767427224
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 3,
+      "productosActivos": 3
+    }
+  },
+  {
+    "_id": "jga4otQC8YMbKJ0xeQMM",
+    "ordenDisplay": 0,
+    "descripcion": "Sabor agradable, fácil de tomar",
+    "codigo": "ETQ-025",
+    "slug": "sabor-agradable",
+    "nombreNormalizado": "sabor agradable",
+    "mostrarEnProducto": true,
+    "estado": "activa",
+    "icono": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombre": "Sabor Agradable",
+    "color": "#E11D48",
+    "tipo": "presentacion",
+    "mostrarEnFiltros": true,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:28.000Z",
+      "_seconds": 1767427228
+    },
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 51,
+      "productosActivos": 51
+    }
+  },
+  {
+    "_id": "mTYNj4xkrnTriaFXdErb",
+    "mostrarEnFiltros": true,
+    "mostrarEnProducto": true,
+    "ordenDisplay": 0,
+    "nombre": "Para Bebés",
+    "descripcion": "Seguro para bebés",
+    "estado": "activa",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:26.000Z",
+      "_seconds": 1767427226
+    },
+    "codigo": "ETQ-023",
+    "tipo": "publico",
+    "color": "#FDA4AF",
+    "icono": "",
+    "slug": "para-bebes",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombreNormalizado": "para bebes",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "qHKvVTxXQt5cWrlJOE61",
+    "mostrarEnProducto": true,
+    "ordenDisplay": 0,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:23.000Z",
+      "_seconds": 1767427223
+    },
+    "mostrarEnFiltros": true,
+    "nombre": "Para Niños",
+    "codigo": "ETQ-018",
+    "color": "#EC4899",
+    "nombreNormalizado": "para ninos",
+    "descripcion": "Formulado específicamente para niños",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "slug": "para-ninos",
+    "estado": "activa",
+    "icono": "",
+    "tipo": "publico",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 16,
+      "productosActivos": 16
+    }
+  },
+  {
+    "_id": "tOYQdxxIWQ35pRKm6nMa",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "mostrarEnFiltros": true,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:22.000Z",
+      "_seconds": 1767427222
+    },
+    "ordenDisplay": 0,
+    "icono": "",
+    "descripcion": "Libre de soya",
+    "slug": "sin-soya",
+    "color": "#8B5CF6",
+    "mostrarEnProducto": true,
+    "nombreNormalizado": "sin soya",
+    "codigo": "ETQ-015",
+    "estado": "activa",
+    "tipo": "dieta",
+    "nombre": "Sin Soya",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 20,
+      "productosActivos": 20
+    }
+  },
+  {
+    "_id": "vly1efnvdGj041r6GC1F",
+    "nombreNormalizado": "disolucion rapida",
+    "ordenDisplay": 0,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:29.000Z",
+      "_seconds": 1767427229
+    },
+    "nombre": "Disolución Rápida",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "codigo": "ETQ-028",
+    "estado": "activa",
+    "slug": "disolucion-rapida",
+    "tipo": "presentacion",
+    "descripcion": "Se disuelve en la boca sin agua",
+    "color": "#7C3AED",
+    "mostrarEnFiltros": true,
+    "icono": "",
+    "mostrarEnProducto": true,
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 9,
+      "productosActivos": 9
+    }
+  },
+  {
+    "_id": "vqSJwx7jXcqyrhS6h6q2",
+    "nombreNormalizado": "non-gmo",
+    "icono": "",
+    "codigo": "ETQ-002",
+    "ordenDisplay": 0,
+    "slug": "non-gmo",
+    "tipo": "certificacion",
+    "color": "#06B6D4",
+    "descripcion": "Libre de organismos genéticamente modificados (sin certificación externa)",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activa",
+    "mostrarEnFiltros": true,
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:17.000Z",
+      "_seconds": 1767427217
+    },
+    "nombre": "Non-GMO",
+    "mostrarEnProducto": true,
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 90,
+      "productosActivos": 90
+    }
+  },
+  {
+    "_id": "xurq1dkEdpnWciZMWX0l",
+    "descripcion": "Libre de lácteos y derivados",
+    "ordenDisplay": 0,
+    "mostrarEnFiltros": true,
+    "mostrarEnProducto": true,
+    "tipo": "dieta",
+    "color": "#3B82F6",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "codigo": "ETQ-014",
+    "nombre": "Sin Lácteos",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:22.000Z",
+      "_seconds": 1767427222
+    },
+    "estado": "activa",
+    "icono": "",
+    "slug": "sin-lacteos",
+    "nombreNormalizado": "sin lacteos",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 3,
+      "productosActivos": 3
+    }
+  }
+]

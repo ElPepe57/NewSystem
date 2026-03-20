@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   ArrowRightLeft,
   Plane,
@@ -16,12 +17,16 @@ import {
   DollarSign,
   Minus,
   CreditCard,
-  Banknote
+  Banknote,
+  ScanLine,
+  X as XIcon
 } from "lucide-react";
 import { Button, Card, Badge, Modal, Select, Input, useConfirmDialog, ConfirmDialog, PipelineHeader, GradientHeader, StatCard, StatDistribution } from "../../components/common";
+import { BarcodeScanner } from "../../components/common/BarcodeScanner";
 import type { PipelineStage } from "../../components/common";
 import { FileText, Send, CheckCircle2, XOctagon, RefreshCw } from "lucide-react";
 import { useTransferenciaStore } from "../../store/transferenciaStore";
+import { useProductoStore } from "../../store/productoStore";
 import { useAlmacenStore } from "../../store/almacenStore";
 import { useAuthStore } from "../../store/authStore";
 import { unidadService } from "../../services/unidad.service";
@@ -36,6 +41,33 @@ import type {
 } from "../../types/transferencia.types";
 import type { Unidad } from "../../types/unidad.types";
 import type { CuentaCaja, MetodoTesoreria } from "../../types/tesoreria.types";
+import { userService } from "../../services/user.service";
+import { esTipoTransferenciaInterna, esTipoTransferenciaInternacional, getLabelTipoTransferencia, esPaisOrigen } from '../../utils/multiOrigen.helpers';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+
+// Mini-componente para resolver userId → displayName
+const userNameCache = new Map<string, string>();
+const UserName: React.FC<{ userId: string }> = ({ userId }) => {
+  const [name, setName] = useState<string | null>(null);
+  useEffect(() => {
+    if (!userId) return;
+    // Si ya parece un nombre legible (no un UID largo), mostrarlo directo
+    if (userId.length < 20 || userId.includes(' ') || userId.includes('@')) {
+      setName(userId);
+      return;
+    }
+    if (userNameCache.has(userId)) {
+      setName(userNameCache.get(userId)!);
+      return;
+    }
+    userService.getByUid(userId).then(profile => {
+      const displayName = profile?.displayName || profile?.email || userId.slice(0, 8) + '...';
+      userNameCache.set(userId, displayName);
+      setName(displayName);
+    }).catch(() => setName(userId.slice(0, 8) + '...'));
+  }, [userId]);
+  return <>{name ?? userId.slice(0, 8) + '...'}</>;
+};
 
 export const Transferencias: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -54,20 +86,41 @@ export const Transferencias: React.FC = () => {
     enviarTransferencia,
     registrarRecepcion,
     cancelarTransferencia,
-    registrarPagoViajero
+    registrarPagoViajero,
+    actualizarFlete,
+    reconciliarPagoViajero
   } = useTransferenciaStore();
 
   const { getTCDelDia } = useTipoCambioStore();
   const [tipoCambioActual, setTipoCambioActual] = useState<{ tasaVenta: number } | null>(null);
 
   const {
+    almacenes: todosAlmacenes,
     almacenesUSA,
     almacenesPeru,
     viajeros,
+    fetchAlmacenes: fetchTodosAlmacenes,
     fetchAlmacenesUSA,
     fetchAlmacenesPeru,
     fetchViajeros
   } = useAlmacenStore();
+
+  // Almacenes dinámicos por tipo (origen vs destino Peru)
+  const almacenesOrigen = useMemo(() =>
+    todosAlmacenes.filter(a => a.estadoAlmacen === 'activo' && esPaisOrigen(a.pais)),
+    [todosAlmacenes]
+  );
+  const almacenesDestinoPeru = useMemo(() =>
+    todosAlmacenes.filter(a => a.estadoAlmacen === 'activo' && a.pais === 'Peru'),
+    [todosAlmacenes]
+  );
+
+  const { productos: todosProductos, fetchProductos } = useProductoStore();
+  const productosMapGlobal = useMemo(() => {
+    const map = new Map<string, typeof todosProductos[0]>();
+    todosProductos.forEach(p => map.set(p.id, p));
+    return map;
+  }, [todosProductos]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRecepcionModal, setShowRecepcionModal] = useState(false);
@@ -75,21 +128,28 @@ export const Transferencias: React.FC = () => {
   const [transferenciaParaRecepcion, setTransferenciaParaRecepcion] = useState<Transferencia | null>(null);
   const [transferenciaParaPago, setTransferenciaParaPago] = useState<Transferencia | null>(null);
   const [selectedTransferencia, setSelectedTransferencia] = useState<Transferencia | null>(null);
+  const [showEditFleteModal, setShowEditFleteModal] = useState(false);
+  const [transferenciaParaFlete, setTransferenciaParaFlete] = useState<Transferencia | null>(null);
   const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes'>('todas');
   const [filtroTipo, setFiltroTipo] = useState<TipoTransferencia | 'todas'>('todas');
   const [filtroEstado, setFiltroEstado] = useState<EstadoTransferencia | 'todas'>('todas');
   const [busqueda, setBusqueda] = useState('');
   const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
   const [pipelineStage, setPipelineStage] = useState<string | null>(null);
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
+
+  // Deep-link: abrir detalle desde query param (ej. desde Tesorería CxP)
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     fetchTransferencias();
     fetchEnTransito();
     fetchPendientesRecepcion();
     fetchResumen();
+    fetchTodosAlmacenes();
     fetchAlmacenesUSA();
     fetchAlmacenesPeru();
     fetchViajeros();
@@ -98,6 +158,24 @@ export const Transferencias: React.FC = () => {
     // Cargar cuentas de tesorería
     tesoreriaService.getCuentas().then(setCuentasTesoreria).catch(console.error);
   }, [fetchTransferencias, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia]);
+
+  // Cargar productos para resolver marca, presentación, dosaje, etc.
+  useEffect(() => {
+    if (todosProductos.length === 0) fetchProductos();
+  }, [todosProductos.length, fetchProductos]);
+
+  // Abrir transferencia por query param (deep link desde Tesorería)
+  useEffect(() => {
+    const transferenciaId = searchParams.get('transferenciaId');
+    if (transferenciaId && transferencias.length > 0) {
+      const found = transferencias.find(t => t.id === transferenciaId);
+      if (found) {
+        setSelectedTransferencia(found);
+        // Limpiar el query param para no re-abrir al navegar
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [searchParams, transferencias, setSearchParams]);
 
   // Pipeline stages para visualización
   const pipelineStages: PipelineStage[] = useMemo(() => {
@@ -159,6 +237,11 @@ export const Transferencias: React.FC = () => {
         ? transferenciasPendientes
         : transferencias;
 
+    // Filtrar por línea de negocio global
+    if (lineaFiltroGlobal) {
+      lista = lista.filter(t => !t.lineaNegocioId || t.lineaNegocioId === lineaFiltroGlobal);
+    }
+
     // Filtrar por etapa del pipeline
     if (pipelineStage) {
       if (pipelineStage === 'recibida') {
@@ -169,7 +252,13 @@ export const Transferencias: React.FC = () => {
     }
 
     if (filtroTipo !== 'todas') {
-      lista = lista.filter(t => t.tipo === filtroTipo);
+      if (filtroTipo === 'internacional_peru' || filtroTipo === 'usa_peru') {
+        lista = lista.filter(t => esTipoTransferenciaInternacional(t.tipo));
+      } else if (filtroTipo === 'interna_origen' || filtroTipo === 'interna_usa') {
+        lista = lista.filter(t => esTipoTransferenciaInterna(t.tipo));
+      } else {
+        lista = lista.filter(t => t.tipo === filtroTipo);
+      }
     }
 
     if (filtroEstado !== 'todas') {
@@ -252,10 +341,10 @@ export const Transferencias: React.FC = () => {
   };
 
   // Formatear tipo
-  const getTipoBadge = (tipo: TipoTransferencia) => {
-    return tipo === 'interna_usa'
-      ? <Badge variant="default">Interna USA</Badge>
-      : <Badge variant="info">USA → Perú</Badge>;
+  const getTipoBadge = (tipo: TipoTransferencia, paisOrigen?: string) => {
+    return esTipoTransferenciaInterna(tipo)
+      ? <Badge variant="default">{getLabelTipoTransferencia(tipo, paisOrigen)}</Badge>
+      : <Badge variant="info">{getLabelTipoTransferencia(tipo, paisOrigen)}</Badge>;
   };
 
   // Card de transferencia
@@ -272,9 +361,9 @@ export const Transferencias: React.FC = () => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-              transferencia.tipo === 'usa_peru' ? 'bg-blue-100' : 'bg-gray-100'
+              esTipoTransferenciaInternacional(transferencia.tipo) ? 'bg-blue-100' : 'bg-gray-100'
             }`}>
-              {transferencia.tipo === 'usa_peru'
+              {esTipoTransferenciaInternacional(transferencia.tipo)
                 ? <Plane className="h-6 w-6 text-blue-600" />
                 : <ArrowRightLeft className="h-6 w-6 text-gray-600" />
               }
@@ -282,7 +371,7 @@ export const Transferencias: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">{transferencia.numeroTransferencia}</h3>
               <div className="flex items-center space-x-2 mt-1">
-                {getTipoBadge(transferencia.tipo)}
+                {getTipoBadge(transferencia.tipo, (transferencia as any).paisOrigen)}
                 {getEstadoBadge(transferencia.estado)}
               </div>
             </div>
@@ -307,24 +396,68 @@ export const Transferencias: React.FC = () => {
           </div>
         </div>
 
-        {/* Métricas */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{transferencia.totalUnidades}</div>
-            <div className="text-xs text-gray-500">Unidades</div>
+        {/* Productos */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-500 uppercase">
+              {transferencia.productosSummary.length} producto{transferencia.productosSummary.length !== 1 ? 's' : ''} · {transferencia.totalUnidades} unidades
+            </span>
+            {transferencia.costoFleteTotal != null && transferencia.costoFleteTotal > 0 ? (
+              <span className="text-xs font-medium text-green-600">Flete: ${transferencia.costoFleteTotal.toFixed(2)}</span>
+            ) : esTipoTransferenciaInternacional(transferencia.tipo) ? (
+              <span className="text-xs text-amber-500">Sin flete</span>
+            ) : null}
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{transferencia.productosSummary.length}</div>
-            <div className="text-xs text-gray-500">Productos</div>
-          </div>
-          {transferencia.costoFleteTotal && (
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                ${transferencia.costoFleteTotal.toFixed(0)}
+          <div className="space-y-1">
+            {transferencia.productosSummary.slice(0, 4).map(producto => {
+              // Calcular flete por unidad desde las unidades de la transferencia
+              const unidadesProducto = transferencia.unidades.filter(u => u.productoId === producto.productoId);
+              const fleteUnitario = unidadesProducto.length > 0 ? unidadesProducto[0].costoFleteUSD : 0;
+              // Buscar lotes únicos
+              const lotes = [...new Set(unidadesProducto.map(u => u.lote).filter(Boolean))];
+
+              const pFull = productosMapGlobal.get(producto.productoId);
+              return (
+                <div key={producto.productoId} className="flex items-center justify-between py-1.5 px-2 bg-gray-50 rounded text-sm">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</span>
+                      <span className="text-xs text-gray-400 flex-shrink-0">×{producto.cantidad}</span>
+                    </div>
+                    {pFull && (
+                      <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                        {pFull.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
+                        {pFull.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
+                        {pFull.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
+                        {pFull.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
+                        {pFull.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <span>{producto.sku}</span>
+                      {lotes.length > 0 && (
+                        <>
+                          <span className="text-gray-300">·</span>
+                          <span>Lote{lotes.length > 1 ? 's' : ''}: {lotes.slice(0, 2).join(', ')}{lotes.length > 2 ? ` +${lotes.length - 2}` : ''}</span>
+                        </>
+                      )}
+                      {fleteUnitario > 0 && (
+                        <>
+                          <span className="text-gray-300">·</span>
+                          <span className="text-green-600">Flete: ${fleteUnitario.toFixed(2)}/u</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {transferencia.productosSummary.length > 4 && (
+              <div className="text-xs text-gray-400 text-center py-1">
+                +{transferencia.productosSummary.length - 4} productos más
               </div>
-              <div className="text-xs text-gray-500">Flete</div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Estado específico */}
@@ -339,6 +472,29 @@ export const Transferencias: React.FC = () => {
             )}
           </div>
         )}
+
+        {/* Progreso de recepción parcial */}
+        {transferencia.estado === 'recibida_parcial' && (() => {
+          const recibidas = transferencia.totalUnidadesRecibidas ?? transferencia.unidades.filter(u => u.estadoTransferencia === 'recibida').length;
+          const danadas = transferencia.totalUnidadesDanadas ?? transferencia.unidades.filter(u => u.estadoTransferencia === 'danada').length;
+          const procesadas = recibidas + danadas;
+          const totalU = transferencia.totalUnidades;
+          const numRecepciones = (transferencia.recepcionesTransferencia || []).length || (transferencia.recepcion ? 1 : 0);
+          return (
+            <div className="p-2 bg-purple-50 rounded-lg text-sm">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-purple-700 font-medium flex items-center gap-1">
+                  <Package className="h-4 w-4" />
+                  {procesadas}/{totalU} recibidas
+                </span>
+                <span className="text-xs text-purple-500">{numRecepciones} recep.</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                <div className="bg-purple-500 h-1.5 rounded-full transition-all" style={{ width: `${(procesadas / totalU) * 100}%` }} />
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Tracking */}
         {transferencia.numeroTracking && (
@@ -382,6 +538,20 @@ export const Transferencias: React.FC = () => {
           </div>
         )}
 
+        {/* Acción rápida para recepción parcial */}
+        {transferencia.estado === 'recibida_parcial' && (
+          <div className="mt-4 pt-4 border-t flex justify-end">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={(e) => { e.stopPropagation(); handleIniciarRecepcion(transferencia); }}
+            >
+              <Package className="h-4 w-4 mr-1" />
+              Recepción Adicional
+            </Button>
+          </div>
+        )}
+
         <div className="mt-4 flex justify-end">
           <ChevronRight className="h-5 w-5 text-gray-400" />
         </div>
@@ -391,9 +561,9 @@ export const Transferencias: React.FC = () => {
 
   // Formulario de creación con selector de unidades
   const CreateTransferenciaModal = () => {
-    const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Config, 2: Unidades, 3: Flete
+    const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Config, 2: Unidades, 3: Confirmar
     const [formData, setFormData] = useState<Partial<TransferenciaFormData>>({
-      tipo: 'usa_peru',
+      tipo: 'internacional_peru',
       unidadesIds: []
     });
     const [unidadesDisponibles, setUnidadesDisponibles] = useState<Unidad[]>([]);
@@ -401,10 +571,14 @@ export const Transferencias: React.FC = () => {
     const [loadingUnidades, setLoadingUnidades] = useState(false);
     // Costo de flete POR UNIDAD por producto: { [productoId]: costoFleteUnitario }
     const [costoFleteUnitarioPorProducto, setCostoFleteUnitarioPorProducto] = useState<Record<string, number>>({});
+    // Toggle para agregar flete ahora o después
+    const [agregarFleteAhora, setAgregarFleteAhora] = useState(false);
     // Estado para controlar qué productos están expandidos
     const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
     // Cantidad rápida a seleccionar por producto
     const [cantidadRapida, setCantidadRapida] = useState<Record<string, number>>({});
+    // Scanner inline en paso 2
+    const [showScanner, setShowScanner] = useState(false);
 
     // Cargar unidades cuando se selecciona almacén origen
     const handleSelectOrigen = async (almacenId: string) => {
@@ -446,6 +620,30 @@ export const Transferencias: React.FC = () => {
         setUnidadesSeleccionadas(prev => prev.filter(id => !idsDelProducto.includes(id)));
       } else {
         setUnidadesSeleccionadas(prev => [...new Set([...prev, ...idsDelProducto])]);
+      }
+    };
+
+    // Handler de escaneo en paso 2
+    const handleBarcodeScan = async (barcode: string) => {
+      setShowScanner(false);
+      // Primero buscar por SKU en unidades agrupadas
+      let productoId = Object.keys(unidadesAgrupadas).find(pid =>
+        unidadesAgrupadas[pid].sku === barcode
+      );
+      // Si no, buscar por UPC via Firestore
+      if (!productoId) {
+        try {
+          const { ProductoService } = await import('../../services/producto.service');
+          const producto = await ProductoService.getByCodigoUPC(barcode);
+          if (producto && unidadesAgrupadas[producto.id]) {
+            productoId = producto.id;
+          }
+        } catch { /* silent */ }
+      }
+      if (productoId) {
+        toggleProducto(productoId);
+      } else {
+        alert(`Codigo ${barcode} no encontrado en unidades disponibles`);
       }
     };
 
@@ -561,15 +759,16 @@ export const Transferencias: React.FC = () => {
         const dataFinal: TransferenciaFormData = {
           ...formData as TransferenciaFormData,
           unidadesIds: unidadesSeleccionadas,
-          // Pasar el costo TOTAL por producto (unitario × cantidad)
-          costoFletePorProducto: costoFleteTotalPorProducto
+          // Solo pasar flete si el usuario eligió agregarlo ahora
+          costoFletePorProducto: agregarFleteAhora ? costoFleteTotalPorProducto : {}
         };
         await crearTransferencia(dataFinal, user.uid);
         setShowCreateModal(false);
         setStep(1);
-        setFormData({ tipo: 'usa_peru', unidadesIds: [] });
+        setFormData({ tipo: 'internacional_peru', unidadesIds: [] });
         setUnidadesSeleccionadas([]);
         setCostoFleteUnitarioPorProducto({});
+        setAgregarFleteAhora(false);
         setProductosExpandidos(new Set());
         setCantidadRapida({});
       } catch (error: unknown) {
@@ -578,8 +777,13 @@ export const Transferencias: React.FC = () => {
       }
     };
 
-    const almacenesOrigen = formData.tipo === 'usa_peru' ? almacenesUSA : almacenesUSA;
-    const almacenesDestino = formData.tipo === 'usa_peru' ? almacenesPeru : almacenesUSA.filter(a => a.id !== formData.almacenOrigenId);
+    // Dinámico: origen = almacenes de cualquier país de origen; destino = Peru (int'l) o mismo origen (interna)
+    const almacenesOrigenModal = esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
+      ? almacenesOrigen
+      : almacenesOrigen;
+    const almacenesDestinoModal = esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
+      ? almacenesDestinoPeru
+      : almacenesOrigen.filter(a => a.id !== formData.almacenOrigenId);
 
     const canProceedToStep2 = formData.almacenOrigenId && formData.almacenDestinoId;
     const canProceedToStep3 = unidadesSeleccionadas.length > 0;
@@ -613,28 +817,28 @@ export const Transferencias: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, tipo: 'usa_peru', almacenDestinoId: undefined })}
+                  onClick={() => setFormData({ ...formData, tipo: 'internacional_peru', almacenDestinoId: undefined })}
                   className={`p-4 rounded-lg border-2 text-center transition-all ${
-                    formData.tipo === 'usa_peru'
+                    esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
                       ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-200 hover:border-gray-300 text-gray-600'
                   }`}
                 >
                   <Plane className="h-8 w-8 mx-auto mb-2" />
-                  <span className="block font-medium">USA → Perú</span>
+                  <span className="block font-medium">Origen → Perú</span>
                   <span className="text-xs">Envío internacional</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, tipo: 'interna_usa', almacenDestinoId: undefined })}
+                  onClick={() => setFormData({ ...formData, tipo: 'interna_origen', almacenDestinoId: undefined })}
                   className={`p-4 rounded-lg border-2 text-center transition-all ${
-                    formData.tipo === 'interna_usa'
+                    esTipoTransferenciaInterna(formData.tipo as TipoTransferencia)
                       ? 'border-purple-500 bg-purple-50 text-purple-700'
                       : 'border-gray-200 hover:border-gray-300 text-gray-600'
                   }`}
                 >
                   <ArrowRightLeft className="h-8 w-8 mx-auto mb-2" />
-                  <span className="block font-medium">Interna USA</span>
+                  <span className="block font-medium">Interna Origen</span>
                   <span className="text-xs">Entre viajeros/almacenes</span>
                 </button>
               </div>
@@ -647,9 +851,9 @@ export const Transferencias: React.FC = () => {
               onChange={(e) => handleSelectOrigen(e.target.value)}
               options={[
                 { value: '', label: 'Seleccionar origen...' },
-                ...almacenesOrigen.map(a => ({
+                ...almacenesOrigenModal.map(a => ({
                   value: a.id,
-                  label: `${a.nombre} (${a.codigo}) - ${a.unidadesActuales || 0} unidades`
+                  label: `${a.nombre} (${a.codigo}) [${a.pais}] - ${a.unidadesActuales || 0} uds`
                 }))
               ]}
               required
@@ -657,14 +861,14 @@ export const Transferencias: React.FC = () => {
 
             {/* Destino */}
             <Select
-              label={formData.tipo === 'usa_peru' ? 'Almacén Destino (Perú)' : 'Viajero/Almacén Destino'}
+              label={esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia) ? 'Almacén Destino (Perú)' : 'Viajero/Almacén Destino'}
               value={formData.almacenDestinoId || ''}
               onChange={(e) => setFormData({ ...formData, almacenDestinoId: e.target.value })}
               options={[
                 { value: '', label: 'Seleccionar destino...' },
-                ...almacenesDestino.map(a => ({
+                ...almacenesDestinoModal.map(a => ({
                   value: a.id,
-                  label: `${a.nombre} (${a.codigo})`
+                  label: `${a.nombre} (${a.codigo}) [${a.pais}]`
                 }))
               ]}
               required
@@ -672,7 +876,7 @@ export const Transferencias: React.FC = () => {
             />
 
             {/* Viajero (solo para USA → Perú) */}
-            {formData.tipo === 'usa_peru' && (
+            {esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia) && (
               <Select
                 label="Viajero que transporta"
                 value={formData.viajeroId || ''}
@@ -688,7 +892,7 @@ export const Transferencias: React.FC = () => {
             )}
 
             {/* Motivo (solo para interna USA) */}
-            {formData.tipo === 'interna_usa' && (
+            {esTipoTransferenciaInterna(formData.tipo as TipoTransferencia) && (
               <Select
                 label="Motivo de la transferencia"
                 value={formData.motivo || ''}
@@ -741,26 +945,51 @@ export const Transferencias: React.FC = () => {
 
               {/* Acciones rápidas globales */}
               {unidadesDisponibles.length > 0 && (
-                <div className="flex items-center justify-end space-x-2 mt-3 pt-3 border-t border-primary-200">
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary-200">
                   <button
                     type="button"
-                    onClick={seleccionarTodas}
-                    className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                    onClick={() => setShowScanner(!showScanner)}
+                    className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors ${
+                      showScanner ? 'bg-primary-200 text-primary-800' : 'text-primary-700 hover:text-primary-900 hover:bg-primary-100'
+                    }`}
                   >
-                    Seleccionar todas ({unidadesDisponibles.length})
+                    <ScanLine className="h-3.5 w-3.5" />
+                    Escanear
                   </button>
-                  {unidadesSeleccionadas.length > 0 && (
-                    <>
-                      <span className="text-primary-300">|</span>
-                      <button
-                        type="button"
-                        onClick={deseleccionarTodas}
-                        className="text-xs text-primary-700 hover:text-primary-900 font-medium"
-                      >
-                        Limpiar selección
-                      </button>
-                    </>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={seleccionarTodas}
+                      className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                    >
+                      Seleccionar todas ({unidadesDisponibles.length})
+                    </button>
+                    {unidadesSeleccionadas.length > 0 && (
+                      <>
+                        <span className="text-primary-300">|</span>
+                        <button
+                          type="button"
+                          onClick={deseleccionarTodas}
+                          className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                        >
+                          Limpiar selección
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Inline scanner */}
+              {showScanner && (
+                <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-700">Escanear producto</span>
+                    <button type="button" onClick={() => setShowScanner(false)} className="text-gray-400 hover:text-gray-600">
+                      <XIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <BarcodeScanner onScan={handleBarcodeScan} mode="both" compact />
                 </div>
               )}
             </div>
@@ -799,7 +1028,41 @@ export const Transferencias: React.FC = () => {
                             />
                             <div className="min-w-0 flex-1">
                               <h4 className="font-medium text-gray-900 truncate">{grupo.nombre}</h4>
-                              <p className="text-xs text-gray-500">{grupo.sku}</p>
+                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                                <span className="text-xs text-gray-500">{grupo.sku}</span>
+                                <span className="text-xs text-gray-300">·</span>
+                                <span className="text-xs text-green-600 font-medium">
+                                  ${grupo.unidades[0]?.costoUnitarioUSD.toFixed(2)}/u
+                                </span>
+                                <span className="text-xs text-gray-300">·</span>
+                                <span className="text-xs text-gray-500">
+                                  Total: ${grupo.unidades.reduce((s, u) => s + u.costoUnitarioUSD, 0).toFixed(2)}
+                                </span>
+                                {(() => {
+                                  const fechas = grupo.unidades
+                                    .map(u => u.fechaVencimiento?.toDate?.())
+                                    .filter(Boolean)
+                                    .sort((a, b) => a!.getTime() - b!.getTime());
+                                  if (fechas.length === 0) return null;
+                                  const proximaVencer = fechas[0]!;
+                                  const diasRestantes = Math.ceil((proximaVencer.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                                  return (
+                                    <>
+                                      <span className="text-xs text-gray-300">·</span>
+                                      <span className={`text-xs ${diasRestantes < 90 ? 'text-red-600 font-medium' : diasRestantes < 180 ? 'text-amber-600' : 'text-gray-500'}`}>
+                                        Vence: {proximaVencer.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        {diasRestantes < 180 && ` (${diasRestantes}d)`}
+                                      </span>
+                                    </>
+                                  );
+                                })()}
+                                {grupo.unidades[0]?.ordenCompraNumero && (
+                                  <>
+                                    <span className="text-xs text-gray-300">·</span>
+                                    <span className="text-xs text-blue-600">{grupo.unidades[0].ordenCompraNumero}</span>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
 
@@ -909,10 +1172,25 @@ export const Transferencias: React.FC = () => {
                                       #{idx + 1}
                                     </span>
                                     <span className="text-sm text-gray-900">Lote: {unidad.lote}</span>
+                                    {unidad.ordenCompraNumero && (
+                                      <span className="text-xs text-blue-600">{unidad.ordenCompraNumero}</span>
+                                    )}
                                   </div>
-                                  <p className="text-xs text-gray-500">
-                                    Vence: {unidad.fechaVencimiento?.toDate?.().toLocaleDateString('es-PE') || 'N/A'}
-                                  </p>
+                                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                                    <span>
+                                      Vence: {unidad.fechaVencimiento?.toDate?.().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) || 'N/A'}
+                                    </span>
+                                    {(() => {
+                                      const fecha = unidad.fechaVencimiento?.toDate?.();
+                                      if (!fecha) return null;
+                                      const dias = Math.ceil((fecha.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                                      if (dias < 90) return <span className="text-red-600 font-medium">({dias}d)</span>;
+                                      if (dias < 180) return <span className="text-amber-600">({dias}d)</span>;
+                                      return null;
+                                    })()}
+                                    <span className="text-gray-300">·</span>
+                                    <span>Recibida: {unidad.fechaRecepcion?.toDate?.().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }) || 'N/A'}</span>
+                                  </div>
                                 </div>
                               </div>
                               <span className="text-sm font-medium text-gray-900">${unidad.costoUnitarioUSD.toFixed(2)}</span>
@@ -937,13 +1215,13 @@ export const Transferencias: React.FC = () => {
                 onClick={() => setStep(3)}
                 disabled={!canProceedToStep3}
               >
-                Siguiente: Costo de Flete
+                Siguiente: Confirmar
               </Button>
             </div>
           </div>
         )}
 
-        {/* Step 3: Costo de flete y confirmación */}
+        {/* Step 3: Confirmación (flete opcional) */}
         {step === 3 && (
           <div className="space-y-6">
             {/* Resumen de la transferencia */}
@@ -952,7 +1230,7 @@ export const Transferencias: React.FC = () => {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-500">Tipo:</span>
-                  <span className="ml-2 font-medium">{formData.tipo === 'usa_peru' ? 'USA → Perú' : 'Interna USA'}</span>
+                  <span className="ml-2 font-medium">{getLabelTipoTransferencia(formData.tipo as TipoTransferencia)}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">Unidades:</span>
@@ -969,80 +1247,124 @@ export const Transferencias: React.FC = () => {
               </div>
             </div>
 
-            {/* Costo de flete por producto (solo para USA → Perú) */}
-            {formData.tipo === 'usa_peru' && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <Calculator className="h-5 w-5 text-blue-600 mr-2" />
-                    <h4 className="font-medium text-blue-900">Costo de Flete por Producto</h4>
+            {/* Toggle de flete (solo para USA → Perú) */}
+            {esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia) && (
+              <div>
+                <label className="flex items-center gap-3 cursor-pointer select-none mb-3">
+                  <input
+                    type="checkbox"
+                    checked={agregarFleteAhora}
+                    onChange={(e) => {
+                      setAgregarFleteAhora(e.target.checked);
+                      if (!e.target.checked) {
+                        setCostoFleteUnitarioPorProducto({});
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-900">Agregar costo de flete ahora</span>
+                    <p className="text-xs text-gray-500">Puedes agregar o editar el flete después desde el detalle de la transferencia</p>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-blue-700">${costoFleteTotal.toFixed(2)}</div>
-                    <div className="text-xs text-blue-600">Total Flete</div>
-                  </div>
-                </div>
+                </label>
 
-                {/* Lista de productos con input de flete */}
-                <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {productosConUnidadesSeleccionadas.map((producto) => (
-                    <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-blue-100">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-gray-900 truncate">{producto.nombre}</h5>
-                          <p className="text-xs text-gray-500">{producto.sku}</p>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
-                            <span>{producto.unidades} unidades</span>
-                            <span>•</span>
-                            <span>Mercancía: ${producto.costoMercancia.toFixed(2)}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex-shrink-0 w-40">
-                          <label className="block text-xs text-gray-500 mb-1">Flete por unidad (USD)</label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
-                            <input
-                              type="number"
-                              value={costoFleteUnitarioPorProducto[producto.productoId] || ''}
-                              onChange={(e) => {
-                                const valor = parseFloat(e.target.value) || 0;
-                                setCostoFleteUnitarioPorProducto(prev => ({
-                                  ...prev,
-                                  [producto.productoId]: valor
-                                }));
-                              }}
-                              className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
-                              placeholder="0.00"
-                              step="0.01"
-                              min="0"
-                            />
-                          </div>
-                          {(costoFleteUnitarioPorProducto[producto.productoId] || 0) > 0 && (
-                            <div className="text-xs text-blue-600 mt-1 text-right">
-                              Total: ${costoFleteTotalPorProducto[producto.productoId]?.toFixed(2) || '0.00'}
-                            </div>
-                          )}
-                        </div>
+                {agregarFleteAhora && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center">
+                        <Calculator className="h-5 w-5 text-blue-600 mr-2" />
+                        <h4 className="font-medium text-blue-900">Costo de Flete por Producto</h4>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-blue-700">${costoFleteTotal.toFixed(2)}</div>
+                        <div className="text-xs text-blue-600">Total Flete</div>
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* Resumen de costos */}
-                {costoFleteTotal > 0 && (
-                  <div className="mt-4 pt-3 border-t border-blue-200">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Total mercancía:</span>
-                      <span className="font-medium">${resumenSeleccion.costoTotal.toFixed(2)}</span>
+                    {/* Lista de productos con input de flete */}
+                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                      {productosConUnidadesSeleccionadas.map((producto) => {
+                        const pFull = productosMapGlobal.get(producto.productoId);
+                        return (
+                        <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-blue-100">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</h5>
+                              <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                                {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
+                                {pFull?.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
+                                {pFull?.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
+                                {pFull?.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
+                                {pFull?.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
+                              </div>
+                              <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                                <span>{producto.sku}</span>
+                                <span>•</span>
+                                <span>{producto.unidades} unidades</span>
+                                <span>•</span>
+                                <span>Mercancía: ${producto.costoMercancia.toFixed(2)}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex-shrink-0 w-40">
+                              <label className="block text-xs text-gray-500 mb-1">Flete por unidad (USD)</label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
+                                <input
+                                  type="number"
+                                  value={costoFleteUnitarioPorProducto[producto.productoId] || ''}
+                                  onChange={(e) => {
+                                    const valor = parseFloat(e.target.value) || 0;
+                                    setCostoFleteUnitarioPorProducto(prev => ({
+                                      ...prev,
+                                      [producto.productoId]: valor
+                                    }));
+                                  }}
+                                  className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                  placeholder="0.00"
+                                  step="0.01"
+                                  min="0"
+                                />
+                              </div>
+                              {(costoFleteUnitarioPorProducto[producto.productoId] || 0) > 0 && (
+                                <div className="text-xs text-blue-600 mt-1 text-right">
+                                  Total: ${costoFleteTotalPorProducto[producto.productoId]?.toFixed(2) || '0.00'}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                      })}
                     </div>
-                    <div className="flex items-center justify-between text-sm mt-1">
-                      <span className="text-gray-600">Total flete:</span>
-                      <span className="font-medium">${costoFleteTotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-base mt-2 pt-2 border-t border-blue-200">
-                      <span className="font-medium text-gray-900">Costo total transferencia:</span>
-                      <span className="font-bold text-blue-700">${(resumenSeleccion.costoTotal + costoFleteTotal).toFixed(2)}</span>
+
+                    {/* Resumen de costos */}
+                    {costoFleteTotal > 0 && (
+                      <div className="mt-4 pt-3 border-t border-blue-200">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Total mercancía:</span>
+                          <span className="font-medium">${resumenSeleccion.costoTotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm mt-1">
+                          <span className="text-gray-600">Total flete:</span>
+                          <span className="font-medium">${costoFleteTotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-base mt-2 pt-2 border-t border-blue-200">
+                          <span className="font-medium text-gray-900">Costo total transferencia:</span>
+                          <span className="font-bold text-blue-700">${(resumenSeleccion.costoTotal + costoFleteTotal).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!agregarFleteAhora && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-amber-700">
+                        La transferencia se creará sin costo de flete. Podrás agregarlo en cualquier momento desde el detalle de la transferencia.
+                      </p>
                     </div>
                   </div>
                 )}
@@ -1050,7 +1372,7 @@ export const Transferencias: React.FC = () => {
             )}
 
             {/* Info para transferencias internas */}
-            {formData.tipo === 'interna_usa' && (
+            {esTipoTransferenciaInterna(formData.tipo as TipoTransferencia) && (
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                 <div className="flex items-center">
                   <ArrowRightLeft className="h-5 w-5 text-purple-600 mr-2" />
@@ -1103,56 +1425,109 @@ export const Transferencias: React.FC = () => {
     onClose: () => void;
     onConfirm: (data: RecepcionFormData) => Promise<void>;
   }) => {
-    const [unidadesRecepcion, setUnidadesRecepcion] = useState<{
-      unidadId: string;
-      recibida: boolean;
-      danada: boolean;
-      incidencia?: string;
-    }[]>(
-      transferencia.unidades.map(u => ({
-        unidadId: u.unidadId,
-        recibida: true,
-        danada: false,
-        incidencia: ''
-      }))
+    // Unidades pendientes (no recibida ni danada)
+    const unidadesPendientes = transferencia.unidades.filter(
+      u => u.estadoTransferencia === 'enviada' || u.estadoTransferencia === 'faltante'
+        || u.estadoTransferencia === 'pendiente' || u.estadoTransferencia === 'preparada'
     );
+    const esParcial = transferencia.estado === 'recibida_parcial';
+    const recepcionNumero = (transferencia.recepcionesTransferencia?.length || (transferencia.recepcion ? 1 : 0)) + 1;
+
+    // Agrupar por producto (solo agrupación, sin resolver productosMapGlobal para evitar stale data)
+    const productosAgrupados = useMemo(() => {
+      const map = new Map<string, typeof unidadesPendientes>();
+      for (const u of unidadesPendientes) {
+        const arr = map.get(u.productoId) || [];
+        arr.push(u);
+        map.set(u.productoId, arr);
+      }
+      return [...map.entries()].map(([productoId, unids]) => {
+        const pSummary = transferencia.productosSummary.find(p => p.productoId === productoId);
+        const totalEnvio = pSummary?.cantidad || unids.length;
+        const yaRecibido = transferencia.unidades.filter(u => u.productoId === productoId && u.estadoTransferencia === 'recibida').length;
+        const costoFleteUnit = unids[0].costoFleteUSD || 0;
+        const costoFleteTotal = unids.reduce((s, u) => s + (u.costoFleteUSD || 0), 0);
+        const fechasVenc = unids
+          .map(u => u.fechaVencimiento?.toDate?.())
+          .filter(Boolean) as Date[];
+        fechasVenc.sort((a, b) => a.getTime() - b.getTime());
+        return {
+          productoId,
+          nombreFallback: pSummary?.nombre || unids[0].sku,
+          sku: unids[0].sku,
+          lote: unids[0].lote,
+          fechaVencimiento: fechasVenc[0] || null,
+          costoFleteUnit,
+          costoFleteTotal,
+          unidades: unids,
+          totalEnvio,
+          yaRecibido,
+          pendiente: unids.length
+        };
+      });
+    }, [transferencia, unidadesPendientes]);
+
+    // Estado: cantidad a recibir por producto
+    const [cantidadRecibir, setCantidadRecibir] = useState<Record<string, number>>(() => {
+      const init: Record<string, number> = {};
+      productosAgrupados.forEach(p => { init[p.productoId] = 0; });
+      return init;
+    });
     const [observaciones, setObservaciones] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [showRecepcionScanner, setShowRecepcionScanner] = useState(false);
+    const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
 
-    const toggleRecibida = (unidadId: string) => {
-      setUnidadesRecepcion(prev =>
-        prev.map(u =>
-          u.unidadId === unidadId
-            ? { ...u, recibida: !u.recibida, danada: false }
-            : u
-        )
-      );
+    const totalARecibir = Object.values(cantidadRecibir).reduce((s, v) => s + v, 0);
+    const totalPendiente = unidadesPendientes.length;
+
+    const handleRecibirTodo = (checked: boolean) => {
+      const next: Record<string, number> = {};
+      productosAgrupados.forEach(p => { next[p.productoId] = checked ? p.pendiente : 0; });
+      setCantidadRecibir(next);
     };
 
-    const toggleDanada = (unidadId: string) => {
-      setUnidadesRecepcion(prev =>
-        prev.map(u =>
-          u.unidadId === unidadId
-            ? { ...u, danada: !u.danada, recibida: true }
-            : u
-        )
-      );
+    const toggleExpandirProductoRecepcion = (productoId: string) => {
+      setProductosExpandidos(prev => {
+        const next = new Set(prev);
+        if (next.has(productoId)) next.delete(productoId);
+        else next.add(productoId);
+        return next;
+      });
     };
 
-    const setIncidencia = (unidadId: string, incidencia: string) => {
-      setUnidadesRecepcion(prev =>
-        prev.map(u =>
-          u.unidadId === unidadId ? { ...u, incidencia } : u
-        )
-      );
+    const handleRecepcionBarcodeScan = (barcode: string) => {
+      // Buscar producto que coincida con SKU/UPC
+      const prod = productosAgrupados.find(p => {
+        const pFull = productosMapGlobal.get(p.productoId);
+        return p.sku === barcode || (pFull as any)?.codigoBarras === barcode || (pFull as any)?.upc === barcode;
+      });
+      if (prod) {
+        const current = cantidadRecibir[prod.productoId] || 0;
+        if (current < prod.pendiente) {
+          setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: current + 1 }));
+        }
+      }
     };
 
     const handleSubmit = async () => {
+      if (totalARecibir === 0) return;
       setSubmitting(true);
       try {
+        const unidadesRecibidas: RecepcionFormData['unidadesRecibidas'] = [];
+        for (const prod of productosAgrupados) {
+          const cant = cantidadRecibir[prod.productoId] || 0;
+          prod.unidades.forEach((u, idx) => {
+            unidadesRecibidas.push({
+              unidadId: u.unidadId,
+              recibida: idx < cant,
+              danada: false
+            });
+          });
+        }
         await onConfirm({
           transferenciaId: transferencia.id,
-          unidadesRecibidas: unidadesRecepcion,
+          unidadesRecibidas,
           observaciones
         });
       } finally {
@@ -1160,157 +1535,275 @@ export const Transferencias: React.FC = () => {
       }
     };
 
-    const resumen = {
-      total: transferencia.unidades.length,
-      recibidas: unidadesRecepcion.filter(u => u.recibida && !u.danada).length,
-      danadas: unidadesRecepcion.filter(u => u.danada).length,
-      faltantes: unidadesRecepcion.filter(u => !u.recibida).length
-    };
-
     return (
       <Modal
         isOpen={true}
         onClose={onClose}
-        title={`Recepción: ${transferencia.numeroTransferencia}`}
+        title={`Recepción de Productos - ${transferencia.numeroTransferencia}`}
         size="lg"
       >
-        <div className="space-y-6">
-          {/* Info de la transferencia */}
-          <div className="bg-gray-50 rounded-lg p-4">
+        <div className="space-y-4">
+          {/* Sticky header - Resumen de recepción (same style as Step 2) */}
+          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 sticky top-0 z-10">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-500">Origen</div>
-                <div className="font-medium">{transferencia.almacenOrigenNombre}</div>
+                <h4 className="font-medium text-primary-900">Unidades a recibir</h4>
+                <p className="text-sm text-primary-700">
+                  {totalARecibir} de {totalPendiente} pendientes · Recepción #{recepcionNumero}
+                </p>
               </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
               <div className="text-right">
-                <div className="text-sm text-gray-500">Destino</div>
-                <div className="font-medium">{transferencia.almacenDestinoNombre}</div>
+                <div className="text-2xl font-bold text-primary-700">
+                  {totalPendiente > 0 ? Math.round((totalARecibir / totalPendiente) * 100) : 0}%
+                </div>
+                <div className="text-xs text-primary-600">Progreso</div>
               </div>
             </div>
+
+            {/* Barra de progreso */}
+            <div className="w-full bg-primary-200 rounded-full h-2 mt-3">
+              <div
+                className="bg-primary-600 h-2 rounded-full transition-all"
+                style={{ width: `${totalPendiente > 0 ? (totalARecibir / totalPendiente) * 100 : 0}%` }}
+              />
+            </div>
+
+            {/* Acciones: Escanear + Recibir todas */}
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary-200">
+              <button
+                type="button"
+                onClick={() => setShowRecepcionScanner(!showRecepcionScanner)}
+                className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors ${
+                  showRecepcionScanner ? 'bg-primary-200 text-primary-800' : 'text-primary-700 hover:text-primary-900 hover:bg-primary-100'
+                }`}
+              >
+                <ScanLine className="h-3.5 w-3.5" />
+                Escanear
+              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => handleRecibirTodo(totalARecibir !== totalPendiente)}
+                  className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                >
+                  Seleccionar todas ({totalPendiente})
+                </button>
+                {totalARecibir > 0 && (
+                  <>
+                    <span className="text-primary-300">|</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRecibirTodo(false)}
+                      className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                    >
+                      Limpiar selección
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Inline scanner */}
+            {showRecepcionScanner && (
+              <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-gray-700">Escanear producto</span>
+                  <button type="button" onClick={() => setShowRecepcionScanner(false)} className="text-gray-400 hover:text-gray-600">
+                    <XIcon className="h-4 w-4" />
+                  </button>
+                </div>
+                <BarcodeScanner onScan={handleRecepcionBarcodeScan} mode="both" compact />
+              </div>
+            )}
           </div>
 
-          {/* Resumen */}
-          <div className="grid grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-700">{resumen.total}</div>
-              <div className="text-xs text-blue-600">Esperadas</div>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-700">{resumen.recibidas}</div>
-              <div className="text-xs text-green-600">Recibidas OK</div>
-            </div>
-            <div className="text-center p-3 bg-yellow-50 rounded-lg">
-              <div className="text-2xl font-bold text-yellow-700">{resumen.danadas}</div>
-              <div className="text-xs text-yellow-600">Dañadas</div>
-            </div>
-            <div className="text-center p-3 bg-red-50 rounded-lg">
-              <div className="text-2xl font-bold text-red-700">{resumen.faltantes}</div>
-              <div className="text-xs text-red-600">Faltantes</div>
-            </div>
-          </div>
+          {/* Lista de productos agrupados - same style as Step 2 */}
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+            {productosAgrupados.map((prod) => {
+              const cant = cantidadRecibir[prod.productoId] || 0;
+              const todoRecibido = cant === prod.pendiente;
+              const estaExpandido = productosExpandidos.has(prod.productoId);
+              // Resolver producto completo al render time (no en useMemo) para datos frescos
+              const pFull = productosMapGlobal.get(prod.productoId);
 
-          {/* Lista de unidades */}
-          <div>
-            <h4 className="font-medium text-gray-900 mb-3">Verificar Unidades</h4>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {transferencia.unidades.map((unidad) => {
-                const recepcion = unidadesRecepcion.find(u => u.unidadId === unidad.unidadId);
-                if (!recepcion) return null;
-
-                return (
-                  <div
-                    key={unidad.unidadId}
-                    className={`border rounded-lg p-3 ${
-                      !recepcion.recibida
-                        ? 'border-red-300 bg-red-50'
-                        : recepcion.danada
-                        ? 'border-yellow-300 bg-yellow-50'
-                        : 'border-green-300 bg-green-50'
-                    }`}
-                  >
+              return (
+                <div key={prod.productoId} className="border rounded-lg overflow-hidden bg-white">
+                  {/* Header del producto */}
+                  <div className="p-3 bg-gray-50">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-gray-900">{unidad.sku}</div>
-                        <div className="text-xs text-gray-500">
-                          Lote: {unidad.lote || 'N/A'} • {unidad.codigoUnidad}
+                      <div className="flex items-center flex-1">
+                        <input
+                          type="checkbox"
+                          checked={todoRecibido}
+                          onChange={() => setCantidadRecibir(prev => ({
+                            ...prev,
+                            [prod.productoId]: todoRecibido ? 0 : prod.pendiente
+                          }))}
+                          className="h-4 w-4 text-primary-600 rounded mr-3 flex-shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || prod.nombreFallback}</h4>
+                          {/* Tags: marca, presentacion, dosaje, contenido, sabor - resolved at render time */}
+                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+                            {pFull?.marca && (
+                              <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{pFull.marca}</span>
+                            )}
+                            {pFull?.presentacion && (
+                              <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>
+                            )}
+                            {pFull?.dosaje && (
+                              <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{pFull.dosaje}</span>
+                            )}
+                            {pFull?.contenido && (
+                              <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{pFull.contenido}</span>
+                            )}
+                            {pFull?.sabor && (
+                              <span className="text-xs text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">{pFull.sabor}</span>
+                            )}
+                          </div>
+                          {/* SKU */}
+                          <div className="text-xs text-gray-500 mt-1">
+                            {prod.sku}
+                          </div>
+                          {/* Flete info */}
+                          {prod.costoFleteUnit > 0 && (
+                            <div className="text-xs text-green-600 font-medium mt-0.5">
+                              Flete: ${prod.costoFleteUnit.toFixed(2)}/u · Total flete: ${prod.costoFleteTotal.toFixed(2)}
+                            </div>
+                          )}
+                          {/* Ya recibidas */}
+                          {prod.yaRecibido > 0 && (
+                            <div className="flex items-center gap-1 text-xs text-green-600 mt-0.5">
+                              <CheckCircle className="h-3 w-3" />
+                              {prod.yaRecibido} recibidas
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => toggleRecibida(unidad.unidadId)}
-                          className={`px-3 py-1 rounded text-sm font-medium ${
-                            recepcion.recibida
-                              ? 'bg-green-600 text-white'
-                              : 'bg-gray-200 text-gray-600'
-                          }`}
-                        >
-                          {recepcion.recibida ? (
-                            <span className="flex items-center">
-                              <CheckCircle className="h-4 w-4 mr-1" /> Recibida
-                            </span>
-                          ) : (
-                            <span className="flex items-center">
-                              <XCircle className="h-4 w-4 mr-1" /> Faltante
-                            </span>
-                          )}
-                        </button>
-                        {recepcion.recibida && (
+
+                      <div className="flex items-center space-x-3 ml-3">
+                        {/* Selector de cantidad - same +/- as Step 2 */}
+                        <div className="flex items-center bg-white border rounded-lg overflow-hidden">
                           <button
                             type="button"
-                            onClick={() => toggleDanada(unidad.unidadId)}
-                            className={`px-3 py-1 rounded text-sm font-medium ${
-                              recepcion.danada
-                                ? 'bg-yellow-600 text-white'
-                                : 'bg-gray-200 text-gray-600'
-                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newCant = Math.max(0, cant - 1);
+                              setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: newCant }));
+                            }}
+                            className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-r"
                           >
-                            {recepcion.danada ? 'Dañada' : '¿Dañada?'}
+                            <Minus className="h-3 w-3" />
                           </button>
-                        )}
+                          <input
+                            type="number"
+                            value={cant}
+                            onChange={(e) => {
+                              const val = Math.min(Math.max(0, parseInt(e.target.value) || 0), prod.pendiente);
+                              setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: val }));
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-12 text-center text-sm py-1 border-0 focus:ring-0"
+                            min="0"
+                            max={prod.pendiente}
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newCant = Math.min(prod.pendiente, cant + 1);
+                              setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: newCant }));
+                            }}
+                            className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-l"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+
+                        <Badge variant={todoRecibido ? 'success' : cant > 0 ? 'warning' : 'default'}>
+                          {cant}/{prod.pendiente}
+                        </Badge>
+
+                        {/* Botón expandir/colapsar */}
+                        <button
+                          type="button"
+                          onClick={() => toggleExpandirProductoRecepcion(prod.productoId)}
+                          className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                        >
+                          {estaExpandido ? (
+                            <ChevronDown className="h-5 w-5" />
+                          ) : (
+                            <ChevronRight className="h-5 w-5" />
+                          )}
+                        </button>
                       </div>
                     </div>
-                    {(recepcion.danada || !recepcion.recibida) && (
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          placeholder="Describir incidencia..."
-                          value={recepcion.incidencia || ''}
-                          onChange={(e) => setIncidencia(unidad.unidadId, e.target.value)}
-                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
-                        />
-                      </div>
-                    )}
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Lista de unidades individuales - Colapsable */}
+                  {estaExpandido && (
+                    <div className="divide-y max-h-48 overflow-y-auto">
+                      {prod.unidades.map((unidad, idx) => (
+                        <div
+                          key={unidad.unidadId}
+                          className={`flex items-center justify-between p-3 ${
+                            idx < cant ? 'bg-primary-50' : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center">
+                            <div className={`h-2 w-2 rounded-full mr-3 ${idx < cant ? 'bg-green-500' : 'bg-gray-300'}`} />
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">
+                                  #{idx + 1}
+                                </span>
+                                {unidad.lote && <span className="text-sm text-gray-900">Lote: {unidad.lote}</span>}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                                {unidad.estadoTransferencia === 'faltante' && (
+                                  <span className="text-amber-600 font-medium">Prev. faltante</span>
+                                )}
+                                <span>Estado: {unidad.estadoTransferencia}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                            idx < cant ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                          }`}>
+                            {idx < cant ? 'Se recibirá' : 'Pendiente'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Observaciones generales */}
+          {/* Observaciones */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Observaciones generales (opcional)
+              Observaciones (opcional)
             </label>
             <textarea
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
               rows={2}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Agregar comentarios sobre la recepción..."
+              placeholder="Ej: Paquete 2 de 3, tracking TBA12345..."
             />
           </div>
 
           {/* Botones */}
-          <div className="flex justify-end space-x-3 pt-4 border-t">
-            <Button variant="outline" onClick={onClose} disabled={submitting}>
+          <div className="flex justify-between pt-4 border-t">
+            <Button variant="secondary" onClick={onClose} disabled={submitting}>
               Cancelar
             </Button>
             <Button
               variant="primary"
               onClick={handleSubmit}
-              disabled={submitting}
+              disabled={submitting || totalARecibir === 0}
             >
               {submitting ? (
                 <span className="flex items-center">
@@ -1320,7 +1813,7 @@ export const Transferencias: React.FC = () => {
               ) : (
                 <span className="flex items-center">
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  Confirmar Recepción
+                  Registrar Recepción #{recepcionNumero}
                 </span>
               )}
             </Button>
@@ -1354,10 +1847,18 @@ export const Transferencias: React.FC = () => {
     const monedaFleteOriginal = transferencia.monedaFlete || 'USD';
     const tieneFleteDefinido = fleteUSD > 0;
 
+    // Pagos anteriores (backward compat)
+    const pagosAnteriores = transferencia.pagosViajero && transferencia.pagosViajero.length > 0
+      ? transferencia.pagosViajero
+      : (transferencia.pagoViajero ? [transferencia.pagoViajero] : []);
+    const montoPagadoUSD = pagosAnteriores.reduce((sum, p) => sum + p.montoUSD, 0);
+    const montoPendienteUSD = fleteUSD - montoPagadoUSD;
+    const tienePagosAnteriores = pagosAnteriores.length > 0;
+
     const [formData, setFormData] = useState({
       fechaPago: new Date().toISOString().split('T')[0],
       monedaPago: monedaFleteOriginal as 'USD' | 'PEN',
-      montoOriginal: fleteUSD,
+      montoOriginal: montoPendienteUSD > 0 ? montoPendienteUSD : fleteUSD,
       tipoCambio: tipoCambioActual?.tasaVenta || 3.75,
       metodoPago: 'transferencia_bancaria' as MetodoTesoreria,
       cuentaOrigenId: '',
@@ -1395,8 +1896,9 @@ export const Transferencias: React.FC = () => {
     }, [cuentasFiltradas]);
 
     // Actualizar monto cuando cambia la moneda (convertir automáticamente)
+    const montoBaseUSD = montoPendienteUSD > 0 ? montoPendienteUSD : fleteUSD;
     const handleMonedaChange = (nuevaMoneda: 'USD' | 'PEN') => {
-      const nuevoMonto = nuevaMoneda === 'USD' ? fleteUSD : fleteUSD * formData.tipoCambio;
+      const nuevoMonto = nuevaMoneda === 'USD' ? montoBaseUSD : montoBaseUSD * formData.tipoCambio;
       setFormData(prev => ({ ...prev, monedaPago: nuevaMoneda, montoOriginal: nuevoMonto }));
     };
 
@@ -1411,8 +1913,9 @@ export const Transferencias: React.FC = () => {
     const saldoInsuficiente = cuentaSeleccionada && saldoDespues < 0;
 
     // Validaciones inteligentes
-    const montoDiferenteAlFlete = tieneFleteDefinido && Math.abs(montoUSD - fleteUSD) > 0.01;
-    const montoPagaMasFlete = tieneFleteDefinido && montoUSD > fleteUSD + 0.01;
+    const montoReferenciaUSD = montoPendienteUSD > 0 ? montoPendienteUSD : fleteUSD;
+    const montoDiferenteAlFlete = tieneFleteDefinido && Math.abs(montoUSD - montoReferenciaUSD) > 0.01;
+    const montoPagaMasFlete = tieneFleteDefinido && montoUSD > montoReferenciaUSD + 0.01;
 
     const handleSubmit = async () => {
       if (formData.montoOriginal <= 0) {
@@ -1425,14 +1928,14 @@ export const Transferencias: React.FC = () => {
       }
       if (montoPagaMasFlete) {
         const confirmar = await confirmPago({
-          title: 'Pago Mayor al Flete',
+          title: 'Pago Mayor al Pendiente',
           message: (
             <div className="space-y-2">
-              <p>Estas pagando mas del flete acordado:</p>
+              <p>Estas pagando mas del monto pendiente:</p>
               <div className="bg-amber-50 p-3 rounded-lg text-sm">
-                <div className="flex justify-between"><span>Flete acordado:</span><span>${fleteUSD.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span>Pendiente:</span><span>${montoReferenciaUSD.toFixed(2)}</span></div>
                 <div className="flex justify-between"><span>Monto a pagar:</span><span>${montoUSD.toFixed(2)}</span></div>
-                <div className="flex justify-between font-medium text-amber-700"><span>Diferencia:</span><span>+${(montoUSD - fleteUSD).toFixed(2)}</span></div>
+                <div className="flex justify-between font-medium text-amber-700"><span>Diferencia:</span><span>+${(montoUSD - montoReferenciaUSD).toFixed(2)}</span></div>
               </div>
             </div>
           ),
@@ -1512,12 +2015,52 @@ export const Transferencias: React.FC = () => {
                 <div className="text-3xl font-bold text-blue-700">
                   ${fleteUSD.toFixed(2)}
                 </div>
+                {montoPagadoUSD > 0 && (
+                  <div className="text-sm text-green-600 font-medium">
+                    Pagado: ${montoPagadoUSD.toFixed(2)} | Pendiente: ${montoPendienteUSD.toFixed(2)}
+                  </div>
+                )}
                 <div className="text-sm text-blue-500">
                   ≈ S/ {(fleteUSD * formData.tipoCambio).toFixed(2)} • ${costoPorUnidad.toFixed(2)}/ud
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Pagos anteriores */}
+          {tienePagosAnteriores && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <div className="text-xs text-green-600 uppercase tracking-wide mb-2 font-semibold">
+                Pagos Anteriores ({pagosAnteriores.length})
+              </div>
+              {pagosAnteriores.map((pago, idx) => (
+                <div key={pago.id} className="flex justify-between items-center text-sm py-1.5 border-b border-green-100 last:border-0">
+                  <div>
+                    <span className="font-medium text-gray-900">Pago {idx + 1}</span>
+                    <span className="text-gray-500 ml-2">
+                      {pago.fecha?.toDate?.() ? pago.fecha.toDate().toLocaleDateString('es-PE') : ''}
+                    </span>
+                    <span className="text-gray-400 ml-2 text-xs capitalize">
+                      {pago.metodoPago?.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                  <span className="font-semibold text-green-700">
+                    ${pago.montoUSD.toFixed(2)} USD
+                  </span>
+                </div>
+              ))}
+              <div className="flex justify-between items-center text-sm font-bold pt-2 mt-1 border-t border-green-300">
+                <span>Pendiente</span>
+                <span className="text-amber-700">${montoPendienteUSD.toFixed(2)} USD</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div
+                  className="bg-green-500 h-2 rounded-full transition-all"
+                  style={{ width: `${Math.min(100, (montoPagadoUSD / fleteUSD) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Advertencia si no hay flete definido */}
           {!tieneFleteDefinido && (
@@ -1634,11 +2177,13 @@ export const Transferencias: React.FC = () => {
               </div>
             </div>
 
-            {/* Advertencia de diferencia con flete */}
-            {montoDiferenteAlFlete && !montoPagaMasFlete && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-sm text-blue-700 flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
-                Monto difiere del flete acordado (${fleteUSD.toFixed(2)}) por ${Math.abs(montoUSD - fleteUSD).toFixed(2)}
+            {/* Info de pago parcial */}
+            {montoDiferenteAlFlete && !montoPagaMasFlete && montoUSD > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-sm text-amber-700 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 flex-shrink-0" />
+                <span>
+                  Pago parcial: quedará pendiente <strong>${(montoReferenciaUSD - montoUSD).toFixed(2)} USD</strong> de ${montoReferenciaUSD.toFixed(2)}
+                </span>
               </div>
             )}
             {montoPagaMasFlete && (
@@ -1805,6 +2350,178 @@ export const Transferencias: React.FC = () => {
     );
   };
 
+  // Modal para editar/agregar flete a una transferencia existente
+  const EditFleteModal = ({
+    transferencia,
+    onClose,
+    onConfirm
+  }: {
+    transferencia: Transferencia;
+    onClose: () => void;
+    onConfirm: (costoFletePorProducto: Record<string, number>) => Promise<void>;
+  }) => {
+    const { productos } = useProductoStore();
+    const productosMap = useMemo(() => {
+      const map = new Map<string, typeof productos[0]>();
+      productos.forEach(p => map.set(p.id, p));
+      return map;
+    }, [productos]);
+
+    const [submitting, setSubmitting] = useState(false);
+    // Inicializar con los costos existentes (flete total por producto)
+    const [fletesPorProducto, setFletesPorProducto] = useState<Record<string, number>>(() => {
+      const initial: Record<string, number> = {};
+      // Calcular flete total actual por producto desde las unidades
+      for (const producto of transferencia.productosSummary) {
+        const unidadesProducto = transferencia.unidades.filter(u => u.productoId === producto.productoId);
+        const fleteTotal = unidadesProducto.reduce((sum, u) => sum + (u.costoFleteUSD || 0), 0);
+        if (fleteTotal > 0) {
+          initial[producto.productoId] = fleteTotal;
+        }
+      }
+      return initial;
+    });
+
+    const totalFlete = Object.values(fletesPorProducto).reduce((sum, v) => sum + (v || 0), 0);
+
+    const handleSubmit = async () => {
+      setSubmitting(true);
+      try {
+        await onConfirm(fletesPorProducto);
+      } catch {
+        setSubmitting(false);
+      }
+    };
+
+    return (
+      <Modal
+        isOpen={true}
+        onClose={onClose}
+        title={`Flete - ${transferencia.numeroTransferencia}`}
+        size="lg"
+      >
+        <div className="space-y-4">
+          {/* Info de la transferencia */}
+          <div className="bg-gray-50 rounded-lg p-3 text-sm">
+            <div className="grid grid-cols-2 gap-2">
+              <div><span className="text-gray-500">Destino:</span> <span className="font-medium">{transferencia.almacenDestinoNombre}</span></div>
+              <div><span className="text-gray-500">Unidades:</span> <span className="font-medium">{transferencia.totalUnidades}</span></div>
+              {transferencia.viajeroNombre && (
+                <div><span className="text-gray-500">Viajero:</span> <span className="font-medium">{transferencia.viajeroNombre}</span></div>
+              )}
+              <div>
+                <span className="text-gray-500">Flete actual:</span>{' '}
+                <span className="font-medium">
+                  {transferencia.costoFleteTotal && transferencia.costoFleteTotal > 0
+                    ? `$${transferencia.costoFleteTotal.toFixed(2)}`
+                    : 'Sin flete'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Flete por producto */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-medium text-gray-700">Costo de Flete por Producto</h4>
+              <div className="text-lg font-bold text-blue-700">${totalFlete.toFixed(2)}</div>
+            </div>
+
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {transferencia.productosSummary.map((producto) => {
+                const unidadesCount = producto.cantidad;
+                const fleteTotalProducto = fletesPorProducto[producto.productoId] || 0;
+                const fletePorUnidad = unidadesCount > 0 ? fleteTotalProducto / unidadesCount : 0;
+                const productoFull = productosMap.get(producto.productoId);
+
+                return (
+                  <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h5 className="font-medium text-gray-900 truncate">
+                          {productoFull?.nombreComercial || producto.nombre}
+                        </h5>
+                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+                          {productoFull?.marca && (
+                            <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{productoFull.marca}</span>
+                          )}
+                          {productoFull?.presentacion && (
+                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded capitalize">{productoFull.presentacion.replace('_', ' ')}</span>
+                          )}
+                          {productoFull?.dosaje && (
+                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{productoFull.dosaje}</span>
+                          )}
+                          {productoFull?.contenido && (
+                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{productoFull.contenido}</span>
+                          )}
+                          {productoFull?.sabor && (
+                            <span className="text-xs text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">{productoFull.sabor}</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">{producto.sku} &middot; {producto.cantidad} unidades</p>
+                      </div>
+                      <div className="flex-shrink-0 w-40">
+                        <label className="block text-xs text-gray-500 mb-1">Flete total producto (USD)</label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
+                          <input
+                            type="number"
+                            value={fletesPorProducto[producto.productoId] || ''}
+                            onChange={(e) => {
+                              const valor = parseFloat(e.target.value) || 0;
+                              setFletesPorProducto(prev => ({
+                                ...prev,
+                                [producto.productoId]: valor
+                              }));
+                            }}
+                            className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                            placeholder="0.00"
+                            step="0.01"
+                            min="0"
+                          />
+                        </div>
+                        {fletePorUnidad > 0 && (
+                          <div className="text-xs text-blue-600 mt-1 text-right">
+                            ${fletePorUnidad.toFixed(2)} / unidad
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {(transferencia.estado === 'recibida_completa' || transferencia.estado === 'recibida_parcial') && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-amber-700">
+                  Esta transferencia ya fue recibida. Al actualizar el flete, se recalculará el CTRU de las unidades afectadas.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Botones */}
+          <div className="flex justify-end space-x-3 pt-2 border-t">
+            <Button variant="secondary" onClick={onClose} disabled={submitting}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={submitting}
+            >
+              {submitting ? 'Guardando...' : 'Guardar Flete'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    );
+  };
+
   const transferenciasFiltradas = getTransferenciasFiltradas();
 
   return (
@@ -1901,8 +2618,8 @@ export const Transferencias: React.FC = () => {
         <StatDistribution
           title="Tipo de Transferencias"
           data={[
-            { label: 'USA → Perú', value: transferencias.filter(t => t.tipo === 'usa_peru').length, color: 'bg-blue-500' },
-            { label: 'Interna USA', value: transferencias.filter(t => t.tipo === 'interna_usa').length, color: 'bg-gray-500' }
+            { label: 'Internacional → Perú', value: transferencias.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-blue-500' },
+            { label: 'Interna Origen', value: transferencias.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-gray-500' }
           ]}
         />
       </div>
@@ -1918,11 +2635,11 @@ export const Transferencias: React.FC = () => {
       {/* Tabs y Filtros */}
       <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
         {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
+        <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
+          <nav className="-mb-px flex space-x-4 sm:space-x-8">
             <button
               onClick={() => setActiveTab('todas')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === 'todas'
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -1932,7 +2649,7 @@ export const Transferencias: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('en_transito')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === 'en_transito'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -1942,7 +2659,7 @@ export const Transferencias: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('pendientes')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === 'pendientes'
                   ? 'border-amber-500 text-amber-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -1954,7 +2671,7 @@ export const Transferencias: React.FC = () => {
         </div>
 
         {/* Filtros */}
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
@@ -1962,31 +2679,33 @@ export const Transferencias: React.FC = () => {
               placeholder="Buscar..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-48"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-48"
             />
           </div>
-          <select
-            value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value as TipoTransferencia | 'todas')}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="todas">Todos los tipos</option>
-            <option value="usa_peru">USA → Perú</option>
-            <option value="interna_usa">Interna USA</option>
-          </select>
-          <select
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value as EstadoTransferencia | 'todas')}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="todas">Todos los estados</option>
-            <option value="borrador">Borrador</option>
-            <option value="preparando">Preparando</option>
-            <option value="en_transito">En Tránsito</option>
-            <option value="recibida_parcial">Recibida Parcial</option>
-            <option value="recibida_completa">Completada</option>
-            <option value="cancelada">Cancelada</option>
-          </select>
+          <div className="flex items-center gap-2">
+            <select
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value as TipoTransferencia | 'todas')}
+              className="flex-1 sm:flex-initial px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="todas">Todos los tipos</option>
+              <option value="internacional_peru">Internacional → Perú</option>
+              <option value="interna_origen">Interna Origen</option>
+            </select>
+            <select
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value as EstadoTransferencia | 'todas')}
+              className="flex-1 sm:flex-initial px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="todas">Todos los estados</option>
+              <option value="borrador">Borrador</option>
+              <option value="preparando">Preparando</option>
+              <option value="en_transito">En Tránsito</option>
+              <option value="recibida_parcial">Recibida Parcial</option>
+              <option value="recibida_completa">Completada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -2067,17 +2786,95 @@ export const Transferencias: React.FC = () => {
 
             {/* Resumen de productos */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Productos ({selectedTransferencia.totalUnidades} unidades)</h4>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {selectedTransferencia.productosSummary.map(producto => (
-                  <div key={producto.productoId} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <div>
-                      <div className="font-medium text-gray-900">{producto.nombre}</div>
-                      <div className="text-xs text-gray-500">{producto.sku}</div>
+              <h4 className="text-sm font-medium text-gray-700 mb-3">
+                Productos ({selectedTransferencia.productosSummary.length}) · {selectedTransferencia.totalUnidades} unidades
+              </h4>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {selectedTransferencia.productosSummary.map(producto => {
+                  const unidadesProducto = selectedTransferencia.unidades.filter(u => u.productoId === producto.productoId);
+                  const fleteUnitario = unidadesProducto.length > 0 ? unidadesProducto[0].costoFleteUSD : 0;
+                  const fleteTotalProducto = unidadesProducto.reduce((sum, u) => sum + (u.costoFleteUSD || 0), 0);
+                  const lotes = [...new Set(unidadesProducto.map(u => u.lote).filter(Boolean))];
+                  // Obtener vencimientos
+                  const vencimientos = unidadesProducto
+                    .map(u => u.fechaVencimiento?.toDate?.())
+                    .filter(Boolean)
+                    .sort((a, b) => a!.getTime() - b!.getTime());
+                  const proximoVencer = vencimientos[0];
+                  // Contar estados
+                  const recibidas = unidadesProducto.filter(u => u.estadoTransferencia === 'recibida').length;
+                  const faltantes = unidadesProducto.filter(u => u.estadoTransferencia === 'faltante').length;
+                  const danadas = unidadesProducto.filter(u => u.estadoTransferencia === 'danada').length;
+
+                  const pFull = productosMapGlobal.get(producto.productoId);
+                  return (
+                    <div key={producto.productoId} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</div>
+                          <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                            {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
+                            {pFull?.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
+                            {pFull?.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
+                            {pFull?.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
+                            {pFull?.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-gray-500">
+                            <span>{producto.sku}</span>
+                            {lotes.length > 0 && (
+                              <>
+                                <span className="text-gray-300">·</span>
+                                <span>Lote{lotes.length > 1 ? 's' : ''}: {lotes.join(', ')}</span>
+                              </>
+                            )}
+                            {proximoVencer && (() => {
+                              const dias = Math.ceil((proximoVencer.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                              return (
+                                <>
+                                  <span className="text-gray-300">·</span>
+                                  <span className={dias < 90 ? 'text-red-600 font-medium' : dias < 180 ? 'text-amber-600' : ''}>
+                                    Vence: {proximoVencer.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                    {dias < 180 && ` (${dias}d)`}
+                                  </span>
+                                </>
+                              );
+                            })()}
+                          </div>
+                          {/* Flete info */}
+                          {fleteUnitario > 0 && (
+                            <div className="text-xs text-green-600 mt-1">
+                              Flete: ${fleteUnitario.toFixed(2)}/u · Total flete: ${fleteTotalProducto.toFixed(2)}
+                            </div>
+                          )}
+                          {/* Estado de recepción si aplica */}
+                          {(selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') && (
+                            <div className="flex items-center gap-2 mt-1">
+                              {recibidas > 0 && (
+                                <span className="text-xs text-green-600 flex items-center gap-0.5">
+                                  <CheckCircle className="h-3 w-3" /> {recibidas} recibida{recibidas > 1 ? 's' : ''}
+                                </span>
+                              )}
+                              {faltantes > 0 && (
+                                <span className="text-xs text-red-600 flex items-center gap-0.5">
+                                  <AlertTriangle className="h-3 w-3" /> {faltantes} faltante{faltantes > 1 ? 's' : ''}
+                                </span>
+                              )}
+                              {danadas > 0 && (
+                                <span className="text-xs text-amber-600 flex items-center gap-0.5">
+                                  <XCircle className="h-3 w-3" /> {danadas} dañada{danadas > 1 ? 's' : ''}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-lg font-bold text-gray-900">{producto.cantidad}</div>
+                          <div className="text-xs text-gray-500">unid.</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-lg font-semibold text-gray-900">{producto.cantidad}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -2096,7 +2893,7 @@ export const Transferencias: React.FC = () => {
                   <div className="text-xs text-gray-500 uppercase mb-1">Fecha Salida</div>
                   <div className="text-gray-900">
                     {selectedTransferencia.fechaSalida.toDate().toLocaleDateString('es-PE', {
-                      day: '2-digit', month: 'long', year: 'numeric'
+                      day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}
                   </div>
                 </div>
@@ -2106,7 +2903,7 @@ export const Transferencias: React.FC = () => {
                   <div className="text-xs text-gray-500 uppercase mb-1">Fecha Llegada</div>
                   <div className="text-gray-900">
                     {selectedTransferencia.fechaLlegadaReal.toDate().toLocaleDateString('es-PE', {
-                      day: '2-digit', month: 'long', year: 'numeric'
+                      day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}
                   </div>
                 </div>
@@ -2120,6 +2917,151 @@ export const Transferencias: React.FC = () => {
                 <div className="font-medium text-gray-900">{selectedTransferencia.numeroTracking}</div>
               </div>
             )}
+
+            {/* Costo de Flete (solo internacional) */}
+            {esTipoTransferenciaInternacional(selectedTransferencia.tipo) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-gray-500 uppercase mb-1">Costo de Flete</div>
+                    {selectedTransferencia.costoFleteTotal && selectedTransferencia.costoFleteTotal > 0 ? (
+                      <div className="font-semibold text-blue-700">${selectedTransferencia.costoFleteTotal.toFixed(2)} USD</div>
+                    ) : (
+                      <div className="text-sm text-amber-600">Sin flete asignado</div>
+                    )}
+                  </div>
+                  {selectedTransferencia.estado !== 'cancelada' && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setTransferenciaParaFlete(selectedTransferencia);
+                        setShowEditFleteModal(true);
+                      }}
+                    >
+                      <DollarSign className="h-4 w-4 mr-1" />
+                      {selectedTransferencia.costoFleteTotal && selectedTransferencia.costoFleteTotal > 0 ? 'Editar Flete' : 'Agregar Flete'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Historial de Pagos al Viajero */}
+            {esTipoTransferenciaInternacional(selectedTransferencia.tipo) && (() => {
+              const pagos = selectedTransferencia.pagosViajero && selectedTransferencia.pagosViajero.length > 0
+                ? selectedTransferencia.pagosViajero
+                : (selectedTransferencia.pagoViajero ? [selectedTransferencia.pagoViajero] : []);
+              if (pagos.length === 0) return null;
+              const totalPagadoUSD = selectedTransferencia.montoPagadoUSD || pagos.reduce((s, p) => s + p.montoUSD, 0);
+              const fleteTotal = selectedTransferencia.costoFleteTotal || 0;
+              return (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="text-xs text-green-600 uppercase mb-2 font-semibold">
+                    Historial de Pagos ({pagos.length})
+                  </div>
+                  {pagos.map((pago, idx) => (
+                    <div key={pago.id} className="flex justify-between items-center text-sm py-1.5 border-b border-green-100 last:border-0">
+                      <div>
+                        <span className="font-medium text-gray-900">Pago {idx + 1}</span>
+                        <span className="text-gray-500 ml-2">
+                          {pago.fecha?.toDate?.() ? pago.fecha.toDate().toLocaleDateString('es-PE') : ''}
+                        </span>
+                        <span className="text-gray-400 ml-2 text-xs capitalize">
+                          {pago.metodoPago?.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                      <div className="text-right flex items-center gap-2">
+                        <span className="font-semibold text-green-700">${pago.montoUSD.toFixed(2)}</span>
+                        {pago.errorTesoreria && (
+                          <span className="text-xs text-red-500 bg-red-50 px-1.5 py-0.5 rounded">Sin sync</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {fleteTotal > 0 && (
+                    <div className="mt-2">
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Pagado: ${totalPagadoUSD.toFixed(2)}</span>
+                        <span>Total: ${fleteTotal.toFixed(2)}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-green-500 h-2 rounded-full transition-all"
+                          style={{ width: `${Math.min(100, (totalPagadoUSD / fleteTotal) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Historial de Recepciones */}
+            {(selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') && (() => {
+              const recepciones = selectedTransferencia.recepcionesTransferencia && selectedTransferencia.recepcionesTransferencia.length > 0
+                ? selectedTransferencia.recepcionesTransferencia
+                : (selectedTransferencia.recepcion ? [{ ...selectedTransferencia.recepcion, id: 'legacy', numero: 1 }] : []);
+              if (recepciones.length === 0) return null;
+              const totalRecibidas = selectedTransferencia.totalUnidadesRecibidas ?? recepciones.reduce((s, r) => s + r.unidadesRecibidas, 0);
+              const totalDanadas = selectedTransferencia.totalUnidadesDanadas ?? recepciones.reduce((s, r) => s + r.unidadesDanadas, 0);
+              const totalUnidades = selectedTransferencia.totalUnidades;
+              return (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <div className="text-xs text-purple-600 uppercase mb-2 font-semibold">
+                    Historial de Recepciones ({recepciones.length})
+                  </div>
+                  {recepciones.map((rec, idx) => (
+                    <div key={rec.id || idx} className="text-sm py-2 border-b border-purple-100 last:border-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <span className="font-medium text-gray-900">Recepción #{rec.numero || idx + 1}</span>
+                          <span className="text-gray-500 text-xs">
+                            {rec.fechaRecepcion?.toDate?.() ? rec.fechaRecepcion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
+                          </span>
+                        </div>
+                      </div>
+                      {rec.recibidoPor && (
+                        <p className="text-[10px] text-gray-400 mt-0.5 truncate" title={rec.recibidoPor}>
+                          Por: <UserName userId={rec.recibidoPor} />
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {rec.unidadesRecibidas > 0 && (
+                          <span className="text-xs text-green-600 flex items-center gap-0.5">
+                            <CheckCircle className="h-3 w-3" /> {rec.unidadesRecibidas} recibida{rec.unidadesRecibidas > 1 ? 's' : ''}
+                          </span>
+                        )}
+                        {rec.unidadesDanadas > 0 && (
+                          <span className="text-xs text-amber-600 flex items-center gap-0.5">
+                            <AlertTriangle className="h-3 w-3" /> {rec.unidadesDanadas} dañada{rec.unidadesDanadas > 1 ? 's' : ''}
+                          </span>
+                        )}
+                        {rec.unidadesFaltantes > 0 && (
+                          <span className="text-xs text-red-600 flex items-center gap-0.5">
+                            <XCircle className="h-3 w-3" /> {rec.unidadesFaltantes} faltante{rec.unidadesFaltantes > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                      {rec.observaciones && (
+                        <div className="text-xs text-gray-500 mt-0.5 italic">"{rec.observaciones}"</div>
+                      )}
+                    </div>
+                  ))}
+                  <div className="mt-2">
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <span>Recibidas: {totalRecibidas}{totalDanadas > 0 ? ` (${totalDanadas} dañadas)` : ''}</span>
+                      <span>Total: {totalUnidades}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-purple-500 h-2 rounded-full transition-all"
+                        style={{ width: `${Math.min(100, ((totalRecibidas + totalDanadas) / totalUnidades) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Notas */}
             {selectedTransferencia.notas && (
@@ -2146,27 +3088,57 @@ export const Transferencias: React.FC = () => {
                   Marcar como Enviada
                 </Button>
               )}
-              {selectedTransferencia.estado === 'en_transito' && (
+              {(selectedTransferencia.estado === 'en_transito' || selectedTransferencia.estado === 'recibida_parcial') && (
                 <Button variant="primary" onClick={() => handleIniciarRecepcion(selectedTransferencia)}>
                   <Package className="h-4 w-4 mr-2" />
-                  Registrar Recepción
+                  {selectedTransferencia.estado === 'recibida_parcial' ? 'Registrar Recepción Adicional' : 'Registrar Recepción'}
                 </Button>
               )}
               {/* Botón para registrar pago al viajero */}
-              {selectedTransferencia.tipo === 'usa_peru' &&
+              {esTipoTransferenciaInternacional(selectedTransferencia.tipo) &&
                (selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') &&
                selectedTransferencia.estadoPagoViajero !== 'pagado' && (
                 <Button variant="success" onClick={() => handleAbrirPagoViajero(selectedTransferencia)}>
                   <Banknote className="h-4 w-4 mr-2" />
-                  Registrar Pago Viajero
+                  {selectedTransferencia.estadoPagoViajero === 'parcial'
+                    ? 'Registrar Pago Adicional'
+                    : 'Registrar Pago Viajero'}
                 </Button>
               )}
-              {/* Badge si ya está pagado */}
-              {selectedTransferencia.estadoPagoViajero === 'pagado' && (
-                <Badge variant="success">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Pago Registrado
+              {/* Badge parcial */}
+              {selectedTransferencia.estadoPagoViajero === 'parcial' && (
+                <Badge variant="warning">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Pago Parcial ({((selectedTransferencia.montoPagadoUSD || 0) / (selectedTransferencia.costoFleteTotal || 1) * 100).toFixed(0)}%)
                 </Badge>
+              )}
+              {/* Badge + Botón reconciliar si ya está pagado */}
+              {selectedTransferencia.estadoPagoViajero === 'pagado' && (
+                <>
+                  <Badge variant="success">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Pago Registrado
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={async () => {
+                      if (!user) return;
+                      try {
+                        await reconciliarPagoViajero(selectedTransferencia.id, user.uid);
+                        setSelectedTransferencia(null);
+                        alert('Pago sincronizado correctamente en Tesorería');
+                      } catch (error) {
+                        const msg = error instanceof Error ? error.message : 'Error desconocido';
+                        alert(msg);
+                      }
+                    }}
+                    title="Verificar y sincronizar el movimiento en Tesorería"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Sincronizar
+                  </Button>
+                </>
               )}
             </div>
           </div>
@@ -2209,6 +3181,30 @@ export const Transferencias: React.FC = () => {
             setShowPagoModal(false);
             setTransferenciaParaPago(null);
             alert('✅ Pago al viajero registrado correctamente');
+          }}
+        />
+      )}
+
+      {/* Modal de Editar Flete */}
+      {showEditFleteModal && transferenciaParaFlete && (
+        <EditFleteModal
+          transferencia={transferenciaParaFlete}
+          onClose={() => {
+            setShowEditFleteModal(false);
+            setTransferenciaParaFlete(null);
+          }}
+          onConfirm={async (costoFletePorProducto: Record<string, number>) => {
+            if (!user) return;
+            try {
+              await actualizarFlete(transferenciaParaFlete.id, costoFletePorProducto, user.uid);
+              setShowEditFleteModal(false);
+              setTransferenciaParaFlete(null);
+              setSelectedTransferencia(null);
+              alert('Flete actualizado correctamente');
+            } catch (error) {
+              const message = error instanceof Error ? error.message : 'Error desconocido';
+              alert('Error: ' + message);
+            }
           }}
         />
       )}

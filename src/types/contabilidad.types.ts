@@ -453,7 +453,7 @@ export interface CuentasPorCobrar {
  * Inventarios valorizado con CTRU
  */
 export interface Inventarios {
-  /** Inventario en USA */
+  /** Inventario en origen (legacy: USA) */
   inventarioUSA: {
     unidades: number;
     valorUSD: number;
@@ -461,13 +461,17 @@ export interface Inventarios {
     enAlmacenes: number;
     enTransito: number;
   };
-  /** Inventario en Perú */
+  /** Inventario en destino (legacy: Perú) */
   inventarioPeru: {
     unidades: number;
     valorPEN: number;
     disponible: number;
     reservado: number;
   };
+  /** Alias genérico: inventario en país de origen */
+  inventarioOrigen?: Inventarios['inventarioUSA'];
+  /** Alias genérico: inventario en país de destino */
+  inventarioDestino?: Inventarios['inventarioPeru'];
   /** Total inventario */
   totalUnidades: number;
   totalValorPEN: number;

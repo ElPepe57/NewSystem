@@ -68,6 +68,8 @@ export interface Entrega extends BaseEntity {
   // Dirección
   direccionEntrega: string;
   distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
   referencia?: string;
   coordenadas?: {
     lat: number;
@@ -121,8 +123,16 @@ export interface Entrega extends BaseEntity {
   pdfGuiaTransportista?: string;   // URL del PDF para transportista
   pdfCargoCliente?: string;        // URL del PDF cargo para cliente
 
+  // Línea de negocio (heredada de Venta)
+  lineaNegocioId?: string;
+  lineaNegocioNombre?: string;
+
   // Observaciones
   observaciones?: string;
+
+  // Recuperación de operaciones secundarias fallidas
+  _secondaryErrors?: string[];
+  _needsRecovery?: boolean;
 }
 
 /**
@@ -142,7 +152,13 @@ export interface ProgramarEntregaData {
   // Dirección
   direccionEntrega: string;
   distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
   referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
 
   // Programación
   fechaProgramada: Date;
@@ -155,6 +171,7 @@ export interface ProgramarEntregaData {
 
   // Costo
   costoTransportista: number;
+  costoEnvio?: number;
 
   observaciones?: string;
 }
@@ -175,6 +192,7 @@ export interface ResultadoEntregaData {
   cobroRealizado?: boolean;
   montoRecaudado?: number;
   metodoPagoRecibido?: MetodoPago;
+  cuentaDestinoId?: string; // Cuenta de tesorería donde se registra el cobro
 
   // Si fallida
   motivoFallo?: MotivoFallo;

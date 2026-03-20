@@ -10,8 +10,10 @@ import {
   orderBy,
   Timestamp,
   serverTimestamp,
-  limit
+  limit,
+  arrayUnion
 } from 'firebase/firestore';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
 import { tipoCambioService } from './tipoCambio.service';
 import { ctruService } from './ctru.service';
@@ -30,8 +32,10 @@ import type {
 } from '../types/expectativa.types';
 import type { Venta } from '../types/venta.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
+import { actividadService } from './actividad.service';
+import { COLLECTIONS } from '../config/collections';
 
-const REQUERIMIENTOS_COLLECTION = 'requerimientos';
+const REQUERIMIENTOS_COLLECTION = COLLECTIONS.REQUERIMIENTOS;
 
 /**
  * Servicio de Expectativa vs Realidad
@@ -47,24 +51,7 @@ export const expectativaService = {
    */
   async generateNumeroRequerimiento(): Promise<string> {
     const year = new Date().getFullYear();
-    const q = query(
-      collection(db, REQUERIMIENTOS_COLLECTION),
-      orderBy('fechaCreacion', 'desc'),
-      limit(1)
-    );
-    const snapshot = await getDocs(q);
-
-    let nextNumber = 1;
-    if (!snapshot.empty) {
-      const lastDoc = snapshot.docs[0].data();
-      const lastNumero = lastDoc.numeroRequerimiento as string;
-      const match = lastNumero.match(/REQ-\d{4}-(\d+)/);
-      if (match) {
-        nextNumber = parseInt(match[1], 10) + 1;
-      }
-    }
-
-    return `REQ-${year}-${nextNumber.toString().padStart(4, '0')}`;
+    return getNextSequenceNumber(`REQ-${year}`, 4);
   },
 
   /**
@@ -74,6 +61,18 @@ export const expectativaService = {
     data: RequerimientoFormData,
     userId: string
   ): Promise<string> {
+    // Verificar duplicados si viene de una cotización
+    if (data.ventaRelacionadaId) {
+      const reqsExistentes = await this.getRequerimientos();
+      const reqExistente = reqsExistentes.find(r =>
+        r.ventaRelacionadaId === data.ventaRelacionadaId &&
+        r.estado !== 'cancelado'
+      );
+      if (reqExistente) {
+        throw new Error(`Ya existe el requerimiento ${reqExistente.numeroRequerimiento} para esta cotización`);
+      }
+    }
+
     const numeroRequerimiento = await this.generateNumeroRequerimiento();
 
     // Obtener TC actual para la expectativa
@@ -127,11 +126,17 @@ export const expectativaService = {
           sku: productoInfo?.sku || '',
           marca: productoInfo?.marca || '',
           nombreComercial: productoInfo?.nombreComercial || '',
+          presentacion: productoInfo?.presentacion || '',
+          contenido: productoInfo?.contenido || '',
+          dosaje: productoInfo?.dosaje || '',
+          sabor: productoInfo?.sabor || '',
           cantidadSolicitada: p.cantidadSolicitada,
           // Campos para tracking de asignación múltiple
           cantidadAsignada: 0,
           cantidadPendiente: p.cantidadSolicitada,
           cantidadRecibida: 0,
+          cantidadEnOC: 0,
+          pendienteCompra: p.cantidadSolicitada,
           fechaInvestigacion: Timestamp.now()
         };
         // Solo agregar campos opcionales si tienen valor
@@ -173,6 +178,23 @@ export const expectativaService = {
       fechaCreacion: Timestamp.now()
     };
 
+    // Auto-inherit lineaNegocioId from the first product that has one
+    const firstProductoWithLinea = await (async () => {
+      for (const p of data.productos) {
+        const prod = await ProductoService.getById(p.productoId);
+        if (prod?.lineaNegocioId) {
+          return { lineaNegocioId: prod.lineaNegocioId, lineaNegocioNombre: prod.lineaNegocioNombre || '' };
+        }
+      }
+      return null;
+    })();
+    if (firstProductoWithLinea) {
+      requerimiento.lineaNegocioId = firstProductoWithLinea.lineaNegocioId;
+      if (firstProductoWithLinea.lineaNegocioNombre) {
+        requerimiento.lineaNegocioNombre = firstProductoWithLinea.lineaNegocioNombre;
+      }
+    }
+
     // Agregar campos opcionales solo si tienen valor
     if (data.ventaRelacionadaId) {
       requerimiento.ventaRelacionadaId = data.ventaRelacionadaId;
@@ -191,6 +213,16 @@ export const expectativaService = {
     }
 
     const docRef = await addDoc(collection(db, REQUERIMIENTOS_COLLECTION), requerimiento);
+
+    // Broadcast actividad (fire-and-forget)
+    actividadService.registrar({
+      tipo: 'requerimiento_creado',
+      mensaje: `Requerimiento ${numeroRequerimiento} creado - ${data.productos.length} producto(s)`,
+      userId,
+      displayName: userId,
+      metadata: { entidadId: docRef.id, entidadTipo: 'requerimiento' }
+    }).catch(() => {});
+
     return docRef.id;
   },
 
@@ -215,6 +247,17 @@ export const expectativaService = {
     }>,
     userId: string
   ): Promise<{ id: string; numero: string }> {
+    // Red de seguridad: verificar duplicados antes de crear
+    const reqsExistentes = await this.getRequerimientos();
+    const reqExistente = reqsExistentes.find(r =>
+      r.ventaRelacionadaId === cotizacionId &&
+      r.estado !== 'cancelado'
+    );
+    if (reqExistente) {
+      console.warn(`Requerimiento ${reqExistente.numeroRequerimiento} ya existe para cotización ${cotizacionId}, reutilizando.`);
+      return { id: reqExistente.id!, numero: reqExistente.numeroRequerimiento };
+    }
+
     const formData: RequerimientoFormData = {
       origen: 'venta_pendiente',
       ventaRelacionadaId: cotizacionId,
@@ -307,10 +350,23 @@ export const expectativaService = {
     }
 
     await updateDoc(doc(db, REQUERIMIENTOS_COLLECTION, requerimientoId), updateData);
+
+    // Broadcast actividad for approval (fire-and-forget)
+    if (nuevoEstado === 'aprobado') {
+      actividadService.registrar({
+        tipo: 'requerimiento_aprobado',
+        mensaje: `Requerimiento ${requerimientoId} aprobado`,
+        userId,
+        displayName: userId,
+        metadata: { entidadId: requerimientoId, entidadTipo: 'requerimiento' }
+      }).catch(() => {});
+    }
   },
 
   /**
-   * Vincular requerimiento con OC
+   * Vincular requerimiento con OC (legacy — sin info de productos)
+   * Marca como en_proceso si no se puede calcular coverage,
+   * pero primero intenta redirigir a vincularConOCParcial si la OC tiene productos mapeables.
    */
   async vincularConOC(
     requerimientoId: string,
@@ -318,6 +374,25 @@ export const expectativaService = {
     ordenCompraNumero: string,
     userId: string
   ): Promise<void> {
+    // Intentar obtener productos de la OC para calcular coverage correctamente
+    try {
+      const { OrdenCompraService } = await import('./ordenCompra.service');
+      const oc = await OrdenCompraService.getById(ordenCompraId);
+      if (oc && oc.productos.length > 0) {
+        const productosOC = oc.productos.map(p => ({
+          productoId: p.productoId,
+          cantidad: p.cantidad,
+        }));
+        await this.vincularConOCParcial(
+          requerimientoId, ordenCompraId, ordenCompraNumero, productosOC, userId
+        );
+        return;
+      }
+    } catch (error) {
+      console.warn('vincularConOC: no se pudo obtener OC para coverage, usando legacy:', error);
+    }
+
+    // Fallback legacy: marcar como en_proceso
     await updateDoc(doc(db, REQUERIMIENTOS_COLLECTION, requerimientoId), {
       estado: 'en_proceso',
       ordenCompraId,
@@ -325,6 +400,217 @@ export const expectativaService = {
       ultimaEdicion: serverTimestamp(),
       editadoPor: userId
     });
+  },
+
+  /**
+   * Vincular requerimiento con OC de forma parcial (por producto)
+   * Actualiza cantidadEnOC, pendienteCompra, ordenCompraRefs por producto,
+   * y calcula ocCoverage del requerimiento.
+   */
+  async vincularConOCParcial(
+    requerimientoId: string,
+    ordenCompraId: string,
+    ordenCompraNumero: string,
+    productosOC: Array<{ productoId: string; cantidad: number }>,
+    userId: string
+  ): Promise<void> {
+    // Leer el req actual
+    const reqDoc = await getDoc(doc(db, REQUERIMIENTOS_COLLECTION, requerimientoId));
+    if (!reqDoc.exists()) {
+      console.warn(`vincularConOCParcial: req ${requerimientoId} no encontrado`);
+      return;
+    }
+    const reqData = reqDoc.data() as any;
+    const productos = reqData.productos || [];
+
+    // Actualizar cada producto
+    const productosActualizados = productos.map((p: any) => {
+      const ocItem = productosOC.find(o => o.productoId === p.productoId);
+      if (!ocItem) return p;
+
+      const cantidadEnOC = (p.cantidadEnOC || 0) + ocItem.cantidad;
+      const pendienteCompra = Math.max(0, (p.cantidadSolicitada || 0) - cantidadEnOC);
+      const refs = p.ordenCompraRefs || [];
+      refs.push({
+        ordenCompraId,
+        ordenCompraNumero,
+        cantidad: ocItem.cantidad,
+      });
+
+      return {
+        ...p,
+        cantidadEnOC,
+        pendienteCompra,
+        ordenCompraRefs: refs,
+      };
+    });
+
+    // Calcular coverage
+    let totalCantidad = 0;
+    let cantidadCubierta = 0;
+    let productosEnOC = 0;
+    let productosPendientes = 0;
+    for (const p of productosActualizados) {
+      const solicitada = p.cantidadSolicitada || 0;
+      const enOC = p.cantidadEnOC || 0;
+      totalCantidad += solicitada;
+      cantidadCubierta += Math.min(enOC, solicitada);
+      if (enOC > 0) productosEnOC++;
+      if ((p.pendienteCompra ?? solicitada) > 0) productosPendientes++;
+    }
+    const porcentaje = totalCantidad > 0 ? Math.round((cantidadCubierta / totalCantidad) * 100) : 0;
+
+    const ocCoverage = {
+      totalProductos: productosActualizados.length,
+      productosEnOC,
+      productosPendientes,
+      porcentaje,
+    };
+
+    // Determinar estado
+    const allCovered = porcentaje >= 100;
+    const someCovered = porcentaje > 0;
+    let nuevoEstado = reqData.estado;
+    if (allCovered) {
+      nuevoEstado = 'en_proceso';
+    } else if (someCovered) {
+      nuevoEstado = 'parcial';
+    }
+
+    // Actualizar en Firestore
+    await updateDoc(doc(db, REQUERIMIENTOS_COLLECTION, requerimientoId), {
+      productos: productosActualizados,
+      estado: nuevoEstado,
+      // Legacy: mantener campo singular con la primera OC
+      ordenCompraId: reqData.ordenCompraId || ordenCompraId,
+      ordenCompraNumero: reqData.ordenCompraNumero || ordenCompraNumero,
+      // Multi-OC arrays
+      ordenCompraIds: arrayUnion(ordenCompraId),
+      ordenCompraNumeros: arrayUnion(ordenCompraNumero),
+      ocCoverage,
+      ultimaEdicion: serverTimestamp(),
+      editadoPor: userId,
+    });
+  },
+
+  /**
+   * Desvincular una OC de sus requerimientos (al eliminar OC borrador).
+   * Revierte cantidadEnOC, pendienteCompra y ordenCompraRefs.
+   */
+  async desvincularOCDeRequerimientos(
+    ordenCompraId: string,
+    ordenCompraNumero: string
+  ): Promise<void> {
+    // Buscar todos los requerimientos que referencian esta OC
+    const reqsSnap = await getDocs(
+      query(
+        collection(db, REQUERIMIENTOS_COLLECTION),
+        where('ordenCompraIds', 'array-contains', ordenCompraId)
+      )
+    );
+
+    // Fallback: también buscar por campo singular legacy
+    if (reqsSnap.empty) {
+      const reqsSnapLegacy = await getDocs(
+        query(
+          collection(db, REQUERIMIENTOS_COLLECTION),
+          where('ordenCompraId', '==', ordenCompraId)
+        )
+      );
+      if (reqsSnapLegacy.empty) return;
+      // Process legacy
+      for (const reqDoc of reqsSnapLegacy.docs) {
+        await this._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero);
+      }
+      return;
+    }
+
+    for (const reqDoc of reqsSnap.docs) {
+      await this._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero);
+    }
+  },
+
+  /** Helper interno: revertir una OC específica dentro de un requerimiento */
+  async _revertirOCEnReq(
+    reqDoc: any,
+    ordenCompraId: string,
+    ordenCompraNumero: string
+  ): Promise<void> {
+    const reqData = reqDoc.data() as any;
+    const productos = reqData.productos || [];
+
+    // Revertir cada producto que tenga referencia a esta OC
+    const productosActualizados = productos.map((p: any) => {
+      const refs: Array<{ ordenCompraId: string; ordenCompraNumero: string; cantidad: number }> = p.ordenCompraRefs || [];
+      const refIdx = refs.findIndex((r: any) => r.ordenCompraId === ordenCompraId);
+      if (refIdx === -1) return p; // No estaba vinculado a esta OC
+
+      const cantidadRevertir = refs[refIdx].cantidad;
+      const newRefs = refs.filter((_: any, i: number) => i !== refIdx);
+      const cantidadEnOC = Math.max(0, (p.cantidadEnOC || 0) - cantidadRevertir);
+      const pendienteCompra = Math.max(0, (p.cantidadSolicitada || 0) - cantidadEnOC);
+
+      return {
+        ...p,
+        cantidadEnOC,
+        pendienteCompra,
+        ordenCompraRefs: newRefs,
+      };
+    });
+
+    // Recalcular coverage
+    let totalCantidad = 0;
+    let cantidadCubierta = 0;
+    let productosEnOC = 0;
+    let productosPendientes = 0;
+    for (const p of productosActualizados) {
+      const solicitada = p.cantidadSolicitada || 0;
+      const enOC = p.cantidadEnOC || 0;
+      totalCantidad += solicitada;
+      cantidadCubierta += Math.min(enOC, solicitada);
+      if (enOC > 0) productosEnOC++;
+      if ((p.pendienteCompra ?? solicitada) > 0) productosPendientes++;
+    }
+    const porcentaje = totalCantidad > 0 ? Math.round((cantidadCubierta / totalCantidad) * 100) : 0;
+
+    const ocCoverage = {
+      totalProductos: productosActualizados.length,
+      productosEnOC,
+      productosPendientes,
+      porcentaje,
+    };
+
+    // Determinar nuevo estado
+    let nuevoEstado = reqData.estado;
+    if (porcentaje >= 100) {
+      nuevoEstado = 'en_proceso';
+    } else if (porcentaje > 0) {
+      nuevoEstado = 'parcial';
+    } else {
+      // Ningún producto en OC → volver a aprobado
+      nuevoEstado = 'aprobado';
+    }
+
+    // Limpiar arrays de OC ids
+    const ordenCompraIds = (reqData.ordenCompraIds || []).filter((id: string) => id !== ordenCompraId);
+    const ordenCompraNumeros = (reqData.ordenCompraNumeros || []).filter((n: string) => n !== ordenCompraNumero);
+
+    const updates: Record<string, any> = {
+      productos: productosActualizados,
+      estado: nuevoEstado,
+      ocCoverage,
+      ordenCompraIds,
+      ordenCompraNumeros,
+      ultimaEdicion: serverTimestamp(),
+    };
+
+    // Si era el campo singular legacy, limpiar también
+    if (reqData.ordenCompraId === ordenCompraId) {
+      updates.ordenCompraId = ordenCompraIds[0] || null;
+      updates.ordenCompraNumero = ordenCompraNumeros[0] || null;
+    }
+
+    await updateDoc(doc(db, REQUERIMIENTOS_COLLECTION, reqDoc.id), updates);
   },
 
   // ===============================================
@@ -658,7 +944,7 @@ export const expectativaService = {
     let reqDentroPresupuesto = 0;
 
     for (const req of reqCompletados) {
-      costoTotalEstimado += req.expectativa.costoTotalEstimadoPEN;
+      costoTotalEstimado += req.expectativa?.costoTotalEstimadoPEN || 0;
 
       if (req.ordenCompraId) {
         const comparacion = await this.compararCompra(req.ordenCompraId);
@@ -693,7 +979,7 @@ export const expectativaService = {
     let impactoTotalTCCompras = 0;
 
     for (const req of reqCompletados) {
-      if (req.ordenCompraId && req.expectativa.tcInvestigacion) {
+      if (req.ordenCompraId && req.expectativa?.tcInvestigacion) {
         const comparacion = await this.compararCompra(req.ordenCompraId);
         if (comparacion && Math.abs(comparacion.diferencias.diferenciaTC) > 0.01) {
           comprasAfectadasPorTC++;
@@ -896,6 +1182,15 @@ export const expectativaService = {
       if (reqExistente) reqYaVinculadoAEstaOC = true;
     }
 
+    // Si tampoco, buscar CUALQUIER requerimiento no cancelado para esta cotización
+    // (puede estar vinculado a otra OC — evita crear duplicado)
+    if (!reqExistente) {
+      reqExistente = reqsExistentes.find(r =>
+        r.ventaRelacionadaId === cotizacionId &&
+        r.estado !== 'cancelado'
+      );
+    }
+
     if (reqExistente) {
       // Reutilizar el requerimiento existente
       requerimientoId = reqExistente.id!;
@@ -973,7 +1268,7 @@ export const expectativaService = {
     }
 
     // 3. Actualizar la OC con el requerimientoId (solo si no estaba ya vinculado)
-    const ORDENES_COLLECTION = 'ordenesCompra';
+    const ORDENES_COLLECTION = COLLECTIONS.ORDENES_COMPRA;
     const ordenRef = doc(db, ORDENES_COLLECTION, ordenCompraId);
 
     if (!reqYaVinculadoAEstaOC) {
@@ -1010,6 +1305,7 @@ export const expectativaService = {
     const reservaResult = await unidadService.reservarUnidadesParaCotizacion({
       ordenCompraId,
       cotizacionId,
+      cotizacionNumero,
       requerimientoId,
       productos: productos.map(p => ({
         productoId: p.productoId,
@@ -1018,11 +1314,11 @@ export const expectativaService = {
       userId
     });
 
-    // 5. Marcar requerimiento como completado
-    await this.actualizarEstado(requerimientoId, 'completado', userId);
+    // 5. El estado del requerimiento ya fue calculado por vincularConOC/vincularConOCParcial
+    // basado en el coverage real (parcial si no todos los productos están cubiertos)
 
     // 6. Actualizar cotización/venta con el requerimiento generado
-    const VENTAS_COLLECTION = 'ventas';
+    const VENTAS_COLLECTION = COLLECTIONS.VENTAS;
     try {
       const ventaRef = doc(db, VENTAS_COLLECTION, cotizacionId);
       const ventaSnap = await getDoc(ventaRef);

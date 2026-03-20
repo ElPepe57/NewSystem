@@ -24,6 +24,7 @@ import {
 } from '../../components/modules/productoIntel';
 import { useProductoIntelStore } from '../../store/productoIntelStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type { ProductoIntel, ClasificacionLiquidez } from '../../types/productoIntel.types';
 
 type VistaProductos = 'cards' | 'tabla';
@@ -54,6 +55,7 @@ export const ProductosIntel: React.FC = () => {
   } = useProductoIntelStore();
 
   const { getTCDelDia } = useTipoCambioStore();
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   // Estado local
   const [vistaProductos, setVistaProductos] = useState<VistaProductos>('tabla');
@@ -71,8 +73,10 @@ export const ProductosIntel: React.FC = () => {
     loadData();
   }, []);
 
-  // Productos filtrados + busqueda
+  // Productos filtrados + línea de negocio + búsqueda
   const productosFiltrados = getProductosFiltrados().filter(p => {
+    // Filtro por línea de negocio global
+    if (lineaFiltroGlobal && p.lineaNegocioId && p.lineaNegocioId !== lineaFiltroGlobal) return false;
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return (
@@ -104,9 +108,9 @@ export const ProductosIntel: React.FC = () => {
 
   // Tabs
   const tabs = [
-    { key: 'dashboard', label: 'Dashboard', icon: TrendingUp },
-    { key: 'productos', label: 'Productos', icon: Package, count: productosFiltrados.length },
-    { key: 'reposicion', label: 'Reposicion', icon: Wallet, count: sugerenciasReposicion.length }
+    { key: 'dashboard', label: 'Dashboard', shortLabel: 'Dashboard', icon: TrendingUp },
+    { key: 'productos', label: 'Productos', shortLabel: 'Productos', icon: Package, count: productosFiltrados.length },
+    { key: 'reposicion', label: 'Reposición', shortLabel: 'Repos.', icon: Wallet, count: sugerenciasReposicion.length }
   ];
 
   return (
@@ -121,9 +125,9 @@ export const ProductosIntel: React.FC = () => {
       {/* Toolbar */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             {/* Tabs */}
-            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <div className="flex justify-between bg-gray-100 rounded-lg p-1 gap-1 w-full sm:w-auto">
               {tabs.map(tab => {
                 const Icon = tab.icon;
                 const isActive = tabActiva === tab.key;
@@ -132,21 +136,32 @@ export const ProductosIntel: React.FC = () => {
                     key={tab.key}
                     onClick={() => setTabActiva(tab.key as TabActiva)}
                     className={`
-                      flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors
+                      flex-1 sm:flex-initial relative flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-1.5 rounded-md font-medium transition-colors
                       ${isActive
                         ? 'bg-white text-blue-600 shadow-sm'
                         : 'text-gray-600 hover:text-gray-900'}
                     `}
                   >
-                    <Icon className="h-4 w-4" />
-                    {tab.label}
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-blue-600' : ''}`} />
+                    <span className="text-[10px] leading-tight sm:hidden">{tab.shortLabel}</span>
+                    <span className="hidden sm:inline text-sm">{tab.label}</span>
                     {tab.count !== undefined && (
-                      <span className={`
-                        px-1.5 py-0.5 rounded text-xs
-                        ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'}
-                      `}>
-                        {tab.count}
-                      </span>
+                      <>
+                        {/* Mobile: badge superpuesto */}
+                        <span className={`
+                          sm:hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[9px] font-bold
+                          ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-400 text-white'}
+                        `}>
+                          {tab.count}
+                        </span>
+                        {/* Desktop: badge inline */}
+                        <span className={`
+                          hidden sm:inline px-1.5 py-0.5 rounded text-xs
+                          ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'}
+                        `}>
+                          {tab.count}
+                        </span>
+                      </>
                     )}
                   </button>
                 );
@@ -204,60 +219,30 @@ export const ProductosIntel: React.FC = () => {
         {tabActiva === 'dashboard' && (
           <div className="space-y-6">
             {/* KPIs principales */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Productos Activos</p>
-                    <p className="text-2xl font-bold text-gray-900">{productosIntel.length}</p>
-                  </div>
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <Package className="h-6 w-6 text-blue-600" />
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Alta Liquidez</p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {productosIntel.filter(p => p.liquidez.clasificacion === 'alta').length}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-green-100 rounded-lg">
-                    <TrendingUp className="h-6 w-6 text-green-600" />
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Caja Congelada</p>
-                    <p className="text-2xl font-bold text-red-600">
-                      {productosIntel.filter(p => p.liquidez.clasificacion === 'critica' || p.liquidez.clasificacion === 'baja').length}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-red-100 rounded-lg">
-                    <AlertTriangle className="h-6 w-6 text-red-600" />
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Reposicion Urgente</p>
-                    <p className="text-2xl font-bold text-purple-600">
-                      {sugerenciasReposicion.filter(s => s.urgencia === 'critica' || s.urgencia === 'alta').length}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-purple-100 rounded-lg">
-                    <Wallet className="h-6 w-6 text-purple-600" />
-                  </div>
-                </div>
-              </Card>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+              {[
+                { label: 'Productos Activos', value: productosIntel.length, color: 'blue', icon: Package, valueColor: 'text-gray-900' },
+                { label: 'Alta Liquidez', value: productosIntel.filter(p => p.liquidez.clasificacion === 'alta').length, color: 'green', icon: TrendingUp, valueColor: 'text-green-600' },
+                { label: 'Caja Congelada', value: productosIntel.filter(p => p.liquidez.clasificacion === 'critica' || p.liquidez.clasificacion === 'baja').length, color: 'red', icon: AlertTriangle, valueColor: 'text-red-600' },
+                { label: 'Repos. Urgente', value: sugerenciasReposicion.filter(s => s.urgencia === 'critica' || s.urgencia === 'alta').length, color: 'purple', icon: Wallet, valueColor: 'text-purple-600' },
+              ].map(kpi => {
+                const Icon = kpi.icon;
+                const bgMap: Record<string, string> = { blue: 'bg-blue-100', green: 'bg-green-100', red: 'bg-red-100', purple: 'bg-purple-100' };
+                const iconColorMap: Record<string, string> = { blue: 'text-blue-600', green: 'text-green-600', red: 'text-red-600', purple: 'text-purple-600' };
+                return (
+                  <Card key={kpi.label} className="p-3 sm:p-4">
+                    <div className="flex items-start justify-between gap-1">
+                      <div>
+                        <p className="text-[11px] sm:text-sm text-gray-500 leading-tight">{kpi.label}</p>
+                        <p className={`text-2xl sm:text-2xl font-bold ${kpi.valueColor} mt-1`}>{kpi.value}</p>
+                      </div>
+                      <div className={`p-1.5 sm:p-2.5 ${bgMap[kpi.color]} rounded-lg flex-shrink-0`}>
+                        <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${iconColorMap[kpi.color]}`} />
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
 
             {/* Resumen de caja + Flujo + Lead Time */}

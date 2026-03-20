@@ -48,6 +48,9 @@ interface CategoriaState {
   delete: (id: string) => Promise<void>;
   cambiarEstado: (id: string, estado: 'activa' | 'inactiva', userId: string) => Promise<void>;
 
+  // Filtrado por linea de negocio
+  getByLineaNegocio: (lineaNegocioId: string) => Categoria[];
+
   // Seleccion
   setCategoriaSeleccionada: (categoria: Categoria | null) => void;
   clearError: () => void;
@@ -279,6 +282,15 @@ export const useCategoriaStore = create<CategoriaState>((set, get) => ({
       set({ error: error.message, loading: false });
       throw error;
     }
+  },
+
+  // ============ FILTRADO POR LINEA DE NEGOCIO ============
+
+  getByLineaNegocio: (lineaNegocioId: string) => {
+    const { categoriasActivas } = get();
+    return categoriasActivas.filter(c =>
+      !c.lineaNegocioIds?.length || c.lineaNegocioIds.includes(lineaNegocioId)
+    );
   },
 
   // ============ SELECCION ============

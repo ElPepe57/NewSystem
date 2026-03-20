@@ -1,0 +1,3123 @@
+[
+  {
+    "_id": "3qrrW4ElKHWmwdNDzofs",
+    "numeroCotizacion": "COT-2026-017",
+    "nombreCliente": "Lu Carbajal",
+    "canal": "eX0jRdrn6dtfQXrpppfc",
+    "subtotalPEN": 127,
+    "totalPEN": 137,
+    "incluyeEnvio": false,
+    "diasVigencia": 7,
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T00:47:57.000Z",
+      "_seconds": 1773276477
+    },
+    "productosInteres": [
+      "ee5BnaREkJzON1mk99JL"
+    ],
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.39,
+      "costoEstimadoUSD": 20.443337622825755,
+      "costoEstimadoPEN": 69.30291454137931,
+      "margenEsperado": 45.43077595166983,
+      "utilidadEsperadaPEN": 57.69708545862069,
+      "productosEstimados": [
+        {
+          "productoId": "ee5BnaREkJzON1mk99JL",
+          "costoUnitarioEstimadoUSD": 20.443337622825755,
+          "margenEstimado": 45.43077595166983
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-03-05T00:47:57.000Z",
+        "_seconds": 1772671677
+      }
+    },
+    "costoEnvio": 10,
+    "direccionEntrega": "La Victoria ",
+    "provincia": "Lima",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T00:47:57.000Z",
+      "_seconds": 1772671677
+    },
+    "validadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "fechaValidacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T15:38:19.000Z",
+      "_seconds": 1772725099
+    },
+    "editadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T15:39:14.000Z",
+      "_seconds": 1772725154
+    },
+    "ventaId": "1Oasz6Xp5K8CxKoHhGnR",
+    "numeroVenta": "VT-2026-051",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T15:39:14.000Z",
+      "_seconds": 1772725154
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "sku": "SUP-0082",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "presentacion": "gomitas",
+        "contenido": "140",
+        "dosaje": "1 mg",
+        "cantidad": 1,
+        "precioUnitario": 127,
+        "subtotal": 127,
+        "stockDisponible": 1,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 1,
+          "stockUSA": 0,
+          "stockTotal": 1,
+          "fuenteRecomendada": "peru",
+          "cantidadDesdePeru": 1,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "costoEstimadoUSD": 20.730755172413794
+        }
+      }
+    ]
+  },
+  {
+    "_id": "3roOgp56gNWDwVzedKZV",
+    "numeroCotizacion": "COT-2026-009",
+    "nombreCliente": "Luis Alberto Mesahuanca Huamani",
+    "canal": "directo",
+    "subtotalPEN": 133,
+    "totalPEN": 133,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "ZBnpv34W2XfRX700HPMu"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "DC9JkGD56a6DajoFEoNb",
+    "direccionEntrega": "PPJJ viva el Perú comite 3 ll- 3",
+    "dniRuc": "75151669",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:42:31.000Z",
+      "_seconds": 1771346551
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 133,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-17T16:42:38.000Z",
+        "_seconds": 1771346558
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-20T16:42:38.000Z",
+        "_seconds": 1771605758
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:42:37.000Z",
+      "_seconds": 1771346557
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-18T16:42:48.000Z",
+      "_seconds": 1779122568
+    },
+    "adelanto": {
+      "id": "ADL-1771346568502-isbt34x5q",
+      "monto": 133,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-17T16:42:48.000Z",
+        "_seconds": 1771346568
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-17T16:42:48.000Z",
+        "_seconds": 1771346568
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-18T16:42:48.000Z",
+        "_seconds": 1779122568
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "ZBnpv34W2XfRX700HPMu",
+          "sku": "BMN-0066",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "zTBspGu4ixWQ39tPMuzS"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:42:47.000Z",
+      "_seconds": 1771346567
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:42:57.000Z",
+      "_seconds": 1771346577
+    },
+    "ventaId": "Os4D6fL9hxAFB6dXSBFf",
+    "numeroVenta": "VT-2026-025",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:42:57.000Z",
+      "_seconds": 1771346577
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "sku": "SUP-0066",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "DHA para Bebés",
+        "presentacion": "liquido",
+        "contenido": "2 oz",
+        "dosaje": "300 IU + 1050 mg",
+        "cantidad": 1,
+        "precioUnitario": 133,
+        "subtotal": 133,
+        "stockDisponible": 1,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 1,
+          "stockTotal": 1,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 20.040755172413792,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  },
+  {
+    "_id": "6WE6A6O3zRJPr0HtuMq9",
+    "numeroCotizacion": "COT-2026-016",
+    "nombreCliente": "Daniela Jauregui Bernal",
+    "canal": "dDmpSMch8PU6sTwFYftZ",
+    "subtotalPEN": 109,
+    "totalPEN": 116.25,
+    "incluyeEnvio": false,
+    "productosInteres": [
+      "x2PZdgiMDsum9EL3zdVw"
+    ],
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.39,
+      "costoEstimadoUSD": 15.348956802762133,
+      "costoEstimadoPEN": 52.03296356136364,
+      "margenEsperado": 52.2633361822352,
+      "utilidadEsperadaPEN": 56.96703643863636,
+      "productosEstimados": [
+        {
+          "productoId": "x2PZdgiMDsum9EL3zdVw",
+          "costoUnitarioEstimadoUSD": 15.348956802762133,
+          "margenEstimado": 52.2633361822352
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-03-04T17:12:17.000Z",
+        "_seconds": 1772644337
+      }
+    },
+    "clienteId": "kGi3QrCiaH33TWaUHz9X",
+    "costoEnvio": 7.25,
+    "direccionEntrega": "Jr. Manuel Quintana 155, Lima 15096, Perú",
+    "distrito": "Rimac",
+    "provincia": "Lima",
+    "codigoPostal": "15096",
+    "coordenadas": {
+      "lat": -12.0190093,
+      "lng": -77.03035249999999
+    },
+    "dniRuc": "75107763",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:12:17.000Z",
+      "_seconds": 1772644337
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 116.25,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-03-04T17:12:33.000Z",
+        "_seconds": 1772644353
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-03-07T17:12:33.000Z",
+        "_seconds": 1772903553
+      },
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:12:31.000Z",
+      "_seconds": 1772644351
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-06-02T17:12:57.000Z",
+      "_seconds": 1780420377
+    },
+    "adelanto": {
+      "id": "ADL-1772644377098-kfk1jdcdp",
+      "monto": 116.25,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-03-04T17:12:57.000Z",
+        "_seconds": 1772644377
+      },
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-03-04T17:12:57.000Z",
+        "_seconds": 1772644377
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-06-02T17:12:57.000Z",
+        "_seconds": 1780420377
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "x2PZdgiMDsum9EL3zdVw",
+          "sku": "BMN-0118",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "9OHnMS5t8ROY1KpxpsX6"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:12:55.000Z",
+      "_seconds": 1772644375
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:13:13.000Z",
+      "_seconds": 1772644393
+    },
+    "ventaId": "Yn6jN0PTUKRDniefsjRC",
+    "numeroVenta": "VT-2026-048",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T17:13:13.000Z",
+      "_seconds": 1772644393
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "contenido": "60",
+        "dosaje": "500000 mcg",
+        "cantidad": 1,
+        "precioUnitario": 109,
+        "subtotal": 109,
+        "stockDisponible": 4,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 4,
+          "stockTotal": 4,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 14.44631590909091,
+          "costoFleteEstimadoUSD": 4
+        }
+      }
+    ]
+  },
+  {
+    "_id": "6ibcUmTmmefTvbedu5Yg",
+    "numeroCotizacion": "COT-2026-019",
+    "nombreCliente": "Kelya Villarroel",
+    "canal": "eX0jRdrn6dtfQXrpppfc",
+    "subtotalPEN": 127,
+    "totalPEN": 137,
+    "incluyeEnvio": false,
+    "diasVigencia": 7,
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T03:17:13.000Z",
+      "_seconds": 1773371833
+    },
+    "productosInteres": [
+      "ZwOH29bDAayOc5VkBS8G"
+    ],
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.41,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "margenEsperado": 100,
+      "utilidadEsperadaPEN": 127,
+      "productosEstimados": [
+        {
+          "productoId": "ZwOH29bDAayOc5VkBS8G",
+          "costoUnitarioEstimadoUSD": 0,
+          "margenEstimado": 100
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-03-06T03:17:12.000Z",
+        "_seconds": 1772767032
+      }
+    },
+    "costoEnvio": 10,
+    "direccionEntrega": "Lima",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T03:17:14.000Z",
+      "_seconds": 1772767034
+    },
+    "estado": "rechazada",
+    "fechaRechazo": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T18:19:07.000Z",
+      "_seconds": 1772907547
+    },
+    "reservaStock": null,
+    "rechazo": {
+      "motivo": "sin_respuesta",
+      "descripcion": "Nunca respondio.",
+      "precioEsperado": null,
+      "competidor": null,
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "fechaRechazo": {
+        "_type": "timestamp",
+        "iso": "2026-03-07T18:19:07.000Z",
+        "_seconds": 1772907547
+      }
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T18:19:07.000Z",
+      "_seconds": 1772907547
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "ZwOH29bDAayOc5VkBS8G",
+        "sku": "SUP-0068",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "presentacion": "gomitas",
+        "contenido": "90",
+        "dosaje": "1 mg",
+        "cantidad": 1,
+        "precioUnitario": 127,
+        "subtotal": 127,
+        "stockDisponible": 0,
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "fuenteRecomendada": "virtual",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadVirtual": 1
+        }
+      }
+    ]
+  },
+  {
+    "_id": "9mV3ZIOiIqJ4Vk1sUfD7",
+    "numeroCotizacion": "COT-2026-013",
+    "nombreCliente": "Eduardo Isaac Ugaz",
+    "canal": "directo",
+    "subtotalPEN": 141,
+    "totalPEN": 141,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "T1jSnECR6ZJEWRZnvJSu"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.36,
+      "costoEstimadoUSD": 16.646105518267653,
+      "costoEstimadoPEN": 55.930914541379316,
+      "margenEsperado": 60.33268472242602,
+      "utilidadEsperadaPEN": 85.06908545862069,
+      "productosEstimados": [
+        {
+          "productoId": "T1jSnECR6ZJEWRZnvJSu",
+          "costoUnitarioEstimadoUSD": 16.646105518267653,
+          "margenEstimado": 60.33268472242602
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-20T15:37:21.000Z",
+        "_seconds": 1771601841
+      }
+    },
+    "clienteId": "N1MQkwR5C2UaWkcLhrq5",
+    "direccionEntrega": "Jirón Monte Real 479",
+    "dniRuc": "09867241",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:37:20.000Z",
+      "_seconds": 1771601840
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 141,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-20T15:37:28.000Z",
+        "_seconds": 1771601848
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-23T15:37:28.000Z",
+        "_seconds": 1771861048
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:37:26.000Z",
+      "_seconds": 1771601846
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-21T15:37:41.000Z",
+      "_seconds": 1779377861
+    },
+    "adelanto": {
+      "id": "ADL-1771601861027-ld38h3rmt",
+      "monto": 141,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-20T15:37:41.000Z",
+        "_seconds": 1771601861
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-20T15:37:41.000Z",
+        "_seconds": 1771601861
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-21T15:37:41.000Z",
+        "_seconds": 1779377861
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "T1jSnECR6ZJEWRZnvJSu",
+          "sku": "BMN-0052",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "eUiKbmGkGR8V0XoY5R1D"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:37:39.000Z",
+      "_seconds": 1771601859
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:37:49.000Z",
+      "_seconds": 1771601869
+    },
+    "ventaId": "UMRZg6uC4t43MpYhUB8e",
+    "numeroVenta": "VT-2026-030",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:37:49.000Z",
+      "_seconds": 1771601869
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "SUP-0052",
+        "marca": "Horbaach",
+        "nombreComercial": "Melena de León",
+        "presentacion": "capsulas",
+        "contenido": "120",
+        "dosaje": "4200 mg",
+        "cantidad": 1,
+        "precioUnitario": 141,
+        "subtotal": 141,
+        "stockDisponible": 3,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 3,
+          "stockTotal": 3,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 21.730755172413794,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  },
+  {
+    "_id": "DgiPy2J4tuOHMBAsS65Y",
+    "numeroCotizacion": "COT-2026-010",
+    "nombreCliente": "Maritere Armas Vargas",
+    "canal": "rMhnpLSCznENilD4q8mF",
+    "subtotalPEN": 140,
+    "totalPEN": 140,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "PMHT325MbPSS6vlAZjYP"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "TSGK5TFhU730YcSSIZqR",
+    "telefonoCliente": "917257796",
+    "direccionEntrega": "Jr Rimac 501",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T20:58:24.000Z",
+      "_seconds": 1771361904
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 10,
+      "porcentaje": 7,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-17T20:58:45.000Z",
+        "_seconds": 1771361925
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-20T20:58:45.000Z",
+        "_seconds": 1771621125
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T20:58:44.000Z",
+      "_seconds": 1771361924
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-18T20:59:45.000Z",
+      "_seconds": 1779137985
+    },
+    "adelanto": {
+      "id": "ADL-1771361985433-h2ka039px",
+      "monto": 10,
+      "moneda": "PEN",
+      "metodoPago": "yape",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-17T20:59:45.000Z",
+        "_seconds": 1771361985
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "4L7GHZfCKWTcSnkd5fdg"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-17T20:59:45.000Z",
+        "_seconds": 1771361985
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-18T20:59:45.000Z",
+        "_seconds": 1779137985
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "PMHT325MbPSS6vlAZjYP",
+          "sku": "BMN-0040",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "6SDFV9ZKf1LdipzEK9zO"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T20:59:44.000Z",
+      "_seconds": 1771361984
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T20:59:55.000Z",
+      "_seconds": 1771361995
+    },
+    "ventaId": "sw2wkWBHPYZiHvCZF4z4",
+    "numeroVenta": "VT-2026-026",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T20:59:55.000Z",
+      "_seconds": 1771361995
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "sku": "SUP-0040",
+        "marca": "Microingredients",
+        "nombreComercial": "D3 + K2",
+        "presentacion": "capsulas_blandas",
+        "contenido": "300",
+        "dosaje": "10000 IU + 200 mcg",
+        "cantidad": 1,
+        "precioUnitario": 140,
+        "subtotal": 140,
+        "stockDisponible": 2,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 2,
+          "stockTotal": 2,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 28.040755172413792,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  },
+  {
+    "_id": "ExvT9cYRVLcX0hfhx2ut",
+    "numeroCotizacion": "COT-2026-002",
+    "nombreCliente": "Greta Peru SAC",
+    "canal": "directo",
+    "subtotalPEN": 154,
+    "totalPEN": 154,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "zvgeNdMI7J0Qd6na0FzG"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "34II9b6AwD2qeZjtZgmk",
+    "direccionEntrega": "Avenida Jose Pardo 434",
+    "dniRuc": "20506985308",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T19:21:26.000Z",
+      "_seconds": 1770319286
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 154,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-05T19:21:36.000Z",
+        "_seconds": 1770319296
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-08T19:21:36.000Z",
+        "_seconds": 1770578496
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T19:21:36.000Z",
+      "_seconds": 1770319296
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-06T19:22:01.000Z",
+      "_seconds": 1778095321
+    },
+    "requerimientosNumeros": [
+      "REQ-2026-0002"
+    ],
+    "adelanto": {
+      "id": "ADL-1770319321900-kbleknvuo",
+      "monto": 154,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-05T19:22:01.000Z",
+        "_seconds": 1770319321
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "virtual",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-05T19:22:01.000Z",
+        "_seconds": 1770319321
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-06T19:22:01.000Z",
+        "_seconds": 1778095321
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "zvgeNdMI7J0Qd6na0FzG",
+          "sku": "BMN-0123",
+          "cantidad": 1,
+          "unidadesReservadas": []
+        }
+      ],
+      "stockVirtual": {
+        "productosVirtuales": [
+          {
+            "productoId": "zvgeNdMI7J0Qd6na0FzG",
+            "sku": "BMN-0123",
+            "nombreProducto": "Double Wood Magnesio Glicinato",
+            "cantidadRequerida": 1,
+            "cantidadDisponible": 0,
+            "cantidadFaltante": 1
+          }
+        ],
+        "requerimientoId": "RzMjljpJCl0vFdk2kr4K",
+        "fechaEstimadaStock": {
+          "_type": "timestamp",
+          "iso": "2026-03-07T19:22:01.000Z",
+          "_seconds": 1772911321
+        }
+      }
+    },
+    "requerimientosIds": [
+      "RzMjljpJCl0vFdk2kr4K"
+    ],
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T19:22:01.000Z",
+      "_seconds": 1770319321
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T19:22:10.000Z",
+      "_seconds": 1770319330
+    },
+    "ventaId": "rPwmrRRraaerWBCXC62M",
+    "numeroVenta": "VT-2026-016",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T19:22:10.000Z",
+      "_seconds": 1770319330
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "contenido": "180",
+        "dosaje": "400 mg",
+        "cantidad": 1,
+        "precioUnitario": 154,
+        "subtotal": 154,
+        "stockDisponible": 0,
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "fuenteRecomendada": "virtual",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadVirtual": 1
+        }
+      }
+    ]
+  },
+  {
+    "_id": "MSLnyTqQHElURdDfkwZQ",
+    "numeroCotizacion": "COT-2026-012",
+    "nombreCliente": "Jonatan Calderón",
+    "canal": "directo",
+    "subtotalPEN": 153,
+    "totalPEN": 153,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "zvgeNdMI7J0Qd6na0FzG"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.35,
+      "costoEstimadoUSD": 15.757759564590838,
+      "costoEstimadoPEN": 52.78849454137931,
+      "margenEsperado": 65.49771598602659,
+      "utilidadEsperadaPEN": 100.21150545862069,
+      "productosEstimados": [
+        {
+          "productoId": "zvgeNdMI7J0Qd6na0FzG",
+          "costoUnitarioEstimadoUSD": 15.757759564590838,
+          "margenEstimado": 65.49771598602659
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T15:41:57.000Z",
+        "_seconds": 1771515717
+      }
+    },
+    "clienteId": "BIPgZKYNkxKLgieQDFGC",
+    "direccionEntrega": "Avenida General Santa Cruz 427",
+    "dniRuc": "43371649",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:41:58.000Z",
+      "_seconds": 1771515718
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 153,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T15:42:06.000Z",
+        "_seconds": 1771515726
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-22T15:42:06.000Z",
+        "_seconds": 1771774926
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:42:07.000Z",
+      "_seconds": 1771515727
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-20T15:42:20.000Z",
+      "_seconds": 1779291740
+    },
+    "requerimientosNumeros": [
+      "REQ-2026-0017"
+    ],
+    "adelanto": {
+      "id": "ADL-1771515740173-w2crp60jf",
+      "monto": 153,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T15:42:20.000Z",
+        "_seconds": 1771515740
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "virtual",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T15:42:20.000Z",
+        "_seconds": 1771515740
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-20T15:42:20.000Z",
+        "_seconds": 1779291740
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "zvgeNdMI7J0Qd6na0FzG",
+          "sku": "BMN-0123",
+          "cantidad": 1,
+          "unidadesReservadas": []
+        }
+      ],
+      "stockVirtual": {
+        "productosVirtuales": [
+          {
+            "productoId": "zvgeNdMI7J0Qd6na0FzG",
+            "sku": "BMN-0123",
+            "nombreProducto": "Double Wood Magnesio Glicinato",
+            "cantidadRequerida": 1,
+            "cantidadDisponible": 0,
+            "cantidadFaltante": 1
+          }
+        ],
+        "requerimientoId": "k9BdcnnHOc632UritmEf",
+        "fechaEstimadaStock": {
+          "_type": "timestamp",
+          "iso": "2026-03-21T15:42:20.000Z",
+          "_seconds": 1774107740
+        }
+      }
+    },
+    "requerimientosIds": [
+      "k9BdcnnHOc632UritmEf"
+    ],
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:42:20.000Z",
+      "_seconds": 1771515740
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:42:30.000Z",
+      "_seconds": 1771515750
+    },
+    "ventaId": "MtozMe6KVXf74nsIfPPY",
+    "numeroVenta": "VT-2026-029",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:42:30.000Z",
+      "_seconds": 1771515750
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "contenido": "180",
+        "dosaje": "400 mg",
+        "cantidad": 1,
+        "precioUnitario": 153,
+        "subtotal": 153,
+        "stockDisponible": 0,
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "fuenteRecomendada": "virtual",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadVirtual": 1,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  },
+  {
+    "_id": "NOlcYTvZxJ4P4bcgMiBY",
+    "numeroCotizacion": "COT-2026-015",
+    "nombreCliente": "Jessica Fierro",
+    "canal": "dDmpSMch8PU6sTwFYftZ",
+    "subtotalPEN": 118,
+    "totalPEN": 118,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "cm1DlC2fgngkGl8eIckM"
+    ],
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.35,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "margenEsperado": 100,
+      "utilidadEsperadaPEN": 118,
+      "productosEstimados": [
+        {
+          "productoId": "cm1DlC2fgngkGl8eIckM",
+          "costoUnitarioEstimadoUSD": 0,
+          "margenEstimado": 100
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-03-03T02:35:43.000Z",
+        "_seconds": 1772505343
+      }
+    },
+    "clienteId": "abVv3sXqRWU0Fzq3AyHN",
+    "direccionEntrega": "Los Jilgueros 171, Lima 15009, Perú",
+    "distrito": "Santa Anita",
+    "provincia": "Lima",
+    "codigoPostal": "15009",
+    "referencia": "1er piso Referencia: Recta del centro médico Mayo",
+    "coordenadas": {
+      "lat": -12.0499418,
+      "lng": -76.966016
+    },
+    "dniRuc": "42978890",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:35:43.000Z",
+      "_seconds": 1772505343
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 118,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-03-03T02:35:52.000Z",
+        "_seconds": 1772505352
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-03-06T02:35:52.000Z",
+        "_seconds": 1772764552
+      },
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:35:52.000Z",
+      "_seconds": 1772505352
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-06-01T02:36:41.000Z",
+      "_seconds": 1780281401
+    },
+    "requerimientosNumeros": [
+      "REQ-2026-0021"
+    ],
+    "adelanto": {
+      "id": "ADL-1772505401289-c7o0eu8m5",
+      "monto": 118,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-03-03T02:36:41.000Z",
+        "_seconds": 1772505401
+      },
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "virtual",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-03-03T02:36:41.000Z",
+        "_seconds": 1772505401
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-06-01T02:36:41.000Z",
+        "_seconds": 1780281401
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "cm1DlC2fgngkGl8eIckM",
+          "sku": "BMN-0077",
+          "cantidad": 1,
+          "unidadesReservadas": []
+        }
+      ],
+      "stockVirtual": {
+        "productosVirtuales": [
+          {
+            "productoId": "cm1DlC2fgngkGl8eIckM",
+            "sku": "BMN-0077",
+            "nombreProducto": "Carlyle Vitamina C Liposomal",
+            "cantidadRequerida": 1,
+            "cantidadDisponible": 0,
+            "cantidadFaltante": 1
+          }
+        ],
+        "requerimientoId": "shHemXi9iT9lWffDs1Qh",
+        "fechaEstimadaStock": {
+          "_type": "timestamp",
+          "iso": "2026-04-02T02:36:41.000Z",
+          "_seconds": 1775097401
+        }
+      }
+    },
+    "requerimientosIds": [
+      "shHemXi9iT9lWffDs1Qh"
+    ],
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:36:41.000Z",
+      "_seconds": 1772505401
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:36:54.000Z",
+      "_seconds": 1772505414
+    },
+    "ventaId": "SkMDUHj6SeF9S7uUZzWT",
+    "numeroVenta": "VT-2026-047",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:36:54.000Z",
+      "_seconds": 1772505414
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "sku": "SUP-0077",
+        "marca": "Carlyle",
+        "nombreComercial": "Vitamina C Liposomal",
+        "presentacion": "capsulas_blandas",
+        "contenido": "90",
+        "dosaje": "2200 mg",
+        "cantidad": 1,
+        "precioUnitario": 118,
+        "subtotal": 118,
+        "stockDisponible": 0,
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "fuenteRecomendada": "virtual",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadVirtual": 1
+        }
+      }
+    ]
+  },
+  {
+    "_id": "Ogimdk3UOnFJ3M6E3q0k",
+    "numeroCotizacion": "COT-2026-020",
+    "nombreCliente": "Alexandra Chau",
+    "canal": "",
+    "subtotalPEN": 127,
+    "totalPEN": 137,
+    "incluyeEnvio": false,
+    "diasVigencia": 7,
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T03:19:46.000Z",
+      "_seconds": 1773371986
+    },
+    "productosInteres": [
+      "ZwOH29bDAayOc5VkBS8G"
+    ],
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.41,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "margenEsperado": 100,
+      "utilidadEsperadaPEN": 127,
+      "productosEstimados": [
+        {
+          "productoId": "ZwOH29bDAayOc5VkBS8G",
+          "costoUnitarioEstimadoUSD": 0,
+          "margenEstimado": 100
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-03-06T03:19:45.000Z",
+        "_seconds": 1772767185
+      }
+    },
+    "costoEnvio": 10,
+    "direccionEntrega": "Rimac",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T03:19:46.000Z",
+      "_seconds": 1772767186
+    },
+    "estado": "rechazada",
+    "fechaRechazo": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T18:18:23.000Z",
+      "_seconds": 1772907503
+    },
+    "reservaStock": null,
+    "rechazo": {
+      "motivo": "sin_respuesta",
+      "descripcion": "Nunca mando mensaje. ",
+      "precioEsperado": null,
+      "competidor": null,
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "fechaRechazo": {
+        "_type": "timestamp",
+        "iso": "2026-03-07T18:18:23.000Z",
+        "_seconds": 1772907503
+      }
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T18:18:23.000Z",
+      "_seconds": 1772907503
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "ZwOH29bDAayOc5VkBS8G",
+        "sku": "SUP-0068",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "presentacion": "gomitas",
+        "contenido": "90",
+        "dosaje": "1 mg",
+        "cantidad": 1,
+        "precioUnitario": 127,
+        "subtotal": 127,
+        "stockDisponible": 0,
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "fuenteRecomendada": "virtual",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadVirtual": 1
+        }
+      }
+    ]
+  },
+  {
+    "_id": "PKHuJHvLpmG6Cx8vgpS9",
+    "numeroCotizacion": "COT-2026-023",
+    "nombreCliente": "Daniel Automachi",
+    "canal": "",
+    "productos": [
+      {
+        "productoId": "ZwOH29bDAayOc5VkBS8G",
+        "sku": "SUP-0068",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "presentacion": "gomitas",
+        "contenido": "90",
+        "dosaje": "1 mg",
+        "cantidad": 1,
+        "precioUnitario": 123,
+        "subtotal": 123,
+        "stockDisponible": 0,
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "fuenteRecomendada": "virtual",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadVirtual": 1
+        }
+      }
+    ],
+    "subtotalPEN": 123,
+    "totalPEN": 133,
+    "incluyeEnvio": false,
+    "estado": "nueva",
+    "diasVigencia": 7,
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-03-25T04:12:03.000Z",
+      "_seconds": 1774411923
+    },
+    "productosInteres": [
+      "ZwOH29bDAayOc5VkBS8G"
+    ],
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.44,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "margenEsperado": 100,
+      "utilidadEsperadaPEN": 123,
+      "productosEstimados": [
+        {
+          "productoId": "ZwOH29bDAayOc5VkBS8G",
+          "costoUnitarioEstimadoUSD": 0,
+          "margenEstimado": 100
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-03-18T04:12:03.000Z",
+        "_seconds": 1773807123
+      }
+    },
+    "costoEnvio": 10,
+    "direccionEntrega": "surco",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-18T04:12:06.000Z",
+      "_seconds": 1773807126
+    }
+  },
+  {
+    "_id": "PqPef3ikwt5V609pbK4h",
+    "numeroCotizacion": "COT-2026-001",
+    "nombreCliente": "Fabricio Omar Rios",
+    "canal": "directo",
+    "subtotalPEN": 160,
+    "totalPEN": 160,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "74CoJ5vsITU5wOkTvAtf"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "0KSaDFRytD2e0ST9vuLk",
+    "telefonoCliente": "971403753",
+    "direccionEntrega": "Av Lima 3131",
+    "dniRuc": "09907409",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T17:55:31.000Z",
+      "_seconds": 1770141331
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "tiempoEstimadoImportacion": 15,
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 160,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-03T17:55:50.000Z",
+        "_seconds": 1770141350
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-06T17:55:50.000Z",
+        "_seconds": 1770400550
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T17:55:49.000Z",
+      "_seconds": 1770141349
+    },
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-04T17:56:11.000Z",
+      "_seconds": 1777917371
+    },
+    "requerimientosNumeros": [
+      "REQ-2026-0001"
+    ],
+    "adelanto": {
+      "id": "ADL-1770141371303-7uavdi38j",
+      "monto": 160,
+      "moneda": "PEN",
+      "metodoPago": "yape",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-03T17:56:11.000Z",
+        "_seconds": 1770141371
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "4L7GHZfCKWTcSnkd5fdg"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "virtual",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-03T17:56:11.000Z",
+        "_seconds": 1770141371
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-04T17:56:11.000Z",
+        "_seconds": 1777917371
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "74CoJ5vsITU5wOkTvAtf",
+          "sku": "BMN-0124",
+          "cantidad": 1,
+          "unidadesReservadas": []
+        }
+      ],
+      "stockVirtual": {
+        "productosVirtuales": [
+          {
+            "productoId": "74CoJ5vsITU5wOkTvAtf",
+            "sku": "BMN-0124",
+            "nombreProducto": "Youtheory Collagen + Biotin Verisol",
+            "cantidadRequerida": 1,
+            "cantidadDisponible": 0,
+            "cantidadFaltante": 1
+          }
+        ],
+        "requerimientoId": "0MsMURRH1VCs3d49B428",
+        "fechaEstimadaStock": {
+          "_type": "timestamp",
+          "iso": "2026-03-05T17:56:11.000Z",
+          "_seconds": 1772733371
+        }
+      }
+    },
+    "requerimientosIds": [
+      "0MsMURRH1VCs3d49B428"
+    ],
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T17:56:10.000Z",
+      "_seconds": 1770141370
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T17:57:17.000Z",
+      "_seconds": 1770141437
+    },
+    "ventaId": "ZjxOXqMEn16OYqRS7KF8",
+    "numeroVenta": "VT-2026-013",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T17:57:17.000Z",
+      "_seconds": 1770141437
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "SUP-0124",
+        "marca": "Youtheory",
+        "nombreComercial": "Collagen + Biotin Verisol",
+        "presentacion": "Capsulas Blandas",
+        "contenido": "345",
+        "dosaje": "2500 mg + 1500 mcg",
+        "cantidad": 1,
+        "precioUnitario": 160,
+        "subtotal": 160,
+        "stockDisponible": 0,
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "fuenteRecomendada": "virtual",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadVirtual": 1
+        }
+      }
+    ]
+  },
+  {
+    "_id": "SOujmGuakbAYQbyBuyn9",
+    "numeroCotizacion": "COT-2026-022",
+    "nombreCliente": "Guliana Fernandez",
+    "canal": "eX0jRdrn6dtfQXrpppfc",
+    "subtotalPEN": 125,
+    "totalPEN": 135,
+    "incluyeEnvio": false,
+    "productosInteres": [
+      "ZwOH29bDAayOc5VkBS8G"
+    ],
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.43,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "margenEsperado": 100,
+      "utilidadEsperadaPEN": 125,
+      "productosEstimados": [
+        {
+          "productoId": "ZwOH29bDAayOc5VkBS8G",
+          "costoUnitarioEstimadoUSD": 0,
+          "margenEstimado": 100
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-03-08T20:01:29.000Z",
+        "_seconds": 1773000089
+      }
+    },
+    "costoEnvio": 10,
+    "telefonoCliente": "985017617",
+    "direccionEntrega": "Pasaje 2 Manuel Cipriano Dulanto 180 Dpto 508",
+    "distrito": "pueblo libre",
+    "provincia": "lima",
+    "referencia": "Cuadra 18de Av manuel cipriano dulanto ",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T20:01:32.000Z",
+      "_seconds": 1773000092
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 135,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-03-09T04:51:52.000Z",
+        "_seconds": 1773031912
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-03-12T04:51:52.000Z",
+        "_seconds": 1773291112
+      },
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:51:52.000Z",
+      "_seconds": 1773031912
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-06-07T04:52:06.000Z",
+      "_seconds": 1780807926
+    },
+    "requerimientosNumeros": [
+      "REQ-2026-0023"
+    ],
+    "adelanto": {
+      "id": "ADL-1773031926944-i74azhifq",
+      "monto": 135,
+      "moneda": "PEN",
+      "metodoPago": "plin",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-03-09T04:52:06.000Z",
+        "_seconds": 1773031926
+      },
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "cuentaDestinoId": "nlIJ1Eegox0LfdjSl8w3"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "virtual",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-03-09T04:52:06.000Z",
+        "_seconds": 1773031926
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-06-07T04:52:06.000Z",
+        "_seconds": 1780807926
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "ZwOH29bDAayOc5VkBS8G",
+          "sku": "BMN-0068",
+          "cantidad": 1,
+          "unidadesReservadas": []
+        }
+      ],
+      "stockVirtual": {
+        "productosVirtuales": [
+          {
+            "productoId": "ZwOH29bDAayOc5VkBS8G",
+            "sku": "BMN-0068",
+            "nombreProducto": "Natrol Gomitas de Melatonina para Niños",
+            "cantidadRequerida": 1,
+            "cantidadDisponible": 0,
+            "cantidadFaltante": 1
+          }
+        ],
+        "requerimientoId": "SlJW5RGvpfwIhfgeXrFe",
+        "fechaEstimadaStock": {
+          "_type": "timestamp",
+          "iso": "2026-04-08T04:52:06.000Z",
+          "_seconds": 1775623926
+        }
+      }
+    },
+    "requerimientosIds": [
+      "SlJW5RGvpfwIhfgeXrFe"
+    ],
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:52:07.000Z",
+      "_seconds": 1773031927
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:52:16.000Z",
+      "_seconds": 1773031936
+    },
+    "ventaId": "G9cGackfODP8A8KnWJlW",
+    "numeroVenta": "VT-2026-063",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T17:28:57.000Z",
+      "_seconds": 1773077337
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "contenido": "140",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "dosaje": "1 mg",
+        "cantidad": 1,
+        "precioUnitario": 125,
+        "subtotal": 125,
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "marca": "Natrol",
+        "stockDisponible": 0,
+        "sku": "SUP-0082",
+        "presentacion": "gomitas",
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "cantidadVirtual": 1,
+          "cantidadDesdeUSA": 0,
+          "fuenteRecomendada": "virtual",
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadDesdePeru": 0,
+          "stockPeru": 0
+        }
+      }
+    ]
+  },
+  {
+    "_id": "X8iMnHUEpjtpQX7Ef2Z5",
+    "numeroCotizacion": "COT-2026-007",
+    "nombreCliente": "Philip Carl Staaf",
+    "canal": "directo",
+    "subtotalPEN": 153,
+    "totalPEN": 153,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "zvgeNdMI7J0Qd6na0FzG"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "suPQbGaGYBZTGCH4GFLE",
+    "direccionEntrega": "Jirón Tacna 951",
+    "dniRuc": "CE 001310905",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:15:26.000Z",
+      "_seconds": 1770840926
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 153,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T20:15:35.000Z",
+        "_seconds": 1770840935
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-14T20:15:35.000Z",
+        "_seconds": 1771100135
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:15:34.000Z",
+      "_seconds": 1770840934
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-12T20:15:53.000Z",
+      "_seconds": 1778616953
+    },
+    "adelanto": {
+      "id": "ADL-1770840953777-woltptmon",
+      "monto": 153,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T20:15:53.000Z",
+        "_seconds": 1770840953
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T20:15:53.000Z",
+        "_seconds": 1770840953
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-12T20:15:53.000Z",
+        "_seconds": 1778616953
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "zvgeNdMI7J0Qd6na0FzG",
+          "sku": "BMN-0123",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "5vSofYnd0homp6fT3Wzd"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:15:52.000Z",
+      "_seconds": 1770840952
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:16:05.000Z",
+      "_seconds": 1770840965
+    },
+    "ventaId": "zAmoVmSIob76ZRJHO7J0",
+    "numeroVenta": "VT-2026-023",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:16:05.000Z",
+      "_seconds": 1770840965
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "presentacion": "capsulas",
+        "contenido": "180",
+        "dosaje": "400 mg",
+        "cantidad": 1,
+        "precioUnitario": 153,
+        "subtotal": 153,
+        "stockDisponible": 2,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 2,
+          "stockTotal": 2,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 20.790755172413792,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  },
+  {
+    "_id": "XYf79fog7XeGhxxwL95m",
+    "numeroCotizacion": "COT-2026-004",
+    "nombreCliente": "Daniela Jauregui Bernal",
+    "canal": "directo",
+    "subtotalPEN": 121,
+    "totalPEN": 121,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "x2PZdgiMDsum9EL3zdVw"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "kGi3QrCiaH33TWaUHz9X",
+    "direccionEntrega": "Jirón Manuel quintana 155",
+    "dniRuc": "75107763",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:57:12.000Z",
+      "_seconds": 1770616632
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 121,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-09T05:57:20.000Z",
+        "_seconds": 1770616640
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-12T05:57:20.000Z",
+        "_seconds": 1770875840
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:57:20.000Z",
+      "_seconds": 1770616640
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-10T05:57:33.000Z",
+      "_seconds": 1778392653
+    },
+    "adelanto": {
+      "id": "ADL-1770616653304-uvtikheet",
+      "monto": 121,
+      "moneda": "PEN",
+      "metodoPago": "yape",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-09T05:57:33.000Z",
+        "_seconds": 1770616653
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-09T05:57:33.000Z",
+        "_seconds": 1770616653
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-10T05:57:33.000Z",
+        "_seconds": 1778392653
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "x2PZdgiMDsum9EL3zdVw",
+          "sku": "BMN-0118",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "JWUOSOf5Xq8BQBOcUzX3"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:57:33.000Z",
+      "_seconds": 1770616653
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:57:43.000Z",
+      "_seconds": 1770616663
+    },
+    "ventaId": "rKfnavWz5vPLN9FiDftb",
+    "numeroVenta": "VT-2026-018",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:57:43.000Z",
+      "_seconds": 1770616663
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "contenido": "60",
+        "dosaje": "500000 mcg",
+        "cantidad": 1,
+        "precioUnitario": 121,
+        "subtotal": 121,
+        "stockDisponible": 3,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 3,
+          "stockTotal": 3,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 15.430755172413793,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  },
+  {
+    "_id": "ZO0U3ifGr4MuWfTGgW4x",
+    "numeroCotizacion": "COT-2026-018",
+    "nombreCliente": "Mimi Herrera",
+    "canal": "eX0jRdrn6dtfQXrpppfc",
+    "subtotalPEN": 129.9,
+    "incluyeEnvio": false,
+    "productosInteres": [
+      "ee5BnaREkJzON1mk99JL"
+    ],
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.39,
+      "costoEstimadoUSD": 20.443337622825755,
+      "costoEstimadoPEN": 69.30291454137931,
+      "margenEsperado": 46.64902652703672,
+      "utilidadEsperadaPEN": 60.5970854586207,
+      "productosEstimados": [
+        {
+          "productoId": "ee5BnaREkJzON1mk99JL",
+          "costoUnitarioEstimadoUSD": 20.443337622825755,
+          "margenEstimado": 46.64902652703672
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-03-05T00:50:49.000Z",
+        "_seconds": 1772671849
+      }
+    },
+    "provincia": "Lima",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T00:50:52.000Z",
+      "_seconds": 1772671852
+    },
+    "costoEnvio": 10,
+    "distrito": "San Isidro",
+    "direccionEntrega": "San Isidro, Perú",
+    "coordenadas": {
+      "lat": -12.0970431,
+      "lng": -77.03393710000002
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-03-08T00:50:52.000Z",
+      "_seconds": 1772931052
+    },
+    "totalPEN": 139.9,
+    "descuento": 0,
+    "diasVigencia": 7,
+    "estado": "rechazada",
+    "fechaRechazo": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T23:15:38.000Z",
+      "_seconds": 1772752538
+    },
+    "reservaStock": null,
+    "rechazo": {
+      "motivo": "sin_respuesta",
+      "descripcion": "No respondio el cliente.",
+      "precioEsperado": null,
+      "competidor": null,
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "fechaRechazo": {
+        "_type": "timestamp",
+        "iso": "2026-03-05T23:15:38.000Z",
+        "_seconds": 1772752538
+      }
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-05T23:15:38.000Z",
+      "_seconds": 1772752538
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "sku": "SUP-0082",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "presentacion": "gomitas",
+        "cantidad": 1,
+        "precioUnitario": 129.9,
+        "subtotal": 129.9,
+        "stockDisponible": 1,
+        "requiereStock": false
+      }
+    ]
+  },
+  {
+    "_id": "iRFZ51qOjJHLlBK1RGgA",
+    "numeroCotizacion": "COT-2026-003",
+    "nombreCliente": "Emilio González",
+    "canal": "directo",
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "c6OgoqaPmVZ0KuUuayEh"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "ZiaqrG8fnNRfro8lLBTF",
+    "direccionEntrega": "Jirón Manuel Villavicencio 825",
+    "dniRuc": "CE 002460210",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T05:18:07.000Z",
+      "_seconds": 1770527887
+    },
+    "totalPEN": 237,
+    "subtotalPEN": 237,
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 237,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-08T05:18:26.000Z",
+        "_seconds": 1770527906
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T05:18:26.000Z",
+        "_seconds": 1770787106
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T05:18:26.000Z",
+      "_seconds": 1770527906
+    },
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-09T05:18:37.000Z",
+      "_seconds": 1778303917
+    },
+    "requerimientosNumeros": [
+      "REQ-2026-0003"
+    ],
+    "adelanto": {
+      "id": "ADL-1770527917005-npcxyd0pu",
+      "monto": 237,
+      "moneda": "PEN",
+      "metodoPago": "yape",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-08T05:18:37.000Z",
+        "_seconds": 1770527917
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "virtual",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-08T05:18:37.000Z",
+        "_seconds": 1770527917
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-09T05:18:37.000Z",
+        "_seconds": 1778303917
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "c6OgoqaPmVZ0KuUuayEh",
+          "sku": "BMN-0076",
+          "cantidad": 1,
+          "unidadesReservadas": []
+        }
+      ],
+      "stockVirtual": {
+        "productosVirtuales": [
+          {
+            "productoId": "c6OgoqaPmVZ0KuUuayEh",
+            "sku": "BMN-0076",
+            "nombreProducto": "Microingredients Complejo B",
+            "cantidadRequerida": 1,
+            "cantidadDisponible": 0,
+            "cantidadFaltante": 1
+          }
+        ],
+        "requerimientoId": "znGukqEPLcRvPqckX3EI",
+        "fechaEstimadaStock": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T05:18:37.000Z",
+          "_seconds": 1773119917
+        }
+      }
+    },
+    "requerimientosIds": [
+      "znGukqEPLcRvPqckX3EI"
+    ],
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T05:18:37.000Z",
+      "_seconds": 1770527917
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T05:18:51.000Z",
+      "_seconds": 1770527931
+    },
+    "ventaId": "pA9DWKhmhU9TRCrHwmAS",
+    "numeroVenta": "VT-2026-017",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T05:18:51.000Z",
+      "_seconds": 1770527931
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "marca": "Microingredients",
+        "nombreComercial": "Complejo B",
+        "presentacion": "capsulas",
+        "cantidad": 1,
+        "precioUnitario": 237,
+        "subtotal": 237,
+        "stockDisponible": 0,
+        "requiereStock": true
+      }
+    ]
+  },
+  {
+    "_id": "ihGbCYQN1mLdfwKAwZhH",
+    "numeroCotizacion": "COT-2026-006",
+    "nombreCliente": "Bolivar Rodriguez Jatniel",
+    "canal": "directo",
+    "subtotalPEN": 121,
+    "totalPEN": 121,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "x2PZdgiMDsum9EL3zdVw"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "ad6uVi7PyiZOg7MnAJkg",
+    "direccionEntrega": "Av. Manuel A. Odria S.N Hospital Solidaridad Consultorios 10 y 11 SN",
+    "dniRuc": "15603114865",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:34:39.000Z",
+      "_seconds": 1770780879
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 121,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T03:34:49.000Z",
+        "_seconds": 1770780889
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-14T03:34:49.000Z",
+        "_seconds": 1771040089
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:34:48.000Z",
+      "_seconds": 1770780888
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-12T03:35:02.000Z",
+      "_seconds": 1778556902
+    },
+    "adelanto": {
+      "id": "ADL-1770780902700-1amt9eb0b",
+      "monto": 121,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T03:35:02.000Z",
+        "_seconds": 1770780902
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T03:35:02.000Z",
+        "_seconds": 1770780902
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-12T03:35:02.000Z",
+        "_seconds": 1778556902
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "x2PZdgiMDsum9EL3zdVw",
+          "sku": "BMN-0118",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "JWUOSOf5Xq8BQBOcUzX3"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:35:02.000Z",
+      "_seconds": 1770780902
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:35:16.000Z",
+      "_seconds": 1770780916
+    },
+    "ventaId": "JpWZ7VDMhZBrZtSJtJew",
+    "numeroVenta": "VT-2026-021",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:35:16.000Z",
+      "_seconds": 1770780916
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "presentacion": "capsulas",
+        "contenido": "60",
+        "dosaje": "500000 mcg",
+        "cantidad": 1,
+        "precioUnitario": 121,
+        "subtotal": 121,
+        "stockDisponible": 1,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 1,
+          "stockTotal": 1,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 15.430755172413793,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  },
+  {
+    "_id": "knBvAfbW6zy9KnLOyXOv",
+    "numeroCotizacion": "COT-2026-008",
+    "nombreCliente": "Dante Cunti Pérez",
+    "canal": "dDmpSMch8PU6sTwFYftZ",
+    "subtotalPEN": 158,
+    "totalPEN": 158,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "1VDeFEayBxezNWGhhH2S"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "FLlB3bjxHa2t08WQHeri",
+    "dniRuc": "46193094",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:37:08.000Z",
+      "_seconds": 1770874628
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 158,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-12T05:37:17.000Z",
+        "_seconds": 1770874637
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-15T05:37:17.000Z",
+        "_seconds": 1771133837
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:37:14.000Z",
+      "_seconds": 1770874634
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-13T05:37:27.000Z",
+      "_seconds": 1778650647
+    },
+    "adelanto": {
+      "id": "ADL-1770874647759-zm48gc5f3",
+      "monto": 158,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-12T05:37:27.000Z",
+        "_seconds": 1770874647
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-12T05:37:27.000Z",
+        "_seconds": 1770874647
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-13T05:37:27.000Z",
+        "_seconds": 1778650647
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "1VDeFEayBxezNWGhhH2S",
+          "sku": "BMN-0004",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "d1kcxjsXjcNP01jiIKNJ"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:37:25.000Z",
+      "_seconds": 1770874645
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:37:34.000Z",
+      "_seconds": 1770874654
+    },
+    "ventaId": "WaJIl6tnLWYDWgDUl3UE",
+    "numeroVenta": "VT-2026-024",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:37:34.000Z",
+      "_seconds": 1770874654
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "SUP-0004",
+        "marca": "Carlyle",
+        "nombreComercial": "Ashwagandha",
+        "presentacion": "capsulas_blandas",
+        "contenido": "300",
+        "dosaje": "3000 mg",
+        "cantidad": 1,
+        "precioUnitario": 158,
+        "subtotal": 158,
+        "stockDisponible": 1,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 1,
+          "stockTotal": 1,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 22.53075517241379,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  },
+  {
+    "_id": "lowvZcZLm44SimbYDHyU",
+    "numeroCotizacion": "COT-2026-005",
+    "nombreCliente": "Francesca Rivera Torres",
+    "canal": "directo",
+    "subtotalPEN": 232,
+    "totalPEN": 232,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "m0dwINFHyHU64jt1gSnf"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "clienteId": "UxoBXURkqjHZ6WXbZLlq",
+    "direccionEntrega": "Calle General clement 150",
+    "dniRuc": "73705616",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:07:10.000Z",
+      "_seconds": 1770746830
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 232,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-10T18:07:18.000Z",
+        "_seconds": 1770746838
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-13T18:07:18.000Z",
+        "_seconds": 1771006038
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:07:17.000Z",
+      "_seconds": 1770746837
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-11T18:07:33.000Z",
+      "_seconds": 1778522853
+    },
+    "adelanto": {
+      "id": "ADL-1770746853203-4o7zllxnb",
+      "monto": 232,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-10T18:07:33.000Z",
+        "_seconds": 1770746853
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-10T18:07:33.000Z",
+        "_seconds": 1770746853
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-11T18:07:33.000Z",
+        "_seconds": 1778522853
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "m0dwINFHyHU64jt1gSnf",
+          "sku": "BMN-0095",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "3JM0R2GapOWLB6Oo1MGf"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:07:32.000Z",
+      "_seconds": 1770746852
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:07:44.000Z",
+      "_seconds": 1770746864
+    },
+    "ventaId": "U4DwYMZjw2CyII1TJftx",
+    "numeroVenta": "VT-2026-019",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:07:44.000Z",
+      "_seconds": 1770746864
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "SUP-0095",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Omega 3",
+        "presentacion": "liquido",
+        "contenido": "8 oz",
+        "dosaje": "1560 mg",
+        "cantidad": 1,
+        "precioUnitario": 232,
+        "subtotal": 232,
+        "stockDisponible": 1,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 1,
+          "stockTotal": 1,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 28.92075517241379,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  },
+  {
+    "_id": "pc5mWNeKWit3HvswsTot",
+    "numeroCotizacion": "COT-2026-021",
+    "nombreCliente": "Almendra Saldarriega Villalba",
+    "canal": "",
+    "subtotalPEN": 127,
+    "totalPEN": 137,
+    "incluyeEnvio": false,
+    "diasVigencia": 7,
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-03-13T03:21:53.000Z",
+      "_seconds": 1773372113
+    },
+    "productosInteres": [
+      "ZwOH29bDAayOc5VkBS8G"
+    ],
+    "creadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.41,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "margenEsperado": 100,
+      "utilidadEsperadaPEN": 127,
+      "productosEstimados": [
+        {
+          "productoId": "ZwOH29bDAayOc5VkBS8G",
+          "costoUnitarioEstimadoUSD": 0,
+          "margenEstimado": 100
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-03-06T03:21:52.000Z",
+        "_seconds": 1772767312
+      }
+    },
+    "costoEnvio": 10,
+    "direccionEntrega": "Lima",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-06T03:21:53.000Z",
+      "_seconds": 1772767313
+    },
+    "estado": "rechazada",
+    "fechaRechazo": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T18:18:38.000Z",
+      "_seconds": 1772907518
+    },
+    "reservaStock": null,
+    "rechazo": {
+      "motivo": "sin_respuesta",
+      "descripcion": "Nunca respondio.",
+      "precioEsperado": null,
+      "competidor": null,
+      "registradoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+      "fechaRechazo": {
+        "_type": "timestamp",
+        "iso": "2026-03-07T18:18:38.000Z",
+        "_seconds": 1772907518
+      }
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-07T18:18:38.000Z",
+      "_seconds": 1772907518
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "ZwOH29bDAayOc5VkBS8G",
+        "sku": "SUP-0068",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "presentacion": "gomitas",
+        "contenido": "90",
+        "dosaje": "1 mg",
+        "cantidad": 1,
+        "precioUnitario": 127,
+        "subtotal": 127,
+        "stockDisponible": 0,
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "fuenteRecomendada": "virtual",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadVirtual": 1
+        }
+      }
+    ]
+  },
+  {
+    "_id": "wTey8z8HW7D4aZAhxUaN",
+    "numeroCotizacion": "COT-2026-014",
+    "nombreCliente": "Carmen Shimabukuro",
+    "canal": "directo",
+    "subtotalPEN": 158,
+    "totalPEN": 158,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "1VDeFEayBxezNWGhhH2S"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.36,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "margenEsperado": 100,
+      "utilidadEsperadaPEN": 158,
+      "productosEstimados": [
+        {
+          "productoId": "1VDeFEayBxezNWGhhH2S",
+          "costoUnitarioEstimadoUSD": 0,
+          "margenEstimado": 100
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-26T06:19:44.000Z",
+        "_seconds": 1772086784
+      }
+    },
+    "clienteId": "H9lT75uHhLUitzPB6Z9t",
+    "direccionEntrega": "Calle catorce 147",
+    "dniRuc": "07993868",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:19:44.000Z",
+      "_seconds": 1772086784
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 158,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-26T06:19:51.000Z",
+        "_seconds": 1772086791
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-03-01T06:19:51.000Z",
+        "_seconds": 1772345991
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:19:51.000Z",
+      "_seconds": 1772086791
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-27T06:20:12.000Z",
+      "_seconds": 1779862812
+    },
+    "requerimientosNumeros": [
+      "REQ-2026-0020"
+    ],
+    "adelanto": {
+      "id": "ADL-1772086812727-967xyky33",
+      "monto": 158,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-26T06:20:12.000Z",
+        "_seconds": 1772086812
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "virtual",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-26T06:20:12.000Z",
+        "_seconds": 1772086812
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-27T06:20:12.000Z",
+        "_seconds": 1779862812
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "1VDeFEayBxezNWGhhH2S",
+          "sku": "BMN-0004",
+          "cantidad": 1,
+          "unidadesReservadas": []
+        }
+      ],
+      "stockVirtual": {
+        "productosVirtuales": [
+          {
+            "productoId": "1VDeFEayBxezNWGhhH2S",
+            "sku": "BMN-0004",
+            "nombreProducto": "Carlyle Ashwagandha",
+            "cantidadRequerida": 1,
+            "cantidadDisponible": 0,
+            "cantidadFaltante": 1
+          }
+        ],
+        "requerimientoId": "WX7goIiVCzIPXTmON8cd",
+        "fechaEstimadaStock": {
+          "_type": "timestamp",
+          "iso": "2026-03-28T06:20:12.000Z",
+          "_seconds": 1774678812
+        }
+      }
+    },
+    "requerimientosIds": [
+      "WX7goIiVCzIPXTmON8cd"
+    ],
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:20:12.000Z",
+      "_seconds": 1772086812
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:20:23.000Z",
+      "_seconds": 1772086823
+    },
+    "ventaId": "B3gbamCUnBHQ7cPa7ivJ",
+    "numeroVenta": "VT-2026-037",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:20:23.000Z",
+      "_seconds": 1772086823
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "SUP-0004",
+        "marca": "Carlyle",
+        "nombreComercial": "Ashwagandha",
+        "presentacion": "capsulas_blandas",
+        "contenido": "300",
+        "dosaje": "3000 mg",
+        "cantidad": 1,
+        "precioUnitario": 158,
+        "subtotal": 158,
+        "stockDisponible": 0,
+        "requiereStock": true,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 0,
+          "stockTotal": 0,
+          "fuenteRecomendada": "virtual",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 0,
+          "tiempoEstimadoLlegadaDias": 0,
+          "cantidadVirtual": 1,
+          "costoFleteEstimadoUSD": 4
+        }
+      }
+    ]
+  },
+  {
+    "_id": "zapO1jdrXHySYUa3xUsu",
+    "numeroCotizacion": "COT-2026-011",
+    "nombreCliente": "Josafat Vara",
+    "canal": "directo",
+    "subtotalPEN": 238,
+    "totalPEN": 238,
+    "incluyeEnvio": true,
+    "productosInteres": [
+      "wvujLliOFs2nVCXuXrs9"
+    ],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "expectativaCotizacion": {
+      "tcCotizacion": 3.35,
+      "costoEstimadoUSD": 28.052016281008747,
+      "costoEstimadoPEN": 93.97425454137931,
+      "margenEsperado": 60.515019100260794,
+      "utilidadEsperadaPEN": 144.0257454586207,
+      "productosEstimados": [
+        {
+          "productoId": "wvujLliOFs2nVCXuXrs9",
+          "costoUnitarioEstimadoUSD": 28.052016281008747,
+          "margenEstimado": 60.515019100260794
+        }
+      ],
+      "fechaCotizacion": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T03:12:49.000Z",
+        "_seconds": 1771470769
+      }
+    },
+    "clienteId": "8LDtsF5p8DoFKQdX31Ah",
+    "direccionEntrega": "Calle Urb Previ Mz 34 Lt 5 SN",
+    "dniRuc": "72749124",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:12:52.000Z",
+      "_seconds": 1771470772
+    },
+    "diasCompromisoEntrega": 15,
+    "adelantoComprometido": {
+      "monto": 238,
+      "porcentaje": 100,
+      "fechaCompromiso": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T03:13:05.000Z",
+        "_seconds": 1771470785
+      },
+      "fechaLimitePago": {
+        "_type": "timestamp",
+        "iso": "2026-02-22T03:13:05.000Z",
+        "_seconds": 1771729985
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2"
+    },
+    "fechaCompromisoAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:13:05.000Z",
+      "_seconds": 1771470785
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaVencimiento": {
+      "_type": "timestamp",
+      "iso": "2026-05-20T03:13:20.000Z",
+      "_seconds": 1779246800
+    },
+    "adelanto": {
+      "id": "ADL-1771470800446-9enrasa4u",
+      "monto": 238,
+      "moneda": "PEN",
+      "metodoPago": "transferencia",
+      "fecha": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T03:13:20.000Z",
+        "_seconds": 1771470800
+      },
+      "registradoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+      "cuentaDestinoId": "geEs98tz955mVjYNct8M"
+    },
+    "diasVigencia": 90,
+    "reservaStock": {
+      "activo": true,
+      "tipoReserva": "fisica",
+      "fechaReserva": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T03:13:20.000Z",
+        "_seconds": 1771470800
+      },
+      "vigenciaHasta": {
+        "_type": "timestamp",
+        "iso": "2026-05-20T03:13:20.000Z",
+        "_seconds": 1779246800
+      },
+      "horasVigencia": 2160,
+      "productosReservados": [
+        {
+          "productoId": "wvujLliOFs2nVCXuXrs9",
+          "sku": "BMN-0117",
+          "cantidad": 1,
+          "unidadesReservadas": [
+            "mOltjJbgWFvW6AurO82B"
+          ]
+        }
+      ]
+    },
+    "fechaAdelanto": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:13:21.000Z",
+      "_seconds": 1771470801
+    },
+    "estado": "confirmada",
+    "fechaConfirmacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:13:36.000Z",
+      "_seconds": 1771470816
+    },
+    "ventaId": "QoWdzPA9KVjr0l9BBrlF",
+    "numeroVenta": "VT-2026-028",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:13:36.000Z",
+      "_seconds": 1771470816
+    },
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "SUP-0117",
+        "marca": "Life Extension",
+        "nombreComercial": "CoQ10",
+        "presentacion": "capsulas_blandas",
+        "contenido": "60",
+        "dosaje": "100 mg",
+        "cantidad": 1,
+        "precioUnitario": 238,
+        "subtotal": 238,
+        "stockDisponible": 1,
+        "requiereStock": false,
+        "disponibilidadMultiAlmacen": {
+          "stockPeru": 0,
+          "stockUSA": 1,
+          "stockTotal": 1,
+          "fuenteRecomendada": "usa_almacen",
+          "cantidadDesdePeru": 0,
+          "cantidadDesdeUSA": 1,
+          "tiempoEstimadoLlegadaDias": 15,
+          "costoEstimadoUSD": 33.11075517241379,
+          "costoFleteEstimadoUSD": 5
+        }
+      }
+    ]
+  }
+]

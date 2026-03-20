@@ -10,27 +10,36 @@ import {
   Calendar,
   Hash
 } from 'lucide-react';
-import { Badge, Button, Card } from '../../common';
+import { Badge, Button, Card, LineaNegocioBadge, PaisOrigenBadge } from '../../common';
 import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
+import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../utils/multiOrigen.helpers';
+import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
 
 interface UnidadCardProps {
   unidad: Unidad;
+  productoInfo?: { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string };
   onVerDetalle: () => void;
 }
 
-const estadoConfig: Record<EstadoUnidad, { variant: 'success' | 'info' | 'warning' | 'default' | 'danger'; label: string; bgColor: string }> = {
-  'recibida_usa': { variant: 'success', label: 'Recibida USA', bgColor: 'bg-blue-50' },
-  'en_transito_usa': { variant: 'info', label: 'En Tránsito USA', bgColor: 'bg-amber-50' },
-  'en_transito_peru': { variant: 'info', label: 'En Tránsito → Perú', bgColor: 'bg-amber-50' },
-  'disponible_peru': { variant: 'success', label: 'Disponible Perú', bgColor: 'bg-green-50' },
-  'reservada': { variant: 'warning', label: 'Reservada', bgColor: 'bg-purple-50' },
-  'vendida': { variant: 'default', label: 'Vendida', bgColor: 'bg-gray-50' },
-  'vencida': { variant: 'danger', label: 'Vencida', bgColor: 'bg-red-50' },
-  'danada': { variant: 'danger', label: 'Dañada', bgColor: 'bg-red-50' }
+const getEstadoConfig = (estado: EstadoUnidad, pais?: string): { variant: 'success' | 'info' | 'warning' | 'default' | 'danger'; label: string; bgColor: string } => {
+  const label = getLabelEstadoUnidad(estado, pais);
+  if (esEstadoEnOrigen(estado)) return { variant: 'success', label, bgColor: 'bg-blue-50' };
+  if (esEstadoEnTransitoOrigen(estado)) return { variant: 'info', label, bgColor: 'bg-amber-50' };
+  switch (estado) {
+    case 'en_transito_peru': return { variant: 'info', label, bgColor: 'bg-amber-50' };
+    case 'disponible_peru': return { variant: 'success', label, bgColor: 'bg-green-50' };
+    case 'reservada': return { variant: 'warning', label, bgColor: 'bg-purple-50' };
+    case 'asignada_pedido': return { variant: 'warning', label, bgColor: 'bg-indigo-50' };
+    case 'vendida': return { variant: 'default', label, bgColor: 'bg-gray-50' };
+    case 'vencida': return { variant: 'danger', label, bgColor: 'bg-red-50' };
+    case 'danada': return { variant: 'danger', label, bgColor: 'bg-red-50' };
+    default: return { variant: 'default', label, bgColor: 'bg-gray-50' };
+  }
 };
 
 export const UnidadCard: React.FC<UnidadCardProps> = ({
   unidad,
+  productoInfo,
   onVerDetalle
 }) => {
   const formatCurrency = (amount: number): string => {
@@ -42,27 +51,8 @@ export const UnidadCard: React.FC<UnidadCardProps> = ({
     }).format(amount);
   };
 
-  const formatFecha = (timestamp: any): string => {
-    if (!timestamp || !timestamp.toDate) return '-';
-    return timestamp.toDate().toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const calcularDiasParaVencer = (): number => {
-    if (!unidad.fechaVencimiento || !unidad.fechaVencimiento.toDate) return 999;
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const vencimiento = unidad.fechaVencimiento.toDate();
-    vencimiento.setHours(0, 0, 0, 0);
-    const diffTime = vencimiento.getTime() - hoy.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
-
-  const diasParaVencer = calcularDiasParaVencer();
-  const estado = estadoConfig[unidad.estado] || { variant: 'default' as const, label: unidad.estado, bgColor: 'bg-gray-50' };
+  const diasParaVencer = calcularDiasParaVencerUtil(unidad.fechaVencimiento) ?? 999;
+  const estado = getEstadoConfig(unidad.estado, unidad.paisOrigen || unidad.pais);
 
   const esProblematico = unidad.estado === 'vencida' || unidad.estado === 'danada';
   const proximoAVencer = diasParaVencer <= 30 && diasParaVencer >= 0 && unidad.estado !== 'vendida';
@@ -77,9 +67,13 @@ export const UnidadCard: React.FC<UnidadCardProps> = ({
       {/* Header con estado */}
       <div className={`${estado.bgColor} px-4 py-3 border-b border-gray-200`}>
         <div className="flex items-center justify-between">
-          <Badge variant={estado.variant} size="sm">
-            {estado.label}
-          </Badge>
+          <div className="flex items-center gap-1 flex-wrap">
+            <Badge variant={estado.variant} size="sm">
+              {estado.label}
+            </Badge>
+            <LineaNegocioBadge lineaNegocioId={unidad.lineaNegocioId} />
+            <PaisOrigenBadge paisOrigen={unidad.paisOrigen} />
+          </div>
           {proximoAVencer && (
             <div className="flex items-center gap-1 text-amber-600">
               <Clock className="h-3 w-3" />
@@ -106,6 +100,11 @@ export const UnidadCard: React.FC<UnidadCardProps> = ({
             <div className="text-sm text-gray-600 truncate">
               {unidad.productoNombre || '-'}
             </div>
+            {productoInfo && (productoInfo.presentacion || productoInfo.contenido || productoInfo.dosaje || productoInfo.sabor) && (
+              <div className="text-[10px] text-gray-400 truncate">
+                {[productoInfo.presentacion, productoInfo.contenido, productoInfo.dosaje, productoInfo.sabor].filter(Boolean).join(' · ')}
+              </div>
+            )}
           </div>
         </div>
 
@@ -120,14 +119,14 @@ export const UnidadCard: React.FC<UnidadCardProps> = ({
 
           {/* Ubicación */}
           <div className="flex items-center gap-2 text-sm">
-            {unidad.pais === 'USA' ? (
-              <Warehouse className="h-4 w-4 text-blue-500" />
-            ) : (
+            {unidad.pais === 'Peru' ? (
               <MapPin className="h-4 w-4 text-green-500" />
+            ) : (
+              <Warehouse className="h-4 w-4 text-blue-500" />
             )}
             <span className="text-gray-500">Almacén:</span>
             <span className="font-medium text-gray-900">
-              {unidad.pais === 'USA' ? '🇺🇸' : '🇵🇪'} {unidad.almacenNombre || '-'}
+              {getPaisEmoji(unidad.pais)} {unidad.almacenNombre || '-'}
             </span>
           </div>
 

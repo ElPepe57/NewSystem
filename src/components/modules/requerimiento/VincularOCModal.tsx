@@ -86,7 +86,7 @@ export const VincularOCModal: React.FC<VincularOCModalProps> = ({
   };
 
   const handleVincular = async () => {
-    if (!selectedOC || !userId) return;
+    if (!selectedOC || !userId || loading) return;
     setLoading(true);
     setResultado(null);
 
@@ -292,7 +292,7 @@ export const VincularOCModal: React.FC<VincularOCModalProps> = ({
                 variant="primary"
                 onClick={handleVincular}
                 loading={loading}
-                disabled={!selectedOCId || productosCoincidentes.length === 0}
+                disabled={loading || !selectedOCId || productosCoincidentes.length === 0}
               >
                 <Link2 className="h-4 w-4 mr-2" />
                 Vincular y Reservar Stock

@@ -1,0 +1,397 @@
+[
+  {
+    "_id": "2laQt1YS3VJxAWMA3gg7",
+    "codigo": "ALM-PE-002",
+    "nombre": "Luis Alonso Yataco Mautino",
+    "pais": "Peru",
+    "tipo": "almacen_peru",
+    "estadoAlmacen": "activo",
+    "direccion": "Jiron Los Brillantes 255",
+    "ciudad": "La Victoria",
+    "esViajero": false,
+    "totalUnidadesRecibidas": 0,
+    "totalUnidadesEnviadas": 0,
+    "valorInventarioUSD": 0,
+    "tiempoPromedioAlmacenamiento": 0,
+    "unidadesActuales": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T06:50:32.000Z",
+      "_seconds": 1766213432
+    },
+    "estado": "Lima",
+    "contacto": "Luis Yataco",
+    "telefono": "986932728",
+    "capacidadUnidades": 200,
+    "stockActual": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:21.000Z",
+      "_seconds": 1767498081
+    },
+    "paisEmoji": "🇵🇪",
+    "paisNombreDisplay": "Perú"
+  },
+  {
+    "_id": "E0YWnoD1a5vdoAbMrg7Y",
+    "codigo": "ALM-PE-001",
+    "nombre": "Jose Luis Pinto Toscano",
+    "pais": "Peru",
+    "tipo": "almacen_peru",
+    "estadoAlmacen": "activo",
+    "direccion": "Jiron Ica 3625",
+    "esViajero": false,
+    "totalUnidadesEnviadas": 0,
+    "tiempoPromedioAlmacenamiento": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T06:46:05.000Z",
+      "_seconds": 1766213165
+    },
+    "estado": "Lima",
+    "contacto": "Jose Pinto",
+    "telefono": "988404418",
+    "email": "jose.lp9205@gmail.com",
+    "capacidadUnidades": 500,
+    "ciudad": "SMP",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "valorInventarioUSD": 0,
+    "stockActual": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:21.000Z",
+      "_seconds": 1767498081
+    },
+    "paisEmoji": "🇵🇪",
+    "paisNombreDisplay": "Perú",
+    "unidadesActuales": 141,
+    "totalUnidadesRecibidas": 187
+  },
+  {
+    "_id": "Gc3okHmDxeezPwplvl1t",
+    "codigo": "VIA-007",
+    "nombre": "Jose Cherubini",
+    "pais": "USA",
+    "tipo": "viajero",
+    "estadoAlmacen": "activo",
+    "direccion": "6876 W 8150 S",
+    "ciudad": "West Jordan",
+    "esViajero": true,
+    "totalUnidadesRecibidas": 0,
+    "totalUnidadesEnviadas": 0,
+    "valorInventarioUSD": 0,
+    "tiempoPromedioAlmacenamiento": 0,
+    "unidadesActuales": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-21T01:49:27.000Z",
+      "_seconds": 1766281767
+    },
+    "estado": "UT",
+    "telefono": "18018093084",
+    "frecuenciaViaje": "quincenal",
+    "costoPromedioFlete": 4,
+    "stockActual": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:21.000Z",
+      "_seconds": 1767498081
+    },
+    "paisEmoji": "🇺🇸",
+    "paisNombreDisplay": "Estados Unidos"
+  },
+  {
+    "_id": "KJ517wENHMAiNdOJXnU0",
+    "codigo": "VIA-002",
+    "nombre": "Angie Price",
+    "pais": "USA",
+    "tipo": "viajero",
+    "estadoAlmacen": "activo",
+    "direccion": "6876 W 8150 S",
+    "ciudad": "West Jordan",
+    "esViajero": true,
+    "tiempoPromedioAlmacenamiento": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T06:48:32.000Z",
+      "_seconds": 1766213312
+    },
+    "estado": "Utah",
+    "contacto": "Angie Price",
+    "telefono": "+18018093084",
+    "capacidadUnidades": 200,
+    "frecuenciaViaje": "quincenal",
+    "costoPromedioFlete": 5,
+    "stockActual": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "totalUnidadesRecibidas": 61,
+    "valorInventarioUSD": 8.971300000000001,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-21T08:44:36.000Z",
+      "_seconds": 1771663476
+    },
+    "totalUnidadesEnviadas": 59,
+    "unidadesActuales": 0,
+    "paisEmoji": "🇺🇸",
+    "paisNombreDisplay": "Estados Unidos"
+  },
+  {
+    "_id": "TJRB5PEKQSfXu0WIjnaK",
+    "nombre": "Anghely Henriquez",
+    "pais": "USA",
+    "tipo": "viajero",
+    "estadoAlmacen": "activo",
+    "direccion": "5530 S Le Chateau Way",
+    "ciudad": "Salt Lake City",
+    "esViajero": true,
+    "tiempoPromedioAlmacenamiento": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T06:44:30.000Z",
+      "_seconds": 1766213070
+    },
+    "estado": "Utah",
+    "contacto": "Anghely Henriquez",
+    "telefono": "+18013479792",
+    "capacidadUnidades": 200,
+    "frecuenciaViaje": "semanal",
+    "costoPromedioFlete": 4,
+    "codigo": "VIA-001",
+    "stockActual": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "totalUnidadesEnviadas": 83,
+    "unidadesActuales": 16,
+    "totalUnidadesRecibidas": 127,
+    "valorInventarioUSD": 148.27880000000002,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:57:00.000Z",
+      "_seconds": 1773525420
+    },
+    "paisEmoji": "🇺🇸",
+    "paisNombreDisplay": "Estados Unidos"
+  },
+  {
+    "_id": "WkGJXUBgZEzho8QxGk2V",
+    "codigo": "VIA-008",
+    "nombre": "Isabel (Amiga de Angie)",
+    "pais": "USA",
+    "tipo": "viajero",
+    "estadoAlmacen": "activo",
+    "direccion": "Por confirmar",
+    "ciudad": "Salt Lake City",
+    "esViajero": true,
+    "tiempoPromedioAlmacenamiento": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T16:33:16.000Z",
+      "_seconds": 1771605196
+    },
+    "estado": "Utah",
+    "telefono": "+1 (385) 549-4891",
+    "frecuenciaViaje": "quincenal",
+    "totalUnidadesRecibidas": 28,
+    "valorInventarioUSD": 456.93580000000003,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-12T01:28:11.000Z",
+      "_seconds": 1773278891
+    },
+    "totalUnidadesEnviadas": 28,
+    "unidadesActuales": 0,
+    "paisEmoji": "🇺🇸",
+    "paisNombreDisplay": "Estados Unidos"
+  },
+  {
+    "_id": "YTsfduhN9DAlOot1fUQG",
+    "codigo": "VIA-006",
+    "nombre": "Lila Toscano",
+    "pais": "USA",
+    "tipo": "viajero",
+    "estadoAlmacen": "activo",
+    "direccion": "3127 s  Sugar Bowl Line",
+    "ciudad": "West Valley City",
+    "esViajero": true,
+    "tiempoPromedioAlmacenamiento": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T07:41:06.000Z",
+      "_seconds": 1766216466
+    },
+    "estado": "Utah",
+    "telefono": "18019659740",
+    "capacidadUnidades": 30,
+    "frecuenciaViaje": "variable",
+    "costoPromedioFlete": 5,
+    "stockActual": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "totalUnidadesRecibidas": 8,
+    "valorInventarioUSD": 26.7594,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:48:00.000Z",
+      "_seconds": 1773031680
+    },
+    "totalUnidadesEnviadas": 8,
+    "unidadesActuales": 0,
+    "paisEmoji": "🇺🇸",
+    "paisNombreDisplay": "Estados Unidos"
+  },
+  {
+    "_id": "aeF36D78h8YOrDprq5Xr",
+    "codigo": "VIA-004",
+    "nombre": "Elsa Vara",
+    "pais": "USA",
+    "tipo": "viajero",
+    "estadoAlmacen": "activo",
+    "direccion": "3698 S Lancashire Cir",
+    "ciudad": "West Valley City",
+    "esViajero": true,
+    "totalUnidadesRecibidas": 0,
+    "totalUnidadesEnviadas": 0,
+    "valorInventarioUSD": 0,
+    "tiempoPromedioAlmacenamiento": 0,
+    "unidadesActuales": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T07:13:29.000Z",
+      "_seconds": 1766214809
+    },
+    "estado": "Utah",
+    "contacto": "Elsa Vara",
+    "telefono": "+18019536612",
+    "capacidadUnidades": 40,
+    "frecuenciaViaje": "quincenal",
+    "costoPromedioFlete": 4,
+    "stockActual": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:22.000Z",
+      "_seconds": 1767498082
+    },
+    "paisEmoji": "🇺🇸",
+    "paisNombreDisplay": "Estados Unidos"
+  },
+  {
+    "_id": "h9rKjK5V4Z2KZYtXZ02G",
+    "codigo": "VIA-005",
+    "nombre": "Felicitas Mendoza",
+    "pais": "USA",
+    "tipo": "viajero",
+    "estadoAlmacen": "activo",
+    "direccion": "3637 S 6400 W",
+    "ciudad": "West Valley City",
+    "esViajero": true,
+    "tiempoPromedioAlmacenamiento": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T07:15:12.000Z",
+      "_seconds": 1766214912
+    },
+    "estado": "Utah",
+    "contacto": "Felicitas Mendoza",
+    "telefono": "+18019350218",
+    "capacidadUnidades": 40,
+    "frecuenciaViaje": "quincenal",
+    "costoPromedioFlete": 5,
+    "stockActual": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "totalUnidadesRecibidas": 5,
+    "valorInventarioUSD": 107.33630000000001,
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T02:03:38.000Z",
+      "_seconds": 1772157818
+    },
+    "totalUnidadesEnviadas": 5,
+    "unidadesActuales": 0,
+    "paisEmoji": "🇺🇸",
+    "paisNombreDisplay": "Estados Unidos"
+  },
+  {
+    "_id": "rUV0aR6X76Dn0W5EquT6",
+    "codigo": "VIA-003",
+    "nombre": "Edgardo Utrilla",
+    "pais": "USA",
+    "tipo": "viajero",
+    "estadoAlmacen": "activo",
+    "direccion": "881 E 350 N",
+    "ciudad": "Layton",
+    "esViajero": true,
+    "totalUnidadesRecibidas": 0,
+    "totalUnidadesEnviadas": 0,
+    "valorInventarioUSD": 0,
+    "tiempoPromedioAlmacenamiento": 0,
+    "unidadesActuales": 0,
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T07:12:07.000Z",
+      "_seconds": 1766214727
+    },
+    "estado": "Utah",
+    "contacto": "Edgardo Utrilla",
+    "telefono": "+18013907205",
+    "capacidadUnidades": 100,
+    "frecuenciaViaje": "mensual",
+    "stockActual": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:23.000Z",
+      "_seconds": 1767498083
+    },
+    "paisEmoji": "🇺🇸",
+    "paisNombreDisplay": "Estados Unidos"
+  }
+]

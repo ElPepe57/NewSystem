@@ -12,6 +12,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useTipoProductoStore } from '../../store/tipoProductoStore';
 import { useCategoriaStore } from '../../store/categoriaStore';
 import { useEtiquetaStore } from '../../store/etiquetaStore';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type { Producto, ProductoFormData, EstadoProducto, InvestigacionFormData } from '../../types/producto.types';
 import type { TipoCambio } from '../../types/tipoCambio.types';
 
@@ -22,6 +23,7 @@ export const Productos: React.FC = () => {
   const { tiposActivos, fetchTiposActivos } = useTipoProductoStore();
   const { categoriasActivas, fetchCategoriasActivas } = useCategoriaStore();
   const { etiquetasActivas, fetchEtiquetasActivas } = useEtiquetaStore();
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -40,7 +42,6 @@ export const Productos: React.FC = () => {
     grupo: '',
     marca: '',
     stockStatus: '' as 'todos' | 'critico' | 'agotado' | '',
-    habilitadoML: '' as 'true' | 'false' | '',
     investigacion: '' as 'todos' | 'sin_investigar' | 'vigente' | 'vencida' | 'importar' | 'descartar' | '',
     tipoProductoId: '',
     categoriaId: '',
@@ -193,6 +194,13 @@ export const Productos: React.FC = () => {
     setSelectedProducto(null);
   };
 
+  // Helper: obtener producto fresco del store (evita stale closure)
+  const refreshSelectedProducto = (productoId: string) => {
+    const freshProductos = useProductoStore.getState().productos;
+    const productoActualizado = freshProductos.find(p => p.id === productoId);
+    if (productoActualizado) setSelectedProducto(productoActualizado);
+  };
+
   // Investigación de Mercado
   const handleOpenInvestigacion = (producto: Producto) => {
     setSelectedProducto(producto);
@@ -219,10 +227,7 @@ export const Productos: React.FC = () => {
 
       // Refrescar producto seleccionado si el view modal sigue abierto
       if (isViewModalOpen) {
-        const productoActualizado = productos.find(p => p.id === selectedProducto.id);
-        if (productoActualizado) {
-          setSelectedProducto(productoActualizado);
-        }
+        refreshSelectedProducto(selectedProducto.id);
       }
     } catch (error: any) {
       alert(error.message);
@@ -246,10 +251,7 @@ export const Productos: React.FC = () => {
 
       // Refrescar producto seleccionado si el view modal sigue abierto
       if (isViewModalOpen) {
-        const productoActualizado = productos.find(p => p.id === selectedProducto.id);
-        if (productoActualizado) {
-          setSelectedProducto(productoActualizado);
-        }
+        refreshSelectedProducto(selectedProducto.id);
       }
     } catch (error: any) {
       alert(error.message);
@@ -309,13 +311,6 @@ export const Productos: React.FC = () => {
         return false;
       }
 
-      // Filtro por ML
-      if (filters.habilitadoML === 'true' && !producto.habilitadoML) {
-        return false;
-      }
-      if (filters.habilitadoML === 'false' && producto.habilitadoML) {
-        return false;
-      }
 
       // Filtro por investigación
       if (filters.investigacion) {
@@ -358,9 +353,14 @@ export const Productos: React.FC = () => {
         return false;
       }
 
+      // Filtro global por línea de negocio
+      if (lineaFiltroGlobal && producto.lineaNegocioId !== lineaFiltroGlobal) {
+        return false;
+      }
+
       return true;
     });
-  }, [productos, searchTerm, filters]);
+  }, [productos, searchTerm, filters, lineaFiltroGlobal]);
 
   // Función auxiliar para obtener valor de ordenamiento
   const getSortValue = (producto: Producto, key: string): any => {
@@ -371,8 +371,8 @@ export const Productos: React.FC = () => {
         return producto.marca || '';
       case 'nombreComercial':
         return producto.nombreComercial || '';
-      case 'precioSugerido':
-        return producto.precioSugerido || 0;
+      case 'ctruPromedio':
+        return producto.ctruPromedio || 0;
       case 'stockPeru':
         return producto.stockPeru || 0;
       case 'estado':
@@ -480,7 +480,7 @@ export const Productos: React.FC = () => {
   // Métricas
   const productosArray = Array.isArray(productos) ? productos : [];
   const productosActivos = productosArray.filter(p => p.estado === 'activo').length;
-  const productosConML = productosArray.filter(p => p.habilitadoML).length;
+  const productosConML = 0; // ML field removed
   const productosStockCritico = productosArray.filter(p => p.stockPeru <= p.stockMinimo).length;
   const productosSinInvestigar = productosArray.filter(p => !p.investigacion).length;
 
@@ -504,7 +504,6 @@ export const Productos: React.FC = () => {
       grupo: '',
       marca: '',
       stockStatus: '',
-      habilitadoML: '',
       investigacion: '',
       tipoProductoId: '',
       categoriaId: '',
@@ -687,24 +686,6 @@ export const Productos: React.FC = () => {
                   </select>
                 </div>
 
-                {/* Filtro por ML */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Mercado Libre
-                  </label>
-                  <select
-                    value={filters.habilitadoML}
-                    onChange={(e) => {
-                      setFilters({ ...filters, habilitadoML: e.target.value as any });
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="">Todos</option>
-                    <option value="true">Habilitados</option>
-                    <option value="false">No habilitados</option>
-                  </select>
-                </div>
 
                 {/* Filtro por Investigación */}
                 <div>

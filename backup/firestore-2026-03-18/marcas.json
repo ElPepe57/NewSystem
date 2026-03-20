@@ -1,0 +1,1202 @@
+[
+  {
+    "_id": "0IWGHFyoXqEw9MAM6GCa",
+    "codigo": "MRC-004",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "descripcion": "Es una marca de suplementos naturales para niños, fundada por Jason Pratt, que se enfoca en crear alternativas vegetales y sin azúcares añadidos para apoyar la inmunidad, el enfoque, el crecimiento y el bienestar general de los niños, usando fórmulas líquidas y gomitas con ingredientes como vitaminas, minerales y extractos de hierbas orgánicas.",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:03:47.000Z",
+      "_seconds": 1766196227
+    },
+    "sitioWeb": "https://joyspringvitamins.com/",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "joyspring",
+    "nombre": "JoySpring",
+    "metricas": {
+      "productosActivos": 3,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:14.000Z",
+      "_seconds": 1767498074
+    },
+    "productosTotal": 3,
+    "productosActivos": 3,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "2cXp8OI0s32QWhxEcnz9",
+    "codigo": "MRC-020",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "descripcion": "Es una marca estadounidense de suplementos de salud y belleza, famosa por sus productos de colágeno que ayudan con la piel, cabello y uñas, enfocados en la belleza \"de adentro hacia afuera\" y el bienestar general.",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:24:57.000Z",
+      "_seconds": 1766197497
+    },
+    "sitioWeb": "https://www.youtheory.com/",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "youtheory",
+    "nombre": "Youtheory",
+    "metricas": {
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:17.000Z",
+      "_seconds": 1767498077
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "386ug1Eg6aLLy4S83Rcz",
+    "codigo": "MRC-021",
+    "nombreNormalizado": "centrum",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "paisOrigen": "USA",
+    "sitioWeb": "www.centrum.com",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T04:05:09.000Z",
+      "_seconds": 1767326709
+    },
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "nombre": "Centrum",
+    "metricas": {
+      "productosActivos": 5,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:13.000Z",
+      "_seconds": 1767498073
+    },
+    "productosTotal": 5,
+    "productosActivos": 5,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "3cCcreTUPojcRrvGGwcg",
+    "codigo": "MRC-015",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "descripcion": "Es una marca estadounidense de suplementos, especialmente conocida por sus probióticos, fundada por el emprendedor Logan Chierotti en Estados Unidos, enfocada en productos de alta calidad para la salud digestiva y el bienestar general, fabricados bajo estrictos controles de calidad.",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:19:09.000Z",
+      "_seconds": 1766197149
+    },
+    "sitioWeb": "https://physicianschoice.com/",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "physicians choice",
+    "nombre": "Physician's Choice",
+    "metricas": {
+      "productosActivos": 2,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:12.000Z",
+      "_seconds": 1767498072
+    },
+    "productosTotal": 2,
+    "productosActivos": 2,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "5MPTx17yIAGCe3J2EInM",
+    "codigo": "MRC-003",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:02:20.000Z",
+      "_seconds": 1766196140
+    },
+    "descripcion": "Es una marca reconocida con más de 40 años de experiencia, especializada en la fabricación y suministro de suplementos nutricionales de alta calidad, vitaminas y productos naturales para el bienestar, conocidos por su pureza, potencia y estándares GMP (Buenas Prácticas de Manufactura).",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "sitioWeb": "https://horbaach.com/es",
+    "nombreNormalizado": "horbaach",
+    "nombre": "Horbaach",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:13.000Z",
+      "_seconds": 1767498073
+    },
+    "productosTotal": 9,
+    "productosActivos": 9,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "productosActivos": 9,
+      "margenPromedio": 0,
+      "unidadesVendidas": 5,
+      "ventasTotalPEN": 692,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-28T22:19:35.000Z",
+        "_seconds": 1772317175
+      }
+    }
+  },
+  {
+    "_id": "5vd13fTXipD2tW6UPVVT",
+    "estado": "activa",
+    "alias": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T10:02:19.000Z",
+      "_seconds": 1767348139
+    },
+    "sitioWeb": "www.pippingrock.com",
+    "tipoMarca": "suplementos",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T19:11:44.000Z",
+      "_seconds": 1767381104
+    },
+    "paisOrigen": "USA",
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "nombreNormalizado": "pipping rock",
+    "nombre": "Pipping Rock",
+    "metricas": {
+      "productosActivos": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "productosTotal": 0,
+    "productosActivos": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "codigo": "MRC-025"
+  },
+  {
+    "_id": "7p1FVIibDRcOxNOFQzkh",
+    "codigo": "MRC-010",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "sitioWeb": "https://www.maryruthorganics.com/",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:12:42.000Z",
+      "_seconds": 1766196762
+    },
+    "descripcion": "Es una marca de suplementos nutricionales fundada por la educadora de salud MaryRuth Ghiyam y su madre, Colleen en 2014, conocida por sus fórmulas veganas, orgánicas, sin OMG y a menudo líquidas o en gomitas, diseñadas para toda la familia, que incluyen multivitamínicos, probióticos y otros suplementos para el apoyo inmunológico, la energía y la salud general.",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "mary ruths",
+    "nombre": "Mary Ruth's",
+    "productosTotal": 3,
+    "productosActivos": 3,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-05T07:15:29.000Z",
+      "_seconds": 1767597329
+    },
+    "metricas": {
+      "productosActivos": 3,
+      "margenPromedio": 0,
+      "ultimoMargen": 50.635615,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0
+    }
+  },
+  {
+    "_id": "9jE1TzmQWlFApIAmhkzG",
+    "estado": "activa",
+    "alias": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T10:02:26.000Z",
+      "_seconds": 1767348146
+    },
+    "tipoMarca": "suplementos",
+    "paisOrigen": "USA",
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "nombreNormalizado": "swanson",
+    "nombre": "Swanson",
+    "metricas": {
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:16.000Z",
+      "_seconds": 1767498076
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "codigo": "MRC-026"
+  },
+  {
+    "_id": "DmhUGF6AoY4G5qXVmNcA",
+    "estado": "activa",
+    "tipoMarca": "farmaceutica",
+    "alias": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T10:02:23.000Z",
+      "_seconds": 1767348143
+    },
+    "paisOrigen": "USA",
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "nombreNormalizado": "nubest",
+    "nombre": "NuBest",
+    "metricas": {
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:15.000Z",
+      "_seconds": 1767498075
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "codigo": "MRC-027"
+  },
+  {
+    "_id": "IH2BNI68qvfOriBLlCjD",
+    "codigo": "MRC-001",
+    "nombre": "Carlyle",
+    "nombreNormalizado": "carlyle",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "sitioWeb": "www.carlyle.com",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:00:34.000Z",
+      "_seconds": 1766196034
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "productosTotal": 25,
+    "productosActivos": 25,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "productosActivos": 25,
+      "unidadesVendidas": 7,
+      "ventasTotalPEN": 943,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-26T06:20:22.000Z",
+        "_seconds": 1772086822
+      }
+    }
+  },
+  {
+    "_id": "Im4u0GImtA6yLool2Ps8",
+    "codigo": "MRC-023",
+    "nombre": "Nature's Truth",
+    "nombreNormalizado": "natures truth",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "paisOrigen": "USA",
+    "sitioWeb": "www.naturestruth.com",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T04:13:46.000Z",
+      "_seconds": 1767327226
+    },
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "metricas": {
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:16.000Z",
+      "_seconds": 1767498076
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "P2R4cVnI3XHbzFqqayjs",
+    "codigo": "MRC-024",
+    "nombre": "Triquetra",
+    "nombreNormalizado": "triquetra",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "paisOrigen": "USA",
+    "sitioWeb": "www.triquetrahealth.com",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T04:15:19.000Z",
+      "_seconds": 1767327319
+    },
+    "tipoMarca": "suplementos",
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "metricas": {
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:16.000Z",
+      "_seconds": 1767498076
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "RW3RvcuyZpJepy1KurN8",
+    "codigo": "MRC-019",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "descripcion": "Es una marca de suplementos dietéticos naturales y funcionales, enfocada en productos de alta calidad para mejorar la salud física y mental.",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:23:11.000Z",
+      "_seconds": 1766197391
+    },
+    "sitioWeb": "https://wellnesslabsrx.com/",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "wellness labs rx",
+    "nombre": "Wellness Labs RX",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:15.000Z",
+      "_seconds": 1767498075
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "productosActivos": 1,
+      "margenPromedio": 0,
+      "unidadesVendidas": 2,
+      "ventasTotalPEN": 357,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-24T05:30:27.000Z",
+        "_seconds": 1771911027
+      }
+    }
+  },
+  {
+    "_id": "SPrxezSFlrsbQ0dTK0Ep",
+    "nombre": "MAV Nutrition",
+    "nombreNormalizado": "mav nutrition",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "metricas": {
+      "productosActivos": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T03:56:18.000Z",
+      "_seconds": 1771818978
+    },
+    "codigo": "MRC-028"
+  },
+  {
+    "_id": "SvsCL5ZdXILn2q2ajHXh",
+    "codigo": "MRC-006",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "sitioWeb": "https://moritzlab.com/",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:06:04.000Z",
+      "_seconds": 1766196364
+    },
+    "descripcion": "Se especializa en suplementos vitamínicos y minerales en formato de gomitas (gummies), populares por ser una forma deliciosa y fácil de tomar para niños y adultos, enfocados en el apoyo inmunológico, crecimiento, desarrollo, y bienestar general.",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "dr moritz",
+    "nombre": "Dr. Moritz",
+    "metricas": {
+      "productosActivos": 2,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:16.000Z",
+      "_seconds": 1767498076
+    },
+    "productosTotal": 2,
+    "productosActivos": 2,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "UQU0L64CzTuHktp8r97z",
+    "codigo": "MRC-008",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "descripcion": "Es una empresa estadounidense fundada en 1980, conocida por vender suplementos nutricionales y vitaminas de alta calidad, con un fuerte enfoque en la investigación científica y la longevidad.",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:09:40.000Z",
+      "_seconds": 1766196580
+    },
+    "sitioWeb": "https://www.lifeextension.com/",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "life extension",
+    "nombre": "Life Extension",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:12.000Z",
+      "_seconds": 1767498072
+    },
+    "productosTotal": 8,
+    "productosActivos": 8,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "productosActivos": 8,
+      "margenPromedio": 0,
+      "unidadesVendidas": 2,
+      "ventasTotalPEN": 487,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-19T03:13:35.000Z",
+        "_seconds": 1771470815
+      }
+    }
+  },
+  {
+    "_id": "UyiIlZXymok7QGtW3XX1",
+    "codigo": "MRC-002",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "sitioWeb": "https://doublewoodsupplements.com/",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:01:24.000Z",
+      "_seconds": 1766196084
+    },
+    "descripcion": "Es una empresa estadounidense de suplementos nutricionales fundada en 2013 por los hermanos Reese y Evan Wood, que ofrece vitaminas, minerales y hierbas de venta directa, enfocándose en transparencia, calidad y asequibilidad, con productos que se prueban por terceros para asegurar pureza y potencia. Son conocidos por sus nootrópicos y suplementos para el envejecimiento saludable, respaldados por análisis de laboratorio disponibles para sus clientes.",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "double wood",
+    "nombre": "Double Wood",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:16.000Z",
+      "_seconds": 1767498076
+    },
+    "productosTotal": 2,
+    "productosActivos": 2,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "productosActivos": 2,
+      "unidadesVendidas": 7,
+      "ventasTotalPEN": 1060,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-03-01T01:15:24.000Z",
+        "_seconds": 1772327724
+      }
+    }
+  },
+  {
+    "_id": "W0EBMsPUdy1wbsRgUFEa",
+    "estado": "activa",
+    "tipoMarca": "farmaceutica",
+    "alias": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T10:02:24.000Z",
+      "_seconds": 1767348144
+    },
+    "paisOrigen": "USA",
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "nombreNormalizado": "icy hot",
+    "nombre": "Icy Hot",
+    "metricas": {
+      "productosActivos": 2,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:14.000Z",
+      "_seconds": 1767498074
+    },
+    "productosTotal": 2,
+    "productosActivos": 2,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "codigo": "MRC-029"
+  },
+  {
+    "_id": "XB18NLtjAJzkPqgLgQwM",
+    "codigo": "MRC-018",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "descripcion": "Es una empresa familiar fundada en 1980, conocida por sus suplementos de salud y bienestar de alta calidad, como Omega-3, colágeno, biotina y aceite MCT, utilizando ingredientes respaldados por la ciencia para un estilo de vida activo, destacando su compromiso con la calidad con certificaciones como IFOS y pruebas de terceros para sus productos.",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:22:27.000Z",
+      "_seconds": 1766197347
+    },
+    "sitioWeb": "https://www.sportsresearch.com/",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "sports research",
+    "nombre": "Sports Research",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:15.000Z",
+      "_seconds": 1767498075
+    },
+    "productosTotal": 2,
+    "productosActivos": 2,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "productosActivos": 2,
+      "margenPromedio": 0,
+      "unidadesVendidas": 3,
+      "ventasTotalPEN": 572,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-11T15:33:56.000Z",
+        "_seconds": 1770824036
+      }
+    }
+  },
+  {
+    "_id": "Xxul5wMYJnCNkaGwFldO",
+    "codigo": "MRC-009",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "sitioWeb": "https://www.lilcritters.com/",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:10:32.000Z",
+      "_seconds": 1766196632
+    },
+    "descripcion": "Son suplementos vitamínicos en forma de gomitas (gummies) para niños, diseñadas para complementar su nutrición diaria con vitaminas y minerales esenciales como A, C, D, E, B-6, y B-12, además de probióticos y prebióticos, siendo una marca popular recomendada por pediatras, que destaca por no usar sabores ni colores artificiales, jarabe de maíz de alta fructosa, gluten ni lácteos.",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "lil critters",
+    "nombre": "Lil Critter's",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:14.000Z",
+      "_seconds": 1767498074
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "productosActivos": 1,
+      "margenPromedio": 0,
+      "unidadesVendidas": 1,
+      "ventasTotalPEN": 139,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-22T05:25:29.000Z",
+        "_seconds": 1771737929
+      }
+    }
+  },
+  {
+    "_id": "ZAKLvF2F4pUmhA3JV41P",
+    "nombre": "Piping Rock",
+    "estado": "activa",
+    "tipoMarca": "farmaceutica",
+    "alias": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:40:52.000Z",
+      "_seconds": 1767498052
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:15.000Z",
+      "_seconds": 1767498075
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "productosActivos": 1
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "codigo": "MRC-030"
+  },
+  {
+    "_id": "aFAhqNklitmT4dksbjun",
+    "estado": "activa",
+    "alias": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T10:02:24.000Z",
+      "_seconds": 1767348144
+    },
+    "tipoMarca": "suplementos",
+    "paisOrigen": "USA",
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "nombreNormalizado": "vitafusion",
+    "nombre": "VitaFusion",
+    "metricas": {
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:15.000Z",
+      "_seconds": 1767498075
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "codigo": "MRC-031"
+  },
+  {
+    "_id": "igepFqAQkY5TGeMCRxGU",
+    "codigo": "MRC-014",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "alias": [
+      "Now"
+    ],
+    "descripcion": "Es una marca familiar estadounidense fundada en 1968, reconocida por ofrecer suplementos naturales, vitaminas, minerales y productos de belleza a precios asequibles, con un fuerte enfoque en la calidad, pruebas internas exhaustivas y cumplimiento de estándares GMP (Buenas Prácticas de Manufactura).",
+    "paisOrigen": "USA",
+    "sitioWeb": "www.nowfoods.com",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:18:09.000Z",
+      "_seconds": 1766197089
+    },
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "now foods",
+    "nombre": "NOW Foods",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:12.000Z",
+      "_seconds": 1767498072
+    },
+    "productosTotal": 11,
+    "productosActivos": 11,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "productosActivos": 11
+    }
+  },
+  {
+    "_id": "mHdEsNp1M1zCuvDXk69j",
+    "codigo": "MRC-016",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "metricas": {
+      "productosActivos": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "alias": [
+      "Pure"
+    ],
+    "descripcion": "Es una marca líder en suplementos nutricionales de alta calidad, reconocida por profesionales de la salud, que desarrolla fórmulas hipoalergénicas, sin aditivos innecesarios y respaldadas por la ciencia para diversas necesidades de bienestar, como salud cardiovascular, energía, belleza y función inmunológica.",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:20:55.000Z",
+      "_seconds": 1766197255
+    },
+    "sitioWeb": "https://www.pureencapsulationspro.com/",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:21:22.000Z",
+      "_seconds": 1766197282
+    },
+    "nombreNormalizado": "pure encapsulations",
+    "nombre": "Pure Encapsulations",
+    "productosTotal": 0,
+    "productosActivos": 0,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "mVVPfSWb2osm3GL3xT1s",
+    "codigo": "MRC-013",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "descripcion": "Es una empresa líder mundial en suplementos de omega-3 y vitaminas, conocida por usar aceite de pescado 100% salvaje y por su investigación científica para crear productos de alta pureza, frescura y eficacia, incluyendo fórmulas para niños, veganas y otras necesidades de salud.",
+    "paisOrigen": "Noruega",
+    "sitioWeb": "www.nordic.com",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:16:23.000Z",
+      "_seconds": 1766196983
+    },
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "nordic naturals",
+    "nombre": "Nordic Naturals",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:13.000Z",
+      "_seconds": 1767498073
+    },
+    "productosTotal": 10,
+    "productosActivos": 10,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "productosActivos": 10,
+      "margenPromedio": 0,
+      "unidadesVendidas": 4,
+      "ventasTotalPEN": 782,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-25T23:01:56.000Z",
+        "_seconds": 1772060516
+      }
+    }
+  },
+  {
+    "_id": "ngEFENgavUIDgTsAFDee",
+    "codigo": "MRC-017",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "descripcion": "Es una marca estadounidense líder en suplementos nutricionales naturales, fundada en 1973, conocida por sus vitaminas, minerales y fórmulas herbales de alta calidad, pionera en combinar plantas con efectos sinérgicos y reconocida por su riguroso control de calidad y potencia.",
+    "paisOrigen": "USA",
+    "sitioWeb": "www.solaray.com",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:21:48.000Z",
+      "_seconds": 1766197308
+    },
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "solaray",
+    "nombre": "Solaray",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:14.000Z",
+      "_seconds": 1767498074
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "productosActivos": 1,
+      "margenPromedio": 0,
+      "unidadesVendidas": 1,
+      "ventasTotalPEN": 257,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-18T16:50:44.000Z",
+        "_seconds": 1771433444
+      }
+    }
+  },
+  {
+    "_id": "oFSNmlX1f3IJV45Mlgwz",
+    "codigo": "MRC-007",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "sitioWeb": "https://www.kirklandsignature-us.com/",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:08:20.000Z",
+      "_seconds": 1766196500
+    },
+    "descripcion": "Es la marca propia (marca blanca) de Costco, la famosa cadena de clubes de precios.",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "kirkland signature",
+    "nombre": "Kirkland Signature",
+    "metricas": {
+      "productosActivos": 3,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:14.000Z",
+      "_seconds": 1767498074
+    },
+    "productosTotal": 3,
+    "productosActivos": 3,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "oYYtIz8ud49SGJofxcy0",
+    "codigo": "MRC-022",
+    "nombre": "Doctor's Best",
+    "nombreNormalizado": "doctors best",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "paisOrigen": "USA",
+    "sitioWeb": "www.doctorsbest.com",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T04:08:56.000Z",
+      "_seconds": 1767326936
+    },
+    "metricas": {
+      "productosActivos": 2,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:12.000Z",
+      "_seconds": 1767498072
+    },
+    "productosTotal": 2,
+    "productosActivos": 2,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "qmmT1Wi2hB9OOgEqyNPu",
+    "codigo": "MRC-011",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "sitioWeb": "https://www.microingredients.com/",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:14:12.000Z",
+      "_seconds": 1766196852
+    },
+    "descripcion": "Es una marca de suplementos nutricionales que vende productos orgánicos, puros y crudos. Se especializan en ofrecer ingredientes de alta concentración que son probados en laboratorios de terceros, sirviendo tanto a consumidores finales como a fabricantes de suplementos.",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "microingredients",
+    "nombre": "MicroIngredients",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "productosTotal": 16,
+    "productosActivos": 16,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "productosActivos": 16,
+      "unidadesVendidas": 3,
+      "ventasTotalPEN": 603,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-27T17:12:55.000Z",
+        "_seconds": 1772212375
+      }
+    }
+  },
+  {
+    "_id": "suQodlzHzsiNZQbKydr7",
+    "codigo": "MRC-012",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "descripcion": "Es una marca líder de suplementos nutricionales y vitamínicos fundada en 1980, famosa por sus productos de apoyo para el sueño (especialmente melatonina), salud cerebral, estado de ánimo, estrés y belleza, conocidos por ser sin drogas, vegetarianos y de alta calidad, distribuidos globalmente y enfocados en mejorar la calidad de vida y el bienestar.",
+    "paisOrigen": "USA",
+    "sitioWeb": "www.natrol.com",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:15:07.000Z",
+      "_seconds": 1766196907
+    },
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "natrol",
+    "nombre": "Natrol",
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:13.000Z",
+      "_seconds": 1767498073
+    },
+    "productosTotal": 6,
+    "productosActivos": 6,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "productosActivos": 6,
+      "unidadesVendidas": 2,
+      "ventasTotalPEN": 410,
+      "ultimaVenta": {
+        "_type": "timestamp",
+        "iso": "2026-02-28T00:34:11.000Z",
+        "_seconds": 1772238851
+      }
+    }
+  },
+  {
+    "_id": "wLjT5aSFBEsY61f3On7G",
+    "codigo": "MRC-005",
+    "tipoMarca": "suplementos",
+    "estado": "activa",
+    "proveedoresPreferidos": [],
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigen": "USA",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2025-12-20T02:05:18.000Z",
+      "_seconds": 1766196318
+    },
+    "sitioWeb": "https://store.dracocomarch.com/en/",
+    "actualizadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "nombreNormalizado": "coco march",
+    "nombre": "Coco March",
+    "metricas": {
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:13.000Z",
+      "_seconds": 1767498073
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    }
+  },
+  {
+    "_id": "z9fnqh9ceNslTObjl2EB",
+    "estado": "activa",
+    "tipoMarca": "farmaceutica",
+    "alias": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-02T10:02:27.000Z",
+      "_seconds": 1767348147
+    },
+    "paisOrigen": "USA",
+    "actualizadoPor": "bJkeC3yCUNTXhStsIPy6doEppuG3",
+    "nombreNormalizado": "allimax",
+    "nombre": "AlliMax",
+    "metricas": {
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0
+    },
+    "fechaActualizacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T03:41:11.000Z",
+      "_seconds": 1767498071
+    },
+    "productosTotal": 1,
+    "productosActivos": 1,
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:06:02.000Z",
+      "_seconds": 1767499562
+    },
+    "codigo": "MRC-032"
+  }
+]

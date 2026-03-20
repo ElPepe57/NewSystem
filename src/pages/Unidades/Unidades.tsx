@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../utils/dateFormatters';
 import {
   Package,
   AlertTriangle,
@@ -12,7 +13,8 @@ import {
   ShoppingBag,
   Boxes,
   LayoutGrid,
-  List
+  List,
+  Calendar
 } from 'lucide-react';
 import {
   Card,
@@ -27,10 +29,12 @@ import {
   Pagination,
   GradientHeader,
   StatCard,
-  StatDistribution
+  StatDistribution,
+  LineaNegocioBadge,
+  PaisOrigenBadge
 } from '../../components/common';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
-import { UnidadDetailsModal, UnidadCard } from '../../components/modules/inventario';
+import { UnidadDetailsModal, UnidadCard, EditarVencimientoModal } from '../../components/modules/inventario';
 import { useUnidadStore } from '../../store/unidadStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useAlmacenStore } from '../../store/almacenStore';
@@ -38,6 +42,8 @@ import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
 import { unidadService } from '../../services/unidad.service';
 import type { Unidad, EstadoUnidad } from '../../types/unidad.types';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, getLabelEstadoUnidad, getPaisEmoji } from '../../utils/multiOrigen.helpers';
 
 type VistaUnidades = 'cards' | 'tabla';
 
@@ -47,18 +53,22 @@ export const Unidades: React.FC = () => {
   const { almacenes, fetchAlmacenes } = useAlmacenStore();
   const { addToast } = useToastStore();
   const { user } = useAuthStore();
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   const [filtros, setFiltros] = useState({
     productoId: '',
     almacenId: '',
     estado: '' as EstadoUnidad | '',
-    pais: '' as 'USA' | 'Peru' | ''
+    pais: '' as string
   });
   const [filtroEstadoPipeline, setFiltroEstadoPipeline] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState('');
   const [sincronizando, setSincronizando] = useState(false);
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
-  const [vistaActual, setVistaActual] = useState<VistaUnidades>('tabla');
+  const [showEditarVencimiento, setShowEditarVencimiento] = useState(false);
+  const [vistaActual, setVistaActual] = useState<VistaUnidades>(
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'cards' : 'tabla'
+  );
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -73,8 +83,8 @@ export const Unidades: React.FC = () => {
 
   // Calcular estadísticas para el pipeline desde las unidades (fuente única de verdad)
   const unidadesStats = useMemo(() => {
-    let recibidaUSA = 0;
-    let enTransitoUSA = 0;
+    let enOrigen = 0;
+    let enTransitoOrigen = 0;
     let enTransitoPeru = 0;
     let disponiblePeru = 0;
     let reservada = 0;
@@ -87,31 +97,25 @@ export const Unidades: React.FC = () => {
     hoy.setHours(0, 0, 0, 0);
 
     unidades.forEach(u => {
+      // Filtro global por línea de negocio
+      if (lineaFiltroGlobal && u.lineaNegocioId !== lineaFiltroGlobal) return;
+
       valorTotalUSD += u.costoUnitarioUSD || 0;
 
-      switch (u.estado) {
-        case 'recibida_usa':
-          recibidaUSA++;
-          break;
-        case 'en_transito_usa':
-          enTransitoUSA++;
-          break;
-        case 'en_transito_peru':
-          enTransitoPeru++;
-          break;
-        case 'disponible_peru':
-          disponiblePeru++;
-          break;
-        case 'reservada':
-          reservada++;
-          break;
-        case 'vendida':
-          vendida++;
-          break;
-        case 'vencida':
-        case 'danada':
-          problemas++;
-          break;
+      if (esEstadoEnOrigen(u.estado)) {
+        enOrigen++;
+      } else if (esEstadoEnTransitoOrigen(u.estado)) {
+        enTransitoOrigen++;
+      } else if (u.estado === 'en_transito_peru') {
+        enTransitoPeru++;
+      } else if (u.estado === 'disponible_peru') {
+        disponiblePeru++;
+      } else if (u.estado === 'reservada') {
+        reservada++;
+      } else if (u.estado === 'vendida') {
+        vendida++;
+      } else if (u.estado === 'vencida' || u.estado === 'danada') {
+        problemas++;
       }
 
       // Contar próximas a vencer (30 días)
@@ -125,12 +129,12 @@ export const Unidades: React.FC = () => {
       }
     });
 
-    const enTransito = enTransitoUSA + enTransitoPeru;
-    const totalActivo = recibidaUSA + enTransito + disponiblePeru + reservada;
+    const enTransito = enTransitoOrigen + enTransitoPeru;
+    const totalActivo = enOrigen + enTransito + disponiblePeru + reservada;
 
     return {
-      recibidaUSA,
-      enTransitoUSA,
+      enOrigen,
+      enTransitoOrigen,
       enTransitoPeru,
       enTransito,
       disponiblePeru,
@@ -142,14 +146,14 @@ export const Unidades: React.FC = () => {
       valorTotalUSD,
       proximasAVencer
     };
-  }, [unidades]);
+  }, [unidades, lineaFiltroGlobal]);
 
   // Pipeline stages para el PipelineHeader
   const pipelineStages: PipelineStage[] = useMemo(() => [
     {
-      id: 'recibida_usa',
-      label: 'USA',
-      count: unidadesStats.recibidaUSA,
+      id: 'en_origen',
+      label: 'En Origen',
+      count: unidadesStats.enOrigen,
       color: 'blue',
       icon: <Warehouse className="h-4 w-4" />
     },
@@ -193,14 +197,17 @@ export const Unidades: React.FC = () => {
   // Aplicar filtros y búsqueda
   const unidadesFiltradas = useMemo(() => {
     return unidades.filter(unidad => {
+      // Filtro global por línea de negocio
+      if (lineaFiltroGlobal && unidad.lineaNegocioId !== lineaFiltroGlobal) return false;
+
       // Filtro por pipeline (prioridad)
       if (filtroEstadoPipeline) {
         switch (filtroEstadoPipeline) {
-          case 'recibida_usa':
-            if (unidad.estado !== 'recibida_usa') return false;
+          case 'en_origen':
+            if (!esEstadoEnOrigen(unidad.estado)) return false;
             break;
           case 'en_transito':
-            if (unidad.estado !== 'en_transito_usa' && unidad.estado !== 'en_transito_peru') return false;
+            if (!esEstadoEnTransitoOrigen(unidad.estado) && unidad.estado !== 'en_transito_peru') return false;
             break;
           case 'disponible_peru':
             if (unidad.estado !== 'disponible_peru') return false;
@@ -230,17 +237,36 @@ export const Unidades: React.FC = () => {
 
       if (filtros.productoId && unidad.productoId !== filtros.productoId) return false;
       if (filtros.almacenId && unidad.almacenId !== filtros.almacenId) return false;
-      if (filtros.estado && unidad.estado !== filtros.estado) return false;
+      if (filtros.estado) {
+        if (filtros.estado === 'recibida_origen') {
+          if (!esEstadoEnOrigen(unidad.estado)) return false;
+        } else if (filtros.estado === 'en_transito_origen') {
+          if (!esEstadoEnTransitoOrigen(unidad.estado)) return false;
+        } else if (unidad.estado !== filtros.estado) {
+          return false;
+        }
+      }
       if (filtros.pais && unidad.pais !== filtros.pais) return false;
       return true;
     });
-  }, [unidades, filtros, busqueda, filtroEstadoPipeline]);
+  }, [unidades, filtros, busqueda, filtroEstadoPipeline, lineaFiltroGlobal]);
 
   // Paginación
   const unidadesPaginadas = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
     return unidadesFiltradas.slice(startIndex, startIndex + pageSize);
   }, [unidadesFiltradas, currentPage, pageSize]);
+
+  // Map de productos para lookup rápido de info descriptiva
+  const productosMap = useMemo(() => {
+    const map = new Map<string, { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string }>();
+    productos.forEach(p => {
+      if (p.presentacion || p.contenido || p.dosaje || p.sabor) {
+        map.set(p.id, { presentacion: p.presentacion, contenido: p.contenido, dosaje: p.dosaje, sabor: p.sabor });
+      }
+    });
+    return map;
+  }, [productos]);
 
   // Reset página cuando cambian filtros
   useEffect(() => {
@@ -287,33 +313,25 @@ export const Unidades: React.FC = () => {
   };
 
   // Función para obtener el badge de estado
-  const getEstadoBadge = (estado: EstadoUnidad | string) => {
-    const badges: Record<string, { variant: 'success' | 'info' | 'warning' | 'default' | 'danger'; label: string }> = {
-      // Estados en USA
-      'recibida_usa': { variant: 'success', label: 'Recibida USA' },
-      'en_transito_usa': { variant: 'info', label: 'En Tránsito USA' },
-      // Estados en tránsito a Perú
-      'en_transito_peru': { variant: 'info', label: 'En Tránsito → Perú' },
-      // Estados en Perú
-      'disponible_peru': { variant: 'success', label: 'Disponible Perú' },
-      'reservada': { variant: 'warning', label: 'Reservada' },
-      'vendida': { variant: 'default', label: 'Vendida' },
-      // Estados especiales
-      'vencida': { variant: 'danger', label: 'Vencida' },
-      'danada': { variant: 'danger', label: 'Dañada' },
-      // Estados legacy (para mostrar mientras no se sincronicen)
-      'entregada': { variant: 'warning', label: 'Entregada (sync)' },
-      'asignada_pedido': { variant: 'warning', label: 'Asignada (sync)' }
+  const getEstadoBadge = (estado: EstadoUnidad | string, paisOrigen?: string) => {
+    // Variant mapping
+    const variantMap: Record<string, 'success' | 'info' | 'warning' | 'default' | 'danger'> = {
+      'recibida_usa': 'success',
+      'recibida_origen': 'success',
+      'en_transito_usa': 'info',
+      'en_transito_origen': 'info',
+      'en_transito_peru': 'info',
+      'disponible_peru': 'success',
+      'reservada': 'warning',
+      'vendida': 'default',
+      'vencida': 'danger',
+      'danada': 'danger',
+      'entregada': 'warning',
+      'asignada_pedido': 'warning'
     };
-    return badges[estado] || { variant: 'default' as const, label: estado || 'Desconocido' };
-  };
-
-  // Función para calcular días para vencer
-  const calcularDiasParaVencer = (unidad: Unidad): number => {
-    if (!unidad?.fechaVencimiento) {
-      return 0;
-    }
-    return unidadService.calcularDiasParaVencer(unidad.fechaVencimiento);
+    const variant = variantMap[estado] || 'default';
+    const label = getLabelEstadoUnidad(estado as EstadoUnidad, paisOrigen);
+    return { variant, label };
   };
 
   // Función para obtener color según días para vencer
@@ -324,16 +342,6 @@ export const Unidades: React.FC = () => {
     return 'text-gray-600';
   };
 
-  const formatFecha = (timestamp: any): string => {
-    if (!timestamp || !timestamp.toDate) {
-      return '-';
-    }
-    return timestamp.toDate().toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
 
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-US', {
@@ -354,25 +362,35 @@ export const Unidades: React.FC = () => {
         icon={Boxes}
         variant="dark"
         actions={
-          <Button
-            variant="ghost"
-            onClick={handleSincronizar}
-            disabled={sincronizando}
-            className="text-white/70 hover:text-white hover:bg-white/10"
-          >
-            <RefreshCw className={`h-5 w-5 ${sincronizando ? 'animate-spin' : ''}`} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setShowEditarVencimiento(true)}
+              className="text-white/70 hover:text-white hover:bg-white/10 flex items-center gap-1.5"
+            >
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">Vencimientos</span>
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleSincronizar}
+              disabled={sincronizando}
+              className="text-white/70 hover:text-white hover:bg-white/10"
+            >
+              <RefreshCw className={`h-5 w-5 ${sincronizando ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         }
         stats={[
           { label: 'Total', value: unidadesStats.total },
-          { label: 'USA', value: unidadesStats.recibidaUSA + unidadesStats.enTransitoUSA },
+          { label: 'En Origen', value: unidadesStats.enOrigen + unidadesStats.enTransitoOrigen },
           { label: 'Perú', value: unidadesStats.disponiblePeru },
           { label: 'Vendidas', value: unidadesStats.vendida }
         ]}
       />
 
       {/* StatCards interactivos */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
         <StatCard
           label="Total Unidades"
           value={unidadesStats.total}
@@ -386,12 +404,12 @@ export const Unidades: React.FC = () => {
           variant="green"
         />
         <StatCard
-          label="En USA"
-          value={unidadesStats.recibidaUSA + unidadesStats.enTransitoUSA}
+          label="En Origen"
+          value={unidadesStats.enOrigen + unidadesStats.enTransitoOrigen}
           icon={Warehouse}
           variant="blue"
-          onClick={() => setFiltros(prev => ({ ...prev, pais: prev.pais === 'USA' ? '' : 'USA' }))}
-          active={filtros.pais === 'USA'}
+          onClick={() => setFiltroEstadoPipeline(filtroEstadoPipeline === 'en_origen' ? null : 'en_origen')}
+          active={filtroEstadoPipeline === 'en_origen'}
         />
         <StatCard
           label="En Tránsito"
@@ -422,7 +440,7 @@ export const Unidades: React.FC = () => {
         <StatDistribution
           title="Distribución por Ubicación"
           data={[
-            { label: 'USA', value: unidadesStats.recibidaUSA + unidadesStats.enTransitoUSA, color: 'bg-blue-500' },
+            { label: 'En Origen', value: unidadesStats.enOrigen + unidadesStats.enTransitoOrigen, color: 'bg-blue-500' },
             { label: 'En Tránsito → Perú', value: unidadesStats.enTransitoPeru, color: 'bg-amber-500' },
             { label: 'Perú', value: unidadesStats.disponiblePeru, color: 'bg-green-500' },
             { label: 'Reservadas', value: unidadesStats.reservada, color: 'bg-purple-500' }
@@ -431,8 +449,8 @@ export const Unidades: React.FC = () => {
         <StatDistribution
           title="Estado de Unidades"
           data={[
-            { label: 'Disponibles', value: unidadesStats.recibidaUSA + unidadesStats.disponiblePeru, color: 'bg-green-500' },
-            { label: 'En Movimiento', value: unidadesStats.enTransitoUSA + unidadesStats.enTransitoPeru, color: 'bg-blue-500' },
+            { label: 'Disponibles', value: unidadesStats.enOrigen + unidadesStats.disponiblePeru, color: 'bg-green-500' },
+            { label: 'En Movimiento', value: unidadesStats.enTransitoOrigen + unidadesStats.enTransitoPeru, color: 'bg-blue-500' },
             { label: 'Vendidas', value: unidadesStats.vendida, color: 'bg-gray-400' },
             { label: 'Problemas', value: unidadesStats.problemas, color: 'bg-red-500' }
           ]}
@@ -451,7 +469,7 @@ export const Unidades: React.FC = () => {
       <Card padding="md">
         <div className="space-y-4">
           {/* Barra de búsqueda y toggle */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <div className="flex-1">
               <SearchInput
                 value={busqueda}
@@ -462,7 +480,7 @@ export const Unidades: React.FC = () => {
 
             {/* Toggle de vista */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">Vista:</span>
+              <span className="text-sm text-gray-500 hidden sm:inline">Vista:</span>
               <div className="flex rounded-lg border border-gray-300 overflow-hidden">
                 <button
                   onClick={() => setVistaActual('cards')}
@@ -490,7 +508,7 @@ export const Unidades: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <Select
               label="Producto"
               value={filtros.productoId}
@@ -512,7 +530,7 @@ export const Unidades: React.FC = () => {
                 { value: '', label: 'Todos los almacenes' },
                 ...almacenes.map(a => ({
                   value: a.id,
-                  label: `${a.pais === 'USA' ? '🇺🇸' : '🇵🇪'} ${a.nombre}`
+                  label: `${getPaisEmoji(a.pais)} ${a.nombre}`
                 }))
               ]}
             />
@@ -523,8 +541,8 @@ export const Unidades: React.FC = () => {
               onChange={(e) => setFiltros({ ...filtros, estado: e.target.value as EstadoUnidad | '' })}
               options={[
                 { value: '', label: 'Todos los estados' },
-                { value: 'recibida_usa', label: 'Recibida USA' },
-                { value: 'en_transito_usa', label: 'En Tránsito USA' },
+                { value: 'recibida_origen', label: 'Recibida en Origen' },
+                { value: 'en_transito_origen', label: 'En Tránsito Origen' },
                 { value: 'en_transito_peru', label: 'En Tránsito → Perú' },
                 { value: 'disponible_peru', label: 'Disponible Perú' },
                 { value: 'reservada', label: 'Reservada' },
@@ -537,7 +555,7 @@ export const Unidades: React.FC = () => {
             <Select
               label="País"
               value={filtros.pais}
-              onChange={(e) => setFiltros({ ...filtros, pais: e.target.value as 'USA' | 'Peru' | '' })}
+              onChange={(e) => setFiltros({ ...filtros, pais: e.target.value })}
               options={[
                 { value: '', label: 'Todos los países' },
                 { value: 'USA', label: '🇺🇸 USA' },
@@ -591,6 +609,7 @@ export const Unidades: React.FC = () => {
                 <UnidadCard
                   key={unidad.id}
                   unidad={unidad}
+                  productoInfo={productosMap.get(unidad.productoId)}
                   onVerDetalle={() => setUnidadSeleccionada(unidad)}
                 />
               ))
@@ -636,25 +655,25 @@ export const Unidades: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Producto
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Lote
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Vencimiento
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Almacén
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Estado
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase">
                       Costo USD
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
                       Acciones
                     </th>
                   </tr>
@@ -663,23 +682,32 @@ export const Unidades: React.FC = () => {
                   {unidadesPaginadas.map((unidad) => {
                     if (!unidad || !unidad.estado) return null;
 
-                    const diasVencer = calcularDiasParaVencer(unidad);
-                    const estadoBadge = getEstadoBadge(unidad.estado);
+                    const diasVencer = calcularDiasParaVencerUtil(unidad.fechaVencimiento) ?? 0;
+                    const estadoBadge = getEstadoBadge(unidad.estado, unidad.paisOrigen || unidad.pais);
 
                     return (
                       <tr key={unidad.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
                           <div>
                             <div className="text-sm font-medium text-gray-900">
                               {unidad.productoSKU || '-'}
                             </div>
                             <div className="text-sm text-gray-500">{unidad.productoNombre || '-'}</div>
+                            {(() => {
+                              const pInfo = productosMap.get(unidad.productoId);
+                              const desc = pInfo ? [pInfo.presentacion, pInfo.contenido, pInfo.dosaje, pInfo.sabor].filter(Boolean).join(' · ') : '';
+                              return desc ? <div className="text-[10px] text-gray-400">{desc}</div> : null;
+                            })()}
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <LineaNegocioBadge lineaNegocioId={unidad.lineaNegocioId} />
+                              <PaisOrigenBadge paisOrigen={unidad.paisOrigen} />
+                            </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{unidad.lote || '-'}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
                             {formatFecha(unidad.fechaVencimiento)}
                           </div>
@@ -689,18 +717,18 @@ export const Unidades: React.FC = () => {
                               : `${diasVencer} días`}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {unidad.pais === 'USA' ? '🇺🇸' : '🇵🇪'} {unidad.almacenNombre || '-'}
+                            {getPaisEmoji(unidad.pais)} {unidad.almacenNombre || '-'}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm text-gray-900">
                           {formatCurrency(unidad.costoUnitarioUSD || 0)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                           <button
                             onClick={() => setUnidadSeleccionada(unidad)}
                             className="p-1.5 text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg transition-colors"
@@ -731,7 +759,7 @@ export const Unidades: React.FC = () => {
                   },
                   {
                     label: 'Disponibles',
-                    value: unidadesFiltradas.filter(u => u.estado === 'disponible_peru' || u.estado === 'recibida_usa').length,
+                    value: unidadesFiltradas.filter(u => u.estado === 'disponible_peru' || esEstadoEnOrigen(u.estado)).length,
                     icon: 'package',
                     variant: 'success'
                   },
@@ -761,10 +789,23 @@ export const Unidades: React.FC = () => {
         </Card>
       )}
 
+      {/* Modal de Editar Vencimientos por Lote */}
+      <EditarVencimientoModal
+        isOpen={showEditarVencimiento}
+        onClose={() => setShowEditarVencimiento(false)}
+        unidades={unidades}
+        productosMap={productosMap}
+        onSuccess={() => {
+          fetchUnidades();
+          fetchStats();
+        }}
+      />
+
       {/* Modal de Detalles de Unidad */}
       {unidadSeleccionada && (
         <UnidadDetailsModal
           unidad={unidadSeleccionada}
+          productoInfo={productosMap.get(unidadSeleccionada.productoId)}
           onClose={() => setUnidadSeleccionada(null)}
           onLiberarReserva={async (unidad) => {
             if (!user) return;
@@ -779,12 +820,12 @@ export const Unidades: React.FC = () => {
                 user.uid
               );
               if (resultado.exitos > 0) {
-                addToast('Reserva liberada exitosamente', 'success');
+                addToast('success', 'Reserva liberada exitosamente');
                 setUnidadSeleccionada(null);
                 await fetchUnidades();
                 await fetchStats();
               } else {
-                addToast('No se pudo liberar la reserva', 'error');
+                addToast('error', 'No se pudo liberar la reserva');
               }
             } catch (error: any) {
               addToast(error.message || 'Error al liberar reserva', 'error');

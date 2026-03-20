@@ -1,4 +1,5 @@
-import * as XLSX from 'xlsx';
+// Lazy import: xlsx (~450KB) solo se carga cuando el usuario exporta
+const getXLSX = () => import('xlsx');
 
 export class ExcelService {
   /**
@@ -7,13 +8,15 @@ export class ExcelService {
    * @param fileName Nombre del archivo (sin extensión)
    * @param sheetName Nombre de la hoja (Opcional, default: 'Datos')
    */
-  static exportToExcel(data: any[], fileName: string, sheetName: string = 'Datos'): void {
+  static async exportToExcel(data: any[], fileName: string, sheetName: string = 'Datos'): Promise<void> {
     try {
       // 1. Validar que haya datos
       if (!data || data.length === 0) {
         console.warn('ExcelService: No hay datos para exportar.');
         return;
       }
+
+      const XLSX = await getXLSX();
 
       // 2. Crear la hoja de trabajo a partir del JSON
       const worksheet = XLSX.utils.json_to_sheet(data);
@@ -31,10 +34,9 @@ export class ExcelService {
 
       // 6. Descargar el archivo
       XLSX.writeFile(workbook, fullFileName);
-      
+
     } catch (error) {
       console.error('Error al exportar a Excel:', error);
-      // Opcional: Podrías lanzar el error para que lo maneje la UI
       throw new Error('No se pudo generar el reporte de Excel.');
     }
   }
@@ -42,7 +44,7 @@ export class ExcelService {
   /**
    * Calcula y aplica el ancho óptimo para cada columna
    */
-  private static autoFitColumns(worksheet: XLSX.WorkSheet, data: any[]) {
+  private static autoFitColumns(worksheet: any, data: any[]) {
     // Obtener todas las llaves (encabezados) del primer objeto
     const keys = Object.keys(data[0]);
 

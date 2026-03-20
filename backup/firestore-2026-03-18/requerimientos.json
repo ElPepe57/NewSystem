@@ -1,0 +1,2135 @@
+[
+  {
+    "_id": "0MsMURRH1VCs3d49B428",
+    "numeroRequerimiento": "REQ-2026-0001",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.37,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 0,
+      "costoTotalEstimadoPEN": 0
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T17:56:10.000Z",
+      "_seconds": 1770141370
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-03T17:56:10.000Z",
+      "_seconds": 1770141370
+    },
+    "ventaRelacionadaId": "PqPef3ikwt5V609pbK4h",
+    "nombreClienteSolicitante": "Fabricio Omar Rios",
+    "justificacion": "Requerimiento automático desde cotización COT-2026-001 - Cliente: Fabricio Omar Rios",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-04T06:24:26.000Z",
+      "_seconds": 1770186266
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "estado": "cancelado",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:54:24.000Z",
+      "_seconds": 1770677664
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "SUP-0124",
+        "marca": "Youtheory",
+        "nombreComercial": "Collagen + Biotin Verisol",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-03T17:56:10.000Z",
+          "_seconds": 1770141370
+        }
+      }
+    ]
+  },
+  {
+    "_id": "4eAYseh6xcJXRzJ4EpJd",
+    "numeroRequerimiento": "REQ-2026-0024",
+    "origen": "manual",
+    "tipoSolicitante": "administracion",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.47,
+      "costoEstimadoUSD": 2063.78,
+      "costoEstimadoPEN": 7161.316600000001,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 206.378,
+      "costoTotalEstimadoUSD": 2270.1580000000004,
+      "costoTotalEstimadoPEN": 7877.448260000002
+    },
+    "prioridad": "media",
+    "solicitadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T19:53:18.000Z",
+      "_seconds": 1773172398
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-10T19:53:18.000Z",
+      "_seconds": 1773172398
+    },
+    "justificacion": "Reponer stock.",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-11T17:08:08.000Z",
+      "_seconds": 1773248888
+    },
+    "aprobadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu",
+    "ordenCompraNumero": "OC-2026-014",
+    "ordenCompraIds": [
+      "5jfzwQH2HOJkxjSO1lKu",
+      "zXbpc6Lbip2ygowJOA9y"
+    ],
+    "ordenCompraNumeros": [
+      "OC-2026-014",
+      "OC-2026-015"
+    ],
+    "ocCoverage": {
+      "totalProductos": 21,
+      "productosEnOC": 11,
+      "productosPendientes": 18,
+      "porcentaje": 35
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:57:01.000Z",
+      "_seconds": 1773525421
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-14T21:57:01.000Z",
+      "_seconds": 1773525421
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "sku": "SUP-0052",
+        "cantidadAsignada": 0,
+        "cantidadEnOC": 2,
+        "proveedorSugerido": "Amazon",
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "ordenCompraRefs": [
+          {
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu",
+            "ordenCompraNumero": "OC-2026-014",
+            "cantidad": 2
+          }
+        ],
+        "nombreComercial": "Melena de León",
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 6,
+        "cantidadPendiente": 6,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "precioEstimadoUSD": 17.35,
+        "pendienteCompra": 4,
+        "marca": "Horbaach"
+      },
+      {
+        "precioEstimadoUSD": 9.89,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "pendienteCompra": 2,
+        "marca": "Carlyle",
+        "cantidadPendiente": 8,
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 8,
+        "nombreComercial": "Berberina",
+        "ordenCompraRefs": [
+          {
+            "ordenCompraNumero": "OC-2026-014",
+            "cantidad": 6,
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu"
+          }
+        ],
+        "cantidadEnOC": 6,
+        "cantidadAsignada": 0,
+        "proveedorSugerido": "Amazon",
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118"
+      },
+      {
+        "sku": "SUP-0117",
+        "cantidadAsignada": 0,
+        "cantidadEnOC": 2,
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "proveedorSugerido": "Amazon",
+        "ordenCompraRefs": [
+          {
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu",
+            "ordenCompraNumero": "OC-2026-014",
+            "cantidad": 2
+          }
+        ],
+        "nombreComercial": "CoQ10",
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 4,
+        "cantidadPendiente": 4,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "precioEstimadoUSD": 32.97,
+        "pendienteCompra": 2,
+        "marca": "Life Extension"
+      },
+      {
+        "sku": "SUP-0054",
+        "ordenCompraRefs": [
+          {
+            "ordenCompraNumero": "OC-2026-014",
+            "cantidad": 4,
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu"
+          }
+        ],
+        "nombreComercial": "D3 + K2",
+        "productoId": "UkAyIBBPihxhR8yRscDX",
+        "proveedorSugerido": "Amazon",
+        "cantidadAsignada": 0,
+        "cantidadEnOC": 4,
+        "cantidadPendiente": 6,
+        "cantidadSolicitada": 6,
+        "cantidadRecibida": 0,
+        "pendienteCompra": 2,
+        "marca": "Carlyle",
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "precioEstimadoUSD": 15.99
+      },
+      {
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 6,
+        "cantidadPendiente": 6,
+        "sku": "SUP-0003",
+        "cantidadAsignada": 0,
+        "productoId": "0lj2gv5pFrVzy31ttTHx",
+        "proveedorSugerido": "Amazon",
+        "precioEstimadoUSD": 16.23,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "marca": "Carlyle",
+        "nombreComercial": "Magnesio Bisglicinato"
+      },
+      {
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 2,
+        "cantidadPendiente": 2,
+        "precioEstimadoUSD": 33.99,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "marca": "Microingredients",
+        "pendienteCompra": 1,
+        "sku": "SUP-0088",
+        "cantidadEnOC": 1,
+        "cantidadAsignada": 0,
+        "productoId": "iGlTXVGSF0xo2KjM9hDC",
+        "proveedorSugerido": "Amazon",
+        "nombreComercial": "Omega 3",
+        "ordenCompraRefs": [
+          {
+            "ordenCompraNumero": "OC-2026-014",
+            "cantidad": 1,
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu"
+          }
+        ]
+      },
+      {
+        "sku": "SUP-0076",
+        "nombreComercial": "Complejo B",
+        "ordenCompraRefs": [
+          {
+            "ordenCompraId": "zXbpc6Lbip2ygowJOA9y",
+            "ordenCompraNumero": "OC-2026-015",
+            "cantidad": 8
+          }
+        ],
+        "proveedorSugerido": "Amazon",
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "cantidadEnOC": 8,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 8,
+        "cantidadSolicitada": 8,
+        "cantidadRecibida": 0,
+        "marca": "Microingredients",
+        "pendienteCompra": 0,
+        "precioEstimadoUSD": 19.8,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        }
+      },
+      {
+        "marca": "Carlyle",
+        "nombreComercial": "Ashwagandha",
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "precioEstimadoUSD": 16.99,
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "proveedorSugerido": "Amazon",
+        "cantidadAsignada": 0,
+        "sku": "SUP-0004",
+        "cantidadPendiente": 6,
+        "cantidadSolicitada": 6,
+        "cantidadRecibida": 0
+      },
+      {
+        "cantidadPendiente": 6,
+        "cantidadSolicitada": 6,
+        "cantidadRecibida": 0,
+        "marca": "Horbaach",
+        "pendienteCompra": 0,
+        "precioEstimadoUSD": 9.99,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "sku": "SUP-0057",
+        "nombreComercial": "Vitamina B12",
+        "ordenCompraRefs": [
+          {
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu",
+            "ordenCompraNumero": "OC-2026-014",
+            "cantidad": 6
+          }
+        ],
+        "proveedorSugerido": "Amazon",
+        "productoId": "XBd57B5pUvq7yATdourU",
+        "cantidadEnOC": 6,
+        "cantidadAsignada": 0
+      },
+      {
+        "precioEstimadoUSD": 15.99,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "pendienteCompra": 3,
+        "marca": "Natrol",
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 5,
+        "cantidadPendiente": 5,
+        "cantidadEnOC": 2,
+        "cantidadAsignada": 0,
+        "proveedorSugerido": "Amazon",
+        "productoId": "ee5BnaREkJzON1mk99JL",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "ordenCompraRefs": [
+          {
+            "cantidad": 2,
+            "ordenCompraNumero": "OC-2026-014",
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu"
+          }
+        ],
+        "sku": "SUP-0082"
+      },
+      {
+        "cantidadPendiente": 6,
+        "cantidadSolicitada": 6,
+        "cantidadRecibida": 0,
+        "marca": "Carlyle",
+        "pendienteCompra": 4,
+        "precioEstimadoUSD": 11.49,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "sku": "SUP-0007",
+        "nombreComercial": "Melatonina",
+        "ordenCompraRefs": [
+          {
+            "ordenCompraNumero": "OC-2026-014",
+            "cantidad": 2,
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu"
+          }
+        ],
+        "productoId": "3O3ecZ0fNfNu76r1CpUs",
+        "proveedorSugerido": "Amazon",
+        "cantidadEnOC": 2,
+        "cantidadAsignada": 0
+      },
+      {
+        "cantidadAsignada": 0,
+        "productoId": "tdwV1884DBT2UvJY5vsl",
+        "proveedorSugerido": "Amazon",
+        "precioEstimadoUSD": 21.36,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "nombreComercial": "Gomitas de Melatonina para Adultos",
+        "marca": "Natrol",
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 4,
+        "cantidadPendiente": 4,
+        "sku": "SUP-0111"
+      },
+      {
+        "sku": "SUP-0036",
+        "cantidadPendiente": 8,
+        "cantidadSolicitada": 8,
+        "cantidadRecibida": 0,
+        "nombreComercial": "Artic-D",
+        "marca": "Nordic Naturals",
+        "precioEstimadoUSD": 26.87,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "proveedorSugerido": "Amazon",
+        "productoId": "MBEXCRC2sVNAuVwQP22i",
+        "cantidadAsignada": 0
+      },
+      {
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "precioEstimadoUSD": 22.91,
+        "nombreComercial": "Omega 3",
+        "marca": "Nordic Naturals",
+        "cantidadAsignada": 0,
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "proveedorSugerido": "Amazon",
+        "cantidadPendiente": 8,
+        "sku": "SUP-0095",
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 8
+      },
+      {
+        "precioEstimadoUSD": 21.39,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "marca": "Wellness Labs Rx",
+        "nombreComercial": "NAD + Resveratrol",
+        "cantidadAsignada": 0,
+        "proveedorSugerido": "Amazon",
+        "productoId": "XZPxa1RqYMJA6zvo7Jb5",
+        "cantidadPendiente": 6,
+        "sku": "SUP-0060",
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 6
+      },
+      {
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "proveedorSugerido": "Amazon",
+        "cantidadAsignada": 0,
+        "marca": "Microingredients",
+        "nombreComercial": "D3 + K2",
+        "precioEstimadoUSD": 24.75,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "cantidadSolicitada": 4,
+        "cantidadRecibida": 0,
+        "sku": "SUP-0040",
+        "cantidadPendiente": 4
+      },
+      {
+        "cantidadPendiente": 2,
+        "sku": "SUP-0048",
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 2,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "precioEstimadoUSD": 34.11,
+        "nombreComercial": "Ultimate Omega Kids",
+        "marca": "Nordic Naturals",
+        "cantidadAsignada": 0,
+        "proveedorSugerido": "Amazon",
+        "productoId": "SJy7nOtm5ZxeXnECz4sr"
+      },
+      {
+        "precioEstimadoUSD": 25.22,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "marca": "Sports Research",
+        "nombreComercial": "Alaska Omega 3",
+        "cantidadAsignada": 0,
+        "proveedorSugerido": "Amazon",
+        "productoId": "YkrUxQlBTzmsB1MQP2nf",
+        "cantidadPendiente": 4,
+        "sku": "SUP-0063",
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 4
+      },
+      {
+        "precioEstimadoUSD": 20.99,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "marca": "Doctor's Best",
+        "nombreComercial": "Magnesio Glicinato",
+        "cantidadAsignada": 0,
+        "proveedorSugerido": "Amazon",
+        "productoId": "bnsl6GPUaDtBYefAnU1t",
+        "cantidadPendiente": 1,
+        "sku": "SUP-0075",
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 1
+      },
+      {
+        "ordenCompraRefs": [
+          {
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu",
+            "ordenCompraNumero": "OC-2026-014",
+            "cantidad": 1
+          }
+        ],
+        "nombreComercial": "Cápsulas de Aceite de Semilla de Calabaza",
+        "cantidadAsignada": 0,
+        "cantidadEnOC": 1,
+        "productoId": "XLePXD9pIQbYTlsVe7uX",
+        "proveedorSugerido": "Amazon",
+        "sku": "SUP-0059",
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "precioEstimadoUSD": 34.6,
+        "pendienteCompra": 1,
+        "marca": "Microingredients",
+        "cantidadPendiente": 2,
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 2
+      },
+      {
+        "nombreComercial": "Triple Magnesium Complex",
+        "ordenCompraRefs": [
+          {
+            "ordenCompraId": "5jfzwQH2HOJkxjSO1lKu",
+            "ordenCompraNumero": "OC-2026-014",
+            "cantidad": 2
+          }
+        ],
+        "cantidadEnOC": 2,
+        "cantidadAsignada": 0,
+        "proveedorSugerido": "Amazon",
+        "productoId": "YpMdltCdRfYtnqMA6vYA",
+        "sku": "SUP-0126",
+        "precioEstimadoUSD": 23.95,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-10T19:53:18.000Z",
+          "_seconds": 1773172398
+        },
+        "marca": "Microingredients",
+        "pendienteCompra": 0,
+        "cantidadPendiente": 2,
+        "cantidadRecibida": 0,
+        "cantidadSolicitada": 2
+      }
+    ]
+  },
+  {
+    "_id": "8cqcuNfJj2mKNqDAYTTb",
+    "numeroRequerimiento": "REQ-2026-0007",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 0,
+      "costoTotalEstimadoPEN": 0
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:54.000Z",
+      "_seconds": 1770597954
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:54.000Z",
+      "_seconds": 1770597954
+    },
+    "ventaRelacionadaId": "rPwmrRRraaerWBCXC62M",
+    "nombreClienteSolicitante": "Greta Peru SAC",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-016 - Cliente: Greta Peru SAC",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:54.000Z",
+      "_seconds": 1770597954
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:56.000Z",
+      "_seconds": 1770597956
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:56.000Z",
+      "_seconds": 1770597956
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-09T00:45:54.000Z",
+          "_seconds": 1770597954
+        }
+      }
+    ]
+  },
+  {
+    "_id": "HrEYNLu44lh7JcamaPc7",
+    "numeroRequerimiento": "REQ-2026-0019",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:42:15.000Z",
+      "_seconds": 1771602135
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:42:15.000Z",
+      "_seconds": 1771602135
+    },
+    "ventaRelacionadaId": "UMRZg6uC4t43MpYhUB8e",
+    "nombreClienteSolicitante": "Eduardo Isaac Ugaz",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-030 - Cliente: Eduardo Isaac Ugaz",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:42:16.000Z",
+      "_seconds": 1771602136
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 16.19,
+      "costoEstimadoPEN": 54.3984,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 16.19,
+      "costoTotalEstimadoPEN": 54.3984
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:42:19.000Z",
+      "_seconds": 1771602139
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-20T15:42:19.000Z",
+      "_seconds": 1771602139
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "T1jSnECR6ZJEWRZnvJSu",
+        "sku": "SUP-0052",
+        "marca": "Horbaach",
+        "nombreComercial": "Melena de León",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-20T15:42:15.000Z",
+          "_seconds": 1771602135
+        },
+        "precioEstimadoUSD": 16.19
+      }
+    ]
+  },
+  {
+    "_id": "JKq5Zagyh8w7QT4LG1ZE",
+    "numeroRequerimiento": "REQ-2026-0010",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:08:48.000Z",
+      "_seconds": 1770746928
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:08:48.000Z",
+      "_seconds": 1770746928
+    },
+    "ventaRelacionadaId": "U4DwYMZjw2CyII1TJftx",
+    "nombreClienteSolicitante": "Francesca Rivera Torres",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-019 - Cliente: Francesca Rivera Torres",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:08:48.000Z",
+      "_seconds": 1770746928
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 23.38,
+      "costoEstimadoPEN": 78.5568,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 23.38,
+      "costoTotalEstimadoPEN": 78.5568
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:08:50.000Z",
+      "_seconds": 1770746930
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-10T18:08:50.000Z",
+      "_seconds": 1770746930
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "m0dwINFHyHU64jt1gSnf",
+        "sku": "SUP-0095",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "Omega 3",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-10T18:08:48.000Z",
+          "_seconds": 1770746928
+        },
+        "precioEstimadoUSD": 23.38
+      }
+    ]
+  },
+  {
+    "_id": "PijR23vhSKeag4kEYy9i",
+    "numeroRequerimiento": "REQ-2026-0004",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 0,
+      "costoTotalEstimadoPEN": 0
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:30:10.000Z",
+      "_seconds": 1770597010
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:30:10.000Z",
+      "_seconds": 1770597010
+    },
+    "ventaRelacionadaId": "pA9DWKhmhU9TRCrHwmAS",
+    "nombreClienteSolicitante": "Emilio González",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-017 - Cliente: Emilio González",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:30:10.000Z",
+      "_seconds": 1770597010
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:30:12.000Z",
+      "_seconds": 1770597012
+    },
+    "estado": "cancelado",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:54:58.000Z",
+      "_seconds": 1770598498
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "marca": "Microingredients",
+        "nombreComercial": "Complejo B",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-09T00:30:10.000Z",
+          "_seconds": 1770597010
+        }
+      }
+    ]
+  },
+  {
+    "_id": "RLiqeXsAN8TeZCudi2JB",
+    "numeroRequerimiento": "REQ-2026-0012",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:16:48.000Z",
+      "_seconds": 1770841008
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:16:48.000Z",
+      "_seconds": 1770841008
+    },
+    "ventaRelacionadaId": "zAmoVmSIob76ZRJHO7J0",
+    "nombreClienteSolicitante": "Philip Carl Staaf",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-023 - Cliente: Philip Carl Staaf",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:16:47.000Z",
+      "_seconds": 1770841007
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 15.25,
+      "costoEstimadoPEN": 51.239999999999995,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 15.25,
+      "costoTotalEstimadoPEN": 51.239999999999995
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:16:51.000Z",
+      "_seconds": 1770841011
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T20:16:51.000Z",
+      "_seconds": 1770841011
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-11T20:16:48.000Z",
+          "_seconds": 1770841008
+        },
+        "precioEstimadoUSD": 15.25
+      }
+    ]
+  },
+  {
+    "_id": "RzMjljpJCl0vFdk2kr4K",
+    "numeroRequerimiento": "REQ-2026-0002",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 19.003500000000003,
+      "costoEstimadoPEN": 63.851760000000006,
+      "impuestoEstimadoUSD": 0.5701050000000001,
+      "fleteEstimadoUSD": 5,
+      "costoTotalEstimadoUSD": 24.573605000000004,
+      "costoTotalEstimadoPEN": 82.56731280000001
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T19:22:01.000Z",
+      "_seconds": 1770319321
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-05T19:22:01.000Z",
+      "_seconds": 1770319321
+    },
+    "ventaRelacionadaId": "ExvT9cYRVLcX0hfhx2ut",
+    "nombreClienteSolicitante": "Greta Peru SAC",
+    "justificacion": "Requerimiento automático desde cotización COT-2026-002 - Cliente: Greta Peru SAC",
+    "estado": "cancelado",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:44:08.000Z",
+      "_seconds": 1770597848
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-05T19:22:01.000Z",
+          "_seconds": 1770319321
+        },
+        "precioEstimadoUSD": 19.003500000000003
+      }
+    ]
+  },
+  {
+    "_id": "SlJW5RGvpfwIhfgeXrFe",
+    "numeroRequerimiento": "REQ-2026-0023",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.43,
+      "costoEstimadoUSD": 12.591750000000001,
+      "costoEstimadoPEN": 43.1897025,
+      "impuestoEstimadoUSD": 0.37775250000000005,
+      "fleteEstimadoUSD": 5,
+      "costoTotalEstimadoUSD": 17.9695025,
+      "costoTotalEstimadoPEN": 61.63539357500001
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:52:06.000Z",
+      "_seconds": 1773031926
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T04:52:06.000Z",
+      "_seconds": 1773031926
+    },
+    "ventaRelacionadaId": "SOujmGuakbAYQbyBuyn9",
+    "nombreClienteSolicitante": "Guliana Fernandez",
+    "justificacion": "Requerimiento automático desde cotización COT-2026-022 - Cliente: Guliana Fernandez",
+    "estado": "cancelado",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T05:19:03.000Z",
+      "_seconds": 1773033543
+    },
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "ZwOH29bDAayOc5VkBS8G",
+        "sku": "SUP-0068",
+        "marca": "Natrol",
+        "nombreComercial": "Gomitas de Melatonina para Niños",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-09T04:52:06.000Z",
+          "_seconds": 1773031926
+        },
+        "precioEstimadoUSD": 12.591750000000001
+      }
+    ]
+  },
+  {
+    "_id": "Uhkfhbs6WxadM196UY2a",
+    "numeroRequerimiento": "REQ-2026-0018",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:52:33.000Z",
+      "_seconds": 1771516353
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:52:33.000Z",
+      "_seconds": 1771516353
+    },
+    "ventaRelacionadaId": "MtozMe6KVXf74nsIfPPY",
+    "nombreClienteSolicitante": "Jonatan Calderón",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-029 - Cliente: Jonatan Calderón",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:52:37.000Z",
+      "_seconds": 1771516357
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "expectativa": {
+      "tcInvestigacion": 3.35,
+      "costoEstimadoUSD": 15.25,
+      "costoEstimadoPEN": 51.0875,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 15.25,
+      "costoTotalEstimadoPEN": 51.0875
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:52:39.000Z",
+      "_seconds": 1771516359
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:52:39.000Z",
+      "_seconds": 1771516359
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-19T15:52:33.000Z",
+          "_seconds": 1771516353
+        },
+        "precioEstimadoUSD": 15.25
+      }
+    ]
+  },
+  {
+    "_id": "WX7goIiVCzIPXTmON8cd",
+    "numeroRequerimiento": "REQ-2026-0020",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 18.0147,
+      "costoEstimadoPEN": 60.529392,
+      "impuestoEstimadoUSD": 0.5404410000000001,
+      "fleteEstimadoUSD": 5,
+      "costoTotalEstimadoUSD": 23.555141000000003,
+      "costoTotalEstimadoPEN": 79.14527376000001
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:20:12.000Z",
+      "_seconds": 1772086812
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:20:12.000Z",
+      "_seconds": 1772086812
+    },
+    "ventaRelacionadaId": "wTey8z8HW7D4aZAhxUaN",
+    "nombreClienteSolicitante": "Carmen Shimabukuro",
+    "justificacion": "Requerimiento automático desde cotización COT-2026-014 - Cliente: Carmen Shimabukuro",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-26T06:20:33.000Z",
+      "_seconds": 1772086833
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "knuyqf9IqX37hJZbWBrx",
+    "ordenCompraNumero": "OC-2026-009",
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T02:03:40.000Z",
+      "_seconds": 1772157820
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-27T02:03:40.000Z",
+      "_seconds": 1772157820
+    },
+    "editadoPor": "IlFyjjoBAZgLkFt9XSp2uChtBVi2",
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "SUP-0004",
+        "marca": "Carlyle",
+        "nombreComercial": "Ashwagandha",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-26T06:20:12.000Z",
+          "_seconds": 1772086812
+        },
+        "precioEstimadoUSD": 18.0147
+      }
+    ]
+  },
+  {
+    "_id": "aXh12KoQK4P2bZMA15bi",
+    "numeroRequerimiento": "REQ-2026-0016",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:14:43.000Z",
+      "_seconds": 1771470883
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:14:43.000Z",
+      "_seconds": 1771470883
+    },
+    "ventaRelacionadaId": "QoWdzPA9KVjr0l9BBrlF",
+    "nombreClienteSolicitante": "Josafat Vara",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-028 - Cliente: Josafat Vara",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:14:45.000Z",
+      "_seconds": 1771470885
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "expectativa": {
+      "tcInvestigacion": 3.35,
+      "costoEstimadoUSD": 27.57,
+      "costoEstimadoPEN": 92.3595,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 27.57,
+      "costoTotalEstimadoPEN": 92.3595
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:14:47.000Z",
+      "_seconds": 1771470887
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T03:14:47.000Z",
+      "_seconds": 1771470887
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "wvujLliOFs2nVCXuXrs9",
+        "sku": "SUP-0117",
+        "marca": "Life Extension",
+        "nombreComercial": "CoQ10",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-19T03:14:43.000Z",
+          "_seconds": 1771470883
+        },
+        "precioEstimadoUSD": 27.57
+      }
+    ]
+  },
+  {
+    "_id": "dKBJCgmddjvrf1AoYHvR",
+    "numeroRequerimiento": "REQ-2026-0005",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 0,
+      "costoTotalEstimadoPEN": 0
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:30:32.000Z",
+      "_seconds": 1770597032
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:30:32.000Z",
+      "_seconds": 1770597032
+    },
+    "ventaRelacionadaId": "rPwmrRRraaerWBCXC62M",
+    "nombreClienteSolicitante": "Greta Peru SAC",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-016 - Cliente: Greta Peru SAC",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:30:33.000Z",
+      "_seconds": 1770597033
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:30:34.000Z",
+      "_seconds": 1770597034
+    },
+    "estado": "cancelado",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:54:57.000Z",
+      "_seconds": 1770598497
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-09T00:30:32.000Z",
+          "_seconds": 1770597032
+        }
+      }
+    ]
+  },
+  {
+    "_id": "gGCoqnKhGD2jhKx7cu6k",
+    "numeroRequerimiento": "REQ-2026-0015",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T21:00:23.000Z",
+      "_seconds": 1771362023
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T21:00:23.000Z",
+      "_seconds": 1771362023
+    },
+    "ventaRelacionadaId": "sw2wkWBHPYZiHvCZF4z4",
+    "nombreClienteSolicitante": "Maritere Armas Vargas",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-026 - Cliente: Maritere Armas Vargas",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T21:00:23.000Z",
+      "_seconds": 1771362023
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 22.5,
+      "costoEstimadoPEN": 75.6,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 22.5,
+      "costoTotalEstimadoPEN": 75.6
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T21:00:25.000Z",
+      "_seconds": 1771362025
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T21:00:25.000Z",
+      "_seconds": 1771362025
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "PMHT325MbPSS6vlAZjYP",
+        "sku": "SUP-0040",
+        "marca": "Microingredients",
+        "nombreComercial": "D3 + K2",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-17T21:00:23.000Z",
+          "_seconds": 1771362023
+        },
+        "precioEstimadoUSD": 22.5
+      }
+    ]
+  },
+  {
+    "_id": "hfcqj5S1GyIQcbkvwjrf",
+    "numeroRequerimiento": "REQ-2026-0009",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:53:47.000Z",
+      "_seconds": 1770677627
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:53:47.000Z",
+      "_seconds": 1770677627
+    },
+    "ventaRelacionadaId": "ZjxOXqMEn16OYqRS7KF8",
+    "nombreClienteSolicitante": "Fabricio Omar Rios",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-013 - Cliente: Fabricio Omar Rios",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:53:48.000Z",
+      "_seconds": 1770677628
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "hSPK1SGdigNshQSgB0jK",
+    "ordenCompraNumero": "OC-2026-005",
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 23.99,
+      "costoEstimadoPEN": 80.6064,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 23.99,
+      "costoTotalEstimadoPEN": 80.6064
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:53:51.000Z",
+      "_seconds": 1770677631
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T22:53:51.000Z",
+      "_seconds": 1770677631
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "74CoJ5vsITU5wOkTvAtf",
+        "sku": "SUP-0124",
+        "marca": "Youtheory",
+        "nombreComercial": "Collagen + Biotin Verisol",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-09T22:53:47.000Z",
+          "_seconds": 1770677627
+        },
+        "precioEstimadoUSD": 23.99
+      }
+    ]
+  },
+  {
+    "_id": "k9BdcnnHOc632UritmEf",
+    "numeroRequerimiento": "REQ-2026-0017",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.35,
+      "costoEstimadoUSD": 19.003500000000003,
+      "costoEstimadoPEN": 63.66172500000001,
+      "impuestoEstimadoUSD": 0.5701050000000001,
+      "fleteEstimadoUSD": 5,
+      "costoTotalEstimadoUSD": 24.573605000000004,
+      "costoTotalEstimadoPEN": 82.32157675000002
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:42:19.000Z",
+      "_seconds": 1771515739
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T15:42:19.000Z",
+      "_seconds": 1771515739
+    },
+    "ventaRelacionadaId": "MSLnyTqQHElURdDfkwZQ",
+    "nombreClienteSolicitante": "Jonatan Calderón",
+    "justificacion": "Requerimiento automático desde cotización COT-2026-012 - Cliente: Jonatan Calderón",
+    "estado": "cancelado",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-19T17:23:35.000Z",
+      "_seconds": 1771521815
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "zvgeNdMI7J0Qd6na0FzG",
+        "sku": "SUP-0123",
+        "marca": "Double Wood",
+        "nombreComercial": "Magnesio Glicinato",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-19T15:42:19.000Z",
+          "_seconds": 1771515739
+        },
+        "precioEstimadoUSD": 19.003500000000003
+      }
+    ]
+  },
+  {
+    "_id": "m1celfsO1n7LvvDMYlZn",
+    "numeroRequerimiento": "REQ-2026-0006",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 0,
+      "costoEstimadoPEN": 0,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 0,
+      "costoTotalEstimadoPEN": 0
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:35.000Z",
+      "_seconds": 1770597935
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:35.000Z",
+      "_seconds": 1770597935
+    },
+    "ventaRelacionadaId": "pA9DWKhmhU9TRCrHwmAS",
+    "nombreClienteSolicitante": "Emilio González",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-017 - Cliente: Emilio González",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:37.000Z",
+      "_seconds": 1770597937
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:39.000Z",
+      "_seconds": 1770597939
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:45:39.000Z",
+      "_seconds": 1770597939
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "marca": "Microingredients",
+        "nombreComercial": "Complejo B",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-09T00:45:35.000Z",
+          "_seconds": 1770597935
+        }
+      }
+    ]
+  },
+  {
+    "_id": "rmXHRw9oKWKF1lXac4rg",
+    "numeroRequerimiento": "REQ-2026-0014",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:43:35.000Z",
+      "_seconds": 1771346615
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:43:35.000Z",
+      "_seconds": 1771346615
+    },
+    "ventaRelacionadaId": "Os4D6fL9hxAFB6dXSBFf",
+    "nombreClienteSolicitante": "Luis Alberto Mesahuanca Huamani",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-025 - Cliente: Luis Alberto Mesahuanca Huamani",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:43:35.000Z",
+      "_seconds": 1771346615
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 14.5,
+      "costoEstimadoPEN": 48.72,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 14.5,
+      "costoTotalEstimadoPEN": 48.72
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:43:37.000Z",
+      "_seconds": 1771346617
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-17T16:43:37.000Z",
+      "_seconds": 1771346617
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "ZBnpv34W2XfRX700HPMu",
+        "sku": "SUP-0066",
+        "marca": "Nordic Naturals",
+        "nombreComercial": "DHA para Bebés",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-17T16:43:35.000Z",
+          "_seconds": 1771346615
+        },
+        "precioEstimadoUSD": 14.5
+      }
+    ]
+  },
+  {
+    "_id": "s8KKrj4z4kGUJfyoUrg7",
+    "numeroRequerimiento": "REQ-2026-0008",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 121,
+      "costoEstimadoPEN": 406.56,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 12.100000000000001,
+      "costoTotalEstimadoUSD": 133.1,
+      "costoTotalEstimadoPEN": 447.21599999999995
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:58:55.000Z",
+      "_seconds": 1770616735
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:58:55.000Z",
+      "_seconds": 1770616735
+    },
+    "ventaRelacionadaId": "rKfnavWz5vPLN9FiDftb",
+    "nombreClienteSolicitante": "Daniela Jauregui Bernal",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-018 - Cliente: Daniela Jauregui Bernal",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:58:55.000Z",
+      "_seconds": 1770616735
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:58:57.000Z",
+      "_seconds": 1770616737
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T05:58:57.000Z",
+      "_seconds": 1770616737
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-09T05:58:55.000Z",
+          "_seconds": 1770616735
+        },
+        "precioEstimadoUSD": 121
+      }
+    ]
+  },
+  {
+    "_id": "shHemXi9iT9lWffDs1Qh",
+    "numeroRequerimiento": "REQ-2026-0021",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.35,
+      "costoEstimadoUSD": 9.7232,
+      "costoEstimadoPEN": 32.572720000000004,
+      "impuestoEstimadoUSD": 0.291696,
+      "fleteEstimadoUSD": 5,
+      "costoTotalEstimadoUSD": 15.014896,
+      "costoTotalEstimadoPEN": 50.299901600000005
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:36:40.000Z",
+      "_seconds": 1772505400
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-03T02:36:40.000Z",
+      "_seconds": 1772505400
+    },
+    "ventaRelacionadaId": "NOlcYTvZxJ4P4bcgMiBY",
+    "nombreClienteSolicitante": "Jessica Fierro",
+    "justificacion": "Requerimiento automático desde cotización COT-2026-015 - Cliente: Jessica Fierro",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T21:14:32.000Z",
+      "_seconds": 1772658872
+    },
+    "aprobadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "estado": "cancelado",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-09T05:18:58.000Z",
+      "_seconds": 1773033538
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "cm1DlC2fgngkGl8eIckM",
+        "sku": "SUP-0077",
+        "marca": "Carlyle",
+        "nombreComercial": "Vitamina C Liposomal",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-03T02:36:40.000Z",
+          "_seconds": 1772505400
+        },
+        "precioEstimadoUSD": 9.7232
+      }
+    ]
+  },
+  {
+    "_id": "wqLXOcrJKE2Z2z5N4Zu2",
+    "numeroRequerimiento": "REQ-2026-0022",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T21:14:17.000Z",
+      "_seconds": 1772658857
+    },
+    "creadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T21:14:17.000Z",
+      "_seconds": 1772658857
+    },
+    "ventaRelacionadaId": "Yn6jN0PTUKRDniefsjRC",
+    "nombreClienteSolicitante": "Daniela Jauregui Bernal",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-048 - Cliente: Daniela Jauregui Bernal",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T21:14:16.000Z",
+      "_seconds": 1772658856
+    },
+    "aprobadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "editadoPor": "OCqU58bx9ZMfxToyj3GgOyFslBq2",
+    "ordenCompraId": "IlymT63UuI5w3qGW7TyV",
+    "ordenCompraNumero": "OC-2026-007",
+    "expectativa": {
+      "tcInvestigacion": 3.39,
+      "costoEstimadoUSD": 9.89,
+      "costoEstimadoPEN": 33.527100000000004,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 9.89,
+      "costoTotalEstimadoPEN": 33.527100000000004
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T21:14:20.000Z",
+      "_seconds": 1772658860
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-03-04T21:14:20.000Z",
+      "_seconds": 1772658860
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-03-04T21:14:17.000Z",
+          "_seconds": 1772658857
+        },
+        "precioEstimadoUSD": 9.89
+      }
+    ]
+  },
+  {
+    "_id": "yVqMcpUdideNiZXl8KRP",
+    "numeroRequerimiento": "REQ-2026-0013",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:38:30.000Z",
+      "_seconds": 1770874710
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:38:30.000Z",
+      "_seconds": 1770874710
+    },
+    "ventaRelacionadaId": "WaJIl6tnLWYDWgDUl3UE",
+    "nombreClienteSolicitante": "Dante Cunti Pérez",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-024 - Cliente: Dante Cunti Pérez",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:38:28.000Z",
+      "_seconds": 1770874708
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 16.99,
+      "costoEstimadoPEN": 57.08639999999999,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 16.99,
+      "costoTotalEstimadoPEN": 57.08639999999999
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:38:31.000Z",
+      "_seconds": 1770874711
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-12T05:38:31.000Z",
+      "_seconds": 1770874711
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "1VDeFEayBxezNWGhhH2S",
+        "sku": "SUP-0004",
+        "marca": "Carlyle",
+        "nombreComercial": "Ashwagandha",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-12T05:38:30.000Z",
+          "_seconds": 1770874710
+        },
+        "precioEstimadoUSD": 16.99
+      }
+    ]
+  },
+  {
+    "_id": "zfxN0TPd0q8hAkN9AApa",
+    "numeroRequerimiento": "REQ-2026-0011",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:40:47.000Z",
+      "_seconds": 1770781247
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:40:47.000Z",
+      "_seconds": 1770781247
+    },
+    "ventaRelacionadaId": "JpWZ7VDMhZBrZtSJtJew",
+    "nombreClienteSolicitante": "Bolivar Rodriguez Jatniel",
+    "justificacion": "Requerimiento automático desde cotización VT-2026-021 - Cliente: Bolivar Rodriguez Jatniel",
+    "fechaAprobacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:40:47.000Z",
+      "_seconds": 1770781247
+    },
+    "aprobadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "ordenCompraId": "UoOtqraxeESX2osKYAB4",
+    "ordenCompraNumero": "OC-2026-003",
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 9.89,
+      "costoEstimadoPEN": 33.2304,
+      "impuestoEstimadoUSD": 0,
+      "fleteEstimadoUSD": 0,
+      "costoTotalEstimadoUSD": 9.89,
+      "costoTotalEstimadoPEN": 33.2304
+    },
+    "estado": "completado",
+    "fechaCompletado": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:40:49.000Z",
+      "_seconds": 1770781249
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-11T03:40:49.000Z",
+      "_seconds": 1770781249
+    },
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "x2PZdgiMDsum9EL3zdVw",
+        "sku": "SUP-0118",
+        "marca": "Carlyle",
+        "nombreComercial": "Berberina",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-11T03:40:47.000Z",
+          "_seconds": 1770781247
+        },
+        "precioEstimadoUSD": 9.89
+      }
+    ]
+  },
+  {
+    "_id": "znGukqEPLcRvPqckX3EI",
+    "numeroRequerimiento": "REQ-2026-0003",
+    "origen": "venta_pendiente",
+    "tipoSolicitante": "cliente",
+    "asignaciones": [],
+    "expectativa": {
+      "tcInvestigacion": 3.36,
+      "costoEstimadoUSD": 27.772233333333332,
+      "costoEstimadoPEN": 93.31470399999999,
+      "impuestoEstimadoUSD": 0.833167,
+      "fleteEstimadoUSD": 5,
+      "costoTotalEstimadoUSD": 33.605400333333336,
+      "costoTotalEstimadoPEN": 112.91414512
+    },
+    "prioridad": "alta",
+    "solicitadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaSolicitud": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T05:18:36.000Z",
+      "_seconds": 1770527916
+    },
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-08T05:18:36.000Z",
+      "_seconds": 1770527916
+    },
+    "ventaRelacionadaId": "iRFZ51qOjJHLlBK1RGgA",
+    "nombreClienteSolicitante": "Emilio González",
+    "justificacion": "Requerimiento automático desde cotización COT-2026-003 - Cliente: Emilio González",
+    "estado": "cancelado",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-02-09T00:44:12.000Z",
+      "_seconds": 1770597852
+    },
+    "editadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "paisOrigenPrincipal": "USA",
+    "lineaNegocioId": "Z50CnuaBdD5x0w7XGRv8",
+    "lineaNegocioNombre": "Suplementos y Vitaminas",
+    "productos": [
+      {
+        "productoId": "c6OgoqaPmVZ0KuUuayEh",
+        "sku": "SUP-0076",
+        "marca": "Microingredients",
+        "nombreComercial": "Complejo B",
+        "cantidadSolicitada": 1,
+        "cantidadAsignada": 0,
+        "cantidadPendiente": 1,
+        "cantidadRecibida": 0,
+        "fechaInvestigacion": {
+          "_type": "timestamp",
+          "iso": "2026-02-08T05:18:36.000Z",
+          "_seconds": 1770527916
+        },
+        "precioEstimadoUSD": 27.772233333333332
+      }
+    ]
+  }
+]

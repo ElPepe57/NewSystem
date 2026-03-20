@@ -131,7 +131,7 @@ export const KPICard: React.FC<KPICardProps> = ({
             <div className={`flex items-center mt-2 ${getTrendColor()}`}>
               {TrendIcon && <TrendIcon className="h-3 w-3 mr-1" />}
               <span className="text-xs font-medium">
-                {trend.value > 0 ? '+' : ''}{trend.value}%
+                {trend.value > 0 ? '+' : ''}{trend.value.toFixed(1)}%
                 {trend.label && <span className="text-gray-500 ml-1">{trend.label}</span>}
               </span>
             </div>
@@ -156,13 +156,20 @@ export interface KPIGridProps {
 }
 
 export const KPIGrid: React.FC<KPIGridProps> = ({ children, columns = 4, mdColumns, lgColumns }) => {
-  // Si se especifican mdColumns o lgColumns, usar clases personalizadas
+  // Lookup maps — Tailwind JIT needs literal class strings
+  const smMap: Record<number, string> = {
+    2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3', 4: 'sm:grid-cols-4', 5: 'sm:grid-cols-5'
+  };
+  const mdMap: Record<number, string> = {
+    2: 'md:grid-cols-2', 3: 'md:grid-cols-3', 4: 'md:grid-cols-4', 5: 'md:grid-cols-5'
+  };
+  const lgMap: Record<number, string> = {
+    2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5'
+  };
+
   if (mdColumns || lgColumns) {
-    const baseCol = `grid-cols-${columns}`;
-    const mdCol = mdColumns ? `md:grid-cols-${mdColumns}` : '';
-    const lgCol = lgColumns ? `lg:grid-cols-${lgColumns}` : '';
     return (
-      <div className={`grid grid-cols-1 sm:${baseCol} ${mdCol} ${lgCol} gap-4`}>
+      <div className={`grid grid-cols-1 ${smMap[columns]} ${mdColumns ? mdMap[mdColumns] : ''} ${lgColumns ? lgMap[lgColumns] : ''} gap-2 sm:gap-4`}>
         {children}
       </div>
     );
@@ -176,7 +183,7 @@ export const KPIGrid: React.FC<KPIGridProps> = ({ children, columns = 4, mdColum
   };
 
   return (
-    <div className={`grid ${gridCols[columns]} gap-4`}>
+    <div className={`grid ${gridCols[columns]} gap-2 sm:gap-4`}>
       {children}
     </div>
   );
@@ -341,7 +348,7 @@ export const StatDistribution: React.FC<StatDistributionProps> = ({
   data,
   total: providedTotal,
   showPercentage = true,
-  valueFormat = 'currency'
+  valueFormat = 'number'
 }) => {
   const total = providedTotal || data.reduce((sum, item) => sum + item.value, 0);
 

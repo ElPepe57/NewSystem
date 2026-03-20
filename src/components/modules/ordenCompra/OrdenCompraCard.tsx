@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
+import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard, ChevronDown, ChevronUp, Clock, RotateCcw } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
 import type { TimelineStep, NextAction } from '../../common';
-import type { OrdenCompra, EstadoOrden, EstadoPago } from '../../../types/ordenCompra.types';
+import type { OrdenCompra, EstadoOrden, EstadoPagoOC } from '../../../types/ordenCompra.types';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
@@ -21,7 +22,7 @@ const estadoLabels: Record<EstadoOrden, { label: string; variant: 'success' | 'w
   cancelada: { label: 'Cancelada', variant: 'danger' }
 };
 
-const estadoPagoLabels: Record<EstadoPago, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
+const estadoPagoLabels: Record<EstadoPagoOC, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
   pendiente: { label: 'Pendiente de Pago', variant: 'danger' },
   pago_parcial: { label: 'Pago Parcial', variant: 'warning' },
   pagada: { label: 'Pagada', variant: 'success' }
@@ -36,17 +37,6 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 }) => {
   const [showHistory, setShowHistory] = useState(false);
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    const date = timestamp.toDate();
-    return date.toLocaleString('es-PE', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   const estadoInfo = estadoLabels[orden.estado];
   const estadoPagoInfo = estadoPagoLabels[orden.estadoPago || 'pendiente'];
@@ -261,6 +251,12 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 <span>${orden.otrosGastosUSD.toFixed(2)}</span>
               </div>
             )}
+            {orden.descuentoUSD && orden.descuentoUSD > 0 && (
+              <div className="flex justify-between text-sm text-emerald-600">
+                <span>Descuento:</span>
+                <span className="font-medium">-${orden.descuentoUSD.toFixed(2)}</span>
+              </div>
+            )}
             <div className="border-t border-primary-200 pt-2">
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-900">Total USD:</span>
@@ -292,12 +288,27 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       <div>
         <h4 className="font-semibold text-gray-900 mb-3">Productos ({orden.productos.length})</h4>
 
-        {/* Calcular factor de prorrateo para gastos adicionales */}
+        {/* Calcular desglose de costos por producto */}
         {(() => {
-          const gastosAdicionales = (orden.impuestoUSD || 0) + (orden.gastosEnvioUSD || 0) + (orden.otrosGastosUSD || 0);
-          const factorProrrateo = orden.subtotalUSD > 0 ? gastosAdicionales / orden.subtotalUSD : 0;
           const tc = orden.tcCompra || orden.tcPago || 3.70;
           const totalUnidades = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
+          const costoBaseTotal = orden.productos.reduce((sum, p) => sum + (p.costoUnitario * p.cantidad), 0);
+
+          // Componentes de costo
+          const impuestoTotal = orden.impuestoUSD || 0;
+          const envioTotal = orden.gastosEnvioUSD || 0;
+          const otrosTotal = orden.otrosGastosUSD || 0;
+          const descuentoTotal = orden.descuentoUSD || 0;
+
+          // Impuesto: uniforme por unidad
+          const impuestoPorUnidad = totalUnidades > 0 ? impuestoTotal / totalUnidades : 0;
+          // Envío, otros, descuento: proporcional al costo base
+          const costosProrrateo = envioTotal + otrosTotal - descuentoTotal;
+
+          const hasImpuesto = impuestoTotal > 0;
+          const hasEnvio = envioTotal > 0;
+          const hasOtros = otrosTotal > 0;
+          const hasDescuento = descuentoTotal > 0;
 
           return (
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -308,11 +319,11 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     <th className="px-2 py-2 text-center text-xs font-medium text-gray-500">Cant.</th>
                     <th className="px-2 py-2 text-right text-xs font-medium text-gray-500">
                       <div>Precio Base</div>
-                      <div className="text-[10px] font-normal text-gray-400">sin impuestos</div>
+                      <div className="text-[10px] font-normal text-gray-400">unitario</div>
                     </th>
                     <th className="px-2 py-2 text-right text-xs font-medium text-gray-500">
-                      <div>+ Gastos</div>
-                      <div className="text-[10px] font-normal text-gray-400">prorrateado</div>
+                      <div>Desglose</div>
+                      <div className="text-[10px] font-normal text-gray-400">por unidad</div>
                     </th>
                     <th className="px-3 py-2 text-right text-xs font-medium text-emerald-700 bg-emerald-50">
                       <div>Costo Real</div>
@@ -322,16 +333,46 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {orden.productos.map((producto, index) => {
-                    const gastosProrrateados = producto.subtotal * factorProrrateo;
-                    const costoTotalProducto = producto.subtotal + gastosProrrateados;
-                    const costoRealUnitario = costoTotalProducto / producto.cantidad;
+                    // Proporcional al costo base de este producto
+                    const proporcion = costoBaseTotal > 0 ? producto.costoUnitario / costoBaseTotal : 0;
+                    const envioPorUd = envioTotal * proporcion;
+                    const otrosPorUd = otrosTotal * proporcion;
+                    const descuentoPorUd = descuentoTotal * proporcion;
+                    const totalAdicional = impuestoPorUnidad + envioPorUd + otrosPorUd - descuentoPorUd;
+                    const costoRealUnitario = producto.costoUnitario + totalAdicional;
                     const costoRealUnitarioPEN = costoRealUnitario * tc;
 
                     return (
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="px-3 py-3">
-                          <div className="text-sm font-medium text-gray-900">{producto.nombreComercial}</div>
-                          <div className="text-xs text-gray-500">{producto.marca} · {producto.sku}</div>
+                          <div className="text-sm font-medium text-gray-900">{producto.marca} {producto.nombreComercial}</div>
+                          <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-gray-500 mt-0.5">
+                            <span className="font-mono text-gray-400">{producto.sku}</span>
+                            {producto.presentacion && (
+                              <>
+                                <span className="text-gray-300">·</span>
+                                <span>{producto.presentacion}</span>
+                              </>
+                            )}
+                            {producto.contenido && (
+                              <>
+                                <span className="text-gray-300">·</span>
+                                <span>{producto.contenido}</span>
+                              </>
+                            )}
+                            {producto.dosaje && (
+                              <>
+                                <span className="text-gray-300">·</span>
+                                <span>{producto.dosaje}</span>
+                              </>
+                            )}
+                            {producto.sabor && (
+                              <>
+                                <span className="text-gray-300">·</span>
+                                <span>{producto.sabor}</span>
+                              </>
+                            )}
+                          </div>
                         </td>
                         <td className="px-2 py-3 text-center">
                           <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-sm font-semibold text-gray-700">
@@ -341,8 +382,24 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                         <td className="px-2 py-3 text-right text-sm text-gray-600">
                           ${producto.costoUnitario.toFixed(2)}
                         </td>
-                        <td className="px-2 py-3 text-right text-sm text-amber-600">
-                          {gastosProrrateados > 0 ? `+$${(gastosProrrateados / producto.cantidad).toFixed(2)}` : '-'}
+                        <td className="px-2 py-3 text-right">
+                          <div className="space-y-0.5 text-[11px]">
+                            {hasImpuesto && (
+                              <div className="text-amber-600">+${impuestoPorUnidad.toFixed(2)} <span className="text-[9px] text-amber-500">tax</span></div>
+                            )}
+                            {hasEnvio && (
+                              <div className="text-blue-600">+${envioPorUd.toFixed(2)} <span className="text-[9px] text-blue-400">envío</span></div>
+                            )}
+                            {hasOtros && (
+                              <div className="text-gray-500">+${otrosPorUd.toFixed(2)} <span className="text-[9px] text-gray-400">otros</span></div>
+                            )}
+                            {hasDescuento && (
+                              <div className="text-emerald-600">-${descuentoPorUd.toFixed(2)} <span className="text-[9px] text-emerald-500">desc.</span></div>
+                            )}
+                            {!hasImpuesto && !hasEnvio && !hasOtros && !hasDescuento && (
+                              <div className="text-gray-400">-</div>
+                            )}
+                          </div>
                         </td>
                         <td className="px-3 py-3 text-right bg-emerald-50">
                           <div className="text-sm font-bold text-emerald-700">${costoRealUnitario.toFixed(2)}</div>
@@ -357,8 +414,13 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     <td className="px-3 py-2 text-sm font-medium text-gray-700">Total</td>
                     <td className="px-2 py-2 text-center text-sm font-semibold text-gray-700">{totalUnidades}</td>
                     <td className="px-2 py-2 text-right text-sm font-medium text-gray-700">${orden.subtotalUSD.toFixed(2)}</td>
-                    <td className="px-2 py-2 text-right text-sm font-medium text-amber-700">
-                      {gastosAdicionales > 0 ? `+$${gastosAdicionales.toFixed(2)}` : '-'}
+                    <td className="px-2 py-2 text-right">
+                      <div className="space-y-0.5 text-[11px]">
+                        {hasImpuesto && <div className="text-amber-700 font-medium">+${impuestoTotal.toFixed(2)} <span className="text-[9px]">tax</span></div>}
+                        {hasEnvio && <div className="text-blue-700 font-medium">+${envioTotal.toFixed(2)} <span className="text-[9px]">envío</span></div>}
+                        {hasOtros && <div className="text-gray-600 font-medium">+${otrosTotal.toFixed(2)} <span className="text-[9px]">otros</span></div>}
+                        {hasDescuento && <div className="text-emerald-700 font-medium">-${descuentoTotal.toFixed(2)} <span className="text-[9px]">desc.</span></div>}
+                      </div>
                     </td>
                     <td className="px-3 py-2 text-right bg-emerald-100">
                       <div className="text-base font-bold text-emerald-800">${orden.totalUSD.toFixed(2)}</div>
@@ -374,24 +436,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                   <span className="text-blue-700">
                     <strong>TC:</strong> S/ {tc.toFixed(2)}
                   </span>
-                  {(orden.impuestoUSD || 0) > 0 && (
-                    <span className="text-amber-700">
-                      <strong>Tax:</strong> ${orden.impuestoUSD?.toFixed(2)} ({((orden.impuestoUSD! / orden.subtotalUSD) * 100).toFixed(1)}%)
-                    </span>
-                  )}
-                  {(orden.gastosEnvioUSD || 0) > 0 && (
-                    <span className="text-amber-700">
-                      <strong>Envío:</strong> ${orden.gastosEnvioUSD?.toFixed(2)}
-                    </span>
-                  )}
-                  {(orden.otrosGastosUSD || 0) > 0 && (
-                    <span className="text-amber-700">
-                      <strong>Otros:</strong> ${orden.otrosGastosUSD?.toFixed(2)}
-                    </span>
-                  )}
                 </div>
                 <div className="mt-1 text-[10px] text-blue-600">
-                  * El costo real incluye impuestos y gastos prorrateados por subtotal de cada producto
+                  * Tax uniforme por unidad · Envío, otros y descuento prorrateados por costo base
                 </div>
               </div>
             </div>

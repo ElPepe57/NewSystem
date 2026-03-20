@@ -48,6 +48,8 @@ interface TransferenciaState {
     },
     userId: string
   ) => Promise<PagoViajero>;
+  actualizarFlete: (transferenciaId: string, costoFletePorProducto: Record<string, number>, userId: string) => Promise<void>;
+  reconciliarPagoViajero: (transferenciaId: string, userId: string, pagoId?: string) => Promise<string>;
 
   // Utilidades
   setSelectedTransferencia: (transferencia: Transferencia | null) => void;
@@ -243,6 +245,33 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
       await get().fetchTransferencias();
       set({ loading: false });
       return pago;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      set({ error: message, loading: false });
+      throw error;
+    }
+  },
+
+  reconciliarPagoViajero: async (transferenciaId: string, userId: string, pagoId?: string) => {
+    set({ loading: true, error: null });
+    try {
+      const movimientoId = await transferenciaService.reconciliarPagoViajero(transferenciaId, userId, pagoId);
+      await get().fetchTransferencias();
+      set({ loading: false });
+      return movimientoId;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      set({ error: message, loading: false });
+      throw error;
+    }
+  },
+
+  actualizarFlete: async (transferenciaId: string, costoFletePorProducto: Record<string, number>, userId: string) => {
+    set({ loading: true, error: null });
+    try {
+      await transferenciaService.actualizarFleteTransferencia(transferenciaId, costoFletePorProducto, userId);
+      await get().fetchTransferencias();
+      set({ loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });

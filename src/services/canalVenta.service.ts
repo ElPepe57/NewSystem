@@ -12,40 +12,23 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   CanalVenta,
   CanalVentaFormData,
   EstadoCanalVenta
 } from '../types/canalVenta.types';
 import { CANALES_SISTEMA } from '../types/canalVenta.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'canalesVenta';
+const COLLECTION_NAME = COLLECTIONS.CANALES_VENTA;
 
 /**
  * Genera el siguiente código de canal automáticamente
  * Formato: CV-001, CV-002, etc.
  */
 async function generarCodigoCanal(): Promise<string> {
-  const prefix = 'CV';
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith(prefix)) {
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber('CV', 3);
 }
 
 export const canalVentaService = {

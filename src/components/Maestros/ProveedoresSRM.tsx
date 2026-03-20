@@ -42,6 +42,7 @@ import { useProveedorStore } from '../../store/proveedorStore';
 import { useAuthStore } from '../../store/authStore';
 import { ProveedorDetailView } from './ProveedorDetailView';
 import type { Proveedor, ClasificacionProveedor, TipoProveedor } from '../../types/ordenCompra.types';
+import { PAISES_CONFIG } from '../../types/almacen.types';
 
 // Sub-tabs dentro del módulo de proveedores
 type SubTabProveedores = 'lista' | 'dashboard' | 'evaluacion';
@@ -515,9 +516,9 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
               >
                 <option value="todos">Todos los países</option>
-                <option value="USA">USA</option>
-                <option value="China">China</option>
-                <option value="Peru">Perú</option>
+                {Object.entries(PAISES_CONFIG).map(([code, cfg]) => (
+                  <option key={code} value={code}>{cfg.emoji} {cfg.nombre}</option>
+                ))}
                 <option value="Otro">Otro</option>
               </select>
 

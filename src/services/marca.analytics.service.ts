@@ -13,6 +13,7 @@ import { db } from '../lib/firebase';
 import type { Marca } from '../types/entidadesMaestras.types';
 import type { Producto } from '../types/producto.types';
 import type { Venta } from '../types/venta.types';
+import { tipoCambioService } from './tipoCambio.service';
 
 // ============================================
 // TIPOS PARA ANALYTICS DE MARCAS
@@ -34,7 +35,9 @@ export interface ProductoMarcaMetrics {
   // Stock
   stockTotal: number;
   stockDisponible: number;
+  /** Stock en origen (legacy: USA) */
   stockUSA: number;
+  /** Stock en destino (legacy: Peru) */
   stockPeru: number;
   valorInventarioUSD: number;
   valorInventarioPEN: number;
@@ -55,9 +58,6 @@ export interface ProductoMarcaMetrics {
   cicloRecompraDias?: number;
   clientesConRecompra: number;
 
-  // ML
-  habilitadoML: boolean;
-  restriccionML?: string;
 }
 
 /**
@@ -158,8 +158,6 @@ export interface MarcaAnalytics {
   tasaRecompra: number;
 
   // MercadoLibre
-  productosHabilitadosML: number;
-  productosRestringidosML: number;
   ventasML?: number;
 }
 
@@ -202,8 +200,12 @@ export const marcaAnalyticsService = {
           return fechaVenta >= hace365Dias && v.estado !== 'cancelada';
         });
 
-      // 4. Calcular métricas por producto
-      const productosMetrics = this.calcularMetricasProductos(productosData, ventas);
+      // 4. Obtener TC del día para cálculos
+      const tcData = await tipoCambioService.getTCDelDia();
+      const tcDelDia = tcData?.venta || 3.75;
+
+      // 5. Calcular métricas por producto
+      const productosMetrics = this.calcularMetricasProductos(productosData, ventas, tcDelDia);
 
       // 5. Calcular métricas por categoría
       const categorias = this.calcularMetricasCategorias(productosMetrics);
@@ -269,10 +271,6 @@ export const marcaAnalyticsService = {
         (p.stockDisponible || 0) >= (p.stockMaximo || 100)
       ).length;
 
-      // ML
-      const productosHabilitadosML = productosData.filter(p => p.habilitadoML).length;
-      const productosRestringidosML = productosData.filter(p => p.habilitadoML && p.restriccionML).length;
-
       // Margen ponderado
       const totalUnidades = productosMetrics.reduce((sum, p) => sum + p.unidadesVendidas, 0);
       const margenPonderado = totalUnidades > 0
@@ -319,8 +317,6 @@ export const marcaAnalyticsService = {
         clientesUnicos: statsClientes.clientesUnicos,
         clientesRecurrentes: statsClientes.clientesRecurrentes,
         tasaRecompra: statsClientes.tasaRecompra,
-        productosHabilitadosML,
-        productosRestringidosML
       };
     } catch (error: any) {
       console.error('Error obteniendo analytics de marca:', error);
@@ -331,7 +327,7 @@ export const marcaAnalyticsService = {
   /**
    * Calcula métricas por producto
    */
-  calcularMetricasProductos(productos: Producto[], ventas: Venta[]): ProductoMarcaMetrics[] {
+  calcularMetricasProductos(productos: Producto[], ventas: Venta[], tcDelDia: number = 3.75): ProductoMarcaMetrics[] {
     const ahora = new Date();
 
     return productos.map(producto => {
@@ -371,7 +367,7 @@ export const marcaAnalyticsService = {
 
       const margenPromedio = unidadesVendidas > 0
         ? (margenTotal / ventasTotalPEN) * 100
-        : producto.margenObjetivo || 0;
+        : 0;
 
       const diasSinVenta = ultimaVenta !== null
         ? Math.floor((ahora.getTime() - (ultimaVenta as Date).getTime()) / (1000 * 60 * 60 * 24))
@@ -405,7 +401,7 @@ export const marcaAnalyticsService = {
       // Valor inventario
       const ctru = producto.ctruPromedio || 0;
       const valorInventarioPEN = stockTotal * ctru;
-      const tc = 3.75; // TODO: Obtener TC dinámico
+      const tc = tcDelDia;
       const valorInventarioUSD = valorInventarioPEN / tc;
 
       return {
@@ -432,9 +428,7 @@ export const marcaAnalyticsService = {
         esProductoEstrella: false, // Se marca después
         tendencia,
         cicloRecompraDias: producto.cicloRecompraDias,
-        clientesConRecompra: clientesSet.size,
-        habilitadoML: producto.habilitadoML || false,
-        restriccionML: producto.restriccionML
+        clientesConRecompra: clientesSet.size
       };
     });
   },

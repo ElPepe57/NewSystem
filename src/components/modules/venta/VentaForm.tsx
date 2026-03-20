@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2, AlertCircle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight, Boxes, Calendar, DollarSign, Lock } from 'lucide-react';
-import { Button, Input, Select, Modal, Stepper, useStepper, StepContent } from '../../common';
+import { Plus, Trash2, AlertCircle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight, Boxes, Calendar, DollarSign, Lock, MapPin } from 'lucide-react';
+import { Button, Input, Select, Modal, Stepper, useStepper, StepContent, GoogleMapsAddressInput } from '../../common';
+import type { AddressData } from '../../common';
 import type { Step } from '../../common/Stepper';
 import { ProductoForm } from '../productos/ProductoForm';
 import { ClienteAutocomplete } from '../entidades/ClienteAutocomplete';
@@ -12,6 +13,7 @@ import { useProductoStore } from '../../../store/productoStore';
 import { useAuthStore } from '../../../store/authStore';
 import { useClienteStore } from '../../../store/clienteStore';
 import { useToastStore } from '../../../store/toastStore';
+import { useCanalVentaStore } from '../../../store/canalVentaStore';
 import type { VentaFormData, CanalVenta, MetodoPago, AdelantoData } from '../../../types/venta.types';
 import type { ProductoDisponible } from '../../../types/venta.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../../types/tesoreria.types';
@@ -78,6 +80,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   const { user } = useAuthStore();
   const { productos: productosStore, createProducto } = useProductoStore();
   const toast = useToastStore();
+  const { getById: getCanalById } = useCanalVentaStore();
 
   // Modal de crear producto
   const [showProductoModal, setShowProductoModal] = useState(false);
@@ -89,7 +92,14 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   const [emailCliente, setEmailCliente] = useState('');
   const [telefonoCliente, setTelefonoCliente] = useState('');
   const [dniRuc, setDniRuc] = useState('');
-  const [direccionEntrega, setDireccionEntrega] = useState('');
+  const [addressData, setAddressData] = useState<AddressData>({
+    direccion: '',
+    distrito: '',
+    provincia: '',
+    codigoPostal: '',
+    referencia: '',
+    coordenadas: null,
+  });
   const [historialCliente, setHistorialCliente] = useState<{
     totalCompras: number;
     montoTotal: number;
@@ -197,8 +207,24 @@ export const VentaForm: React.FC<VentaFormProps> = ({
               productosFavoritos: clienteCompleto.metricas.productosFavoritos || []
             });
             // Autocompletar dirección principal si existe
-            if (clienteCompleto.direccionPrincipal && !direccionEntrega) {
-              setDireccionEntrega(clienteCompleto.direccionPrincipal);
+            if (clienteCompleto.direccionPrincipal && !addressData.direccion) {
+              setAddressData(prev => ({ ...prev, direccion: clienteCompleto.direccionPrincipal || '' }));
+            }
+
+            // Auto-llenar canal de venta: prioridad canal principal > canal origen
+            if (!canal) {
+              const canalAutoId = clienteCompleto.canalPrincipalActual || clienteCompleto.canalOrigen;
+              if (canalAutoId) {
+                const canalObj = await getCanalById(canalAutoId);
+                if (canalObj) {
+                  setCanal(canalObj.id);
+                  setCanalNombre(canalObj.nombre);
+                } else {
+                  // Fallback: usar el ID directamente
+                  setCanal(canalAutoId);
+                  setCanalNombre(canalAutoId);
+                }
+              }
             }
           }
         } catch (error) {
@@ -223,7 +249,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
         telefono: data.telefono,
         dniRuc: data.dniRuc,
         tipoCliente: data.tipoCliente || 'persona',
-        canalOrigen: data.canalOrigen || 'whatsapp'
+        canalOrigen: data.canalOrigen || ''
       };
 
       const clienteId = await clienteService.create(clienteData, user.uid);
@@ -276,11 +302,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
         productoId: value
       };
 
-      // Auto-llenar precio sugerido
-      const producto = productosDisponibles.find(p => p.productoId === value);
-      if (producto && producto.precioSugerido > 0) {
-        nuevosProductos[index].precioUnitario = producto.precioSugerido;
-      }
+      // No auto-fill price - user must input it manually
     } else {
       nuevosProductos[index] = {
         ...nuevosProductos[index],
@@ -299,7 +321,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
       nuevosProductos[index] = {
         ...nuevosProductos[index],
         productoId: snapshot.productoId,
-        precioUnitario: snapshot.precioSugerido > 0 ? snapshot.precioSugerido : nuevosProductos[index].precioUnitario,
+        precioUnitario: nuevosProductos[index].precioUnitario,
         snapshot: snapshot
       };
     } else {
@@ -369,6 +391,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
     const data: VentaFormData = {
       nombreCliente,
       canal,
+      canalNombre: canalNombre || undefined,
       productos: productosValidos,
       observaciones
     };
@@ -381,7 +404,12 @@ export const VentaForm: React.FC<VentaFormProps> = ({
     if (emailCliente) data.emailCliente = emailCliente;
     if (telefonoCliente) data.telefonoCliente = telefonoCliente;
     if (dniRuc) data.dniRuc = dniRuc;
-    if (direccionEntrega) data.direccionEntrega = direccionEntrega;
+    if (addressData.direccion) data.direccionEntrega = addressData.direccion;
+    if (addressData.distrito) data.distrito = addressData.distrito;
+    if (addressData.provincia) data.provincia = addressData.provincia;
+    if (addressData.codigoPostal) data.codigoPostal = addressData.codigoPostal;
+    if (addressData.referencia) data.referencia = addressData.referencia;
+    if (addressData.coordenadas) data.coordenadas = addressData.coordenadas;
     if (descuento > 0) data.descuento = descuento;
     if (costoEnvio > 0) data.costoEnvio = costoEnvio;
     data.incluyeEnvio = incluyeEnvio;
@@ -833,11 +861,19 @@ export const VentaForm: React.FC<VentaFormProps> = ({
             />
           </div>
 
-          <Input
-            label="Dirección de Entrega"
-            value={direccionEntrega}
-            onChange={(e) => setDireccionEntrega(e.target.value)}
-          />
+          {/* Dirección de Entrega con Google Maps */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <MapPin className="inline h-4 w-4 mr-1" />
+              Dirección de Entrega
+            </label>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <GoogleMapsAddressInput
+                value={addressData}
+                onChange={setAddressData}
+              />
+            </div>
+          </div>
 
           {/* Canal */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
@@ -1068,10 +1104,10 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                 <span className="text-gray-500">Teléfono:</span>
                 <span className="ml-2 font-medium">{telefonoCliente || '-'}</span>
               </div>
-              {direccionEntrega && (
+              {addressData.direccion && (
                 <div className="col-span-2">
                   <span className="text-gray-500">Dirección:</span>
-                  <span className="ml-2 font-medium">{direccionEntrega}</span>
+                  <span className="ml-2 font-medium">{addressData.direccion}</span>
                 </div>
               )}
               <div>

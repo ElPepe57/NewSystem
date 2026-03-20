@@ -157,28 +157,28 @@ export default function BalanceGeneral({ mes, anio }: Props) {
   return (
     <div className="space-y-6">
       {/* Header del Balance */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg p-6">
-        <div className="flex justify-between items-start">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
           <div>
-            <h2 className="text-2xl font-bold">BALANCE GENERAL</h2>
-            <p className="text-indigo-100">
+            <h2 className="text-xl sm:text-2xl font-bold">BALANCE GENERAL</h2>
+            <p className="text-indigo-100 text-sm sm:text-base">
               Al {balance.fechaCorte.toLocaleDateString('es-PE', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
               })}
             </p>
-            <p className="text-sm text-indigo-200 mt-1">TC: {balance.tipoCambio.toFixed(2)}</p>
+            <p className="text-xs sm:text-sm text-indigo-200 mt-1">TC: {balance.tipoCambio.toFixed(2)}</p>
           </div>
-          <div className="text-right">
+          <div className="sm:text-right">
             {balance.balanceCuadra ? (
-              <div className="flex items-center gap-2 text-green-300">
-                <CheckCircle2 className="w-5 h-5" />
+              <div className="flex items-center gap-2 text-green-300 text-sm sm:text-base">
+                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Balance cuadrado</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-amber-300">
-                <AlertTriangle className="w-5 h-5" />
+              <div className="flex items-center gap-2 text-amber-300 text-sm sm:text-base">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Diferencia: {formatCurrency(balance.diferencia)}</span>
               </div>
             )}
@@ -186,25 +186,25 @@ export default function BalanceGeneral({ mes, anio }: Props) {
         </div>
 
         {/* Resumen rápido */}
-        <div className="grid grid-cols-3 gap-4 mt-6">
-          <div className="bg-white/10 rounded-lg p-4">
-            <div className="text-indigo-200 text-sm">Total Activos</div>
-            <div className="text-2xl font-bold">{formatCurrency(activos.totalActivos)}</div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 sm:mt-6">
+          <div className="bg-white/10 rounded-lg p-2.5 sm:p-4">
+            <div className="text-indigo-200 text-xs sm:text-sm">Total Activos</div>
+            <div className="text-base sm:text-2xl font-bold">{formatCurrency(activos.totalActivos)}</div>
           </div>
-          <div className="bg-white/10 rounded-lg p-4">
-            <div className="text-indigo-200 text-sm">Total Pasivos</div>
-            <div className="text-2xl font-bold">{formatCurrency(pasivos.totalPasivos)}</div>
+          <div className="bg-white/10 rounded-lg p-2.5 sm:p-4">
+            <div className="text-indigo-200 text-xs sm:text-sm">Total Pasivos</div>
+            <div className="text-base sm:text-2xl font-bold">{formatCurrency(pasivos.totalPasivos)}</div>
           </div>
-          <div className="bg-white/10 rounded-lg p-4">
-            <div className="text-indigo-200 text-sm">Patrimonio</div>
-            <div className="text-2xl font-bold">{formatCurrency(patrimonio.totalPatrimonio)}</div>
+          <div className="bg-white/10 rounded-lg p-2.5 sm:p-4">
+            <div className="text-indigo-200 text-xs sm:text-sm">Patrimonio</div>
+            <div className="text-base sm:text-2xl font-bold">{formatCurrency(patrimonio.totalPatrimonio)}</div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ACTIVOS */}
-        <div className="bg-white rounded-lg border shadow-sm p-6">
+        <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
           <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
             <TrendingUp className="w-6 h-6 text-green-600" />
             ACTIVOS
@@ -278,7 +278,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
                 esSubtotal
               />
               {/* Antigüedad */}
-              <div className="px-6 py-2 text-xs text-gray-500 grid grid-cols-4 gap-2">
+              <div className="px-4 sm:px-6 py-2 text-xs text-gray-500 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                 <div>0-7d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.de0a7dias)}</div>
                 <div>8-15d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.de8a15dias)}</div>
                 <div>16-30d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.de16a30dias)}</div>
@@ -361,9 +361,9 @@ export default function BalanceGeneral({ mes, anio }: Props) {
           )}
 
           {/* Total Activos */}
-          <div className="bg-green-100 rounded-lg p-4 flex justify-between items-center">
-            <span className="font-bold text-green-800 text-lg">TOTAL ACTIVOS</span>
-            <span className="font-mono font-bold text-green-800 text-xl">
+          <div className="bg-green-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
+            <span className="font-bold text-green-800 text-sm sm:text-lg">TOTAL ACTIVOS</span>
+            <span className="font-mono font-bold text-green-800 text-base sm:text-xl">
               {formatCurrency(activos.totalActivos)}
             </span>
           </div>
@@ -372,7 +372,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
         {/* PASIVOS Y PATRIMONIO */}
         <div className="space-y-6">
           {/* PASIVOS */}
-          <div className="bg-white rounded-lg border shadow-sm p-6">
+          <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
             <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
               <CreditCard className="w-6 h-6 text-red-600" />
               PASIVOS
@@ -397,7 +397,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
                   detalle={`${pasivos.corriente.cuentasPorPagarProveedores.cantidadOCs} OCs (${formatCurrencyUSD(pasivos.corriente.cuentasPorPagarProveedores.ordenesCompraUSD)})`}
                 />
                 {/* Antigüedad */}
-                <div className="px-6 py-2 text-xs text-gray-500 grid grid-cols-4 gap-2">
+                <div className="px-4 sm:px-6 py-2 text-xs text-gray-500 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                   <div>0-7d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.de0a7dias)}</div>
                   <div>8-15d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.de8a15dias)}</div>
                   <div>16-30d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.de16a30dias)}</div>
@@ -520,16 +520,16 @@ export default function BalanceGeneral({ mes, anio }: Props) {
             )}
 
             {/* Total Pasivos */}
-            <div className="bg-red-100 rounded-lg p-4 flex justify-between items-center">
-              <span className="font-bold text-red-800 text-lg">TOTAL PASIVOS</span>
-              <span className="font-mono font-bold text-red-800 text-xl">
+            <div className="bg-red-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
+              <span className="font-bold text-red-800 text-sm sm:text-lg">TOTAL PASIVOS</span>
+              <span className="font-mono font-bold text-red-800 text-base sm:text-xl">
                 {formatCurrency(pasivos.totalPasivos)}
               </span>
             </div>
           </div>
 
           {/* PATRIMONIO */}
-          <div className="bg-white rounded-lg border shadow-sm p-6">
+          <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
             <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
               <PiggyBank className="w-6 h-6 text-blue-600" />
               PATRIMONIO
@@ -573,24 +573,24 @@ export default function BalanceGeneral({ mes, anio }: Props) {
             </SeccionBalance>
 
             {/* Total Patrimonio */}
-            <div className="bg-blue-100 rounded-lg p-4 flex justify-between items-center">
-              <span className="font-bold text-blue-800 text-lg">TOTAL PATRIMONIO</span>
-              <span className="font-mono font-bold text-blue-800 text-xl">
+            <div className="bg-blue-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
+              <span className="font-bold text-blue-800 text-sm sm:text-lg">TOTAL PATRIMONIO</span>
+              <span className="font-mono font-bold text-blue-800 text-base sm:text-xl">
                 {formatCurrency(patrimonio.totalPatrimonio)}
               </span>
             </div>
           </div>
 
           {/* VERIFICACIÓN */}
-          <div className={`rounded-lg p-4 flex justify-between items-center ${
+          <div className={`rounded-lg p-3 sm:p-4 flex justify-between items-center ${
             balance.balanceCuadra ? 'bg-green-100' : 'bg-amber-100'
           }`}>
-            <span className={`font-bold text-lg ${
+            <span className={`font-bold text-sm sm:text-lg ${
               balance.balanceCuadra ? 'text-green-800' : 'text-amber-800'
             }`}>
               PASIVOS + PATRIMONIO
             </span>
-            <span className={`font-mono font-bold text-xl ${
+            <span className={`font-mono font-bold text-base sm:text-xl ${
               balance.balanceCuadra ? 'text-green-800' : 'text-amber-800'
             }`}>
               {formatCurrency(balance.totalPasivosPatrimonio)}
@@ -600,7 +600,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
       </div>
 
       {/* Nota contable */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-blue-800">
         <strong>Notas:</strong>
         <ul className="mt-2 space-y-1 text-blue-700">
           <li>• El inventario está valorizado usando el método CTRU (Costo Total Real Unitario)</li>

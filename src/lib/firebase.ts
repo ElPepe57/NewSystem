@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
 // Firebase configuration
 // IMPORTANTE: Reemplaza estos valores con tus credenciales de Firebase
@@ -21,5 +21,30 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// =============================================
+// EMULADORES LOCALES (para testing)
+// Activar con: VITE_USE_EMULATORS=true en .env.local
+// =============================================
+const useEmulators = import.meta.env.VITE_USE_EMULATORS === 'true';
+
+if (useEmulators) {
+  console.log('🔧 Conectando a Firebase Emulators (modo testing)...');
+
+  try {
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+    connectStorageEmulator(storage, 'localhost', 9199);
+
+    console.log('✅ Firebase Emulators conectados:');
+    console.log('   Firestore: localhost:8080');
+    console.log('   Auth: localhost:9099');
+    console.log('   Storage: localhost:9199');
+    console.log('   UI: http://localhost:4000');
+  } catch (error) {
+    console.error('❌ Error conectando a emuladores:', error);
+    console.warn('   Asegurate de tener los emuladores corriendo: npm run emulators');
+  }
+}
 
 export default app;

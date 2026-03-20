@@ -88,6 +88,10 @@ export interface MovimientoTesoreria {
   montoEquivalentePEN: number;  // Monto convertido a PEN (para reportes)
   montoEquivalenteUSD: number;  // Monto convertido a USD (para reportes)
 
+  // Línea de negocio (heredada del documento origen: venta, gasto, OC)
+  lineaNegocioId?: string | null;
+  lineaNegocioNombre?: string | null;
+
   // Método
   metodo: MetodoTesoreria;
   referencia?: string;          // Nro operación, voucher, etc.

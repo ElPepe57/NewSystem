@@ -45,6 +45,9 @@ interface EtiquetaState {
   // Acciones especiales
   crearPresets: (userId: string) => Promise<number>;
 
+  // Filtrado por linea de negocio
+  getByLineaNegocio: (lineaNegocioId: string) => Etiqueta[];
+
   // Seleccion
   setEtiquetaSeleccionada: (etiqueta: Etiqueta | null) => void;
   clearError: () => void;
@@ -265,6 +268,15 @@ export const useEtiquetaStore = create<EtiquetaState>((set, get) => ({
       set({ error: error.message, loading: false });
       throw error;
     }
+  },
+
+  // ============ FILTRADO POR LINEA DE NEGOCIO ============
+
+  getByLineaNegocio: (lineaNegocioId: string) => {
+    const { etiquetasActivas } = get();
+    return etiquetasActivas.filter(e =>
+      !e.lineaNegocioIds?.length || e.lineaNegocioIds.includes(lineaNegocioId)
+    );
   },
 
   // ============ SELECCION ============

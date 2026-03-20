@@ -177,7 +177,7 @@ export const Transportistas: React.FC = () => {
         </div>
 
         {/* Métricas */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-1 sm:gap-3 mb-4">
           <div className="bg-gray-50 rounded-lg p-2 text-center">
             <div className="text-xs text-gray-500 mb-1">Entregas</div>
             <div className="text-lg font-bold text-gray-900">
@@ -403,7 +403,7 @@ export const Transportistas: React.FC = () => {
 
       {/* Tabs */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="flex overflow-x-auto scrollbar-hide gap-4 sm:gap-8 -mb-px">
           <button
             onClick={() => setActiveTab('todos')}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${

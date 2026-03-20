@@ -75,6 +75,9 @@ export interface Categoria {
   imagenUrl?: string;                // Imagen para web
   imagenBannerUrl?: string;          // Banner para pagina de categoria
 
+  // Lineas de negocio asociadas
+  lineaNegocioIds?: string[];  // Si vacio/undefined = disponible para todas las lineas
+
   // Estado
   estado: EstadoCategoria;
   mostrarEnWeb: boolean;             // Si aparece en navegacion web
@@ -85,6 +88,11 @@ export interface Categoria {
     productosActivos: number;
     subcategorias: number;           // Solo para nivel 1
   };
+
+  // Márgenes por categoría (rangos)
+  margenMinimo?: number;      // % mínimo aceptable (alerta si baja de esto)
+  margenObjetivo?: number;    // % objetivo para pricing
+  margenMaximo?: number;      // % máximo (referencia)
 
   // Auditoria
   creadoPor: string;
@@ -106,6 +114,9 @@ export interface CategoriaSnapshot {
   categoriaPadreNombre?: string;
   icono?: IconoCategoria;
   color?: string;
+  margenMinimo?: number;
+  margenObjetivo?: number;
+  margenMaximo?: number;
 }
 
 /**
@@ -125,6 +136,10 @@ export interface CategoriaFormData {
   imagenBannerUrl?: string;
   mostrarEnWeb?: boolean;
   mostrarEnApp?: boolean;
+  lineaNegocioIds?: string[];
+  margenMinimo?: number;
+  margenObjetivo?: number;
+  margenMaximo?: number;
 }
 
 /**

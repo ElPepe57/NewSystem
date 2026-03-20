@@ -11,7 +11,9 @@ import type {
   InventarioStats
 } from '../types/inventario.types';
 import type { Unidad } from '../types/unidad.types';
+import { ESTADOS_EN_ORIGEN, ESTADOS_EN_TRANSITO_ORIGEN, ESTADOS_ACTIVOS } from '../types/unidad.types';
 import type { Producto } from '../types/producto.types';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esEstadoActivo, esPaisOrigen } from '../utils/multiOrigen.helpers';
 
 export const inventarioService = {
   /**
@@ -51,14 +53,14 @@ export const inventarioService = {
 
       if (!producto) return; // Skip si no hay producto
 
-      // Contar por estados (usando los estados correctos del flujo USA → Perú)
-      // Disponibles: recibida_usa (en USA) o disponible_peru (en Perú)
+      // Contar por estados (usando helpers multi-origen)
+      // Disponibles: recibida_origen/recibida_usa (en origen) o disponible_peru (en Perú)
       const disponibles = unidadesGrupo.filter(u =>
-        u.estado === 'recibida_usa' || u.estado === 'disponible_peru'
+        esEstadoEnOrigen(u.estado) || u.estado === 'disponible_peru'
       );
-      // En tránsito: entre almacenes USA o de USA a Perú
+      // En tránsito: entre almacenes origen o de origen a Perú
       const enTransito = unidadesGrupo.filter(u =>
-        u.estado === 'en_transito_usa' || u.estado === 'en_transito_peru'
+        esEstadoEnTransitoOrigen(u.estado) || u.estado === 'en_transito_peru'
       ).length;
       const reservadas = unidadesGrupo.filter(u => u.estado === 'reservada').length;
       const vendidas = unidadesGrupo.filter(u => u.estado === 'vendida').length;
@@ -68,13 +70,7 @@ export const inventarioService = {
       // Calcular valores financieros (costo de compra + flete)
       // Incluir TODAS las unidades activas (disponibles + reservadas + en tránsito)
       // ya que representan el valor real del inventario
-      const unidadesActivas = unidadesGrupo.filter(u =>
-        u.estado === 'recibida_usa' ||
-        u.estado === 'disponible_peru' ||
-        u.estado === 'reservada' ||
-        u.estado === 'en_transito_usa' ||
-        u.estado === 'en_transito_peru'
-      );
+      const unidadesActivas = unidadesGrupo.filter(u => esEstadoActivo(u.estado));
       const valorTotal = unidadesActivas.reduce((sum, u) => {
         const costoFlete = (u as any).costoFleteUSD || 0;
         return sum + u.costoUnitarioUSD + costoFlete;
@@ -169,7 +165,7 @@ export const inventarioService = {
   /**
    * Obtener inventario por país
    */
-  async getInventarioPorPais(pais: 'USA' | 'Peru'): Promise<InventarioPorPais> {
+  async getInventarioPorPais(pais: string): Promise<InventarioPorPais> {
     const inventario = await this.getInventarioAgregado({ pais });
 
     return {
@@ -224,63 +220,56 @@ export const inventarioService = {
     // CALCULAR TODO DESDE LAS UNIDADES (fuente única de verdad)
     // ================================================================
 
-    // Contadores por estado y país
-    let disponiblesUSA = 0;
+    // Contadores por estado y país (multi-origen compatible)
+    let disponiblesOrigen = 0;
     let disponiblesPeru = 0;
-    let reservadasUSA = 0;
+    let reservadasOrigen = 0;
     let reservadasPeru = 0;
-    let enTransitoUSA = 0;
+    let enTransitoOrigen = 0;
     let enTransitoPeru = 0;
     let vencidas = 0;
-    let totalUnidadesUSA = 0;
+    let totalUnidadesOrigen = 0;
     let totalUnidadesPeru = 0;
 
     // Valor total del inventario activo
     let valorTotalUSD = 0;
-    let valorUSA = 0;
+    let valorOrigen = 0;
     let valorPeru = 0;
 
     for (const u of unidades) {
       const costoUnidad = u.costoUnitarioUSD + ((u as any).costoFleteUSD || 0);
 
-      switch (u.estado) {
-        case 'recibida_usa':
-          disponiblesUSA++;
-          totalUnidadesUSA++;
-          valorUSA += costoUnidad;
-          valorTotalUSD += costoUnidad;
-          break;
-        case 'disponible_peru':
-          disponiblesPeru++;
+      if (esEstadoEnOrigen(u.estado)) {
+        disponiblesOrigen++;
+        totalUnidadesOrigen++;
+        valorOrigen += costoUnidad;
+        valorTotalUSD += costoUnidad;
+      } else if (u.estado === 'disponible_peru') {
+        disponiblesPeru++;
+        totalUnidadesPeru++;
+        valorPeru += costoUnidad;
+        valorTotalUSD += costoUnidad;
+      } else if (u.estado === 'reservada') {
+        if (esPaisOrigen(u.pais)) {
+          reservadasOrigen++;
+          totalUnidadesOrigen++;
+          valorOrigen += costoUnidad;
+        } else {
+          reservadasPeru++;
           totalUnidadesPeru++;
           valorPeru += costoUnidad;
-          valorTotalUSD += costoUnidad;
-          break;
-        case 'reservada':
-          if (u.pais === 'USA') {
-            reservadasUSA++;
-            totalUnidadesUSA++;
-            valorUSA += costoUnidad;
-          } else {
-            reservadasPeru++;
-            totalUnidadesPeru++;
-            valorPeru += costoUnidad;
-          }
-          valorTotalUSD += costoUnidad;
-          break;
-        case 'en_transito_usa':
-          enTransitoUSA++;
-          valorTotalUSD += costoUnidad;
-          break;
-        case 'en_transito_peru':
-          enTransitoPeru++;
-          valorTotalUSD += costoUnidad;
-          break;
-        case 'vencida':
-          vencidas++;
-          break;
-        // vendida, danada no se cuentan en inventario activo
+        }
+        valorTotalUSD += costoUnidad;
+      } else if (esEstadoEnTransitoOrigen(u.estado)) {
+        enTransitoOrigen++;
+        valorTotalUSD += costoUnidad;
+      } else if (u.estado === 'en_transito_peru') {
+        enTransitoPeru++;
+        valorTotalUSD += costoUnidad;
+      } else if (u.estado === 'vencida') {
+        vencidas++;
       }
+      // vendida, danada no se cuentan en inventario activo
     }
 
     // Calcular unidades con movimiento en los últimos 7 días
@@ -305,21 +294,21 @@ export const inventarioService = {
     const unidadesProximasVencer30 = inventario.reduce((sum, i) => sum + i.proximasAVencer30Dias, 0);
 
     return {
-      totalUnidadesUSA,
+      totalUnidadesUSA: totalUnidadesOrigen,
       totalUnidadesPeru,
-      disponiblesUSA,
+      disponiblesUSA: disponiblesOrigen,
       disponiblesPeru,
-      reservadasUSA,
+      reservadasUSA: reservadasOrigen,
       reservadasPeru,
-      enTransitoUSA,
+      enTransitoUSA: enTransitoOrigen,
       enTransitoPeru,
-      valorUSA,
+      valorUSA: valorOrigen,
       valorPeru,
       totalProductos: inventario.length,
-      totalUnidades: totalUnidadesUSA + totalUnidadesPeru + enTransitoUSA + enTransitoPeru,
-      totalDisponibles: disponiblesUSA + disponiblesPeru,
-      totalReservadas: reservadasUSA + reservadasPeru,
-      totalEnTransito: enTransitoUSA + enTransitoPeru,
+      totalUnidades: totalUnidadesOrigen + totalUnidadesPeru + enTransitoOrigen + enTransitoPeru,
+      totalDisponibles: disponiblesOrigen + disponiblesPeru,
+      totalReservadas: reservadasOrigen + reservadasPeru,
+      totalEnTransito: enTransitoOrigen + enTransitoPeru,
       valorTotalUSD,
       productosStockCritico,
       productosAgotados,
@@ -386,7 +375,7 @@ export const inventarioService = {
       // Usar batch para actualizaciones más eficientes
       const batch = writeBatch(db);
       let batchCount = 0;
-      const MAX_BATCH = 500;
+      const MAX_BATCH = 450;
 
       for (const unidad of unidadesReservadas) {
         const referenciaId = unidad.reservadaPara || unidad.ventaId;
@@ -599,7 +588,7 @@ export const inventarioService = {
 
       const batch = writeBatch(db);
       let batchCount = 0;
-      const MAX_BATCH = 500;
+      const MAX_BATCH = 450;
 
       for (const unidad of todasUnidades) {
         const estadoActual = unidad.estado;
@@ -612,7 +601,7 @@ export const inventarioService = {
 
           if (!referenciaId) {
             // Sin referencia - liberar a disponible según país
-            nuevoEstado = unidad.pais === 'Peru' ? 'disponible_peru' : 'recibida_usa';
+            nuevoEstado = esPaisOrigen(unidad.pais) ? 'recibida_origen' : 'disponible_peru';
             razon = 'Reserva sin referencia';
           } else {
             const existeVenta = ventasExistentes.has(referenciaId);
@@ -620,32 +609,32 @@ export const inventarioService = {
 
             if (!existeVenta && !existeCotizacion) {
               // Referencia eliminada - liberar según país
-              nuevoEstado = unidad.pais === 'Peru' ? 'disponible_peru' : 'recibida_usa';
+              nuevoEstado = esPaisOrigen(unidad.pais) ? 'recibida_origen' : 'disponible_peru';
               razon = `Referencia ${referenciaId} eliminada`;
               reservasLiberadas++;
             }
           }
         }
-        // CASO 2: En Perú pero con estado de USA
-        else if (unidad.pais === 'Peru' && estadoActual === 'recibida_usa') {
+        // CASO 2: En Perú pero con estado de origen
+        else if (!esPaisOrigen(unidad.pais) && esEstadoEnOrigen(estadoActual)) {
           // No está en transferencia activa ni reservada
           if (!unidadesEnTransferencia.has(unidad.id)) {
             nuevoEstado = 'disponible_peru';
-            razon = 'Unidad en Perú con estado USA';
+            razon = 'Unidad en Perú con estado de origen';
           }
         }
-        // CASO 3: En USA pero con estado de Perú
-        else if (unidad.pais === 'USA' && estadoActual === 'disponible_peru') {
+        // CASO 3: En origen pero con estado de Perú
+        else if (esPaisOrigen(unidad.pais) && estadoActual === 'disponible_peru') {
           if (!unidadesEnTransferencia.has(unidad.id)) {
-            nuevoEstado = 'recibida_usa';
-            razon = 'Unidad en USA con estado Perú';
+            nuevoEstado = 'recibida_origen';
+            razon = 'Unidad en origen con estado Perú';
           }
         }
         // CASO 4: En tránsito pero no hay transferencia activa
-        else if ((estadoActual === 'en_transito_peru' || estadoActual === 'en_transito_usa')) {
+        else if ((estadoActual === 'en_transito_peru' || esEstadoEnTransitoOrigen(estadoActual))) {
           if (!unidadesEnTransferencia.has(unidad.id)) {
             // Corregir según país actual
-            nuevoEstado = unidad.pais === 'Peru' ? 'disponible_peru' : 'recibida_usa';
+            nuevoEstado = esPaisOrigen(unidad.pais) ? 'recibida_origen' : 'disponible_peru';
             razon = 'En tránsito sin transferencia activa';
           }
         }
@@ -714,8 +703,9 @@ export const inventarioService = {
 
   /**
    * SINCRONIZACIÓN COMPLETA DE STOCK EN PRODUCTOS
-   * Recalcula stockUSA, stockPeru, stockTransito, stockReservado y stockDisponible
+   * Recalcula stockUSA (origen), stockPeru (destino), stockTransito, stockReservado y stockDisponible
    * basándose en las unidades reales en la colección 'unidades'.
+   * Nota: stockUSA/stockPeru son nombres legacy — representan stock en origen y destino respectivamente.
    *
    * Esta función es útil cuando:
    * - Se eliminan datos directamente desde Firebase
@@ -779,43 +769,33 @@ export const inventarioService = {
         });
       });
 
-      // Contar unidades por estado y país
+      // Contar unidades por estado y país (multi-origen compatible)
       for (const unidad of todasUnidades) {
         const stockProducto = stockRealPorProducto.get(unidad.productoId);
         if (!stockProducto) continue;
 
-        switch (unidad.estado) {
-          case 'recibida_usa':
-            // Stock disponible en USA
+        if (esEstadoEnOrigen(unidad.estado)) {
+          // Stock disponible en origen
+          stockProducto.usa++;
+          stockProducto.disponible++;
+        } else if (unidad.estado === 'disponible_peru') {
+          // Stock disponible en Perú
+          stockProducto.peru++;
+          stockProducto.disponible++;
+        } else if (esEstadoEnTransitoOrigen(unidad.estado) || unidad.estado === 'en_transito_peru') {
+          // En tránsito (entre almacenes)
+          stockProducto.transito++;
+        } else if (unidad.estado === 'reservada' || unidad.estado === 'asignada_pedido') {
+          // Reservada o asignada a pedido
+          stockProducto.reservado++;
+          // Las reservadas también se cuentan según país
+          if (esPaisOrigen(unidad.pais)) {
             stockProducto.usa++;
-            stockProducto.disponible++;
-            break;
-          case 'disponible_peru':
-            // Stock disponible en Perú
+          } else {
             stockProducto.peru++;
-            stockProducto.disponible++;
-            break;
-          case 'en_transito_usa':
-          case 'en_transito_peru':
-            // En tránsito (entre almacenes)
-            stockProducto.transito++;
-            break;
-          case 'reservada':
-            // Reservada para venta/cotización
-            stockProducto.reservado++;
-            // Las reservadas también se cuentan según país
-            if (unidad.pais === 'USA') {
-              stockProducto.usa++;
-            } else {
-              stockProducto.peru++;
-            }
-            break;
-          // Estados terminales (vendida, vencida, dañada) no se cuentan en stock
-          case 'vendida':
-          case 'vencida':
-          case 'danada':
-            break;
+          }
         }
+        // Estados terminales (vendida, vencida, dañada) no se cuentan en stock
       }
 
       // Comparar y actualizar productos
@@ -832,7 +812,7 @@ export const inventarioService = {
 
       const batch = writeBatch(db);
       let batchCount = 0;
-      const MAX_BATCH = 500;
+      const MAX_BATCH = 450;
 
       for (const producto of productos) {
         const stockReal = stockRealPorProducto.get(producto.id)!;
@@ -1002,45 +982,44 @@ export const inventarioService = {
       let stockTransito = 0;
       let stockReservado = 0;
       let stockDisponible = 0;
+      let stockDisponiblePeru = 0; // Solo disponible_peru (lo que ML puede vender)
 
       for (const unidad of unidades) {
-        switch (unidad.estado) {
-          case 'recibida_usa':
+        if (esEstadoEnOrigen(unidad.estado)) {
+          stockUSA++;
+          stockDisponible++;
+        } else if (unidad.estado === 'disponible_peru') {
+          stockPeru++;
+          stockDisponible++;
+          stockDisponiblePeru++;
+        } else if (esEstadoEnTransitoOrigen(unidad.estado) || unidad.estado === 'en_transito_peru') {
+          stockTransito++;
+        } else if (unidad.estado === 'reservada' || unidad.estado === 'asignada_pedido') {
+          stockReservado++;
+          if (esPaisOrigen(unidad.pais)) {
             stockUSA++;
-            stockDisponible++;
-            break;
-          case 'disponible_peru':
+          } else {
             stockPeru++;
-            stockDisponible++;
-            break;
-          case 'en_transito_usa':
-          case 'en_transito_peru':
-            stockTransito++;
-            break;
-          case 'reservada':
-            stockReservado++;
-            if (unidad.pais === 'USA') {
-              stockUSA++;
-            } else {
-              stockPeru++;
-            }
-            break;
-          // Estados terminales no cuentan
-          case 'vendida':
-          case 'vencida':
-          case 'danada':
-            break;
+          }
         }
+        // Estados terminales (vendida, vencida, danada) no cuentan
       }
 
-      // Actualizar producto
+      // Leer stockPendienteML actual para calcular stockEfectivoML
       const productoRef = doc(db, 'productos', productoId);
+      const productoDoc = await getDoc(productoRef);
+      const stockPendienteML = productoDoc.data()?.stockPendienteML || 0;
+      const stockEfectivoML = Math.max(0, stockDisponiblePeru - stockPendienteML);
+
+      // Actualizar producto
       await updateDoc(productoRef, {
         stockUSA,
         stockPeru,
         stockTransito,
         stockReservado,
         stockDisponible,
+        stockDisponiblePeru,
+        stockEfectivoML,
         ultimaEdicion: serverTimestamp()
       });
 

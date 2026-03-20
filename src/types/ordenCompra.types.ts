@@ -10,7 +10,7 @@ export type EstadoOrden =
   | 'cancelada';        // Cancelada
 
 // Estado de pago (independiente del estado logístico)
-export type EstadoPago =
+export type EstadoPagoOC =
   | 'pendiente'     // No pagada
   | 'pagada'        // Pago completado
   | 'pago_parcial'; // Pagada parcialmente
@@ -118,6 +118,10 @@ export interface ProductoOrden {
   marca: string;
   nombreComercial: string;
   presentacion: string;
+  contenido?: string;        // Ej: "60 cápsulas", "500g"
+  dosaje?: string;           // Ej: "150mg", "1000 UI"
+  sabor?: string;            // Ej: "Limón", "Fresa", "Natural"
+  codigoUPC?: string;       // Codigo UPC/EAN para escaneo en recepcion
   cantidad: number;
   costoUnitario: number;    // Precio por unidad en USD
   subtotal: number;         // cantidad × costoUnitario
@@ -209,11 +213,17 @@ export interface OrdenCompra {
   
   // Totales
   subtotalUSD: number;        // Suma de todos los productos (sin impuesto)
-  impuestoUSD?: number;       // Sales Tax USA
+  impuestoUSD?: number;       // Impuesto de origen (Sales Tax USA, etc.)
   gastosEnvioUSD?: number;    // Gastos de envío/courier
   otrosGastosUSD?: number;    // Otros gastos adicionales
-  totalUSD: number;           // subtotal + impuesto + gastos
+  descuentoUSD?: number;      // Descuento general (ej: descuento Amazon)
+  totalUSD: number;           // subtotal + impuesto + gastos - descuento
   
+  // Origen y línea de negocio
+  paisOrigen?: string;             // País de origen del proveedor ('USA', 'China', 'Corea', 'Peru')
+  lineaNegocioId?: string;         // Si todos los productos son de la misma línea
+  lineaNegocioNombre?: string;
+
   // Tipo de Cambio
   tcCompra?: number;          // TC al momento de crear la orden
   tcPago?: number;            // TC al momento del pago
@@ -224,7 +234,7 @@ export interface OrdenCompra {
   
   // Estados (logístico y financiero son independientes)
   estado: EstadoOrden;              // Estado logístico
-  estadoPago: EstadoPago;           // Estado de pago (independiente)
+  estadoPago: EstadoPagoOC;           // Estado de pago (independiente)
 
   // Fechas logísticas
   fechaCreacion: Timestamp;
@@ -326,9 +336,14 @@ export interface OrdenCompraFormData {
   impuestoUSD?: number;       // Sales Tax USA
   gastosEnvioUSD?: number;
   otrosGastosUSD?: number;
+  descuentoUSD?: number;      // Descuento general
   totalUSD: number;
   tcCompra: number;
   almacenDestino: string;
+  // Origen y línea de negocio (auto-heredados de productos)
+  paisOrigen?: string;
+  lineaNegocioId?: string;
+  lineaNegocioNombre?: string;
   numeroTracking?: string;
   courier?: string;
   observaciones?: string;

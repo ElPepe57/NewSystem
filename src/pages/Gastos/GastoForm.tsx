@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
-import { X, Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote } from 'lucide-react';
+import { X, Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote, AlertCircle } from 'lucide-react';
 import { Button, Input, Select, AutocompleteInput } from '../../components/common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../components/common/Modal';
 import { useGastoStore } from '../../store/gastoStore';
@@ -8,20 +8,32 @@ import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useToastStore } from '../../store/toastStore';
 import { tesoreriaService } from '../../services/tesoreria.service';
 import { VentaService } from '../../services/venta.service';
-import { CATEGORIAS_GASTO, type GastoFormData, type CategoriaGasto, type MonedaGasto, type EstadoGasto } from '../../types/gasto.types';
+import { CATEGORIAS_GASTO, type Gasto, type GastoFormData, type CategoriaGasto, type MonedaGasto, type EstadoGasto } from '../../types/gasto.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
 import type { Venta } from '../../types/venta.types';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 
 interface GastoFormProps {
   onClose: () => void;
+  gastoEditar?: Gasto | null;
 }
 
-export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
+export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) => {
+  const isEditing = !!gastoEditar;
   const { user } = useAuthStore();
-  const { crearGasto, gastos } = useGastoStore();
+  const { crearGasto, actualizarGasto, gastos } = useGastoStore();
   const { getTCDelDia } = useTipoCambioStore();
   const toast = useToastStore();
+  const { lineasActivas, fetchLineasActivas } = useLineaNegocioStore();
   const [tipoCambio, setTipoCambio] = React.useState<number>(0);
+  const [lineaNegocioId, setLineaNegocioId] = useState<string | null>(
+    gastoEditar?.lineaNegocioId ?? null
+  );
+
+  // Cargar líneas de negocio
+  useEffect(() => {
+    fetchLineasActivas();
+  }, [fetchLineasActivas]);
 
   // Registrar modal abierto
   useLayoutEffect(() => {
@@ -35,19 +47,41 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     };
   }, []);
 
-  const [formData, setFormData] = useState<GastoFormData>({
-    tipo: 'otros',
-    categoria: 'GO',
-    descripcion: '',
-    moneda: 'PEN',
-    montoOriginal: 0,
-    tipoCambio: tipoCambio || 0,
-    esProrrateable: false,
-    prorrateoTipo: 'unidad',
-    fecha: new Date(),
-    frecuencia: 'unico',
-    estado: 'pendiente',
-    impactaCTRU: false
+  const [formData, setFormData] = useState<GastoFormData>(() => {
+    if (gastoEditar) {
+      return {
+        tipo: gastoEditar.tipo || 'otros',
+        categoria: gastoEditar.categoria || 'GO',
+        descripcion: gastoEditar.descripcion || '',
+        moneda: gastoEditar.moneda || 'PEN',
+        montoOriginal: gastoEditar.montoOriginal || 0,
+        tipoCambio: gastoEditar.tipoCambio || tipoCambio || 0,
+        esProrrateable: gastoEditar.esProrrateable || false,
+        prorrateoTipo: gastoEditar.prorrateoTipo || 'unidad',
+        fecha: gastoEditar.fecha?.toDate?.() || new Date(),
+        frecuencia: gastoEditar.frecuencia || 'unico',
+        estado: gastoEditar.estado || 'pendiente',
+        impactaCTRU: gastoEditar.impactaCTRU || false,
+        ventaId: gastoEditar.ventaId,
+        proveedor: gastoEditar.proveedor,
+        numeroComprobante: gastoEditar.numeroComprobante,
+        notas: gastoEditar.notas,
+      };
+    }
+    return {
+      tipo: 'otros',
+      categoria: 'GO',
+      descripcion: '',
+      moneda: 'PEN',
+      montoOriginal: 0,
+      tipoCambio: tipoCambio || 0,
+      esProrrateable: false,
+      prorrateoTipo: 'unidad',
+      fecha: new Date(),
+      frecuencia: 'unico',
+      estado: 'pendiente',
+      impactaCTRU: false
+    };
   });
 
   // Cargar tipo de cambio al montar
@@ -56,7 +90,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
       const tc = await getTCDelDia();
       if (tc) {
         setTipoCambio(tc.compra);
-        setFormData(prev => ({ ...prev, tipoCambio: tc.compra }));
+        // Solo setear TC si no estamos editando (o si el gasto no tenía TC)
+        if (!gastoEditar?.tipoCambio) {
+          setFormData(prev => ({ ...prev, tipoCambio: tc.compra }));
+        }
       }
     };
     loadTC();
@@ -88,9 +125,22 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
 
       try {
         setLoadingVentas(true);
-        // Obtener ventas de los últimos 30 días
         const ventasRecientes = await VentaService.getVentasRecientes(30);
         setVentas(ventasRecientes);
+
+        // Si estamos editando y el gasto tiene ventaId, buscar la venta asociada
+        if (gastoEditar?.ventaId && !ventaSeleccionada) {
+          const ventaAsociada = ventasRecientes.find(v => v.id === gastoEditar.ventaId);
+          if (ventaAsociada) {
+            setVentaSeleccionada(ventaAsociada);
+          } else {
+            // La venta vinculada no está en las recientes (puede ser más antigua), buscarla directamente
+            const ventaDirecta = await VentaService.getById(gastoEditar.ventaId);
+            if (ventaDirecta) {
+              setVentaSeleccionada(ventaDirecta);
+            }
+          }
+        }
       } catch (error) {
         console.error('Error al cargar ventas:', error);
       } finally {
@@ -178,9 +228,27 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     cargarCuentas();
   }, []);
 
-  // Actualizar cuenta por defecto cuando cambia la moneda
+  // Pre-poblar campos de pago cuando se edita un gasto pagado
   useEffect(() => {
-    if (!loadingCuentas && cuentas.length > 0) {
+    if (!loadingCuentas && cuentas.length > 0 && gastoEditar && gastoEditar.estado === 'pagado') {
+      const pagoExistente = gastoEditar.pagos?.[0];
+      if (pagoExistente) {
+        // Pre-poblar desde pagos[0]
+        if (pagoExistente.cuentaOrigenId) setCuentaOrigenId(pagoExistente.cuentaOrigenId);
+        if (pagoExistente.metodoPago) setMetodoPago(pagoExistente.metodoPago as MetodoTesoreria);
+        if (pagoExistente.referencia) setReferenciaPago(pagoExistente.referencia);
+      } else {
+        // Legacy: pre-poblar desde campos del gasto
+        if ((gastoEditar as any).cuentaOrigenId) setCuentaOrigenId((gastoEditar as any).cuentaOrigenId);
+        if (gastoEditar.metodoPago) setMetodoPago(gastoEditar.metodoPago as MetodoTesoreria);
+      }
+      return; // No aplicar lógica de cuenta por defecto
+    }
+  }, [gastoEditar, loadingCuentas, cuentas]);
+
+  // Actualizar cuenta por defecto cuando cambia la moneda (solo para gastos nuevos o no pagados)
+  useEffect(() => {
+    if (!loadingCuentas && cuentas.length > 0 && !(gastoEditar && gastoEditar.estado === 'pagado')) {
       const cuentaMoneda = cuentas.find(c =>
         (c.esBiMoneda || c.moneda === formData.moneda) &&
         c.activa
@@ -189,7 +257,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
         setCuentaOrigenId(cuentaMoneda.id);
       }
     }
-  }, [formData.moneda, loadingCuentas, cuentas]);
+  }, [formData.moneda, loadingCuentas, cuentas, gastoEditar]);
 
   const cuentaSeleccionada = cuentas.find(c => c.id === cuentaOrigenId);
 
@@ -233,18 +301,26 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     setLoading(true);
 
     try {
+      const lineaSeleccionada = lineasActivas.find(l => l.id === lineaNegocioId);
       const gastoData = {
         ...formData,
-        cuentaOrigenId: formData.estado === 'pagado' ? (cuentaOrigenId || undefined) : undefined,
-        metodoPago: formData.estado === 'pagado' ? metodoPago : undefined,
-        referenciaPago: formData.estado === 'pagado' ? (referenciaPago || undefined) : undefined
+        cuentaOrigenId: cuentaOrigenId || undefined,
+        metodoPago: metodoPago || undefined,
+        referenciaPago: referenciaPago || undefined,
+        lineaNegocioId: lineaNegocioId || null,
+        lineaNegocioNombre: lineaSeleccionada?.nombre || null
       };
 
-      await crearGasto(gastoData, user.uid);
-      toast.success('Gasto registrado exitosamente');
+      if (isEditing && gastoEditar) {
+        await actualizarGasto(gastoEditar.id, gastoData, user.uid);
+        toast.success('Gasto actualizado exitosamente');
+      } else {
+        await crearGasto(gastoData, user.uid);
+        toast.success('Gasto registrado exitosamente');
+      }
       onClose();
     } catch (error: any) {
-      toast.error(error.message, 'Error al crear gasto');
+      toast.error(error.message, isEditing ? 'Error al actualizar gasto' : 'Error al crear gasto');
     } finally {
       setLoading(false);
     }
@@ -292,23 +368,31 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Nuevo Gasto</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-900">{isEditing ? 'Editar Gasto' : 'Nuevo Gasto'}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Sección 1: Categoría */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Categoría del Gasto</h3>
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 sm:space-y-6">
+          {/* Banner informativo para gastos pagados */}
+          {isEditing && gastoEditar?.estado === 'pagado' && (
+            <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+              <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <span>Este gasto está pagado. Cambiar el monto, cuenta o método actualizará el movimiento en tesorería. Cambiar a "Pendiente" anulará el movimiento.</span>
+            </div>
+          )}
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* Sección 1: Categoría */}
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Categoría del Gasto</h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
               {(Object.keys(CATEGORIAS_GASTO) as CategoriaGasto[]).map((cat) => {
                 const info = CATEGORIAS_GASTO[cat];
                 const isSelected = formData.categoria === cat;
@@ -317,14 +401,14 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
                     key={cat}
                     type="button"
                     onClick={() => handleChange('categoria', cat)}
-                    className={`p-3 rounded-lg border-2 text-left transition-all ${
+                    className={`p-2 sm:p-3 rounded-lg border-2 text-left transition-all ${
                       isSelected
                         ? getCategoriaColor(cat) + ' ring-2 ring-offset-1 ring-gray-400'
                         : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <div className="font-semibold text-sm">{info.codigo}</div>
-                    <div className="text-xs mt-0.5 opacity-80">{info.nombre}</div>
+                    <div className="font-semibold text-xs sm:text-sm">{info.codigo}</div>
+                    <div className="text-[10px] sm:text-xs mt-0.5 opacity-80">{info.nombre}</div>
                   </button>
                 );
               })}
@@ -348,6 +432,28 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Sección: Línea de Negocio */}
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Línea de Negocio</h3>
+            <div>
+              <select
+                value={lineaNegocioId || ''}
+                onChange={(e) => setLineaNegocioId(e.target.value || null)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option value="">Compartido (todas las líneas)</option>
+                {lineasActivas.map((linea) => (
+                  <option key={linea.id} value={linea.id}>
+                    {linea.nombre}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Dejar como "Compartido" para gastos que aplican a todas las líneas de negocio
+              </p>
             </div>
           </div>
 
@@ -449,10 +555,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
           )}
 
           {/* Sección 3: Tipo y Descripción */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Detalle del Gasto</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Detalle del Gasto</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <AutocompleteInput
                 label="Tipo de Gasto"
                 value={formData.tipo}
@@ -476,45 +582,47 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
           </div>
 
           {/* Sección 3: Monto y Moneda */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
               Monto del Gasto
             </h3>
 
             {/* Selector de Moneda Visual */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Moneda *</label>
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => handleChange('moneda', 'PEN')}
-                  className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                  className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                     formData.moneda === 'PEN'
                       ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
                       : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                   }`}
                 >
-                  <Banknote className="h-5 w-5" />
-                  S/ Soles (PEN)
+                  <Banknote className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="sm:hidden">S/ PEN</span>
+                  <span className="hidden sm:inline">S/ Soles (PEN)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleChange('moneda', 'USD')}
-                  className={`flex-1 py-3 px-4 rounded-lg border-2 font-medium transition-all flex items-center justify-center gap-2 ${
+                  className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                     formData.moneda === 'USD'
                       ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-200'
                       : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
                   }`}
                 >
-                  <DollarSign className="h-5 w-5" />
-                  $ Dólares (USD)
+                  <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="sm:hidden">$ USD</span>
+                  <span className="hidden sm:inline">$ Dólares (USD)</span>
                 </button>
               </div>
             </div>
 
             {/* Monto y Tipo de Cambio */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Monto {formData.moneda === 'USD' ? '($)' : '(S/)'} *
@@ -550,20 +658,20 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
 
             {/* Preview de equivalencias */}
             {formData.montoOriginal > 0 && (formData.tipoCambio ?? 0) > 0 && (
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-gray-200">
-                <div className="text-sm font-medium text-gray-700 mb-2">Equivalencias:</div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className={`p-3 rounded-lg ${formData.moneda === 'PEN' ? 'bg-green-100 ring-2 ring-green-300' : 'bg-white'}`}>
-                    <div className="text-xs text-gray-500">En Soles</div>
-                    <div className="text-lg font-bold text-green-700">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-3 sm:p-4 rounded-lg border border-gray-200">
+                <div className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Equivalencias:</div>
+                <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                  <div className={`p-2 sm:p-3 rounded-lg ${formData.moneda === 'PEN' ? 'bg-green-100 ring-2 ring-green-300' : 'bg-white'}`}>
+                    <div className="text-[10px] sm:text-xs text-gray-500">En Soles</div>
+                    <div className="text-sm sm:text-lg font-bold text-green-700">
                       S/ {formData.moneda === 'PEN'
                         ? formData.montoOriginal.toFixed(2)
                         : (formData.montoOriginal * (formData.tipoCambio ?? 1)).toFixed(2)}
                     </div>
                   </div>
-                  <div className={`p-3 rounded-lg ${formData.moneda === 'USD' ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white'}`}>
-                    <div className="text-xs text-gray-500">En Dólares</div>
-                    <div className="text-lg font-bold text-blue-700">
+                  <div className={`p-2 sm:p-3 rounded-lg ${formData.moneda === 'USD' ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white'}`}>
+                    <div className="text-[10px] sm:text-xs text-gray-500">En Dólares</div>
+                    <div className="text-sm sm:text-lg font-bold text-blue-700">
                       $ {formData.moneda === 'USD'
                         ? formData.montoOriginal.toFixed(2)
                         : (formData.montoOriginal / (formData.tipoCambio ?? 1)).toFixed(2)}
@@ -576,8 +684,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
 
           {/* Sección 4: CTRU y Prorrateo - Solo para GA y GO */}
           {(formData.categoria === 'GA' || formData.categoria === 'GO') && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Impacto en CTRU</h3>
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Impacto en CTRU</h3>
 
               <div className="space-y-3">
                 <label className="flex items-start space-x-3 cursor-pointer">
@@ -627,13 +735,13 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
           )}
 
           {/* Sección 5: Estado y Fecha */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
               Estado y Fecha
             </h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Fecha del Gasto *</label>
                 <input
@@ -677,19 +785,19 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
 
           {/* Sección 6: Información de Pago - Solo si está pagado */}
           {formData.estado === 'pagado' && (
-            <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
-              <h3 className="text-lg font-semibold text-green-800 flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
+            <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
+              <h3 className="text-base sm:text-lg font-semibold text-green-800 flex items-center gap-2">
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
                 Información del Pago
               </h3>
 
               {/* Método de Pago */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
-                <div className="grid grid-cols-3 gap-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                   {[
                     { value: 'efectivo', label: 'Efectivo', icon: '💵' },
-                    { value: 'transferencia_bancaria', label: 'Transferencia', icon: '🏦' },
+                    { value: 'transferencia_bancaria', label: 'Transfer.', icon: '🏦' },
                     { value: 'yape', label: 'Yape', icon: '📱' },
                     { value: 'plin', label: 'Plin', icon: '📲' },
                     { value: 'tarjeta_credito', label: 'T. Crédito', icon: '💳' },
@@ -699,13 +807,13 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
                       key={metodo.value}
                       type="button"
                       onClick={() => setMetodoPago(metodo.value as MetodoTesoreria)}
-                      className={`py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                      className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all ${
                         metodoPago === metodo.value
                           ? 'border-green-500 bg-white text-green-700'
                           : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                       }`}
                     >
-                      <span className="mr-1">{metodo.icon}</span>
+                      <span className="mr-0.5 sm:mr-1">{metodo.icon}</span>
                       {metodo.label}
                     </button>
                   ))}
@@ -799,10 +907,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
           )}
 
           {/* Sección 7: Información Adicional */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Información Adicional</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Información Adicional</h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <Input
                 label="Proveedor (Opcional)"
                 type="text"
@@ -848,7 +956,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose }) => {
               type="submit"
               disabled={loading}
             >
-              {loading ? 'Guardando...' : 'Guardar Gasto'}
+              {loading ? 'Guardando...' : isEditing ? 'Actualizar Gasto' : 'Guardar Gasto'}
             </Button>
           </div>
         </form>

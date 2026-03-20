@@ -25,14 +25,35 @@ import type {
   MovimientoUnidad,
   TipoMovimiento
 } from '../types/unidad.types';
+import { COLLECTIONS } from '../config/collections';
+import { ESTADOS_EN_ORIGEN, ESTADOS_EN_TRANSITO_ORIGEN } from '../types/unidad.types';
+import { TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/transferencia.types';
+import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
 
-const COLLECTION_NAME = 'unidades';
+const COLLECTION_NAME = COLLECTIONS.UNIDADES;
 
 export const unidadService = {
   /**
-   * Obtener todas las unidades
+   * Obtener todas las unidades activas (excluye vendida, vencida, danada)
    */
   async getAll(): Promise<Unidad[]> {
+    const estadosExcluidos = ['vendida', 'vencida', 'danada'];
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where('estado', 'not-in', estadosExcluidos)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Unidad));
+  },
+
+  /**
+   * Obtener TODAS las unidades sin filtro (incluye vendidas, vencidas, etc.)
+   * Usar solo cuando se necesite el historial completo (ej: CTRU, reportes)
+   */
+  async getAllIncluyendoHistoricas(): Promise<Unidad[]> {
     const snapshot = await getDocs(collection(db, COLLECTION_NAME));
     return snapshot.docs.map(doc => ({
       id: doc.id,
@@ -137,10 +158,80 @@ export const unidadService = {
 
     let unidades = await this.buscar(filtros);
 
+    // Filtrar unidades que tienen reserva activa para otra venta/cotización.
+    // Una unidad disponible_peru puede tener reservadaPara/reservadoPara si:
+    // 1. Un cliente pagó adelanto y se le reservó stock (reserva legítima)
+    // 2. Datos residuales de una operación anterior que no limpió el campo (huérfano)
+    // Verificamos si la referencia apunta a una venta/cotización activa con reserva vigente.
+    const unidadesConReserva = unidades.filter(u => {
+      const ext = u as any;
+      return ext.reservadaPara || ext.reservadoPara;
+    });
+
+    if (unidadesConReserva.length > 0) {
+      // Verificar cuáles reservas son legítimas (venta activa con stockReservado)
+      const { VentaService } = await import('./venta.service');
+      const idsReserva = new Set<string>();
+
+      for (const u of unidadesConReserva) {
+        const ext = u as any;
+        const refId = ext.reservadaPara || ext.reservadoPara;
+        if (refId) idsReserva.add(refId);
+      }
+
+      // Verificar cada referencia
+      const reservasActivas = new Set<string>();
+      for (const refId of idsReserva) {
+        try {
+          const venta = await VentaService.getById(refId);
+          if (venta && venta.estado === 'reservada' && venta.stockReservado?.activo) {
+            reservasActivas.add(refId);
+            console.log(`[FEFO] Reserva activa encontrada: ${refId} (${venta.numeroVenta})`);
+          } else if (venta) {
+            console.warn(`[FEFO] Unidad referencia a ${venta.numeroVenta} (estado: ${venta.estado}) - reserva NO activa, campo huérfano`);
+          } else {
+            console.warn(`[FEFO] Referencia ${refId} no encontrada como venta, verificando cotización...`);
+            // Podría ser una cotización
+            try {
+              const { CotizacionService } = await import('./cotizacion.service');
+              const cot = await CotizacionService.getById(refId);
+              if (cot && (cot as any).stockReservado?.activo) {
+                reservasActivas.add(refId);
+                console.log(`[FEFO] Reserva activa en cotización: ${refId}`);
+              } else {
+                console.warn(`[FEFO] Referencia ${refId} es cotización sin reserva activa - campo huérfano`);
+              }
+            } catch {
+              console.warn(`[FEFO] Referencia ${refId} no encontrada - campo huérfano`);
+            }
+          }
+        } catch {
+          console.warn(`[FEFO] Error verificando referencia ${refId} - tratando como huérfano`);
+        }
+      }
+
+      // Solo excluir unidades con reservas genuinamente activas
+      unidades = unidades.filter(u => {
+        const ext = u as any;
+        const refId = ext.reservadaPara || ext.reservadoPara;
+        if (!refId) return true; // Sin referencia = disponible
+        if (reservasActivas.has(refId)) {
+          console.log(`[FEFO] Excluyendo unidad ${u.id} - reservada activamente para ${refId}`);
+          return false; // Reserva legítima, excluir
+        }
+        // Reserva huérfana - la unidad está disponible
+        console.warn(`[FEFO] Unidad ${u.id} tiene reserva huérfana (${refId}), incluyendo en FEFO`);
+        return true;
+      });
+    }
+
     // Ordenar por fecha de vencimiento (más próximo primero)
-    unidades.sort((a, b) =>
-      a.fechaVencimiento.seconds - b.fechaVencimiento.seconds
-    );
+    // Unidades sin fechaVencimiento van al final (no perecibles o dato faltante)
+    unidades.sort((a, b) => {
+      const aSeconds = a.fechaVencimiento?.seconds ?? Number.MAX_SAFE_INTEGER;
+      const bSeconds = b.fechaVencimiento?.seconds ?? Number.MAX_SAFE_INTEGER;
+      return aSeconds - bSeconds;
+    });
 
     // Tomar las primeras N unidades
     const seleccionadas = unidades.slice(0, cantidad);
@@ -159,7 +250,7 @@ export const unidadService = {
     nombre: string;
   }, almacenInfo: {
     nombre: string;
-    pais: 'USA' | 'Peru';
+    pais: string;
   }): Promise<string> {
     const now = Timestamp.now();
 
@@ -178,8 +269,8 @@ export const unidadService = {
       }
     };
 
-    // Estado inicial según país del almacén
-    const estadoInicial = almacenInfo.pais === 'USA' ? 'recibida_usa' : 'disponible_peru';
+    // Estado inicial según país del almacén (multi-origen)
+    const estadoInicial = esPaisOrigen(almacenInfo.pais) ? 'recibida_origen' : 'disponible_peru';
 
     const newUnidad: Omit<Unidad, 'id'> = {
       productoId: data.productoId,
@@ -216,7 +307,7 @@ export const unidadService = {
     nombre: string;
   }, almacenInfo: {
     nombre: string;
-    pais: 'USA' | 'Peru';
+    pais: string;
   }): Promise<string[]> {
     const batch = writeBatch(db);
     const ids: string[] = [];
@@ -247,9 +338,9 @@ export const unidadService = {
       const docRef = doc(collection(db, COLLECTION_NAME));
       ids.push(docRef.id);
 
-      // Estado inicial: usar el proporcionado o calcular según país
+      // Estado inicial: usar el proporcionado o calcular según país (multi-origen)
       const estadoInicial = data.estadoInicial ||
-        (almacenInfo.pais === 'USA' ? 'recibida_usa' : 'disponible_peru');
+        (esPaisOrigen(almacenInfo.pais) ? 'recibida_origen' : 'disponible_peru');
 
       const newUnidad: Omit<Unidad, 'id'> = {
         productoId: data.productoId,
@@ -332,7 +423,7 @@ export const unidadService = {
     movimiento: Omit<MovimientoUnidad, 'id' | 'fecha'>,
     nuevoAlmacenId?: string,
     nuevoAlmacenNombre?: string,
-    nuevoPais?: 'USA' | 'Peru'
+    nuevoPais?: string
   ): Promise<void> {
     const unidad = await this.getById(id);
     if (!unidad) {
@@ -439,12 +530,12 @@ export const unidadService = {
       ...doc.data()
     } as Unidad));
 
-    // Filtrar unidades transferibles:
-    // - recibida_usa: disponibles en USA para envío a Perú
+    // Filtrar unidades transferibles (multi-origen compatible):
+    // - recibida_origen/recibida_usa: disponibles en origen para envío a Perú
     // - disponible_peru: disponibles en Perú para transferencia interna
     // - reservada: comprometidas para una cotización/venta, necesitan transferirse a Perú
     return unidades.filter(u =>
-      u.estado === 'recibida_usa' ||
+      esEstadoEnOrigen(u.estado) ||
       u.estado === 'disponible_peru' ||
       u.estado === 'reservada'
     );
@@ -470,9 +561,9 @@ export const unidadService = {
     const ahora = new Date();
     const en30Dias = new Date(ahora.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-    // Unidades disponibles (recibida_usa o disponible_peru)
+    // Unidades disponibles (recibida_origen/recibida_usa o disponible_peru)
     const disponibles = unidades.filter(u =>
-      u.estado === 'recibida_usa' || u.estado === 'disponible_peru'
+      esEstadoEnOrigen(u.estado) || u.estado === 'disponible_peru'
     );
 
     // Unidades reservadas
@@ -480,7 +571,7 @@ export const unidadService = {
 
     // Unidades en tránsito
     const enTransito = unidades.filter(u =>
-      u.estado === 'en_transito_usa' || u.estado === 'en_transito_peru'
+      esEstadoEnTransitoOrigen(u.estado) || u.estado === 'en_transito_peru'
     );
 
     // Valor total del inventario ACTIVO (disponibles + reservadas + en tránsito)
@@ -518,7 +609,7 @@ export const unidadService = {
     // Obtener todas las unidades y filtrar las disponibles
     const todasUnidades = await this.getAll();
     const unidadesDisponibles = todasUnidades.filter(u =>
-      (u.estado === 'recibida_usa' || u.estado === 'disponible_peru') &&
+      (esEstadoEnOrigen(u.estado) || u.estado === 'disponible_peru') &&
       u.fechaVencimiento
     );
 
@@ -578,11 +669,11 @@ export const unidadService = {
         };
       }
 
-      // Obtener todas las transferencias USA→Perú completadas
+      // Obtener todas las transferencias internacionales completadas (generic + legacy)
       const transferenciasSnapshot = await getDocs(
         query(
           collection(db, 'transferencias'),
-          where('tipo', '==', 'usa_peru')
+          where('tipo', 'in', TIPOS_TRANSFERENCIA_INTERNACIONAL)
         )
       );
 
@@ -719,7 +810,7 @@ export const unidadService = {
           ));
 
         if (necesitaSincronizar) {
-          const nuevoEstado = unidad.pais === 'USA' ? 'recibida_usa' : 'disponible_peru';
+          const nuevoEstado = esPaisOrigen(unidad.pais) ? 'recibida_origen' : 'disponible_peru';
           unidadesASincronizar.push({ unidad, nuevoEstado });
         }
       }
@@ -741,7 +832,7 @@ export const unidadService = {
               tipo: 'ajuste',
               fecha: Timestamp.now(),
               usuarioId: 'sistema',
-              observaciones: `Sincronización automática: venta ${unidad.ventaId || 'N/A'} eliminada. Estado anterior: ${estadoActual}`
+              observaciones: `Sincronización automática: venta ${unidad.ventaNumero || unidad.ventaId || 'N/A'} eliminada. Estado anterior: ${estadoActual}`
             };
 
             batch.update(docRef, {
@@ -825,6 +916,23 @@ export const unidadService = {
       }
     }
 
+    // Trigger redistribución GA/GO post-venta (fire-and-forget, no bloqueante)
+    if (exitos > 0) {
+      import('./ctru.service').then(({ ctruService }) => {
+        ctruService.recalcularCTRUDinamicoSafe()
+          .then(result => {
+            if (result) {
+              console.log(`[CTRU] Auto-recalculo post-venta: ${result.unidadesActualizadas} vendidas actualizadas`);
+            } else {
+              console.log('[CTRU] Auto-recalculo post-venta encolado (otro en ejecución)');
+            }
+          })
+          .catch(error => {
+            console.error('[CTRU] Error en auto-recalculo post-venta (no bloqueante):', error);
+          });
+      });
+    }
+
     return { exitos, errores };
   },
 
@@ -850,16 +958,17 @@ export const unidadService = {
           continue;
         }
 
-        // Solo liberar si está reservada o en un estado que permita liberación
-        if (unidad.estado !== 'reservada' && unidad.estado !== 'disponible_peru') {
+        // Solo liberar si está en un estado que permita liberación
+        const estadosLiberables = ['reservada', 'disponible_peru', 'asignada_pedido'];
+        if (!estadosLiberables.includes(unidad.estado)) {
           console.warn(`Unidad ${unidadId} tiene estado ${unidad.estado}, no se puede liberar`);
           errores++;
           continue;
         }
 
         const docRef = doc(db, COLLECTION_NAME, unidadId);
-        // Determinar estado correcto según país
-        const estadoLiberado = unidad.pais === 'USA' ? 'recibida_usa' : 'disponible_peru';
+        // Determinar estado correcto según país (multi-origen)
+        const estadoLiberado = esPaisOrigen(unidad.pais) ? 'recibida_origen' : 'disponible_peru';
 
         const movimientoLiberacion: MovimientoUnidad = {
           id: crypto.randomUUID(),
@@ -871,10 +980,12 @@ export const unidadService = {
 
         await updateDoc(docRef, {
           estado: estadoLiberado,
-          // Limpiar datos de reserva/venta
+          // Limpiar datos de reserva/venta/asignación
           reservadaPara: deleteField(),
           fechaReserva: deleteField(),
           reservaVigenciaHasta: deleteField(),
+          ventaId: deleteField(),
+          fechaAsignacion: deleteField(),
           movimientos: [...unidad.movimientos, movimientoLiberacion],
           actualizadoPor: userId,
           fechaActualizacion: Timestamp.now()
@@ -937,7 +1048,7 @@ export const unidadService = {
       const transferenciasSnapshot = await getDocs(
         query(
           collection(db, 'transferencias'),
-          where('tipo', '==', 'usa_peru')
+          where('tipo', 'in', TIPOS_TRANSFERENCIA_INTERNACIONAL)
         )
       );
 
@@ -981,17 +1092,104 @@ export const unidadService = {
   },
 
   /**
+   * Actualizar fechas de vencimiento de múltiples unidades (por lote)
+   * Usado para corregir las fechas por defecto que se asignan al recibir OC
+   */
+  async actualizarFechasVencimiento(
+    unidadIds: string[],
+    nuevaFecha: Date,
+    userId: string,
+    motivo?: string
+  ): Promise<{ exitos: number; errores: number }> {
+    let exitos = 0;
+    let errores = 0;
+    const MAX_BATCH = 400;
+    const nuevaFechaTimestamp = Timestamp.fromDate(nuevaFecha);
+
+    for (let i = 0; i < unidadIds.length; i += MAX_BATCH) {
+      const chunk = unidadIds.slice(i, i + MAX_BATCH);
+
+      // Primero, obtener las unidades del chunk para acceder a sus movimientos
+      const unidadesChunk: Unidad[] = [];
+      for (const id of chunk) {
+        const unidad = await this.getById(id);
+        if (unidad) {
+          unidadesChunk.push(unidad);
+        } else {
+          errores++;
+        }
+      }
+
+      const batch = writeBatch(db);
+
+      for (const unidad of unidadesChunk) {
+        try {
+          const docRef = doc(db, COLLECTION_NAME, unidad.id);
+
+          const movimientoAjuste: MovimientoUnidad = {
+            id: crypto.randomUUID(),
+            tipo: 'ajuste',
+            fecha: Timestamp.now(),
+            usuarioId: userId,
+            observaciones: motivo
+              ? `Corrección fecha vencimiento: ${motivo}`
+              : 'Corrección de fecha de vencimiento'
+          };
+
+          batch.update(docRef, {
+            fechaVencimiento: nuevaFechaTimestamp,
+            movimientos: [...unidad.movimientos, movimientoAjuste],
+            actualizadoPor: userId,
+            fechaActualizacion: Timestamp.now()
+          });
+
+          exitos++;
+        } catch (error) {
+          console.error(`Error preparando unidad ${unidad.id}:`, error);
+          errores++;
+        }
+      }
+
+      try {
+        await batch.commit();
+        console.log(`[Vencimiento] Batch ${Math.floor(i / MAX_BATCH) + 1} completado (${unidadesChunk.length} unidades)`);
+      } catch (batchError) {
+        console.error('Error ejecutando batch de vencimiento:', batchError);
+        errores += unidadesChunk.length;
+        exitos -= unidadesChunk.length;
+      }
+    }
+
+    return { exitos, errores };
+  },
+
+  /**
    * Reservar unidades existentes para una cotización (vinculación retroactiva)
    * Cambia unidades de disponible_peru → reservada para una cotización específica
    */
   async reservarUnidadesParaCotizacion(params: {
     ordenCompraId: string;
     cotizacionId: string;
+    cotizacionNumero?: string;
     requerimientoId: string;
     productos: Array<{ productoId: string; cantidad: number }>;
     userId: string;
   }): Promise<{ totalReservadas: number; detalles: Array<{ productoId: string; reservadas: number; faltantes: number }> }> {
     const { ordenCompraId, cotizacionId, requerimientoId, productos, userId } = params;
+    let { cotizacionNumero } = params;
+
+    // Si no se proporcionó el número de cotización, buscarlo en Firestore
+    if (!cotizacionNumero && cotizacionId) {
+      try {
+        const cotDoc = await getDoc(doc(db, 'cotizaciones', cotizacionId));
+        if (cotDoc.exists()) {
+          cotizacionNumero = cotDoc.data().numeroCotizacion || undefined;
+        }
+      } catch {
+        // Non-critical, usará el ID como fallback
+      }
+    }
+
     let totalReservadas = 0;
     const detalles: Array<{ productoId: string; reservadas: number; faltantes: number }> = [];
 
@@ -1004,7 +1202,7 @@ export const unidadService = {
       });
       // Filtrar solo las que están en estado disponible (no reservada, no vendida, no en_movimiento)
       // También excluir unidades ya reservadas para ESTA MISMA cotización (evitar doble reserva)
-      const estadosDisponibles = ['recibida_usa', 'en_transito_peru', 'disponible_peru'];
+      const estadosDisponibles = [...ESTADOS_EN_ORIGEN, 'en_transito_peru', 'disponible_peru'];
       const unidades = todasUnidades.filter(u => {
         if (!estadosDisponibles.includes(u.estado)) return false;
         // Excluir unidades que ya tienen reserva para esta cotización
@@ -1028,7 +1226,7 @@ export const unidadService = {
             tipo: 'reserva' as TipoMovimiento,
             fecha: Timestamp.now(),
             usuarioId: userId,
-            observaciones: `Reserva retroactiva para cotización ${cotizacionId}`
+            observaciones: `Reserva retroactiva para cotización ${cotizacionNumero || cotizacionId}`
           };
 
           batch.update(docRef, {

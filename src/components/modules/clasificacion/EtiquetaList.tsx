@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, Tag, Search, Package, BarChart3 } from 'lucide-re
 import { Button } from '../../common';
 import { ConfirmDialog } from '../../common/ConfirmDialog';
 import { useEtiquetaStore } from '../../../store/etiquetaStore';
+import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { useAuthStore } from '../../../store/authStore';
 import { EtiquetaForm } from './EtiquetaForm';
 import { EtiquetaDetalle } from './EtiquetaDetalle';
@@ -19,8 +20,10 @@ const TIPO_ORDER: TipoEtiqueta[] = ['atributo', 'marketing', 'origen'];
 export function EtiquetaList() {
   const { user } = useAuthStore();
   const { etiquetasAgrupadas, fetchEtiquetasAgrupadas, delete: deleteEtiqueta, loading } = useEtiquetaStore();
+  const { lineasActivas, fetchLineasActivas, getLineaNombre, getLineaColor } = useLineaNegocioStore();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [filtroLinea, setFiltroLinea] = useState<string | ''>('');
   const [showForm, setShowForm] = useState(false);
   const [editingEtiqueta, setEditingEtiqueta] = useState<Etiqueta | null>(null);
   const [tipoParaNueva, setTipoParaNueva] = useState<TipoEtiqueta>('atributo');
@@ -29,6 +32,9 @@ export function EtiquetaList() {
 
   useEffect(() => {
     fetchEtiquetasAgrupadas();
+    if (lineasActivas.length === 0) {
+      fetchLineasActivas();
+    }
   }, []);
 
   const handleAddEtiqueta = (tipo: TipoEtiqueta) => {
@@ -61,14 +67,23 @@ export function EtiquetaList() {
     fetchEtiquetasAgrupadas();
   };
 
-  // Filtrar por busqueda
+  // Filtrar por busqueda y linea
   const filtrarEtiquetas = (etiquetas: Etiqueta[]) => {
-    if (!searchTerm) return etiquetas;
-    const term = searchTerm.toLowerCase();
-    return etiquetas.filter(e =>
-      e.nombre.toLowerCase().includes(term) ||
-      e.codigo.toLowerCase().includes(term)
-    );
+    return etiquetas.filter(e => {
+      // Filtro por linea de negocio
+      if (filtroLinea) {
+        const lineaIds = e.lineaNegocioIds;
+        if (lineaIds && lineaIds.length > 0 && !lineaIds.includes(filtroLinea)) {
+          return false;
+        }
+      }
+      if (!searchTerm) return true;
+      const term = searchTerm.toLowerCase();
+      return (
+        e.nombre.toLowerCase().includes(term) ||
+        e.codigo.toLowerCase().includes(term)
+      );
+    });
   };
 
   // Contar total de etiquetas
@@ -91,16 +106,30 @@ export function EtiquetaList() {
         </Button>
       </div>
 
-      {/* Busqueda */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar etiqueta..."
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-        />
+      {/* Busqueda y filtro */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar etiqueta..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+          />
+        </div>
+        {lineasActivas.length > 0 && (
+          <select
+            value={filtroLinea}
+            onChange={(e) => setFiltroLinea(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">Todas las lineas</option>
+            {lineasActivas.map(l => (
+              <option key={l.id} value={l.id}>{l.icono} {l.nombre}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Lista agrupada por tipo */}
@@ -158,6 +187,22 @@ export function EtiquetaList() {
                             {etiqueta.icono && <span>{etiqueta.icono}</span>}
                             {etiqueta.nombre}
                           </span>
+                          {/* Lineas de negocio badges */}
+                          {(etiqueta.lineaNegocioIds)?.length ? (
+                            (etiqueta.lineaNegocioIds).map((lid: string) => (
+                              <span
+                                key={lid}
+                                className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs text-white"
+                                style={{ backgroundColor: getLineaColor(lid) }}
+                              >
+                                {getLineaNombre(lid)}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                              Todas
+                            </span>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-3">

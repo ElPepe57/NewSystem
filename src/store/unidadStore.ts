@@ -23,13 +23,13 @@ interface UnidadState {
     data: UnidadFormData,
     userId: string,
     productoInfo: { sku: string; nombre: string },
-    almacenInfo: { nombre: string; pais: 'USA' | 'Peru' }
+    almacenInfo: { nombre: string; pais: string }
   ) => Promise<void>;
   crearLote: (
     data: CrearUnidadesLoteData,
     userId: string,
     productoInfo: { sku: string; nombre: string },
-    almacenInfo: { nombre: string; pais: 'USA' | 'Peru' }
+    almacenInfo: { nombre: string; pais: string }
   ) => Promise<void>;
   actualizarEstado: (
     id: string,

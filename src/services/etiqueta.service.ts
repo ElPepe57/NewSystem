@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Etiqueta,
   EtiquetaFormData,
@@ -22,8 +23,9 @@ import type {
   TipoEtiqueta,
   EstadoEtiqueta
 } from '../types/etiqueta.types';
+import { COLLECTIONS } from '../config/collections';
 
-const COLLECTION_NAME = 'etiquetas';
+const COLLECTION_NAME = COLLECTIONS.ETIQUETAS;
 
 /**
  * Normalizar texto para busqueda y slug
@@ -49,26 +51,7 @@ const generarSlug = (texto: string): string => {
  * Formato: ETQ-001, ETQ-002, etc.
  */
 async function generarCodigo(): Promise<string> {
-  const prefix = 'ETQ';
-  const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-
-  let maxNumber = 0;
-  snapshot.docs.forEach(docSnap => {
-    const data = docSnap.data();
-    const codigo = data.codigo as string;
-
-    if (codigo && codigo.startsWith(prefix)) {
-      const match = codigo.match(/-(\d+)$/);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNumber) {
-          maxNumber = num;
-        }
-      }
-    }
-  });
-
-  return `${prefix}-${String(maxNumber + 1).padStart(3, '0')}`;
+  return getNextSequenceNumber('ETQ', 3);
 }
 
 /**
@@ -149,6 +132,17 @@ export const etiquetaService = {
   },
 
   /**
+   * Obtener etiquetas filtradas por linea de negocio
+   * Retorna etiquetas que no tienen lineaNegocioIds (globales) o que incluyen esta linea
+   */
+  async getByLineaNegocio(lineaNegocioId: string): Promise<Etiqueta[]> {
+    const todas = await this.getActivas();
+    return todas.filter(e =>
+      !e.lineaNegocioIds?.length || e.lineaNegocioIds.includes(lineaNegocioId)
+    );
+  },
+
+  /**
    * Obtener una etiqueta por ID
    */
   async getById(id: string): Promise<Etiqueta | null> {
@@ -204,6 +198,7 @@ export const etiquetaService = {
         colorFondo: data.colorFondo || '#F3F4F6',
         colorTexto: data.colorTexto || '#4B5563',
         colorBorde: data.colorBorde || '#D1D5DB',
+        ...(data.lineaNegocioIds?.length ? { lineaNegocioIds: data.lineaNegocioIds } : {}),
         estado: 'activa',
         mostrarEnFiltros: data.mostrarEnFiltros ?? true,
         ordenDisplay,
@@ -234,6 +229,10 @@ export const etiquetaService = {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
 
+      // Obtener etiqueta actual para detectar cambio de nombre
+      const etiquetaActual = await this.getById(id);
+      const nombreAnterior = etiquetaActual?.nombre;
+
       const updateData: Record<string, any> = {
         actualizadoPor: userId,
         fechaActualizacion: Timestamp.now()
@@ -257,8 +256,21 @@ export const etiquetaService = {
       if (data.colorBorde !== undefined) updateData.colorBorde = data.colorBorde;
       if (data.mostrarEnFiltros !== undefined) updateData.mostrarEnFiltros = data.mostrarEnFiltros;
       if (data.ordenDisplay !== undefined) updateData.ordenDisplay = data.ordenDisplay;
+      if (data.lineaNegocioIds !== undefined) updateData.lineaNegocioIds = data.lineaNegocioIds;
 
       await updateDoc(docRef, updateData);
+
+      // Propagar cambio de nombre a clientes
+      if (data.nombre !== undefined && nombreAnterior && nombreAnterior !== data.nombre.trim()) {
+        await this.propagarCambiosAClientes(nombreAnterior, data.nombre.trim());
+      }
+
+      // Propagar cambios (nombre, colores, icono) a productos
+      const camposProducto = ['nombre', 'colorFondo', 'colorTexto', 'colorBorde', 'icono', 'tipo'];
+      const cambioAfectaProductos = camposProducto.some(campo => (data as any)[campo] !== undefined);
+      if (cambioAfectaProductos) {
+        await this.propagarCambiosAProductos(id);
+      }
     } catch (error: any) {
       console.error('Error al actualizar etiqueta:', error);
       throw new Error(error.message || 'Error al actualizar etiqueta');
@@ -439,6 +451,51 @@ export const etiquetaService = {
     } catch (error: any) {
       console.error('Error al obtener estadisticas:', error);
       throw new Error('Error al obtener estadisticas');
+    }
+  },
+
+  /**
+   * Propagar cambio de nombre a clientes cuando cambia la etiqueta
+   */
+  async propagarCambiosAClientes(nombreAnterior: string, nombreNuevo: string): Promise<number> {
+    try {
+      if (nombreAnterior === nombreNuevo) return 0;
+
+      const clientesRef = collection(db, COLLECTIONS.CLIENTES);
+      const q = query(clientesRef, where('etiquetas', 'array-contains', nombreAnterior));
+      const clientesSnap = await getDocs(q);
+
+      if (clientesSnap.empty) return 0;
+
+      let batch = writeBatch(db);
+      let actualizados = 0;
+      let enBatch = 0;
+
+      for (const docSnap of clientesSnap.docs) {
+        const data = docSnap.data();
+        const etiquetas = (data.etiquetas || []) as string[];
+        const nuevasEtiquetas = etiquetas.map(e =>
+          e === nombreAnterior ? nombreNuevo : e
+        );
+        batch.update(docSnap.ref, { etiquetas: nuevasEtiquetas });
+        actualizados++;
+        enBatch++;
+
+        if (enBatch >= 499) {
+          await batch.commit();
+          batch = writeBatch(db);
+          enBatch = 0;
+        }
+      }
+
+      if (enBatch > 0) {
+        await batch.commit();
+      }
+
+      return actualizados;
+    } catch (error: any) {
+      console.error('Error al propagar cambios a clientes:', error);
+      return 0;
     }
   },
 

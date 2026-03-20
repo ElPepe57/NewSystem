@@ -1,0 +1,1856 @@
+[
+  {
+    "_id": "1bT72OwLkczT0cmSDTQ4",
+    "principioActivo": "Astaxantina",
+    "imagenUrl": "",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "alias": [],
+    "codigo": "TP-010",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:53.000Z",
+      "_seconds": 1767427193
+    },
+    "beneficiosPrincipales": [],
+    "nombre": "Astaxantina",
+    "iconoUrl": "",
+    "descripcion": "",
+    "estado": "activo",
+    "nombreNormalizado": "astaxantina",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "4lj8e35FEYKHHk1J9Z12",
+    "iconoUrl": "",
+    "alias": [],
+    "nombreNormalizado": "aceite-de-oregano",
+    "categoriasSugeridasIds": [],
+    "estado": "activo",
+    "nombre": "Aceite de Orégano",
+    "principioActivo": "Carvacrol",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:51.000Z",
+      "_seconds": 1767427191
+    },
+    "creadoPor": "SYSTEM_MIGRATION",
+    "beneficiosPrincipales": [],
+    "imagenUrl": "",
+    "descripcion": "",
+    "codigo": "TP-004",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 4,
+      "productosActivos": 4
+    }
+  },
+  {
+    "_id": "5C6XNIpo03MMaSC8NrZA",
+    "nombre": "Espirulina",
+    "nombreNormalizado": "espirulina",
+    "beneficiosPrincipales": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:14.000Z",
+      "_seconds": 1767427214
+    },
+    "codigo": "TP-058",
+    "estado": "activo",
+    "alias": [
+      "Spirulina",
+      "Chlorella"
+    ],
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "principioActivo": "",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "descripcion": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "5COWjuym5xHiHAzKjvUv",
+    "iconoUrl": "",
+    "categoriasSugeridasIds": [],
+    "principioActivo": "",
+    "nombre": "Omega 3",
+    "imagenUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activo",
+    "beneficiosPrincipales": [],
+    "alias": [
+      "DHA",
+      "EPA",
+      "Fish Oil"
+    ],
+    "nombreNormalizado": "omega-3",
+    "descripcion": "",
+    "codigo": "TP-031",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:02.000Z",
+      "_seconds": 1767427202
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "productosTotal": 13,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "6LKUj1U3ZYgAOcHpxQSI",
+    "nombre": "Shilajit",
+    "imagenUrl": "",
+    "alias": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:13.000Z",
+      "_seconds": 1767427213
+    },
+    "descripcion": "",
+    "codigo": "TP-057",
+    "beneficiosPrincipales": [],
+    "categoriasSugeridasIds": [],
+    "estado": "activo",
+    "nombreNormalizado": "shilajit",
+    "iconoUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "principioActivo": "Ácido Fúlvico",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "6r6qrINS0LPmQieDwYOU",
+    "codigo": "TP-028",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "descripcion": "",
+    "principioActivo": "Metiltetrahidrofolato",
+    "alias": [
+      "Folato",
+      "Metilfolato"
+    ],
+    "nombre": "5-MTHF",
+    "nombreNormalizado": "5-mthf",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:01.000Z",
+      "_seconds": 1767427201
+    },
+    "iconoUrl": "",
+    "estado": "activo",
+    "beneficiosPrincipales": [],
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 3,
+      "productosActivos": 3
+    }
+  },
+  {
+    "_id": "74DCin97xBfRaFHzXaLK",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "beneficiosPrincipales": [],
+    "principioActivo": "",
+    "iconoUrl": "",
+    "imagenUrl": "",
+    "nombreNormalizado": "multivitaminico",
+    "alias": [
+      "Multivitamínico Líquido"
+    ],
+    "estado": "activo",
+    "categoriasSugeridasIds": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:08.000Z",
+      "_seconds": 1767427208
+    },
+    "nombre": "Multivitamínico",
+    "codigo": "TP-046",
+    "descripcion": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 6,
+      "productosActivos": 6
+    }
+  },
+  {
+    "_id": "7Ii7103AChZqCWlTCOII",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "codigo": "TP-037",
+    "beneficiosPrincipales": [],
+    "nombreNormalizado": "melena-de-leon",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:05.000Z",
+      "_seconds": 1767427205
+    },
+    "iconoUrl": "",
+    "categoriasSugeridasIds": [],
+    "descripcion": "",
+    "principioActivo": "Hericium erinaceus",
+    "alias": [
+      "Lions Mane"
+    ],
+    "nombre": "Melena de León",
+    "imagenUrl": "",
+    "estado": "activo",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "8wGMlDswYfC3vSwYMj50",
+    "alias": [
+      "Péptidos de Colágeno",
+      "Multi Collagen"
+    ],
+    "nombre": "Colágeno",
+    "descripcion": "",
+    "imagenUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:57.000Z",
+      "_seconds": 1767427197
+    },
+    "estado": "activo",
+    "beneficiosPrincipales": [],
+    "iconoUrl": "",
+    "codigo": "TP-019",
+    "nombreNormalizado": "colageno",
+    "categoriasSugeridasIds": [],
+    "principioActivo": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 4,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "99dncdgCsj7Tz8r88x1D",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activo",
+    "iconoUrl": "",
+    "nombreNormalizado": "multivitaminico-para-nino",
+    "imagenUrl": "",
+    "principioActivo": "",
+    "codigo": "TP-016",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:56.000Z",
+      "_seconds": 1767427196
+    },
+    "descripcion": "",
+    "alias": [
+      "Kids Multivitamin",
+      "Children Gummies"
+    ],
+    "beneficiosPrincipales": [],
+    "nombre": "Multivitamínico para Niño",
+    "categoriasSugeridasIds": [],
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "AULmDf7AIYcLcqMngFmj",
+    "descripcion": "",
+    "alias": [
+      "Zinc Carnosine"
+    ],
+    "imagenUrl": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:11.000Z",
+      "_seconds": 1767427211
+    },
+    "codigo": "TP-051",
+    "nombre": "PepZin GI",
+    "categoriasSugeridasIds": [],
+    "beneficiosPrincipales": [],
+    "estado": "activo",
+    "nombreNormalizado": "pepzin-gi",
+    "principioActivo": "Zinc-L-Carnosina",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "iconoUrl": "",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "AaoREipaFKHPi6M1fxW5",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:08.000Z",
+      "_seconds": 1767427208
+    },
+    "imagenUrl": "",
+    "alias": [
+      "Milk Thistle"
+    ],
+    "descripcion": "",
+    "nombre": "Cardo Mariano",
+    "codigo": "TP-045",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activo",
+    "categoriasSugeridasIds": [],
+    "principioActivo": "Silimarina",
+    "beneficiosPrincipales": [],
+    "nombreNormalizado": "cardo-mariano",
+    "iconoUrl": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "CArZhsU2Zu8J5xCNb3eV",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:00.000Z",
+      "_seconds": 1767427200
+    },
+    "estado": "activo",
+    "iconoUrl": "",
+    "nombre": "Extracto Húmico Molecular",
+    "categoriasSugeridasIds": [],
+    "beneficiosPrincipales": [],
+    "descripcion": "",
+    "codigo": "TP-026",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "principioActivo": "",
+    "nombreNormalizado": "extracto-humico-molecular",
+    "alias": [
+      "Digestive Drops"
+    ],
+    "imagenUrl": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "CL8BSgF5JoQ0YlHjop5l",
+    "nombre": "Resveratrol + NAD",
+    "imagenUrl": "",
+    "beneficiosPrincipales": [],
+    "descripcion": "",
+    "principioActivo": "",
+    "codigo": "TP-049",
+    "iconoUrl": "",
+    "estado": "activo",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:10.000Z",
+      "_seconds": 1767427210
+    },
+    "nombreNormalizado": "resveratrol-nad",
+    "alias": [
+      "NAD+ Resveratrol"
+    ],
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "Cbe25fe5kexpx3YGTmhJ",
+    "imagenUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombre": "Selenio",
+    "principioActivo": "Selenometionina",
+    "beneficiosPrincipales": [],
+    "nombreNormalizado": "selenio",
+    "descripcion": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:13.000Z",
+      "_seconds": 1767427213
+    },
+    "iconoUrl": "",
+    "alias": [],
+    "categoriasSugeridasIds": [],
+    "codigo": "TP-056",
+    "estado": "activo",
+    "metricas": {
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "CftHILRRpwFO2RtRfyIm",
+    "iconoUrl": "",
+    "alias": [],
+    "nombreNormalizado": "ashwagandha",
+    "nombre": "Ashwagandha",
+    "principioActivo": "Withanólidos",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "categoriasSugeridasIds": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:53.000Z",
+      "_seconds": 1767427193
+    },
+    "descripcion": "",
+    "beneficiosPrincipales": [],
+    "estado": "activo",
+    "codigo": "TP-009",
+    "imagenUrl": "",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "productosTotal": 3,
+      "productosActivos": 3
+    }
+  },
+  {
+    "_id": "E3nIZUfcJDju32Lbr5RJ",
+    "codigo": "TPR-001",
+    "nombre": "Magnesio Complex",
+    "nombreNormalizado": "magnesio-complex",
+    "alias": [],
+    "descripcion": "",
+    "principioActivo": "",
+    "beneficiosPrincipales": [],
+    "categoriasSugeridasIds": [],
+    "iconoUrl": "",
+    "imagenUrl": "",
+    "estado": "activo",
+    "creadoPor": "IJDS5oPdbZTgRPonDNKHZ2tImNm2",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-02-23T02:10:54.000Z",
+      "_seconds": 1771812654
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "EVZLdxNvvv6YsGX89Lq9",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:04.000Z",
+      "_seconds": 1767427204
+    },
+    "alias": [
+      "Magtein",
+      "Neuromag"
+    ],
+    "iconoUrl": "",
+    "principioActivo": "",
+    "descripcion": "",
+    "estado": "activo",
+    "categoriasSugeridasIds": [],
+    "nombre": "Magnesio L-Treonato",
+    "beneficiosPrincipales": [],
+    "codigo": "TP-035",
+    "imagenUrl": "",
+    "nombreNormalizado": "magnesio-l-treonato",
+    "metricas": {
+      "margenPromedio": 0,
+      "productosActivos": 2,
+      "productosTotal": 2,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    }
+  },
+  {
+    "_id": "EoazTORHSmECyjudOcBX",
+    "codigo": "TP-062",
+    "descripcion": "",
+    "nombre": "Sulfato de Zinc",
+    "beneficiosPrincipales": [],
+    "estado": "activo",
+    "alias": [
+      "Zinc Iónico"
+    ],
+    "nombreNormalizado": "sulfato-de-zinc",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:16.000Z",
+      "_seconds": 1767427216
+    },
+    "principioActivo": "",
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 2,
+      "productosActivos": 2,
+      "unidadesVendidas": 0
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    }
+  },
+  {
+    "_id": "Fj5K3gxsvjbuNOl7rHjZ",
+    "beneficiosPrincipales": [],
+    "categoriasSugeridasIds": [],
+    "nombre": "Glicinato de Magnesio",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:06.000Z",
+      "_seconds": 1767427206
+    },
+    "principioActivo": "",
+    "imagenUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activo",
+    "descripcion": "",
+    "alias": [
+      "Magnesium Glycinate"
+    ],
+    "iconoUrl": "",
+    "codigo": "TP-040",
+    "nombreNormalizado": "glicinato-de-magnesio",
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    },
+    "metricas": {
+      "productosTotal": 4,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "HSeQJusa0mAiNfnbQQMI",
+    "imagenUrl": "",
+    "estado": "activo",
+    "nombre": "KSM-66 + Ashwagandha",
+    "beneficiosPrincipales": [],
+    "principioActivo": "KSM-66",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "iconoUrl": "",
+    "categoriasSugeridasIds": [],
+    "codigo": "TP-033",
+    "alias": [],
+    "nombreNormalizado": "ksm-66-ashwagandha",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:03.000Z",
+      "_seconds": 1767427203
+    },
+    "descripcion": "",
+    "metricas": {
+      "productosTotal": 1,
+      "margenPromedio": 0,
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    }
+  },
+  {
+    "_id": "HYa5KMBMAGLFxLpftCt6",
+    "nombre": "D3",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "alias": [
+      "Vitamina D3",
+      "Colecalciferol"
+    ],
+    "estado": "activo",
+    "beneficiosPrincipales": [],
+    "descripcion": "",
+    "iconoUrl": "",
+    "imagenUrl": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:59.000Z",
+      "_seconds": 1767427199
+    },
+    "codigo": "TP-023",
+    "nombreNormalizado": "d3",
+    "principioActivo": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "IuvU32suLAmkOvvXHonE",
+    "nombreNormalizado": "boro",
+    "categoriasSugeridasIds": [],
+    "nombre": "Boro",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "beneficiosPrincipales": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:55.000Z",
+      "_seconds": 1767427195
+    },
+    "descripcion": "",
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "principioActivo": "Boro quelado",
+    "estado": "activo",
+    "alias": [],
+    "codigo": "TP-013",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "JULyVyT0ju2vtf532OAy",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "categoriasSugeridasIds": [],
+    "estado": "activo",
+    "descripcion": "",
+    "nombreNormalizado": "enzimas-digestivas",
+    "alias": [
+      "Super Enzimas"
+    ],
+    "beneficiosPrincipales": [],
+    "principioActivo": "",
+    "codigo": "TP-027",
+    "nombre": "Enzimas Digestivas",
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:00.000Z",
+      "_seconds": 1767427200
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "K5Ka5vh3I2DOCX8RkAPP",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:05.000Z",
+      "_seconds": 1767427205
+    },
+    "nombre": "Luteína",
+    "estado": "activo",
+    "imagenUrl": "",
+    "beneficiosPrincipales": [],
+    "codigo": "TP-039",
+    "nombreNormalizado": "luteina",
+    "alias": [],
+    "principioActivo": "Luteína + Zeaxantina",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "descripcion": "",
+    "iconoUrl": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "unidadesVendidas": 0,
+      "productosActivos": 1
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    }
+  },
+  {
+    "_id": "KkO5yJCIs9utjlenTb73",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activo",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:12.000Z",
+      "_seconds": 1767427212
+    },
+    "alias": [],
+    "codigo": "TP-054",
+    "principioActivo": "Trans-Resveratrol",
+    "iconoUrl": "",
+    "descripcion": "",
+    "nombre": "Resveratrol",
+    "beneficiosPrincipales": [],
+    "nombreNormalizado": "resveratrol",
+    "imagenUrl": "",
+    "categoriasSugeridasIds": [],
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "LXYjCHRSOqTJmn5hH8Af",
+    "categoriasSugeridasIds": [],
+    "iconoUrl": "",
+    "descripcion": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activo",
+    "codigo": "TP-044",
+    "beneficiosPrincipales": [],
+    "nombre": "Melatonina + L-Teanina",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:07.000Z",
+      "_seconds": 1767427207
+    },
+    "imagenUrl": "",
+    "nombreNormalizado": "melatonina-l-teanina",
+    "principioActivo": "",
+    "alias": [],
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "LkDa3DVpEHmJCM1vdTqB",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:55.000Z",
+      "_seconds": 1767427195
+    },
+    "imagenUrl": "",
+    "principioActivo": "",
+    "codigo": "TP-015",
+    "beneficiosPrincipales": [],
+    "nombre": "Multivitamínico para Mujer",
+    "iconoUrl": "",
+    "nombreNormalizado": "multivitaminico-para-mujer",
+    "estado": "activo",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "descripcion": "",
+    "alias": [
+      "Womens Multivitamin"
+    ],
+    "metricas": {
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "P1e2Ob5DrFjJkRjtJQU3",
+    "nombre": "Vinagre de Manzana",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:14.000Z",
+      "_seconds": 1767427214
+    },
+    "categoriasSugeridasIds": [],
+    "codigo": "TP-060",
+    "estado": "activo",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "principioActivo": "",
+    "alias": [
+      "Apple Cider Vinegar"
+    ],
+    "beneficiosPrincipales": [],
+    "descripcion": "",
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "nombreNormalizado": "vinagre-de-manzana",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "PCh07CR7Uw2gPDxZgl3K",
+    "descripcion": "",
+    "nombreNormalizado": "omega-3-astaxantina",
+    "estado": "activo",
+    "principioActivo": "",
+    "codigo": "TP-050",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "beneficiosPrincipales": [],
+    "categoriasSugeridasIds": [],
+    "nombre": "Omega 3 + Astaxantina",
+    "alias": [
+      "Krill Oil Premium"
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:10.000Z",
+      "_seconds": 1767427210
+    },
+    "iconoUrl": "",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "Pa87pTiJ4BffUBTjhqeC",
+    "iconoUrl": "",
+    "estado": "activo",
+    "alias": [],
+    "categoriasSugeridasIds": [],
+    "principioActivo": "",
+    "nombreNormalizado": "magnesio-ashwagandha",
+    "beneficiosPrincipales": [],
+    "codigo": "TP-041",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombre": "Magnesio + Ashwagandha",
+    "imagenUrl": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:06.000Z",
+      "_seconds": 1767427206
+    },
+    "descripcion": "",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "PdzQm1ccRd17Qgv9YYWR",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activo",
+    "iconoUrl": "",
+    "nombreNormalizado": "vitamina-c",
+    "principioActivo": "",
+    "codigo": "TP-038",
+    "descripcion": "",
+    "categoriasSugeridasIds": [],
+    "imagenUrl": "",
+    "nombre": "Vitamina C",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:05.000Z",
+      "_seconds": 1767427205
+    },
+    "alias": [
+      "Vitamina C Liposomal"
+    ],
+    "beneficiosPrincipales": [],
+    "metricas": {
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "RTSZwR9M44cvNxTw4ccl",
+    "descripcion": "",
+    "nombreNormalizado": "5-htp",
+    "estado": "activo",
+    "imagenUrl": "",
+    "categoriasSugeridasIds": [],
+    "principioActivo": "5-Hidroxitriptófano",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:50.000Z",
+      "_seconds": 1767427190
+    },
+    "nombre": "5-HTP",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "beneficiosPrincipales": [],
+    "alias": [],
+    "codigo": "TP-001",
+    "iconoUrl": "",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "RtxbYabd5KmbkJTo1tns",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:09.000Z",
+      "_seconds": 1767427209
+    },
+    "iconoUrl": "",
+    "principioActivo": "Mio-Inositol",
+    "beneficiosPrincipales": [],
+    "imagenUrl": "",
+    "alias": [],
+    "estado": "activo",
+    "nombre": "Myo Inositol",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "codigo": "TP-047",
+    "descripcion": "",
+    "categoriasSugeridasIds": [],
+    "nombreNormalizado": "myo-inositol",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "TDca7I7lSJso1aUMTseC",
+    "iconoUrl": "",
+    "nombre": "Bisglicinato de Magnesio",
+    "principioActivo": "",
+    "alias": [
+      "Magnesium Bisglycinate"
+    ],
+    "nombreNormalizado": "bisglicinato-de-magnesio",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "descripcion": "",
+    "beneficiosPrincipales": [],
+    "codigo": "TP-042",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:07.000Z",
+      "_seconds": 1767427207
+    },
+    "categoriasSugeridasIds": [],
+    "estado": "activo",
+    "metricas": {
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosActivos": 1,
+      "productosTotal": 1
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    }
+  },
+  {
+    "_id": "Ucjnr6EEduM6VYUSfOcc",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:51.000Z",
+      "_seconds": 1767427191
+    },
+    "categoriasSugeridasIds": [],
+    "codigo": "TP-005",
+    "nombreNormalizado": "multivitaminico-para-adultos",
+    "imagenUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "beneficiosPrincipales": [],
+    "alias": [
+      "Adult Gummies"
+    ],
+    "descripcion": "",
+    "estado": "activo",
+    "nombre": "Multivitamínico para Adultos",
+    "principioActivo": "",
+    "iconoUrl": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "V4L64iRgrHcRu3vKEnj2",
+    "nombreNormalizado": "berberina",
+    "nombre": "Berberina",
+    "principioActivo": "Berberina HCL",
+    "imagenUrl": "",
+    "descripcion": "",
+    "iconoUrl": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:54.000Z",
+      "_seconds": 1767427194
+    },
+    "creadoPor": "SYSTEM_MIGRATION",
+    "codigo": "TP-012",
+    "categoriasSugeridasIds": [],
+    "estado": "activo",
+    "alias": [],
+    "beneficiosPrincipales": [],
+    "metricas": {
+      "productosTotal": 3,
+      "productosActivos": 3,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    }
+  },
+  {
+    "_id": "VDKh8jcU0G2OHgFaJcMx",
+    "iconoUrl": "",
+    "categoriasSugeridasIds": [],
+    "principioActivo": "Colecalciferol + Menaquinona",
+    "descripcion": "",
+    "codigo": "TP-024",
+    "estado": "activo",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:59.000Z",
+      "_seconds": 1767427199
+    },
+    "imagenUrl": "",
+    "alias": [],
+    "nombre": "D3 + K2",
+    "nombreNormalizado": "d3-k2",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "beneficiosPrincipales": [],
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 5,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "VXXyDf7yNBRVseNA2ANc",
+    "principioActivo": "Ginkgo Biloba Extract",
+    "descripcion": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "beneficiosPrincipales": [],
+    "alias": [],
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "estado": "activo",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:01.000Z",
+      "_seconds": 1767427201
+    },
+    "categoriasSugeridasIds": [],
+    "nombreNormalizado": "ginkgo-biloba",
+    "codigo": "TP-029",
+    "nombre": "Ginkgo Biloba",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "bT0V2BcHJYhJ3siwFqIK",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:58.000Z",
+      "_seconds": 1767427198
+    },
+    "estado": "activo",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "iconoUrl": "",
+    "nombreNormalizado": "coq10",
+    "categoriasSugeridasIds": [],
+    "codigo": "TP-022",
+    "imagenUrl": "",
+    "beneficiosPrincipales": [],
+    "principioActivo": "",
+    "alias": [
+      "Ubiquinol",
+      "Coenzima Q10"
+    ],
+    "nombre": "CoQ10",
+    "descripcion": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "eKxYpfxMthxiJ4GvejKS",
+    "beneficiosPrincipales": [],
+    "codigo": "TP-014",
+    "estado": "activo",
+    "principioActivo": "",
+    "categoriasSugeridasIds": [],
+    "nombreNormalizado": "d3-calcio-zinc",
+    "alias": [],
+    "descripcion": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:55.000Z",
+      "_seconds": 1767427195
+    },
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "nombre": "D3 + Calcio + Zinc",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "metricas": {
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "evFtFJx8fHKrttpCOu6A",
+    "beneficiosPrincipales": [],
+    "alias": [
+      "Pumpkin Seed Oil"
+    ],
+    "categoriasSugeridasIds": [],
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "nombreNormalizado": "aceite-de-semilla-de-calabaza",
+    "principioActivo": "",
+    "estado": "activo",
+    "codigo": "TP-052",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "descripcion": "",
+    "nombre": "Aceite de Semilla de Calabaza",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:11.000Z",
+      "_seconds": 1767427211
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "fQzZIi2Mx9OKGH3kNNzw",
+    "nombre": "Multivitamínico para Hombre",
+    "nombreNormalizado": "multivitaminico-para-hombre",
+    "beneficiosPrincipales": [],
+    "estado": "activo",
+    "iconoUrl": "",
+    "alias": [
+      "Mens Multivitamin"
+    ],
+    "codigo": "TP-032",
+    "descripcion": "",
+    "categoriasSugeridasIds": [],
+    "principioActivo": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:02.000Z",
+      "_seconds": 1767427202
+    },
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "hGkXurXB1pOb6Fb1j0gq",
+    "principioActivo": "",
+    "categoriasSugeridasIds": [],
+    "beneficiosPrincipales": [],
+    "estado": "activo",
+    "nombreNormalizado": "acido-alfa-lipoico",
+    "codigo": "TP-007",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombre": "Ácido Alfa Lipoico",
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "descripcion": "",
+    "alias": [
+      "Alpha Lipoic Acid",
+      "ALA"
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:52.000Z",
+      "_seconds": 1767427192
+    },
+    "metricas": {
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "hIPITl0DvydUCRARDrsf",
+    "beneficiosPrincipales": [],
+    "estado": "activo",
+    "principioActivo": "",
+    "nombreNormalizado": "probioticos-prebioticos",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "alias": [
+      "Probioticos",
+      "Prebioticos"
+    ],
+    "descripcion": "",
+    "nombre": "Probióticos + Prebióticos",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:50.000Z",
+      "_seconds": 1767427190
+    },
+    "imagenUrl": "",
+    "codigo": "TP-002",
+    "iconoUrl": "",
+    "categoriasSugeridasIds": [],
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "iluSTyCSNw139UjJUcQD",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "descripcion": "",
+    "nombre": "Citicolina CDP",
+    "beneficiosPrincipales": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:56.000Z",
+      "_seconds": 1767427196
+    },
+    "alias": [],
+    "estado": "activo",
+    "iconoUrl": "",
+    "codigo": "TP-017",
+    "categoriasSugeridasIds": [],
+    "principioActivo": "CDP-Colina",
+    "nombreNormalizado": "citicolina-cdp",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "k7rrsg3G8mVQ5Fk6veOT",
+    "estado": "activo",
+    "imagenUrl": "",
+    "categoriasSugeridasIds": [],
+    "nombreNormalizado": "d3-omega-3",
+    "codigo": "TP-003",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "alias": [
+      "Aceite de Hígado de Bacalao"
+    ],
+    "iconoUrl": "",
+    "principioActivo": "",
+    "nombre": "D3 + Omega 3",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:50.000Z",
+      "_seconds": 1767427190
+    },
+    "descripcion": "",
+    "beneficiosPrincipales": [],
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "kJ31JHDf8g3Idva1OyZn",
+    "iconoUrl": "",
+    "nombre": "D + B12",
+    "codigo": "TP-025",
+    "beneficiosPrincipales": [],
+    "estado": "activo",
+    "nombreNormalizado": "d-b12",
+    "principioActivo": "",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "descripcion": "",
+    "imagenUrl": "",
+    "alias": [
+      "Detoxzee"
+    ],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:59.000Z",
+      "_seconds": 1767427199
+    },
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "kUZCPnbb5NogY6IuR3rv",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "alias": [
+      "Complete Omega"
+    ],
+    "estado": "activo",
+    "nombreNormalizado": "omega-3-gla",
+    "descripcion": "",
+    "principioActivo": "",
+    "iconoUrl": "",
+    "categoriasSugeridasIds": [],
+    "codigo": "TP-021",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:58.000Z",
+      "_seconds": 1767427198
+    },
+    "nombre": "Omega 3 + GLA",
+    "imagenUrl": "",
+    "beneficiosPrincipales": [],
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "m6iuwjzKOP6eXgh52APr",
+    "principioActivo": "Eurycoma longifolia",
+    "estado": "activo",
+    "imagenUrl": "",
+    "nombre": "Tongkat Ali",
+    "descripcion": "",
+    "beneficiosPrincipales": [],
+    "codigo": "TP-059",
+    "alias": [
+      "Longjack"
+    ],
+    "iconoUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:14.000Z",
+      "_seconds": 1767427214
+    },
+    "categoriasSugeridasIds": [],
+    "nombreNormalizado": "tongkat-ali",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "mMOD1EybsOg8KYYZAndl",
+    "estado": "activo",
+    "descripcion": "",
+    "nombreNormalizado": "complejo-b",
+    "categoriasSugeridasIds": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:57.000Z",
+      "_seconds": 1767427197
+    },
+    "principioActivo": "",
+    "alias": [
+      "Vitamina B Complex"
+    ],
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "codigo": "TP-020",
+    "beneficiosPrincipales": [],
+    "nombre": "Complejo B",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 3,
+      "productosActivos": 3
+    }
+  },
+  {
+    "_id": "nulMkhezG1J1v9yAQn5g",
+    "iconoUrl": "",
+    "nombre": "Icy Hot",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:12.000Z",
+      "_seconds": 1767427212
+    },
+    "beneficiosPrincipales": [],
+    "codigo": "TP-055",
+    "descripcion": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "categoriasSugeridasIds": [],
+    "nombreNormalizado": "icy-hot",
+    "principioActivo": "",
+    "alias": [
+      "Roll On",
+      "Spray"
+    ],
+    "estado": "activo",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "rKw6MSnqH0Hhl0CeP6pS",
+    "categoriasSugeridasIds": [],
+    "nombreNormalizado": "citrato-de-magnesio",
+    "beneficiosPrincipales": [],
+    "alias": [],
+    "iconoUrl": "",
+    "estado": "activo",
+    "codigo": "TP-018",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:57.000Z",
+      "_seconds": 1767427197
+    },
+    "descripcion": "",
+    "nombre": "Citrato de Magnesio",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "principioActivo": "",
+    "imagenUrl": "",
+    "metricas": {
+      "productosTotal": 1,
+      "margenPromedio": 0,
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    }
+  },
+  {
+    "_id": "rrONytVti6dGJHGqkP5Z",
+    "principioActivo": "",
+    "categoriasSugeridasIds": [],
+    "nombre": "Extracto Herbal",
+    "beneficiosPrincipales": [],
+    "nombreNormalizado": "extracto-herbal",
+    "descripcion": "",
+    "iconoUrl": "",
+    "codigo": "TP-036",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:04.000Z",
+      "_seconds": 1767427204
+    },
+    "imagenUrl": "",
+    "estado": "activo",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "alias": [
+      "Lingo Leap"
+    ],
+    "metricas": {
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "ryP0sUcOnT8b6gIEumEw",
+    "nombre": "Refuerzo de Cándida",
+    "categoriasSugeridasIds": [],
+    "estado": "activo",
+    "principioActivo": "",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:11.000Z",
+      "_seconds": 1767427211
+    },
+    "codigo": "TP-053",
+    "nombreNormalizado": "refuerzo-de-candida",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "beneficiosPrincipales": [],
+    "alias": [
+      "Candida Support"
+    ],
+    "descripcion": "",
+    "imagenUrl": "",
+    "iconoUrl": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "sonrlLdXUtxFeoOghflq",
+    "alias": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "imagenUrl": "",
+    "nombreNormalizado": "glucosamina-condroitina",
+    "beneficiosPrincipales": [],
+    "codigo": "TP-030",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:02.000Z",
+      "_seconds": 1767427202
+    },
+    "principioActivo": "Glucosamina + Condroitina",
+    "nombre": "Glucosamina Condroitina",
+    "estado": "activo",
+    "iconoUrl": "",
+    "descripcion": "",
+    "categoriasSugeridasIds": [],
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "sxSBZMj0v95hStKEHDkW",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "principioActivo": "",
+    "estado": "activo",
+    "iconoUrl": "",
+    "descripcion": "",
+    "beneficiosPrincipales": [],
+    "nombreNormalizado": "vitamina-b12",
+    "alias": [
+      "Cianocobalamina",
+      "Metilcobalamina"
+    ],
+    "categoriasSugeridasIds": [],
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:54.000Z",
+      "_seconds": 1767427194
+    },
+    "codigo": "TP-011",
+    "imagenUrl": "",
+    "nombre": "Vitamina B12",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0,
+      "productosTotal": 2,
+      "productosActivos": 2
+    }
+  },
+  {
+    "_id": "tX8hdmbwP1zVRoeWNbbH",
+    "iconoUrl": "",
+    "categoriasSugeridasIds": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "estado": "activo",
+    "imagenUrl": "",
+    "principioActivo": "L-Teanina",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:03.000Z",
+      "_seconds": 1767427203
+    },
+    "descripcion": "",
+    "nombre": "L-Teanina",
+    "beneficiosPrincipales": [],
+    "nombreNormalizado": "l-teanina",
+    "alias": [],
+    "codigo": "TP-034",
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    }
+  },
+  {
+    "_id": "u9tqkTYpmrsHSmYDLdNR",
+    "nombre": "NAD+",
+    "iconoUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "principioActivo": "Nicotinamida Ribósido",
+    "alias": [
+      "NAD"
+    ],
+    "descripcion": "",
+    "estado": "activo",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:09.000Z",
+      "_seconds": 1767427209
+    },
+    "imagenUrl": "",
+    "codigo": "TP-048",
+    "categoriasSugeridasIds": [],
+    "beneficiosPrincipales": [],
+    "nombreNormalizado": "nad",
+    "metricas": {
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "vqiBhEjtnXVwBKm7Uaig",
+    "beneficiosPrincipales": [],
+    "iconoUrl": "",
+    "estado": "activo",
+    "principioActivo": "Tocoferoles mixtos",
+    "nombre": "Vitamina E",
+    "categoriasSugeridasIds": [],
+    "descripcion": "",
+    "codigo": "TP-061",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:15.000Z",
+      "_seconds": 1767427215
+    },
+    "imagenUrl": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "nombreNormalizado": "vitamina-e",
+    "alias": [],
+    "metricas": {
+      "ventasTotalPEN": 0,
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  },
+  {
+    "_id": "x0d7HtRioSM26R56jW0Z",
+    "estado": "activo",
+    "principioActivo": "Omega 3 + Astaxantina",
+    "nombre": "Krill Oil",
+    "codigo": "TP-008",
+    "nombreNormalizado": "krill-oil",
+    "imagenUrl": "",
+    "categoriasSugeridasIds": [],
+    "iconoUrl": "",
+    "beneficiosPrincipales": [],
+    "descripcion": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:52.000Z",
+      "_seconds": 1767427192
+    },
+    "alias": [
+      "Aceite de Krill"
+    ],
+    "metricas": {
+      "margenPromedio": 0,
+      "unidadesVendidas": 0,
+      "ventasTotalPEN": 0,
+      "productosActivos": 0,
+      "productosTotal": 0
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-19T01:47:19.000Z",
+      "_seconds": 1768787239
+    }
+  },
+  {
+    "_id": "xhkSS8FHGzPSTJL4oJf4",
+    "categoriasSugeridasIds": [],
+    "iconoUrl": "",
+    "estado": "activo",
+    "nombreNormalizado": "melatonina",
+    "codigo": "TP-043",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T08:00:07.000Z",
+      "_seconds": 1767427207
+    },
+    "alias": [],
+    "nombre": "Melatonina",
+    "beneficiosPrincipales": [],
+    "imagenUrl": "",
+    "descripcion": "",
+    "principioActivo": "",
+    "creadoPor": "SYSTEM_MIGRATION",
+    "metricas": {
+      "productosActivos": 9,
+      "ventasTotalPEN": 0,
+      "productosTotal": 9,
+      "unidadesVendidas": 0,
+      "margenPromedio": 0
+    },
+    "ultimaEdicion": {
+      "_type": "timestamp",
+      "iso": "2026-01-04T04:22:05.000Z",
+      "_seconds": 1767500525
+    }
+  },
+  {
+    "_id": "yJuC82PdgKVyVOMAfD68",
+    "nombreNormalizado": "allisure-powder",
+    "nombre": "Allisure Powder",
+    "fechaCreacion": {
+      "_type": "timestamp",
+      "iso": "2026-01-03T07:59:52.000Z",
+      "_seconds": 1767427192
+    },
+    "categoriasSugeridasIds": [],
+    "principioActivo": "Alicina estabilizada",
+    "imagenUrl": "",
+    "alias": [],
+    "creadoPor": "SYSTEM_MIGRATION",
+    "descripcion": "",
+    "estado": "activo",
+    "beneficiosPrincipales": [],
+    "codigo": "TP-006",
+    "iconoUrl": "",
+    "metricas": {
+      "margenPromedio": 0,
+      "ventasTotalPEN": 0,
+      "unidadesVendidas": 0,
+      "productosTotal": 1,
+      "productosActivos": 1
+    }
+  }
+]

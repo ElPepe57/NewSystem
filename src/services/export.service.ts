@@ -1,4 +1,5 @@
-import * as XLSX from 'xlsx';
+// Lazy import: xlsx (~450KB) solo se carga cuando el usuario exporta
+const getXLSX = () => import('xlsx');
 import type { Producto } from '../types/producto.types';
 import type { Venta } from '../types/venta.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
@@ -12,7 +13,7 @@ export const exportService = {
   /**
    * Exporta productos a Excel
    */
-  exportProductos(productos: Producto[], filename = 'productos'): void {
+  async exportProductos(productos: Producto[], filename = 'productos'): Promise<void> {
     const data = productos.map(p => ({
       'SKU': p.sku,
       'Marca': p.marca,
@@ -27,18 +28,16 @@ export const exportService = {
       'Stock Tránsito': p.stockTransito,
       'Stock Mínimo': p.stockMinimo,
       'CTRU Promedio': p.ctruPromedio || 0,
-      'Precio Sugerido': p.precioSugerido || 0,
-      'Estado': p.estado,
-      'Habilitado ML': p.habilitadoML ? 'Sí' : 'No'
+      'Estado': p.estado
     }));
 
-    this.downloadExcel(data, filename);
+    await this.downloadExcel(data, filename);
   },
 
   /**
    * Exporta ventas a Excel
    */
-  exportVentas(ventas: Venta[], filename = 'ventas'): void {
+  async exportVentas(ventas: Venta[], filename = 'ventas'): Promise<void> {
     const data = ventas.map(v => ({
       'N° Venta': v.numeroVenta,
       'Fecha': v.fechaCreacion?.toDate?.().toLocaleDateString('es-PE') || '',
@@ -59,13 +58,13 @@ export const exportService = {
       'Monto Pendiente': v.montoPendiente || 0
     }));
 
-    this.downloadExcel(data, filename);
+    await this.downloadExcel(data, filename);
   },
 
   /**
    * Exporta órdenes de compra a Excel
    */
-  exportOrdenesCompra(ordenes: OrdenCompra[], filename = 'ordenes_compra'): void {
+  async exportOrdenesCompra(ordenes: OrdenCompra[], filename = 'ordenes_compra'): Promise<void> {
     const data = ordenes.map(oc => ({
       'N° Orden': oc.numeroOrden,
       'Fecha Creación': oc.fechaCreacion?.toDate?.().toLocaleDateString('es-PE') || '',
@@ -85,13 +84,13 @@ export const exportService = {
       'Inventario Generado': oc.inventarioGenerado ? 'Sí' : 'No'
     }));
 
-    this.downloadExcel(data, filename);
+    await this.downloadExcel(data, filename);
   },
 
   /**
    * Exporta gastos a Excel
    */
-  exportGastos(gastos: Gasto[], filename = 'gastos'): void {
+  async exportGastos(gastos: Gasto[], filename = 'gastos'): Promise<void> {
     const data = gastos.map(g => ({
       'N° Gasto': g.numeroGasto,
       'Fecha': g.fecha?.toDate?.().toLocaleDateString('es-PE') || '',
@@ -109,13 +108,13 @@ export const exportService = {
       'N° Comprobante': g.numeroComprobante || ''
     }));
 
-    this.downloadExcel(data, filename);
+    await this.downloadExcel(data, filename);
   },
 
   /**
    * Exporta inventario a Excel
    */
-  exportInventario(inventario: InventarioProducto[], filename = 'inventario'): void {
+  async exportInventario(inventario: InventarioProducto[], filename = 'inventario'): Promise<void> {
     const data = inventario.map(inv => ({
       'SKU': inv.productoSKU,
       'Producto': `${inv.productoMarca} ${inv.productoNombre}`,
@@ -136,19 +135,19 @@ export const exportService = {
       'Stock Crítico': inv.stockCritico ? 'Sí' : 'No'
     }));
 
-    this.downloadExcel(data, filename);
+    await this.downloadExcel(data, filename);
   },
 
   /**
    * Exporta reporte de rentabilidad mensual
    */
-  exportReporteRentabilidad(
+  async exportReporteRentabilidad(
     ventas: Venta[],
     gastos: Gasto[],
     mes: number,
     anio: number,
     filename = 'reporte_rentabilidad'
-  ): void {
+  ): Promise<void> {
     // Filtrar ventas del mes
     const ventasMes = ventas.filter(v => {
       if (v.estado === 'cancelada' || v.estado === 'cotizacion') return false;
@@ -213,7 +212,7 @@ export const exportService = {
     }));
 
     // Crear workbook con múltiples hojas
-    this.downloadExcelMultiSheet({
+    await this.downloadExcelMultiSheet({
       'Resumen': resumen,
       'Detalle Ventas': detalleVentas,
       'Detalle Gastos': detalleGastos
@@ -223,7 +222,8 @@ export const exportService = {
   /**
    * Descarga un archivo Excel con una sola hoja
    */
-  downloadExcel(data: Record<string, any>[], filename: string): void {
+  async downloadExcel(data: Record<string, any>[], filename: string): Promise<void> {
+    const XLSX = await getXLSX();
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
@@ -238,7 +238,8 @@ export const exportService = {
   /**
    * Descarga un archivo Excel con múltiples hojas
    */
-  downloadExcelMultiSheet(sheets: Record<string, Record<string, any>[]>, filename: string): void {
+  async downloadExcelMultiSheet(sheets: Record<string, Record<string, any>[]>, filename: string): Promise<void> {
+    const XLSX = await getXLSX();
     const workbook = XLSX.utils.book_new();
 
     Object.entries(sheets).forEach(([sheetName, data]) => {
