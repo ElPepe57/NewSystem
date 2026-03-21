@@ -10,7 +10,7 @@ import { ctruService } from '../../services/ctru.service';
 import { GastoForm } from './GastoForm';
 import { PagoGastoForm } from './PagoGastoForm';
 import { exportService } from '../../services/export.service';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type EstadoGasto, type ClaseGasto } from '../../types/gasto.types';
 
 const MONTH_NAMES = [
@@ -47,7 +47,8 @@ export const Gastos: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [searchTerm, setSearchTerm] = useState('');
 
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+  // Filtrar gastos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
+  const gastosPorLinea = useLineaFilter(gastos, g => g.lineaNegocioId, { allowUndefined: true });
 
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
@@ -95,12 +96,7 @@ export const Gastos: React.FC = () => {
 
   // Filtrar gastos (incluye búsqueda por texto)
   const gastosFiltrados = useMemo(() => {
-    let resultado = gastos;
-
-    // Filtro global por línea de negocio (gastos sin lineaNegocioId son compartidos y siempre se muestran)
-    if (lineaFiltroGlobal) {
-      resultado = resultado.filter(g => !g.lineaNegocioId || g.lineaNegocioId === lineaFiltroGlobal);
-    }
+    let resultado = gastosPorLinea;
 
     // Búsqueda por texto
     if (searchTerm.trim()) {
@@ -131,7 +127,7 @@ export const Gastos: React.FC = () => {
     }
 
     return resultado;
-  }, [gastos, filtros, searchTerm, lineaFiltroGlobal]);
+  }, [gastosPorLinea, filtros, searchTerm]);
 
   // Calcular resumen por tipo de gasto
   const resumenPorTipo = useMemo(() => {

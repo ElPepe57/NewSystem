@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Calculator,
   Package,
@@ -18,7 +18,7 @@ import {
   LoteOCTable
 } from '../../components/modules/ctru';
 import { useCTRUStore } from '../../store/ctruStore';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import type { CTRUProductoDetalle } from '../../store/ctruStore';
 
 type TabActiva = 'resumen' | 'catalogo' | 'lote';
@@ -35,16 +35,11 @@ export const CTRUDashboard: React.FC = () => {
     fetchAll
   } = useCTRUStore();
 
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
-
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
   const [productoSeleccionado, setProductoSeleccionado] = useState<CTRUProductoDetalle | null>(null);
 
   // Filtrar productos por línea de negocio global
-  const productosFiltrados = useMemo(() => {
-    if (!lineaFiltroGlobal) return productosDetalle;
-    return productosDetalle.filter(p => p.lineaNegocioId === lineaFiltroGlobal);
-  }, [productosDetalle, lineaFiltroGlobal]);
+  const productosFiltrados = useLineaFilter(productosDetalle, p => p.lineaNegocioId);
 
   useEffect(() => {
     fetchAll();

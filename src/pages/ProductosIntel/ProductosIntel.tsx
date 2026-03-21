@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   RefreshCw,
   Filter,
@@ -24,7 +24,7 @@ import {
 } from '../../components/modules/productoIntel';
 import { useProductoIntelStore } from '../../store/productoIntelStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import type { ProductoIntel, ClasificacionLiquidez } from '../../types/productoIntel.types';
 
 type VistaProductos = 'cards' | 'tabla';
@@ -55,7 +55,6 @@ export const ProductosIntel: React.FC = () => {
   } = useProductoIntelStore();
 
   const { getTCDelDia } = useTipoCambioStore();
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   // Estado local
   const [vistaProductos, setVistaProductos] = useState<VistaProductos>('tabla');
@@ -73,18 +72,24 @@ export const ProductosIntel: React.FC = () => {
     loadData();
   }, []);
 
-  // Productos filtrados + línea de negocio + búsqueda
-  const productosFiltrados = getProductosFiltrados().filter(p => {
-    // Filtro por línea de negocio global
-    if (lineaFiltroGlobal && p.lineaNegocioId && p.lineaNegocioId !== lineaFiltroGlobal) return false;
-    if (!searchTerm) return true;
+  // Productos filtrados por store (liquidez, rotación, etc.)
+  const productosPorStore = useMemo(() => getProductosFiltrados(), [
+    filtroLiquidez, filtroRotacion, ordenarPor, ordenAscendente, productosIntel
+  ]);
+
+  // Filtrar por línea de negocio global (allowUndefined=true: sin lineaNegocioId pasan el filtro)
+  const productosPorLinea = useLineaFilter(productosPorStore, p => p.lineaNegocioId, { allowUndefined: true });
+
+  // Filtrar por búsqueda de texto
+  const productosFiltrados = useMemo(() => {
+    if (!searchTerm) return productosPorLinea;
     const term = searchTerm.toLowerCase();
-    return (
+    return productosPorLinea.filter(p =>
       p.nombreComercial.toLowerCase().includes(term) ||
       p.sku.toLowerCase().includes(term) ||
       p.marca.toLowerCase().includes(term)
     );
-  });
+  }, [productosPorLinea, searchTerm]);
 
   const alertasCriticas = getAlertasCriticas();
 

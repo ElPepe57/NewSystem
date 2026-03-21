@@ -19,7 +19,7 @@ import { cuentasPendientesService } from '../../services/cuentasPendientes.servi
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { useTesoreriaStore } from '../../store/tesoreriaStore';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import type {
   MovimientoTesoreria,
   CuentaCaja,
@@ -70,12 +70,9 @@ export const Tesoreria: React.FC = () => {
     fetchAll: storeFetchAll
   } = useTesoreriaStore();
   const navigate = useNavigate();
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
-  const movimientosFiltrados = useMemo(() => {
-    if (!lineaFiltroGlobal) return movimientos;
-    return movimientos.filter(m => !m.lineaNegocioId || m.lineaNegocioId === lineaFiltroGlobal);
-  }, [movimientos, lineaFiltroGlobal]);
+  // Filtrar movimientos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
+  const movimientosFiltrados = useLineaFilter(movimientos, m => m.lineaNegocioId, { allowUndefined: true });
 
   const [tabActiva, setTabActiva] = useState<TabActiva>('movimientos');
   const [loadingLocal, setLoadingLocal] = useState(true);

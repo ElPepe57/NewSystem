@@ -42,6 +42,7 @@ import { cuentasPendientesService } from '../services/cuentasPendientes.service'
 import type { DashboardCuentasPendientes } from '../types/tesoreria.types';
 import { Link } from 'react-router-dom';
 import { useLineaNegocioStore } from '../store/lineaNegocioStore';
+import { useLineaFilter } from '../hooks/useLineaFilter';
 import type { Producto } from '../types/producto.types';
 import {
   LineChart,
@@ -143,27 +144,15 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   // Filtrar datos por línea de negocio global
-  const productosLN = useMemo(() => {
-    if (!lineaFiltroGlobal) return productos || [];
-    return (productos || []).filter(p => p.lineaNegocioId === lineaFiltroGlobal);
-  }, [productos, lineaFiltroGlobal]);
-
-  const ventasLN = useMemo(() => {
-    if (!lineaFiltroGlobal) return ventas || [];
-    return (ventas || []).filter(v => v.lineaNegocioId === lineaFiltroGlobal);
-  }, [ventas, lineaFiltroGlobal]);
-
-  const ordenesLN = useMemo(() => {
-    if (!lineaFiltroGlobal) return ordenes || [];
-    return (ordenes || []).filter(o => o.lineaNegocioId === lineaFiltroGlobal);
-  }, [ordenes, lineaFiltroGlobal]);
+  const productosLN = useLineaFilter(productos || [], p => p.lineaNegocioId);
+  const ventasLN = useLineaFilter(ventas || [], v => v.lineaNegocioId);
+  const ordenesLN = useLineaFilter(ordenes || [], o => o.lineaNegocioId);
 
   const inventarioLN = useMemo(() => {
-    if (!lineaFiltroGlobal) return inventario || [];
     // Filter inventario items whose producto belongs to the selected linea
     const productoIdsLN = new Set(productosLN.map(p => p.id));
     return (inventario || []).filter(inv => productoIdsLN.has(inv.productoId));
-  }, [inventario, lineaFiltroGlobal, productosLN]);
+  }, [inventario, productosLN]);
 
   // Calcular métricas derivadas
   const productosActivos = productosLN.filter(p => p.estado === 'activo').length || 0;

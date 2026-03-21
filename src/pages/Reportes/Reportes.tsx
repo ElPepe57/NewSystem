@@ -25,7 +25,7 @@ import { useReporteStore } from '../../store/reporteStore';
 import { ExcelService } from '../../services/excel.service';
 import { VentaService } from '../../services/venta.service';
 import { useRentabilidadVentas } from '../../hooks/useRentabilidadVentas';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import type { Venta } from '../../types/venta.types';
 import type { ProductoRentabilidad } from '../../types/reporte.types';
 
@@ -55,8 +55,6 @@ export const Reportes: React.FC = () => {
     fetchAll
   } = useReporteStore();
 
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
-
   const [rentabilidadNeta, setRentabilidadNeta] = useState<RentabilidadNetaPeriodo | null>(null);
   const [tipoGrafico, setTipoGrafico] = useState<'utilidad' | 'margen' | 'ventas'>('utilidad');
   const [periodoActivo, setPeriodoActivo] = useState<PeriodoPreset>('mes');
@@ -69,10 +67,7 @@ export const Reportes: React.FC = () => {
   const [ventasEntregadas, setVentasEntregadas] = useState<Venta[]>([]);
 
   // Filtrar ventas por línea de negocio global
-  const ventasEntregadasFiltradas = useMemo(() => {
-    if (!lineaFiltroGlobal) return ventasEntregadas;
-    return ventasEntregadas.filter(v => v.lineaNegocioId === lineaFiltroGlobal);
-  }, [ventasEntregadas, lineaFiltroGlobal]);
+  const ventasEntregadasFiltradas = useLineaFilter(ventasEntregadas, v => v.lineaNegocioId);
 
   // Hook de rentabilidad con modelo completo (7 capas: Compra + Flete + GV + GD + GA + GO)
   const { datos: datosRentabilidad } = useRentabilidadVentas(ventasEntregadasFiltradas);

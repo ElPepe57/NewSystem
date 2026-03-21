@@ -43,7 +43,7 @@ import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
 import { unidadService } from '../../services/unidad.service';
 import type { Unidad, EstadoUnidad } from '../../types/unidad.types';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, getLabelEstadoUnidad, getPaisEmoji } from '../../utils/multiOrigen.helpers';
 
 type VistaUnidades = 'cards' | 'tabla';
@@ -54,7 +54,9 @@ export const Unidades: React.FC = () => {
   const { almacenes, fetchAlmacenes } = useAlmacenStore();
   const { addToast } = useToastStore();
   const { user } = useAuthStore();
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+
+  // Pre-filtrar unidades por línea de negocio global
+  const unidadesPorLinea = useLineaFilter(unidades, u => u.lineaNegocioId);
 
   const [filtros, setFiltros] = useState({
     productoId: '',
@@ -97,9 +99,7 @@ export const Unidades: React.FC = () => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    unidades.forEach(u => {
-      // Filtro global por línea de negocio
-      if (lineaFiltroGlobal && u.lineaNegocioId !== lineaFiltroGlobal) return;
+    unidadesPorLinea.forEach(u => {
 
       valorTotalUSD += u.costoUnitarioUSD || 0;
 
@@ -147,7 +147,7 @@ export const Unidades: React.FC = () => {
       valorTotalUSD,
       proximasAVencer
     };
-  }, [unidades, lineaFiltroGlobal]);
+  }, [unidadesPorLinea, unidades]);
 
   // Pipeline stages para el PipelineHeader
   const pipelineStages: PipelineStage[] = useMemo(() => [
@@ -197,10 +197,7 @@ export const Unidades: React.FC = () => {
 
   // Aplicar filtros y búsqueda
   const unidadesFiltradas = useMemo(() => {
-    return unidades.filter(unidad => {
-      // Filtro global por línea de negocio
-      if (lineaFiltroGlobal && unidad.lineaNegocioId !== lineaFiltroGlobal) return false;
-
+    return unidadesPorLinea.filter(unidad => {
       // Filtro por pipeline (prioridad)
       if (filtroEstadoPipeline) {
         switch (filtroEstadoPipeline) {
@@ -250,7 +247,7 @@ export const Unidades: React.FC = () => {
       if (filtros.pais && unidad.pais !== filtros.pais) return false;
       return true;
     });
-  }, [unidades, filtros, busqueda, filtroEstadoPipeline, lineaFiltroGlobal]);
+  }, [unidadesPorLinea, filtros, busqueda, filtroEstadoPipeline]);
 
   // Paginación
   const unidadesPaginadas = useMemo(() => {

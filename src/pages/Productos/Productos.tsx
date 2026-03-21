@@ -12,7 +12,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useTipoProductoStore } from '../../store/tipoProductoStore';
 import { useCategoriaStore } from '../../store/categoriaStore';
 import { useEtiquetaStore } from '../../store/etiquetaStore';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import type { Producto, ProductoFormData, EstadoProducto, InvestigacionFormData } from '../../types/producto.types';
 import type { TipoCambio } from '../../types/tipoCambio.types';
 
@@ -23,7 +23,10 @@ export const Productos: React.FC = () => {
   const { tiposActivos, fetchTiposActivos } = useTipoProductoStore();
   const { categoriasActivas, fetchCategoriasActivas } = useCategoriaStore();
   const { etiquetasActivas, fetchEtiquetasActivas } = useEtiquetaStore();
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+  const productosPorLinea = useLineaFilter(
+    Array.isArray(productos) ? productos : [],
+    p => p.lineaNegocioId
+  );
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -262,9 +265,7 @@ export const Productos: React.FC = () => {
 
   // Filtrar y buscar productos
   const filteredProductos = useMemo(() => {
-    const productosArray = Array.isArray(productos) ? productos : [];
-
-    return productosArray.filter(producto => {
+    return productosPorLinea.filter(producto => {
       // Búsqueda por término (con validación segura)
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
@@ -353,14 +354,9 @@ export const Productos: React.FC = () => {
         return false;
       }
 
-      // Filtro global por línea de negocio
-      if (lineaFiltroGlobal && producto.lineaNegocioId !== lineaFiltroGlobal) {
-        return false;
-      }
-
       return true;
     });
-  }, [productos, searchTerm, filters, lineaFiltroGlobal]);
+  }, [productosPorLinea, searchTerm, filters]);
 
   // Función auxiliar para obtener valor de ordenamiento
   const getSortValue = (producto: Producto, key: string): any => {

@@ -20,7 +20,7 @@ import { tesoreriaService } from '../../services/tesoreria.service';
 import { tipoCambioService } from '../../services/tipoCambio.service';
 import type { Cotizacion, MotivoRechazo } from '../../types/cotizacion.types';
 import type { MetodoPago } from '../../types/venta.types';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import type { CuentaCaja, MonedaTesoreria } from '../../types/tesoreria.types';
 
 type VistaType = 'kanban' | 'lista';
@@ -60,7 +60,6 @@ export const Cotizaciones: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [vista, setVista] = useState<VistaType>('kanban');
   const [filtroCanal, setFiltroCanal] = useState('');
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
   const [generandoPdf, setGenerandoPdf] = useState(false);
 
   // Estado para el modal de adelanto
@@ -91,11 +90,11 @@ export const Cotizaciones: React.FC = () => {
     return canal?.nombre || canalId;
   };
 
+  // Filtrar por línea de negocio global
+  const cotizacionesPorLinea = useLineaFilter(todasCotizaciones, c => c.lineaNegocioId);
+
   const cotizacionesFiltradas = useMemo(() => {
-    let filtradas = [...todasCotizaciones];
-    if (lineaFiltroGlobal) {
-      filtradas = filtradas.filter(c => c.lineaNegocioId === lineaFiltroGlobal);
-    }
+    let filtradas = [...cotizacionesPorLinea];
     if (busqueda) {
       const termino = busqueda.toLowerCase();
       filtradas = filtradas.filter(c => {
@@ -111,7 +110,7 @@ export const Cotizaciones: React.FC = () => {
       filtradas = filtradas.filter(c => c.canal === filtroCanal);
     }
     return filtradas;
-  }, [todasCotizaciones, busqueda, filtroCanal, lineaFiltroGlobal]);
+  }, [cotizacionesPorLinea, busqueda, filtroCanal]);
 
   const {
     nuevas,

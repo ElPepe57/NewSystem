@@ -57,7 +57,7 @@ import { useCTRUStore } from '../../store/ctruStore';
 import { exportService } from '../../services/export.service';
 import { inventarioService } from '../../services/inventario.service';
 import type { Unidad } from '../../types/unidad.types';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, getLabelEstadoUnidad, getPaisEmoji } from '../../utils/multiOrigen.helpers';
 
 type VistaInventario = 'cards' | 'tabla';
@@ -69,7 +69,12 @@ export const Inventario: React.FC = () => {
   const { almacenes, fetchAlmacenes } = useAlmacenStore();
   const { stats, fetchStats } = useInventarioStore();
   const { productosDetalle: ctruData, fetchAll: fetchCTRU } = useCTRUStore();
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+
+  // Pre-filtrar unidades por línea de negocio global
+  const unidadesPorLinea = useLineaFilter(
+    Array.isArray(unidades) ? unidades : [],
+    u => u.lineaNegocioId
+  );
 
   const [tabActivo, setTabActivo] = useState<TabInventario>('lista');
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
@@ -117,13 +122,10 @@ export const Inventario: React.FC = () => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    // Validar que unidades sea un array antes de iterar
-    const unidadesArray = Array.isArray(unidades) ? unidades : [];
-    unidadesArray.forEach(u => {
-      // Aplicar filtros de almacén, país y línea de negocio
+    unidadesPorLinea.forEach(u => {
+      // Aplicar filtros de almacén y país
       if (filtroAlmacen && u.almacenId !== filtroAlmacen) return;
       if (filtroPais && u.pais !== filtroPais) return;
-      if (lineaFiltroGlobal && u.lineaNegocioId !== lineaFiltroGlobal) return;
 
       // Contar vendidas por separado
       if (u.estado === 'vendida') {
@@ -179,7 +181,7 @@ export const Inventario: React.FC = () => {
       proximasAVencer,
       stockCriticoCount
     };
-  }, [unidades, filtroAlmacen, filtroPais, lineaFiltroGlobal]);
+  }, [unidadesPorLinea, filtroAlmacen, filtroPais]);
 
   // Pipeline stages para el PipelineHeader existente
   const pipelineStages: PipelineStage[] = useMemo(() => [
@@ -231,27 +233,21 @@ export const Inventario: React.FC = () => {
   const productosConUnidades = useMemo((): ProductoConUnidades[] => {
     const grupos: Record<string, ProductoConUnidades> = {};
 
-    // Validar que unidades sea un array antes de filtrar
-    const unidadesArr = Array.isArray(unidades) ? unidades : [];
-
     // Pre-contar vendidas por producto (sin filtros de almacén/país para tener el total histórico)
     const vendidasPorProducto: Record<string, number> = {};
-    unidadesArr.filter(u => u.estado === 'vendida').forEach(u => {
+    unidadesPorLinea.filter(u => u.estado === 'vendida').forEach(u => {
       vendidasPorProducto[u.productoId] = (vendidasPorProducto[u.productoId] || 0) + 1;
     });
 
     // Filtrar unidades vendidas para el inventario activo
-    let unidadesActivas = unidadesArr.filter(u => u.estado !== 'vendida');
+    let unidadesActivas = unidadesPorLinea.filter(u => u.estado !== 'vendida');
 
-    // Aplicar filtros de almacén, país y línea de negocio
+    // Aplicar filtros de almacén y país
     if (filtroAlmacen) {
       unidadesActivas = unidadesActivas.filter(u => u.almacenId === filtroAlmacen);
     }
     if (filtroPais) {
       unidadesActivas = unidadesActivas.filter(u => u.pais === filtroPais);
-    }
-    if (lineaFiltroGlobal) {
-      unidadesActivas = unidadesActivas.filter(u => u.lineaNegocioId === lineaFiltroGlobal);
     }
 
     unidadesActivas.forEach(unidad => {
@@ -363,7 +359,7 @@ export const Inventario: React.FC = () => {
 
     // Ordenar por SKU
     return Object.values(grupos).sort((a, b) => a.sku.localeCompare(b.sku));
-  }, [unidades, productos, filtroAlmacen, filtroPais, lineaFiltroGlobal]);
+  }, [unidadesPorLinea, productos, filtroAlmacen, filtroPais]);
 
   // Filtrar productos según el estado seleccionado en el pipeline y búsqueda
   const productosFiltrados = useMemo(() => {

@@ -38,7 +38,7 @@ import type {
 } from "../../types/transferencia.types";
 import type { CuentaCaja, MetodoTesoreria } from "../../types/tesoreria.types";
 import { esTipoTransferenciaInterna, esTipoTransferenciaInternacional, esPaisOrigen } from "../../utils/multiOrigen.helpers";
-import { useLineaNegocioStore } from "../../store/lineaNegocioStore";
+import { useLineaFilter } from "../../hooks/useLineaFilter";
 
 // Sub-componentes extraidos
 import { TransferenciaCard } from "./TransferenciaCard";
@@ -118,7 +118,6 @@ export const Transferencias: React.FC = () => {
   const [pipelineStage, setPipelineStage] = useState<string | null>(null);
 
   const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
   const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -204,17 +203,18 @@ export const Transferencias: React.FC = () => {
     }, 0);
   }, [transferenciasEnTransito]);
 
+  // Filtrar cada fuente por línea de negocio (sin lineaNegocioId = compartidas, siempre visibles)
+  const transferenciasPorLinea = useLineaFilter(transferencias, t => t.lineaNegocioId, { allowUndefined: true });
+  const transEnTransitoPorLinea = useLineaFilter(transferenciasEnTransito, t => t.lineaNegocioId, { allowUndefined: true });
+  const transPendientesPorLinea = useLineaFilter(transferenciasPendientes, t => t.lineaNegocioId, { allowUndefined: true });
+
   // Filtrar transferencias
   const transferenciasFiltradas = useMemo(() => {
     let lista = activeTab === 'en_transito'
-      ? transferenciasEnTransito
+      ? transEnTransitoPorLinea
       : activeTab === 'pendientes'
-        ? transferenciasPendientes
-        : transferencias;
-
-    if (lineaFiltroGlobal) {
-      lista = lista.filter(t => !t.lineaNegocioId || t.lineaNegocioId === lineaFiltroGlobal);
-    }
+        ? transPendientesPorLinea
+        : transferenciasPorLinea;
 
     if (pipelineStage) {
       if (pipelineStage === 'recibida') {
@@ -251,8 +251,8 @@ export const Transferencias: React.FC = () => {
     }
 
     return lista;
-  }, [activeTab, transferenciasEnTransito, transferenciasPendientes, transferencias,
-      lineaFiltroGlobal, pipelineStage, filtroTipo, filtroEstado, busqueda]);
+  }, [activeTab, transEnTransitoPorLinea, transPendientesPorLinea, transferenciasPorLinea,
+      pipelineStage, filtroTipo, filtroEstado, busqueda]);
 
   // Handlers de acciones
   const handleConfirmar = useCallback(async (id: string) => {
