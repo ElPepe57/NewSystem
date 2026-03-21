@@ -2,15 +2,31 @@ import type { Timestamp } from 'firebase/firestore';
 
 /**
  * Tipos de notificación del sistema
+ *
+ * Incluye tanto notificaciones operativas (reservas, stock disponible) como
+ * notificaciones automáticas de inventario (stock crítico, vencimientos).
  */
 export type TipoNotificacion =
-  | 'stock_disponible'     // Llegó stock para una venta reservada
-  | 'reserva_por_vencer'   // La reserva está por vencer
-  | 'reserva_vencida'      // La reserva ya venció
-  | 'pago_recibido'        // Se recibió un pago
-  | 'stock_bajo'           // Stock bajo de un producto
+  // Notificaciones de ventas y reservas
+  | 'stock_disponible'      // Llegó stock para una venta reservada
+  | 'reserva_por_vencer'    // La reserva está por vencer
+  | 'reserva_vencida'       // La reserva ya venció
+  | 'pago_recibido'         // Se recibió un pago
   | 'requerimiento_urgente' // Hay un requerimiento urgente
-  | 'general';             // Notificación general
+  // Notificaciones de inventario
+  | 'stock_critico'         // Stock bajo el mínimo crítico
+  | 'stock_bajo'            // Stock bajo de un producto
+  | 'producto_por_vencer'   // Producto próximo a vencer
+  | 'producto_vencido'      // Producto ya vencido
+  // Notificaciones de operaciones
+  | 'nueva_venta'           // Nueva venta registrada
+  | 'venta_entregada'       // Venta entregada al cliente
+  | 'orden_recibida'        // Orden de compra recibida
+  | 'orden_en_transito'     // Orden en tránsito
+  | 'usuario_nuevo'         // Nuevo usuario creado
+  | 'sistema'               // Notificación del sistema
+  | 'alerta'                // Alerta genérica
+  | 'general';              // Notificación general
 
 /**
  * Prioridad de la notificación
@@ -29,7 +45,7 @@ export interface AccionNotificacion {
 }
 
 /**
- * Notificación del sistema
+ * Notificación del sistema — modelo canónico unificado
  */
 export interface SystemNotification {
   id: string;
@@ -38,17 +54,35 @@ export interface SystemNotification {
   titulo: string;
   mensaje: string;
   detalles?: string;
+  // Referencias a entidades relacionadas
   ventaId?: string;
   productoId?: string;
   requerimientoId?: string;
+  entidadTipo?: 'producto' | 'venta' | 'orden' | 'usuario' | 'inventario';
+  entidadId?: string;
+  // Para notificaciones dirigidas a un usuario específico (null = todos)
+  usuarioId?: string;
+  // Metadata adicional libre
+  metadata?: Record<string, unknown>;
+  // Acciones interactivas
   acciones?: AccionNotificacion[];
+  // Estado
   leida: boolean;
   accionada: boolean;
   fechaAccion?: Timestamp;
   fechaCreacion: Timestamp;
+  fechaLeida?: Timestamp;
   fechaExpiracion?: Timestamp;
   creadoPor: string;
 }
+
+/**
+ * Payload para crear una nueva notificación
+ */
+export type SystemNotificationCreate = Omit<
+  SystemNotification,
+  'id' | 'fechaCreacion' | 'leida' | 'accionada'
+>;
 
 export interface NotificacionStockDisponibleData {
   ventaId: string;
@@ -74,7 +108,7 @@ export interface NotificationCounts {
   total: number;
   noLeidas: number;
   urgentes: number;
-  porTipo: Record<TipoNotificacion, number>;
+  porTipo: Partial<Record<TipoNotificacion, number>>;
 }
 
 export interface NotificationFilters {
@@ -83,5 +117,6 @@ export interface NotificationFilters {
   soloNoLeidas?: boolean;
   ventaId?: string;
   productoId?: string;
+  usuarioId?: string;
   limite?: number;
 }

@@ -44,8 +44,11 @@ service cloud.firestore {
       allow read: if request.auth != null &&
         (request.auth.uid == userId || hasAnyRole(['admin', 'gerente']));
 
-      // Un usuario puede crear su propio perfil (fallback si Cloud Function no lo creo)
-      allow create: if request.auth != null && request.auth.uid == userId;
+      // Un usuario puede crear su propio perfil (fallback si Cloud Function no lo creó)
+      // SEC-007 FIX: solo puede crear con role='invitado' y activo=false para evitar auto-escalación
+      allow create: if request.auth != null && request.auth.uid == userId
+        && request.resource.data.get('role', 'invitado') == 'invitado'
+        && request.resource.data.get('activo', false) == false;
 
       // Usuario puede actualizar su perfil EXCEPTO role, permisos, activo (eso solo admin)
       allow update: if request.auth != null && (

@@ -484,6 +484,16 @@ export const clienteService = {
         }
       }
 
+      // Deduplicación por nombre normalizado (TAREA-049)
+      if (data.nombre) {
+        const candidatos = await this.buscar(data.nombre, 3);
+        const nombreNorm = normalizarTexto(data.nombre);
+        const matchExacto = candidatos.find(c => normalizarTexto(c.nombre) === nombreNorm);
+        if (matchExacto) {
+          return { cliente: matchExacto, esNuevo: false };
+        }
+      }
+
       // Crear nuevo
       const nuevoId = await this.create(data, userId);
       const nuevoCliente = await this.getById(nuevoId);

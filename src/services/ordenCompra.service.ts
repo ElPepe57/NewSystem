@@ -35,6 +35,7 @@ import { unidadService } from './unidad.service';
 import { almacenService } from './almacen.service';
 import { ExpectativaService } from './expectativa.service';
 import { tesoreriaService } from './tesoreria.service';
+import { poolUSDService } from './poolUSD.service';
 import { ctruService } from './ctru.service';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 import { actividadService } from './actividad.service';
@@ -783,6 +784,29 @@ export class OrdenCompraService {
       } catch (tesoreriaError) {
         // No bloquear el pago si falla tesorería
         console.error('Error registrando pago OC en tesorería:', tesoreriaError);
+      }
+
+      // ========== REGISTRAR EN POOL USD (solo pagos en USD) ==========
+      if (monedaPago === 'USD') {
+        try {
+          await poolUSDService.registrarMovimiento(
+            {
+              tipo: 'PAGO_OC',
+              montoUSD: montoOriginal,
+              tcOperacion: tipoCambio,
+              fecha: fechaPago,
+              documentoOrigenTipo: 'orden_compra',
+              documentoOrigenId: id,
+              documentoOrigenNumero: orden.numeroOrden,
+              notas: `Pago OC ${orden.numeroOrden} - ${orden.nombreProveedor}`,
+            },
+            userId
+          );
+          logger.success(`Pago OC registrado en Pool USD: $${montoOriginal} para ${orden.numeroOrden}`);
+        } catch (poolError) {
+          // No bloquear el pago si falla Pool USD (fire-and-forget)
+          console.error('Error registrando pago OC en Pool USD:', poolError);
+        }
       }
 
       return nuevoPago;

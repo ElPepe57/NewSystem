@@ -2,12 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useInventarioStore } from '../store/inventarioStore';
 import { useProductoStore } from '../store/productoStore';
-import { notificacionService } from '../services/notificacion.service';
+import { NotificationService } from '../services/notification.service';
 
 /**
- * Hook para generar notificaciones automáticas basadas en el estado del inventario
- * Solo se ejecuta para usuarios con rol admin
- * El servicio de notificaciones maneja la prevención de duplicados en Firestore
+ * Hook para generar notificaciones automáticas basadas en el estado del inventario.
+ * Solo se ejecuta para usuarios con rol admin.
+ * El servicio de notificaciones maneja la prevención de duplicados en Firestore.
  */
 export const useNotificacionesAuto = () => {
   const { userProfile } = useAuthStore();
@@ -46,8 +46,7 @@ export const useNotificacionesAuto = () => {
           // Solo notificar si está realmente bajo (menos de la mitad del mínimo o agotado)
           if (producto.stockMinimo && inv.disponibles <= producto.stockMinimo) {
             if (inv.disponibles === 0 || inv.disponibles < producto.stockMinimo * 0.5) {
-              // El servicio verifica duplicados automáticamente
-              await notificacionService.notificarStockCritico(
+              await NotificationService.notificarStockCritico(
                 inv.productoId,
                 producto.sku,
                 nombreProducto,
@@ -59,8 +58,7 @@ export const useNotificacionesAuto = () => {
 
           // === PRODUCTOS POR VENCER (30 días) ===
           if (inv.proximasAVencer30Dias > 0) {
-            // El servicio verifica duplicados automáticamente
-            await notificacionService.notificarProductoPorVencer(
+            await NotificationService.notificarProductoPorVencer(
               inv.productoId,
               producto.sku,
               nombreProducto,

@@ -1936,3 +1936,113 @@ export const recalcularMetricas = functions.https.onCall(
     }
   }
 );
+
+// ============================================================
+// POOL USD — SNAPSHOT MENSUAL AUTOMÁTICO (TAREA-072)
+// ============================================================
+
+/**
+ * Genera un snapshot mensual del Pool USD el 1ro de cada mes a las 6:00 AM.
+ * Registra saldo, TCPA, TC SUNAT al cierre, e impacto cambiario acumulado.
+ */
+export const poolUSDSnapshotMensual = functions.pubsub
+  .schedule("0 6 1 * *")
+  .timeZone("America/Lima")
+  .onRun(async () => {
+    const db = admin.firestore();
+    const MOV_COLLECTION = COLLECTIONS.POOL_USD_MOVIMIENTOS;
+    const SNAP_COLLECTION = COLLECTIONS.POOL_USD_SNAPSHOTS;
+
+    try {
+      // Obtener estado actual del pool desde _estado doc
+      const estadoDoc = await db.collection(SNAP_COLLECTION).doc("_estado").get();
+      if (!estadoDoc.exists) {
+        functions.logger.info("[Pool USD Snapshot] No hay estado de pool — omitiendo");
+        return null;
+      }
+
+      const estado = estadoDoc.data()!;
+      const saldoUSD = estado.saldoUSD ?? 0;
+      const tcpa = estado.tcpa ?? 0;
+
+      if (saldoUSD === 0) {
+        functions.logger.info("[Pool USD Snapshot] Pool vacío — omitiendo snapshot");
+        return null;
+      }
+
+      // Calcular período: mes anterior
+      const ahora = new Date();
+      const mesAnterior = ahora.getMonth() === 0 ? 12 : ahora.getMonth(); // enero→12
+      const anioSnapshot = ahora.getMonth() === 0 ? ahora.getFullYear() - 1 : ahora.getFullYear();
+
+      // Obtener movimientos del mes anterior para calcular totales
+      const inicioMes = new Date(anioSnapshot, mesAnterior - 1, 1);
+      const finMes = new Date(anioSnapshot, mesAnterior, 0, 23, 59, 59);
+
+      const movsSnap = await db.collection(MOV_COLLECTION)
+        .where("fecha", ">=", admin.firestore.Timestamp.fromDate(inicioMes))
+        .where("fecha", "<=", admin.firestore.Timestamp.fromDate(finMes))
+        .get();
+
+      let entradasUSD = 0;
+      let salidasUSD = 0;
+      let impactoCambiarioMes = 0;
+
+      movsSnap.docs.forEach((d) => {
+        const mov = d.data();
+        if (mov.direccion === "entrada") {
+          entradasUSD += mov.montoUSD || 0;
+        } else {
+          salidasUSD += mov.montoUSD || 0;
+        }
+        impactoCambiarioMes += mov.impactoCambiario || 0;
+      });
+
+      // Obtener TC SUNAT actual para valorización
+      let tcSunatActual = tcpa;
+      try {
+        const tcDocs = await db.collection(COLLECTIONS.TIPOS_CAMBIO)
+          .orderBy("fecha", "desc")
+          .limit(1)
+          .get();
+        if (!tcDocs.empty) {
+          const tcData = tcDocs.docs[0].data();
+          tcSunatActual = tcData.venta || tcData.compra || tcpa;
+        }
+      } catch {
+        functions.logger.warn("[Pool USD Snapshot] No se pudo obtener TC SUNAT, usando TCPA");
+      }
+
+      const snapshotId = `${anioSnapshot}-${String(mesAnterior).padStart(2, "0")}`;
+      const snapshot = {
+        periodo: snapshotId,
+        mes: mesAnterior,
+        anio: anioSnapshot,
+        saldoUSD,
+        tcpa,
+        tcSunatAlCierre: tcSunatActual,
+        valorPENaTCPA: saldoUSD * tcpa,
+        valorPENaTCSunat: saldoUSD * tcSunatActual,
+        diferenciaValorizacion: saldoUSD * (tcSunatActual - tcpa),
+        entradasUSD,
+        salidasUSD,
+        movimientoNeto: entradasUSD - salidasUSD,
+        impactoCambiarioMes,
+        cantidadMovimientos: movsSnap.size,
+        fechaGeneracion: admin.firestore.Timestamp.now(),
+        generadoPor: "sistema_cron",
+      };
+
+      await db.collection(SNAP_COLLECTION).doc(snapshotId).set(snapshot);
+
+      functions.logger.info(
+        `✅ Pool USD Snapshot ${snapshotId}: $${saldoUSD.toFixed(2)} @ TCPA ${tcpa.toFixed(4)}, ` +
+        `${movsSnap.size} movimientos, impacto cambiario S/ ${impactoCambiarioMes.toFixed(2)}`
+      );
+
+      return snapshot;
+    } catch (error) {
+      functions.logger.error("[Pool USD Snapshot] Error:", error);
+      return null;
+    }
+  });

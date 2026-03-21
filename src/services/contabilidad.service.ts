@@ -193,7 +193,9 @@ const MESES = [
 // ============================================================================
 
 /**
- * Obtener ventas del período
+ * Obtener ventas del período contable.
+ * Decisión 1 (fecha híbrida): Contabilidad usa fechaEntrega (con fallback a fechaDespacho → fechaCreacion).
+ * Query amplio en fechaCreacion para capturar ventas creadas antes pero entregadas en el mes.
  */
 async function getVentasPeriodo(mes: number, anio: number, lineaNegocioId?: string | null): Promise<Venta[]> {
   const ventasRef = collection(db, COLLECTIONS.VENTAS);
@@ -201,21 +203,33 @@ async function getVentasPeriodo(mes: number, anio: number, lineaNegocioId?: stri
   const inicioMes = new Date(anio, mes - 1, 1);
   const finMes = new Date(anio, mes, 0, 23, 59, 59);
 
+  // Ampliar ventana de query 2 meses atrás para capturar ventas creadas antes pero entregadas en el mes
+  const inicioQuery = new Date(anio, mes - 3, 1);
+
   const q = query(
     ventasRef,
-    where('fechaCreacion', '>=', Timestamp.fromDate(inicioMes)),
+    where('fechaCreacion', '>=', Timestamp.fromDate(inicioQuery)),
     where('fechaCreacion', '<=', Timestamp.fromDate(finMes))
   );
 
   const snapshot = await getDocs(q);
   const ventas: Venta[] = [];
 
-  snapshot.forEach(doc => {
-    const venta = { id: doc.id, ...doc.data() } as Venta;
+  snapshot.forEach(docSnap => {
+    const venta = { id: docSnap.id, ...docSnap.data() } as Venta;
     // Solo ventas válidas (no cotizaciones ni canceladas)
-    if (venta.estado !== 'cotizacion' && venta.estado !== 'cancelada') {
-      // Filtrar por línea de negocio si se especifica
-      if (lineaNegocioId && venta.lineaNegocioId && venta.lineaNegocioId !== lineaNegocioId) return;
+    if (venta.estado === 'cotizacion' || venta.estado === 'cancelada') return;
+    // Filtrar por línea de negocio si se especifica
+    if (lineaNegocioId && venta.lineaNegocioId && venta.lineaNegocioId !== lineaNegocioId) return;
+
+    // Fecha contable: fechaEntrega → fechaDespacho → fechaCreacion
+    const fechaContable = (venta as any).fechaEntrega?.toDate?.()
+      || (venta as any).fechaDespacho?.toDate?.()
+      || venta.fechaCreacion?.toDate?.();
+    if (!fechaContable) return;
+
+    // Filtrar por mes contable exacto
+    if (fechaContable >= inicioMes && fechaContable <= finMes) {
       ventas.push(venta);
     }
   });

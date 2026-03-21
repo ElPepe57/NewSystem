@@ -35,15 +35,7 @@ export const useSystemNotificationStore = create<SystemNotificationState>((set, 
     total: 0,
     noLeidas: 0,
     urgentes: 0,
-    porTipo: {
-      stock_disponible: 0,
-      reserva_por_vencer: 0,
-      reserva_vencida: 0,
-      pago_recibido: 0,
-      stock_bajo: 0,
-      requerimiento_urgente: 0,
-      general: 0
-    }
+    porTipo: {}
   },
   cargando: false,
   error: null,

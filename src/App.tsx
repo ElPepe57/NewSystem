@@ -1,7 +1,5 @@
 import React, { useEffect, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
 // Layouts y Auth (carga inmediata — necesarios para el primer render)
 import { MainLayout } from './components/layout/MainLayout';
 import { Login } from './pages/Auth/Login';
@@ -47,17 +45,6 @@ import { AuthService } from './services/auth.service';
 
 // Notificaciones
 import ToastContainer from './components/common/ToastContainer';
-
-// Configuración de React Query
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000,
-    },
-  },
-});
 
 // Spinner de carga para Suspense
 const PageLoader = () => (
@@ -121,12 +108,10 @@ function App() {
     return () => unsubscribe();
   }, [setUser, setLoading, fetchUserProfile]);
 
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
+    <BrowserRouter>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
             {/* Rutas Públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -192,13 +177,12 @@ function App() {
 
             {/* Ruta Catch-all */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </Suspense>
+        </Routes>
+      </Suspense>
 
-        <ToastContainer />
+      <ToastContainer />
 
-      </BrowserRouter>
-    </QueryClientProvider>
+    </BrowserRouter>
   );
 }
 
