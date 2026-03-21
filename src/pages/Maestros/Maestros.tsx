@@ -23,13 +23,6 @@ import {
   ConfirmDialog
 } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
-import { ClientesCRM } from '../../components/Maestros/ClientesCRM';
-import { MarcasAnalytics } from '../../components/Maestros/MarcasAnalytics';
-import { ProveedoresSRM } from '../../components/Maestros/ProveedoresSRM';
-import { CompetidoresIntel } from '../../components/Maestros/CompetidoresIntel';
-import { TransportistasLogistica } from '../../components/Maestros/TransportistasLogistica';
-import { CanalesVentaAnalytics } from '../../components/Maestros/CanalesVentaAnalytics';
-import { AlmacenesLogistica } from '../../components/Maestros/AlmacenesLogistica';
 import { useClienteStore } from '../../store/clienteStore';
 import { useMarcaStore } from '../../store/marcaStore';
 import { useProveedorStore } from '../../store/proveedorStore';
@@ -52,8 +45,22 @@ import type { Marca, MarcaFormData } from '../../types/entidadesMaestras.types';
 import type { Proveedor, ProveedorFormData } from '../../types/ordenCompra.types';
 import type { Almacen, AlmacenFormData } from '../../types/almacen.types';
 
+// Lazy-loaded tab components — each chunk is only fetched when the user first visits that tab
 const TabResumen = lazy(() => import('./TabResumen').then(m => ({ default: m.TabResumen })));
 const TabClasificacion = lazy(() => import('./TabClasificacion').then(m => ({ default: m.TabClasificacion })));
+const ClientesCRM = lazy(() => import('../../components/Maestros/ClientesCRM').then(m => ({ default: m.ClientesCRM })));
+const MarcasAnalytics = lazy(() => import('../../components/Maestros/MarcasAnalytics').then(m => ({ default: m.MarcasAnalytics })));
+const ProveedoresSRM = lazy(() => import('../../components/Maestros/ProveedoresSRM').then(m => ({ default: m.ProveedoresSRM })));
+const AlmacenesLogistica = lazy(() => import('../../components/Maestros/AlmacenesLogistica').then(m => ({ default: m.AlmacenesLogistica })));
+const CompetidoresIntel = lazy(() => import('../../components/Maestros/CompetidoresIntel').then(m => ({ default: m.CompetidoresIntel })));
+const TransportistasLogistica = lazy(() => import('../../components/Maestros/TransportistasLogistica').then(m => ({ default: m.TransportistasLogistica })));
+const CanalesVentaAnalytics = lazy(() => import('../../components/Maestros/CanalesVentaAnalytics').then(m => ({ default: m.CanalesVentaAnalytics })));
+
+const TabFallback = (
+  <div className="flex justify-center items-center py-12">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+  </div>
+);
 
 type TabActiva = 'resumen' | 'clientes' | 'marcas' | 'proveedores' | 'almacenes' | 'competidores' | 'transportistas' | 'canales' | 'clasificacion';
 
@@ -787,7 +794,7 @@ export const Maestros: React.FC = () => {
 
       {/* Tab: Resumen (lazy loaded) */}
       {tabActiva === 'resumen' && (
-        <Suspense fallback={<div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" /></div>}>
+        <Suspense fallback={TabFallback}>
           <TabResumen
             clientes={clientes}
             marcas={marcas}
@@ -823,55 +830,73 @@ export const Maestros: React.FC = () => {
       ) : (
         <>
           {tabActiva === 'clientes' && (
-            <ClientesCRM
-              onOpenClienteModal={handleOpenClienteModal}
-              onViewCliente={(cliente) => setDetalleCliente(cliente)}
-              onEditCliente={(cliente) => handleOpenClienteModal(cliente)}
-              onDeleteCliente={handleDeleteCliente}
-            />
+            <Suspense fallback={TabFallback}>
+              <ClientesCRM
+                onOpenClienteModal={handleOpenClienteModal}
+                onViewCliente={(cliente) => setDetalleCliente(cliente)}
+                onEditCliente={(cliente) => handleOpenClienteModal(cliente)}
+                onDeleteCliente={handleDeleteCliente}
+              />
+            </Suspense>
           )}
 
           {tabActiva === 'marcas' && (
-            <MarcasAnalytics
-              onOpenMarcaModal={handleOpenMarcaModal}
-              onViewMarca={(marca) => setDetalleMarca(marca)}
-              onEditMarca={(marca) => handleOpenMarcaModal(marca)}
-              onDeleteMarca={handleDeleteMarca}
-            />
+            <Suspense fallback={TabFallback}>
+              <MarcasAnalytics
+                onOpenMarcaModal={handleOpenMarcaModal}
+                onViewMarca={(marca) => setDetalleMarca(marca)}
+                onEditMarca={(marca) => handleOpenMarcaModal(marca)}
+                onDeleteMarca={handleDeleteMarca}
+              />
+            </Suspense>
           )}
 
           {tabActiva === 'proveedores' && (
-            <ProveedoresSRM
-              onOpenProveedorModal={handleOpenProveedorModal}
-              onViewProveedor={(proveedor) => setDetalleProveedor(proveedor)}
-              onEditProveedor={(proveedor) => handleOpenProveedorModal(proveedor)}
-              onDeleteProveedor={handleDeleteProveedor}
-            />
+            <Suspense fallback={TabFallback}>
+              <ProveedoresSRM
+                onOpenProveedorModal={handleOpenProveedorModal}
+                onViewProveedor={(proveedor) => setDetalleProveedor(proveedor)}
+                onEditProveedor={(proveedor) => handleOpenProveedorModal(proveedor)}
+                onDeleteProveedor={handleDeleteProveedor}
+              />
+            </Suspense>
           )}
 
           {tabActiva === 'almacenes' && (
-            <AlmacenesLogistica
-              onOpenAlmacenModal={handleOpenAlmacenModal}
-              onViewAlmacen={(almacen) => setDetalleAlmacen(almacen)}
-              onEditAlmacen={(almacen) => handleOpenAlmacenModal(almacen)}
-            />
+            <Suspense fallback={TabFallback}>
+              <AlmacenesLogistica
+                onOpenAlmacenModal={handleOpenAlmacenModal}
+                onViewAlmacen={(almacen) => setDetalleAlmacen(almacen)}
+                onEditAlmacen={(almacen) => handleOpenAlmacenModal(almacen)}
+              />
+            </Suspense>
           )}
 
           {tabActiva === 'competidores' && (
-            <CompetidoresIntel
-              onOpenCompetidorModal={handleOpenCompetidorModal}
-              onViewCompetidor={(competidor) => setDetalleCompetidor(competidor)}
-              onEditCompetidor={(competidor) => handleOpenCompetidorModal(competidor)}
-              onDeleteCompetidor={handleDeleteCompetidor}
-            />
+            <Suspense fallback={TabFallback}>
+              <CompetidoresIntel
+                onOpenCompetidorModal={handleOpenCompetidorModal}
+                onViewCompetidor={(competidor) => setDetalleCompetidor(competidor)}
+                onEditCompetidor={(competidor) => handleOpenCompetidorModal(competidor)}
+                onDeleteCompetidor={handleDeleteCompetidor}
+              />
+            </Suspense>
           )}
 
-          {tabActiva === 'transportistas' && <TransportistasLogistica />}
+          {tabActiva === 'transportistas' && (
+            <Suspense fallback={TabFallback}>
+              <TransportistasLogistica />
+            </Suspense>
+          )}
 
-          {tabActiva === 'canales' && <CanalesVentaAnalytics />}
+          {tabActiva === 'canales' && (
+            <Suspense fallback={TabFallback}>
+              <CanalesVentaAnalytics />
+            </Suspense>
+          )}
 
           {tabActiva === 'clasificacion' && (
-            <Suspense fallback={<div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" /></div>}>
+            <Suspense fallback={TabFallback}>
               <TabClasificacion />
             </Suspense>
           )}

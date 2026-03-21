@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-21 (Sesion 10 — Deploy 10 exitoso: Prioridades 1/2/3 + ventas a socios + ErrorBoundary + console.log cleanup)
+**Ultima actualizacion:** 2026-03-21 (Sesion 11 — Deploy 11 exitoso: calidad de infraestructura + split Maestros + 122 tests + fix metricas + error logging)
 **Branch activo:** main
 
 ---
@@ -12,12 +12,12 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 10 |
+| Sesiones de trabajo registradas | 11 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | 86 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10) |
+| Fixes aplicados | 91 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11) |
 | Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
-| Deploys realizados | 10 (ultimo: 2026-03-21 post-Sesion 10, commit ffcf208) |
+| Deploys realizados | 11 (ultimo: 2026-03-21 post-Sesion 11, commit 32a2755) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | IMPLEMENTADO — badge, exclusiones de reportes, sección en Ventas.tsx (Sesion 10) |
 
@@ -1472,8 +1472,8 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: MEDIA
 - Hallazgo: BUG-007 (code-logic-analyst, Sesion 5)
 - Descripcion: Cuando una cotizacion se confirma como venta, `confirmarVenta()` llama a `actualizarMetricasPorVenta()`. Si el flujo de confirmacion tambien ejecuta logica en `cotizacion.service.ts` que actualiza metricas, el mismo evento podria disparar dos actualizaciones para la misma venta.
-- Estado: **RESUELTO** (CAMBIO-081, Sesion 10) — Auditoria revelo que NO habia doble conteo. El fix fue diferente: ventas directas (esVentaDirecta=true) no tenian metricas porque solo confirmarVenta() las actualizaba. CAMBIO-081 agrego la llamada en crear() con withRetry para cubrir ventas directas.
-- Nota: el comportamiento era metricas FALTANTES (no duplicadas) en ventas directas
+- Estado: **RESUELTO COMPLETO** — Sesion 10 (CAMBIO-081): auditoria revelo metricas FALTANTES (no duplicadas) en ventas directas — fix en crear() con withRetry. Sesion 11 (CAMBIO-087): el doble conteo SI existia en el flujo cotizacion→venta al agregar la llamada de S9 en crear() — resuelto con flag _fromCotizacion en ventaData y guard en crear() que verifica !fromCotizacion.
+- Nota: requirio dos fixes complementarios — S10 cubre ventas directas sin metricas, S11 elimina el doble conteo en cotizacion→venta
 
 **TAREA-051**
 - Titulo: SEC-CLI-001 — Fire-and-forget para metricas cliente puede fallar silenciosamente
@@ -1482,7 +1482,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: MEDIA
 - Hallazgo: SEC-CLI-001 (security-guardian, Sesion 5)
 - Descripcion: `actualizarMetricasPorVenta()` se ejecuta como fire-and-forget post-confirmacion. Si falla, el error no llega al usuario ni genera alerta. El CRM puede quedar con datos de ABC/RFM desactualizados sin que nadie lo detecte.
-- Estado: **RESUELTO** (CAMBIO-081, Sesion 10) — Se verifico que ya habia withRetry implementado en sesion anterior. CAMBIO-081 reutilizo el mismo patron withRetry al agregar la llamada en crear() para ventas directas.
+- Estado: **RESUELTO COMPLETO** — Sesion 10 (CAMBIO-081): withRetry reutilizado para metricas en ventas directas. Sesion 11 (CAMBIO-088): fire-and-forget ahora tiene audit trail completo via logBackgroundError() en logger.ts con escritura a coleccion _errorLog en Firestore. 9 catch handlers actualizados en 5 servicios criticos.
 
 **TAREA-052**
 - Titulo: EDGE-002 — Ventas ML via webhook no tienen flag ventaBajoCosto
@@ -1774,7 +1774,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Modulo: ctru.service.ts, venta.service.ts, ml.orderProcessor.ts
 - Prioridad: baja (urgente estrategicamente)
 - Hallazgo: R2-002
-- Estado: pendiente
+- Estado: EN PROCESO — framework configurado (CAMBIO-090, Sesion 11), 122 tests en utils/helpers/collections (CAMBIO-091). Pendiente: tests con Firebase mocking para servicios criticos (venta, poolUSD, tipoCambio) y Cloud Functions.
 
 ### Prioridad 5 — Nice to have
 
@@ -1935,10 +1935,10 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - 31 fixes (11 seguridad + 8 performance + 8 bugs + 4 UAT criticos)
 - Backup Firestore configurado: PITR (7 dias) + copias semanales (98 dias retencion)
 
-### Roadmap 30/60/90 dias (actualizado post-Sesion 8, 2026-03-20)
-- **0-30 dias:** Implementar Decision 1 (fecha hibrida Dashboard vs Contabilidad — unica decision pendiente de implementar), integraciones Pool USD con pagos OC y gastos USD (TAREA-070/071), snapshot mensual automatico (TAREA-072), carga retroactiva 3 meses Pool USD (TAREA-065), metaPEN para necesidad de ventas (TAREA-069), fix race condition gastos (TAREA-004), Vitest + tests zonas rojas (TAREA-019), GitHub Actions CI, rotar secrets
-- **30-60 dias:** Validacion server-side ventaBajoCosto (TAREA-048), fix deduplicacion clientes (TAREA-049), metricas ML ventas bajo costo (TAREA-052), comparativas periodo anterior (TAREA-042), cleanup 618 console.log, optimizar full-collection reads, costoReposicion en snapshots (TAREA-066)
-- **60-90 dias:** Evaluacion proveedor SUNAT, flujo devoluciones, entorno staging, inicio division god files
+### Roadmap 30/60/90 dias (actualizado post-Sesion 11, 2026-03-21)
+- **0-30 dias:** Ejecutar carga retroactiva Pool USD (titular — accion manual), configurar metaPEN (titular), tests con Firebase mocking para servicios criticos (TAREA-019 continuacion), GitHub Actions CI (npm test como gate), validacion server-side ventaBajoCosto (TAREA-048), fix race condition gastos (TAREA-004), rotar secrets
+- **30-60 dias:** Validacion ventas a socios (titular — verificar reportes), TAREA-052 (ventas ML sin evaluacion bajo costo), comparativas periodo anterior (TAREA-042), costoReposicion en snapshots (TAREA-066), margenesPorLinea en store ventas (TAREA-067), optimizar full-collection reads (TAREA-005/006/037)
+- **60-90 dias:** Evaluacion proveedor SUNAT, flujo devoluciones, entorno staging, reduccion adicional de :any (TAREA-016)
 
 ---
 
@@ -2282,6 +2282,7 @@ Implementar el modulo Rendimiento Cambiario V1 (ADR-002) completo en produccion:
 | Deploy 8 | 2026-03-21 | 2ee1f98 | hosting + 55 functions + rules (refactoring completo) | 78 |
 | Deploy 9 | — | — | (no documentado como deploy independiente) | — |
 | Deploy 10 | 2026-03-21 | ffcf208 | hosting (sin cambios en functions — 55 estables) | 86 |
+| Deploy 11 | 2026-03-21 | 32a2755 | hosting + firestore:rules (55 funciones sin cambios) | 91 |
 
 ---
 
@@ -2509,5 +2510,122 @@ Implementar el backlog priorizado de la sesion anterior: carga retroactiva del P
 
 ---
 
+---
+
+## SESION 11 — 2026-03-21 (Calidad de infraestructura + Maestros split + 122 tests + Deploy 11)
+
+### Objetivo
+Resolver deuda tecnica de calidad acumulada: fix doble metricas en flujo cotizacion→venta (TAREA-050), error logging para fire-and-forget (TAREA-051), division del god file Maestros.tsx, configuracion de framework de tests Vitest, y primera suite de 122 tests unitarios en funciones criticas.
+
+### Agentes ejecutados
+- code-logic-analyst (CAMBIO-087: fix doble metricas cot→venta)
+- code-quality-refactor-specialist (CAMBIO-088: error logging fire-and-forget, CAMBIO-089: split Maestros.tsx)
+- devops-qa-engineer (CAMBIO-090: setup Vitest, CAMBIO-091: 122 tests unitarios)
+- implementation-controller (documentacion de sesion y actualizacion MEMORY.md)
+
+### Fixes aplicados en Sesion 11
+
+#### CAMBIO-087 — TAREA-050: Fix doble metricas cliente en flujo cotizacion→venta
+- Tipo: Bug fix / Datos
+- Descripcion: Cuando una cotizacion validada sin reserva se convertia a venta, `actualizarMetricasPorVenta()` se llamaba dos veces: una en `crear()` (agregada en S9) y otra en `confirmarCotizacion()`. El fix introduce un flag `_fromCotizacion` en el objeto `ventaData` que se propaga al crear la venta desde una cotizacion. El guard en `crear()` verifica `!fromCotizacion` antes de llamar a las metricas, evitando la doble actualizacion.
+- Archivos: `src/services/cotizacion.service.ts`, `src/services/venta.service.ts`
+- Reversible: si
+
+#### CAMBIO-088 — TAREA-051: Error logging para fire-and-forget
+- Tipo: Observabilidad / Robustez
+- Descripcion: Nueva funcion `logBackgroundError()` en `src/utils/logger.ts` que escribe errores de operaciones fire-and-forget a la coleccion Firestore `_errorLog` con deduplicacion en memoria de 60 segundos (evita escribir el mismo error repetidas veces en rafagas de fallos). 9 catch handlers actualizados en 5 servicios:
+  - `tesoreria.service.ts`: 2 handlers (ambos criticos — conversiones USD + movimientos pool)
+  - `entrega.service.ts`: 2 handlers (1 critico — actualizacion unidades, 1 high — notificacion)
+  - `gasto.service.ts`: 1 handler (critico — registro pool USD en gastos)
+  - `unidad.service.ts`: 1 handler (critico — actualizacion estado unidad)
+  - `venta.service.ts`: 3 handlers (high — metricas cliente)
+  La coleccion `_errorLog` fue agregada a `COLLECTIONS` en ambos contextos (frontend + Cloud Functions) y a `firestore.rules` con permisos: lectura solo admin, escritura para cualquier usuario autenticado (los servicios escriben en nombre del usuario autenticado).
+- Archivos: `src/utils/logger.ts`, `src/config/collections.ts`, `functions/src/collections.ts`, `firestore.rules`, `src/services/tesoreria.service.ts`, `src/services/entrega.service.ts`, `src/services/gasto.service.ts`, `src/services/unidad.service.ts`, `src/services/venta.service.ts`
+- Reversible: si
+
+#### CAMBIO-089 — Split Maestros.tsx (god file -62%)
+- Tipo: Refactoring / Deuda tecnica
+- Descripcion: `Maestros.tsx` dividido de 2569 a 969 lineas (-62%). Tres archivos nuevos extraidos:
+  - `TabResumen.tsx` (441 lineas): tab principal de resumen con tablas de maestros
+  - `TabClasificacion.tsx` (34 lineas): tab de clasificacion ABC/RFM de clientes
+  - `MaestrosModals.tsx` (1121 lineas): todos los modales de creacion/edicion de maestros concentrados en un archivo
+  `TabResumen` y `TabClasificacion` se cargan con `React.lazy()` para reducir el chunk inicial del modulo. Mejora de bundle: chunk de Maestros reducido de 680KB a 596KB (-12%).
+- Archivos: `src/pages/Maestros/Maestros.tsx` (reducido), `src/pages/Maestros/TabResumen.tsx` (nuevo), `src/pages/Maestros/TabClasificacion.tsx` (nuevo), `src/pages/Maestros/MaestrosModals.tsx` (nuevo)
+- Reversible: si
+
+#### CAMBIO-090 — Setup Vitest: framework de tests configurado
+- Tipo: Infraestructura / Testing (TAREA-019 parcial)
+- Descripcion: Configuracion completa del framework de testing Vitest en el proyecto. Paquetes instalados: `vitest 4.1`, `@testing-library/react`, `@testing-library/jest-dom`, `jsdom`. Archivo de configuracion `vitest.config.ts` creado en la raiz del proyecto. Archivo de setup `src/test/setup.ts` con importacion de matchers de jest-dom. Scripts agregados a `package.json`: `npm test` (ejecucion unica) y `npm run test:watch` (modo watch para desarrollo). El framework queda listo para recibir tests sin configuracion adicional.
+- Archivos: `vitest.config.ts` (nuevo), `src/test/setup.ts` (nuevo), `package.json`, `package-lock.json`
+- Reversible: si
+
+#### CAMBIO-091 — 122 tests unitarios para funciones criticas
+- Tipo: Testing (TAREA-019 — primera suite de tests)
+- Descripcion: Primera suite de 122 tests unitarios distribuidos en 4 archivos de test cubriendo las funciones mas criticas del sistema:
+  - `src/utils/ctru.utils.test.ts` (25 tests): funciones del modulo CTRU — `getCTRU`, `getTC`, `getCostoBasePEN`, `getCTRU_Real`, `calcularGAGOProporcional`. Cubre casos nominales, datos faltantes, y valores extremos.
+  - `src/utils/multiOrigen.helpers.test.ts` (52 tests): 17 funciones de normalizacion de origenes — helpers de conversion entre formatos legacy y nuevo, deteccion de pais de origen, construccion de rutas multi-origen. El modulo mas testeado por su rol critico en inventario.
+  - `src/utils/dateFormatters.test.ts` (26 tests): funciones de formato de fechas — `formatFecha`, `formatFechaRelativa`, `calcularDiasParaVencer`. Cubre Timestamps de Firestore, fechas JS nativas, nulls, y valores de borde.
+  - `src/config/collections.test.ts` (9 tests): contrato de la constante COLLECTIONS — verifica que todas las colecciones criticas existen, tienen nombres no vacios, y no hay duplicados de nombre entre colecciones distintas.
+  Estado final: 122/122 tests passing. Build: 0 errores frontend, 0 errores Cloud Functions.
+- Archivos: `src/utils/ctru.utils.test.ts` (nuevo), `src/utils/multiOrigen.helpers.test.ts` (nuevo), `src/utils/dateFormatters.test.ts` (nuevo), `src/config/collections.test.ts` (nuevo)
+- Reversible: si
+
+### Deploy 11 — 2026-03-21
+
+- **Commit:** 32a2755
+- **Comando:** firebase deploy --only hosting,firestore:rules
+- **Resultado:** exitoso — hosting + Firestore rules actualizadas
+- **Cloud Functions:** 55 funciones sin cambios — no requirio redespliegue
+- **Push a main:** exitoso
+- **URL de produccion:** https://vitaskinperu.web.app
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados | 22 |
+| Archivos nuevos | 9 (4 test files, 3 Maestros components, vitest.config.ts, src/test/setup.ts) |
+| Lineas agregadas | +4,180 |
+| Lineas eliminadas | -1,855 |
+| Lineas netas | +2,325 |
+| Cambios registrados | 5 (CAMBIO-087 a CAMBIO-091) |
+| Tests nuevos | 122 (todos passing) |
+| Agentes ejecutados | 4 |
+
+### Tareas resueltas en Sesion 11
+
+| Tarea | Descripcion | Cambio |
+|-------|-------------|--------|
+| TAREA-050 | Fix doble metricas en flujo cotizacion→venta via flag _fromCotizacion | CAMBIO-087 |
+| TAREA-051 | logBackgroundError() en logger.ts + 9 catch handlers actualizados | CAMBIO-088 |
+
+### Estado de TAREA-019 (Vitest + tests zonas rojas)
+
+- **Estado:** PARCIALMENTE RESUELTO — framework configurado y primera suite de 122 tests en utils/helpers/collections
+- **Pendiente:** tests con Firebase mocking para servicios criticos (venta, poolUSD, tipoCambio), tests de Cloud Functions
+- La TAREA-019 pasa de "pendiente" a "en proceso" — el framework esta operativo, la cobertura se ampliara en sesiones futuras
+
+### Tareas pendientes para la proxima sesion (priorizadas)
+
+**Prioridad alta:**
+1. Ejecutar carga retroactiva Pool USD (TAREA-065 — funcion lista, el titular debe ejecutar desde /rendimiento-cambiario con acceso admin en produccion)
+2. Configurar metaPEN en Pool USD (edicion inline disponible en /rendimiento-cambiario)
+3. Tests con Firebase mocking para servicios criticos: `venta.service`, `poolUSD.service`, `tipoCambio.service` (TAREA-019 continuacion)
+4. CI/CD: GitHub Actions con `npm test` como gate antes de merge a main
+
+**Prioridad media:**
+5. Seguir reduciendo chunk de Maestros (596KB — candidato a mas lazy loading de subcomponentes de MaestrosModals.tsx)
+6. Validar ventas a socios con el titular: UX + exclusion correcta en todos los reportes
+7. Decision 6 pendiente: precio especial socios sin contaminar rentabilidad (verificar que CAMBIO-082 cubre todos los casos de reporte)
+8. TAREA-048: validacion server-side de ventaBajoCosto (sin confianza en flag del cliente)
+9. TAREA-004: race condition residual gasto.service.ts:756-763 (padStart manual post-getNextSequenceNumber)
+
+**Pendientes operativos del titular:**
+- Ejecutar carga retroactiva Pool USD (boton en /rendimiento-cambiario)
+- Definir metaPEN mensual (campo editable en /rendimiento-cambiario)
+- Rotar secrets externos (ML, Google, Anthropic, Meta, Daily)
+
+---
+
 *Documento generado por implementation-controller (Agente 23)*
-*Ultima actualizacion: 2026-03-21 — Sesion 10 completada. Deploy 10 exitoso. 8 cambios (CAMBIO-079 a CAMBIO-086). Pool USD completo con carga retroactiva + metaPEN. Decision 6 (Ventas a Socios) implementada con exclusiones de reportes. ErrorBoundary en 3 capas. Console.log cleanup + fix fuga PII. 86 fixes acumulados en produccion.*
+*Ultima actualizacion: 2026-03-21 — Sesion 11 completada. Deploy 11 exitoso (commit 32a2755). 5 cambios (CAMBIO-087 a CAMBIO-091). Fix doble metricas cotizacion→venta. Error logging fire-and-forget con _errorLog. Maestros.tsx -62% (2569→969 lineas). Vitest configurado. 122 tests unitarios en 4 archivos. 91 fixes acumulados en produccion.*
