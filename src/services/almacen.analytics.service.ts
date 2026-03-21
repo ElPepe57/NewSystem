@@ -343,7 +343,7 @@ class AlmacenAnalyticsService {
       ]);
 
       // Calcular inventario actual
-      const inventarioActual = this.calcularInventarioActual(unidadesData, almacen);
+      const inventarioActual = await this.calcularInventarioActual(unidadesData, almacen);
 
       // Calcular productos en inventario
       const productosInventario = this.calcularProductosInventario(unidadesData);
@@ -517,7 +517,7 @@ class AlmacenAnalyticsService {
   /**
    * Calcula inventario actual
    */
-  private calcularInventarioActual(unidades: Unidad[], almacen: Almacen) {
+  private async calcularInventarioActual(unidades: Unidad[], almacen: Almacen) {
     const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito'];
     const unidadesDisponibles = unidades.filter(u => !estadosExcluidos.includes(u.estado || ''));
 

@@ -1,6 +1,5 @@
+import type { QuerySnapshot, DocumentData } from 'firebase/firestore';
 import {
-  QuerySnapshot,
-  DocumentData,
   collection,
   getDocs,
   query,

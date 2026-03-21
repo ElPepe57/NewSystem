@@ -306,7 +306,7 @@ export const NotasIA: React.FC = () => {
           expandedCall={expandedCall}
           onToggleExpand={(id) => setExpandedCall(expandedCall === id ? null : id)}
           onVerNotas={(id) => setSelectedIntelId(id)}
-          formatDate={formatDate}
+          formatDate={formatDate as (ts: { toDate?: () => Date }) => string}
           formatDuration={formatDuration}
           teamMembers={teamMembers}
           onActualizarTarea={handleActualizarTarea}
@@ -317,7 +317,7 @@ export const NotasIA: React.FC = () => {
           tareas={tareasFiltradas}
           teamMembers={teamMembers}
           onActualizarTarea={handleActualizarTarea}
-          formatDate={formatDate}
+          formatDate={formatDate as (ts: { toDate?: () => Date }) => string}
           canReassign={isAdmin}
         />
       )}

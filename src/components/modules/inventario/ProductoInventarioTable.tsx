@@ -47,6 +47,7 @@ export interface ProductoConUnidades {
   // Alertas
   proximasAVencer30Dias: number;
   stockCritico: boolean;
+  lineaNegocioId?: string;
 }
 
 interface ProductoInventarioTableProps {
