@@ -60,7 +60,7 @@ export const metricasService = {
       await updateDoc(clienteRef, updates);
       logger.success(`Métricas actualizadas para cliente ${clienteId}`);
     } catch (error: any) {
-      console.error('Error actualizando métricas del cliente:', error);
+      logger.error('Error actualizando métricas del cliente:', error);
       // No lanzamos error para no interrumpir el flujo principal
     }
   },
@@ -98,7 +98,7 @@ export const metricasService = {
       await updateDoc(marcaRef, updates);
       logger.success(`Métricas actualizadas para marca ${marcaId}`);
     } catch (error: any) {
-      console.error('Error actualizando métricas de marca:', error);
+      logger.error('Error actualizando métricas de marca:', error);
     }
   },
 
@@ -118,7 +118,7 @@ export const metricasService = {
       });
       logger.success(`Productos activos incrementados para marca ${marcaId}`);
     } catch (error: any) {
-      console.error('Error incrementando productos de marca:', error);
+      logger.error('Error incrementando productos de marca:', error);
     }
   },
 
@@ -137,7 +137,7 @@ export const metricasService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error decrementando productos de marca:', error);
+      logger.error('Error decrementando productos de marca:', error);
     }
   },
 
@@ -162,7 +162,7 @@ export const metricasService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error recalculando ticket promedio:', error);
+      logger.error('Error recalculando ticket promedio:', error);
     }
   },
 
@@ -186,7 +186,7 @@ export const metricasService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error registrando interacción:', error);
+      logger.error('Error registrando interacción:', error);
     }
   },
 
@@ -208,7 +208,7 @@ export const metricasService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error actualizando proveedor preferido:', error);
+      logger.error('Error actualizando proveedor preferido:', error);
     }
   },
 
@@ -296,7 +296,7 @@ export const metricasService = {
         .map(d => ({ id: d.id, ...d.data() }))
         .filter((v: any) => v.estado !== 'cancelada') as any[];
 
-      console.log(`[sincronizarMetricasClientes] Total ventas (no canceladas): ${ventas.length}`);
+      logger.log(`[sincronizarMetricasClientes] Total ventas (no canceladas): ${ventas.length}`);
 
       // Agrupar ventas por clienteId
       const ventasPorCliente = new Map<string, {
@@ -309,7 +309,7 @@ export const metricasService = {
       // Contar ventas sin clienteId
       const ventasSinCliente = ventas.filter((v: any) => !v.clienteId);
       if (ventasSinCliente.length > 0) {
-        console.warn(`[sincronizarMetricasClientes] ${ventasSinCliente.length} ventas sin clienteId`);
+        logger.warn(`[sincronizarMetricasClientes] ${ventasSinCliente.length} ventas sin clienteId`);
       }
 
       for (const venta of ventas) {
@@ -377,7 +377,7 @@ export const metricasService = {
       logger.success(`Sincronización completada: ${clientesActualizados} clientes, ${ventasProcesadas} ventas`);
     } catch (error: any) {
       errores.push(`Error general: ${error.message}`);
-      console.error('Error en sincronización de métricas:', error);
+      logger.error('Error en sincronización de métricas:', error);
     }
 
     return { clientesActualizados, ventasProcesadas, errores };
@@ -440,7 +440,7 @@ export const metricasService = {
       logger.success(`Sincronización de marcas completada: ${marcasActualizadas} marcas, ${productosProcesados} productos`);
     } catch (error: any) {
       errores.push(`Error general: ${error.message}`);
-      console.error('Error en sincronización de métricas de marcas:', error);
+      logger.error('Error en sincronización de métricas de marcas:', error);
     }
 
     return { marcasActualizadas, productosProcesados, errores };
@@ -517,7 +517,7 @@ export const metricasService = {
       logger.success(`Vinculación completada: ${ventasVinculadas} vinculadas, ${ventasSinVincular} sin vincular`);
     } catch (error: any) {
       errores.push(`Error general: ${error.message}`);
-      console.error('Error vinculando ventas:', error);
+      logger.error('Error vinculando ventas:', error);
     }
 
     return { ventasVinculadas, ventasSinVincular, errores };
@@ -633,7 +633,7 @@ export const metricasService = {
       logger.success(`Vinculación de productos completada: ${productosVinculados} vinculados, ${marcasCreadas} marcas creadas`);
     } catch (error: any) {
       errores.push(`Error general: ${error.message}`);
-      console.error('Error vinculando productos:', error);
+      logger.error('Error vinculando productos:', error);
     }
 
     return { productosVinculados, productosSinVincular, marcasCreadas, errores };
@@ -756,7 +756,7 @@ export const metricasService = {
       logger.success(`Sincronización de proveedores completada: ${proveedoresActualizados} actualizados, ${vinculacionesCreadas} vinculaciones`);
     } catch (error: any) {
       errores.push(`Error general: ${error.message}`);
-      console.error('Error en sincronización de métricas de proveedores:', error);
+      logger.error('Error en sincronización de métricas de proveedores:', error);
     }
 
     return { proveedoresActualizados, productosAnalizados, vinculacionesCreadas, errores };
@@ -885,7 +885,7 @@ export const metricasService = {
       logger.success(`Sincronización de competidores completada: ${competidoresActualizados} actualizados, ${vinculacionesCreadas} vinculaciones`);
     } catch (error: any) {
       errores.push(`Error general: ${error.message}`);
-      console.error('Error en sincronización de métricas de competidores:', error);
+      logger.error('Error en sincronización de métricas de competidores:', error);
     }
 
     return { competidoresActualizados, productosAnalizados, vinculacionesCreadas, errores };
@@ -991,7 +991,7 @@ export const metricasService = {
       logger.success(`Sincronización de órdenes de proveedores completada: ${proveedoresActualizados} actualizados, ${ordenesAnalizadas} órdenes`);
     } catch (error: any) {
       errores.push(`Error general: ${error.message}`);
-      console.error('Error en sincronización de órdenes de proveedores:', error);
+      logger.error('Error en sincronización de órdenes de proveedores:', error);
     }
 
     return { proveedoresActualizados, ordenesAnalizadas, errores };
@@ -1122,9 +1122,9 @@ export const metricasService = {
             if (sumaMontos > 0) {
               margenPromedio = datos.margenes.reduce((sum, m) => sum + (m.monto * m.margen), 0) / sumaMontos;
             }
-            console.log(`[sincronizarVentasMarcas] Marca ${marcaId}: ${datos.margenes.length} productos con margen, promedio: ${margenPromedio.toFixed(2)}%`);
+            logger.log(`[sincronizarVentasMarcas] Marca ${marcaId}: ${datos.margenes.length} productos con margen, promedio: ${margenPromedio.toFixed(2)}%`);
           } else {
-            console.log(`[sincronizarVentasMarcas] Marca ${marcaId}: SIN productos con margen (ventas: S/${datos.ventasTotalPEN})`);
+            logger.log(`[sincronizarVentasMarcas] Marca ${marcaId}: SIN productos con margen (ventas: S/${datos.ventasTotalPEN})`);
           }
 
           const updateData: Record<string, any> = {
@@ -1147,7 +1147,7 @@ export const metricasService = {
       logger.success(`Sincronización de ventas de marcas completada: ${marcasActualizadas} marcas, ${ventasAnalizadas} ventas, ${productosVinculados} productos`);
     } catch (error: any) {
       errores.push(`Error general: ${error.message}`);
-      console.error('Error en sincronización de ventas de marcas:', error);
+      logger.error('Error en sincronización de ventas de marcas:', error);
     }
 
     return { marcasActualizadas, ventasAnalizadas, productosVinculados, errores };

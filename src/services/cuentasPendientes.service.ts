@@ -24,6 +24,7 @@ import { TesoreriaService } from './tesoreria.service';
 import { CotizacionService } from './cotizacion.service';
 import { expectativaService } from './expectativa.service';
 import { unidadService } from './unidad.service';
+import { logger } from '../lib/logger';
 
 /**
  * Calcula días desde una fecha
@@ -110,7 +111,7 @@ export const cuentasPendientesService = {
 
       return pendientes.sort((a, b) => b.diasPendiente - a.diasPendiente);
     } catch (error) {
-      console.error('Error obteniendo ventas por cobrar:', error);
+      logger.error('Error obteniendo ventas por cobrar:', error);
       return [];
     }
   },
@@ -159,7 +160,7 @@ export const cuentasPendientesService = {
 
       return pendientes.sort((a, b) => b.diasPendiente - a.diasPendiente);
     } catch (error) {
-      console.error('Error obteniendo OC por pagar:', error);
+      logger.error('Error obteniendo OC por pagar:', error);
       return [];
     }
   },
@@ -207,7 +208,7 @@ export const cuentasPendientesService = {
 
       return pendientes.sort((a, b) => b.diasPendiente - a.diasPendiente);
     } catch (error) {
-      console.error('Error obteniendo gastos por pagar:', error);
+      logger.error('Error obteniendo gastos por pagar:', error);
       return [];
     }
   },
@@ -263,7 +264,7 @@ export const cuentasPendientesService = {
 
       return pendientes.sort((a, b) => b.diasPendiente - a.diasPendiente);
     } catch (error) {
-      console.error('Error obteniendo pagos viajeros pendientes:', error);
+      logger.error('Error obteniendo pagos viajeros pendientes:', error);
       return [];
     }
   },
@@ -461,7 +462,7 @@ export const cuentasPendientesService = {
     try {
       flujoCajaProyectado = await this.calcularFlujoCajaProyectado(tc, balanceNeto);
     } catch (e) {
-      console.warn('Error calculando flujo de caja proyectado:', e);
+      logger.warn('Error calculando flujo de caja proyectado:', e);
     }
 
     return {
@@ -503,7 +504,7 @@ export const cuentasPendientesService = {
         }
       }
     } catch (e) {
-      console.warn('Error obteniendo saldos de cuentas:', e);
+      logger.warn('Error obteniendo saldos de cuentas:', e);
     }
 
     // 2. Obtener ingresos/egresos ya realizados este mes
@@ -521,7 +522,7 @@ export const cuentasPendientesService = {
         egresosPagadosMesUSD = stats.egresosMesUSD || 0;
       }
     } catch (e) {
-      console.warn('Error obteniendo stats de tesorería:', e);
+      logger.warn('Error obteniendo stats de tesorería:', e);
     }
 
     // 3. Proyección de ingresos futuros
@@ -542,7 +543,7 @@ export const cuentasPendientesService = {
         cotizacionesPendientes += totalCot;
       }
     } catch (e) {
-      console.warn('Error obteniendo cotizaciones:', e);
+      logger.warn('Error obteniendo cotizaciones:', e);
     }
 
     // Expectativas/Requerimientos activos
@@ -561,7 +562,7 @@ export const cuentasPendientesService = {
         expectativasActivas += valorReq;
       }
     } catch (e) {
-      console.warn('Error obteniendo requerimientos:', e);
+      logger.warn('Error obteniendo requerimientos:', e);
     }
 
     // Valor del inventario disponible para venta
@@ -592,7 +593,7 @@ export const cuentasPendientesService = {
       }
 
     } catch (e) {
-      console.warn('Error obteniendo inventario:', e);
+      logger.warn('Error obteniendo inventario:', e);
     }
 
     // Incluir inventario en la proyección total

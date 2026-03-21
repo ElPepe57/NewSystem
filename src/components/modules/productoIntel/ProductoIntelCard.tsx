@@ -2,6 +2,7 @@ import React from 'react';
 import { Package, TrendingUp, AlertTriangle, Clock, DollarSign, BarChart3, Lock, Truck } from 'lucide-react';
 import { ScoreLiquidezBadge, TendenciaBadge, RotacionBadge } from './ScoreLiquidezBadge';
 import type { ProductoIntel } from '../../../types/productoIntel.types';
+import { formatCurrencyCompact } from '../../../utils/format';
 
 interface ProductoIntelCardProps {
   producto: ProductoIntel;
@@ -9,12 +10,7 @@ interface ProductoIntelCardProps {
   compact?: boolean;
 }
 
-const formatCurrency = (value: number): string => {
-  if (value >= 1000) {
-    return `S/${(value / 1000).toFixed(1)}K`;
-  }
-  return `S/${value.toFixed(0)}`;
-};
+const formatCurrency = (value: number): string => formatCurrencyCompact(value, 'PEN');
 
 export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
   producto,

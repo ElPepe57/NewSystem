@@ -153,5 +153,41 @@ export const logger = {
     if (isDevelopment) {
       console.debug(message, ...args);
     }
-  }
+  },
+
+  /**
+   * Log genérico - solo en desarrollo (alias de info para console.log replacements)
+   */
+  log: (...args: unknown[]) => {
+    if (isDevelopment) {
+      console.log(...args);
+    }
+  },
+
+  /**
+   * Console.group - solo en desarrollo
+   */
+  group: (...args: unknown[]) => {
+    if (isDevelopment) {
+      console.group(...args);
+    }
+  },
+
+  /**
+   * Console.groupEnd - solo en desarrollo
+   */
+  groupEnd: () => {
+    if (isDevelopment) {
+      console.groupEnd();
+    }
+  },
+
+  /**
+   * Console.table - solo en desarrollo
+   */
+  table: (...args: unknown[]) => {
+    if (isDevelopment) {
+      (console.table as Function)(...args);
+    }
+  },
 };

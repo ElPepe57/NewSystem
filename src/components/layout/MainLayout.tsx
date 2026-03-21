@@ -11,6 +11,7 @@ import { useNotificacionesAutoInit } from '../../hooks';
 import { useCollaborationInit } from '../../hooks/useCollaborationInit';
 import { useAuthStore } from '../../store/authStore';
 import { AuthService } from '../../services/auth.service';
+import { useToastStore } from '../../store/toastStore';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
@@ -28,6 +29,7 @@ export const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const logout = useAuthStore(state => state.logout);
   const userProfile = useAuthStore(state => state.userProfile);
+  const toast = useToastStore();
   const lastForceLogout = useRef<number | null>(null);
 
   // Listener para desconexión forzada
@@ -51,7 +53,7 @@ export const MainLayout: React.FC = () => {
       if (forceLogoutTime > lastForceLogout.current) {
         // Desconexión forzada detectada
         lastForceLogout.current = forceLogoutTime;
-        alert('Tu sesión ha sido terminada por un administrador.');
+        toast.warning('Tu sesión ha sido terminada por un administrador.');
         logout();
         AuthService.logout();
         navigate('/login');

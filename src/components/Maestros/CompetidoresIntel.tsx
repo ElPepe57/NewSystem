@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Eye, Edit2, Trash2, ExternalLink, Plus, Filter, X } from 'lucide-react';
+import { formatCurrencyPEN } from '../../utils/format';
 import { useCompetidorStore } from '../../store/competidorStore';
 import { CompetidorDetailView } from './CompetidorDetailView';
 import type { Competidor, PlataformaCompetidor, ReputacionCompetidor } from '../../types/entidadesMaestras.types';
@@ -206,14 +207,7 @@ export function CompetidoresIntel({
     initialItemsPerPage: 25
   });
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
+  const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
   const getPlataformaLabel = (plataforma: PlataformaCompetidor) => {
     const labels: Record<PlataformaCompetidor, string> = {

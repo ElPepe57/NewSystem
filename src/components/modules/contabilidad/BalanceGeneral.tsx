@@ -23,23 +23,11 @@ import {
 } from 'lucide-react';
 import { contabilidadService } from '../../../services/contabilidad.service';
 import type { BalanceGeneral as BalanceGeneralType } from '../../../types/contabilidad.types';
+import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../../utils/format';
 
-// Formatear moneda
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('es-PE', {
-    style: 'currency',
-    currency: 'PEN',
-    minimumFractionDigits: 2,
-  }).format(value);
-};
-
-const formatCurrencyUSD = (value: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(value);
-};
+// Delegados a utilidad central
+const formatCurrency = (value: number): string => formatCurrencyPEN(value);
+const formatCurrencyUSD = (value: number): string => formatCurrencyUtil(value, 'USD');
 
 // Componente para sección expandible
 interface SeccionBalanceProps {

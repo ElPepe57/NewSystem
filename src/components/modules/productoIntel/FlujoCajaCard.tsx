@@ -1,22 +1,13 @@
 import React from 'react';
 import { Banknote, TrendingUp, TrendingDown, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import type { FlujoCajaProyectado } from '../../../types/productoIntel.types';
+import { formatCurrencyCompact } from '../../../utils/format';
 
 interface FlujoCajaCardProps {
   flujo: FlujoCajaProyectado;
 }
 
-const formatCurrency = (value: number): string => {
-  const absValue = Math.abs(value);
-  const sign = value < 0 ? '-' : '';
-  if (absValue >= 1000000) {
-    return `${sign}S/${(absValue / 1000000).toFixed(1)}M`;
-  }
-  if (absValue >= 1000) {
-    return `${sign}S/${(absValue / 1000).toFixed(1)}K`;
-  }
-  return `${sign}S/${absValue.toFixed(0)}`;
-};
+const formatCurrency = (value: number): string => formatCurrencyCompact(value, 'PEN');
 
 export const FlujoCajaCard: React.FC<FlujoCajaCardProps> = ({ flujo }) => {
   const flujoNeto = flujo.flujoNetoProyectado30d;

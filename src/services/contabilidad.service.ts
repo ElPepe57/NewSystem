@@ -59,6 +59,7 @@ import type { CuentaCaja } from '../types/tesoreria.types';
 import type { Unidad } from '../types/unidad.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { getCTRU } from '../utils/ctru.utils';
+import { logger } from '../lib/logger';
 
 // ============================================================================
 // CONFIGURACIÓN CONTABLE
@@ -96,7 +97,7 @@ async function getConfiguracionContable(): Promise<ConfiguracionContable> {
     await setDoc(docRef, { ...DEFAULT_CONFIG, fechaActualizacion: Timestamp.now() });
     return DEFAULT_CONFIG;
   } catch (error) {
-    console.warn('Error obteniendo configuración contable, usando valores por defecto:', error);
+    logger.warn('Error obteniendo configuración contable, usando valores por defecto:', error);
     return DEFAULT_CONFIG;
   }
 }
@@ -127,7 +128,7 @@ async function obtenerTipoCambio(): Promise<number> {
     const config = await getConfiguracionContable();
     return config.tcPorDefecto;
   } catch (error) {
-    console.warn('Error obteniendo TC, usando valor por defecto:', error);
+    logger.warn('Error obteniendo TC, usando valor por defecto:', error);
     return DEFAULT_CONFIG.tcPorDefecto;
   }
 }
@@ -178,7 +179,7 @@ async function getPagosViajerosPendientes(tc: number): Promise<number> {
 
     return totalPendiente;
   } catch (error) {
-    console.warn('Error obteniendo pagos viajeros pendientes:', error);
+    logger.warn('Error obteniendo pagos viajeros pendientes:', error);
     return 0;
   }
 }
@@ -362,7 +363,7 @@ async function getTransferenciasPeriodo(mes: number, anio: number): Promise<Tran
 
     return transferencias;
   } catch (error) {
-    console.warn('Error obteniendo transferencias del período:', error);
+    logger.warn('Error obteniendo transferencias del período:', error);
     return []; // Retornar array vacío en caso de error para no bloquear el reporte
   }
 }

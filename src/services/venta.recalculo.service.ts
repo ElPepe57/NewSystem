@@ -37,6 +37,7 @@ import { entregaService } from './entrega.service';
 import { unidadService } from './unidad.service';
 import { actividadService } from './actividad.service';
 import { ProductoService } from './producto.service';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
 
@@ -191,7 +192,7 @@ export async function corregirPrecioProducto(
       }
     }
   } catch (err) {
-    console.error('Error actualizando entregas:', err);
+    logger.error('Error actualizando entregas:', err);
     cambios.push('Entregas: Error al actualizar (revisar manualmente)');
   }
 
@@ -218,7 +219,7 @@ export async function corregirPrecioProducto(
       cambios.push(`Tesorería: Movimiento tiene monto diferente (S/ ${movimientosVenta[0].monto.toFixed(2)}), no se actualizó`);
     }
   } catch (err) {
-    console.error('Error actualizando tesorería:', err);
+    logger.error('Error actualizando tesorería:', err);
     cambios.push('Tesorería: Error al actualizar (revisar manualmente)');
   }
 
@@ -333,7 +334,7 @@ export async function corregirProductoVenta(
         }
       }
     } catch (err) {
-      console.error('Error actualizando cotización:', err);
+      logger.error('Error actualizando cotización:', err);
       cambios.push('Cotización: Error al actualizar (revisar manualmente)');
     }
   }
@@ -383,7 +384,7 @@ export async function corregirProductoVenta(
       cambios.push('Requerimientos: Sin requerimientos vinculados');
     }
   } catch (err) {
-    console.error('Error actualizando requerimientos:', err);
+    logger.error('Error actualizando requerimientos:', err);
     cambios.push('Requerimientos: Error al actualizar (revisar manualmente)');
   }
 
@@ -414,7 +415,7 @@ export async function corregirProductoVenta(
       }
     }
   } catch (err) {
-    console.error('Error actualizando entregas:', err);
+    logger.error('Error actualizando entregas:', err);
     cambios.push('Entregas: Error al actualizar (revisar manualmente)');
   }
 
@@ -609,7 +610,7 @@ export async function editarVenta(
         log.push(`Entrega ${entrega.codigo} actualizada`);
       }
     } catch (err) {
-      console.error('Error actualizando entregas:', err);
+      logger.error('Error actualizando entregas:', err);
       log.push('Entregas: revisar manualmente');
     }
   }
@@ -636,7 +637,7 @@ export async function editarVenta(
         log.push(`Tesorería: ${movimientosVenta.length} movimientos, revisar manualmente`);
       }
     } catch (err) {
-      console.error('Error actualizando tesorería:', err);
+      logger.error('Error actualizando tesorería:', err);
       log.push('Tesorería: revisar manualmente');
     }
   }
@@ -682,7 +683,7 @@ export async function diagnosticarAsignacionesFEFO(): Promise<{
     soloReporte: number;
   };
 }> {
-  console.log('[DIAG-FEFO] Iniciando diagnóstico de asignaciones FEFO...');
+  logger.log('[DIAG-FEFO] Iniciando diagnóstico de asignaciones FEFO...');
 
   const estadosConAsignacion: EstadoVenta[] = ['asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada'];
   const ventasAfectadas: Array<any> = [];
@@ -749,15 +750,15 @@ export async function diagnosticarAsignacionesFEFO(): Promise<{
     soloReporte: ventasAfectadas.length - corregibles,
   };
 
-  console.log(`[DIAG-FEFO] Diagnóstico completado:`);
-  console.log(`  - Ventas afectadas: ${resumen.total}`);
-  console.log(`  - Corregibles automáticamente: ${resumen.corregibles}`);
-  console.log(`  - Solo reporte (entregadas): ${resumen.soloReporte}`);
+  logger.log(`[DIAG-FEFO] Diagnóstico completado:`);
+  logger.log(`  - Ventas afectadas: ${resumen.total}`);
+  logger.log(`  - Corregibles automáticamente: ${resumen.corregibles}`);
+  logger.log(`  - Solo reporte (entregadas): ${resumen.soloReporte}`);
 
   for (const v of ventasAfectadas) {
-    console.log(`  [${v.corregible ? 'CORREGIBLE' : 'REPORTE'}] ${v.numeroVenta} (${v.estado}) - ${v.cliente}`);
+    logger.log(`  [${v.corregible ? 'CORREGIBLE' : 'REPORTE'}] ${v.numeroVenta} (${v.estado}) - ${v.cliente}`);
     for (const p of v.productos) {
-      console.log(`    - ${p.sku}: ${p.unidadesReservadasHuerfanas.length} unidades huérfanas, ${p.unidadesAsignadasActuales.length} asignadas actualmente`);
+      logger.log(`    - ${p.sku}: ${p.unidadesReservadasHuerfanas.length} unidades huérfanas, ${p.unidadesAsignadasActuales.length} asignadas actualmente`);
     }
   }
 
@@ -791,7 +792,7 @@ export async function corregirAsignacionFEFO(
     throw new Error(`Venta ${venta.numeroVenta} no tiene cotizacionOrigenId`);
   }
 
-  console.log(`[CORR-FEFO] Corrigiendo ${venta.numeroVenta} (${venta.estado})...`);
+  logger.log(`[CORR-FEFO] Corrigiendo ${venta.numeroVenta} (${venta.estado})...`);
 
   const tipoCambioVenta = await tipoCambioService.resolverTCVentaEstricto();
 
@@ -826,10 +827,10 @@ export async function corregirAsignacionFEFO(
     const idsHuerfanas = new Set(huerfanas.map(u => u.id));
     const idsALiberar = asignadasActuales.filter((id: string) => !idsHuerfanas.has(id));
 
-    console.log(`[CORR-FEFO] Producto ${producto.sku}:`);
-    console.log(`  - Asignadas actuales: ${asignadasActuales.length}`);
-    console.log(`  - Huérfanas encontradas: ${huerfanas.length}`);
-    console.log(`  - A liberar: ${idsALiberar.length}`);
+    logger.log(`[CORR-FEFO] Producto ${producto.sku}:`);
+    logger.log(`  - Asignadas actuales: ${asignadasActuales.length}`);
+    logger.log(`  - Huérfanas encontradas: ${huerfanas.length}`);
+    logger.log(`  - A liberar: ${idsALiberar.length}`);
 
     const batch = writeBatch(db);
 
@@ -929,8 +930,8 @@ export async function corregirAsignacionFEFO(
 
   cambios.push(`Venta ${venta.numeroVenta} actualizada: Costo S/ ${costoTotalPEN.toFixed(2)}, Margen ${margenPromedio.toFixed(1)}%`);
 
-  console.log(`[CORR-FEFO] Corrección completada para ${venta.numeroVenta}:`);
-  cambios.forEach(c => console.log(`  - ${c}`));
+  logger.log(`[CORR-FEFO] Corrección completada para ${venta.numeroVenta}:`);
+  cambios.forEach(c => logger.log(`  - ${c}`));
 
   return { corregido: true, cambios };
 }
@@ -962,7 +963,7 @@ export async function corregirCanalesVentas(ventas: Venta[]): Promise<{
     'mercadolibre', 'mercado_libre', 'directo', 'otro', 'venta directa'
   ]);
 
-  console.log('[CORREGIR-CANALES] Iniciando corrección...');
+  logger.log('[CORREGIR-CANALES] Iniciando corrección...');
 
   // Cargar canales de venta
   const canalesSnap = await getDocs(collection(db, COLLECTIONS.CANALES_VENTA));
@@ -1079,9 +1080,9 @@ export async function corregirCanalesVentas(ventas: Venta[]): Promise<{
       batch.update(doc(db, COLLECTION_NAME, item.id), item.updates);
     }
     await batch.commit();
-    console.log(`[CORREGIR-CANALES] Batch ${Math.floor(i / 450) + 1}: ${chunk.length} ventas actualizadas`);
+    logger.log(`[CORREGIR-CANALES] Batch ${Math.floor(i / 450) + 1}: ${chunk.length} ventas actualizadas`);
   }
 
-  console.log(`[CORREGIR-CANALES] Completado: ${corregidas} corregidas, ${nombreAsignado} nombres asignados, ${sinCambio} sin cambio`);
+  logger.log(`[CORREGIR-CANALES] Completado: ${corregidas} corregidas, ${nombreAsignado} nombres asignados, ${sinCambio} sin cambio`);
   return { corregidas, nombreAsignado, sinCambio, detalle };
 }

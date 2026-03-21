@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { formatCurrencyPEN } from '../../utils/format';
 import {
   Tag,
   Plus,
@@ -476,14 +477,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
     );
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) => formatCurrencyPEN(amount);
 
   // ============================================
   // LOADING STATE

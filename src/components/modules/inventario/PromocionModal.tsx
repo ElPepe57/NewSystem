@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { formatCurrency } from '../../../utils/format';
 import {
   Megaphone,
   Percent,
@@ -79,14 +80,7 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
     [valorOriginal, valorConDescuento]
   );
 
-  // Formato de moneda
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
+  // formatCurrency importado de utils/format (USD por defecto)
 
   // Handler para guardar
   const handleGuardar = async () => {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatCurrency } from '../../utils/format';
 import {
   TrendingUp,
   TrendingDown,
@@ -92,12 +93,7 @@ export const Expectativas: React.FC = () => {
     }
   };
 
-  const formatCurrency = (amount: number, currency: 'PEN' | 'USD' = 'PEN') => {
-    return `${currency === 'PEN' ? 'S/' : '$'} ${amount.toLocaleString('es-PE', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`;
-  };
+  // formatCurrency importado de utils/format — firma compatible: (value, currency?)
 
 
   return (

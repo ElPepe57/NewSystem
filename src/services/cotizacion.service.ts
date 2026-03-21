@@ -51,6 +51,7 @@ import { tipoCambioService } from './tipoCambio.service';
 import { stockDisponibilidadService } from './stockDisponibilidad.service';
 import { expectativaService } from './expectativa.service';
 import { actividadService } from './actividad.service';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.COTIZACIONES;
 const VENTAS_COLLECTION = COLLECTIONS.VENTAS;
@@ -97,7 +98,7 @@ export class CotizacionService {
         ...doc.data()
       } as Cotizacion));
     } catch (error: any) {
-      console.error('Error al obtener cotizaciones:', error);
+      logger.error('Error al obtener cotizaciones:', error);
       throw new Error('Error al cargar cotizaciones');
     }
   }
@@ -118,7 +119,7 @@ export class CotizacionService {
         ...docSnap.data()
       } as Cotizacion;
     } catch (error: any) {
-      console.error('Error al obtener cotización:', error);
+      logger.error('Error al obtener cotización:', error);
       throw new Error('Error al cargar cotización');
     }
   }
@@ -142,7 +143,7 @@ export class CotizacionService {
         ...doc.data()
       } as Cotizacion));
     } catch (error: any) {
-      console.error('Error al obtener cotizaciones por estado:', error);
+      logger.error('Error al obtener cotizaciones por estado:', error);
       throw new Error('Error al cargar cotizaciones');
     }
   }
@@ -192,7 +193,7 @@ export class CotizacionService {
 
       return cotizaciones;
     } catch (error: any) {
-      console.error('Error al filtrar cotizaciones:', error);
+      logger.error('Error al filtrar cotizaciones:', error);
       throw new Error('Error al cargar cotizaciones');
     }
   }
@@ -357,7 +358,7 @@ export class CotizacionService {
           fechaCotizacion: Timestamp.now()
         };
       } catch (e) {
-        console.warn('[Expectativa] No se pudo calcular expectativa de cotización (no bloqueante):', e);
+        logger.warn('[Expectativa] No se pudo calcular expectativa de cotización (no bloqueante):', e);
       }
 
       // Generar número de cotización
@@ -410,7 +411,7 @@ export class CotizacionService {
           }, userId);
           clienteIdFinal = cliente.id;
         } catch (clienteError) {
-          console.warn('[crearCotizacion] Error auto-creando cliente en Maestros:', clienteError);
+          logger.warn('[crearCotizacion] Error auto-creando cliente en Maestros:', clienteError);
         }
       }
 
@@ -438,7 +439,7 @@ export class CotizacionService {
         fechaVencimiento: Timestamp.fromDate(fechaVencimiento)
       } as Cotizacion;
     } catch (error: any) {
-      console.error('Error al crear cotización:', error);
+      logger.error('Error al crear cotización:', error);
       throw new Error(error.message || 'Error al crear cotización');
     }
   }
@@ -531,7 +532,7 @@ export class CotizacionService {
 
       await updateDoc(doc(db, COLLECTION_NAME, id), updates);
     } catch (error: any) {
-      console.error('Error al actualizar cotización:', error);
+      logger.error('Error al actualizar cotización:', error);
       throw new Error(error.message || 'Error al actualizar cotización');
     }
   }
@@ -552,7 +553,7 @@ export class CotizacionService {
 
       await deleteDoc(doc(db, COLLECTION_NAME, id));
     } catch (error: any) {
-      console.error('Error al eliminar cotización:', error);
+      logger.error('Error al eliminar cotización:', error);
       throw new Error(error.message || 'Error al eliminar cotización');
     }
   }
@@ -591,7 +592,7 @@ export class CotizacionService {
         metadata: { entidadId: id, entidadTipo: 'cotizacion', monto: cotizacion.totalPEN, moneda: 'PEN' }
       }).catch(() => {});
     } catch (error: any) {
-      console.error('Error al validar cotización:', error);
+      logger.error('Error al validar cotización:', error);
       throw new Error(error.message || 'Error al validar cotización');
     }
   }
@@ -619,7 +620,7 @@ export class CotizacionService {
         editadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al revertir validación:', error);
+      logger.error('Error al revertir validación:', error);
       throw new Error(error.message || 'Error al revertir validación');
     }
   }
@@ -678,7 +679,7 @@ export class CotizacionService {
         editadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al comprometer adelanto:', error);
+      logger.error('Error al comprometer adelanto:', error);
       throw new Error(error.message || 'Error al comprometer adelanto');
     }
   }
@@ -720,7 +721,7 @@ export class CotizacionService {
         editadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al actualizar días de validez:', error);
+      logger.error('Error al actualizar días de validez:', error);
       throw new Error(error.message || 'Error al actualizar días de validez');
     }
   }
@@ -756,7 +757,7 @@ export class CotizacionService {
         editadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al actualizar días de compromiso:', error);
+      logger.error('Error al actualizar días de compromiso:', error);
       throw new Error(error.message || 'Error al actualizar días de compromiso');
     }
   }
@@ -792,7 +793,7 @@ export class CotizacionService {
         editadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al actualizar tiempo estimado:', error);
+      logger.error('Error al actualizar tiempo estimado:', error);
       throw new Error(error.message || 'Error al actualizar tiempo estimado');
     }
   }
@@ -1025,7 +1026,7 @@ export class CotizacionService {
             requerimientosGenerados.push(requerimiento);
           }
         } catch (reqError) {
-          console.warn('No se pudo crear requerimiento automático:', reqError);
+          logger.warn('No se pudo crear requerimiento automático:', reqError);
           // No lanzamos error para no interrumpir el flujo principal
         }
       }
@@ -1147,7 +1148,7 @@ export class CotizacionService {
           // Actualizar el adelanto con el ID del movimiento
           // (Opcional: podríamos guardar el ID del movimiento en la cotización)
         } catch (tesoreriaError) {
-          console.warn('No se pudo registrar en tesorería:', tesoreriaError);
+          logger.warn('No se pudo registrar en tesorería:', tesoreriaError);
           // No lanzamos error para no interrumpir el flujo principal
         }
       }
@@ -1159,7 +1160,7 @@ export class CotizacionService {
         requerimientosGenerados: requerimientosGenerados.length > 0 ? requerimientosGenerados : undefined
       };
     } catch (error: any) {
-      console.error('Error al registrar pago de adelanto:', error);
+      logger.error('Error al registrar pago de adelanto:', error);
       throw new Error(error.message || 'Error al registrar pago de adelanto');
     }
   }
@@ -1247,7 +1248,7 @@ export class CotizacionService {
           ventaData.aprobadoPor = userId;
         }
       } catch (ctruError) {
-        console.warn('[confirmar] Error verificando CTRU:', ctruError);
+        logger.warn('[confirmar] Error verificando CTRU:', ctruError);
         // No bloquear la confirmación si falla la consulta de CTRU
       }
 
@@ -1341,7 +1342,7 @@ export class CotizacionService {
           adelantoComprometido: adelantoComprometidoData
         });
 
-        console.log(`[Cotización→Venta] Adelanto de S/${montoAdelantoPEN.toFixed(2)} transferido a venta ${venta.numeroVenta}`);
+        logger.log(`[Cotización→Venta] Adelanto de S/${montoAdelantoPEN.toFixed(2)} transferido a venta ${venta.numeroVenta}`);
       }
 
       // Si hay stock reservado físicamente, transferir a la venta
@@ -1376,7 +1377,7 @@ export class CotizacionService {
         numeroVenta: venta.numeroVenta
       };
     } catch (error: any) {
-      console.error('Error al confirmar cotización:', error);
+      logger.error('Error al confirmar cotización:', error);
       throw new Error(error.message || 'Error al confirmar cotización');
     }
   }
@@ -1432,7 +1433,7 @@ export class CotizacionService {
 
       await batch.commit();
     } catch (error: any) {
-      console.error('Error al rechazar cotización:', error);
+      logger.error('Error al rechazar cotización:', error);
       throw new Error(error.message || 'Error al rechazar cotización');
     }
   }
@@ -1465,7 +1466,7 @@ export class CotizacionService {
         editadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al marcar como vencida:', error);
+      logger.error('Error al marcar como vencida:', error);
       throw new Error(error.message || 'Error al marcar como vencida');
     }
   }
@@ -1622,7 +1623,7 @@ export class CotizacionService {
 
       return stats;
     } catch (error: any) {
-      console.error('Error al obtener estadísticas:', error);
+      logger.error('Error al obtener estadísticas:', error);
       throw new Error('Error al generar estadísticas');
     }
   }
@@ -1716,7 +1717,7 @@ export class CotizacionService {
         tendenciaMensual: Object.values(mensualMap).sort((a, b) => a.mes.localeCompare(b.mes))
       };
     } catch (error: any) {
-      console.error('Error al obtener análisis de demanda:', error);
+      logger.error('Error al obtener análisis de demanda:', error);
       throw new Error('Error al generar análisis');
     }
   }

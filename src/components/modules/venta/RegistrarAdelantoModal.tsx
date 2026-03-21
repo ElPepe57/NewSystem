@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Lock, Clock, AlertTriangle, Package, CheckCircle } from 'lucide-react';
 import { Modal, Input, Select, Button } from '../../common';
+import { formatCurrencyPEN } from '../../../utils/format';
 import type { Venta, MetodoPago } from '../../../types/venta.types';
 
 interface RegistrarAdelantoModalProps {
@@ -85,13 +86,7 @@ export const RegistrarAdelantoModal: React.FC<RegistrarAdelantoModalProps> = ({
     return { productosConStock, productosSinStock, tipoReserva };
   }, [venta]);
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number): string => formatCurrencyPEN(amount);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

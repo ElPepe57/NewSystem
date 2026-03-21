@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
+import { formatCurrency } from '../../../utils/format';
 import {
   Package,
   Calendar,
@@ -90,13 +91,7 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
   };
 
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
+  // formatCurrency importado de utils/format (USD por defecto)
 
   if (unidades.length === 0) {
     return (

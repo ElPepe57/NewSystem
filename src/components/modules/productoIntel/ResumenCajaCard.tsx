@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Wallet, TrendingUp, Snowflake, Lock, Truck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import type { ResumenCaja } from '../../../types/productoIntel.types';
+import { formatCurrencyCompact } from '../../../utils/format';
 
 type CategoriaClick = 'activa' | 'comprometida' | 'transito' | 'congelada';
 
@@ -9,16 +10,9 @@ interface ResumenCajaCardProps {
   onClickCategoria?: (categoria: CategoriaClick) => void;
 }
 
-const formatCurrency = (value: number, currency: 'PEN' | 'USD' = 'PEN'): string => {
-  const symbol = currency === 'USD' ? '$' : 'S/';
-  if (value >= 1000000) {
-    return `${symbol}${(value / 1000000).toFixed(1)}M`;
-  }
-  if (value >= 1000) {
-    return `${symbol}${(value / 1000).toFixed(1)}K`;
-  }
-  return `${symbol}${value.toFixed(0)}`;
-};
+// Alias con default PEN para preservar comportamiento anterior
+const formatCurrency = (value: number, currency: 'PEN' | 'USD' = 'PEN'): string =>
+  formatCurrencyCompact(value, currency);
 
 export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
   resumen,

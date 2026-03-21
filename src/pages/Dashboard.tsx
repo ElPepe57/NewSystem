@@ -19,9 +19,10 @@ import {
   ArrowRightLeft,
   Clock,
   Users,
-  Truck
+  Truck,
+  LayoutDashboard
 } from 'lucide-react';
-import { Card, Badge, DashboardSkeleton, LineaFiltroActivoBanner } from '../components/common';
+import { Card, Badge, DashboardSkeleton, LineaFiltroActivoBanner, GradientHeader } from '../components/common';
 import {
   UsuariosActivosWidget,
   VencimientosWidget,
@@ -57,17 +58,10 @@ import {
   BarChart,
   Bar
 } from 'recharts';
+import { formatCurrencyPEN, formatCurrencyCompact } from '../utils/format';
 
-// Helper para formatear moneda de forma corta (para móvil)
-const formatCurrencyShort = (value: number): string => {
-  if (value >= 1000000) {
-    return `S/${(value / 1000000).toFixed(1)}M`;
-  }
-  if (value >= 1000) {
-    return `S/${(value / 1000).toFixed(1)}K`;
-  }
-  return `S/${value.toFixed(0)}`;
-};
+// Helper para formatear moneda de forma corta (para móvil) — delegado a utilidad central
+const formatCurrencyShort = (value: number): string => formatCurrencyCompact(value, 'PEN');
 
 // Staleness threshold: skip re-fetch if data was loaded less than 5 minutes ago
 const STALE_TIME_MS = 5 * 60 * 1000;
@@ -458,20 +452,10 @@ export const Dashboard: React.FC = () => {
   // Colores para el PieChart
   const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'];
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number): string => formatCurrencyPEN(amount);
 
-  const formatCurrencyShort = (amount: number): string => {
-    if (amount >= 1000) {
-      return `S/ ${(amount / 1000).toFixed(1)}k`;
-    }
-    return `S/ ${amount.toFixed(0)}`;
-  };
+  // formatCurrencyShort dentro del componente — ya definida a nivel módulo arriba
+  // se reutiliza directamente (sin redefinir)
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -480,17 +464,17 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="space-y-4 lg:space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm lg:text-base text-gray-600 mt-1 hidden sm:block">
-          Resumen ejecutivo del sistema - {new Date().toLocaleDateString('es-PE', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </p>
-      </div>
+      <GradientHeader
+        title="Dashboard"
+        subtitle={`Resumen ejecutivo del sistema — ${new Date().toLocaleDateString('es-PE', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })}`}
+        icon={LayoutDashboard}
+        variant="dark"
+      />
 
       {/* Banner de filtro activo por línea de negocio */}
       <LineaFiltroActivoBanner onClear={() => setLineaFiltroGlobal(null)} />

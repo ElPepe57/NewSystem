@@ -1,5 +1,6 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatCurrency, formatPercent } from '../../utils/format';
 import {
   Warehouse, MapPin, Phone, Mail, Calendar, Package, DollarSign,
   TrendingUp, TrendingDown, AlertTriangle, Clock, BarChart3, Truck,
@@ -56,17 +57,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
     setLoading(false);
   };
 
-  const formatCurrency = (value: number, currency: 'USD' | 'PEN' = 'USD') => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-
-  const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+  // formatCurrency y formatPercent importados de utils/format
 
   const getClasificacionColor = (clasificacion?: string) => {
     switch (clasificacion) {

@@ -189,7 +189,7 @@ export const tesoreriaService = {
       tipoCambio: data.tipoCambio,
       cuentaOrigen: data.cuentaOrigen,
       cuentaDestino: data.cuentaDestino
-    }).catch(err => console.warn('Error actualizando estadísticas:', err));
+    }).catch(err => logger.warn('Error actualizando estadísticas:', err));
 
     // ── Pool USD: registrar movimiento automático si es operación en USD ──
     // Mapeo: tipo tesorería → tipo pool. Conversiones se manejan en registrarConversion().
@@ -228,7 +228,7 @@ export const tesoreriaService = {
             },
             userId
           ).catch(err => {
-            console.warn('[PoolUSD] Error registrando desde movimiento tesorería:', err);
+            logger.warn('[PoolUSD] Error registrando desde movimiento tesorería:', err);
             logBackgroundError('poolUSD.movimientoTesoreria', err, 'critical', { refId, refNumero, tipoPool });
           });
         }).catch(() => {});
@@ -443,7 +443,7 @@ export const tesoreriaService = {
       tipoCambio: movimiento.tipoCambio,
       cuentaOrigen: movimiento.cuentaOrigen,
       cuentaDestino: movimiento.cuentaDestino
-    }, true).catch(err => console.warn('Error actualizando estadísticas:', err));
+    }, true).catch(err => logger.warn('Error actualizando estadísticas:', err));
   },
 
   /**
@@ -481,10 +481,10 @@ export const tesoreriaService = {
         count++;
       }
 
-      console.log(`[Reclasificación] ${count} anticipo(s) reclasificados a ingreso_venta para venta ${ventaId}`);
+      logger.log(`[Reclasificación] ${count} anticipo(s) reclasificados a ingreso_venta para venta ${ventaId}`);
       return count;
     } catch (error) {
-      console.error('[Reclasificación] Error:', error);
+      logger.error('[Reclasificación] Error:', error);
       return 0;
     }
   },
@@ -549,10 +549,10 @@ export const tesoreriaService = {
       }
 
       detalles.push(`\nTotal migrados: ${migrados} de ${ingresosVenta.length} revisados`);
-      console.log('[Migración Anticipos]', detalles.join('\n'));
+      logger.log('[Migración Anticipos]', detalles.join('\n'));
       return { migrados, detalles };
     } catch (error) {
-      console.error('[Migración Anticipos] Error:', error);
+      logger.error('[Migración Anticipos] Error:', error);
       return { migrados: 0, detalles: [`Error: ${error}`] };
     }
   },
@@ -652,7 +652,7 @@ export const tesoreriaService = {
         tipoCambioReferencia = data.monedaOrigen === 'USD' ? tcDelDia.venta : tcDelDia.compra;
       }
     } catch (e) {
-      console.warn('No se pudo obtener TC de referencia');
+      logger.warn('No se pudo obtener TC de referencia');
     }
 
     // Calcular monto destino
@@ -765,7 +765,7 @@ export const tesoreriaService = {
       tipoCambio: data.tipoCambio,
       spreadCambiario,
       diferenciaVsReferencia
-    }).catch(err => console.warn('Error actualizando estadísticas por conversión:', err));
+    }).catch(err => logger.warn('Error actualizando estadísticas por conversión:', err));
 
     // Registrar movimiento en Pool USD (fire-and-forget)
     import('../services/poolUSD.service').then(({ poolUSDService }) => {
@@ -780,7 +780,7 @@ export const tesoreriaService = {
         data.fecha,
         userId
       ).catch(err => {
-        console.warn('[PoolUSD] Error registrando movimiento desde conversión:', err);
+        logger.warn('[PoolUSD] Error registrando movimiento desde conversión:', err);
         logBackgroundError('poolUSD.conversion', err, 'critical', { conversionId, numeroConversion });
       });
     }).catch(() => {});
@@ -2324,7 +2324,7 @@ export const tesoreriaService = {
       monto: data.monto,
       tipoCambio: data.tipoCambio,
       cuentaDestino: data.cuentaDestinoId
-    }).catch(err => console.warn('Error actualizando estadísticas:', err));
+    }).catch(err => logger.warn('Error actualizando estadísticas:', err));
 
     // Registrar también en colección de aportes para contabilidad
     await addDoc(collection(db, COLLECTIONS.APORTES_CAPITAL), {
@@ -2417,7 +2417,7 @@ export const tesoreriaService = {
       monto: data.monto,
       tipoCambio: data.tipoCambio,
       cuentaOrigen: data.cuentaOrigenId
-    }).catch(err => console.warn('Error actualizando estadísticas:', err));
+    }).catch(err => logger.warn('Error actualizando estadísticas:', err));
 
     // Registrar también en colección de retiros para contabilidad
     await addDoc(collection(db, COLLECTIONS.RETIROS_CAPITAL), {
@@ -2463,7 +2463,7 @@ export const tesoreriaService = {
 
       return { totalPEN, totalUSD, cantidad };
     } catch (error) {
-      console.warn('Error obteniendo total de aportes:', error);
+      logger.warn('Error obteniendo total de aportes:', error);
       return { totalPEN: 0, totalUSD: 0, cantidad: 0 };
     }
   },
@@ -2499,7 +2499,7 @@ export const tesoreriaService = {
 
       return { totalPEN, totalUSD, cantidad, porTipo };
     } catch (error) {
-      console.warn('Error obteniendo total de retiros:', error);
+      logger.warn('Error obteniendo total de retiros:', error);
       return { totalPEN: 0, totalUSD: 0, cantidad: 0, porTipo: { utilidades: 0, capital: 0, prestamo: 0 } };
     }
   }

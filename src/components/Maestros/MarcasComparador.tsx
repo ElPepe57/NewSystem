@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { marcaAnalyticsService, type ComparacionMarcas } from '../../services/marca.analytics.service';
+import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 
 type ModoComparacion = 'categoria' | 'tipo';
 
@@ -74,16 +75,7 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
   const seleccionActual = modoComparacion === 'categoria' ? categoriaSeleccionada : tipoSeleccionado;
   const etiquetaSeleccion = modoComparacion === 'categoria' ? 'Categoría' : 'Tipo de Producto';
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-  const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+  const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
   const getRankingColor = (ranking: number) => {
     if (ranking === 1) return 'bg-yellow-500';

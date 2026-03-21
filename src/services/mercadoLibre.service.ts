@@ -28,6 +28,7 @@ import type {
   MLOrderSync,
   MLQuestion,
 } from '../types/mercadoLibre.types';
+import { logger } from '../lib/logger';
 
 const functions = getFunctions();
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Store, ShoppingBag, MoreHorizontal } from 'lucide-react';
 import { Card } from '../../common';
+import { formatCurrencyPEN } from '../../../utils/format';
 
 interface CanalStats {
   cantidad: number;
@@ -26,14 +27,7 @@ const COLORS = {
 };
 
 export const VentasPorCanalWidget: React.FC<VentasPorCanalWidgetProps> = ({ data }) => {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
+  const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
   const chartData = [
     {

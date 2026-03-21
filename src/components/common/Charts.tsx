@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatCurrencyPEN, formatPercent as formatPercentUtil, formatNumber as formatNumberUtil } from '../../utils/format';
 import {
   LineChart,
   Line,
@@ -34,14 +35,12 @@ export const CHART_COLOR_PALETTE = [
   '#0891b2', '#db2777', '#84cc16', '#f59e0b', '#6366f1'
 ];
 
-// Formatters comunes
-export const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(value);
+// Formatters comunes — delegados a utilidad central (src/utils/format.ts)
+export const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
-export const formatNumber = (value: number) =>
-  new Intl.NumberFormat('es-PE').format(value);
+export const formatNumber = (value: number) => formatNumberUtil(value, 0);
 
-export const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+export const formatPercent = (value: number) => formatPercentUtil(value);
 
 // ============================================
 // LINE CHART - Tendencias temporales

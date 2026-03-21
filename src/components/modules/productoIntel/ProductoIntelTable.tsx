@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowUpDown, ArrowUp, ArrowDown, Eye, AlertTriangle, Lock, Truck } from 'lucide-react';
 import { ScoreLiquidezBadge, TendenciaBadge, RotacionBadge } from './ScoreLiquidezBadge';
 import type { ProductoIntel } from '../../../types/productoIntel.types';
+import { formatCurrencyPEN } from '../../../utils/format';
 
 interface ProductoIntelTableProps {
   productos: ProductoIntel[];
@@ -10,14 +11,7 @@ interface ProductoIntelTableProps {
   onProductoClick?: (productoId: string) => void;
 }
 
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('es-PE', {
-    style: 'currency',
-    currency: 'PEN',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(value);
-};
+const formatCurrency = (value: number): string => formatCurrencyPEN(value);
 
 export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
   productos,

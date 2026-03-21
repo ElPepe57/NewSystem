@@ -1,5 +1,6 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 import {
   User, Phone, Mail, MapPin, Calendar, ShoppingCart, DollarSign,
   TrendingUp, TrendingDown, Package, Star, AlertTriangle, Clock,
@@ -62,17 +63,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
     setLoading(false);
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-
-  const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+  const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
   const getClasificacionColor = (clasificacion?: string) => {
     switch (clasificacion) {

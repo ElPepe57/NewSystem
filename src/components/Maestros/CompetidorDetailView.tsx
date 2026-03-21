@@ -1,5 +1,6 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 import {
   Users, Globe, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
   BarChart3, Target, Shield, ShieldAlert, ShieldCheck, Eye, X,
@@ -57,17 +58,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
     setLoading(false);
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-
-  const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+  const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
   const getNivelAmenazaColor = (nivel?: string) => {
     switch (nivel) {

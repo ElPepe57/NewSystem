@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatCurrency } from '../../../utils/format';
 import {
   Package,
   Plane,
@@ -99,14 +100,7 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
     }
   ];
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
+  // formatCurrency importado de utils/format (USD por defecto)
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

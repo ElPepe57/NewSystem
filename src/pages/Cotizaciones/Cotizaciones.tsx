@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { formatFecha } from '../../utils/dateFormatters';
+import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../utils/format';
 import {
   FileText,
   Plus,
@@ -170,8 +171,7 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
     setTiempoImportacionLocal(cotizacion.tiempoEstimadoImportacion || 10);
   }, [cotizacion.tiempoEstimadoImportacion]);
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(amount);
+  const formatCurrency = (amount: number) => formatCurrencyPEN(amount);
 
   const getDiasAntiguedad = (timestamp: any): number => {
     if (!timestamp?.toDate) return 0;
@@ -604,11 +604,10 @@ export const Cotizaciones: React.FC = () => {
     };
   }, [cotizacionesFiltradas, nuevas, pendienteAdelanto, listasParaConfirmar, sinAdelanto, conAdelantoPagado, confirmadas, rechazadas, porVencer, reservasVirtuales, stats]);
 
-  const formatCurrency = (amount: number): string =>
-    new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(amount);
+  const formatCurrency = (amount: number): string => formatCurrencyPEN(amount);
 
   const formatCurrencyBimoneda = (amount: number, moneda: MonedaTesoreria): string =>
-    new Intl.NumberFormat('es-PE', { style: 'currency', currency: moneda }).format(amount);
+    formatCurrencyUtil(amount, moneda as 'USD' | 'PEN');
 
 
   const handleVerDetalles = (cotizacion: Cotizacion) => {

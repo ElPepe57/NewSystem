@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatFecha as formatDate, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
+import { formatCurrency } from '../../../utils/format';
 import { Modal } from '../../common';
 import {
   Package,
@@ -61,10 +62,7 @@ export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
   const creadoPorNombre = useUserName(unidad.creadoPor);
   const actualizadoPorNombre = useUserName(unidad.actualizadoPor);
 
-  const formatCurrency = (amount: number, currency: 'USD' | 'PEN' = 'USD'): string => {
-    const prefix = currency === 'USD' ? '$' : 'S/';
-    return `${prefix}${amount.toFixed(2)}`;
-  };
+  // formatCurrency importado de utils/format — firma compatible: (value, currency?)
 
   const diasParaVencer = calcularDiasParaVencerUtil(unidad.fechaVencimiento) ?? 999;
   const estadoInfo = {

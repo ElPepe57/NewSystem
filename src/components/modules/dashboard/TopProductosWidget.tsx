@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Package, ArrowUpRight } from 'lucide-react';
 import { Card, Badge } from '../../common';
+import { formatCurrencyPEN } from '../../../utils/format';
 
 interface ProductoTop {
   productoId: string;
@@ -25,14 +26,7 @@ export const TopProductosWidget: React.FC<TopProductosWidgetProps> = ({
   maxItems = 5,
   titulo = 'Top Productos Vendidos'
 }) => {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
+  const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
   const getMargenColor = (margen: number) => {
     if (margen >= 30) return 'text-success-600';

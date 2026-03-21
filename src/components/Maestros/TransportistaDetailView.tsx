@@ -1,5 +1,6 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatCurrency as formatCurrencyImport, formatPercent } from '../../utils/format';
 import {
   Truck, Phone, Mail, Calendar, DollarSign,
   TrendingUp, TrendingDown, AlertTriangle, Clock, BarChart3,
@@ -58,17 +59,9 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
     setLoading(false);
   };
 
-  const formatCurrency = (value: number, currency: 'USD' | 'PEN' = 'PEN') => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-
-  const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+  // Alias local para preservar el default PEN que usaba la definición anterior
+  const formatCurrency = (value: number, currency: 'USD' | 'PEN' = 'PEN') =>
+    formatCurrencyImport(value, currency);
 
   const getTendenciaIcon = (tendencia?: string) => {
     switch (tendencia) {

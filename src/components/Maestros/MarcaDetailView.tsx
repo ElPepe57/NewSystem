@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
+import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 import type { Marca } from '../../types/entidadesMaestras.types';
 import { marcaAnalyticsService, type MarcaAnalytics, type ProductoMarcaMetrics } from '../../services/marca.analytics.service';
 
@@ -45,16 +46,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
     setLoading(false);
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-  const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+  const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
   const productosFiltrados = useMemo(() => {
     if (!analytics?.productos) return [];

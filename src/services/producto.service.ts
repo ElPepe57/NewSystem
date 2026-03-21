@@ -9,7 +9,8 @@ import {
   serverTimestamp,
   increment,
   query,
-  where
+  where,
+  limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
@@ -34,6 +35,7 @@ import { metricasService } from './metricas.service';
 import { tipoProductoService } from './tipoProducto.service';
 import { categoriaService } from './categoria.service';
 import { etiquetaService } from './etiqueta.service';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.PRODUCTOS;
 
@@ -42,10 +44,15 @@ export class ProductoService {
    * Obtener todos los productos activos
    * @param incluirInactivos - Si es true, incluye productos con estado 'inactivo'
    */
-  static async getAll(incluirInactivos: boolean = false): Promise<Producto[]> {
+  /**
+   * @param maxResults - Límite de documentos (default 300). Pasar Infinity para batch/CTRU.
+   */
+  static async getAll(incluirInactivos: boolean = false, maxResults: number = 300): Promise<Producto[]> {
     try {
-      // Obtener todos los productos sin ordenar (evitar requerimiento de índice)
-      const snapshot = await getDocs(collection(db, COLLECTION_NAME));
+      const col = collection(db, COLLECTION_NAME);
+      const snapshot = await getDocs(
+        isFinite(maxResults) ? query(col, limit(maxResults)) : col
+      );
 
       const productos = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -64,7 +71,7 @@ export class ProductoService {
         return fechaB.getTime() - fechaA.getTime();
       });
     } catch (error: any) {
-      console.error('Error al obtener productos:', error);
+      logger.error('Error al obtener productos:', error);
       throw new Error('Error al cargar productos');
     }
   }
@@ -86,7 +93,7 @@ export class ProductoService {
       
       return null;
     } catch (error: any) {
-      console.error('Error al obtener producto:', error);
+      logger.error('Error al obtener producto:', error);
       throw new Error('Error al cargar producto');
     }
   }
@@ -112,7 +119,7 @@ export class ProductoService {
         ...docSnap.data()
       } as Producto;
     } catch (error: any) {
-      console.error('Error buscando producto por UPC:', error);
+      logger.error('Error buscando producto por UPC:', error);
       throw new Error('Error al buscar producto por codigo de barras');
     }
   }
@@ -133,7 +140,7 @@ export class ProductoService {
             lineaNegocioNombre = linea.nombre;
           }
         } catch (lineaError) {
-          console.warn('Error al obtener línea de negocio para SKU, usando BMN:', lineaError);
+          logger.warn('Error al obtener línea de negocio para SKU, usando BMN:', lineaError);
         }
       }
 
@@ -245,7 +252,7 @@ export class ProductoService {
         try {
           await metricasService.incrementarProductosMarca(data.marcaId);
         } catch (metricasError) {
-          console.warn('Error al actualizar métricas de marca:', metricasError);
+          logger.warn('Error al actualizar métricas de marca:', metricasError);
         }
       }
 
@@ -254,7 +261,7 @@ export class ProductoService {
         try {
           await tipoProductoService.actualizarMetricas(data.tipoProductoId, { productosActivos: 1 });
         } catch (metricasError) {
-          console.warn('Error al actualizar métricas de tipo:', metricasError);
+          logger.warn('Error al actualizar métricas de tipo:', metricasError);
         }
       }
 
@@ -264,7 +271,7 @@ export class ProductoService {
           try {
             await categoriaService.actualizarMetricas(catId, 1);
           } catch (metricasError) {
-            console.warn('Error al actualizar métricas de categoria:', metricasError);
+            logger.warn('Error al actualizar métricas de categoria:', metricasError);
           }
         }
       }
@@ -275,7 +282,7 @@ export class ProductoService {
         fechaCreacion: Timestamp.now()
       } as Producto;
     } catch (error: any) {
-      console.error('Error al crear producto:', error);
+      logger.error('Error al crear producto:', error);
       throw new Error('Error al crear producto');
     }
   }
@@ -340,7 +347,7 @@ export class ProductoService {
 
       await updateDoc(docRef, finalUpdateData);
     } catch (error: any) {
-      console.error('Error al actualizar producto:', error);
+      logger.error('Error al actualizar producto:', error);
       throw new Error(`Error al actualizar producto: ${error.message || 'Error desconocido'}`);
     }
   }
@@ -365,11 +372,11 @@ export class ProductoService {
         try {
           await metricasService.decrementarProductosMarca(producto.marcaId);
         } catch (metricasError) {
-          console.warn('Error al actualizar métricas de marca:', metricasError);
+          logger.warn('Error al actualizar métricas de marca:', metricasError);
         }
       }
     } catch (error: any) {
-      console.error('Error al eliminar producto:', error);
+      logger.error('Error al eliminar producto:', error);
       throw new Error('Error al eliminar producto');
     }
   }
@@ -401,7 +408,7 @@ export class ProductoService {
 
       await updateDoc(docRef, updateData);
     } catch (error: any) {
-      console.error('Error al incrementar stock:', error);
+      logger.error('Error al incrementar stock:', error);
       throw new Error('Error al incrementar stock');
     }
   }
@@ -449,7 +456,7 @@ export class ProductoService {
         p.subgrupo.toLowerCase().includes(term)
       );
     } catch (error: any) {
-      console.error('Error al buscar productos:', error);
+      logger.error('Error al buscar productos:', error);
       throw new Error('Error al buscar productos');
     }
   }
@@ -572,7 +579,7 @@ export class ProductoService {
             } as any;
 
           } catch (error) {
-            console.warn(`No se pudo auto-crear proveedor "${prov.nombre}":`, error);
+            logger.warn(`No se pudo auto-crear proveedor "${prov.nombre}":`, error);
           }
         }
       }
@@ -611,7 +618,7 @@ export class ProductoService {
 
             }
           } catch (error) {
-            console.warn(`No se pudo auto-crear competidor "${comp.nombre}":`, error);
+            logger.warn(`No se pudo auto-crear competidor "${comp.nombre}":`, error);
           }
         }
       }
@@ -881,7 +888,7 @@ export class ProductoService {
             });
           }
         } catch (error) {
-          console.warn(`No se pudo actualizar métricas del competidor ${competidorId}:`, error);
+          logger.warn(`No se pudo actualizar métricas del competidor ${competidorId}:`, error);
         }
       }
 
@@ -933,13 +940,13 @@ export class ProductoService {
             });
           }
         } catch (error) {
-          console.warn(`No se pudo actualizar métricas del proveedor ${proveedorId}:`, error);
+          logger.warn(`No se pudo actualizar métricas del proveedor ${proveedorId}:`, error);
         }
       }
 
       return investigacion;
     } catch (error: any) {
-      console.error('Error al guardar investigación:', error);
+      logger.error('Error al guardar investigación:', error);
       throw new Error(`Error al guardar investigación: ${error.message}`);
     }
   }
@@ -1104,7 +1111,7 @@ export class ProductoService {
         'investigacion.alertas': alertasActualizadas
       });
     } catch (error: any) {
-      console.error('Error al marcar alertas como leídas:', error);
+      logger.error('Error al marcar alertas como leídas:', error);
     }
   }
 
@@ -1119,7 +1126,7 @@ export class ProductoService {
         ultimaEdicion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error al eliminar investigación:', error);
+      logger.error('Error al eliminar investigación:', error);
       throw new Error('Error al eliminar investigación');
     }
   }
@@ -1151,7 +1158,7 @@ export class ProductoService {
 
       return actualizados;
     } catch (error: any) {
-      console.error('Error al actualizar vigencias:', error);
+      logger.error('Error al actualizar vigencias:', error);
       return 0;
     }
   }
@@ -1170,7 +1177,7 @@ export class ProductoService {
         return vigenciaHasta && vigenciaHasta <= ahora;
       });
     } catch (error: any) {
-      console.error('Error al obtener productos con investigación vencida:', error);
+      logger.error('Error al obtener productos con investigación vencida:', error);
       return [];
     }
   }
@@ -1183,7 +1190,7 @@ export class ProductoService {
       const productos = await this.getAll();
       return productos.filter(p => !p.investigacion);
     } catch (error: any) {
-      console.error('Error al obtener productos sin investigación:', error);
+      logger.error('Error al obtener productos sin investigación:', error);
       return [];
     }
   }
@@ -1207,7 +1214,7 @@ export class ProductoService {
 
       return Array.from(values).sort((a, b) => a.localeCompare(b, 'es'));
     } catch (error: any) {
-      console.error(`Error al obtener valores únicos de ${field}:`, error);
+      logger.error(`Error al obtener valores únicos de ${field}:`, error);
       return [];
     }
   }
@@ -1257,7 +1264,7 @@ export class ProductoService {
         plataformas: Array.from(plataformas).sort(sortFn),
       };
     } catch (error: any) {
-      console.error('Error al obtener valores únicos de investigación:', error);
+      logger.error('Error al obtener valores únicos de investigación:', error);
       return {
         proveedoresUSA: [],
         competidoresPeru: [],
@@ -1312,7 +1319,7 @@ export class ProductoService {
         contenidos: Array.from(contenidos).sort(sortFn),
       };
     } catch (error: any) {
-      console.error('Error al obtener valores únicos:', error);
+      logger.error('Error al obtener valores únicos:', error);
       return {
         marcas: [],
         nombresComerciales: [],

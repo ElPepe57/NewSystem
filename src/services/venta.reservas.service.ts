@@ -41,6 +41,7 @@ import { NotificationService } from './notification.service';
 import { inventarioService } from './inventario.service';
 import { ProductoService } from './producto.service';
 import { esPaisOrigen } from '../utils/multiOrigen.helpers';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
 
@@ -238,7 +239,7 @@ export async function registrarAdelantoConReserva(
     if (cuentaPorDefecto) {
       cuentaDestinoId = cuentaPorDefecto.id;
     } else {
-      console.warn(`No se encontró cuenta por defecto para método "${metodoTes}". El movimiento se registrará sin cuenta destino.`);
+      logger.warn(`No se encontró cuenta por defecto para método "${metodoTes}". El movimiento se registrará sin cuenta destino.`);
     }
   }
 
@@ -257,7 +258,7 @@ export async function registrarAdelantoConReserva(
   }, userId);
 
   if (tipoReserva === 'virtual') {
-    console.log(`[Reserva Virtual] Cotización ${venta.numeroVenta} requiere stock adicional`);
+    logger.log(`[Reserva Virtual] Cotización ${venta.numeroVenta} requiere stock adicional`);
   }
 
   return {
@@ -637,7 +638,7 @@ export async function sincronizarAdelantoDesdeCotizacion(
     editadoPor: userId
   });
 
-  console.log(`[Sync Adelanto] Venta ${venta.numeroVenta}: S/${montoAdelantoPEN.toFixed(2)} sincronizado desde ${cotizacion.numeroCotizacion}`);
+  logger.log(`[Sync Adelanto] Venta ${venta.numeroVenta}: S/${montoAdelantoPEN.toFixed(2)} sincronizado desde ${cotizacion.numeroCotizacion}`);
 
   return {
     sincronizado: true,

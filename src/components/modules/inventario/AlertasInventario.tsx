@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
+import { formatCurrency } from '../../../utils/format';
 import {
   AlertTriangle,
   Clock,
@@ -295,14 +296,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
     valorTotal: alertas.reduce((s, a) => s + a.valorAfectado, 0)
   }), [alertas]);
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
+  // formatCurrency importado de utils/format (USD por defecto)
 
   const limpiarFiltros = () => {
     setFiltroTipo('todos');

@@ -1,5 +1,6 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatCurrency as formatCurrencyImport, formatPercent } from '../../utils/format';
 import {
   ShoppingBag, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
   BarChart3, RefreshCw, Users, Star, X, Activity, Target, Zap,
@@ -58,17 +59,10 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
     setLoading(false);
   };
 
-  const formatCurrency = (value: number, currency: 'USD' | 'PEN' = 'PEN') => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-
-  const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+  // formatCurrency y formatPercent importados de utils/format
+  // Alias local para preservar el default PEN que usaba la definición anterior
+  const formatCurrency = (value: number, currency: 'USD' | 'PEN' = 'PEN') =>
+    formatCurrencyImport(value, currency);
 
   const getTendenciaIcon = (tendencia?: string) => {
     switch (tendencia) {

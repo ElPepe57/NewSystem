@@ -31,6 +31,7 @@ import { ESTADOS_EN_ORIGEN, ESTADOS_EN_TRANSITO_ORIGEN } from '../types/unidad.t
 import { TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/transferencia.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { logBackgroundError } from '../lib/logger';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.UNIDADES;
 
@@ -188,27 +189,27 @@ export const unidadService = {
           const venta = await VentaService.getById(refId);
           if (venta && venta.estado === 'reservada' && venta.stockReservado?.activo) {
             reservasActivas.add(refId);
-            console.log(`[FEFO] Reserva activa encontrada: ${refId} (${venta.numeroVenta})`);
+            logger.log(`[FEFO] Reserva activa encontrada: ${refId} (${venta.numeroVenta})`);
           } else if (venta) {
-            console.warn(`[FEFO] Unidad referencia a ${venta.numeroVenta} (estado: ${venta.estado}) - reserva NO activa, campo huérfano`);
+            logger.warn(`[FEFO] Unidad referencia a ${venta.numeroVenta} (estado: ${venta.estado}) - reserva NO activa, campo huérfano`);
           } else {
-            console.warn(`[FEFO] Referencia ${refId} no encontrada como venta, verificando cotización...`);
+            logger.warn(`[FEFO] Referencia ${refId} no encontrada como venta, verificando cotización...`);
             // Podría ser una cotización
             try {
               const { CotizacionService } = await import('./cotizacion.service');
               const cot = await CotizacionService.getById(refId);
               if (cot && (cot as any).stockReservado?.activo) {
                 reservasActivas.add(refId);
-                console.log(`[FEFO] Reserva activa en cotización: ${refId}`);
+                logger.log(`[FEFO] Reserva activa en cotización: ${refId}`);
               } else {
-                console.warn(`[FEFO] Referencia ${refId} es cotización sin reserva activa - campo huérfano`);
+                logger.warn(`[FEFO] Referencia ${refId} es cotización sin reserva activa - campo huérfano`);
               }
             } catch {
-              console.warn(`[FEFO] Referencia ${refId} no encontrada - campo huérfano`);
+              logger.warn(`[FEFO] Referencia ${refId} no encontrada - campo huérfano`);
             }
           }
         } catch {
-          console.warn(`[FEFO] Error verificando referencia ${refId} - tratando como huérfano`);
+          logger.warn(`[FEFO] Error verificando referencia ${refId} - tratando como huérfano`);
         }
       }
 
@@ -218,11 +219,11 @@ export const unidadService = {
         const refId = ext.reservadaPara || ext.reservadoPara;
         if (!refId) return true; // Sin referencia = disponible
         if (reservasActivas.has(refId)) {
-          console.log(`[FEFO] Excluyendo unidad ${u.id} - reservada activamente para ${refId}`);
+          logger.log(`[FEFO] Excluyendo unidad ${u.id} - reservada activamente para ${refId}`);
           return false; // Reserva legítima, excluir
         }
         // Reserva huérfana - la unidad está disponible
-        console.warn(`[FEFO] Unidad ${u.id} tiene reserva huérfana (${refId}), incluyendo en FEFO`);
+        logger.warn(`[FEFO] Unidad ${u.id} tiene reserva huérfana (${refId}), incluyendo en FEFO`);
         return true;
       });
     }
@@ -716,13 +717,13 @@ export const unidadService = {
               transferenciaNumero: costoInfo.transferenciaNumero
             });
           } catch (e) {
-            console.error(`Error actualizando unidad ${unidad.id}:`, e);
+            logger.error(`Error actualizando unidad ${unidad.id}:`, e);
             errores++;
           }
         }
       }
 
-      console.log(
+      logger.log(
         `[Recálculo Flete] ${unidadesSinFlete.length} unidades sin flete, ` +
         `${actualizadas} actualizadas, ${errores} errores`
       );
@@ -734,7 +735,7 @@ export const unidadService = {
         detalle
       };
     } catch (error: any) {
-      console.error('Error en recálculo de costos de flete:', error);
+      logger.error('Error en recálculo de costos de flete:', error);
       throw new Error(`Error recalculando costos de flete: ${error.message}`);
     }
   },
@@ -860,7 +861,7 @@ export const unidadService = {
               accion: `Restaurado a ${nuevoEstado}`
             });
           } catch (error) {
-            console.error(`Error preparando unidad ${unidad.id}:`, error);
+            logger.error(`Error preparando unidad ${unidad.id}:`, error);
             resultado.errores++;
           }
         }
@@ -868,22 +869,22 @@ export const unidadService = {
         // Ejecutar este batch
         try {
           await batch.commit();
-          console.log(`[Sincronización] Batch ${Math.floor(i / MAX_BATCH) + 1} completado`);
+          logger.log(`[Sincronización] Batch ${Math.floor(i / MAX_BATCH) + 1} completado`);
         } catch (batchError) {
-          console.error('Error ejecutando batch:', batchError);
+          logger.error('Error ejecutando batch:', batchError);
           resultado.errores += chunk.length;
           resultado.unidadesSincronizadas -= chunk.length;
         }
       }
 
-      console.log(
+      logger.log(
         `[Sincronización] ${resultado.unidadesAnalizadas} unidades analizadas, ` +
         `${resultado.unidadesSincronizadas} sincronizadas, ${resultado.errores} errores`
       );
 
       return resultado;
     } catch (error: any) {
-      console.error('Error en sincronización de unidades huérfanas:', error);
+      logger.error('Error en sincronización de unidades huérfanas:', error);
       throw new Error(`Error sincronizando unidades: ${error.message}`);
     }
   },
@@ -913,7 +914,7 @@ export const unidadService = {
         );
         exitos++;
       } catch (error) {
-        console.error(`Error confirmando venta unidad ${unidadId}:`, error);
+        logger.error(`Error confirmando venta unidad ${unidadId}:`, error);
         errores++;
       }
     }
@@ -924,13 +925,13 @@ export const unidadService = {
         ctruService.recalcularCTRUDinamicoSafe()
           .then(result => {
             if (result) {
-              console.log(`[CTRU] Auto-recalculo post-venta: ${result.unidadesActualizadas} vendidas actualizadas`);
+              logger.log(`[CTRU] Auto-recalculo post-venta: ${result.unidadesActualizadas} vendidas actualizadas`);
             } else {
-              console.log('[CTRU] Auto-recalculo post-venta encolado (otro en ejecución)');
+              logger.log('[CTRU] Auto-recalculo post-venta encolado (otro en ejecución)');
             }
           })
           .catch(error => {
-            console.error('[CTRU] Error en auto-recalculo post-venta (no bloqueante):', error);
+            logger.error('[CTRU] Error en auto-recalculo post-venta (no bloqueante):', error);
             logBackgroundError('ctru.recalcPostVenta', error, 'critical', { unidadIds, exitos });
           });
       });
@@ -964,7 +965,7 @@ export const unidadService = {
         // Solo liberar si está en un estado que permita liberación
         const estadosLiberables = ['reservada', 'disponible_peru', 'asignada_pedido'];
         if (!estadosLiberables.includes(unidad.estado)) {
-          console.warn(`Unidad ${unidadId} tiene estado ${unidad.estado}, no se puede liberar`);
+          logger.warn(`Unidad ${unidadId} tiene estado ${unidad.estado}, no se puede liberar`);
           errores++;
           continue;
         }
@@ -997,7 +998,7 @@ export const unidadService = {
         productosAfectados.add(unidad.productoId);
         exitos++;
       } catch (error) {
-        console.error(`Error liberando unidad ${unidadId}:`, error);
+        logger.error(`Error liberando unidad ${unidadId}:`, error);
         errores++;
       }
     }
@@ -1071,7 +1072,7 @@ export const unidadService = {
         }
       }
     } catch (e) {
-      console.error('Error buscando transferencia:', e);
+      logger.error('Error buscando transferencia:', e);
     }
 
     // Calcular CTRU con diferentes escenarios
@@ -1152,16 +1153,16 @@ export const unidadService = {
 
           exitos++;
         } catch (error) {
-          console.error(`Error preparando unidad ${unidad.id}:`, error);
+          logger.error(`Error preparando unidad ${unidad.id}:`, error);
           errores++;
         }
       }
 
       try {
         await batch.commit();
-        console.log(`[Vencimiento] Batch ${Math.floor(i / MAX_BATCH) + 1} completado (${unidadesChunk.length} unidades)`);
+        logger.log(`[Vencimiento] Batch ${Math.floor(i / MAX_BATCH) + 1} completado (${unidadesChunk.length} unidades)`);
       } catch (batchError) {
-        console.error('Error ejecutando batch de vencimiento:', batchError);
+        logger.error('Error ejecutando batch de vencimiento:', batchError);
         errores += unidadesChunk.length;
         exitos -= unidadesChunk.length;
       }

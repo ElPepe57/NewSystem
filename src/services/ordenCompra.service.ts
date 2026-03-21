@@ -65,7 +65,7 @@ export class OrdenCompraService {
         ...doc.data()
       } as Proveedor));
     } catch (error: any) {
-      console.error('Error al obtener proveedores:', error);
+      logger.error('Error al obtener proveedores:', error);
       throw new Error('Error al cargar proveedores');
     }
   }
@@ -87,7 +87,7 @@ export class OrdenCompraService {
         ...docSnap.data()
       } as Proveedor;
     } catch (error: any) {
-      console.error('Error al obtener proveedor:', error);
+      logger.error('Error al obtener proveedor:', error);
       return null;
     }
   }
@@ -121,7 +121,7 @@ export class OrdenCompraService {
         fechaCreacion: Timestamp.now()
       } as Proveedor;
     } catch (error: any) {
-      console.error('Error al crear proveedor:', error);
+      logger.error('Error al crear proveedor:', error);
       throw new Error('Error al crear proveedor');
     }
   }
@@ -146,7 +146,7 @@ export class OrdenCompraService {
       
       await updateDoc(doc(db, PROVEEDORES_COLLECTION, id), updates);
     } catch (error: any) {
-      console.error('Error al actualizar proveedor:', error);
+      logger.error('Error al actualizar proveedor:', error);
       throw new Error('Error al actualizar proveedor');
     }
   }
@@ -161,7 +161,7 @@ export class OrdenCompraService {
         ultimaEdicion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error al eliminar proveedor:', error);
+      logger.error('Error al eliminar proveedor:', error);
       throw new Error('Error al eliminar proveedor');
     }
   }
@@ -187,7 +187,7 @@ export class OrdenCompraService {
         ...doc.data()
       } as OrdenCompra));
     } catch (error: any) {
-      console.error('Error al obtener órdenes:', error);
+      logger.error('Error al obtener órdenes:', error);
       throw new Error('Error al cargar órdenes de compra');
     }
   }
@@ -208,7 +208,7 @@ export class OrdenCompraService {
         ...docSnap.data()
       } as OrdenCompra;
     } catch (error: any) {
-      console.error('Error al obtener orden:', error);
+      logger.error('Error al obtener orden:', error);
       throw new Error('Error al cargar orden');
     }
   }
@@ -231,7 +231,7 @@ export class OrdenCompraService {
         ...doc.data()
       } as OrdenCompra));
     } catch (error: any) {
-      console.error('Error al obtener órdenes por estado:', error);
+      logger.error('Error al obtener órdenes por estado:', error);
       throw new Error('Error al cargar órdenes');
     }
   }
@@ -425,7 +425,7 @@ export class OrdenCompraService {
             nuevaOrden.requerimientoNumeros.push(req?.numeroRequerimiento || '');
           }
         } catch (error) {
-          console.error('Error al vincular requerimiento con OC:', error);
+          logger.error('Error al vincular requerimiento con OC:', error);
         }
       }
 
@@ -452,7 +452,7 @@ export class OrdenCompraService {
         fechaCreacion: Timestamp.now()
       } as OrdenCompra;
     } catch (error: any) {
-      console.error('Error al crear orden:', error);
+      logger.error('Error al crear orden:', error);
       throw new Error(error.message || 'Error al crear orden de compra');
     }
   }
@@ -580,7 +580,7 @@ export class OrdenCompraService {
 
       await updateDoc(doc(db, ORDENES_COLLECTION, id), updates);
     } catch (error: any) {
-      console.error('Error al actualizar orden:', error);
+      logger.error('Error al actualizar orden:', error);
       throw new Error(error.message || 'Error al actualizar orden');
     }
   }
@@ -630,7 +630,7 @@ export class OrdenCompraService {
       
       await updateDoc(doc(db, ORDENES_COLLECTION, id), updates);
     } catch (error: any) {
-      console.error('Error al cambiar estado:', error);
+      logger.error('Error al cambiar estado:', error);
       throw new Error(error.message || 'Error al cambiar estado');
     }
   }
@@ -696,7 +696,7 @@ export class OrdenCompraService {
             cuentaOrigenNombre = cuenta.nombre;
           }
         } catch (e) {
-          console.warn('No se pudo obtener nombre de cuenta:', e);
+          logger.warn('No se pudo obtener nombre de cuenta:', e);
         }
       }
 
@@ -783,7 +783,7 @@ export class OrdenCompraService {
         logger.success(`Pago OC registrado en tesorería: ${monedaPago} ${montoOriginal} para ${orden.numeroOrden}`);
       } catch (tesoreriaError) {
         // No bloquear el pago si falla tesorería
-        console.error('Error registrando pago OC en tesorería:', tesoreriaError);
+        logger.error('Error registrando pago OC en tesorería:', tesoreriaError);
       }
 
       // ========== REGISTRAR EN POOL USD (solo pagos en USD) ==========
@@ -805,13 +805,13 @@ export class OrdenCompraService {
           logger.success(`Pago OC registrado en Pool USD: $${montoOriginal} para ${orden.numeroOrden}`);
         } catch (poolError) {
           // No bloquear el pago si falla Pool USD (fire-and-forget)
-          console.error('Error registrando pago OC en Pool USD:', poolError);
+          logger.error('Error registrando pago OC en Pool USD:', poolError);
         }
       }
 
       return nuevoPago;
     } catch (error: any) {
-      console.error('Error al registrar pago:', error);
+      logger.error('Error al registrar pago:', error);
       throw new Error(error.message || 'Error al registrar pago');
     }
   }
@@ -913,7 +913,7 @@ export class OrdenCompraService {
             reservationMap.set(prod.productoId, existing);
           }
         } catch (error) {
-          console.error(`Error al obtener requerimiento ${reqId}:`, error);
+          logger.error(`Error al obtener requerimiento ${reqId}:`, error);
         }
       }
 
@@ -1070,7 +1070,7 @@ export class OrdenCompraService {
           logger.success(`  → CTRU inicial calculado para ${ctruCalculadas} unidades`);
         } catch (ctruError) {
           // No bloquear la recepción si falla el cálculo de CTRU
-          console.error('Error al calcular CTRU de lote (no bloqueante):', ctruError);
+          logger.error('Error al calcular CTRU de lote (no bloqueante):', ctruError);
         }
       }
 
@@ -1136,7 +1136,7 @@ export class OrdenCompraService {
         const { mercadoLibreService } = await import('./mercadoLibre.service');
         for (const pid of productosAfectados) {
           mercadoLibreService.syncStock(pid).catch(e =>
-            console.warn(`ML sync failed for ${pid} after OC reception:`, e.message)
+            logger.warn(`ML sync failed for ${pid} after OC reception:`, e.message)
           );
         }
       } catch {
@@ -1178,7 +1178,7 @@ export class OrdenCompraService {
           try {
             await ExpectativaService.actualizarEstado(reqId, 'completado', userId);
           } catch (error) {
-            console.error(`Error al marcar requerimiento ${reqId} como completado:`, error);
+            logger.error(`Error al marcar requerimiento ${reqId} como completado:`, error);
           }
         }
       }
@@ -1204,7 +1204,7 @@ export class OrdenCompraService {
         cotizacionVinculada: cotizacionId
       };
     } catch (error: any) {
-      console.error('Error al recibir orden parcial:', error);
+      logger.error('Error al recibir orden parcial:', error);
       throw new Error(error.message || 'Error al recibir orden parcial');
     }
   }
@@ -1281,12 +1281,12 @@ export class OrdenCompraService {
           orden.numeroOrden || ''
         );
       } catch (e) {
-        console.warn('Error al desvincular OC de requerimientos (no-blocking):', e);
+        logger.warn('Error al desvincular OC de requerimientos (no-blocking):', e);
       }
 
       await deleteDoc(doc(db, ORDENES_COLLECTION, id));
     } catch (error: any) {
-      console.error('Error al eliminar orden:', error);
+      logger.error('Error al eliminar orden:', error);
       throw new Error(error.message || 'Error al eliminar orden');
     }
   }
@@ -1334,7 +1334,7 @@ export class OrdenCompraService {
       
       return stats;
     } catch (error: any) {
-      console.error('Error al obtener estadísticas:', error);
+      logger.error('Error al obtener estadísticas:', error);
       throw new Error('Error al generar estadísticas');
     }
   }
@@ -1437,7 +1437,7 @@ export class OrdenCompraService {
       const productosAfectados = orden.productos.map(p => p.productoId);
       await inventarioService.sincronizarStockProductos_batch(productosAfectados);
 
-      console.log(`[LIMPIEZA] OC ${orden.numeroOrden}: ${unidadesEliminadas} unidades eliminadas, ${recepciones.length} recepciones revertidas, estado → ${estadoRestaurado}`);
+      logger.log(`[LIMPIEZA] OC ${orden.numeroOrden}: ${unidadesEliminadas} unidades eliminadas, ${recepciones.length} recepciones revertidas, estado → ${estadoRestaurado}`);
 
       return {
         unidadesEliminadas,
@@ -1445,7 +1445,7 @@ export class OrdenCompraService {
         estadoRestaurado
       };
     } catch (error: any) {
-      console.error('Error al revertir recepciones:', error);
+      logger.error('Error al revertir recepciones:', error);
       throw new Error(error.message || 'Error al revertir recepciones');
     }
   }
@@ -1502,7 +1502,7 @@ export class OrdenCompraService {
 
       return precios;
     } catch (error: any) {
-      console.error('Error al obtener precios históricos:', error);
+      logger.error('Error al obtener precios históricos:', error);
       return [];
     }
   }
@@ -1701,7 +1701,7 @@ export class OrdenCompraService {
 
       return Array.from(productosMap.values()).map(({ ultimaFecha, ...rest }) => rest);
     } catch (error: any) {
-      console.error('Error al obtener productos del proveedor:', error);
+      logger.error('Error al obtener productos del proveedor:', error);
       return [];
     }
   }

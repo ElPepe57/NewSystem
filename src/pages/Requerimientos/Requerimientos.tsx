@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatCurrency } from '../../utils/format';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -769,10 +770,7 @@ export const Requerimientos: React.FC = () => {
   };
 
 
-  const formatCurrency = (value: number, currency: 'USD' | 'PEN' = 'USD') => {
-    const symbol = currency === 'USD' ? '$' : 'S/';
-    return `${symbol} ${value.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
+  // formatCurrency importado de utils/format — firma compatible: (value, currency?)
 
   // Badge para estados de asignación
   const getAsignacionEstadoBadge = (estado: string, paisOrigen?: string) => {

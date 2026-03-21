@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { contabilidadService } from '../../../services/contabilidad.service';
 import type { EstadoResultados as EstadoResultadosType } from '../../../types/contabilidad.types';
+import { formatCurrencyPEN, formatPercent } from '../../../utils/format';
 
 const MESES = [
   { value: 1, label: 'Enero' },
@@ -41,19 +42,8 @@ const MESES = [
   { value: 12, label: 'Diciembre' },
 ];
 
-// Formatear moneda
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('es-PE', {
-    style: 'currency',
-    currency: 'PEN',
-    minimumFractionDigits: 2,
-  }).format(value);
-};
-
-// Formatear porcentaje
-const formatPercent = (value: number): string => {
-  return `${value.toFixed(1)}%`;
-};
+// Delegados a utilidad central
+const formatCurrency = (value: number): string => formatCurrencyPEN(value);
 
 // Componente para línea del estado de resultados
 interface LineaResultadoProps {

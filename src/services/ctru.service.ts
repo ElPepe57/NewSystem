@@ -10,6 +10,7 @@ import type { Unidad } from '../types/unidad.types';
 import type { Gasto } from '../types/gasto.types';
 import { esFleteInternacional } from '../utils/multiOrigen.helpers';
 import { esEstadoEnOrigen } from '../utils/multiOrigen.helpers';
+import { logger } from '../lib/logger';
 
 /**
  * Servicio para cálculo y actualización del CTRU (Costo Total Real por Unidad)
@@ -38,7 +39,7 @@ export const ctruService = {
     try {
       const tc = getTC(unidad);
       if (tc === 0) {
-        console.warn(`[CTRU] Unidad ${unidad.id} sin TC - usando costoUnitarioUSD directo`);
+        logger.warn(`[CTRU] Unidad ${unidad.id} sin TC - usando costoUnitarioUSD directo`);
       }
       const costoBasePEN = unidad.costoUnitarioUSD * (tc || 1);
 
@@ -53,7 +54,7 @@ export const ctruService = {
 
       return costoBasePEN + costoFletePorUnidad;
     } catch (error: any) {
-      console.error('Error al calcular CTRU inicial:', error);
+      logger.error('Error al calcular CTRU inicial:', error);
       throw new Error(`Error al calcular CTRU inicial: ${error.message}`);
     }
   },
@@ -100,7 +101,7 @@ export const ctruService = {
 
       return unidadIds.length;
     } catch (error: any) {
-      console.error('Error al calcular CTRU de lote:', error);
+      logger.error('Error al calcular CTRU de lote:', error);
       return 0;
     }
   },
@@ -130,7 +131,7 @@ export const ctruService = {
 
       return totalFlete / unidadesOC.length;
     } catch (error: any) {
-      console.error('Error al calcular costo de flete prorrateado:', error);
+      logger.error('Error al calcular costo de flete prorrateado:', error);
       return 0;
     }
   },
@@ -281,7 +282,7 @@ export const ctruService = {
         impactoPorUnidad: impactoPorUnidadPromedio
       };
     } catch (error: any) {
-      console.error('Error al recalcular CTRU dinámico:', error);
+      logger.error('Error al recalcular CTRU dinámico:', error);
       throw new Error(`Error al recalcular CTRU dinámico: ${error.message}`);
     }
   },
@@ -306,7 +307,7 @@ export const ctruService = {
     try {
       // Cargar productos y TODAS las unidades en paralelo (2 queries, no N+1)
       const [productos, todasLasUnidades] = await Promise.all([
-        ProductoService.getAll(),
+        ProductoService.getAll(false, Infinity),
         unidadService.getAllIncluyendoHistoricas()
       ]);
 
@@ -361,7 +362,7 @@ export const ctruService = {
 
       return productosActualizados;
     } catch (error: any) {
-      console.error('Error al actualizar CTRU promedio de productos:', error);
+      logger.error('Error al actualizar CTRU promedio de productos:', error);
       throw new Error(`Error al actualizar CTRU promedio de productos: ${error.message}`);
     }
   },
@@ -398,7 +399,7 @@ export const ctruService = {
         ctruMaximo: Math.max(...ctrus)
       };
     } catch (error: any) {
-      console.error('Error al obtener CTRU de producto:', error);
+      logger.error('Error al obtener CTRU de producto:', error);
       throw new Error(`Error al obtener CTRU de producto: ${error.message}`);
     }
   },
@@ -432,7 +433,7 @@ export const ctruService = {
 
       return { costoTotal, utilidadBruta, margen };
     } catch (error: any) {
-      console.error('Error al calcular margen de venta:', error);
+      logger.error('Error al calcular margen de venta:', error);
       throw new Error(`Error al calcular margen de venta: ${error.message}`);
     }
   },
@@ -490,7 +491,7 @@ export const ctruService = {
 
       return historial.reverse();
     } catch (error: any) {
-      console.error('Error al obtener historial CTRU:', error);
+      logger.error('Error al obtener historial CTRU:', error);
       throw new Error(`Error al obtener historial CTRU: ${error.message}`);
     }
   }

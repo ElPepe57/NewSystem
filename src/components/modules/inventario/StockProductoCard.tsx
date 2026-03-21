@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Badge, Button, Card, LineaNegocioBadge } from '../../common';
 import type { ProductoConUnidades } from './ProductoInventarioTable';
+import { formatCurrency } from '../../../utils/format';
 
 interface StockProductoCardProps {
   producto: ProductoConUnidades;
@@ -23,14 +24,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
   producto,
   onVerDetalle
 }) => {
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
+  // formatCurrency importado de utils/format (USD por defecto)
 
   const tieneProblemas = producto.stockCritico || producto.proximasAVencer30Dias > 0 || producto.problemas > 0;
 

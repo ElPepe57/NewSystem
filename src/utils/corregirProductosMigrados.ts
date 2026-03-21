@@ -181,7 +181,7 @@ export async function corregirProductosMigrados(
   onProgress?.('Obteniendo productos existentes...', 0);
 
   // Obtener todos los productos
-  const productosExistentes = await ProductoService.getAll(true);
+  const productosExistentes = await ProductoService.getAll(true, Infinity);
 
   // Crear mapa de productos por clave
   const productosMap = new Map<string, typeof productosExistentes[0]>();

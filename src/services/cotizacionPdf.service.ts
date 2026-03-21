@@ -1,6 +1,7 @@
 // Lazy import: jsPDF (~490KB) solo se carga cuando el usuario genera un PDF
 const getJsPDF = () => import('jspdf').then(m => m.jsPDF);
 import { formatFecha as formatDate } from '../utils/dateFormatters';
+import { formatCurrencyPEN } from '../utils/format';
 import type { Cotizacion } from '../types/cotizacion.types';
 import type { EmpresaInfo } from '../types/configuracion.types';
 
@@ -25,11 +26,9 @@ const COLORS = {
 };
 
 /**
- * Formatea un número como moneda
+ * Formatea un número como moneda — delegado a utilidad central
  */
-const formatCurrency = (amount: number): string => {
-  return `S/ ${amount.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-};
+const formatCurrency = (amount: number): string => formatCurrencyPEN(amount);
 
 
 /**

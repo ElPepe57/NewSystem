@@ -567,7 +567,7 @@ export const transferenciaService = {
     import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
       for (const pid of productosAfectados) {
         mercadoLibreService.syncStock(pid).catch(e =>
-          console.error(`[ML Sync] Error post-envío transferencia ${pid}:`, e)
+          logger.error(`[ML Sync] Error post-envío transferencia ${pid}:`, e)
         );
       }
     });
@@ -997,7 +997,7 @@ export const transferenciaService = {
               }
             }
           } catch (e) {
-            console.error(`Error actualizando unidad ${unidadTransf.unidadId}:`, e);
+            logger.error(`Error actualizando unidad ${unidadTransf.unidadId}:`, e);
             errores++;
           }
         }
@@ -1006,7 +1006,7 @@ export const transferenciaService = {
       logger.info(`Migración completada: ${actualizadas} unidades actualizadas, ${errores} errores`);
       return { actualizadas, errores };
     } catch (error: any) {
-      console.error('Error en migración de costoFleteUSD:', error);
+      logger.error('Error en migración de costoFleteUSD:', error);
       throw new Error(`Error en migración: ${error.message}`);
     }
   },
@@ -1047,7 +1047,7 @@ export const transferenciaService = {
           productosActualizados++;
           logger.debug(`Producto ${productoId}: stockPeru = ${stockPeru}`);
         } catch (e) {
-          console.error(`Error actualizando stock de producto ${productoId}:`, e);
+          logger.error(`Error actualizando stock de producto ${productoId}:`, e);
           errores++;
         }
       }
@@ -1055,7 +1055,7 @@ export const transferenciaService = {
       logger.info(`Migración de stock completada: ${productosActualizados} productos actualizados, ${errores} errores`);
       return { productosActualizados, errores };
     } catch (error: any) {
-      console.error('Error en migración de stock:', error);
+      logger.error('Error en migración de stock:', error);
       throw new Error(`Error en migración: ${error.message}`);
     }
   },
@@ -1146,7 +1146,7 @@ export const transferenciaService = {
           cuentaOrigenNombre = cuenta.nombre;
         }
       } catch (e) {
-        console.warn('No se pudo obtener nombre de cuenta:', e);
+        logger.warn('No se pudo obtener nombre de cuenta:', e);
       }
     }
 
@@ -1214,7 +1214,7 @@ export const transferenciaService = {
 
       logger.success(`Pago viajero registrado en tesorería: ${monedaPago} ${montoOriginal} para ${transferencia.numeroTransferencia}`);
     } catch (tesoreriaError) {
-      console.error('Error registrando pago viajero en tesorería:', tesoreriaError);
+      logger.error('Error registrando pago viajero en tesorería:', tesoreriaError);
       // Marcar error en el último pago del array
       nuevosPagos[nuevosPagos.length - 1] = { ...nuevoPago, errorTesoreria: true, errorTesoreriaMsg: tesoreriaError instanceof Error ? tesoreriaError.message : 'Error desconocido' };
       await updateDoc(docRef, { pagosViajero: nuevosPagos }).catch(() => {});
@@ -1440,7 +1440,7 @@ export const transferenciaService = {
         const ctruService = await import('./ctru.service');
         await ctruService.ctruService.recalcularCTRUDinamicoSafe();
       } catch (e) {
-        console.warn('No se pudo recalcular CTRU tras actualizar flete:', e);
+        logger.warn('No se pudo recalcular CTRU tras actualizar flete:', e);
       }
     }
 

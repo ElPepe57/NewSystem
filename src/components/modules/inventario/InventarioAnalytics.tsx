@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
+import { formatCurrency } from '../../../utils/format';
 import {
   TrendingUp,
   TrendingDown,
@@ -372,15 +373,9 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
     };
   }, [productosAnalytics, ctruData]);
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0
-    }).format(amount);
-  };
+  // formatCurrency importado de utils/format (USD por defecto)
 
-  const formatPEN = (amount: number): string => {
-    return `S/ ${amount.toFixed(2)}`;
-  };
+  const formatPEN = (amount: number): string => `S/ ${amount.toFixed(2)}`;
 
   // Listas derivadas
   const topProductosValor = useMemo(() =>

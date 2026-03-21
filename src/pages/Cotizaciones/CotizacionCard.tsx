@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatFecha } from '../../utils/dateFormatters';
+import { formatCurrencyPEN } from '../../utils/format';
 import {
   User,
   Phone,
@@ -37,13 +38,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
   onWhatsApp,
   onRegistrarAdelanto
 }) => {
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number): string => formatCurrencyPEN(amount);
 
 
   const getCanalBadge = (canal: string) => {

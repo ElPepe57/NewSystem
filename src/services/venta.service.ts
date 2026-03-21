@@ -78,6 +78,7 @@ import * as EntregasService from './venta.entregas.service';
 import * as ReservasService from './venta.reservas.service';
 import * as RecalculoService from './venta.recalculo.service';
 import * as StatsService from './venta.stats.service';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
 
@@ -103,14 +104,16 @@ export class VentaService {
   // ==========================================================================
 
   /**
-   * Obtener todas las ventas
+   * Obtener ventas ordenadas por fecha descendente.
+   * @param maxResults - Límite de documentos (default 500). Pasar Infinity para reportes completos.
    */
-  static async getAll(): Promise<Venta[]> {
+  static async getAll(maxResults: number = 500): Promise<Venta[]> {
     try {
-      const q = query(
+      const baseQ = query(
         collection(db, COLLECTION_NAME),
         orderBy('fechaCreacion', 'desc')
       );
+      const q = isFinite(maxResults) ? query(baseQ, limit(maxResults)) : baseQ;
 
       const snapshot = await getDocs(q);
 
@@ -119,7 +122,7 @@ export class VentaService {
         ...doc.data()
       } as Venta));
     } catch (error: any) {
-      console.error('Error al obtener ventas:', error);
+      logger.error('Error al obtener ventas:', error);
       throw new Error('Error al cargar ventas');
     }
   }
@@ -145,7 +148,7 @@ export class VentaService {
       } as Venta));
       callback(ventas);
     }, (error) => {
-      console.error('Error en suscripción de ventas:', error);
+      logger.error('Error en suscripción de ventas:', error);
     });
   }
 
@@ -170,7 +173,7 @@ export class VentaService {
         ...doc.data()
       } as Venta));
     } catch (error: any) {
-      console.error('Error al obtener ventas recientes:', error);
+      logger.error('Error al obtener ventas recientes:', error);
       // Fallback: obtener todas y filtrar en memoria
       const todasVentas = await this.getAll();
       const fechaLimite = new Date();
@@ -198,7 +201,7 @@ export class VentaService {
         ...docSnap.data()
       } as Venta;
     } catch (error: any) {
-      console.error('Error al obtener venta:', error);
+      logger.error('Error al obtener venta:', error);
       throw new Error('Error al cargar venta');
     }
   }
@@ -221,7 +224,7 @@ export class VentaService {
         ...doc.data()
       } as Venta));
     } catch (error: any) {
-      console.error('Error al obtener ventas por estado:', error);
+      logger.error('Error al obtener ventas por estado:', error);
       throw new Error('Error al cargar ventas');
     }
   }
@@ -234,7 +237,7 @@ export class VentaService {
   static async getProductosDisponibles(): Promise<ProductoDisponible[]> {
     try {
       const [productos, inventarioPeru, inventarioUSA] = await Promise.all([
-        ProductoService.getAll(),
+        ProductoService.getAll(false, Infinity),
         inventarioService.getInventarioAgregado({ pais: 'Peru' }),
         inventarioService.getInventarioAgregado({ pais: 'USA' })
       ]);
@@ -294,7 +297,7 @@ export class VentaService {
 
       return productosDisponibles;
     } catch (error: any) {
-      console.error('Error al obtener productos disponibles:', error);
+      logger.error('Error al obtener productos disponibles:', error);
       throw new Error('Error al cargar productos');
     }
   }
@@ -417,7 +420,7 @@ export class VentaService {
           }, userId);
           clienteIdFinal = cliente.id;
         } catch (clienteError) {
-          console.warn('[crear] Error auto-creando cliente en Maestros:', clienteError);
+          logger.warn('[crear] Error auto-creando cliente en Maestros:', clienteError);
         }
       }
 
@@ -507,7 +510,7 @@ export class VentaService {
             montoVenta: totalPEN,
             productoIds,
           })).catch((err: any) => {
-            console.warn('[crear] Error actualizando métricas cliente:', err);
+            logger.warn('[crear] Error actualizando métricas cliente:', err);
             logBackgroundError('clienteMetricas.crear', err, 'high', { clienteId: clienteIdFinal, montoVenta: totalPEN });
           });
         });
@@ -520,7 +523,7 @@ export class VentaService {
         ...(esVentaDirecta && { fechaConfirmacion: Timestamp.now() })
       } as Venta;
     } catch (error: any) {
-      console.error('Error al crear venta:', error);
+      logger.error('Error al crear venta:', error);
       throw new Error(error.message || 'Error al crear venta');
     }
   }
@@ -556,7 +559,7 @@ export class VentaService {
         editadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al validar cotización:', error);
+      logger.error('Error al validar cotización:', error);
       throw new Error(error.message || 'Error al validar cotización');
     }
   }
@@ -584,7 +587,7 @@ export class VentaService {
         editadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al revertir validación:', error);
+      logger.error('Error al revertir validación:', error);
       throw new Error(error.message || 'Error al revertir validación');
     }
   }
@@ -627,14 +630,14 @@ export class VentaService {
             montoVenta: venta.totalPEN || 0,
             productoIds,
           })).catch((err: any) => {
-            console.warn('[confirmarVenta] Error actualizando métricas cliente tras 3 intentos:', err);
+            logger.warn('[confirmarVenta] Error actualizando métricas cliente tras 3 intentos:', err);
             logBackgroundError('clienteMetricas.confirmarVenta', err, 'high', { clienteId, ventaId: id, montoVenta: venta.totalPEN });
           });
           withRetry(() => clienteService.calcularCanalPrincipal(clienteId)).catch(() => {});
         });
       }
     } catch (error: any) {
-      console.error('Error al confirmar cotización:', error);
+      logger.error('Error al confirmar cotización:', error);
       throw new Error(error.message || 'Error al confirmar cotización');
     }
   }
@@ -678,17 +681,17 @@ export class VentaService {
       const ventaExtendida = venta as any;
       const cotizacionOrigenId = ventaExtendida.cotizacionOrigenId;
 
-      console.log(`[FEFO] ========================================`);
-      console.log(`[FEFO] Venta ID: ${id}`);
-      console.log(`[FEFO] Número: ${venta.numeroVenta}`);
-      console.log(`[FEFO] Cotización origen ID: ${cotizacionOrigenId || 'N/A'}`);
-      console.log(`[FEFO] stockReservado: ${venta.stockReservado ? 'SÍ' : 'NO'}`);
+      logger.log(`[FEFO] ========================================`);
+      logger.log(`[FEFO] Venta ID: ${id}`);
+      logger.log(`[FEFO] Número: ${venta.numeroVenta}`);
+      logger.log(`[FEFO] Cotización origen ID: ${cotizacionOrigenId || 'N/A'}`);
+      logger.log(`[FEFO] stockReservado: ${venta.stockReservado ? 'SÍ' : 'NO'}`);
       if (venta.stockReservado) {
-        console.log(`[FEFO] stockReservado.tipoReserva: ${(venta.stockReservado as any).tipoReserva || 'N/A'}`);
-        console.log(`[FEFO] stockReservado.productosReservados:`, venta.stockReservado.productosReservados);
+        logger.log(`[FEFO] stockReservado.tipoReserva: ${(venta.stockReservado as any).tipoReserva || 'N/A'}`);
+        logger.log(`[FEFO] stockReservado.productosReservados:`, venta.stockReservado.productosReservados);
       }
-      console.log(`[FEFO] Productos en venta:`, venta.productos.map(p => `${p.sku}: ${p.cantidad} uds`));
-      console.log(`[FEFO] ========================================`);
+      logger.log(`[FEFO] Productos en venta:`, venta.productos.map(p => `${p.sku}: ${p.cantidad} uds`));
+      logger.log(`[FEFO] ========================================`);
 
       for (const producto of venta.productos) {
         if (!unidadesYaReservadas.has(producto.productoId)) {
@@ -703,14 +706,14 @@ export class VentaService {
             const coincide = refs.some(ref =>
               ref === id || (cotizacionOrigenId && ref === cotizacionOrigenId)
             );
-            console.log(`[FEFO] Unidad ${u.id}: reservadaPara=${unidadExtendida.reservadaPara}, reservadoPara=${unidadExtendida.reservadoPara}, match=${coincide}`);
+            logger.log(`[FEFO] Unidad ${u.id}: reservadaPara=${unidadExtendida.reservadaPara}, reservadoPara=${unidadExtendida.reservadoPara}, match=${coincide}`);
             return coincide;
           });
 
-          console.log(`[FEFO] Producto ${producto.productoId}: ${unidadesReservadasDB.length} reservadas en DB, ${reservadasParaEstaVenta.length} para esta venta`);
+          logger.log(`[FEFO] Producto ${producto.productoId}: ${unidadesReservadasDB.length} reservadas en DB, ${reservadasParaEstaVenta.length} para esta venta`);
 
           if (reservadasParaEstaVenta.length > 0) {
-            console.log(`[FEFO] Encontradas ${reservadasParaEstaVenta.length} unidades reservadas para producto ${producto.productoId}`);
+            logger.log(`[FEFO] Encontradas ${reservadasParaEstaVenta.length} unidades reservadas para producto ${producto.productoId}`);
             unidadesYaReservadas.set(
               producto.productoId,
               reservadasParaEstaVenta.map(u => u.id)
@@ -789,7 +792,7 @@ export class VentaService {
       import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
         for (const pid of productosAfectados) {
           mercadoLibreService.syncStock(pid).catch(e => {
-            console.error(`[ML Sync] Error post-asignación ${pid}:`, e);
+            logger.error(`[ML Sync] Error post-asignación ${pid}:`, e);
             logBackgroundError('mlSync.postAsignacion', e, 'high', { productoId: pid, ventaId: id });
           });
         }
@@ -797,7 +800,7 @@ export class VentaService {
 
       return resultados;
     } catch (error: any) {
-      console.error('Error al asignar inventario:', error);
+      logger.error('Error al asignar inventario:', error);
       throw new Error(error.message || 'Error al asignar inventario');
     }
   }
@@ -845,7 +848,7 @@ export class VentaService {
         unidadesFaltantes: cantidad - asignaciones.length
       };
     } catch (error: any) {
-      console.error('Error en FEFO:', error);
+      logger.error('Error en FEFO:', error);
       throw error;
     }
   }
@@ -869,18 +872,18 @@ export class VentaService {
 
         const unidad = await unidadService.getById(unidadId);
         if (!unidad) {
-          console.warn(`Unidad reservada ${unidadId} no encontrada`);
+          logger.warn(`Unidad reservada ${unidadId} no encontrada`);
           continue;
         }
 
         if (unidad.productoId !== productoId) {
-          console.warn(`Unidad ${unidadId} no corresponde al producto ${productoId}`);
+          logger.warn(`Unidad ${unidadId} no corresponde al producto ${productoId}`);
           continue;
         }
 
         const estadosValidos = ['reservada', 'disponible_peru', ...ESTADOS_EN_ORIGEN];
         if (!estadosValidos.includes(unidad.estado)) {
-          console.warn(`Unidad ${unidadId} no está en estado válido para asignar (estado: ${unidad.estado})`);
+          logger.warn(`Unidad ${unidadId} no está en estado válido para asignar (estado: ${unidad.estado})`);
           continue;
         }
 
@@ -909,7 +912,7 @@ export class VentaService {
       // Si aún faltan unidades, complementar con FEFO de disponibles
       const faltantes = cantidad - asignaciones.length;
       if (faltantes > 0) {
-        console.log(`[Reserva] Faltan ${faltantes} unidades, buscando con FEFO...`);
+        logger.log(`[Reserva] Faltan ${faltantes} unidades, buscando con FEFO...`);
         const complementoFEFO = await unidadService.seleccionarFEFO(productoId, faltantes);
 
         for (const { unidad } of complementoFEFO) {
@@ -944,7 +947,7 @@ export class VentaService {
         unidadesFaltantes: cantidad - asignaciones.length
       };
     } catch (error: any) {
-      console.error('Error usando unidades reservadas:', error);
+      logger.error('Error usando unidades reservadas:', error);
       throw error;
     }
   }
@@ -1028,7 +1031,7 @@ export class VentaService {
         unidadesFaltantes: cantidadPendiente - resultado.cantidadAsignada
       };
     } catch (error: any) {
-      console.error('Error completando asignación de producto:', error);
+      logger.error('Error completando asignación de producto:', error);
       throw error;
     }
   }
@@ -1072,7 +1075,7 @@ export class VentaService {
         ...(userId && { editadoPor: userId })
       });
     } catch (error: any) {
-      console.error('Error actualizando fecha estimada:', error);
+      logger.error('Error actualizando fecha estimada:', error);
       throw error;
     }
   }
@@ -1098,7 +1101,7 @@ export class VentaService {
       if (!venta) throw new Error('Venta no encontrada');
       return await EntregasService.registrarEntregaParcial(venta, userId, datos);
     } catch (error: any) {
-      console.error('Error registrando entrega parcial:', error);
+      logger.error('Error registrando entrega parcial:', error);
       throw error;
     }
   }
@@ -1116,7 +1119,7 @@ export class VentaService {
       if (!venta) throw new Error('Venta no encontrada');
       return await EntregasService.marcarEnEntrega(venta, userId, datos);
     } catch (error: any) {
-      console.error('Error al marcar en entrega:', error);
+      logger.error('Error al marcar en entrega:', error);
       throw new Error(error.message || 'Error al actualizar estado');
     }
   }
@@ -1130,7 +1133,7 @@ export class VentaService {
       if (!venta) throw new Error('Venta no encontrada');
       return await EntregasService.marcarEntregada(venta, userId, fechaEntregaReal);
     } catch (error: any) {
-      console.error('Error al marcar como entregada:', error);
+      logger.error('Error al marcar como entregada:', error);
       throw new Error(error.message || 'Error al actualizar estado');
     }
   }
@@ -1236,7 +1239,7 @@ export class VentaService {
               }
             }
           } catch (tesoreriaError) {
-            console.error(`[cancelar] Error revirtiendo pago en tesorería (monto: ${pago.monto}):`, tesoreriaError);
+            logger.error(`[cancelar] Error revirtiendo pago en tesorería (monto: ${pago.monto}):`, tesoreriaError);
           }
         }
       }
@@ -1247,7 +1250,7 @@ export class VentaService {
         import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
           for (const pid of productosAfectados) {
             mercadoLibreService.syncStock(pid).catch(e =>
-              console.error(`[ML Sync] Error post-cancelación ${pid}:`, e)
+              logger.error(`[ML Sync] Error post-cancelación ${pid}:`, e)
             );
           }
         });
@@ -1274,13 +1277,13 @@ export class VentaService {
           );
         }
         if (pendientes.length > 0) {
-          console.log(`[Venta ${venta.numeroVenta}] ${pendientes.length} entrega(s) pendiente(s) cancelada(s)`);
+          logger.log(`[Venta ${venta.numeroVenta}] ${pendientes.length} entrega(s) pendiente(s) cancelada(s)`);
         }
       } catch (entregaError) {
-        console.warn(`[Venta ${venta.numeroVenta}] Error al cancelar entregas pendientes (no bloquea):`, entregaError);
+        logger.warn(`[Venta ${venta.numeroVenta}] Error al cancelar entregas pendientes (no bloquea):`, entregaError);
       }
     } catch (error: any) {
-      console.error('Error al cancelar venta:', error);
+      logger.error('Error al cancelar venta:', error);
       throw new Error(error.message || 'Error al cancelar venta');
     }
   }
@@ -1301,7 +1304,7 @@ export class VentaService {
 
       await deleteDoc(doc(db, COLLECTION_NAME, id));
     } catch (error: any) {
-      console.error('Error al eliminar venta:', error);
+      logger.error('Error al eliminar venta:', error);
       throw new Error(error.message || 'Error al eliminar venta');
     }
   }
@@ -1318,7 +1321,7 @@ export class VentaService {
       const ventas = await this.getAll();
       return StatsService.calcularStats(ventas);
     } catch (error: any) {
-      console.error('Error al obtener estadísticas:', error);
+      logger.error('Error al obtener estadísticas:', error);
       throw new Error('Error al generar estadísticas');
     }
   }
@@ -1366,7 +1369,7 @@ export class VentaService {
     try {
       return await PagosService.eliminarPago(ventaId, pagoId, userId);
     } catch (error: any) {
-      console.error('Error al eliminar pago:', error);
+      logger.error('Error al eliminar pago:', error);
       throw new Error(error.message || 'Error al eliminar pago');
     }
   }
@@ -1378,7 +1381,7 @@ export class VentaService {
     try {
       return await PagosService.getByEstadoPago(estadoPago);
     } catch (error: any) {
-      console.error('Error al obtener ventas por estado de pago:', error);
+      logger.error('Error al obtener ventas por estado de pago:', error);
       throw new Error('Error al cargar ventas');
     }
   }
@@ -1390,7 +1393,7 @@ export class VentaService {
     try {
       return await PagosService.getVentasPendientesPago();
     } catch (error: any) {
-      console.error('Error al obtener ventas pendientes de pago:', error);
+      logger.error('Error al obtener ventas pendientes de pago:', error);
       throw new Error('Error al cargar ventas');
     }
   }
@@ -1409,7 +1412,7 @@ export class VentaService {
       const ventas = await this.getAll();
       return PagosService.getResumenPagos(ventas);
     } catch (error: any) {
-      console.error('Error al obtener resumen de pagos:', error);
+      logger.error('Error al obtener resumen de pagos:', error);
       throw new Error('Error al generar resumen');
     }
   }
@@ -1440,7 +1443,7 @@ export class VentaService {
         cotizacionId, venta, adelanto, userId, horasVigencia
       );
     } catch (error: any) {
-      console.error('Error al registrar adelanto con reserva:', error);
+      logger.error('Error al registrar adelanto con reserva:', error);
       throw new Error(error.message || 'Error al procesar el adelanto');
     }
   }
@@ -1459,7 +1462,7 @@ export class VentaService {
       if (!venta) throw new Error('Venta no encontrada');
       return await ReservasService.extenderReserva(venta, horasAdicionales, motivo, userId);
     } catch (error: any) {
-      console.error('Error al extender reserva:', error);
+      logger.error('Error al extender reserva:', error);
       throw new Error(error.message || 'Error al extender reserva');
     }
   }
@@ -1473,7 +1476,7 @@ export class VentaService {
       if (!venta) throw new Error('Venta no encontrada');
       return await ReservasService.cancelarReserva(venta, userId, motivo);
     } catch (error: any) {
-      console.error('Error al cancelar reserva:', error);
+      logger.error('Error al cancelar reserva:', error);
       throw new Error(error.message || 'Error al cancelar reserva');
     }
   }
@@ -1486,7 +1489,7 @@ export class VentaService {
       const ventas = await this.getByEstado('reservada');
       return await ReservasService.verificarReservasPorVencer(ventas);
     } catch (error: any) {
-      console.error('Error al verificar reservas por vencer:', error);
+      logger.error('Error al verificar reservas por vencer:', error);
     }
   }
 
@@ -1498,7 +1501,7 @@ export class VentaService {
       const ventas = await this.getByEstado('reservada');
       return await ReservasService.verificarStockParaReservasVirtuales(productoId, ventas);
     } catch (error: any) {
-      console.error('Error al verificar stock para reservas virtuales:', error);
+      logger.error('Error al verificar stock para reservas virtuales:', error);
     }
   }
 
@@ -1514,7 +1517,7 @@ export class VentaService {
       if (!venta) throw new Error('Venta no encontrada');
       return await ReservasService.asignarStockAReservaVirtual(venta, userId);
     } catch (error: any) {
-      console.error('Error al asignar stock a reserva virtual:', error);
+      logger.error('Error al asignar stock a reserva virtual:', error);
       throw new Error(error.message || 'Error al asignar stock');
     }
   }
@@ -1537,7 +1540,7 @@ export class VentaService {
       }
       return await ReservasService.sincronizarAdelantoDesdeCotizacion(ventaId, venta, userId);
     } catch (error: any) {
-      console.error('Error al sincronizar adelanto:', error);
+      logger.error('Error al sincronizar adelanto:', error);
       return { sincronizado: false, mensaje: `Error: ${error.message}` };
     }
   }
@@ -1582,7 +1585,7 @@ export class VentaService {
         detalles
       };
     } catch (error: any) {
-      console.error('Error al sincronizar adelantos pendientes:', error);
+      logger.error('Error al sincronizar adelantos pendientes:', error);
       throw new Error(`Error al sincronizar adelantos: ${error.message}`);
     }
   }
@@ -1616,12 +1619,12 @@ export class VentaService {
       const cliente = await clienteService.getById(clienteId);
 
       if (!cliente) {
-        console.log(`[getHistorialFinancieroCliente] Cliente ${clienteId} no encontrado`);
+        logger.log(`[getHistorialFinancieroCliente] Cliente ${clienteId} no encontrado`);
         throw new Error('Cliente no encontrado');
       }
 
-      console.log(`[getHistorialFinancieroCliente] Buscando ventas para: ${cliente.nombre}`);
-      console.log(`[getHistorialFinancieroCliente] DNI/RUC: ${cliente.dniRuc}, Tel: ${cliente.telefono}`);
+      logger.log(`[getHistorialFinancieroCliente] Buscando ventas para: ${cliente.nombre}`);
+      logger.log(`[getHistorialFinancieroCliente] DNI/RUC: ${cliente.dniRuc}, Tel: ${cliente.telefono}`);
 
       const todasVentas = await this.getAll();
       const nombreClienteNorm = cliente.nombre?.toLowerCase().trim();
@@ -1629,16 +1632,16 @@ export class VentaService {
       const telefonoAlt = cliente.telefonoAlt?.replace(/\D/g, '');
       const dniRucCliente = cliente.dniRuc?.trim();
 
-      console.log(`[getHistorialFinancieroCliente] Total ventas en sistema: ${todasVentas.length}`);
+      logger.log(`[getHistorialFinancieroCliente] Total ventas en sistema: ${todasVentas.length}`);
 
       const ventas = todasVentas.filter(v => {
         if (v.clienteId === clienteId) {
-          console.log(`[getHistorialFinancieroCliente] Match por clienteId: ${v.numeroVenta}`);
+          logger.log(`[getHistorialFinancieroCliente] Match por clienteId: ${v.numeroVenta}`);
           return true;
         }
 
         if (dniRucCliente && v.dniRuc?.trim() === dniRucCliente) {
-          console.log(`[getHistorialFinancieroCliente] Match por DNI/RUC: ${v.numeroVenta}`);
+          logger.log(`[getHistorialFinancieroCliente] Match por DNI/RUC: ${v.numeroVenta}`);
           return true;
         }
 
@@ -1647,7 +1650,7 @@ export class VentaService {
           const ultimos9Venta = telVenta.slice(-9);
           const ultimos9Cliente = telefonoCliente.slice(-9);
           if (ultimos9Venta.length >= 7 && ultimos9Venta === ultimos9Cliente) {
-            console.log(`[getHistorialFinancieroCliente] Match por teléfono: ${v.numeroVenta} (${telVenta})`);
+            logger.log(`[getHistorialFinancieroCliente] Match por teléfono: ${v.numeroVenta} (${telVenta})`);
             return true;
           }
         }
@@ -1655,21 +1658,21 @@ export class VentaService {
           const ultimos9Venta = telVenta.slice(-9);
           const ultimos9Alt = telefonoAlt.slice(-9);
           if (ultimos9Venta.length >= 7 && ultimos9Venta === ultimos9Alt) {
-            console.log(`[getHistorialFinancieroCliente] Match por teléfono alt: ${v.numeroVenta}`);
+            logger.log(`[getHistorialFinancieroCliente] Match por teléfono alt: ${v.numeroVenta}`);
             return true;
           }
         }
 
         const nombreVentaNorm = v.nombreCliente?.toLowerCase().trim();
         if (nombreVentaNorm && nombreClienteNorm && nombreVentaNorm === nombreClienteNorm) {
-          console.log(`[getHistorialFinancieroCliente] Match por nombre: ${v.numeroVenta} (${v.nombreCliente})`);
+          logger.log(`[getHistorialFinancieroCliente] Match por nombre: ${v.numeroVenta} (${v.nombreCliente})`);
           return true;
         }
 
         return false;
       });
 
-      console.log(`[getHistorialFinancieroCliente] Cliente ${cliente.nombre}: ${ventas.length} ventas encontradas`);
+      logger.log(`[getHistorialFinancieroCliente] Cliente ${cliente.nombre}: ${ventas.length} ventas encontradas`);
 
       ventas.sort((a, b) => {
         const fechaA = a.fechaCreacion?.toDate?.() || new Date(a.fechaCreacion as any);
@@ -1681,7 +1684,7 @@ export class VentaService {
 
       return { ventas, resumen, porCobrar, cobradas };
     } catch (error: any) {
-      console.error('Error al obtener historial financiero del cliente:', error);
+      logger.error('Error al obtener historial financiero del cliente:', error);
       return {
         ventas: [],
         resumen: {

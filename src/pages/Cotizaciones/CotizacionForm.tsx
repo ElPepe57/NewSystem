@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { X, Plus, Trash2, Search, AlertTriangle, Package, TrendingUp, Info, PlusCircle, User, Star, ShoppingBag, History, Download, FileText, MapPin, Truck, Clock, ShoppingCart } from 'lucide-react';
+import { formatCurrencyPEN } from '../../utils/format';
 import { Modal, Input, Select, Button, Badge, GoogleMapsAddressInput } from '../../components/common';
 import type { AddressData } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
@@ -586,13 +587,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
 
   const hayProductosSinStock = productosSinStock.length > 0;
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number): string => formatCurrencyPEN(amount);
 
   return (
     <Modal

@@ -28,6 +28,7 @@ import { tesoreriaService } from './tesoreria.service';
 import { metricasService } from './metricas.service';
 import { entregaService } from './entrega.service';
 import { ProductoService } from './producto.service';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
 
@@ -198,7 +199,7 @@ export async function marcarEntregada(
     throw new Error('Estado inválido para marcar como entregada');
   }
 
-  console.log(`[marcarEntregada] Iniciando para venta ${venta.numeroVenta}`);
+  logger.log(`[marcarEntregada] Iniciando para venta ${venta.numeroVenta}`);
 
   // 1. Completar todas las entregas pendientes de esta venta
   let entregasCompletadas = 0;
@@ -209,29 +210,29 @@ export async function marcarEntregada(
     entregasPendientes = entregas.filter(
       e => e.estado === 'programada' || e.estado === 'en_camino' || e.estado === 'reprogramada'
     );
-    console.log(`[marcarEntregada] Encontradas ${entregasPendientes.length} entregas pendientes`);
+    logger.log(`[marcarEntregada] Encontradas ${entregasPendientes.length} entregas pendientes`);
 
     for (const entrega of entregasPendientes) {
       try {
-        console.log(`[marcarEntregada] Completando entrega ${entrega.codigo}...`);
+        logger.log(`[marcarEntregada] Completando entrega ${entrega.codigo}...`);
         await entregaService.registrarResultado({
           entregaId: entrega.id,
           exitosa: true,
           notasEntrega: 'Completada automáticamente al marcar venta como entregada'
         }, userId);
         entregasCompletadas++;
-        console.log(`[marcarEntregada] Entrega ${entrega.codigo} completada OK`);
+        logger.log(`[marcarEntregada] Entrega ${entrega.codigo} completada OK`);
       } catch (entregaError) {
-        console.error(`[marcarEntregada] Error completando entrega ${entrega.codigo}:`, entregaError);
+        logger.error(`[marcarEntregada] Error completando entrega ${entrega.codigo}:`, entregaError);
       }
     }
   } catch (entregasError) {
-    console.error('[marcarEntregada] Error obteniendo entregas:', entregasError);
+    logger.error('[marcarEntregada] Error obteniendo entregas:', entregasError);
   }
 
   // 2. Si NO había entregas programadas, actualizar las unidades directamente
   if (entregasPendientes.length === 0) {
-    console.log('[marcarEntregada] No había entregas, actualizando unidades directamente');
+    logger.log('[marcarEntregada] No había entregas, actualizando unidades directamente');
     for (const producto of venta.productos) {
       if (producto.unidadesAsignadas && producto.unidadesAsignadas.length > 0) {
         try {
@@ -243,7 +244,7 @@ export async function marcarEntregada(
             userId
           );
         } catch (error) {
-          console.error(`[marcarEntregada] Error confirmando unidades producto ${producto.sku}:`, error);
+          logger.error(`[marcarEntregada] Error confirmando unidades producto ${producto.sku}:`, error);
         }
       }
     }
@@ -260,7 +261,7 @@ export async function marcarEntregada(
     editadoPor: userId
   });
 
-  console.log(`[marcarEntregada] Venta ${venta.numeroVenta} marcada como entregada. Entregas completadas: ${entregasCompletadas}`);
+  logger.log(`[marcarEntregada] Venta ${venta.numeroVenta} marcada como entregada. Entregas completadas: ${entregasCompletadas}`);
 
   // 4. Reclasificar anticipos: pasivo → ingreso real
   try {
@@ -270,10 +271,10 @@ export async function marcarEntregada(
       userId
     );
     if (reclasificados > 0) {
-      console.log(`[marcarEntregada] ${reclasificados} anticipo(s) reclasificados a ingreso_venta`);
+      logger.log(`[marcarEntregada] ${reclasificados} anticipo(s) reclasificados a ingreso_venta`);
     }
   } catch (reclasError) {
-    console.warn('[marcarEntregada] Error al reclasificar anticipos:', reclasError);
+    logger.warn('[marcarEntregada] Error al reclasificar anticipos:', reclasError);
   }
 
   // 5. Actualizar métricas del Gestor Maestro (cliente y marcas)
@@ -287,6 +288,6 @@ export async function marcarEntregada(
     }
     await metricasService.procesarVentaCompleta(venta, marcaIds);
   } catch (metricasError) {
-    console.warn('Error al actualizar métricas del Gestor Maestro:', metricasError);
+    logger.warn('Error al actualizar métricas del Gestor Maestro:', metricasError);
   }
 }

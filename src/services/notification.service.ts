@@ -27,6 +27,7 @@ import type {
   AccionNotificacion
 } from '../types/notification.types';
 import { COLLECTIONS } from '../config/collections';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.NOTIFICACIONES;
 
@@ -57,7 +58,7 @@ export class NotificationService {
       });
       return docRef.id;
     } catch (error) {
-      console.error('Error al crear notificación:', error);
+      logger.error('Error al crear notificación:', error);
       throw error;
     }
   }
@@ -94,7 +95,7 @@ export class NotificationService {
         ...docSnapshot.data()
       })) as SystemNotification[];
     } catch (error) {
-      console.error('Error al obtener notificaciones:', error);
+      logger.error('Error al obtener notificaciones:', error);
       throw error;
     }
   }
@@ -145,7 +146,7 @@ export class NotificationService {
         .map(d => ({ id: d.id, ...d.data() } as SystemNotification))
         .filter(n => !n.usuarioId || n.usuarioId === usuarioId);
     } catch (error) {
-      console.error('Error al obtener notificaciones no leídas:', error);
+      logger.error('Error al obtener notificaciones no leídas:', error);
       return [];
     }
   }
@@ -159,7 +160,7 @@ export class NotificationService {
       if (!docSnapshot.exists()) return null;
       return { id: docSnapshot.id, ...docSnapshot.data() } as SystemNotification;
     } catch (error) {
-      console.error('Error al obtener notificación:', error);
+      logger.error('Error al obtener notificación:', error);
       throw error;
     }
   }
@@ -188,7 +189,7 @@ export class NotificationService {
 
       return counts;
     } catch (error) {
-      console.error('Error al obtener contadores:', error);
+      logger.error('Error al obtener contadores:', error);
       throw error;
     }
   }
@@ -203,7 +204,7 @@ export class NotificationService {
       const docRef = doc(db, COLLECTION_NAME, notificacionId);
       await updateDoc(docRef, { leida: true, fechaLeida: Timestamp.now() });
     } catch (error) {
-      console.error('Error al marcar notificación como leída:', error);
+      logger.error('Error al marcar notificación como leída:', error);
       throw error;
     }
   }
@@ -219,7 +220,7 @@ export class NotificationService {
         fechaAccion: Timestamp.now()
       });
     } catch (error) {
-      console.error('Error al marcar notificación como accionada:', error);
+      logger.error('Error al marcar notificación como accionada:', error);
       throw error;
     }
   }
@@ -250,7 +251,7 @@ export class NotificationService {
       });
       await batch.commit();
     } catch (error) {
-      console.error('Error al marcar todas como leídas:', error);
+      logger.error('Error al marcar todas como leídas:', error);
       throw error;
     }
   }
@@ -262,7 +263,7 @@ export class NotificationService {
     try {
       await deleteDoc(doc(db, COLLECTION_NAME, notificacionId));
     } catch (error) {
-      console.error('Error al eliminar notificación:', error);
+      logger.error('Error al eliminar notificación:', error);
       throw error;
     }
   }
@@ -315,7 +316,7 @@ export class NotificationService {
         callback(notificaciones);
       },
       (error) => {
-        console.error('Error en suscripción de notificaciones:', error);
+        logger.error('Error en suscripción de notificaciones:', error);
       }
     );
   }
@@ -345,7 +346,7 @@ export class NotificationService {
       await Promise.all(eliminaciones);
       return snapshot.size;
     } catch (error) {
-      console.error('Error al limpiar notificaciones antiguas:', error);
+      logger.error('Error al limpiar notificaciones antiguas:', error);
       throw error;
     }
   }
@@ -386,7 +387,7 @@ export class NotificationService {
 
       return idsAEliminar.length;
     } catch (error) {
-      console.error('Error al limpiar duplicados:', error);
+      logger.error('Error al limpiar duplicados:', error);
       return 0;
     }
   }
@@ -410,7 +411,7 @@ export class NotificationService {
       const snapshot = await getDocs(q);
       return !snapshot.empty;
     } catch (error) {
-      console.error('Error al verificar notificación activa:', error);
+      logger.error('Error al verificar notificación activa:', error);
       return false;
     }
   }

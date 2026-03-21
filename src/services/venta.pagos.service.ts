@@ -31,6 +31,7 @@ import type {
 } from '../types/venta.types';
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
 
@@ -218,7 +219,7 @@ export async function registrarPago(
         await updateDoc(ventaRef, { pagos: pagosActualizados });
       }
     } catch (tesoreriaError: any) {
-      console.error('Error registrando en tesorería (el pago fue registrado):', tesoreriaError);
+      logger.error('Error registrando en tesorería (el pago fue registrado):', tesoreriaError);
     }
   }
 
@@ -266,7 +267,7 @@ export async function eliminarPago(
     try {
       await tesoreriaService.eliminarMovimiento(pagoEliminado.tesoreriaMovimientoId, userId);
     } catch (tesoreriaError) {
-      console.error(`[eliminarPago] Error revirtiendo tesorería (movId: ${pagoEliminado.tesoreriaMovimientoId}):`, tesoreriaError);
+      logger.error(`[eliminarPago] Error revirtiendo tesorería (movId: ${pagoEliminado.tesoreriaMovimientoId}):`, tesoreriaError);
     }
   } else if (pagoEliminado.tesoreriaMovimientoId === 'registrado') {
     // Legacy: pagos con ID='registrado' — buscar por ventaId + monto + tipo
@@ -284,7 +285,7 @@ export async function eliminarPago(
         await tesoreriaService.eliminarMovimiento(movimientoCorrespondiente.id, userId);
       }
     } catch (tesoreriaError) {
-      console.error(`[eliminarPago] Error revirtiendo tesorería (legacy):`, tesoreriaError);
+      logger.error(`[eliminarPago] Error revirtiendo tesorería (legacy):`, tesoreriaError);
     }
   }
 

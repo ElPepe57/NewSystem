@@ -14,6 +14,7 @@ import { Badge, Button, Card, LineaNegocioBadge, PaisOrigenBadge } from '../../c
 import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
 import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../utils/multiOrigen.helpers';
 import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
+import { formatCurrency } from '../../../utils/format';
 
 interface UnidadCardProps {
   unidad: Unidad;
@@ -42,14 +43,7 @@ export const UnidadCard: React.FC<UnidadCardProps> = ({
   productoInfo,
   onVerDetalle
 }) => {
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
-  };
+  // formatCurrency importado de utils/format (USD por defecto)
 
   const diasParaVencer = calcularDiasParaVencerUtil(unidad.fechaVencimiento) ?? 999;
   const estado = getEstadoConfig(unidad.estado, unidad.paisOrigen || unidad.pais);

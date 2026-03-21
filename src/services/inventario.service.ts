@@ -15,6 +15,7 @@ import type { Unidad } from '../types/unidad.types';
 import { ESTADOS_EN_ORIGEN, ESTADOS_EN_TRANSITO_ORIGEN, ESTADOS_ACTIVOS } from '../types/unidad.types';
 import type { Producto } from '../types/producto.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esEstadoActivo, esPaisOrigen } from '../utils/multiOrigen.helpers';
+import { logger } from '../lib/logger';
 
 export const inventarioService = {
   /**
@@ -28,7 +29,7 @@ export const inventarioService = {
       : await unidadService.getAll();
 
     // Obtener todos los productos para metadata adicional
-    const productos = await ProductoService.getAll();
+    const productos = await ProductoService.getAll(false, Infinity);
     const productosMap = new Map(productos.map(p => [p.id, p]));
 
     // Agrupar unidades por productoId-almacenId
@@ -444,7 +445,7 @@ export const inventarioService = {
         await batch.commit();
       }
 
-      console.log(
+      logger.log(
         `[Sincronización Reservas] ${unidadesReservadas.length} revisadas, ` +
         `${liberadas} liberadas, ${errores} errores`
       );
@@ -456,7 +457,7 @@ export const inventarioService = {
         detalle
       };
     } catch (error: any) {
-      console.error('Error sincronizando reservas huérfanas:', error);
+      logger.error('Error sincronizando reservas huérfanas:', error);
       throw new Error(`Error sincronizando reservas: ${error.message}`);
     }
   },
@@ -674,7 +675,7 @@ export const inventarioService = {
             }
           } catch (e) {
             errores++;
-            console.error(`Error actualizando unidad ${unidad.id}:`, e);
+            logger.error(`Error actualizando unidad ${unidad.id}:`, e);
           }
         }
       }
@@ -684,7 +685,7 @@ export const inventarioService = {
         await batch.commit();
       }
 
-      console.log(
+      logger.log(
         `[Sincronización Estados] ${todasUnidades.length} revisadas, ` +
         `${correcciones} corregidas, ${reservasLiberadas} reservas liberadas, ${errores} errores`
       );
@@ -697,7 +698,7 @@ export const inventarioService = {
         detalle
       };
     } catch (error: any) {
-      console.error('Error en sincronización completa de estados:', error);
+      logger.error('Error en sincronización completa de estados:', error);
       throw new Error(`Error sincronizando estados: ${error.message}`);
     }
   },
@@ -870,7 +871,7 @@ export const inventarioService = {
             }
           } catch (e) {
             errores++;
-            console.error(`Error actualizando producto ${producto.id}:`, e);
+            logger.error(`Error actualizando producto ${producto.id}:`, e);
           }
         }
       }
@@ -880,7 +881,7 @@ export const inventarioService = {
         await batch.commit();
       }
 
-      console.log(
+      logger.log(
         `[Sincronización Stock] ${productos.length} productos revisados, ` +
         `${actualizados} actualizados, ${errores} errores`
       );
@@ -892,7 +893,7 @@ export const inventarioService = {
         detalle
       };
     } catch (error: any) {
-      console.error('Error sincronizando stock de productos:', error);
+      logger.error('Error sincronizando stock de productos:', error);
       throw new Error(`Error sincronizando stock: ${error.message}`);
     }
   },
@@ -918,29 +919,29 @@ export const inventarioService = {
     errores: number;
   }> {
     try {
-      console.log('[Sincronización] Iniciando sincronización completa del sistema...');
+      logger.log('[Sincronización] Iniciando sincronización completa del sistema...');
 
       // Paso 1: Sincronizar estados de unidades
-      console.log('[Sincronización] Paso 1/3: Sincronizando estados de unidades...');
+      logger.log('[Sincronización] Paso 1/3: Sincronizando estados de unidades...');
       const resultadoEstados = await this.sincronizarEstadosCompleto();
 
       // Paso 2: Sincronizar stock de productos
-      console.log('[Sincronización] Paso 2/3: Sincronizando stock de productos...');
+      logger.log('[Sincronización] Paso 2/3: Sincronizando stock de productos...');
       const resultadoStock = await this.sincronizarStockProductos();
 
       // Paso 3: Actualizar CTRU promedio de productos
-      console.log('[Sincronización] Paso 3/3: Actualizando CTRU de productos...');
+      logger.log('[Sincronización] Paso 3/3: Actualizando CTRU de productos...');
       const { ctruService } = await import('./ctru.service');
       const ctruActualizados = await ctruService.actualizarCTRUPromedioProductos();
 
       const totalErrores = resultadoEstados.errores + resultadoStock.errores;
 
-      console.log('[Sincronización] ✅ Sincronización completa finalizada');
-      console.log(`  - Unidades: ${resultadoEstados.correccionesRealizadas} corregidas`);
-      console.log(`  - Productos: ${resultadoStock.productosActualizados} actualizados`);
-      console.log(`  - CTRU: ${ctruActualizados} productos actualizados`);
+      logger.log('[Sincronización] ✅ Sincronización completa finalizada');
+      logger.log(`  - Unidades: ${resultadoEstados.correccionesRealizadas} corregidas`);
+      logger.log(`  - Productos: ${resultadoStock.productosActualizados} actualizados`);
+      logger.log(`  - CTRU: ${ctruActualizados} productos actualizados`);
       if (totalErrores > 0) {
-        console.log(`  - Errores: ${totalErrores}`);
+        logger.log(`  - Errores: ${totalErrores}`);
       }
 
       return {
@@ -957,7 +958,7 @@ export const inventarioService = {
         errores: totalErrores
       };
     } catch (error: any) {
-      console.error('Error en sincronización completa:', error);
+      logger.error('Error en sincronización completa:', error);
       throw new Error(`Error en sincronización completa: ${error.message}`);
     }
   },
@@ -1024,9 +1025,9 @@ export const inventarioService = {
         ultimaEdicion: serverTimestamp()
       });
 
-      console.log(`[Sync Stock] Producto ${productoId}: USA=${stockUSA}, Perú=${stockPeru}, Tránsito=${stockTransito}, Reservado=${stockReservado}`);
+      logger.log(`[Sync Stock] Producto ${productoId}: USA=${stockUSA}, Perú=${stockPeru}, Tránsito=${stockTransito}, Reservado=${stockReservado}`);
     } catch (error: any) {
-      console.error(`Error sincronizando stock producto ${productoId}:`, error);
+      logger.error(`Error sincronizando stock producto ${productoId}:`, error);
       // No lanzar error para no interrumpir el flujo principal
     }
   },

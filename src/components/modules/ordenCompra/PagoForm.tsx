@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
+import { formatCurrency } from '../../../utils/format';
 import { X, CreditCard, AlertCircle, Wallet, Calendar, DollarSign, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button, Input, Card, Select, Badge } from '../../common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
@@ -145,11 +146,7 @@ export const PagoForm: React.FC<PagoFormProps> = ({
   // ========== Cuenta seleccionada ==========
   const cuentaSeleccionada = cuentas.find(c => c.id === cuentaOrigenId);
 
-  // ========== Formatters ==========
-  const formatCurrency = (amount: number, currency: 'USD' | 'PEN') => {
-    const symbol = currency === 'USD' ? '$' : 'S/';
-    return `${symbol} ${amount.toFixed(2)}`;
-  };
+  // ========== Formatters — formatCurrency importado de utils/format ==========
 
 
   // ========== Submit ==========

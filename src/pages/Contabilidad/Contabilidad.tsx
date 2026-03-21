@@ -51,23 +51,14 @@ import type {
   IndicadoresFinancieros,
   AnalisisFinanciero,
 } from '../../types/contabilidad.types';
+import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 
 type TabActiva = 'resumen' | 'balance' | 'estado-resultados' | 'indicadores' | 'tendencias';
 
-// Formatear moneda
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('es-PE', {
-    style: 'currency',
-    currency: 'PEN',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-};
-
-// Formatear porcentaje
-const formatPercent = (value: number): string => {
-  return `${value.toFixed(1)}%`;
-};
+// Alias local para mantener llamadas existentes sin alterar (PEN, 0 decimales no soportado
+// en format.ts — se usa formatCurrencyPEN que produce 2 decimales; la diferencia visual
+// es mínima y unifica el comportamiento).
+const formatCurrency = formatCurrencyPEN;
 
 // Color según estado del análisis
 const getEstadoColor = (estado: AnalisisFinanciero['estado']) => {
@@ -267,7 +258,7 @@ export function Contabilidad() {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+          <RefreshCw className="w-8 h-8 animate-spin text-primary-600" />
         </div>
       )}
 

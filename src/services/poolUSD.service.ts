@@ -33,6 +33,7 @@ import type {
   EscenarioTC,
 } from '../types/rendimientoCambiario.types';
 import { esEntrada, POOL_USD_CONFIG_DEFAULTS } from '../types/rendimientoCambiario.types';
+import { logger } from '../lib/logger';
 
 const MOV_COLLECTION = COLLECTIONS.POOL_USD_MOVIMIENTOS;
 const SNAP_COLLECTION = COLLECTIONS.POOL_USD_SNAPSHOTS;
@@ -133,7 +134,7 @@ export const poolUSDService = {
         };
       }
     } catch (error) {
-      console.warn('[PoolUSD] Error leyendo config, usando defaults:', error);
+      logger.warn('[PoolUSD] Error leyendo config, usando defaults:', error);
     }
     return POOL_USD_CONFIG_DEFAULTS;
   },
@@ -862,7 +863,7 @@ export const poolUSDService = {
           userId
         );
       } catch (err) {
-        console.warn(`[Retro] Error en movimiento ${i + 1}/${todosMovimientos.length}:`, err);
+        logger.warn(`[Retro] Error en movimiento ${i + 1}/${todosMovimientos.length}:`, err);
         // Continuar con el siguiente — salidas sin saldo se ignoran
       }
       if ((i + 1) % 5 === 0 || i === todosMovimientos.length - 1) {

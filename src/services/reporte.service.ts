@@ -35,7 +35,7 @@ export class ReporteService {
         productosMasVendidos
       ] = await Promise.all([
         VentaService.getStats(),
-        ProductoService.getAll(),
+        ProductoService.getAll(false, Infinity),
         OrdenCompraService.getStats(),
         this.getProductosRentabilidad(rangoFinal)
       ]);
@@ -221,7 +221,7 @@ export class ReporteService {
    */
   static async getInventarioValorizado(): Promise<InventarioValorizado[]> {
     try {
-      const productos = await ProductoService.getAll();
+      const productos = await ProductoService.getAll(false, Infinity);
       const inventarioValorizado: InventarioValorizado[] = [];
 
       // Obtener tipo de cambio centralizado para conversión USD → PEN
@@ -411,7 +411,7 @@ export class ReporteService {
    */
   static async getAlertasInventario(): Promise<AlertaInventario[]> {
     try {
-      const productos = await ProductoService.getAll();
+      const productos = await ProductoService.getAll(false, Infinity);
       const alertas: AlertaInventario[] = [];
       const ahora = new Date();
       const en30Dias = new Date(ahora);

@@ -110,7 +110,7 @@ export const clienteService = {
       // Ordenar en cliente
       return clientes.sort((a, b) => a.nombre.localeCompare(b.nombre));
     } catch (error: any) {
-      console.error('Error al obtener clientes:', error);
+      logger.error('Error al obtener clientes:', error);
       throw new Error('Error al cargar clientes');
     }
   },
@@ -130,7 +130,7 @@ export const clienteService = {
         ...docSnap.data()
       } as Cliente;
     } catch (error: any) {
-      console.error('Error al obtener cliente:', error);
+      logger.error('Error al obtener cliente:', error);
       throw new Error('Error al cargar cliente');
     }
   },
@@ -196,7 +196,7 @@ export const clienteService = {
 
       return resultados;
     } catch (error: any) {
-      console.error('Error al buscar clientes:', error);
+      logger.error('Error al buscar clientes:', error);
       throw new Error('Error en búsqueda de clientes');
     }
   },
@@ -220,7 +220,7 @@ export const clienteService = {
         ...snapshot.docs[0].data()
       } as Cliente;
     } catch (error: any) {
-      console.error('Error al buscar por DNI/RUC:', error);
+      logger.error('Error al buscar por DNI/RUC:', error);
       throw new Error('Error en búsqueda');
     }
   },
@@ -252,7 +252,7 @@ export const clienteService = {
 
       return encontrado || null;
     } catch (error: any) {
-      console.error('Error al buscar por teléfono:', error);
+      logger.error('Error al buscar por teléfono:', error);
       throw new Error('Error en búsqueda');
     }
   },
@@ -308,7 +308,7 @@ export const clienteService = {
 
       return duplicados;
     } catch (error: any) {
-      console.error('Error al detectar duplicados:', error);
+      logger.error('Error al detectar duplicados:', error);
       return [];
     }
   },
@@ -361,7 +361,7 @@ export const clienteService = {
       const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevoCliente);
       return docRef.id;
     } catch (error: any) {
-      console.error('Error al crear cliente:', error);
+      logger.error('Error al crear cliente:', error);
       throw new Error('Error al crear cliente');
     }
   },
@@ -400,7 +400,7 @@ export const clienteService = {
 
       await updateDoc(doc(db, COLLECTION_NAME, id), updates);
     } catch (error: any) {
-      console.error('Error al actualizar cliente:', error);
+      logger.error('Error al actualizar cliente:', error);
       throw new Error('Error al actualizar cliente');
     }
   },
@@ -416,7 +416,7 @@ export const clienteService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error al cambiar estado:', error);
+      logger.error('Error al cambiar estado:', error);
       throw new Error('Error al cambiar estado');
     }
   },
@@ -458,7 +458,7 @@ export const clienteService = {
         }
       });
     } catch (error: any) {
-      console.error('Error al actualizar métricas:', error);
+      logger.error('Error al actualizar métricas:', error);
     }
   },
 
@@ -500,7 +500,7 @@ export const clienteService = {
 
       return { cliente: nuevoCliente!, esNuevo: true };
     } catch (error: any) {
-      console.error('Error en getOrCreate:', error);
+      logger.error('Error en getOrCreate:', error);
       throw new Error('Error al obtener/crear cliente');
     }
   },
@@ -615,7 +615,7 @@ export const clienteService = {
         clientesPorCanal: clientesPorCanal as any
       };
     } catch (error: any) {
-      console.error('Error al obtener stats:', error);
+      logger.error('Error al obtener stats:', error);
       throw new Error('Error al obtener estadísticas');
     }
   },
@@ -652,7 +652,7 @@ export const clienteService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error al agregar dirección:', error);
+      logger.error('Error al agregar dirección:', error);
       throw new Error('Error al agregar dirección');
     }
   },
@@ -671,7 +671,7 @@ export const clienteService = {
 
       await deleteDoc(doc(db, COLLECTION_NAME, id));
     } catch (error: any) {
-      console.error('Error al eliminar cliente:', error);
+      logger.error('Error al eliminar cliente:', error);
       throw new Error(error.message || 'Error al eliminar cliente');
     }
   },
@@ -787,7 +787,7 @@ export const clienteService = {
         clientesPorClase
       };
     } catch (error: any) {
-      console.error('Error al calcular clasificación ABC:', error);
+      logger.error('Error al calcular clasificación ABC:', error);
       throw new Error('Error al calcular clasificación ABC');
     }
   },
@@ -959,7 +959,7 @@ export const clienteService = {
 
       logger.success(`Métricas CRM actualizadas para cliente ${clienteId}`);
     } catch (error: any) {
-      console.error('Error al actualizar métricas CRM:', error);
+      logger.error('Error al actualizar métricas CRM:', error);
     }
   },
 
@@ -978,7 +978,7 @@ export const clienteService = {
         ...d.data()
       } as Cliente));
     } catch (error: any) {
-      console.error('Error al obtener clientes por clasificación:', error);
+      logger.error('Error al obtener clientes por clasificación:', error);
       return [];
     }
   },
@@ -998,7 +998,7 @@ export const clienteService = {
         ...d.data()
       } as Cliente));
     } catch (error: any) {
-      console.error('Error al obtener clientes por segmento:', error);
+      logger.error('Error al obtener clientes por segmento:', error);
       return [];
     }
   },
@@ -1012,7 +1012,7 @@ export const clienteService = {
       const inactivos = await this.getBySegmento('inactivo');
       return [...enRiesgo, ...inactivos];
     } catch (error: any) {
-      console.error('Error al obtener clientes en riesgo:', error);
+      logger.error('Error al obtener clientes en riesgo:', error);
       return [];
     }
   },
@@ -1188,7 +1188,7 @@ export const clienteService = {
         clientesMayorCrecimiento
       };
     } catch (error: any) {
-      console.error('Error al obtener stats CRM:', error);
+      logger.error('Error al obtener stats CRM:', error);
       throw new Error('Error al obtener estadísticas CRM');
     }
   },
@@ -1214,7 +1214,7 @@ export const clienteService = {
                stats.clientesVIPInactivos.length
       };
     } catch (error: any) {
-      console.error('Error al obtener alertas CRM:', error);
+      logger.error('Error al obtener alertas CRM:', error);
       return { enRiesgo: 0, perdidos: 0, vipInactivos: 0, sinContacto: 0, total: 0 };
     }
   },
@@ -1269,7 +1269,7 @@ export const clienteService = {
 
       return { actualizados };
     } catch (error: any) {
-      console.error('Error al recalcular segmentos:', error);
+      logger.error('Error al recalcular segmentos:', error);
       throw new Error('Error al recalcular segmentos');
     }
   },
@@ -1296,7 +1296,7 @@ export const clienteService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error al agregar nota:', error);
+      logger.error('Error al agregar nota:', error);
       throw new Error('Error al agregar nota');
     }
   },
@@ -1323,7 +1323,7 @@ export const clienteService = {
         });
       }
     } catch (error: any) {
-      console.error('Error al agregar etiqueta:', error);
+      logger.error('Error al agregar etiqueta:', error);
       throw new Error('Error al agregar etiqueta');
     }
   },
@@ -1347,7 +1347,7 @@ export const clienteService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error al quitar etiqueta:', error);
+      logger.error('Error al quitar etiqueta:', error);
       throw new Error('Error al quitar etiqueta');
     }
   },
@@ -1451,7 +1451,7 @@ export const clienteService = {
             operacionesEnBatch = 0;
           }
         } catch (err) {
-          console.error(`Error actualizando cliente ${cliente.id}:`, err);
+          logger.error(`Error actualizando cliente ${cliente.id}:`, err);
           errores++;
         }
       }
@@ -1464,7 +1464,7 @@ export const clienteService = {
       logger.info('Métricas de clientes recalculadas', { actualizados, errores });
       return { actualizados, errores };
     } catch (error: any) {
-      console.error('Error al recalcular métricas desde ventas:', error);
+      logger.error('Error al recalcular métricas desde ventas:', error);
       throw new Error('Error al recalcular métricas de clientes');
     }
   }

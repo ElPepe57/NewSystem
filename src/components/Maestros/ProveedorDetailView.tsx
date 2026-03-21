@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
+import { formatCurrency } from '../../utils/format';
 import {
   X,
   Truck,
@@ -112,11 +113,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
     loadData();
   }, [proveedor.id, ordenesCompra.length, productos.length]);
 
-  // Helpers
-  const formatCurrency = (value: number, currency: 'USD' | 'PEN' = 'USD') => {
-    const symbol = currency === 'USD' ? 'USD ' : 'S/ ';
-    return `${symbol}${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
+  // Helpers — formatCurrency importado de utils/format (USD por defecto)
 
 
   const getClasificacionConfig = (clasificacion?: ClasificacionProveedor) => {

@@ -14,6 +14,9 @@ import type { Producto } from '../types/producto.types';
 
 // ---- In-flight guard: prevents concurrent duplicate fetchAll calls ----
 let _fetchAllInProgress = false;
+// ---- TTL cache: skip re-fetch if data is fresher than 5 minutes ----
+let _lastFetchAt = 0;
+const FETCH_TTL_MS = 5 * 60 * 1000;
 
 
 // ============================================
@@ -1031,6 +1034,8 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
   fetchAll: async () => {
     // Prevent concurrent duplicate fetches (e.g., two components mounting simultaneously)
     if (_fetchAllInProgress) return;
+    // Skip re-fetch if data was loaded less than 5 minutes ago
+    if (Date.now() - _lastFetchAt < FETCH_TTL_MS && get().resumen !== null) return;
     _fetchAllInProgress = true;
 
     set({ loading: true, error: null });
@@ -1041,7 +1046,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       const [todasUnidades, todasTransferencias, todosProductos] = await Promise.all([
         fetchUnidadesParaCTRU(),
         transferenciaService.getByFiltros({ tipo: 'usa_peru' }),
-        ProductoService.getAll(true)
+        ProductoService.getAll(true, Infinity)
       ]);
 
       // Phase 2: gastos, OCs, and ventas — scoped to what is actually needed.
@@ -1142,6 +1147,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       );
       const resumen = processResumen(productosDetalle, historialMensual, todasUnidades);
 
+      _lastFetchAt = Date.now();
       set({
         resumen, productosDetalle, historialMensual, historialGastos, lotesOC,
         loading: false
@@ -1155,6 +1161,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
   },
 
   recalcularCTRU: async () => {
+    _lastFetchAt = 0; // Force re-fetch after recalculation
     try {
       const resultado = await ctruService.recalcularCTRUDinamicoSafe();
       await get().fetchAll();

@@ -30,6 +30,7 @@ import type {
 } from '../types/requerimiento.types';
 import { almacenService } from './almacen.service';
 import { COLLECTIONS } from '../config/collections';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.REQUERIMIENTOS;
 
@@ -50,7 +51,7 @@ export const requerimientoService = {
         ...doc.data()
       } as Requerimiento));
     } catch (error: any) {
-      console.error('Error al obtener requerimientos:', error);
+      logger.error('Error al obtener requerimientos:', error);
       throw new Error('Error al cargar requerimientos');
     }
   },
@@ -71,7 +72,7 @@ export const requerimientoService = {
         ...docSnap.data()
       } as Requerimiento;
     } catch (error: any) {
-      console.error('Error al obtener requerimiento:', error);
+      logger.error('Error al obtener requerimiento:', error);
       throw new Error('Error al cargar requerimiento');
     }
   },
@@ -116,7 +117,7 @@ export const requerimientoService = {
 
       return requerimientos;
     } catch (error: any) {
-      console.error('Error al buscar requerimientos:', error);
+      logger.error('Error al buscar requerimientos:', error);
       throw new Error('Error al buscar requerimientos');
     }
   },
@@ -186,7 +187,7 @@ export const requerimientoService = {
         ...nuevoRequerimiento
       } as Requerimiento;
     } catch (error: any) {
-      console.error('Error al crear requerimiento:', error);
+      logger.error('Error al crear requerimiento:', error);
       throw new Error(error.message || 'Error al crear requerimiento');
     }
   },
@@ -213,7 +214,7 @@ export const requerimientoService = {
         actualizadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al aprobar requerimiento:', error);
+      logger.error('Error al aprobar requerimiento:', error);
       throw new Error(error.message || 'Error al aprobar requerimiento');
     }
   },
@@ -358,11 +359,11 @@ export const requerimientoService = {
         actualizadoPor: userId
       });
 
-      console.log(`[Requerimiento] Asignado ${responsable.nombre} a ${requerimiento.numeroRequerimiento}`);
+      logger.log(`[Requerimiento] Asignado ${responsable.nombre} a ${requerimiento.numeroRequerimiento}`);
 
       return nuevaAsignacion as AsignacionResponsable;
     } catch (error: any) {
-      console.error('Error al asignar responsable:', error);
+      logger.error('Error al asignar responsable:', error);
       throw new Error(error.message || 'Error al asignar responsable');
     }
   },
@@ -455,7 +456,7 @@ export const requerimientoService = {
         actualizadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al actualizar asignación:', error);
+      logger.error('Error al actualizar asignación:', error);
       throw new Error(error.message || 'Error al actualizar asignación');
     }
   },
@@ -523,7 +524,7 @@ export const requerimientoService = {
         actualizadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al cancelar asignación:', error);
+      logger.error('Error al cancelar asignación:', error);
       throw new Error(error.message || 'Error al cancelar asignación');
     }
   },
@@ -680,7 +681,7 @@ export const requerimientoService = {
 
       return stats;
     } catch (error: any) {
-      console.error('Error al obtener estadísticas:', error);
+      logger.error('Error al obtener estadísticas:', error);
       throw new Error('Error al generar estadísticas');
     }
   },

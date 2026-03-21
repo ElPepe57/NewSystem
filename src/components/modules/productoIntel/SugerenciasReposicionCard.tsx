@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShoppingCart, AlertTriangle, TrendingUp, Clock, DollarSign } from 'lucide-react';
 import type { SugerenciaReposicion } from '../../../types/productoIntel.types';
+import { formatCurrencyCompact } from '../../../utils/format';
 
 interface SugerenciasReposicionCardProps {
   sugerencias: SugerenciaReposicion[];
@@ -9,13 +10,9 @@ interface SugerenciasReposicionCardProps {
   onProductoClick?: (productoId: string) => void;
 }
 
-const formatCurrency = (value: number, currency: 'PEN' | 'USD' = 'PEN'): string => {
-  const symbol = currency === 'USD' ? '$' : 'S/';
-  if (value >= 1000) {
-    return `${symbol}${(value / 1000).toFixed(1)}K`;
-  }
-  return `${symbol}${value.toFixed(0)}`;
-};
+// Alias con default PEN para preservar comportamiento anterior
+const formatCurrency = (value: number, currency: 'PEN' | 'USD' = 'PEN'): string =>
+  formatCurrencyCompact(value, currency);
 
 const urgenciaConfig = {
   critica: {

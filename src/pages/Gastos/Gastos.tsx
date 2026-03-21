@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { formatFecha } from '../../utils/dateFormatters';
+import { formatCurrencyPEN } from '../../utils/format';
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2 } from 'lucide-react';
 import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton, GastoLineaBadge } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
@@ -163,13 +164,7 @@ export const Gastos: React.FC = () => {
     return Array.from(tipos).sort();
   }, [gastos]);
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number): string => formatCurrencyPEN(amount);
 
 
   const getEstadoBadge = (estado: EstadoGasto) => {

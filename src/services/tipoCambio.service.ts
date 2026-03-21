@@ -15,6 +15,7 @@ import { db } from '../lib/firebase';
 import type { TipoCambio, TipoCambioFormData, TipoCambioFiltros, SunatTCResponse, TCResuelto, TCConfig, TCFreshness, TCModalidad } from '../types/tipoCambio.types';
 import { TC_CONFIG_DEFAULTS } from '../types/tipoCambio.types';
 import { COLLECTIONS } from '../config/collections';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.TIPOS_CAMBIO;
 
@@ -167,7 +168,7 @@ export const tipoCambioService = {
         promedio: data.promedio ?? (data.compra + data.venta) / 2
       } as TipoCambio;
     } catch (error) {
-      console.error('Error buscando TC más reciente:', error);
+      logger.error('Error buscando TC más reciente:', error);
       return null;
     }
   },
@@ -257,7 +258,7 @@ export const tipoCambioService = {
         venta: parseFloat(data.venta || data.precioVenta || 0)
       };
     } catch (error) {
-      console.error('Error al obtener TC de SUNAT:', error);
+      logger.error('Error al obtener TC de SUNAT:', error);
       throw new Error('No se pudo conectar con el servicio de SUNAT. Intente con ingreso manual.');
     }
   },
@@ -370,7 +371,7 @@ export const tipoCambioService = {
         return config;
       }
     } catch (error) {
-      console.warn('[TC] Error leyendo config, usando defaults:', error);
+      logger.warn('[TC] Error leyendo config, usando defaults:', error);
     }
     return TC_CONFIG_DEFAULTS;
   },
@@ -433,7 +434,7 @@ export const tipoCambioService = {
         return resultado;
       }
     } catch (error) {
-      console.warn('[TC] Error buscando TC del día:', error);
+      logger.warn('[TC] Error buscando TC del día:', error);
     }
 
     // [3] Fallback de emergencia
@@ -541,7 +542,7 @@ export const tipoCambioService = {
         return resultado;
       }
     } catch (error) {
-      console.warn('[TC] Error buscando TC SUNAT:', error);
+      logger.warn('[TC] Error buscando TC SUNAT:', error);
     }
 
     // Fallback: devolver el resolver normal (mejor que nada)

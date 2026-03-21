@@ -219,7 +219,7 @@ export async function migrarProductos(
   onProgress?.('Obteniendo productos existentes...', 0);
 
   // Obtener productos existentes
-  const productosExistentes = await ProductoService.getAll(true);
+  const productosExistentes = await ProductoService.getAll(true, Infinity);
   const clavesExistentes = new Set<string>();
 
   productosExistentes.forEach(p => {

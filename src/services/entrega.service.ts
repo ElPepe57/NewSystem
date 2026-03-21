@@ -38,6 +38,7 @@ import { inventarioService } from './inventario.service';
 import { actividadService } from './actividad.service';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { logBackgroundError } from '../lib/logger';
+import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.ENTREGAS;
 
@@ -108,7 +109,7 @@ export const entregaService = {
       } as Entrega));
       callback(entregas);
     }, (error) => {
-      console.error('Error en suscripción de entregas:', error);
+      logger.error('Error en suscripción de entregas:', error);
     });
   },
 
@@ -333,7 +334,7 @@ export const entregaService = {
     let costoFinal = data.costoTransportista;
     if (costoFinal === 0 && transportista.costoFijo && transportista.costoFijo > 0) {
       costoFinal = transportista.costoFijo;
-      console.warn(`[Entrega] costoTransportista era 0, usando costoFijo del transportista: S/${costoFinal}`);
+      logger.warn(`[Entrega] costoTransportista era 0, usando costoFijo del transportista: S/${costoFinal}`);
     }
 
     // Construir productos de la entrega
@@ -489,9 +490,9 @@ export const entregaService = {
         }, userId);
 
         await updateDoc(entregaRef, { gastoDistribucionId: gastoId });
-        console.log(`[Entrega ${entrega.codigo}] Gasto GD creado al despachar: ${gastoId} por S/${entrega.costoTransportista.toFixed(2)}`);
+        logger.log(`[Entrega ${entrega.codigo}] Gasto GD creado al despachar: ${gastoId} por S/${entrega.costoTransportista.toFixed(2)}`);
       } catch (error) {
-        console.error(`[Entrega ${entrega.codigo}] Error creando gasto GD al despachar:`, error);
+        logger.error(`[Entrega ${entrega.codigo}] Error creando gasto GD al despachar:`, error);
       }
     }
   },
@@ -655,7 +656,7 @@ export const entregaService = {
 
       // Commit atómico: si falla, NADA se escribe
       await batch.commit();
-      console.log(`[Entrega ${entrega.codigo}] Batch atómico completado: entrega + ${unidadesMap.size} unidades${estadoVentaPost.nuevoEstado ? ` + venta → ${estadoVentaPost.nuevoEstado}` : ''}`);
+      logger.log(`[Entrega ${entrega.codigo}] Batch atómico completado: entrega + ${unidadesMap.size} unidades${estadoVentaPost.nuevoEstado ? ` + venta → ${estadoVentaPost.nuevoEstado}` : ''}`);
 
       // ============================================
       // FASE B: OPERACIONES SECUNDARIAS (con try/catch individual)
@@ -694,9 +695,9 @@ export const entregaService = {
       import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
         for (const productoId of productosAfectados) {
           mercadoLibreService.syncStock(productoId)
-            .then(r => { if (r.synced > 0) console.log(`[ML Sync] Post-entrega: ${productoId} → ${r.synced} pubs actualizadas`); })
+            .then(r => { if (r.synced > 0) logger.log(`[ML Sync] Post-entrega: ${productoId} → ${r.synced} pubs actualizadas`); })
             .catch(e => {
-              console.error(`[ML Sync] Error post-entrega ${productoId}:`, e);
+              logger.error(`[ML Sync] Error post-entrega ${productoId}:`, e);
               logBackgroundError('mlSync.postEntrega', e, 'high', { productoId, entregaId: entrega.id });
             });
         }
@@ -718,7 +719,7 @@ export const entregaService = {
           }, userId);
 
           await updateDoc(docRef, { gastoDistribucionId: gastoId });
-          console.log(`[Entrega ${entrega.codigo}] Gasto GD creado al completar (fallback): ${gastoId}`);
+          logger.log(`[Entrega ${entrega.codigo}] Gasto GD creado al completar (fallback): ${gastoId}`);
         } catch (error) {
           secondaryErrors.push(`gasto_gd: ${error}`);
         }
@@ -770,7 +771,7 @@ export const entregaService = {
               true
             );
             await updateDoc(docRef, { referenciaCobroId: pago.id });
-            console.log(
+            logger.log(
               `[Entrega ${entrega.codigo}] Cobro de S/${montoACobrar.toFixed(2)} registrado. PagoId: ${pago.id}`
             );
           }
@@ -791,7 +792,7 @@ export const entregaService = {
             userId
           );
           if (reclasificados > 0) {
-            console.log(`[Entrega ${entrega.codigo}] ${reclasificados} anticipo(s) reclasificados a ingreso_venta`);
+            logger.log(`[Entrega ${entrega.codigo}] ${reclasificados} anticipo(s) reclasificados a ingreso_venta`);
           }
         } catch (error) {
           secondaryErrors.push(`reclasificar_anticipos: ${error}`);
@@ -803,25 +804,25 @@ export const entregaService = {
         ctruService.recalcularCTRUDinamicoSafe()
           .then(result => {
             if (result) {
-              console.log(`[CTRU] Auto-recalculo post-entrega: ${result.unidadesActualizadas} unidades`);
+              logger.log(`[CTRU] Auto-recalculo post-entrega: ${result.unidadesActualizadas} unidades`);
             }
           })
           .catch(error => {
-            console.error('[CTRU] Error en auto-recalculo post-entrega:', error);
+            logger.error('[CTRU] Error en auto-recalculo post-entrega:', error);
             logBackgroundError('ctru.recalcPostEntrega', error, 'critical', { entregaId: entrega.id, entregaCodigo: entrega.codigo });
           });
       });
 
       // Registrar errores secundarios si hubo alguno
       if (secondaryErrors.length > 0) {
-        console.warn(`[Entrega ${entrega.codigo}] ${secondaryErrors.length} error(es) secundario(s):`, secondaryErrors);
+        logger.warn(`[Entrega ${entrega.codigo}] ${secondaryErrors.length} error(es) secundario(s):`, secondaryErrors);
         try {
           await updateDoc(docRef, {
             _secondaryErrors: secondaryErrors,
             _needsRecovery: true
           });
         } catch {
-          console.error(`[Entrega ${entrega.codigo}] No se pudieron registrar errores secundarios`);
+          logger.error(`[Entrega ${entrega.codigo}] No se pudieron registrar errores secundarios`);
         }
       }
 
@@ -861,9 +862,9 @@ export const entregaService = {
       if (!data.reprogramar && entrega.gastoDistribucionId) {
         try {
           await gastoService.delete(entrega.gastoDistribucionId);
-          console.log(`[Entrega ${entrega.codigo}] Gasto GD anulado por entrega fallida: ${entrega.gastoDistribucionId}`);
+          logger.log(`[Entrega ${entrega.codigo}] Gasto GD anulado por entrega fallida: ${entrega.gastoDistribucionId}`);
         } catch (error) {
-          console.error(`[Entrega ${entrega.codigo}] Error anulando gasto GD:`, error);
+          logger.error(`[Entrega ${entrega.codigo}] Error anulando gasto GD:`, error);
         }
       }
 
@@ -878,9 +879,9 @@ export const entregaService = {
               motivo,
               userId
             );
-            console.log(`[Entrega ${entrega.codigo}] Unidades liberadas: ${resultadoLiberacion.exitos}/${unidadIds.length}`);
+            logger.log(`[Entrega ${entrega.codigo}] Unidades liberadas: ${resultadoLiberacion.exitos}/${unidadIds.length}`);
           } catch (error) {
-            console.error(`[Entrega ${entrega.codigo}] Error liberando unidades:`, error);
+            logger.error(`[Entrega ${entrega.codigo}] Error liberando unidades:`, error);
           }
         }
       }
@@ -893,7 +894,7 @@ export const entregaService = {
           userId
         );
       } catch (error) {
-        console.error(`[Entrega ${entrega.codigo}] Error registrando fallo:`, error);
+        logger.error(`[Entrega ${entrega.codigo}] Error registrando fallo:`, error);
       }
 
       // 4. Actualizar métricas del transportista (fallo)
@@ -965,7 +966,7 @@ export const entregaService = {
 
       return { nuevoEstado: null, totalProductos: totalProductosVenta, totalEntregados: productosEntregados };
     } catch (error) {
-      console.error(`[calcularEstadoVentaPostEntrega] Error para venta ${ventaId}:`, error);
+      logger.error(`[calcularEstadoVentaPostEntrega] Error para venta ${ventaId}:`, error);
       return { nuevoEstado: null, totalProductos: 0, totalEntregados: 0 };
     }
   },
@@ -981,7 +982,7 @@ export const entregaService = {
       const ventaSnap = await getDoc(ventaRef);
 
       if (!ventaSnap.exists()) {
-        console.warn(`[actualizarEstadoVenta] Venta ${ventaId} no encontrada`);
+        logger.warn(`[actualizarEstadoVenta] Venta ${ventaId} no encontrada`);
         return;
       }
 
@@ -1001,7 +1002,7 @@ export const entregaService = {
         }
       });
 
-      console.log(`[Venta ${venta.numeroVenta}] Productos: ${productosEntregados}/${totalProductosVenta} entregados`);
+      logger.log(`[Venta ${venta.numeroVenta}] Productos: ${productosEntregados}/${totalProductosVenta} entregados`);
 
       // Determinar nuevo estado
       let nuevoEstado: EstadoVenta | null = null;
@@ -1021,7 +1022,7 @@ export const entregaService = {
           editadoPor: userId,
           ultimaEdicion: Timestamp.now()
         });
-        console.log(`[Venta ${venta.numeroVenta}] Estado actualizado a: ${nuevoEstado}`);
+        logger.log(`[Venta ${venta.numeroVenta}] Estado actualizado a: ${nuevoEstado}`);
 
         // Si la venta se marcó como entregada, reclasificar anticipos
         if (nuevoEstado === 'entregada') {
@@ -1032,15 +1033,15 @@ export const entregaService = {
               userId
             );
             if (reclasificados > 0) {
-              console.log(`[actualizarEstadoVenta] ${reclasificados} anticipo(s) reclasificados a ingreso_venta`);
+              logger.log(`[actualizarEstadoVenta] ${reclasificados} anticipo(s) reclasificados a ingreso_venta`);
             }
           } catch (reclasError) {
-            console.warn('[actualizarEstadoVenta] Error al reclasificar anticipos:', reclasError);
+            logger.warn('[actualizarEstadoVenta] Error al reclasificar anticipos:', reclasError);
           }
         }
       }
     } catch (error) {
-      console.error(`[actualizarEstadoVenta] Error para venta ${ventaId}:`, error);
+      logger.error(`[actualizarEstadoVenta] Error para venta ${ventaId}:`, error);
     }
   },
 
@@ -1058,9 +1059,9 @@ export const entregaService = {
     if (entrega?.gastoDistribucionId) {
       try {
         await gastoService.delete(entrega.gastoDistribucionId);
-        console.log(`[Entrega ${entrega.codigo}] Gasto GD anulado por cancelación: ${entrega.gastoDistribucionId}`);
+        logger.log(`[Entrega ${entrega.codigo}] Gasto GD anulado por cancelación: ${entrega.gastoDistribucionId}`);
       } catch (error) {
-        console.error(`[Entrega ${entrega.codigo}] Error anulando gasto GD al cancelar:`, error);
+        logger.error(`[Entrega ${entrega.codigo}] Error anulando gasto GD al cancelar:`, error);
       }
     }
   },
@@ -1333,7 +1334,7 @@ export const entregaService = {
 
       const gastoRef = doc(db, COLLECTIONS.GASTOS, entrega.gastoDistribucionId);
       await updateDoc(gastoRef, gastoUpdates);
-      console.log(`[Entrega ${entrega.codigo}] Gasto GD ${entrega.gastoDistribucionId} actualizado (estado: ${entrega.estado})`);
+      logger.log(`[Entrega ${entrega.codigo}] Gasto GD ${entrega.gastoDistribucionId} actualizado (estado: ${entrega.estado})`);
     }
 
     // ============================================
@@ -1346,7 +1347,7 @@ export const entregaService = {
         if (transportistaCambio) {
           // Revertir metricas del transportista anterior
           await this.revertirMetricasTransportista(entrega.transportistaId, costoAnterior);
-          console.log(`[Entrega ${entrega.codigo}] Metricas revertidas para transportista anterior: ${entrega.nombreTransportista}`);
+          logger.log(`[Entrega ${entrega.codigo}] Metricas revertidas para transportista anterior: ${entrega.nombreTransportista}`);
 
           // Acreditar metricas al nuevo transportista
           await transportistaService.registrarEntrega(
@@ -1356,14 +1357,14 @@ export const entregaService = {
             costoNuevo,
             entrega.distrito
           );
-          console.log(`[Entrega ${entrega.codigo}] Metricas asignadas a nuevo transportista: ${nombreTransportistaActualizado}`);
+          logger.log(`[Entrega ${entrega.codigo}] Metricas asignadas a nuevo transportista: ${nombreTransportistaActualizado}`);
         } else if (costoNuevo !== costoAnterior) {
           // Solo cambio costo, mismo transportista: ajustar costoTotalHistorico
           await this.ajustarCostoTransportista(entrega.transportistaId, costoAnterior, costoNuevo);
-          console.log(`[Entrega ${entrega.codigo}] Costo ajustado en transportista: S/${costoAnterior} → S/${costoNuevo}`);
+          logger.log(`[Entrega ${entrega.codigo}] Costo ajustado en transportista: S/${costoAnterior} → S/${costoNuevo}`);
         }
       } catch (error) {
-        console.error(`[Entrega ${entrega.codigo}] Error actualizando metricas transportista:`, error);
+        logger.error(`[Entrega ${entrega.codigo}] Error actualizando metricas transportista:`, error);
       }
 
       // 3. Crear movimiento de ajuste contable
@@ -1392,7 +1393,7 @@ export const entregaService = {
             entrega.codigo,
             userId
           );
-          console.log(`[Entrega ${entrega.codigo}] Movimientos de ajuste creados para ambos transportistas`);
+          logger.log(`[Entrega ${entrega.codigo}] Movimientos de ajuste creados para ambos transportistas`);
         } else if (deltaCosto !== 0) {
           // Solo cambio costo: ajuste en el mismo transportista
           await movimientoTransportistaService.registrarAjuste(
@@ -1404,14 +1405,14 @@ export const entregaService = {
             entrega.codigo,
             userId
           );
-          console.log(`[Entrega ${entrega.codigo}] Movimiento de ajuste creado: delta S/${deltaCosto.toFixed(2)}`);
+          logger.log(`[Entrega ${entrega.codigo}] Movimiento de ajuste creado: delta S/${deltaCosto.toFixed(2)}`);
         }
       } catch (error) {
-        console.error(`[Entrega ${entrega.codigo}] Error creando movimiento de ajuste:`, error);
+        logger.error(`[Entrega ${entrega.codigo}] Error creando movimiento de ajuste:`, error);
       }
     }
 
-    console.log(`[Entrega ${entrega.codigo}] Corregida: ${JSON.stringify(data)}`);
+    logger.log(`[Entrega ${entrega.codigo}] Corregida: ${JSON.stringify(data)}`);
   },
 
   /**

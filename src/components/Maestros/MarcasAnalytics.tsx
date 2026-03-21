@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMarcaStore } from '../../store/marcaStore';
+import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 import type { Marca } from '../../types/entidadesMaestras.types';
 import { MarcaDetailView } from './MarcaDetailView';
 import { MarcasComparador } from './MarcasComparador';
@@ -166,18 +167,7 @@ export function MarcasAnalytics({
     initialItemsPerPage: 25
   });
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-
-  const formatPercent = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
+  const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
   const getTipoLabel = (tipo: string) => {
     const labels: Record<string, string> = {

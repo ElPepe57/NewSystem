@@ -32,6 +32,7 @@ import { actividadService } from './actividad.service';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { logBackgroundError } from '../lib/logger';
+import { logger } from '../lib/logger';
 
 const GASTOS_COLLECTION = COLLECTIONS.GASTOS;
 
@@ -144,7 +145,7 @@ export const gastoService = {
             montoPendiente: 0
           });
         } catch (tesoreriaError) {
-          console.error('Error registrando movimiento en tesorería al crear gasto pagado:', tesoreriaError);
+          logger.error('Error registrando movimiento en tesorería al crear gasto pagado:', tesoreriaError);
           // No bloquear la creación del gasto, pero logear el error
         }
 
@@ -167,7 +168,7 @@ export const gastoService = {
               userId
             );
           } catch (poolError) {
-            console.error('Error registrando gasto USD en Pool USD:', poolError);
+            logger.error('Error registrando gasto USD en Pool USD:', poolError);
           }
         }
       }
@@ -178,13 +179,13 @@ export const gastoService = {
         ctruService.recalcularCTRUDinamicoSafe()
           .then(result => {
             if (result) {
-              console.log(`[CTRU] Auto-recálculo completado: ${result.unidadesActualizadas} unidades actualizadas, ${result.gastosAplicados} gastos aplicados`);
+              logger.log(`[CTRU] Auto-recálculo completado: ${result.unidadesActualizadas} unidades actualizadas, ${result.gastosAplicados} gastos aplicados`);
             } else {
-              console.log('[CTRU] Auto-recálculo encolado (otro en ejecución)');
+              logger.log('[CTRU] Auto-recálculo encolado (otro en ejecución)');
             }
           })
           .catch(error => {
-            console.error('[CTRU] Error en auto-recálculo (no bloqueante):', error);
+            logger.error('[CTRU] Error en auto-recálculo (no bloqueante):', error);
             logBackgroundError('ctru.recalcPostGasto', error, 'critical', { gastoCategoria: data.categoria, esProrrateable: data.esProrrateable });
           });
       }
@@ -200,7 +201,7 @@ export const gastoService = {
 
       return docRef.id;
     } catch (error: any) {
-      console.error('Error al crear gasto:', error);
+      logger.error('Error al crear gasto:', error);
       throw new Error(`Error al crear gasto: ${error.message}`);
     }
   },
@@ -234,7 +235,7 @@ export const gastoService = {
         return fechaB - fechaA;
       });
     } catch (error: any) {
-      console.error('Error al obtener gastos:', error);
+      logger.error('Error al obtener gastos:', error);
       throw new Error(`Error al obtener gastos: ${error.message}`);
     }
   },
@@ -256,7 +257,7 @@ export const gastoService = {
         ...docSnap.data()
       } as Gasto;
     } catch (error: any) {
-      console.error('Error al obtener gasto:', error);
+      logger.error('Error al obtener gasto:', error);
       throw new Error(`Error al obtener gasto: ${error.message}`);
     }
   },
@@ -362,7 +363,7 @@ export const gastoService = {
               try {
                 await tesoreriaService.eliminarMovimiento(pago.movimientoTesoreriaId, userId);
               } catch (err) {
-                console.warn(`Error anulando movimiento ${pago.movimientoTesoreriaId}:`, err);
+                logger.warn(`Error anulando movimiento ${pago.movimientoTesoreriaId}:`, err);
               }
             }
           }
@@ -389,7 +390,7 @@ export const gastoService = {
             try {
               await tesoreriaService.eliminarMovimiento(pagoExistente.movimientoTesoreriaId, userId);
             } catch (err) {
-              console.warn('Error anulando movimiento viejo:', err);
+              logger.warn('Error anulando movimiento viejo:', err);
             }
           }
 
@@ -439,7 +440,7 @@ export const gastoService = {
       await updateDoc(docRef, updateData);
 
     } catch (error: any) {
-      console.error('Error al actualizar gasto:', error);
+      logger.error('Error al actualizar gasto:', error);
       throw new Error(`Error al actualizar gasto: ${error.message}`);
     }
   },
@@ -506,7 +507,7 @@ export const gastoService = {
       const docRef = doc(db, GASTOS_COLLECTION, id);
       await deleteDoc(docRef);
     } catch (error: any) {
-      console.error('Error al eliminar gasto:', error);
+      logger.error('Error al eliminar gasto:', error);
       throw new Error(`Error al eliminar gasto: ${error.message}`);
     }
   },
@@ -565,7 +566,7 @@ export const gastoService = {
         return fechaB - fechaA;
       });
     } catch (error: any) {
-      console.error('Error al buscar gastos:', error);
+      logger.error('Error al buscar gastos:', error);
       throw new Error(`Error al buscar gastos: ${error.message}`);
     }
   },
@@ -726,7 +727,7 @@ export const gastoService = {
         fechaRecalculoCTRU: Timestamp.now()
       });
     } catch (error: any) {
-      console.error('Error al marcar CTRU recalculado:', error);
+      logger.error('Error al marcar CTRU recalculado:', error);
       throw new Error(`Error al marcar CTRU recalculado: ${error.message}`);
     }
   },
@@ -755,7 +756,7 @@ export const gastoService = {
         return fechaB - fechaA;
       });
     } catch (error: any) {
-      console.error('Error al obtener gastos de venta:', error);
+      logger.error('Error al obtener gastos de venta:', error);
       throw new Error(`Error al obtener gastos de venta: ${error.message}`);
     }
   },
@@ -821,7 +822,7 @@ export const gastoService = {
       await batch.commit();
       return ids;
     } catch (error: any) {
-      console.error('Error al crear gastos de venta:', error);
+      logger.error('Error al crear gastos de venta:', error);
       throw new Error(`Error al crear gastos de venta: ${error.message}`);
     }
   },
@@ -848,7 +849,7 @@ export const gastoService = {
         return fechaA - fechaB;
       });
     } catch (error: any) {
-      console.error('Error al obtener gastos pendientes de recálculo:', error);
+      logger.error('Error al obtener gastos pendientes de recálculo:', error);
       throw new Error(`Error al obtener gastos pendientes de recálculo: ${error.message}`);
     }
   },
@@ -960,7 +961,7 @@ export const gastoService = {
           nuevoPago.movimientoTesoreriaId = movimientoId;
         }
       } catch (tesoreriaError) {
-        console.error('Error registrando movimiento en tesorería:', tesoreriaError);
+        logger.error('Error registrando movimiento en tesorería:', tesoreriaError);
         throw tesoreriaError;
       }
 
@@ -983,7 +984,7 @@ export const gastoService = {
             userId
           );
         } catch (poolError) {
-          console.error('Error registrando pago gasto USD en Pool USD:', poolError);
+          logger.error('Error registrando pago gasto USD en Pool USD:', poolError);
         }
       }
 
@@ -1019,7 +1020,7 @@ export const gastoService = {
         );
       }
     } catch (error: any) {
-      console.error('Error al registrar pago de gasto:', error);
+      logger.error('Error al registrar pago de gasto:', error);
       throw new Error(`Error al registrar pago: ${error.message}`);
     }
   },
@@ -1050,7 +1051,7 @@ export const gastoService = {
       const existingSnap = await getDocs(existingQ);
       if (!existingSnap.empty) {
         const existingId = existingSnap.docs[0].id;
-        console.warn(`[Gasto GD] Ya existe gasto para entrega ${data.entregaCodigo}: ${existingId} — omitiendo duplicado`);
+        logger.warn(`[Gasto GD] Ya existe gasto para entrega ${data.entregaCodigo}: ${existingId} — omitiendo duplicado`);
         return existingId;
       }
 
@@ -1100,11 +1101,11 @@ export const gastoService = {
 
       const docRef = await addDoc(collection(db, GASTOS_COLLECTION), gasto);
 
-      console.log(`[Gasto GD] Creado ${numeroGasto} por S/${data.costoEntrega.toFixed(2)} - Entrega ${data.entregaCodigo} - VentaId: ${data.ventaId}`);
+      logger.log(`[Gasto GD] Creado ${numeroGasto} por S/${data.costoEntrega.toFixed(2)} - Entrega ${data.entregaCodigo} - VentaId: ${data.ventaId}`);
 
       return docRef.id;
     } catch (error: any) {
-      console.error('Error al crear gasto de distribución:', error);
+      logger.error('Error al crear gasto de distribución:', error);
       throw new Error(`Error al crear gasto de distribución: ${error.message}`);
     }
   }

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { formatCurrency } from '../../../utils/format';
 import {
   ChevronDown,
   ChevronRight,
@@ -193,13 +194,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
     setExpandedRows(new Set());
   };
 
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
+  // formatCurrency importado de utils/format (USD por defecto)
 
   // Obtener unidades filtradas por estado si hay filtro activo
   const getUnidadesFiltradas = (producto: ProductoConUnidades): Unidad[] => {
