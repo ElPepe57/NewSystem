@@ -831,26 +831,46 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
 
   if (transportistas.length === 0) {
     return (
-      <Card padding="lg">
-        <div className="text-center py-12">
-          <Truck className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No hay transportistas registrados
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Crea transportistas para gestionar las entregas de tus ventas
-          </p>
-          <div className="flex justify-center space-x-4">
-            <Button variant="secondary" onClick={handleSeedTransportistas}>
-              Crear por Defecto
-            </Button>
-            <Button variant="primary" onClick={openCreateModal}>
-              <Plus className="h-5 w-5 mr-2" />
-              Crear Transportista
-            </Button>
+      <>
+        <Card padding="lg">
+          <div className="text-center py-12">
+            <Truck className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No hay transportistas registrados
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Crea transportistas para gestionar las entregas de tus ventas
+            </p>
+            <div className="flex justify-center space-x-4">
+              <Button variant="secondary" onClick={handleSeedTransportistas}>
+                Crear por Defecto
+              </Button>
+              <Button variant="primary" onClick={openCreateModal}>
+                <Plus className="h-5 w-5 mr-2" />
+                Crear Transportista
+              </Button>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+        <Modal
+          isOpen={showFormModal}
+          onClose={() => {
+            setShowFormModal(false);
+            setEditingTransportista(null);
+          }}
+          title="Nuevo Transportista"
+          size="lg"
+        >
+          <TransportistaForm
+            onSubmit={handleCreateTransportista}
+            onCancel={() => {
+              setShowFormModal(false);
+              setEditingTransportista(null);
+            }}
+            loading={isSubmitting}
+          />
+        </Modal>
+      </>
     );
   }
 

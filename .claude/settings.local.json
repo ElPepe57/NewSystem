@@ -186,7 +186,19 @@
       "Bash(sed -i 's/padre\\\\.lineaNegocioIds as string\\\\[\\\\] | undefined/padre.lineaNegocioIds/g; s/categoria\\\\.lineaNegocioIds as string\\\\[\\\\] | undefined/categoria.lineaNegocioIds/g; s/categoria\\\\.lineaNegocioIds as string\\\\[\\\\]/categoria.lineaNegocioIds/g' src/components/modules/clasificacion/CategoriaList.tsx)",
       "Bash(npm info:*)",
       "Bash(gh issue:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(firebase functions:delete limpiezaDiaria --region us-central1 --force)",
+      "WebFetch(domain:cuantoestaeldolar.pe)",
+      "WebFetch(domain:api.cuantoestaeldolar.pe)",
+      "WebFetch(domain:mail.cuantoestaeldolar.pe)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(sort -t: -k2 -rn)",
+      "Bash(head -10 echo --- grep -r \"venta\\\\.pagos\\\\|venta\\\\.entregas\\\\|venta\\\\.reservas\\\\|venta\\\\.recalculo\\\\|venta\\\\.stats\" /c/Users/josel/businessmn-v2/src/ --include=*.ts --include=*.tsx)",
+      "Bash(git status:*)",
+      "Bash(for id:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/josel/AppData/Local/Temp/claude/C--Users-josel-businessmn-v2/9dde1bbb-07b7-49aa-bcb9-aa5798b419ae/tasks/**)"
     ],
     "deny": [],
     "ask": []

@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-21 (Sesion 14 — Deploy 15 exitoso: split Cotizaciones.tsx + Requerimientos.tsx + cotizacion.service.ts + ordenCompra.service.ts + Ventas a Socios flujo completo con subsidio/alertas)
+**Ultima actualizacion:** 2026-03-21 (Sesion 16 — Deploy 19 exitoso: 5 bugs criticos corregidos, 3 vulnerabilidades de seguridad cerradas, 45 alert() migrados a toast, rutas dev eliminadas, Transportistas.tsx eliminado, +155/-638 lineas)
 **Branch activo:** main
 
 ---
@@ -12,15 +12,18 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 14 |
+| Sesiones de trabajo registradas | 16 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | 111 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14) |
+| Fixes aplicados | ~124 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16) |
 | Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
-| Deploys realizados | 15 (ultimo: 2026-03-21 post-Sesion 14, commit 329b8b6) |
+| Deploys realizados | 19 (ultimo: 2026-03-21 post-Sesion 16, commit bf67a09) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
+| DT-005 alias PascalCase | PARCIAL — ExpectativaService eliminado (S15). ProveedorAnalyticsService pendiente. |
+| DT-007 useLineaFilter hook | RESUELTO — hook centralizado en 14/14 paginas (S15) |
+| Modulo Expectativas | FUSIONADO — expectativa.service.ts + expectativa.types.ts + Expectativas.tsx eliminados (S15). CRUDs migrados a requerimiento.service.ts. Analytics reemplazados por RendimientoFX. |
 
 ---
 
@@ -67,9 +70,21 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - Pool USD con TCPA: CQRS ligero (movimientos event-sourced, resumen calculado en memoria)
   - TCPA: recalcula solo en entradas, nunca en salidas — por diseno
   - getCTRU_Real: separado de getCTRU (usa TCPA en lugar de TC historico) para no romper calculos existentes
-  - 55 Cloud Functions en produccion (sin cambios en S10 — funciones estables)
+  - 55 Cloud Functions en produccion (2 redespliegues en S16: wawebhook + mlwebhook por fix de seguridad)
   - Ventas a socios: esVentaSocio/socioNombre en tipos, badge purpura en UI, 4 exclusiones en reportes
   - ErrorBoundary: 3 capas (global → pagina → puntual), ModuleErrorBoundary.tsx nuevo wrapper
+  - useLineaFilter hook: patron centralizado en src/hooks/useLineaFilter.ts — 14 paginas migradas (S15)
+  - Expectativas: pagina eliminada (S15). CRUDs en requerimiento.service.ts. Analytics en RendimientoFX.
+  - requerimientoStore: renombrado desde expectativaStore (useExpectativaStore → useRequerimientoStore)
+  - WhatsApp webhook: fail-closed — retorna false cuando WHATSAPP_APP_SECRET no configurado (S16)
+  - ML webhook: rechaza application_id faltante — condicion reforzada a !notification.application_id (S16)
+  - Storage rules: comprobantes requieren image/* o application/pdf (S16)
+  - Transportistas.tsx: eliminado (543 lineas, codigo muerto — gestionado desde Maestros) (S16)
+  - alert() nativos: 45 migrados a toast en Cotizaciones, Almacenes, OrdenesCompra, Transferencias, PagoGastoForm (S16)
+  - Pool USD: eliminarMovimiento recalcula saldo/TCPA desde ultimo movimiento restante (S16)
+  - Cancelar venta: revierte movimientos Pool USD asociados (S16)
+  - Transferencias batch: incrementarUnidadesEnviadas/Recibidas movidos DESPUES de batch.commit() (S16)
+  - Pagos USD: guard early-return cuando monedaCobro=USD y tcCobro undefined (S16)
 ```
 
 ---
@@ -1777,6 +1792,120 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Hallazgo: R2-002
 - Estado: EN PROCESO — framework configurado (CAMBIO-090, Sesion 11), 122 tests en utils/helpers/collections (CAMBIO-091). Pendiente: tests con Firebase mocking para servicios criticos (venta, poolUSD, tipoCambio) y Cloud Functions.
 
+**DT-005 — Eliminar alias PascalCase en servicios (patron singleton oficial)**
+- Titulo: Eliminar alias de exportacion PascalCase en servicios que usan clase estatica o alias
+- Tipo: Code Quality / Refactoring (ADR-004 — patron singleton oficial)
+- Modulo: servicios
+- Prioridad: media
+- Origen: S14 — code-quality-refactor-specialist identifico 4 importadores de ExpectativaService (PascalCase) y ProveedorAnalyticsService
+- Estado: **PARCIALMENTE RESUELTO** (S15 CAMBIO-111) — alias ExpectativaService eliminado de expectativa.service.ts, 4 archivos migrados a camelCase. ProveedorAnalyticsService pendiente.
+
+**DT-007 — useLineaFilter hook centralizado (patron repetido en multiples paginas)**
+- Titulo: Centralizar el patron lineaFiltroGlobal en un hook reutilizable useLineaFilter
+- Tipo: Code Quality / DRY
+- Modulo: Frontend (paginas)
+- Prioridad: media
+- Origen: S14 — code-quality-refactor-specialist identifico el patron duplicado en Cotizaciones, Requerimientos, Ventas y otras paginas
+
+**TAREA-073 — GAP-001: Modulo de devoluciones (diseno requerido)**
+- Titulo: Diseno e implementacion del flujo de devoluciones de clientes
+- Tipo: Feature / Gap funcional (CRITICO)
+- Modulo: Ventas / Inventario
+- Prioridad: CRITICA
+- Origen: S16 — auditoria post-deploy (erp-business-architect + system-auditor)
+- Descripcion: Los estados `devuelta` y `devolucion_parcial` existen en `EstadoVenta` pero no hay `procesarDevolucion()` implementado. El flujo inverso (unidad vendida → disponible, reversion de cobros, nota de credito) no existe. Requiere diseno antes de implementar.
+- Estado: pendiente — requiere decision de negocio sobre el flujo
+
+**TAREA-074 — GAP-002: Notas de credito (diseno requerido)**
+- Titulo: Diseno e implementacion de notas de credito
+- Tipo: Feature / Gap funcional (CRITICO)
+- Modulo: Ventas / Contabilidad
+- Prioridad: CRITICA
+- Origen: S16 — auditoria post-deploy
+- Descripcion: No existe flujo de nota de credito. Necesario para devoluciones parciales, descuentos post-factura y ajustes de precio. Bloqueante para cualquier integracion futura con SUNAT.
+- Estado: pendiente — bloqueado hasta que GAP-001 (devoluciones) tenga diseno
+
+**TAREA-075 — GAP-003: Cierre contable mensual**
+- Titulo: Implementar flujo de cierre contable mensual
+- Tipo: Feature / Gap funcional
+- Modulo: Contabilidad
+- Prioridad: ALTA
+- Origen: S16 — auditoria post-deploy (accounting-manager)
+- Descripcion: No existe proceso formal de cierre mensual. El Balance General se calcula on-the-fly sin bloqueo de periodos cerrados. Cualquier modificacion retroactiva puede alterar estados financieros ya reportados.
+- Estado: pendiente
+
+**TAREA-076 — GAP-004: Conciliacion bancaria**
+- Titulo: Implementar modulo de conciliacion bancaria
+- Tipo: Feature / Gap funcional
+- Modulo: Tesoreria
+- Prioridad: ALTA
+- Origen: S16 — auditoria post-deploy
+- Descripcion: No existe flujo de conciliacion entre movimientos de tesoreria y extractos bancarios. La conciliacion se hace manualmente fuera del sistema.
+- Estado: pendiente
+
+**TAREA-077 — BUG-006: Cancelar venta — tesoreria falla sin rollback**
+- Titulo: Fix rollback de tesoreria al cancelar venta con pagos
+- Tipo: Bug
+- Modulo: Ventas / Tesoreria
+- Prioridad: ALTA
+- Origen: S16 — code-logic-analyst (auditoria post-deploy)
+- Descripcion: Cuando se cancela una venta con pagos registrados, el rollback de tesoreria puede fallar parcialmente (si un movimiento falla, los siguientes no se procesan) sin ninguna compensacion automatica. El estado queda inconsistente: venta cancelada pero con movimientos de tesoreria activos.
+- Estado: pendiente
+
+**TAREA-078 — BUG-007: asignarInventario sin transaction (race condition)**
+- Titulo: Implementar transaction en asignarInventario para evitar doble asignacion
+- Tipo: Bug (race condition)
+- Modulo: Inventario / Ventas
+- Prioridad: ALTA
+- Origen: S16 — auditoria post-deploy (codigo-logic-analyst)
+- Descripcion: `asignarInventario()` lee el stock disponible, construye el batch de asignacion, y hace commit — sin ninguna transaccion que proteja la lectura. Con dos vendedores concurrentes, la misma unidad puede asignarse a dos ventas distintas. Riesgo confirmado por RISK-UAT-001 del full review pero no resuelto hasta ahora.
+- Estado: pendiente
+
+**TAREA-079 — PERF-001 (S16): 96 queries getDocs sin limit en Cloud Functions ML**
+- Titulo: Agregar limit() a las 96 queries getDocs sin limite en Cloud Functions ML
+- Tipo: Performance
+- Modulo: MercadoLibre (Cloud Functions)
+- Prioridad: MEDIA
+- Origen: S16 — performance-monitoring-specialist (auditoria post-deploy)
+- Descripcion: Las Cloud Functions del modulo ML tienen 96 llamadas a `getDocs(query(coleccion, ...))` sin `limit()`. Cualquiera de estas puede descargar colecciones completas si crece el volumen de datos. Riesgo de timeout y costo excesivo en Firestore reads.
+- Estado: pendiente
+
+**TAREA-080 — AUD-001: 224 colecciones hardcodeadas en Cloud Functions ML**
+- Titulo: Reemplazar 224 strings hardcodeados en CF ML por COLLECTIONS constants
+- Tipo: Code Quality (mismo patron resuelto en frontend en CAMBIO-067 de S9)
+- Modulo: MercadoLibre (Cloud Functions)
+- Prioridad: MEDIA
+- Origen: S16 — system-auditor (auditoria post-deploy)
+- Descripcion: Los modulos ML de Cloud Functions (ml.orders.ts, ml.stock.ts, ml.reconciliation.ts, etc.) tienen 224 strings de nombre de coleccion hardcodeados, a diferencia del frontend y las CF generales que ya usan COLLECTIONS constants (CAMBIO-067). Un typo en cualquiera de estos puede causar fallo silencioso.
+- Estado: pendiente
+
+**TAREA-081 — FE-001 (continuacion): 86 alert() restantes en otros modulos**
+- Titulo: Migrar los 86 alert() restantes a toast (continuacion de S16)
+- Tipo: UX / Code Quality
+- Modulo: Frontend (multiples modulos)
+- Prioridad: MEDIA
+- Origen: S16 — frontend-design-specialist. 45 de 131 alert() migrados en S16 (CAMBIO-122). Quedan 86.
+- Estado: EN PROCESO — 45 migrados. 86 restantes en modulos no procesados en S16.
+
+**TAREA-082 — SEC-004: Rate limiting en Cloud Functions**
+- Titulo: Implementar rate limiting en Cloud Functions publicas y webhooks
+- Tipo: Seguridad
+- Modulo: Cloud Functions (webhooks, callables publicos)
+- Prioridad: MEDIA
+- Origen: S16 — security-guardian (auditoria post-deploy)
+- Descripcion: Los webhooks de WhatsApp y MercadoLibre, y los callables publicos, no tienen rate limiting. Un atacante puede enviar miles de requests y agotar la quota de Cloud Functions o generar costos excesivos.
+- Estado: pendiente
+
+**TAREA-083 — SEC-006: Contadores manipulables por roles intermedios**
+- Titulo: Restringir escritura a coleccion contadores solo a Cloud Functions (Admin SDK)
+- Tipo: Seguridad (misma que DEPLOY-005 del full review — aun no resuelta)
+- Modulo: Firestore (contadores/)
+- Prioridad: MEDIA
+- Origen: S16 — security-guardian. Tambien identificado como DEPLOY-005 en Sesion 3.
+- Descripcion: La coleccion `contadores/` permite escritura a roles vendedor y finanzas segun las reglas de Firestore. Un usuario malicioso o con error podria manipular los secuenciadores de IDs (VT-xxx, OC-xxx, etc.).
+- Estado: pendiente
+- Estado: **RESUELTO** (S15 CAMBIO-112) — hook `src/hooks/useLineaFilter.ts` creado con opcion allowUndefined. 14 paginas migradas (3 PoC + 11 restantes). useLineaNegocioStore removido de 10 paginas (Dashboard conserva para el setter).
+
 ### Prioridad 5 — Nice to have
 
 **TAREA-020**
@@ -1936,10 +2065,10 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - 31 fixes (11 seguridad + 8 performance + 8 bugs + 4 UAT criticos)
 - Backup Firestore configurado: PITR (7 dias) + copias semanales (98 dias retencion)
 
-### Roadmap 30/60/90 dias (actualizado post-Sesion 14, 2026-03-21)
-- **0-30 dias:** Ejecutar carga retroactiva Pool USD (titular — accion manual, funcion lista en UI), configurar metaPEN (titular), tests con Firebase mocking para servicios criticos (TAREA-019 continuacion), GitHub Actions CI pipeline (npm test como gate), eliminar alias ExpectativaService en 4 importadores, crear useLineaFilter hook centralizado, validacion server-side ventaBajoCosto (TAREA-048), fix race condition gastos (TAREA-004), rotar secrets
-- **30-60 dias:** TAREA-052 (ventas ML sin evaluacion bajo costo), comparativas periodo anterior (TAREA-042), costoReposicion en snapshots (TAREA-066), margenesPorLinea en store ventas (TAREA-067), optimizar full-collection reads (TAREA-005/006/037), unificacion patron de export de servicios (TAREA-017)
-- **60-90 dias:** Evaluacion proveedor SUNAT, flujo devoluciones, entorno staging, reduccion adicional de :any (TAREA-016)
+### Roadmap 30/60/90 dias (actualizado post-Sesion 16, 2026-03-21)
+- **0-30 dias:** Ejecutar carga retroactiva Pool USD (titular — accion manual, funcion lista en UI), configurar metaPEN (titular), tests con Firebase mocking para servicios criticos (TAREA-019 continuacion), GitHub Actions CI pipeline (npm test como gate), eliminar ProveedorAnalyticsService PascalCase (DT-005 pendiente), validacion server-side ventaBajoCosto (TAREA-048), fix race condition gastos (TAREA-004), fix rollback tesoreria en cancelar venta (TAREA-077), migrar 86 alert() restantes a toast (TAREA-081), rotar secrets, TAREA-082 rate limiting CF
+- **30-60 dias:** Diseno modulo devoluciones (TAREA-073 — requiere decision de negocio), diseno notas de credito (TAREA-074), TAREA-078 asignarInventario con transaction, TAREA-052 (ventas ML sin evaluacion bajo costo), comparativas periodo anterior (TAREA-042), costoReposicion en snapshots (TAREA-066), margenesPorLinea en store ventas (TAREA-067), TAREA-080 (224 colecciones hardcodeadas CF ML), TAREA-083 (contadores manipulables), optimizar full-collection reads (TAREA-005/006/037)
+- **60-90 dias:** Evaluacion proveedor SUNAT, implementacion devoluciones (si diseno aprobado en mes anterior), cierre contable mensual (TAREA-075), conciliacion bancaria (TAREA-076), entorno staging, reduccion adicional de :any (TAREA-016)
 
 ---
 
@@ -2287,6 +2416,11 @@ Implementar el modulo Rendimiento Cambiario V1 (ADR-002) completo en produccion:
 | Deploy 12 | 2026-03-21 | d9fc9ee | solo hosting — Maestros lazy loading (596KB→125KB) | 92 |
 | Deploy 13 | 2026-03-21 | 0c285af | solo hosting — refactoring masivo (logger + format + performance + UI) | 100 |
 | Deploy 14 | 2026-03-21 | 4eeb5c8 | solo hosting — god file splits + cleanup + fixes (sin cambios en functions) | 106 |
+| Deploy 15 | 2026-03-21 | 329b8b6 | solo hosting — Cotizaciones + Requerimientos splits + Ventas Socios completo | 111 |
+| Deploy 16 | 2026-03-21 | 0b87fa1 | solo hosting — alias ExpectativaService eliminado + useLineaFilter PoC (3 paginas) | ~112 |
+| Deploy 17 | 2026-03-21 | f99f006 | solo hosting — useLineaFilter hook migrado a 11 paginas restantes | ~113 |
+| Deploy 18 | 2026-03-21 | 67cf01e | solo hosting — fusion expectativa→requerimiento, pagina Expectativas eliminada | ~114 |
+| Deploy 19 | 2026-03-21 | bf67a09 | hosting + storage rules + 2 CF (wawebhook, mlwebhook) — 5 bugs criticos, 3 seguridad, 45 alert→toast, cleanup | ~124 |
 
 ---
 
@@ -3064,5 +3198,384 @@ El code-quality-refactor-specialist y el performance-monitoring-specialist ident
 
 ---
 
+---
+
+---
+
+## SESION 15 — 2026-03-21 (Limpieza de dominio dual: alias + hook + fusion expectativa→requerimiento + Deploys 16/17/18)
+
+### Objetivo
+Eliminar la deuda tecnica de dominio dual generada por el modulo Expectativas: alias PascalCase residual (ExpectativaService), patron lineaFiltroGlobal repetido en 14 paginas sin hook centralizado, y el propio servicio expectativa.service.ts con su dominio fragmentado entre expectativas de negocio y CRUDs de requerimiento. Resultado: -1600 lineas netas, 3 archivos eliminados, 1 pagina removida del sistema.
+
+### Agentes ejecutados
+- code-quality-refactor-specialist (CAMBIO-111: alias ExpectativaService)
+- frontend-design-specialist (CAMBIO-112: hook useLineaFilter — PoC 3 paginas + migracion 11 restantes)
+- code-logic-analyst (analisis exhaustivo expectativaService: 5 bugs, 5 problemas de datos, 4 edge cases)
+- Explore x3 (mapeo API surface de ambos servicios + pagina Expectativas)
+- Plan agent (diseno de migracion en 4 fases)
+- backend-cloud-engineer x2 (Fase 1+2: fusion servicios / Fase 3: limpieza de importadores y eliminacion de archivos)
+
+### Fixes aplicados en Sesion 15
+
+#### CAMBIO-111 — Eliminacion alias ExpectativaService (PascalCase → camelCase)
+- Tipo: Code Quality / Refactoring (DT-005 parcial, ADR-004)
+- Descripcion: El alias `export { expectativaService as ExpectativaService }` fue eliminado de `expectativa.service.ts`. Los 4 archivos que importaban la version PascalCase fueron migrados a camelCase (`expectativaService`): `Expectativas.tsx`, `ordenCompra.recepcion.service.ts`, `ordenCompra.crud.service.ts`, y el propio `expectativa.service.ts` (auto-referencia en re-export). Alinea con el patron singleton oficial del proyecto (ADR-004). ProveedorAnalyticsService permanece pendiente (DT-005 aun parcialmente abierto).
+- Archivos: `src/services/expectativa.service.ts`, `src/pages/Expectativas/Expectativas.tsx`, `src/services/ordenCompra.recepcion.service.ts`, `src/services/ordenCompra.crud.service.ts`
+- Commit: 0b87fa1 (Deploy 16)
+- Reversible: si
+
+#### CAMBIO-112 — Hook useLineaFilter centralizado (14 paginas migradas)
+- Tipo: Code Quality / DRY (DT-007)
+- Descripcion: Nuevo hook `src/hooks/useLineaFilter.ts` que encapsula el patron de lectura del filtro global de linea de negocio (`lineaFiltroGlobal` desde `useLineaNegocioStore`). El hook expone dos modos mediante la opcion `allowUndefined`:
+  - `allowUndefined: false` (default strict): devuelve `string | undefined` y tipifica correctamente para paginas que requieren linea definida
+  - `allowUndefined: true`: devuelve `string | undefined` aceptando explicitamente el caso sin filtro (util en paginas de tesoreria, gastos y transferencias donde el filtro es opcional)
+  Migracion en tres grupos:
+  - **Grupo 1 strict (5 paginas):** CTRUDashboard, Reportes, Productos, ProductosIntel, Cotizaciones — filtro obligatorio, el hook retorna directamente.
+  - **Grupo 2 allowUndefined (3 paginas):** Gastos, Tesoreria, Transferencias — filtro opcional, aceptan undefined.
+  - **Grupo 3 complex (3 paginas):** Inventario, Unidades, Dashboard — extraccion desde useMemo mixtos que mezclaban logica de linea con otros calculos; la linea se extrae con el hook y el resto del useMemo se mantiene.
+  Nota: `Expectativas.tsx` excluida (filtro en funcion async — sin patron reactivo standard). `useLineaNegocioStore` removido de 10 paginas; Dashboard lo conserva solo para el setter del selector de linea.
+- Archivo nuevo: `src/hooks/useLineaFilter.ts`
+- Archivos modificados: 14 paginas (CTRUDashboard, Reportes, Productos, ProductosIntel, Cotizaciones, Gastos, Tesoreria, Transferencias, Inventario, Unidades, Dashboard, y 3 adicionales del grupo PoC)
+- Commits: 0b87fa1 (PoC 3 paginas, Deploy 16) + f99f006 (11 paginas restantes, Deploy 17)
+- Reversible: si
+
+#### CAMBIO-113 — Fusion expectativa.service.ts → requerimiento.service.ts (dominio unificado)
+- Tipo: Refactoring / Eliminacion de dominio dual
+- Descripcion: Fusion completa del servicio de expectativas en el dominio de requerimientos. El analisis previo del code-logic-analyst identifico 5 bugs activos, 5 problemas de datos estructurales, y 4 edge cases sin manejo en `expectativaService` — todos asociados a la seccion de analytics. La decision de no corregir sino eliminar se basa en que `RendimientoCambiario` (implementado en S8) ya cubre el proposito analítico con datos correctos.
+
+  **Funciones CRUD migradas a requerimiento.service.ts (11 funciones):**
+  - vincularConOC, vincularOCRetroactivamente
+  - crearRequerimientoDesdeCotizacion
+  - aprobar, rechazar, cancelar (transiciones de estado del requerimiento)
+  - getAll, getById, getByEstado, getByProveedor (queries)
+  - actualizarFechaEstimada
+
+  **Funcion movida a cotizacion.crud.service.ts:**
+  - calcularExpectativaCotizacion → renombrada a funcion interna sin exportacion publica
+
+  **Tipo movido:**
+  - `ExpectativaCotizacion` → `cotizacion.types.ts`
+
+  **Store renombrado:**
+  - `expectativaStore.ts` → `requerimientoStore.ts`
+  - `useExpectativaStore` → `useRequerimientoStore` (10 importadores actualizados)
+
+  **Funciones analiticas eliminadas (todas buggy o codigo muerto):**
+  - compararVenta — BUG-001: usaba PEN como USD en calculo de impacto
+  - compararCompra — BUG-002: dependencia circular con compararVenta
+  - getStats — BUG-003: signo invertido en impactoNetoTC. Ademas: estado 'parcial' no existe en EstadoRequerimiento (BUG-005). expectativaRequerimiento nunca se escribia en OC (DATA-001).
+  - generarReporte — 0 callers en todo el codebase (codigo muerto)
+
+  **Archivos eliminados:**
+  - `src/services/expectativa.service.ts` (1537 lineas)
+  - `src/types/expectativa.types.ts` (254 lineas)
+  - `src/pages/Expectativas/Expectativas.tsx` (645 lineas)
+
+  **Pagina Expectativas eliminada del sistema:**
+  - Removida del sidebar
+  - Removida del router (App.tsx)
+  - Removida de breadcrumbs (Breadcrumbs.tsx)
+
+  **10 importadores migrados** a requerimiento.service / requerimiento.types
+
+  Checkpoint para rollback: commit 38d65ec (pre-fusion, estado estable)
+- Archivos eliminados: 3 (expectativa.service.ts, expectativa.types.ts, Expectativas.tsx)
+- Archivos modificados: requerimiento.service.ts, requerimientoStore.ts, cotizacion.crud.service.ts, cotizacion.types.ts, App.tsx, Sidebar.tsx, Breadcrumbs.tsx, + 10 importadores
+- Commit: 67cf01e (Deploy 18)
+- Reversible: si (rollback al checkpoint 38d65ec)
+
+### Bugs documentados en expectativaService (eliminados, no corregidos)
+
+Estos bugs existian en el modulo de analytics de Expectativas. Se documentan aqui como historial — el modulo fue eliminado en lugar de corregido porque su proposito analitico fue reemplazado por RendimientoFX (implementado correctamente en S8).
+
+| ID | Bug | Impacto |
+|----|-----|---------|
+| BUG-001 | impactoTotalTCVentas usaba PEN como USD (error de unidad dimensional) | Diferencial cambiario de ventas incorrecto |
+| BUG-002 | impactoTotalTCCompras con dependencia circular via compararVenta | Calculo de compras corrompido por bug de ventas |
+| BUG-003 | impactoNetoTC con signo invertido | Ganancia/perdida cambiaria neta con signo opuesto al real |
+| BUG-005 | estado 'parcial' no existe en EstadoRequerimiento | Filtro por estado 'parcial' nunca retornaba resultados |
+| DATA-001 | expectativaRequerimiento nunca se escribia en OC | El campo de vinculacion entre requerimiento y OC nunca tenia datos |
+
+### Deploys realizados en Sesion 15
+
+#### Deploy 16 — 2026-03-21
+- **Commit:** 0b87fa1 — `refactor: remove ExpectativaService alias, add useLineaFilter hook (3 pages)`
+- **Comando:** firebase deploy --only hosting
+- **Resultado:** exitoso — hosting actualizado
+- **Cloud Functions:** 55 funciones sin cambios (no requirio redespliegue)
+- **Firestore Rules:** sin cambios
+- **Push a main:** exitoso
+
+#### Deploy 17 — 2026-03-21
+- **Commit:** f99f006 — `refactor: migrate remaining 11 pages to useLineaFilter hook`
+- **Comando:** firebase deploy --only hosting
+- **Resultado:** exitoso — hosting actualizado
+- **Cloud Functions:** 55 funciones sin cambios
+- **Firestore Rules:** sin cambios
+- **Push a main:** exitoso
+
+#### Deploy 18 — 2026-03-21
+- **Commit:** 67cf01e — `refactor: merge expectativa.service into requerimiento.service, remove analytics`
+- **Nota:** commit 38d65ec es el checkpoint pre-fusion (estado estable pre-refactor, disponible para rollback)
+- **Comando:** firebase deploy --only hosting
+- **Resultado:** exitoso — hosting actualizado
+- **Cloud Functions:** 55 funciones sin cambios
+- **Firestore Rules:** sin cambios
+- **Push a main:** exitoso
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados/creados | ~35 |
+| Archivos eliminados | 3 (expectativa.service.ts, expectativa.types.ts, Expectativas.tsx) |
+| Archivos nuevos | 1 (src/hooks/useLineaFilter.ts) |
+| Lineas netas | ~-1600 (predomina eliminacion de codigo) |
+| Tests | 122 passing (sin regresiones) |
+| Deploys realizados | 3 (16, 17, 18) |
+| Agentes ejecutados | 7 |
+| Cambios registrados | 3 (CAMBIO-111 a CAMBIO-113) |
+
+### Items del backlog cerrados en Sesion 15
+
+| Item | Descripcion | Cambio |
+|------|-------------|--------|
+| DT-005 (parcial) | Alias ExpectativaService eliminado. ProveedorAnalyticsService pendiente. | CAMBIO-111 |
+| DT-007 | useLineaFilter hook centralizado — 14/14 paginas migradas | CAMBIO-112 |
+| Dominio dual Expectativas | expectativa.service.ts fusionado en requerimiento.service.ts, 3 archivos eliminados | CAMBIO-113 |
+
+### Tareas pendientes para la proxima sesion (priorizadas)
+
+**Prioridad alta (acciones del titular):**
+1. Ejecutar carga retroactiva Pool USD (boton disponible en /rendimiento-cambiario, requiere login admin en produccion)
+2. Configurar metaPEN en Pool USD (campo editable en /rendimiento-cambiario)
+
+**Prioridad alta (tecnica):**
+3. Tests con Firebase mocking para servicios criticos: `venta.service`, `poolUSD.service`, `tipoCambio.service` (TAREA-019 continuacion)
+4. GitHub Actions CI pipeline (npm test como gate de merge a main)
+5. Eliminar ProveedorAnalyticsService PascalCase (DT-005 segunda parte)
+6. Migrar 5 paginas restantes a useLineaFilter con allowUndefined donde corresponda (revision pendiente)
+
+**Prioridad media:**
+7. TAREA-048: validacion server-side ventaBajoCosto (sin confianza en flag del cliente)
+8. TAREA-004: race condition residual gasto.service.ts:756-763 (padStart manual)
+9. TAREA-052: ventas ML sin evaluacion precio vs CTRU
+10. costoReposicion en ProductoVentaSnapshot (TAREA-066)
+
+**Pendientes operativos del titular:**
+- Rotar secrets externos (ML, Google, Anthropic, Meta, Daily)
+
+---
+
+---
+
+## SESION 16 — 2026-03-21 (Auditoria post-deploy + bugs criticos + seguridad + UX + Deploy 19)
+
+### Objetivo
+Auditoria integral post-deploy con 6 agentes especializados para identificar deuda tecnica acumulada y bugs criticos tras el ciclo intenso de refactoring de las sesiones 9-15. Correccion inmediata de los hallazgos de mayor impacto por 6 agentes de correccion.
+
+### Agentes ejecutados
+
+Auditoria (6):
+- erp-business-architect (gaps de proceso: devoluciones, notas de credito, cierre contable)
+- code-logic-analyst (bugs de logica en Pool USD, transferencias, pagos)
+- security-guardian (webhooks fail-open, storage rules, contadores)
+- performance-monitoring-specialist (queries sin limit en CF ML)
+- system-auditor (colecciones hardcodeadas en ML, contadores manipulables)
+- frontend-design-specialist (alert() nativos, codigo muerto, rutas dev)
+
+Correccion (6):
+- code-logic-analyst x3 (CAMBIO-114, CAMBIO-115, CAMBIO-116, CAMBIO-117, CAMBIO-118)
+- security-guardian (CAMBIO-119, CAMBIO-120, CAMBIO-121)
+- frontend-design-specialist (CAMBIO-122)
+- system-auditor (CAMBIO-123)
+
+### Hallazgos de auditoria identificados
+
+#### Bugs criticos (resueltos en esta sesion)
+- **BUG-001** — poolUSD.eliminarMovimiento no actualizaba _estado → corrupcion de TCPA (CAMBIO-114)
+- **BUG-002** — cancelar venta no revertia movimientos Pool USD → saldo USD inflado (CAMBIO-115)
+- **BUG-003** — transferencias batch: contadores incrementados antes del commit → descuadre si falla (CAMBIO-116)
+- **BUG-004** — pago USD sin tcCobro aceptado silenciosamente → mezcla PEN/USD (CAMBIO-117)
+- **BUG-005** — cobranzaMesActual usaba monto nominal USD en lugar de montoEquivalentePEN → KPI incorrecto (CAMBIO-118)
+
+#### Seguridad (resuelta en esta sesion)
+- **SEC-POST-001** — WhatsApp webhook fail-open cuando WHATSAPP_APP_SECRET no configurado (CAMBIO-119)
+- **SEC-POST-002** — ML webhook: omitir application_id bypasseaba validacion (CAMBIO-120)
+- **SEC-POST-003** — Storage rules: comprobantes aceptaban cualquier tipo de archivo (CAMBIO-121)
+
+#### UX (parcialmente resuelto)
+- **FE-001** — 131 alert() nativos en toda la app — 45 migrados en S16, 86 pendientes (CAMBIO-122)
+
+#### Auditoria (resuelto en esta sesion)
+- **AUD-004** — Rutas /migracion y /test-pdf activas en produccion (CAMBIO-123)
+- **AUD-005** — Notas IA visible para invitados sin permiso (CAMBIO-123)
+- **AUD-007** — Transportistas.tsx: 543 lineas de codigo muerto (CAMBIO-123)
+- **AUD-008** — 4 console.log residuales en servicios criticos (CAMBIO-123)
+
+#### Hallazgos pendientes (para proximas sesiones)
+- **GAP-001** — Modulo devoluciones: estados existen, funcion no implementada (TAREA-073)
+- **GAP-002** — Notas de credito: no existe flujo (TAREA-074)
+- **GAP-003** — Cierre contable mensual: no existe proceso de bloqueo de periodos (TAREA-075)
+- **GAP-004** — Conciliacion bancaria: se hace manualmente fuera del sistema (TAREA-076)
+- **BUG-006** — Cancelar venta: tesoreria falla sin rollback compensatorio (TAREA-077)
+- **BUG-007** — asignarInventario sin transaction — race condition con 2+ vendedores (TAREA-078)
+- **PERF-001** — 96 queries getDocs sin limit en CF ML (TAREA-079)
+- **AUD-001** — 224 colecciones hardcodeadas en CF ML (TAREA-080)
+- **FE-001** — 86 alert() restantes (TAREA-081)
+- **SEC-004** — Rate limiting ausente en webhooks y callables (TAREA-082)
+- **SEC-006** — Contadores manipulables por roles vendedor/finanzas (TAREA-083)
+
+### Fixes aplicados en Sesion 16
+
+#### CAMBIO-114 — FIX CRITICO: Pool USD eliminarMovimiento actualiza _estado
+- Tipo: Bug fix (integridad financiera)
+- Descripcion: `poolUSD.service.ts` — despues de `deleteDoc()` en `eliminarMovimiento()`, el metodo ahora recalcula el saldo y TCPA desde el ultimo movimiento restante y actualiza el documento `_estado` en Firestore. Antes, al eliminar un movimiento, el `_estado` quedaba con los valores del movimiento eliminado, corrompiendo el TCPA del pool para todas las operaciones subsiguientes.
+- Archivo: `src/services/poolUSD.service.ts`
+- Reversible: si
+
+#### CAMBIO-115 — FIX CRITICO: Cancelar venta revierte movimientos Pool USD
+- Tipo: Bug fix (integridad financiera)
+- Descripcion: `venta.service.ts` — el metodo `cancelar()` ahora busca todos los movimientos Pool USD donde `documentoOrigenId === ventaId` y los elimina secuencialmente usando `poolUSDService.eliminarMovimiento()` (que a su vez recalcula el _estado, via CAMBIO-114). Import dinamico de `poolUSD.service` para evitar dependencias circulares. Errores capturados individualmente con `logBackgroundError` en severidad `critical`. Antes, al cancelar una venta, los movimientos USD asociados (cobros via Zelle/PayPal) permanecian activos, inflando el saldo del pool.
+- Archivo: `src/services/venta.service.ts`
+- Reversible: si
+
+#### CAMBIO-116 — FIX CRITICO: Transferencias batch order corregido
+- Tipo: Bug fix (integridad de inventario)
+- Descripcion: `transferencia.service.ts` — dos correcciones del orden de operaciones en el flujo de transferencias:
+  (1) `enviar()`: `incrementarUnidadesEnviadas()` movido DESPUES de `batch.commit()`. Antes se incrementaba el contador aunque el batch fallara, causando descuadre entre el contador y las unidades reales en transito.
+  (2) `recibirTransferencia()`: `incrementarUnidadesRecibidas()` movido DESPUES de `batch.commit()`. Mismo patron.
+  Previene descuadre de inventario en cualquier escenario de fallo del batch.
+- Archivo: `src/services/transferencia.service.ts`
+- Reversible: si
+
+#### CAMBIO-117 — FIX ALTO: Pago USD sin tcCobro rechazado explicitamente
+- Tipo: Bug fix (validacion)
+- Descripcion: `venta.pagos.service.ts` — guard `early-return` agregado al inicio del flujo de registro de pago: cuando `monedaCobro === 'USD'` y `tcCobro` es `undefined` o `null`, la funcion retorna un error explicito antes de cualquier procesamiento. Antes, el pago continuaba sin TC, lo que provocaba que el monto en PEN se calculara como `montoUSD * undefined = NaN`, mezclando valores invalidos en el saldo de la venta.
+- Archivo: `src/services/venta.pagos.service.ts`
+- Reversible: si
+
+#### CAMBIO-118 — FIX ALTO: cobranzaMesActual usa montoEquivalentePEN para pagos USD
+- Tipo: Bug fix (KPI incorrecto)
+- Descripcion: `venta.pagos.service.ts` — en el loop de calculo de `cobranzaMesActual`, cuando un pago tiene `moneda === 'USD'`, ahora suma `pago.montoEquivalentePEN` en lugar del `pago.monto` nominal en USD. Antes, el KPI de cobranza del mes sumaba dolares y soles sin conversion, produciendo un total en una unidad hibrida sin significado economico. Con el fix, todos los pagos se suman en PEN via su equivalente.
+- Archivo: `src/services/venta.pagos.service.ts`
+- Reversible: si
+
+#### CAMBIO-119 — SEGURIDAD: WhatsApp webhook fail-closed
+- Tipo: Seguridad (SEC-POST-001)
+- Descripcion: `functions/src/whatsapp/index.ts` — la funcion `validateWhatsAppSignature()` ahora retorna `false` cuando la variable de entorno `WHATSAPP_APP_SECRET` no esta configurada. Antes retornaba `true` (fail-open), lo que significaba que cualquier POST al endpoint del webhook era aceptado sin validacion cuando el secret no estaba presente. Con el fix, sin secret configurado, el webhook rechaza todos los requests con 401.
+- Archivo: `functions/src/whatsapp/index.ts`
+- Reversible: si
+
+#### CAMBIO-120 — SEGURIDAD: ML webhook rechaza application_id faltante
+- Tipo: Seguridad (SEC-POST-002)
+- Descripcion: `functions/src/mercadolibre/ml.webhooks.ts` — la condicion de validacion del `application_id` fue cambiada de `notification.application_id !== undefined && notification.application_id !== mlClientId` a `!notification.application_id || notification.application_id !== mlClientId`. La condicion anterior evaluaba a `false` (sin rechazo) cuando `application_id` era `undefined`, porque `undefined !== undefined` es `false`. El atacante podia omitir el campo y bypassear la validacion. Con el fix, cualquier notificacion sin `application_id` o con ID incorrecto es rechazada.
+- Archivo: `functions/src/mercadolibre/ml.webhooks.ts`
+- Reversible: si
+
+#### CAMBIO-121 — SEGURIDAD: Storage rules validan contentType en comprobantes
+- Tipo: Seguridad (SEC-POST-003)
+- Descripcion: `storage.rules` — la regla para el path `comprobantes/` ahora incluye validacion de `contentType`: solo se aceptan `image/*` (JPEG, PNG, WebP, etc.) y `application/pdf`. Antes, cualquier tipo de archivo era aceptado mientras el usuario estuviera autenticado, permitiendo subir archivos ejecutables, scripts, o cualquier contenido malicioso enmascarado como comprobante.
+- Archivo: `storage.rules`
+- Reversible: si
+
+#### CAMBIO-122 — UX: 45 alert() migrados a toast en 5 modulos
+- Tipo: UX / Code Quality (FE-001 parcial)
+- Descripcion: 45 llamadas a `alert()` nativo del navegador (que bloquea el hilo de ejecucion y tiene aspecto inconsistente con el design system) reemplazadas por `toast.*()` del sistema de notificaciones del proyecto en 5 modulos:
+  - `Cotizaciones.tsx` (17 alert()): confirmaciones de aprobacion, rechazo, cancelacion, adelanto
+  - `Almacenes.tsx` (8 alert()): confirmaciones de operaciones de almacen
+  - `OrdenesCompra.tsx` (6 alert()): confirmaciones de recepcion y cancelacion de OC
+  - `Transferencias.tsx` (7 alert()): confirmaciones de envio y recepcion de transferencias
+  - `PagoGastoForm.tsx` (7 alert()): validaciones y confirmaciones de pago de gastos
+  Los emojis fueron removidos del texto de las notificaciones (los toast tienen indicadores visuales propios: color, icono, animacion).
+- Archivos: 5 componentes/paginas modificados
+- Reversible: si
+- Pendiente: 86 alert() restantes en otros modulos (TAREA-081)
+
+#### CAMBIO-123 — CLEANUP: Rutas dev, permisos, console.log y codigo muerto
+- Tipo: Cleanup / Seguridad / Code Quality (AUD-004, AUD-005, AUD-007, AUD-008)
+- Descripcion: Cuatro limpiezas aplicadas en un solo cambio:
+  (1) **Rutas dev eliminadas** (`App.tsx`): rutas `/migracion` y `/test-pdf` removidas. Estaban activas en produccion y apuntaban a utilities de desarrollo/migracion que no tienen uso operativo y representan superficie de ataque.
+  (2) **Permisos Notas IA** (`Sidebar.tsx`): el item "Notas IA" en el sidebar ahora requiere `PERMISOS.VER_DASHBOARD`. Antes era visible para usuarios con rol `invitado`, exponiendo una funcionalidad no apta para ese rol.
+  (3) **Transportistas.tsx eliminado**: 543 lineas de codigo muerto. El modulo de transportistas estaba duplicado — la funcionalidad completa esta en el modulo de Maestros. El archivo independiente no tenia ruta activa ni importadores. Eliminado para evitar confusion y mantenimiento innecesario.
+  (4) **4 console.log residuales migrados a logger** en: `almacen.service.ts`, `chat.service.ts`, `movimiento-transportista.service.ts`, `sincronizacion.service.ts`.
+- Archivos: `App.tsx`, `Sidebar.tsx`, `src/pages/Transportistas.tsx` (eliminado), 4 servicios
+- Reversible: si (excepto eliminacion de Transportistas.tsx — recuperable desde git)
+
+### Deploy 19 — 2026-03-21
+
+- **Commit:** bf67a09
+- **Comando:** firebase deploy --only hosting,storage,functions:wawebhook,functions:mlwebhook
+- **Resultado:** exitoso — hosting + storage rules + 2 Cloud Functions redespliegadas (wawebhook por CAMBIO-119, mlwebhook por CAMBIO-120)
+- **Cloud Functions:** 55 funciones activas. Solo wawebhook y mlwebhook requirieron redespliegue (cambios de seguridad).
+- **Storage Rules:** actualizadas (CAMBIO-121 — contentType validation en comprobantes)
+- **Firestore Rules:** sin cambios en esta sesion
+- **Push a main:** exitoso
+- **URL de produccion:** https://vitaskinperu.web.app
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados | 19 |
+| Archivos eliminados | 1 (Transportistas.tsx, 543 lineas) |
+| Lineas agregadas | +155 |
+| Lineas eliminadas | -638 |
+| Lineas netas | -483 |
+| Cambios registrados | 10 (CAMBIO-114 a CAMBIO-123) |
+| Tests | 122 passing (sin regresiones) |
+| Agentes ejecutados | 12 (6 auditoria + 6 correccion) |
+| Fixes acumulados | ~114 → ~124 |
+| Bugs criticos resueltos | 5 (BUG-001 a BUG-005) |
+| Vulnerabilidades resueltas | 3 (SEC-POST-001 a SEC-POST-003) |
+| Hallazgos pendientes nuevos | 11 (GAP-001/002/003/004, BUG-006/007, PERF-001, AUD-001, FE-001 parcial, SEC-004/006) |
+
+### Items del backlog cerrados en Sesion 16
+
+| Item | Descripcion | Cambio |
+|------|-------------|--------|
+| BUG-001 | Pool USD eliminarMovimiento corrompia TCPA | CAMBIO-114 |
+| BUG-002 | Cancelar venta no revertia Pool USD | CAMBIO-115 |
+| BUG-003 | Transferencias batch order incorrecto | CAMBIO-116 |
+| BUG-004 | Pago USD sin tcCobro aceptado silenciosamente | CAMBIO-117 |
+| BUG-005 | cobranzaMesActual con mezcla PEN/USD | CAMBIO-118 |
+| SEC-POST-001 | WhatsApp webhook fail-open | CAMBIO-119 |
+| SEC-POST-002 | ML webhook bypasseable sin application_id | CAMBIO-120 |
+| SEC-POST-003 | Storage comprobantes sin validacion de tipo | CAMBIO-121 |
+| FE-001 (parcial) | 45 de 131 alert() migrados a toast | CAMBIO-122 |
+| AUD-004 | Rutas /migracion y /test-pdf en produccion | CAMBIO-123 |
+| AUD-005 | Notas IA visible para invitados | CAMBIO-123 |
+| AUD-007 | Transportistas.tsx codigo muerto eliminado | CAMBIO-123 |
+| AUD-008 | 4 console.log residuales en servicios | CAMBIO-123 |
+
+### Tareas pendientes para la proxima sesion (priorizadas)
+
+**Prioridad alta (acciones del titular):**
+1. Ejecutar carga retroactiva Pool USD (boton disponible en /rendimiento-cambiario, requiere login admin en produccion)
+2. Configurar metaPEN en Pool USD (campo editable en /rendimiento-cambiario)
+3. Rotar secrets externos (ML, Google, Anthropic, Meta, Daily) — pendiente desde S1
+
+**Prioridad alta (tecnica):**
+4. TAREA-077: Fix rollback tesoreria al cancelar venta con pagos (falla parcial sin compensacion)
+5. TAREA-078: Transaction en asignarInventario (race condition con 2+ vendedores)
+6. TAREA-048: Validacion server-side de ventaBajoCosto (sin confianza en flag del cliente)
+7. TAREA-081: Migrar 86 alert() restantes a toast (continuacion de CAMBIO-122)
+8. TAREA-082: Rate limiting en webhooks y callables publicos
+
+**Prioridad media:**
+9. TAREA-073: Diseno del modulo de devoluciones (requiere decision de negocio)
+10. TAREA-079: Agregar limit() a 96 queries getDocs sin limite en CF ML
+11. TAREA-080: Reemplazar 224 colecciones hardcodeadas en CF ML por COLLECTIONS
+12. TAREA-083: Restringir escritura a coleccion contadores
+13. TAREA-004: Race condition residual gasto.service.ts:756-763 (padStart manual)
+14. TAREA-019: Tests con Firebase mocking para servicios criticos (TAREA-019 continuacion)
+
+**Pendientes operativos del titular:**
+- Rotar secrets externos
+- Ejecutar carga retroactiva Pool USD
+- Definir metaPEN mensual
+
+---
+
 *Documento generado por implementation-controller (Agente 23)*
-*Ultima actualizacion: 2026-03-21 — Sesion 14 completada. Deploy 15 (329b8b6) exitoso, solo hosting. 5 cambios (CAMBIO-106 a CAMBIO-110). Split Cotizaciones.tsx 2533→658 lineas (-74%, 10 sub-componentes). Split Requerimientos.tsx 2453→~600 lineas (-76%, 11 sub-componentes + types). Split cotizacion.service.ts 1725→235 lineas facade (-86%, 7 modulos). Split ordenCompra.service.ts 1708→240 lineas facade (-86%, 6 modulos). Ventas a Socios flujo completo: venta.socios.service.ts nuevo, motivo obligatorio, panel KPIs + alertas S/800. TAREA-014 COMPLETADA al 100% (6/6 god files). 111 fixes acumulados en produccion. 122 tests passing sin regresiones.*
+*Ultima actualizacion: 2026-03-21 — Sesion 16 completada. Deploy 19 exitoso (hosting + storage rules + 2 CF: wawebhook, mlwebhook). 10 cambios (CAMBIO-114 a CAMBIO-123). 5 bugs criticos resueltos (Pool USD, transferencias, pagos). 3 vulnerabilidades de seguridad cerradas (webhooks, storage). 45 alert() migrados a toast. Transportistas.tsx eliminado (543 lineas). ~124 fixes acumulados en produccion. 122 tests passing sin regresiones. -483 lineas netas en sesion. 11 hallazgos nuevos documentados como TAREA-073 a TAREA-083 para proximas sesiones.*
