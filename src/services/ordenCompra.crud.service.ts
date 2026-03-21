@@ -31,7 +31,7 @@ import type {
 } from '../types/ordenCompra.types';
 import { ProductoService } from './producto.service';
 import { almacenService } from './almacen.service';
-import { expectativaService } from './expectativa.service';
+import { requerimientoService } from './requerimiento.service';
 import { actividadService } from './actividad.service';
 import { ORDENES_COLLECTION, PROVEEDORES_COLLECTION, generateNumeroOrden } from './ordenCompra.shared';
 import { getProveedorById } from './ordenCompra.proveedores.service';
@@ -227,7 +227,7 @@ export async function create(
 
     for (const reqId of reqIdsToLink) {
       try {
-        const req = await expectativaService.getRequerimientoById(reqId);
+        const req = await requerimientoService.getRequerimientoById(reqId);
 
         if (hasProductosOrigen) {
           const productosParaReq = data.productosOrigen!
@@ -235,7 +235,7 @@ export async function create(
             .map(o => ({ productoId: o.productoId, cantidad: o.cantidad }));
 
           if (productosParaReq.length > 0) {
-            await expectativaService.vincularConOCParcial(
+            await requerimientoService.vincularConOCParcial(
               reqId,
               docRef.id,
               numeroOrden,
@@ -244,7 +244,7 @@ export async function create(
             );
           }
         } else {
-          await expectativaService.vincularConOC(reqId, docRef.id, numeroOrden, userId);
+          await requerimientoService.vincularConOC(reqId, docRef.id, numeroOrden, userId);
         }
 
         if (data.requerimientoIds?.length) {
@@ -472,8 +472,7 @@ export async function deleteOrden(id: string): Promise<void> {
     }
 
     try {
-      const { expectativaService } = await import('./expectativa.service');
-      await expectativaService.desvincularOCDeRequerimientos(id, orden.numeroOrden || '');
+      await requerimientoService.desvincularOCDeRequerimientos(id, orden.numeroOrden || '');
     } catch (e) {
       logger.warn('Error al desvincular OC de requerimientos (no-blocking):', e);
     }

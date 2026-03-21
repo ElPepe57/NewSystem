@@ -3,7 +3,7 @@ import { Modal } from '../../common/Modal';
 import { Button } from '../../common/Button';
 import { Link2, Package, User, CheckCircle2, AlertTriangle, Search } from 'lucide-react';
 import { OrdenCompraService } from '../../../services/ordenCompra.service';
-import { expectativaService } from '../../../services/expectativa.service';
+import { requerimientoService } from '../../../services/requerimiento.service';
 import type { OrdenCompra } from '../../../types/ordenCompra.types';
 import type { Venta } from '../../../types/venta.types';
 
@@ -106,7 +106,7 @@ export const VincularOCModal: React.FC<VincularOCModalProps> = ({
         };
       });
 
-      const result = await expectativaService.vincularOCRetroactivamente({
+      const result = await requerimientoService.vincularOCRetroactivamente({
         cotizacionId: venta.id,
         cotizacionNumero: venta.numeroVenta,
         nombreCliente: venta.nombreCliente,

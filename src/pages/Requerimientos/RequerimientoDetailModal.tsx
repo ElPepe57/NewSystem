@@ -19,7 +19,7 @@ import { Button, Modal, Badge } from '../../components/common';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
 import { getLabelEstadoAsignacion } from '../../utils/multiOrigen.helpers';
-import type { Requerimiento, EstadoRequerimiento, TipoSolicitante } from '../../types/expectativa.types';
+import type { Requerimiento, EstadoRequerimiento, TipoSolicitante } from '../../types/requerimiento.types';
 import type { AsignacionResponsable } from '../../types/requerimiento.types';
 
 interface RequerimientoDetailModalProps {

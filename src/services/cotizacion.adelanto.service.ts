@@ -29,7 +29,7 @@ import type { MetodoTesoreria } from '../types/tesoreria.types';
 import { COLLECTIONS } from '../config/collections';
 import { ProductoService } from './producto.service';
 import { stockDisponibilidadService } from './stockDisponibilidad.service';
-import { expectativaService } from './expectativa.service';
+import { requerimientoService } from './requerimiento.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
 import { logger } from '../lib/logger';
@@ -202,14 +202,14 @@ export async function registrarPagoAdelanto(
     const requerimientosGenerados: Array<{ id: string; numero: string }> = [];
     if (productosParaRequerimiento.length > 0) {
       try {
-        const reqsExistentes = await expectativaService.getRequerimientos();
+        const reqsExistentes = await requerimientoService.getRequerimientos();
         const reqExistente = reqsExistentes.find(r =>
           r.ventaRelacionadaId === id && r.estado !== 'cancelado'
         );
         if (reqExistente) {
           requerimientosGenerados.push({ id: reqExistente.id!, numero: reqExistente.numeroRequerimiento });
         } else {
-          const requerimiento = await expectativaService.crearRequerimientoDesdeCotizacion(
+          const requerimiento = await requerimientoService.crearRequerimientoDesdeCotizacion(
             id,
             cotizacion.numeroCotizacion,
             cotizacion.nombreCliente,

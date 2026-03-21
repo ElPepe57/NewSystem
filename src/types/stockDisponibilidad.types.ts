@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
 import type { PaisAlmacen } from './almacen.types';
-import type { Requerimiento } from './expectativa.types';
+import type { Requerimiento } from './requerimiento.types';
 
 /**
  * ============================================================

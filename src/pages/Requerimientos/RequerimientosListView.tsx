@@ -16,7 +16,7 @@ import {
 import { Button, Card } from '../../components/common';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
-import type { Requerimiento, EstadoRequerimiento, TipoSolicitante } from '../../types/expectativa.types';
+import type { Requerimiento, EstadoRequerimiento, TipoSolicitante } from '../../types/requerimiento.types';
 
 interface RequerimientosListViewProps {
   requerimientos: Requerimiento[];

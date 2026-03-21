@@ -1,5 +1,26 @@
 import type { Timestamp } from 'firebase/firestore';
-import type { ExpectativaCotizacion } from './expectativa.types';
+
+/**
+ * Snapshot de expectativas al momento de cotizar.
+ * Se guarda cuando se crea una cotización para comparar después.
+ */
+export interface ExpectativaCotizacion {
+  tcCotizacion: number;
+  costoEstimadoUSD: number;
+  costoEstimadoPEN: number;
+  margenEsperado: number;
+  utilidadEsperadaPEN: number;
+  productosEstimados: Array<{
+    productoId: string;
+    cantidad: number;
+    costoUnitarioEstimadoUSD: number;
+    precioVentaPEN: number;
+    margenEstimado: number;
+  }>;
+  fechaCotizacion: Timestamp;
+  vigenciaHasta?: Timestamp;
+  diasVigencia?: number;
+}
 import type {
   CanalVenta,
   MetodoPago,

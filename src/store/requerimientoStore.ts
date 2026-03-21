@@ -1,14 +1,14 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { expectativaService } from '../services/expectativa.service';
+import { requerimientoService } from '../services/requerimiento.service';
 import type {
   Requerimiento,
   RequerimientoFormData,
   EstadoRequerimiento,
   RequerimientoFiltros
-} from '../types/expectativa.types';
+} from '../types/requerimiento.types';
 
-interface ExpectativaState {
+interface RequerimientoState {
   // Datos
   requerimientos: Requerimiento[];
   loading: boolean;
@@ -34,7 +34,7 @@ interface ExpectativaState {
   clearError: () => void;
 }
 
-export const useExpectativaStore = create<ExpectativaState>()(
+export const useRequerimientoStore = create<RequerimientoState>()(
   devtools(
     (set, get) => ({
       requerimientos: [],
@@ -46,7 +46,7 @@ export const useExpectativaStore = create<ExpectativaState>()(
         set({ loading: true, error: null });
         try {
           const efectivo = filtros || (get().filtroEstado ? { estado: get().filtroEstado! } : undefined);
-          const requerimientos = await expectativaService.getRequerimientos(efectivo);
+          const requerimientos = await requerimientoService.getRequerimientos(efectivo);
           set({ requerimientos, loading: false });
         } catch (error: unknown) {
           const message = error instanceof Error ? error.message : 'Error desconocido';
@@ -58,7 +58,7 @@ export const useExpectativaStore = create<ExpectativaState>()(
       crearRequerimiento: async (data: RequerimientoFormData, userId: string) => {
         set({ loading: true, error: null });
         try {
-          const id = await expectativaService.crearRequerimiento(data, userId);
+          const id = await requerimientoService.crearRequerimiento(data, userId);
           await get().fetchRequerimientos();
           return id;
         } catch (error: unknown) {
@@ -71,7 +71,7 @@ export const useExpectativaStore = create<ExpectativaState>()(
       actualizarEstado: async (id: string, estado: 'pendiente' | 'aprobado' | 'en_proceso' | 'completado' | 'cancelado', userId: string) => {
         set({ error: null });
         try {
-          await expectativaService.actualizarEstado(id, estado, userId);
+          await requerimientoService.actualizarEstado(id, estado, userId);
           await get().fetchRequerimientos();
         } catch (error: unknown) {
           const message = error instanceof Error ? error.message : 'Error desconocido';
@@ -83,7 +83,7 @@ export const useExpectativaStore = create<ExpectativaState>()(
       limpiarDatosVinculacion: async (userId: string) => {
         set({ loading: true, error: null });
         try {
-          const result = await expectativaService.limpiarDatosVinculacion(userId);
+          const result = await requerimientoService.limpiarDatosVinculacion(userId);
           await get().fetchRequerimientos();
           return result;
         } catch (error: unknown) {
@@ -99,6 +99,6 @@ export const useExpectativaStore = create<ExpectativaState>()(
 
       clearError: () => set({ error: null }),
     }),
-    { name: 'expectativa-store' }
+    { name: 'requerimiento-store' }
   )
 );

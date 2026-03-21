@@ -1,4 +1,4 @@
-import type { EstadoRequerimiento } from '../../types/expectativa.types';
+import type { EstadoRequerimiento } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
 
 // Tipo para informacion de investigacion de mercado

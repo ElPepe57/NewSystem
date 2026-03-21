@@ -22,7 +22,7 @@ import { transferenciaService } from './transferencia.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { TesoreriaService } from './tesoreria.service';
 import { CotizacionService } from './cotizacion.service';
-import { expectativaService } from './expectativa.service';
+import { requerimientoService } from './requerimiento.service';
 import { unidadService } from './unidad.service';
 import { logger } from '../lib/logger';
 
@@ -548,7 +548,7 @@ export const cuentasPendientesService = {
 
     // Expectativas/Requerimientos activos
     try {
-      const requerimientos = await expectativaService.getRequerimientos();
+      const requerimientos = await requerimientoService.getRequerimientos();
       const requerimientosActivos = requerimientos.filter(
         (r: any) => r.estado === 'pendiente' || r.estado === 'en_proceso'
       );

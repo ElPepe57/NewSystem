@@ -14,7 +14,7 @@ import { VincularOCModal } from '../../components/modules/requerimiento/Vincular
 import { OCBuilder, PendientesCompraPanel } from '../../components/modules/ordenCompra';
 import type { ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { useProductoStore } from '../../store/productoStore';
-import { useExpectativaStore } from '../../store/expectativaStore';
+import { useRequerimientoStore } from '../../store/requerimientoStore';
 import type { ProductoFormData } from '../../types/producto.types';
 import { ProductoService } from '../../services/producto.service';
 import { OrdenCompraService } from '../../services/ordenCompra.service';
@@ -28,7 +28,7 @@ import type {
   Requerimiento,
   RequerimientoFormData,
   EstadoRequerimiento
-} from '../../types/expectativa.types';
+} from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
 import type { Venta } from '../../types/venta.types';
 
@@ -54,7 +54,7 @@ export const Requerimientos: React.FC = () => {
     fetchRequerimientos,
     actualizarEstado: storeActualizarEstado,
     limpiarDatosVinculacion: storeLimpiarDatos
-  } = useExpectativaStore();
+  } = useRequerimientoStore();
 
   // Filtrar requerimientos por linea de negocio global
   const requerimientosLN = useLineaFilter(requerimientos, r => r.lineaNegocioId);
@@ -159,7 +159,7 @@ export const Requerimientos: React.FC = () => {
       ]);
       setProductos(prods);
 
-      const reqs = useExpectativaStore.getState().requerimientos;
+      const reqs = useRequerimientoStore.getState().requerimientos;
       const reqVentaIds = new Set(
         reqs
           .filter(r => r.estado !== 'cancelado')
@@ -384,7 +384,7 @@ export const Requerimientos: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      await useExpectativaStore.getState().crearRequerimiento(
+      await useRequerimientoStore.getState().crearRequerimiento(
         formData as RequerimientoFormData,
         user.uid
       );

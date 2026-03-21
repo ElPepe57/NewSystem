@@ -47,7 +47,6 @@ const ROUTE_LABELS: Record<string, string> = {
   'auditoria': 'Auditoría',
   'tesoreria': 'Tesorería',
   'requerimientos': 'Requerimientos',
-  'expectativas': 'Expectativas',
   'rendimiento-cambiario': 'Rendimiento Cambiario',
   'maestros': 'Maestros',
   'nuevo': 'Nuevo',

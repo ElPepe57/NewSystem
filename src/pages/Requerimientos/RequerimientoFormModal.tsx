@@ -19,7 +19,7 @@ import { Button, Modal } from '../../components/common';
 import { ProductoSearchRequerimientos, type ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
 import type { ClienteSnapshot } from '../../types/entidadesMaestras.types';
-import type { RequerimientoFormData, TipoSolicitante } from '../../types/expectativa.types';
+import type { RequerimientoFormData, TipoSolicitante } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
 import type { InvestigacionProducto } from './requerimientos.types';
 

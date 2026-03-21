@@ -10,7 +10,8 @@ import {
   orderBy,
   Timestamp,
   serverTimestamp,
-  writeBatch
+  writeBatch,
+  arrayUnion
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
@@ -31,6 +32,11 @@ import type {
 import { almacenService } from './almacen.service';
 import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
+import { tipoCambioService } from './tipoCambio.service';
+import { ProductoService } from './producto.service';
+import { unidadService } from './unidad.service';
+import { actividadService } from './actividad.service';
+import { ctruService } from './ctru.service';
 
 const COLLECTION_NAME = COLLECTIONS.REQUERIMIENTOS;
 
@@ -78,6 +84,13 @@ export const requerimientoService = {
   },
 
   /**
+   * Alias de getById para compatibilidad con callers de expectativaService
+   */
+  getRequerimientoById(id: string): Promise<Requerimiento | null> {
+    return requerimientoService.getById(id);
+  },
+
+  /**
    * Buscar requerimientos con filtros
    */
   async buscar(filtros: RequerimientoFiltros): Promise<Requerimiento[]> {
@@ -94,6 +107,10 @@ export const requerimientoService = {
 
       if (filtros.clienteId) {
         q = query(q, where('clienteId', '==', filtros.clienteId));
+      }
+
+      if (filtros.origen) {
+        q = query(q, where('origen', '==', filtros.origen));
       }
 
       const snapshot = await getDocs(q);
@@ -123,11 +140,295 @@ export const requerimientoService = {
   },
 
   /**
-   * Crear nuevo requerimiento
+   * Obtener requerimientos con filtros opcionales
+   * Alias compatible con expectativaService.getRequerimientos()
+   */
+  async getRequerimientos(filtros?: RequerimientoFiltros): Promise<Requerimiento[]> {
+    if (!filtros) {
+      return requerimientoService.getAll();
+    }
+    // If only estado/prioridad/origen are supplied (Firestore-filterable), use buscar
+    return requerimientoService.buscar(filtros);
+  },
+
+  /**
+   * Crear nuevo requerimiento (versión enriquecida — llama ProductoService, calcula expectativa)
+   */
+  async crearRequerimiento(
+    data: RequerimientoFormData,
+    userId: string
+  ): Promise<string> {
+    // Verificar duplicados si viene de una cotización/venta
+    if (data.ventaRelacionadaId) {
+      const reqsExistentes = await requerimientoService.getRequerimientos();
+      const reqExistente = reqsExistentes.find(r =>
+        r.ventaRelacionadaId === data.ventaRelacionadaId &&
+        r.estado !== 'cancelado'
+      );
+      if (reqExistente) {
+        throw new Error(`Ya existe el requerimiento ${reqExistente.numeroRequerimiento} para esta cotización`);
+      }
+    }
+
+    const numeroRequerimiento = await requerimientoService.generateNumero();
+
+    // Obtener TC centralizado para la expectativa (no bloquea — es estimación)
+    const tcInvestigacion = await tipoCambioService.resolverTCVenta();
+
+    // Calcular expectativa financiera usando datos reales de investigación
+    const costoEstimadoUSD = data.productos.reduce(
+      (sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada,
+      0
+    );
+
+    const impuestoEstimadoUSD = data.productos.reduce((sum, p) => {
+      if (p.impuestoPorcentaje && p.impuestoPorcentaje > 0) {
+        return sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada * (p.impuestoPorcentaje / 100);
+      }
+      return sum;
+    }, 0);
+
+    const fleteEstimadoUSD = data.productos.reduce((sum, p) => {
+      if (p.logisticaEstimadaUSD) {
+        return sum + p.logisticaEstimadaUSD * p.cantidadSolicitada;
+      }
+      return sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada * 0.10;
+    }, 0);
+
+    const costoTotalEstimadoUSD = costoEstimadoUSD + impuestoEstimadoUSD + fleteEstimadoUSD;
+    const costoTotalEstimadoPEN = costoTotalEstimadoUSD * tcInvestigacion;
+
+    // Obtener información completa de cada producto desde Firestore
+    const productosConInfo = await Promise.all(
+      data.productos.map(async (p) => {
+        const productoInfo = await ProductoService.getById(p.productoId);
+
+        const producto: Record<string, any> = {
+          productoId: p.productoId,
+          sku: productoInfo?.sku || '',
+          marca: productoInfo?.marca || '',
+          nombreComercial: productoInfo?.nombreComercial || '',
+          presentacion: productoInfo?.presentacion || '',
+          contenido: productoInfo?.contenido || '',
+          dosaje: productoInfo?.dosaje || '',
+          sabor: productoInfo?.sabor || '',
+          cantidadSolicitada: p.cantidadSolicitada,
+          cantidadAsignada: 0,
+          cantidadPendiente: p.cantidadSolicitada,
+          cantidadRecibida: 0,
+          cantidadEnOC: 0,
+          pendienteCompra: p.cantidadSolicitada,
+          fechaInvestigacion: Timestamp.now()
+        };
+
+        if (p.precioEstimadoUSD !== undefined && p.precioEstimadoUSD !== null) {
+          producto.precioEstimadoUSD = p.precioEstimadoUSD;
+        }
+        if (p.proveedorSugerido) {
+          producto.proveedorSugerido = p.proveedorSugerido;
+        }
+        if (p.urlReferencia) {
+          producto.urlReferencia = p.urlReferencia;
+        }
+        return producto;
+      })
+    );
+
+    // Construir objeto base sin campos undefined
+    const requerimiento: Record<string, any> = {
+      numeroRequerimiento,
+      origen: data.origen,
+      tipoSolicitante: data.tipoSolicitante,
+      productos: productosConInfo,
+      asignaciones: [],
+      expectativa: {
+        tcInvestigacion,
+        costoEstimadoUSD,
+        costoEstimadoPEN: costoEstimadoUSD * tcInvestigacion,
+        impuestoEstimadoUSD,
+        fleteEstimadoUSD,
+        costoTotalEstimadoUSD,
+        costoTotalEstimadoPEN
+      },
+      prioridad: data.prioridad,
+      estado: 'pendiente',
+      solicitadoPor: userId,
+      fechaSolicitud: Timestamp.now(),
+      creadoPor: userId,
+      fechaCreacion: Timestamp.now()
+    };
+
+    // Auto-inherit lineaNegocioId from the first product that has one
+    const firstProductoWithLinea = await (async () => {
+      for (const p of data.productos) {
+        const prod = await ProductoService.getById(p.productoId);
+        if (prod?.lineaNegocioId) {
+          return { lineaNegocioId: prod.lineaNegocioId, lineaNegocioNombre: prod.lineaNegocioNombre || '' };
+        }
+      }
+      return null;
+    })();
+    if (firstProductoWithLinea) {
+      requerimiento.lineaNegocioId = firstProductoWithLinea.lineaNegocioId;
+      if (firstProductoWithLinea.lineaNegocioNombre) {
+        requerimiento.lineaNegocioNombre = firstProductoWithLinea.lineaNegocioNombre;
+      }
+    }
+
+    // Agregar campos opcionales solo si tienen valor
+    if (data.ventaRelacionadaId) {
+      requerimiento.ventaRelacionadaId = data.ventaRelacionadaId;
+    }
+    if (data.nombreClienteSolicitante) {
+      requerimiento.nombreClienteSolicitante = data.nombreClienteSolicitante;
+    }
+    if (data.fechaRequerida) {
+      requerimiento.fechaRequerida = Timestamp.fromDate(data.fechaRequerida);
+    }
+    if (data.justificacion) {
+      requerimiento.justificacion = data.justificacion;
+    }
+    if (data.observaciones) {
+      requerimiento.observaciones = data.observaciones;
+    }
+
+    const docRef = await addDoc(collection(db, COLLECTION_NAME), requerimiento);
+
+    // Broadcast actividad (fire-and-forget)
+    actividadService.registrar({
+      tipo: 'requerimiento_creado',
+      mensaje: `Requerimiento ${numeroRequerimiento} creado - ${data.productos.length} producto(s)`,
+      userId,
+      displayName: userId,
+      metadata: { entidadId: docRef.id, entidadTipo: 'requerimiento' }
+    }).catch(() => {});
+
+    return docRef.id;
+  },
+
+  /**
+   * Crear requerimiento desde cotización (cuando no hay stock)
+   */
+  async crearRequerimientoDesdeCotizacion(
+    cotizacionId: string,
+    cotizacionNumero: string,
+    nombreCliente: string,
+    productos: Array<{
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      cantidadFaltante: number;
+      precioEstimadoUSD?: number;
+      impuestoPorcentaje?: number;
+      logisticaEstimadaUSD?: number;
+      ctruEstimado?: number;
+    }>,
+    userId: string
+  ): Promise<{ id: string; numero: string }> {
+    // Red de seguridad: verificar duplicados antes de crear
+    const reqsExistentes = await requerimientoService.getRequerimientos();
+    const reqExistente = reqsExistentes.find(r =>
+      r.ventaRelacionadaId === cotizacionId &&
+      r.estado !== 'cancelado'
+    );
+    if (reqExistente) {
+      logger.warn(`Requerimiento ${reqExistente.numeroRequerimiento} ya existe para cotización ${cotizacionId}, reutilizando.`);
+      return { id: reqExistente.id!, numero: reqExistente.numeroRequerimiento };
+    }
+
+    const formData: RequerimientoFormData = {
+      origen: 'venta_pendiente',
+      ventaRelacionadaId: cotizacionId,
+      tipoSolicitante: 'cliente',
+      nombreClienteSolicitante: nombreCliente,
+      prioridad: 'alta',
+      productos: productos.map(p => ({
+        productoId: p.productoId,
+        cantidadSolicitada: p.cantidadFaltante,
+        precioEstimadoUSD: p.precioEstimadoUSD,
+        impuestoPorcentaje: p.impuestoPorcentaje,
+        logisticaEstimadaUSD: p.logisticaEstimadaUSD,
+        ctruEstimado: p.ctruEstimado
+      })),
+      justificacion: `Requerimiento automático desde cotización ${cotizacionNumero} - Cliente: ${nombreCliente}`
+    };
+
+    const id = await requerimientoService.crearRequerimiento(formData, userId);
+    const req = await requerimientoService.getRequerimientoById(id);
+
+    return {
+      id,
+      numero: req?.numeroRequerimiento || ''
+    };
+  },
+
+  /**
+   * Actualizar estado de un requerimiento
+   * Agrega fechaAprobacion, aprobadoPor, fechaCompletado según el estado.
+   * Reemplaza al antiguo aprobar() que se mantiene como alias.
+   */
+  async actualizarEstado(
+    requerimientoId: string,
+    nuevoEstado: 'pendiente' | 'aprobado' | 'en_proceso' | 'completado' | 'cancelado',
+    userId: string
+  ): Promise<void> {
+    const updateData: Record<string, any> = {
+      estado: nuevoEstado,
+      ultimaEdicion: serverTimestamp(),
+      editadoPor: userId
+    };
+
+    if (nuevoEstado === 'aprobado') {
+      updateData.fechaAprobacion = serverTimestamp();
+      updateData.aprobadoPor = userId;
+    } else if (nuevoEstado === 'completado') {
+      updateData.fechaCompletado = serverTimestamp();
+    }
+
+    await updateDoc(doc(db, COLLECTION_NAME, requerimientoId), updateData);
+
+    // Broadcast actividad for approval (fire-and-forget)
+    if (nuevoEstado === 'aprobado') {
+      actividadService.registrar({
+        tipo: 'requerimiento_aprobado',
+        mensaje: `Requerimiento ${requerimientoId} aprobado`,
+        userId,
+        displayName: userId,
+        metadata: { entidadId: requerimientoId, entidadTipo: 'requerimiento' }
+      }).catch(() => {});
+    }
+  },
+
+  /**
+   * Aprobar requerimiento (alias que delega a actualizarEstado)
+   */
+  async aprobar(id: string, userId: string): Promise<void> {
+    try {
+      const requerimiento = await requerimientoService.getById(id);
+      if (!requerimiento) {
+        throw new Error('Requerimiento no encontrado');
+      }
+
+      if (requerimiento.estado !== 'pendiente') {
+        throw new Error('Solo se pueden aprobar requerimientos pendientes');
+      }
+
+      await requerimientoService.actualizarEstado(id, 'aprobado', userId);
+    } catch (error: any) {
+      logger.error('Error al aprobar requerimiento:', error);
+      throw new Error(error.message || 'Error al aprobar requerimiento');
+    }
+  },
+
+  /**
+   * Crear nuevo requerimiento — versión legacy (usada por UI que pasa RequerimientoFormData directamente)
+   * Mantiene compatibilidad; internamente delega a crearRequerimiento cuando tiene los datos
+   * o construye el objeto con los campos del formulario si no se necesita enriquecer.
    */
   async create(data: RequerimientoFormData, userId: string): Promise<Requerimiento> {
     try {
-      const numeroRequerimiento = await this.generateNumero();
+      const numeroRequerimiento = await requerimientoService.generateNumero();
 
       // Preparar productos con cantidades iniciales
       const productos: ProductoRequerimiento[] = data.productos.map(p => ({
@@ -193,33 +494,6 @@ export const requerimientoService = {
   },
 
   /**
-   * Aprobar requerimiento
-   */
-  async aprobar(id: string, userId: string): Promise<void> {
-    try {
-      const requerimiento = await this.getById(id);
-      if (!requerimiento) {
-        throw new Error('Requerimiento no encontrado');
-      }
-
-      if (requerimiento.estado !== 'pendiente') {
-        throw new Error('Solo se pueden aprobar requerimientos pendientes');
-      }
-
-      await updateDoc(doc(db, COLLECTION_NAME, id), {
-        estado: 'aprobado',
-        fechaAprobacion: serverTimestamp(),
-        aprobadoPor: userId,
-        fechaActualizacion: serverTimestamp(),
-        actualizadoPor: userId
-      });
-    } catch (error: any) {
-      logger.error('Error al aprobar requerimiento:', error);
-      throw new Error(error.message || 'Error al aprobar requerimiento');
-    }
-  },
-
-  /**
    * =======================================================
    * ASIGNAR RESPONSABLE/VIAJERO A UN REQUERIMIENTO
    * =======================================================
@@ -233,7 +507,7 @@ export const requerimientoService = {
     userId: string
   ): Promise<AsignacionResponsable> {
     try {
-      const requerimiento = await this.getById(requerimientoId);
+      const requerimiento = await requerimientoService.getById(requerimientoId);
       if (!requerimiento) {
         throw new Error('Requerimiento no encontrado');
       }
@@ -257,7 +531,6 @@ export const requerimientoService = {
         }
 
         // Para requerimientos antiguos, cantidadPendiente puede no existir
-        // En ese caso, usar cantidadSolicitada - cantidadAsignada (o cantidadSolicitada si no hay asignada)
         const cantidadAsignadaPrevia = productoReq.cantidadAsignada || 0;
         const cantidadPendiente = productoReq.cantidadPendiente !== undefined
           ? productoReq.cantidadPendiente
@@ -313,7 +586,6 @@ export const requerimientoService = {
       const productosActualizados = requerimiento.productos.map(prod => {
         const asignado = productosAsignados.find(p => p.productoId === prod.productoId);
 
-        // Para requerimientos antiguos, inicializar campos si no existen
         const cantidadAsignadaPrevia = prod.cantidadAsignada || 0;
         const cantidadPendientePrevia = prod.cantidadPendiente !== undefined
           ? prod.cantidadPendiente
@@ -329,7 +601,6 @@ export const requerimientoService = {
           };
         }
 
-        // Asegurar que los campos existen incluso para productos no asignados
         return {
           ...prod,
           cantidadAsignada: cantidadAsignadaPrevia,
@@ -338,13 +609,10 @@ export const requerimientoService = {
         };
       });
 
-      // Agregar asignación y actualizar resumen
-      // Nota: requerimientos antiguos pueden no tener el campo asignaciones
       const asignacionesPrevias = requerimiento.asignaciones || [];
       const asignacionesActualizadas = [...asignacionesPrevias, nuevaAsignacion];
-      const resumen = this.calcularResumenAsignaciones(productosActualizados, asignacionesActualizadas as AsignacionResponsable[]);
+      const resumen = requerimientoService.calcularResumenAsignaciones(productosActualizados, asignacionesActualizadas as AsignacionResponsable[]);
 
-      // Determinar nuevo estado del requerimiento
       let nuevoEstado: EstadoRequerimiento = requerimiento.estado;
       if (requerimiento.estado === 'pendiente' || requerimiento.estado === 'aprobado') {
         nuevoEstado = 'en_proceso';
@@ -378,7 +646,7 @@ export const requerimientoService = {
     userId: string
   ): Promise<void> {
     try {
-      const requerimiento = await this.getById(requerimientoId);
+      const requerimiento = await requerimientoService.getById(requerimientoId);
       if (!requerimiento) {
         throw new Error('Requerimiento no encontrado');
       }
@@ -390,7 +658,6 @@ export const requerimientoService = {
 
       const asignacion = requerimiento.asignaciones[asignacionIndex];
 
-      // Actualizar campos de la asignación
       const asignacionActualizada: AsignacionResponsable = {
         ...asignacion,
         estado: data.estado || asignacion.estado,
@@ -412,7 +679,6 @@ export const requerimientoService = {
         fechaActualizacion: Timestamp.now()
       };
 
-      // Actualizar productos recibidos si se especifica
       if (data.productosRecibidos && data.productosRecibidos.length > 0) {
         asignacionActualizada.productos = asignacion.productos.map(prod => {
           const recibido = data.productosRecibidos!.find(p => p.productoId === prod.productoId);
@@ -426,20 +692,16 @@ export const requerimientoService = {
         });
       }
 
-      // Reemplazar asignación
       const asignacionesActualizadas = [...requerimiento.asignaciones];
       asignacionesActualizadas[asignacionIndex] = asignacionActualizada;
 
-      // Recalcular cantidades recibidas en productos del requerimiento
-      const productosActualizados = this.recalcularProductos(
+      const productosActualizados = requerimientoService.recalcularProductos(
         requerimiento.productos,
         asignacionesActualizadas
       );
 
-      // Recalcular resumen
-      const resumen = this.calcularResumenAsignaciones(productosActualizados, asignacionesActualizadas);
+      const resumen = requerimientoService.calcularResumenAsignaciones(productosActualizados, asignacionesActualizadas);
 
-      // Verificar si el requerimiento se completó
       const todosCompletados = productosActualizados.every(p => p.completado);
       let nuevoEstado = requerimiento.estado;
       if (todosCompletados) {
@@ -471,7 +733,7 @@ export const requerimientoService = {
     userId: string
   ): Promise<void> {
     try {
-      const requerimiento = await this.getById(requerimientoId);
+      const requerimiento = await requerimientoService.getById(requerimientoId);
       if (!requerimiento) {
         throw new Error('Requerimiento no encontrado');
       }
@@ -487,7 +749,6 @@ export const requerimientoService = {
         throw new Error('No se puede cancelar una asignación que ya fue recibida');
       }
 
-      // Marcar asignación como cancelada
       const asignacionActualizada: AsignacionResponsable = {
         ...asignacion,
         estado: 'cancelado',
@@ -499,7 +760,6 @@ export const requerimientoService = {
       const asignacionesActualizadas = [...requerimiento.asignaciones];
       asignacionesActualizadas[asignacionIndex] = asignacionActualizada;
 
-      // Devolver cantidades a "pendiente" (solo si no fueron recibidas)
       const productosActualizados = requerimiento.productos.map(prod => {
         const prodAsignado = asignacion.productos.find(p => p.productoId === prod.productoId);
         if (prodAsignado) {
@@ -513,8 +773,7 @@ export const requerimientoService = {
         return prod;
       });
 
-      // Recalcular resumen
-      const resumen = this.calcularResumenAsignaciones(productosActualizados, asignacionesActualizadas);
+      const resumen = requerimientoService.calcularResumenAsignaciones(productosActualizados, asignacionesActualizadas);
 
       await updateDoc(doc(db, COLLECTION_NAME, requerimientoId), {
         productos: productosActualizados,
@@ -539,7 +798,7 @@ export const requerimientoService = {
     ordenCompraNumero: string,
     userId: string
   ): Promise<void> {
-    await this.actualizarAsignacion(requerimientoId, asignacionId, {
+    await requerimientoService.actualizarAsignacion(requerimientoId, asignacionId, {
       estado: 'comprado',
       ordenCompraId,
       ordenCompraNumero,
@@ -557,7 +816,7 @@ export const requerimientoService = {
     transferenciaNumero: string,
     userId: string
   ): Promise<void> {
-    await this.actualizarAsignacion(requerimientoId, asignacionId, {
+    await requerimientoService.actualizarAsignacion(requerimientoId, asignacionId, {
       estado: 'en_transito',
       transferenciaId,
       transferenciaNumero
@@ -573,7 +832,7 @@ export const requerimientoService = {
     productosRecibidos: { productoId: string; cantidadRecibida: number }[],
     userId: string
   ): Promise<void> {
-    await this.actualizarAsignacion(requerimientoId, asignacionId, {
+    await requerimientoService.actualizarAsignacion(requerimientoId, asignacionId, {
       estado: 'recibido',
       fechaRecepcion: new Date(),
       productosRecibidos
@@ -581,10 +840,630 @@ export const requerimientoService = {
   },
 
   /**
+   * Vincular requerimiento con OC (legacy — sin info de productos)
+   */
+  async vincularConOC(
+    requerimientoId: string,
+    ordenCompraId: string,
+    ordenCompraNumero: string,
+    userId: string
+  ): Promise<void> {
+    try {
+      const { OrdenCompraService } = await import('./ordenCompra.service');
+      const oc = await OrdenCompraService.getById(ordenCompraId);
+      if (oc && oc.productos.length > 0) {
+        const productosOC = oc.productos.map(p => ({
+          productoId: p.productoId,
+          cantidad: p.cantidad,
+        }));
+        await requerimientoService.vincularConOCParcial(
+          requerimientoId, ordenCompraId, ordenCompraNumero, productosOC, userId
+        );
+        return;
+      }
+    } catch (error) {
+      logger.warn('vincularConOC: no se pudo obtener OC para coverage, usando legacy:', error);
+    }
+
+    // Fallback legacy: marcar como en_proceso
+    await updateDoc(doc(db, COLLECTION_NAME, requerimientoId), {
+      estado: 'en_proceso',
+      ordenCompraId,
+      ordenCompraNumero,
+      ultimaEdicion: serverTimestamp(),
+      editadoPor: userId
+    });
+  },
+
+  /**
+   * Vincular requerimiento con OC de forma parcial (por producto)
+   * Actualiza cantidadEnOC, pendienteCompra, ordenCompraRefs por producto,
+   * y calcula ocCoverage del requerimiento.
+   */
+  async vincularConOCParcial(
+    requerimientoId: string,
+    ordenCompraId: string,
+    ordenCompraNumero: string,
+    productosOC: Array<{ productoId: string; cantidad: number }>,
+    userId: string
+  ): Promise<void> {
+    const reqDoc = await getDoc(doc(db, COLLECTION_NAME, requerimientoId));
+    if (!reqDoc.exists()) {
+      logger.warn(`vincularConOCParcial: req ${requerimientoId} no encontrado`);
+      return;
+    }
+    const reqData = reqDoc.data() as any;
+    const productos = reqData.productos || [];
+
+    const productosActualizados = productos.map((p: any) => {
+      const ocItem = productosOC.find(o => o.productoId === p.productoId);
+      if (!ocItem) return p;
+
+      const cantidadEnOC = (p.cantidadEnOC || 0) + ocItem.cantidad;
+      const pendienteCompra = Math.max(0, (p.cantidadSolicitada || 0) - cantidadEnOC);
+      const refs = p.ordenCompraRefs || [];
+      refs.push({
+        ordenCompraId,
+        ordenCompraNumero,
+        cantidad: ocItem.cantidad,
+      });
+
+      return {
+        ...p,
+        cantidadEnOC,
+        pendienteCompra,
+        ordenCompraRefs: refs,
+      };
+    });
+
+    let totalCantidad = 0;
+    let cantidadCubierta = 0;
+    let productosEnOC = 0;
+    let productosPendientes = 0;
+    for (const p of productosActualizados) {
+      const solicitada = p.cantidadSolicitada || 0;
+      const enOC = p.cantidadEnOC || 0;
+      totalCantidad += solicitada;
+      cantidadCubierta += Math.min(enOC, solicitada);
+      if (enOC > 0) productosEnOC++;
+      if ((p.pendienteCompra ?? solicitada) > 0) productosPendientes++;
+    }
+    const porcentaje = totalCantidad > 0 ? Math.round((cantidadCubierta / totalCantidad) * 100) : 0;
+
+    const ocCoverage = {
+      totalProductos: productosActualizados.length,
+      productosEnOC,
+      productosPendientes,
+      porcentaje,
+    };
+
+    const allCovered = porcentaje >= 100;
+    const someCovered = porcentaje > 0;
+    let nuevoEstado = reqData.estado;
+    if (allCovered) {
+      nuevoEstado = 'en_proceso';
+    } else if (someCovered) {
+      nuevoEstado = 'parcial';
+    }
+
+    await updateDoc(doc(db, COLLECTION_NAME, requerimientoId), {
+      productos: productosActualizados,
+      estado: nuevoEstado,
+      ordenCompraId: reqData.ordenCompraId || ordenCompraId,
+      ordenCompraNumero: reqData.ordenCompraNumero || ordenCompraNumero,
+      ordenCompraIds: arrayUnion(ordenCompraId),
+      ordenCompraNumeros: arrayUnion(ordenCompraNumero),
+      ocCoverage,
+      ultimaEdicion: serverTimestamp(),
+      editadoPor: userId,
+    });
+  },
+
+  /**
+   * Desvincular una OC de sus requerimientos (al eliminar OC borrador).
+   * Revierte cantidadEnOC, pendienteCompra y ordenCompraRefs.
+   */
+  async desvincularOCDeRequerimientos(
+    ordenCompraId: string,
+    ordenCompraNumero: string
+  ): Promise<void> {
+    const reqsSnap = await getDocs(
+      query(
+        collection(db, COLLECTION_NAME),
+        where('ordenCompraIds', 'array-contains', ordenCompraId)
+      )
+    );
+
+    if (reqsSnap.empty) {
+      const reqsSnapLegacy = await getDocs(
+        query(
+          collection(db, COLLECTION_NAME),
+          where('ordenCompraId', '==', ordenCompraId)
+        )
+      );
+      if (reqsSnapLegacy.empty) return;
+      for (const reqDoc of reqsSnapLegacy.docs) {
+        await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero);
+      }
+      return;
+    }
+
+    for (const reqDoc of reqsSnap.docs) {
+      await requerimientoService._revertirOCEnReq(reqDoc, ordenCompraId, ordenCompraNumero);
+    }
+  },
+
+  /** Helper interno: revertir una OC específica dentro de un requerimiento */
+  async _revertirOCEnReq(
+    reqDoc: any,
+    ordenCompraId: string,
+    ordenCompraNumero: string
+  ): Promise<void> {
+    const reqData = reqDoc.data() as any;
+    const productos = reqData.productos || [];
+
+    const productosActualizados = productos.map((p: any) => {
+      const refs: Array<{ ordenCompraId: string; ordenCompraNumero: string; cantidad: number }> = p.ordenCompraRefs || [];
+      const refIdx = refs.findIndex((r: any) => r.ordenCompraId === ordenCompraId);
+      if (refIdx === -1) return p;
+
+      const cantidadRevertir = refs[refIdx].cantidad;
+      const newRefs = refs.filter((_: any, i: number) => i !== refIdx);
+      const cantidadEnOC = Math.max(0, (p.cantidadEnOC || 0) - cantidadRevertir);
+      const pendienteCompra = Math.max(0, (p.cantidadSolicitada || 0) - cantidadEnOC);
+
+      return {
+        ...p,
+        cantidadEnOC,
+        pendienteCompra,
+        ordenCompraRefs: newRefs,
+      };
+    });
+
+    let totalCantidad = 0;
+    let cantidadCubierta = 0;
+    let productosEnOC = 0;
+    let productosPendientes = 0;
+    for (const p of productosActualizados) {
+      const solicitada = p.cantidadSolicitada || 0;
+      const enOC = p.cantidadEnOC || 0;
+      totalCantidad += solicitada;
+      cantidadCubierta += Math.min(enOC, solicitada);
+      if (enOC > 0) productosEnOC++;
+      if ((p.pendienteCompra ?? solicitada) > 0) productosPendientes++;
+    }
+    const porcentaje = totalCantidad > 0 ? Math.round((cantidadCubierta / totalCantidad) * 100) : 0;
+
+    const ocCoverage = {
+      totalProductos: productosActualizados.length,
+      productosEnOC,
+      productosPendientes,
+      porcentaje,
+    };
+
+    let nuevoEstado = reqData.estado;
+    if (porcentaje >= 100) {
+      nuevoEstado = 'en_proceso';
+    } else if (porcentaje > 0) {
+      nuevoEstado = 'parcial';
+    } else {
+      nuevoEstado = 'aprobado';
+    }
+
+    const ordenCompraIds = (reqData.ordenCompraIds || []).filter((id: string) => id !== ordenCompraId);
+    const ordenCompraNumeros = (reqData.ordenCompraNumeros || []).filter((n: string) => n !== ordenCompraNumero);
+
+    const updates: Record<string, any> = {
+      productos: productosActualizados,
+      estado: nuevoEstado,
+      ocCoverage,
+      ordenCompraIds,
+      ordenCompraNumeros,
+      ultimaEdicion: serverTimestamp(),
+    };
+
+    if (reqData.ordenCompraId === ordenCompraId) {
+      updates.ordenCompraId = ordenCompraIds[0] || null;
+      updates.ordenCompraNumero = ordenCompraNumeros[0] || null;
+    }
+
+    await updateDoc(doc(db, COLLECTION_NAME, reqDoc.id), updates);
+  },
+
+  /**
+   * Vincular retroactivamente una OC existente con una cotización.
+   * Crea requerimiento → lo aprueba → vincula con OC → reserva unidades → completa.
+   */
+  async vincularOCRetroactivamente(params: {
+    cotizacionId: string;
+    cotizacionNumero: string;
+    nombreCliente: string;
+    ordenCompraId: string;
+    ordenCompraNumero: string;
+    productos: Array<{
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      cantidadFaltante: number;
+      precioEstimadoUSD?: number;
+    }>;
+    userId: string;
+  }): Promise<{ requerimientoId: string; requerimientoNumero: string; unidadesReservadas: number; detalles: Array<{ productoId: string; reservadas: number; faltantes: number }> }> {
+    const { cotizacionId, cotizacionNumero, nombreCliente, ordenCompraId, ordenCompraNumero, productos, userId } = params;
+
+    // 1. Buscar requerimiento existente para esta cotización (evitar duplicados)
+    let requerimientoId: string;
+    let requerimientoNumero: string;
+    let reqYaVinculadoAEstaOC = false;
+
+    const reqsExistentes = await requerimientoService.getRequerimientos();
+    // Primero buscar uno sin OC vinculada (pendiente o aprobado)
+    let reqExistente = reqsExistentes.find(r =>
+      r.ventaRelacionadaId === cotizacionId &&
+      r.estado !== 'cancelado' &&
+      !r.ordenCompraId
+    );
+
+    // Si no hay sin vincular, buscar uno ya vinculado a ESTA misma OC (re-ejecución)
+    if (!reqExistente) {
+      reqExistente = reqsExistentes.find(r =>
+        r.ventaRelacionadaId === cotizacionId &&
+        r.estado !== 'cancelado' &&
+        r.ordenCompraId === ordenCompraId
+      );
+      if (reqExistente) reqYaVinculadoAEstaOC = true;
+    }
+
+    // Si tampoco, buscar CUALQUIER requerimiento no cancelado para esta cotización
+    // (puede estar vinculado a otra OC — evita crear duplicado)
+    if (!reqExistente) {
+      reqExistente = reqsExistentes.find(r =>
+        r.ventaRelacionadaId === cotizacionId &&
+        r.estado !== 'cancelado'
+      );
+    }
+
+    if (reqExistente) {
+      // Reutilizar el requerimiento existente
+      requerimientoId = reqExistente.id!;
+      requerimientoNumero = reqExistente.numeroRequerimiento;
+
+      // Si estaba pendiente, aprobarlo
+      if (reqExistente.estado === 'pendiente') {
+        await requerimientoService.actualizarEstado(requerimientoId, 'aprobado', userId);
+      }
+    } else {
+      // Crear nuevo solo si no existe ninguno para esta cotización
+      const created = await requerimientoService.crearRequerimientoDesdeCotizacion(
+        cotizacionId,
+        cotizacionNumero,
+        nombreCliente,
+        productos.map(p => ({
+          productoId: p.productoId,
+          sku: p.sku,
+          marca: p.marca,
+          nombreComercial: p.nombreComercial,
+          cantidadFaltante: p.cantidadFaltante,
+          precioEstimadoUSD: p.precioEstimadoUSD
+        })),
+        userId
+      );
+      requerimientoId = created.id;
+      requerimientoNumero = created.numero;
+
+      // Aprobar inmediatamente
+      await requerimientoService.actualizarEstado(requerimientoId, 'aprobado', userId);
+    }
+
+    // 2. Vincular con la OC (saltar si ya estaba vinculado a esta misma OC)
+    if (!reqYaVinculadoAEstaOC) {
+      await requerimientoService.vincularConOC(requerimientoId, ordenCompraId, ordenCompraNumero, userId);
+    }
+
+    // 2b. Recalcular expectativa financiera con costos reales de la OC
+    try {
+      const { OrdenCompraService } = await import('./ordenCompra.service');
+      const ordenCompra = await OrdenCompraService.getById(ordenCompraId);
+      if (ordenCompra) {
+        const tcActual = await tipoCambioService.resolverTCVenta();
+
+        const costoEstimadoUSD = productos.reduce((sum, p) => {
+          const productoOC = ordenCompra.productos.find(po => po.productoId === p.productoId);
+          const costoReal = productoOC?.costoUnitario || p.precioEstimadoUSD || 0;
+          return sum + costoReal * p.cantidadFaltante;
+        }, 0);
+
+        const fleteEstimadoUSD = 0;
+        const impuestoEstimadoUSD = 0;
+        const costoTotalEstimadoUSD = costoEstimadoUSD + impuestoEstimadoUSD + fleteEstimadoUSD;
+
+        await updateDoc(doc(db, COLLECTION_NAME, requerimientoId), {
+          expectativa: {
+            tcInvestigacion: tcActual,
+            costoEstimadoUSD,
+            costoEstimadoPEN: costoEstimadoUSD * tcActual,
+            impuestoEstimadoUSD,
+            fleteEstimadoUSD,
+            costoTotalEstimadoUSD,
+            costoTotalEstimadoPEN: costoTotalEstimadoUSD * tcActual
+          }
+        });
+      }
+    } catch (e) {
+      logger.warn('No se pudo recalcular expectativa con datos de OC:', e);
+    }
+
+    // 3. Actualizar la OC con el requerimientoId (solo si no estaba ya vinculado)
+    const ORDENES_COLLECTION = COLLECTIONS.ORDENES_COMPRA;
+    const ordenRef = doc(db, ORDENES_COLLECTION, ordenCompraId);
+
+    if (!reqYaVinculadoAEstaOC) {
+      const ordenSnap = await getDoc(ordenRef);
+      if (ordenSnap.exists()) {
+        const ordenData = ordenSnap.data();
+        const existingReqIds = ordenData.requerimientoIds || [];
+        const existingReqNumeros = ordenData.requerimientoNumeros || [];
+        const existingProductosOrigen = ordenData.productosOrigen || [];
+
+        const newProductosOrigen = productos.map(p => ({
+          productoId: p.productoId,
+          requerimientoId,
+          requerimientoNumero,
+          cotizacionId,
+          clienteNombre: nombreCliente,
+          cantidad: p.cantidadFaltante
+        }));
+
+        await updateDoc(ordenRef, {
+          ...(!ordenData.requerimientoId ? { requerimientoId, requerimientoNumero } : {}),
+          requerimientoIds: [...existingReqIds, requerimientoId],
+          requerimientoNumeros: [...existingReqNumeros, requerimientoNumero],
+          productosOrigen: [...existingProductosOrigen, ...newProductosOrigen],
+          ultimaEdicion: serverTimestamp(),
+          editadoPor: userId
+        });
+      }
+    }
+
+    // 4. Reservar unidades existentes
+    const reservaResult = await unidadService.reservarUnidadesParaCotizacion({
+      ordenCompraId,
+      cotizacionId,
+      cotizacionNumero,
+      requerimientoId,
+      productos: productos.map(p => ({
+        productoId: p.productoId,
+        cantidad: p.cantidadFaltante
+      })),
+      userId
+    });
+
+    // 5. El estado del requerimiento ya fue calculado por vincularConOC/vincularConOCParcial
+
+    // 6. Actualizar cotización/venta con el requerimiento generado
+    const VENTAS_COLLECTION = COLLECTIONS.VENTAS;
+    try {
+      const ventaRef = doc(db, VENTAS_COLLECTION, cotizacionId);
+      const ventaSnap = await getDoc(ventaRef);
+      if (ventaSnap.exists()) {
+        const ventaData = ventaSnap.data();
+        const existingReqIds = ventaData.requerimientosIds || [];
+        const existingReqNumeros = ventaData.requerimientosNumeros || [];
+
+        const todasReservadas = reservaResult.detalles.every(d => d.faltantes === 0);
+
+        const updateData: Record<string, any> = {
+          requerimientosIds: [...new Set([...existingReqIds, requerimientoId])],
+          requerimientosNumeros: [...new Set([...existingReqNumeros, requerimientoNumero])]
+        };
+
+        if (todasReservadas && reservaResult.totalReservadas > 0) {
+          updateData.requiereStock = false;
+          updateData.productosConFaltante = null;
+        }
+
+        await updateDoc(ventaRef, updateData);
+      }
+    } catch (e) {
+      logger.warn('No se pudo actualizar la venta con requerimientoId:', e);
+    }
+
+    return {
+      requerimientoId,
+      requerimientoNumero,
+      unidadesReservadas: reservaResult.totalReservadas,
+      detalles: reservaResult.detalles
+    };
+  },
+
+  /**
+   * Consolidar productos de múltiples requerimientos para OC unificada
+   */
+  consolidarProductosRequerimientos(requerimientos: Requerimiento[]): {
+    productosConsolidados: Array<{
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      cantidadTotal: number;
+      precioEstimadoUSD: number;
+      origenes: Array<{
+        requerimientoId: string;
+        requerimientoNumero: string;
+        cotizacionId?: string;
+        clienteNombre?: string;
+        cantidad: number;
+      }>;
+    }>;
+    resumen: { totalProductos: number; totalUnidades: number; clientes: string[] };
+  } {
+    const productoMap = new Map<string, {
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      cantidadTotal: number;
+      precioAcumulado: number;
+      cantidadParaPrecio: number;
+      origenes: Array<{
+        requerimientoId: string;
+        requerimientoNumero: string;
+        cotizacionId?: string;
+        clienteNombre?: string;
+        cantidad: number;
+      }>;
+    }>();
+
+    const clientesSet = new Set<string>();
+
+    for (const req of requerimientos) {
+      const clienteNombre = req.nombreClienteSolicitante || 'Stock interno';
+      clientesSet.add(clienteNombre);
+
+      for (const prod of req.productos) {
+        const existing = productoMap.get(prod.productoId);
+        const origen = {
+          requerimientoId: req.id!,
+          requerimientoNumero: req.numeroRequerimiento,
+          cotizacionId: req.ventaRelacionadaId,
+          clienteNombre,
+          cantidad: prod.cantidadSolicitada
+        };
+
+        if (existing) {
+          existing.cantidadTotal += prod.cantidadSolicitada;
+          if (prod.precioEstimadoUSD) {
+            existing.precioAcumulado += prod.precioEstimadoUSD * prod.cantidadSolicitada;
+            existing.cantidadParaPrecio += prod.cantidadSolicitada;
+          }
+          existing.origenes.push(origen);
+        } else {
+          productoMap.set(prod.productoId, {
+            productoId: prod.productoId,
+            sku: prod.sku || '',
+            marca: prod.marca || '',
+            nombreComercial: prod.nombreComercial || '',
+            cantidadTotal: prod.cantidadSolicitada,
+            precioAcumulado: (prod.precioEstimadoUSD || 0) * prod.cantidadSolicitada,
+            cantidadParaPrecio: prod.precioEstimadoUSD ? prod.cantidadSolicitada : 0,
+            origenes: [origen]
+          });
+        }
+      }
+    }
+
+    const productosConsolidados = Array.from(productoMap.values()).map(p => ({
+      productoId: p.productoId,
+      sku: p.sku,
+      marca: p.marca,
+      nombreComercial: p.nombreComercial,
+      cantidadTotal: p.cantidadTotal,
+      precioEstimadoUSD: p.cantidadParaPrecio > 0 ? p.precioAcumulado / p.cantidadParaPrecio : 0,
+      origenes: p.origenes
+    }));
+
+    return {
+      productosConsolidados,
+      resumen: {
+        totalProductos: productosConsolidados.length,
+        totalUnidades: productosConsolidados.reduce((sum, p) => sum + p.cantidadTotal, 0),
+        clientes: Array.from(clientesSet)
+      }
+    };
+  },
+
+  /**
+   * Limpieza de datos: eliminar requerimientos duplicados y corregir flags de ventas.
+   */
+  async limpiarDatosVinculacion(userId: string): Promise<{
+    reqsCancelados: string[];
+    ventasCorregidas: string[];
+    resumen: string;
+  }> {
+    const reqsCancelados: string[] = [];
+    const ventasCorregidas: string[] = [];
+
+    // 1. Obtener todos los requerimientos
+    const allReqs = await requerimientoService.getRequerimientos();
+
+    // 2. Agrupar por ventaRelacionadaId (cotización)
+    const reqsPorCotizacion = new Map<string, typeof allReqs>();
+    for (const req of allReqs) {
+      if (!req.ventaRelacionadaId || req.estado === 'cancelado') continue;
+      const existing = reqsPorCotizacion.get(req.ventaRelacionadaId) || [];
+      existing.push(req);
+      reqsPorCotizacion.set(req.ventaRelacionadaId, existing);
+    }
+
+    // 3. Para cada grupo con duplicados, mantener el que tiene OC vinculada más reciente
+    for (const [cotId, reqs] of reqsPorCotizacion) {
+      if (reqs.length <= 1) continue;
+
+      const sorted = [...reqs].sort((a, b) => {
+        const aHasOC = a.ordenCompraId ? 1 : 0;
+        const bHasOC = b.ordenCompraId ? 1 : 0;
+        if (aHasOC !== bHasOC) return bHasOC - aHasOC;
+        const stateOrder: Record<string, number> = { completado: 3, en_proceso: 2, aprobado: 1, pendiente: 0 };
+        return (stateOrder[b.estado] || 0) - (stateOrder[a.estado] || 0);
+      });
+
+      const keeper = sorted[0];
+      for (let i = 1; i < sorted.length; i++) {
+        const dup = sorted[i];
+        try {
+          await requerimientoService.actualizarEstado(dup.id!, 'cancelado', userId);
+          reqsCancelados.push(`${dup.numeroRequerimiento} (${dup.nombreClienteSolicitante || cotId})`);
+        } catch (e) {
+          logger.error(`Error cancelando ${dup.numeroRequerimiento}:`, e);
+        }
+      }
+    }
+
+    // 4. Corregir ventas con requiereStock=true que ya tienen reqs completados con OC
+    const { VentaService } = await import('./venta.service');
+    const ventas = await VentaService.getAll();
+    const ventasConFaltante = ventas.filter(v => v.estado === 'confirmada' && v.requiereStock === true);
+
+    for (const venta of ventasConFaltante) {
+      const reqsDeEstaVenta = allReqs.filter(r =>
+        r.ventaRelacionadaId === venta.id &&
+        r.estado !== 'cancelado'
+      );
+
+      const tieneReqCompletadoConOC = reqsDeEstaVenta.some(r =>
+        r.estado === 'completado' && r.ordenCompraId
+      );
+
+      if (tieneReqCompletadoConOC) {
+        try {
+          const ventaRef = doc(db, COLLECTIONS.VENTAS, venta.id);
+          await updateDoc(ventaRef, {
+            requiereStock: false,
+            productosConFaltante: null
+          });
+          ventasCorregidas.push(`${venta.numeroVenta} (${venta.nombreCliente})`);
+        } catch (e) {
+          logger.error(`Error actualizando venta ${venta.numeroVenta}:`, e);
+        }
+      }
+    }
+
+    const resumen = [
+      `Requerimientos duplicados cancelados: ${reqsCancelados.length}`,
+      ...reqsCancelados.map(r => `  - ${r}`),
+      `Ventas corregidas (requiereStock → false): ${ventasCorregidas.length}`,
+      ...ventasCorregidas.map(v => `  - ${v}`)
+    ].join('\n');
+
+    return { reqsCancelados, ventasCorregidas, resumen };
+  },
+
+  /**
    * Obtener requerimientos asignados a un responsable
    */
   async getByResponsable(responsableId: string): Promise<Requerimiento[]> {
-    return this.buscar({ responsableId });
+    return requerimientoService.buscar({ responsableId });
   },
 
   /**
@@ -592,7 +1471,7 @@ export const requerimientoService = {
    */
   async getStats(): Promise<RequerimientoStats> {
     try {
-      const requerimientos = await this.getAll();
+      const requerimientos = await requerimientoService.getAll();
 
       const stats: RequerimientoStats = {
         total: requerimientos.length,
@@ -618,7 +1497,6 @@ export const requerimientoService = {
       }>();
 
       for (const req of requerimientos) {
-        // Por estado
         switch (req.estado) {
           case 'pendiente': stats.pendientes++; break;
           case 'aprobado': stats.aprobados++; break;
@@ -629,7 +1507,6 @@ export const requerimientoService = {
 
         if (req.prioridad === 'urgente') stats.urgentes++;
 
-        // Por asignación
         const totalSolicitado = req.productos.reduce((s, p) => s + p.cantidadSolicitada, 0);
         const totalAsignado = req.productos.reduce((s, p) => s + p.cantidadAsignada, 0);
 
@@ -641,12 +1518,10 @@ export const requerimientoService = {
           stats.totalmenteAsignados++;
         }
 
-        // Costos
         if (req.expectativa) {
           stats.costoTotalEstimadoUSD += req.expectativa.costoTotalEstimadoUSD || 0;
         }
 
-        // Por responsable
         for (const asig of req.asignaciones || []) {
           if (asig.estado === 'cancelado') continue;
 
@@ -668,7 +1543,6 @@ export const requerimientoService = {
         }
       }
 
-      // Convertir mapa a array
       stats.asignacionesPorResponsable = Array.from(responsablesMap.entries()).map(
         ([responsableId, data]) => ({
           responsableId,
@@ -730,7 +1604,6 @@ export const requerimientoService = {
     asignaciones: AsignacionResponsable[]
   ): ProductoRequerimiento[] {
     return productos.map(prod => {
-      // Sumar cantidades de todas las asignaciones activas para este producto
       let totalAsignado = 0;
       let totalRecibido = 0;
 

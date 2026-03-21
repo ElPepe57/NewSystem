@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Requerimiento, EstadoRequerimiento } from '../../types/expectativa.types';
+import type { Requerimiento, EstadoRequerimiento } from '../../types/requerimiento.types';
 import { KanbanCard } from './KanbanCard';
 import { KANBAN_COLUMN_DEFS } from './requerimientos.types';
 

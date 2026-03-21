@@ -17,10 +17,74 @@ import type { Cotizacion, CotizacionFormData, EstadoCotizacion, ProductoCotizaci
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { stockDisponibilidadService } from './stockDisponibilidad.service';
-import { expectativaService } from './expectativa.service';
 import { tipoCambioService } from './tipoCambio.service';
+import { ctruService } from './ctru.service';
 import { logger } from '../lib/logger';
 import type { DisponibilidadProducto } from '../types/stockDisponibilidad.types';
+
+/** Calcular estimación de costo/margen para una cotización usando el CTRU actual */
+async function calcularExpectativaCotizacion(
+  productos: Array<{ productoId: string; cantidad: number; precioUnitario: number }>,
+  tcActual: number
+): Promise<{
+  costoEstimadoUSD: number;
+  costoEstimadoPEN: number;
+  margenEsperado: number;
+  utilidadEsperadaPEN: number;
+  productosEstimados: Array<{
+    productoId: string;
+    costoUnitarioEstimadoUSD: number;
+    margenEstimado: number;
+  }>;
+}> {
+  let costoTotalUSD = 0;
+  let ventaTotalPEN = 0;
+  const productosEstimados: Array<{
+    productoId: string;
+    costoUnitarioEstimadoUSD: number;
+    margenEstimado: number;
+  }> = [];
+
+  for (const prod of productos) {
+    try {
+      const ctruInfo = await ctruService.getCTRUProducto(prod.productoId);
+      const costoUnitarioUSD = ctruInfo.ctruPromedio / tcActual;
+      const costoProductoUSD = costoUnitarioUSD * prod.cantidad;
+      costoTotalUSD += costoProductoUSD;
+
+      const subtotalVenta = prod.cantidad * prod.precioUnitario;
+      ventaTotalPEN += subtotalVenta;
+
+      const costoProductoPEN = costoProductoUSD * tcActual;
+      const utilidadProducto = subtotalVenta - costoProductoPEN;
+      const margenProducto = subtotalVenta > 0 ? (utilidadProducto / subtotalVenta) * 100 : 0;
+
+      productosEstimados.push({
+        productoId: prod.productoId,
+        costoUnitarioEstimadoUSD: costoUnitarioUSD,
+        margenEstimado: margenProducto
+      });
+    } catch {
+      productosEstimados.push({
+        productoId: prod.productoId,
+        costoUnitarioEstimadoUSD: 0,
+        margenEstimado: 0
+      });
+    }
+  }
+
+  const costoEstimadoPEN = costoTotalUSD * tcActual;
+  const utilidadEsperadaPEN = ventaTotalPEN - costoEstimadoPEN;
+  const margenEsperado = ventaTotalPEN > 0 ? (utilidadEsperadaPEN / ventaTotalPEN) * 100 : 0;
+
+  return {
+    costoEstimadoUSD: costoTotalUSD,
+    costoEstimadoPEN,
+    margenEsperado,
+    utilidadEsperadaPEN,
+    productosEstimados
+  };
+}
 
 /** Crear nueva cotización con disponibilidad multi-almacén */
 export async function create(data: CotizacionFormData, userId: string): Promise<Cotizacion> {
@@ -139,7 +203,7 @@ export async function create(data: CotizacionFormData, userId: string): Promise<
     let expectativaCotizacion: Record<string, any> | undefined;
     try {
       const tcCotizacion = await tipoCambioService.resolverTCVenta();
-      const expectativaCalc = await expectativaService.calcularExpectativaCotizacion(
+      const expectativaCalc = await calcularExpectativaCotizacion(
         data.productos.map(p => ({
           productoId: p.productoId,
           cantidad: p.cantidad,
