@@ -1,55 +1,21 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { formatFecha as formatDate } from '../../utils/dateFormatters';
-import { formatCurrency } from '../../utils/format';
-import { useNavigate } from 'react-router-dom';
 import {
   Plus,
-  PlusCircle,
-  ClipboardList,
-  Package,
-  Check,
-  Clock,
-  XCircle,
-  Link2,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  History,
-  Search,
-  ShoppingCart,
-  AlertCircle,
-  AlertTriangle,
-  ArrowRight,
-  Eye,
-  FileText,
   Zap,
-  BarChart3,
-  Users,
-  Building2,
-  Lightbulb,
   RefreshCw,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-  Target,
-  Truck,
-  UserCheck,
-  CheckSquare,
-  Square,
-  Layers
+  AlertCircle,
+  Layers,
+  CheckSquare
 } from 'lucide-react';
-import { Button, Card, Modal, Badge, useConfirmDialog, ConfirmDialog, LineaNegocioBadge } from '../../components/common';
+import { Button, ConfirmDialog, Modal, useConfirmDialog } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
 import { VincularOCModal } from '../../components/modules/requerimiento/VincularOCModal';
 import { OCBuilder, PendientesCompraPanel } from '../../components/modules/ordenCompra';
-import { ProductoSearchRequerimientos, type ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
-import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteAutocomplete';
-import type { ClienteSnapshot } from '../../types/entidadesMaestras.types';
+import type { ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { useProductoStore } from '../../store/productoStore';
 import { useExpectativaStore } from '../../store/expectativaStore';
 import type { ProductoFormData } from '../../types/producto.types';
-import { ExpectativaService } from '../../services/expectativa.service';
 import { ProductoService } from '../../services/producto.service';
 import { OrdenCompraService } from '../../services/ordenCompra.service';
 import { VentaService } from '../../services/venta.service';
@@ -61,56 +27,24 @@ import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type {
   Requerimiento,
   RequerimientoFormData,
-  EstadoRequerimiento,
-  TipoSolicitante
+  EstadoRequerimiento
 } from '../../types/expectativa.types';
-import type { AsignacionResponsable } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
 import type { Venta } from '../../types/venta.types';
-import { esEstadoEnAlmacenOrigen, getLabelEstadoAsignacion } from '../../utils/multiOrigen.helpers';
 
-// Tipo para información de investigación de mercado
-interface InvestigacionProducto {
-  productoId: string;
-  precioPromedioUSD: number;
-  precioMinimoUSD: number;
-  precioMaximoUSD: number;
-  ultimoPrecioUSD: number;
-  proveedorRecomendado?: {
-    id: string;
-    nombre: string;
-    ultimoPrecioUSD: number;
-  };
-  historial: Array<{
-    proveedorNombre: string;
-    costoUnitarioUSD: number;
-    fechaCompra: Date;
-  }>;
-}
-
-// Tipo para sugerencias de stock bajo
-interface SugerenciaStock {
-  producto: Producto;
-  stockActual: number;
-  stockMinimo: number;
-  demandaPromedio: number;
-  diasParaAgotarse: number;
-  urgencia: 'critica' | 'alta' | 'media';
-  precioEstimadoUSD?: number;
-  proveedorSugerido?: string;
-}
-
-// Columnas del Kanban
-const KANBAN_COLUMNS: { id: EstadoRequerimiento; label: string; color: string; icon: React.ReactNode }[] = [
-  { id: 'pendiente', label: 'Pendientes', color: 'bg-yellow-500', icon: <Clock className="h-4 w-4" /> },
-  { id: 'aprobado', label: 'Aprobados', color: 'bg-blue-500', icon: <Check className="h-4 w-4" /> },
-  { id: 'parcial', label: 'OC Parcial', color: 'bg-indigo-500', icon: <Link2 className="h-4 w-4" /> },
-  { id: 'en_proceso', label: 'En Proceso', color: 'bg-purple-500', icon: <Link2 className="h-4 w-4" /> },
-  { id: 'completado', label: 'Completados', color: 'bg-green-500', icon: <Check className="h-4 w-4" /> }
-];
+// Sub-components
+import { RequerimientosKPIGrid } from './RequerimientosKPIGrid';
+import { IntelligencePanel } from './IntelligencePanel';
+import { KanbanBoard } from './KanbanBoard';
+import { RequerimientosListView } from './RequerimientosListView';
+import { RequerimientoFormModal } from './RequerimientoFormModal';
+import { RequerimientoDetailModal } from './RequerimientoDetailModal';
+import { SugerenciasStockModal } from './SugerenciasStockModal';
+import { CotizacionesFaltanteModal } from './CotizacionesFaltanteModal';
+import { SelectionFloatingBar } from './SelectionFloatingBar';
+import type { InvestigacionProducto, SugerenciaStock } from './requerimientos.types';
 
 export const Requerimientos: React.FC = () => {
-  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const toast = useToastStore();
   const { productos: productosStore, createProducto, fetchProductos } = useProductoStore();
@@ -124,16 +58,16 @@ export const Requerimientos: React.FC = () => {
 
   const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
-  // Filtrar requerimientos por línea de negocio global
+  // Filtrar requerimientos por linea de negocio global
   const requerimientosLN = useMemo(() => {
     if (!lineaFiltroGlobal) return requerimientos;
     return requerimientos.filter(r => r.lineaNegocioId === lineaFiltroGlobal);
   }, [requerimientos, lineaFiltroGlobal]);
 
-  // TC del día
+  // TC del dia
   const [tcDelDia, setTcDelDia] = useState<{ venta: number; compra: number } | null>(null);
 
-  // Estados principales (loading combina store + local)
+  // Estados principales
   const [loadingLocal, setLoadingLocal] = useState(true);
   const loading = loadingReqs || loadingLocal;
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -163,7 +97,7 @@ export const Requerimientos: React.FC = () => {
   const [isVincularOCModalOpen, setIsVincularOCModalOpen] = useState(false);
   const [ventaParaVincular, setVentaParaVincular] = useState<Venta | null>(null);
 
-  // Selección múltiple para OC consolidada
+  // Seleccion multiple para OC consolidada
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedReqIds, setSelectedReqIds] = useState<Set<string>>(new Set());
 
@@ -190,19 +124,18 @@ export const Requerimientos: React.FC = () => {
     urlReferencia: ''
   });
 
-  // Información de investigación de mercado
+  // Investigacion de mercado
   const [investigacionMercado, setInvestigacionMercado] = useState<Map<string, InvestigacionProducto>>(new Map());
   const [loadingInvestigacion, setLoadingInvestigacion] = useState(false);
   const [showHistorial, setShowHistorial] = useState<string | null>(null);
 
-  // Expandir/contraer secciones
+  // Expandir/contraer secciones del panel de inteligencia
   const [expandedSections, setExpandedSections] = useState({
     alertas: true,
     sugerencias: true,
     cotizaciones: true
   });
 
-  // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
 
   useEffect(() => {
@@ -217,7 +150,7 @@ export const Requerimientos: React.FC = () => {
         setTcDelDia({ venta: tc.venta, compra: tc.compra });
       }
     } catch (error) {
-      console.error('Error al cargar TC del día:', error);
+      console.error('Error al cargar TC del dia:', error);
     }
   };
 
@@ -231,9 +164,6 @@ export const Requerimientos: React.FC = () => {
       ]);
       setProductos(prods);
 
-      // Filtrar cotizaciones confirmadas que requieren stock
-      // y que NO tengan ya un requerimiento activo (no cancelado)
-      // Nota: usamos requerimientos del store (se actualiza via fetchRequerimientos)
       const reqs = useExpectativaStore.getState().requerimientos;
       const reqVentaIds = new Set(
         reqs
@@ -250,8 +180,6 @@ export const Requerimientos: React.FC = () => {
           !(v.cotizacionOrigenId && reqVentaIds.has(v.cotizacionOrigenId))
       );
       setCotizacionesConfirmadas(cotizacionesConFaltante);
-
-      // Cargar sugerencias de stock bajo
       await loadSugerenciasStock(prods);
     } catch (error) {
       console.error('Error al cargar datos:', error);
@@ -260,16 +188,12 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
-  // Cargar sugerencias basadas en stock bajo
   const loadSugerenciasStock = async (prods: Producto[]) => {
     try {
-      // Obtener inventario agregado
       const inventarioAgregado = await inventarioService.getInventarioAgregado();
       const inventarioMap = new Map(inventarioAgregado.map((inv: { productoId: string; disponibles: number }) => [inv.productoId, inv]));
-      // TODO: Implementar getDemandaPromedioPorProducto en VentaService
       const demandaHistorica: Map<string, number> = new Map();
 
-      // Primero identificar productos con stock bajo
       const productosStockBajo: Array<{
         producto: Producto;
         stockActual: number;
@@ -280,48 +204,33 @@ export const Requerimientos: React.FC = () => {
       }> = [];
 
       for (const producto of prods) {
-        // Verificar si está activo
         if (producto.estado !== 'activo') continue;
-
-        // Obtener stock actual del producto desde inventario agregado
         const inventario = inventarioMap.get(producto.id);
         const stockActual = (inventario as { disponibles?: number })?.disponibles || 0;
         const stockMinimo = producto.stockMinimo || 5;
 
         if (stockActual <= stockMinimo) {
-          // Calcular demanda promedio basándose en ventas históricas
           const demandaPromedio = demandaHistorica.get(producto.id) || 1;
           const diasParaAgotarse = demandaPromedio > 0
             ? Math.floor(stockActual / demandaPromedio)
             : stockActual > 0 ? 30 : 0;
 
-          // Determinar urgencia
           let urgencia: 'critica' | 'alta' | 'media' = 'media';
           if (stockActual === 0) urgencia = 'critica';
           else if (diasParaAgotarse <= 3) urgencia = 'alta';
 
-          productosStockBajo.push({
-            producto,
-            stockActual,
-            stockMinimo,
-            demandaPromedio,
-            diasParaAgotarse,
-            urgencia
-          });
+          productosStockBajo.push({ producto, stockActual, stockMinimo, demandaPromedio, diasParaAgotarse, urgencia });
         }
       }
 
-      // Si no hay productos con stock bajo, terminar
       if (productosStockBajo.length === 0) {
         setSugerenciasStock([]);
         return;
       }
 
-      // Hacer UNA sola llamada para obtener investigación de mercado de todos los productos
       const productosIds = productosStockBajo.map(p => p.producto.id);
       const investigacionMercadoMap = await OrdenCompraService.getInvestigacionMercado(productosIds);
 
-      // Construir sugerencias con la información de mercado
       const sugerencias: SugerenciaStock[] = productosStockBajo.map(item => {
         const info = investigacionMercadoMap.get(item.producto.id);
         return {
@@ -331,13 +240,12 @@ export const Requerimientos: React.FC = () => {
         };
       });
 
-      // Ordenar por urgencia
       sugerencias.sort((a, b) => {
         const orden = { critica: 0, alta: 1, media: 2 };
         return orden[a.urgencia] - orden[b.urgencia];
       });
 
-      setSugerenciasStock(sugerencias.slice(0, 10)); // Top 10
+      setSugerenciasStock(sugerencias.slice(0, 10));
     } catch (error) {
       console.error('Error al cargar sugerencias:', error);
     }
@@ -364,28 +272,48 @@ export const Requerimientos: React.FC = () => {
     return grouped;
   }, [requerimientosLN]);
 
-  // Handler para selección desde el buscador inteligente
+  // Estadisticas calculadas
+  const stats = useMemo(() => {
+    const activos = requerimientosLN.filter(r => r.estado !== 'cancelado' && r.estado !== 'completado');
+    const pendientes = requerimientosLN.filter(r => r.estado === 'pendiente');
+    const aprobados = requerimientosLN.filter(r => r.estado === 'aprobado');
+    const enProceso = requerimientosLN.filter(r => r.estado === 'en_proceso' || r.estado === 'parcial');
+    const costoEstimadoPendiente = [...pendientes, ...aprobados].reduce(
+      (sum, r) => sum + (r.expectativa?.costoTotalEstimadoUSD || 0), 0
+    );
+    const reqUrgentes = activos.filter(r => r.prioridad === 'alta').length;
+
+    return {
+      total: requerimientosLN.length,
+      activos: activos.length,
+      pendientes: pendientes.length,
+      aprobados: aprobados.length,
+      enProceso: enProceso.length,
+      urgentes: reqUrgentes,
+      costoEstimadoPendiente,
+      alertasStock: sugerenciasStock.filter(s => s.urgencia === 'critica' || s.urgencia === 'alta').length
+    };
+  }, [requerimientosLN, sugerenciasStock]);
+
+  // ---- Handlers de producto snapshot ----
+
   const handleProductoSnapshotSelect = async (snapshot: ProductoRequerimientoSnapshot | null) => {
     setProductoSnapshot(snapshot);
 
     if (snapshot) {
-      // Actualizar productoTemp con los datos del snapshot
       setProductoTemp(prev => ({
         ...prev,
         productoId: snapshot.productoId,
         precioEstimadoUSD: snapshot.ultimoCostoUSD || prev.precioEstimadoUSD
       }));
 
-      // Si hay investigación vigente, cargar información adicional
       if (!investigacionMercado.has(snapshot.productoId)) {
         setLoadingInvestigacion(true);
         try {
           const resultado = await OrdenCompraService.getInvestigacionMercado([snapshot.productoId]);
           const info = resultado.get(snapshot.productoId);
-
           if (info) {
             setInvestigacionMercado(prev => new Map(prev).set(snapshot.productoId, info));
-
             if (info.proveedorRecomendado) {
               setProductoTemp(prev => ({
                 ...prev,
@@ -395,7 +323,7 @@ export const Requerimientos: React.FC = () => {
             }
           }
         } catch (error) {
-          console.error('Error al cargar investigación de mercado:', error);
+          console.error('Error al cargar investigacion de mercado:', error);
         } finally {
           setLoadingInvestigacion(false);
         }
@@ -419,58 +347,10 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
-  // Cargar investigación de mercado cuando se selecciona un producto
-  const handleProductoChange = async (productoId: string) => {
-    setProductoTemp({ ...productoTemp, productoId });
-
-    if (!productoId) return;
-
-    // Verificar si ya tenemos la información
-    if (investigacionMercado.has(productoId)) {
-      const info = investigacionMercado.get(productoId)!;
-      if (info.proveedorRecomendado) {
-        setProductoTemp(prev => ({
-          ...prev,
-          productoId,
-          precioEstimadoUSD: info.proveedorRecomendado!.ultimoPrecioUSD,
-          proveedorSugerido: info.proveedorRecomendado!.nombre
-        }));
-      }
-      return;
-    }
-
-    // Cargar información de mercado
-    setLoadingInvestigacion(true);
-    try {
-      const resultado = await OrdenCompraService.getInvestigacionMercado([productoId]);
-      const info = resultado.get(productoId);
-
-      if (info) {
-        setInvestigacionMercado(prev => new Map(prev).set(productoId, info));
-
-        if (info.proveedorRecomendado) {
-          setProductoTemp(prev => ({
-            ...prev,
-            precioEstimadoUSD: info.proveedorRecomendado!.ultimoPrecioUSD,
-            proveedorSugerido: info.proveedorRecomendado!.nombre
-          }));
-        } else if (info.ultimoPrecioUSD > 0) {
-          setProductoTemp(prev => ({
-            ...prev,
-            precioEstimadoUSD: info.ultimoPrecioUSD
-          }));
-        }
-      }
-    } catch (error) {
-      console.error('Error al cargar investigación de mercado:', error);
-    } finally {
-      setLoadingInvestigacion(false);
-    }
-  };
+  // ---- Handlers de formulario ----
 
   const handleAgregarProducto = () => {
     if (!productoTemp.productoId) return;
-
     const producto = productos.find((p) => p.id === productoTemp.productoId);
     if (!producto) return;
 
@@ -523,16 +403,13 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
-  // Handler para crear producto desde el modal interno
   const handleCreateProducto = async (data: ProductoFormData) => {
     if (!user) return;
-
     setIsCreatingProducto(true);
     try {
       await createProducto(data, user.uid);
-      // Refrescar lista de productos
       await fetchProductos();
-      loadData(); // Refrescar también los datos locales
+      loadData();
       setShowProductoModal(false);
       toast.success('Producto creado correctamente');
     } catch (error: any) {
@@ -542,10 +419,8 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
-  // Crear requerimiento desde sugerencia de stock
   const handleCrearDesdeSugerencia = async (sugerencia: SugerenciaStock) => {
-    const cantidadSugerida = Math.max(sugerencia.stockMinimo * 2, 10); // Al menos el doble del mínimo
-
+    const cantidadSugerida = Math.max(sugerencia.stockMinimo * 2, 10);
     setFormData({
       origen: 'stock_minimo',
       tipoSolicitante: 'administracion',
@@ -556,14 +431,12 @@ export const Requerimientos: React.FC = () => {
         precioEstimadoUSD: sugerencia.precioEstimadoUSD,
         proveedorSugerido: sugerencia.proveedorSugerido
       }],
-      justificacion: `Stock bajo: ${sugerencia.stockActual} unidades disponibles (mínimo: ${sugerencia.stockMinimo})`
+      justificacion: `Stock bajo: ${sugerencia.stockActual} unidades disponibles (minimo: ${sugerencia.stockMinimo})`
     });
-
     setIsSugerenciasModalOpen(false);
     setIsModalOpen(true);
   };
 
-  // Crear requerimiento desde una cotización confirmada
   const handleCrearDesdeCotizacion = async (venta: Venta) => {
     if (!user) return;
 
@@ -585,7 +458,6 @@ export const Requerimientos: React.FC = () => {
       const faltante = productosFaltantes.find(f => f.nombre.includes(p.nombreComercial));
       const cantidadNecesaria = faltante ? faltante.solicitados - faltante.disponibles : p.cantidad;
       const info = investigacion.get(p.productoId);
-
       return {
         productoId: p.productoId,
         cantidadSolicitada: cantidadNecesaria,
@@ -612,7 +484,8 @@ export const Requerimientos: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Aprobar requerimiento
+  // ---- Handlers de estado ----
+
   const handleAprobar = async (req: Requerimiento) => {
     if (!user) return;
     try {
@@ -625,12 +498,11 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
-  // Cancelar requerimiento
   const handleCancelar = async (req: Requerimiento) => {
     if (!user) return;
     const confirmar = await confirm({
       title: 'Cancelar Requerimiento',
-      message: `¿Estás seguro de cancelar ${req.numeroRequerimiento}? Esta acción no se puede deshacer.`,
+      message: `Estas seguro de cancelar ${req.numeroRequerimiento}? Esta accion no se puede deshacer.`,
       confirmText: 'Cancelar Requerimiento',
       variant: 'danger'
     });
@@ -645,12 +517,11 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
-  // Limpieza de datos: cancelar duplicados y corregir flags de ventas
   const handleLimpiarDatos = async () => {
     if (!user) return;
     const confirmar = await confirm({
-      title: 'Limpiar datos de vinculación',
-      message: 'Esto cancelará requerimientos duplicados y corregirá las cotizaciones que ya tienen stock reservado. ¿Continuar?',
+      title: 'Limpiar datos de vinculacion',
+      message: 'Esto cancelara requerimientos duplicados y corregira las cotizaciones que ya tienen stock reservado. Continuar?',
       confirmText: 'Limpiar datos',
       variant: 'danger'
     });
@@ -665,20 +536,17 @@ export const Requerimientos: React.FC = () => {
     }
   };
 
-  // Abrir OC Builder wizard desde un requerimiento
+  // ---- Handlers de OC ----
+
   const handleGenerarOC = (req: Requerimiento) => {
     setOcBuilderReqs([req]);
     setIsOCBuilderOpen(true);
   };
 
-  // Generar OCs desde viajeros — ahora usa el OC Builder
-  const handleGenerarOCsPorViajero = async (req: Requerimiento) => {
-    // El OC Builder maneja la agrupación por viajero/proveedor
+  const handleGenerarOCsPorViajero = (req: Requerimiento) => {
     setOcBuilderReqs([req]);
     setIsOCBuilderOpen(true);
   };
-
-  // =============== Selección múltiple y OC Consolidada ===============
 
   const toggleReqSelection = (reqId: string) => {
     setSelectedReqIds(prev => {
@@ -695,297 +563,24 @@ export const Requerimientos: React.FC = () => {
   const handleGenerarOCConsolidada = () => {
     const selectedReqs = requerimientosLN.filter(r => selectedReqIds.has(r.id!));
     if (selectedReqs.length === 0) return;
-
-    // Abrir OC Builder con múltiples requerimientos
     setOcBuilderReqs(selectedReqs);
     setIsOCBuilderOpen(true);
     setSelectionMode(false);
     setSelectedReqIds(new Set());
   };
 
-  // Vincular OC retroactiva desde cotización con faltante
   const handleVincularOC = (venta: Venta) => {
     setVentaParaVincular(venta);
     setIsVincularOCModalOpen(true);
   };
 
-  // Badges y formateo
-  const getEstadoBadge = (estado: EstadoRequerimiento) => {
-    const config: Record<EstadoRequerimiento, { color: string; icon: React.ReactNode }> = {
-      borrador: { color: 'bg-gray-100 text-gray-800', icon: <Clock className="h-3 w-3" /> },
-      pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
-      aprobado: { color: 'bg-blue-100 text-blue-800', icon: <Check className="h-3 w-3" /> },
-      parcial: { color: 'bg-indigo-100 text-indigo-800', icon: <Link2 className="h-3 w-3" /> },
-      en_proceso: { color: 'bg-purple-100 text-purple-800', icon: <Link2 className="h-3 w-3" /> },
-      completado: { color: 'bg-green-100 text-green-800', icon: <Check className="h-3 w-3" /> },
-      cancelado: { color: 'bg-red-100 text-red-800', icon: <XCircle className="h-3 w-3" /> }
-    };
-
-    const { color, icon } = config[estado];
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}>
-        {icon}
-        <span className="ml-1">{estado.replace('_', ' ')}</span>
-      </span>
-    );
-  };
-
-  const getPrioridadBadge = (prioridad: string) => {
-    const config: Record<string, string> = {
-      urgente: 'bg-red-200 text-red-900 border-red-300',
-      alta: 'bg-red-100 text-red-800 border-red-200',
-      media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      normal: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      baja: 'bg-gray-100 text-gray-800 border-gray-200'
-    };
-
-    return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config[prioridad] || config.baja}`}>
-        {(prioridad === 'alta' || prioridad === 'urgente') && <AlertTriangle className="h-3 w-3 mr-1" />}
-        {prioridad}
-      </span>
-    );
-  };
-
-  const getSolicitanteIcon = (tipo: TipoSolicitante) => {
-    switch (tipo) {
-      case 'cliente': return <Users className="h-4 w-4 text-blue-500" />;
-      case 'administracion': return <Building2 className="h-4 w-4 text-gray-500" />;
-      case 'ventas': return <Target className="h-4 w-4 text-green-500" />;
-      case 'investigacion': return <Lightbulb className="h-4 w-4 text-yellow-500" />;
-      default: return null;
-    }
-  };
-
-  const getSolicitanteLabel = (req: Requerimiento) => {
-    if (req.tipoSolicitante === 'cliente' && req.nombreClienteSolicitante) {
-      return req.nombreClienteSolicitante;
-    }
-    switch (req.tipoSolicitante) {
-      case 'administracion': return 'Administración';
-      case 'ventas': return 'Ventas';
-      case 'investigacion': return 'Investigación';
-      default: return req.origen?.replace('_', ' ') || '-';
-    }
-  };
-
-
-  // formatCurrency importado de utils/format — firma compatible: (value, currency?)
-
-  // Badge para estados de asignación
-  const getAsignacionEstadoBadge = (estado: string, paisOrigen?: string) => {
-    const variantMap: Record<string, 'warning' | 'info' | 'success' | 'default' | 'danger'> = {
-      pendiente: 'warning',
-      comprando: 'info',
-      comprado: 'info',
-      en_almacen_usa: 'info',
-      en_almacen_origen: 'info',
-      en_transito: 'info',
-      recibido: 'success',
-      cancelado: 'danger'
-    };
-    const variant = variantMap[estado] || 'default';
-    const label = getLabelEstadoAsignacion(estado as any, paisOrigen);
-    return <Badge variant={variant}>{label}</Badge>;
-  };
-
-  // Handler para cuando se crea una asignación
   const handleAsignacionCreada = () => {
     loadData();
     setIsAsignacionModalOpen(false);
   };
 
-  // Estadísticas calculadas
-  const stats = useMemo(() => {
-    const activos = requerimientosLN.filter(r => r.estado !== 'cancelado' && r.estado !== 'completado');
-    const pendientes = requerimientosLN.filter(r => r.estado === 'pendiente');
-    const aprobados = requerimientosLN.filter(r => r.estado === 'aprobado');
-    const parciales = requerimientosLN.filter(r => r.estado === 'parcial');
-    const enProceso = requerimientosLN.filter(r => r.estado === 'en_proceso' || r.estado === 'parcial');
-
-    const costoEstimadoPendiente = [...pendientes, ...aprobados].reduce(
-      (sum, r) => sum + (r.expectativa?.costoTotalEstimadoUSD || 0), 0
-    );
-
-    const reqUrgentes = activos.filter(r => r.prioridad === 'alta').length;
-
-    return {
-      total: requerimientosLN.length,
-      activos: activos.length,
-      pendientes: pendientes.length,
-      aprobados: aprobados.length,
-      enProceso: enProceso.length,
-      urgentes: reqUrgentes,
-      costoEstimadoPendiente,
-      alertasStock: sugerenciasStock.filter(s => s.urgencia === 'critica' || s.urgencia === 'alta').length
-    };
-  }, [requerimientosLN, sugerenciasStock]);
-
-  // Info del producto seleccionado para el form
-  const infoProductoSeleccionado = productoTemp.productoId
-    ? investigacionMercado.get(productoTemp.productoId)
-    : null;
-
-  // Renderizar tarjeta de requerimiento para Kanban
-  const renderKanbanCard = (req: Requerimiento) => {
-    const isSelected = selectedReqIds.has(req.id!);
-    const isSelectable = selectionMode && (req.estado === 'aprobado' || req.estado === 'pendiente');
-
-    return (
-    <div
-      key={req.id}
-      className={`bg-white rounded-lg shadow-sm border p-4 mb-3 hover:shadow-md transition-shadow cursor-pointer ${
-        isSelected ? 'border-primary-500 ring-2 ring-primary-200 bg-primary-50' : 'border-gray-200'
-      }`}
-      onClick={() => {
-        if (isSelectable) {
-          toggleReqSelection(req.id!);
-        } else {
-          setSelectedRequerimiento(req);
-          setIsDetailModalOpen(true);
-        }
-      }}
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center gap-2">
-          {isSelectable && (
-            <span className="flex-shrink-0">
-              {isSelected ? (
-                <CheckSquare className="h-4 w-4 text-primary-600" />
-              ) : (
-                <Square className="h-4 w-4 text-gray-400" />
-              )}
-            </span>
-          )}
-          <span className="font-semibold text-primary-600 text-sm">{req.numeroRequerimiento}</span>
-        </div>
-        {getPrioridadBadge(req.prioridad)}
-      </div>
-
-      {/* Solicitante */}
-      <div className="flex items-center text-sm text-gray-600 mb-2">
-        {getSolicitanteIcon(req.tipoSolicitante)}
-        <span className="ml-1.5 truncate">{getSolicitanteLabel(req)}</span>
-      </div>
-
-      {/* Productos + Línea */}
-      <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-        <div className="flex items-center">
-          <Package className="h-4 w-4 mr-1.5" />
-          {req.productos.length} producto(s)
-        </div>
-        <LineaNegocioBadge lineaNegocioId={req.lineaNegocioId} />
-      </div>
-
-      {/* Costo estimado */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-        <span className="text-xs text-gray-500">Costo Est.</span>
-        <span className="font-semibold text-gray-900">
-          {formatCurrency(req.expectativa?.costoTotalEstimadoUSD || 0)}
-        </span>
-      </div>
-
-      {/* Acciones rápidas */}
-      {req.estado === 'pendiente' && (
-        <div className="mt-3 pt-2 border-t border-gray-100 flex gap-2">
-          <Button
-            variant="primary"
-            size="sm"
-            className="flex-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAprobar(req);
-            }}
-          >
-            <Check className="h-4 w-4 mr-1" />
-            Aprobar
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCancelar(req);
-            }}
-            title="Cancelar requerimiento"
-          >
-            <XCircle className="h-4 w-4 text-red-500" />
-          </Button>
-        </div>
-      )}
-
-      {/* OC Actions: Generar / Continuar / Info */}
-      {req.estado === 'aprobado' && (
-        <div className="mt-3 pt-2 border-t border-gray-100 flex gap-2">
-          <Button
-            variant="primary"
-            size="sm"
-            className="flex-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleGenerarOC(req);
-            }}
-          >
-            <ShoppingCart className="h-4 w-4 mr-1" />
-            Generar OC
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCancelar(req);
-            }}
-            title="Cancelar requerimiento"
-          >
-            <XCircle className="h-4 w-4 text-red-500" />
-          </Button>
-        </div>
-      )}
-      {req.estado === 'parcial' && req.ocCoverage && (
-        <div className="mt-3 pt-2 border-t border-gray-100 space-y-2">
-          <div className="flex items-center gap-2 text-xs text-indigo-600">
-            <div className="flex-1 bg-gray-200 rounded-full h-1.5">
-              <div
-                className="bg-indigo-500 rounded-full h-1.5 transition-all"
-                style={{ width: `${req.ocCoverage.porcentaje}%` }}
-              />
-            </div>
-            <span className="font-medium">{req.ocCoverage.porcentaje}%</span>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-gray-500">
-            <span>{req.ocCoverage.productosPendientes} pendiente(s)</span>
-            {req.ordenCompraNumeros && req.ordenCompraNumeros.length > 0 && (
-              <span className="ml-auto text-indigo-600 font-medium">
-                {req.ordenCompraNumeros.join(', ')}
-              </span>
-            )}
-          </div>
-          <Button
-            variant="primary"
-            size="sm"
-            className="w-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleGenerarOC(req);
-            }}
-          >
-            <ShoppingCart className="h-4 w-4 mr-1" />
-            Continuar OC
-          </Button>
-        </div>
-      )}
-      {req.estado === 'en_proceso' && req.ordenCompraNumeros && req.ordenCompraNumeros.length > 0 && (
-        <div className="mt-3 pt-2 border-t border-gray-100">
-          <div className="flex items-center gap-1.5 text-xs text-purple-600">
-            <ShoppingCart className="h-3.5 w-3.5" />
-            <span className="font-medium">{req.ordenCompraNumeros.join(', ')}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  const handleToggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
   return (
@@ -995,7 +590,7 @@ export const Requerimientos: React.FC = () => {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Requerimientos</h1>
           <p className="text-sm sm:text-base text-gray-600 mt-1">
-            Gestión de solicitudes de compra
+            Gestion de solicitudes de compra
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
@@ -1027,7 +622,6 @@ export const Requerimientos: React.FC = () => {
             <Zap className={`h-5 w-5 ${showIntelligencePanel ? 'text-yellow-500' : 'text-gray-400'}`} />
           </Button>
 
-          {/* Botón limpieza temporal */}
           {cotizacionesConfirmadas.length > 0 && (
             <Button
               variant="ghost"
@@ -1039,7 +633,6 @@ export const Requerimientos: React.FC = () => {
             </Button>
           )}
 
-          {/* Botón pendientes de compra */}
           <Button
             variant="outline"
             onClick={() => setIsPendientesOpen(true)}
@@ -1050,7 +643,6 @@ export const Requerimientos: React.FC = () => {
             Pendientes
           </Button>
 
-          {/* Botón selección para OC consolidada */}
           <Button
             variant={selectionMode ? 'warning' : 'outline'}
             onClick={() => {
@@ -1071,1279 +663,104 @@ export const Requerimientos: React.FC = () => {
         </div>
       </div>
 
-      {/* KPIs Principales */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <Card padding="md" className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-yellow-600 font-medium">Pendientes</div>
-              <div className="text-2xl font-bold text-yellow-700">{stats.pendientes}</div>
-            </div>
-            <Clock className="h-8 w-8 text-yellow-400" />
-          </div>
-        </Card>
-
-        <Card padding="md" className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-blue-600 font-medium">Aprobados</div>
-              <div className="text-2xl font-bold text-blue-700">{stats.aprobados}</div>
-            </div>
-            <Check className="h-8 w-8 text-blue-400" />
-          </div>
-        </Card>
-
-        <Card padding="md" className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-purple-600 font-medium">En Proceso</div>
-              <div className="text-2xl font-bold text-purple-700">{stats.enProceso}</div>
-            </div>
-            <Link2 className="h-8 w-8 text-purple-400" />
-          </div>
-        </Card>
-
-        <Card padding="md" className={`${stats.urgentes > 0 ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-200' : ''}`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-red-600 font-medium">Urgentes</div>
-              <div className="text-2xl font-bold text-red-700">{stats.urgentes}</div>
-            </div>
-            <AlertTriangle className="h-8 w-8 text-red-400" />
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-gray-600 font-medium">Costo Pendiente</div>
-              <div className="text-lg font-bold text-gray-900">
-                {formatCurrency(stats.costoEstimadoPendiente)}
-              </div>
-            </div>
-            <DollarSign className="h-8 w-8 text-gray-400" />
-          </div>
-        </Card>
-
-        <Card padding="md" className={`${stats.alertasStock > 0 ? 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200' : ''}`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-orange-600 font-medium">Alertas Stock</div>
-              <div className="text-2xl font-bold text-orange-700">{stats.alertasStock}</div>
-            </div>
-            <Package className="h-8 w-8 text-orange-400" />
-          </div>
-        </Card>
-      </div>
+      {/* KPIs */}
+      <RequerimientosKPIGrid stats={stats} />
 
       {/* Panel de Inteligencia */}
       {showIntelligencePanel && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Alertas de Stock */}
-          <Card padding="none" className="overflow-hidden">
-            <div
-              className="px-4 py-3 bg-orange-50 border-b border-orange-200 flex items-center justify-between cursor-pointer"
-              onClick={() => setExpandedSections(prev => ({ ...prev, alertas: !prev.alertas }))}
-            >
-              <div className="flex items-center">
-                <AlertTriangle className="h-5 w-5 text-orange-500 mr-2" />
-                <span className="font-semibold text-orange-900">Alertas de Stock</span>
-                <span className="ml-2 bg-orange-200 text-orange-800 text-xs px-2 py-0.5 rounded-full">
-                  {sugerenciasStock.length}
-                </span>
-              </div>
-              {expandedSections.alertas ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </div>
-            {expandedSections.alertas && (
-              <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
-                {sugerenciasStock.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500 text-sm">
-                    No hay alertas de stock bajo
-                  </div>
-                ) : (
-                  sugerenciasStock.slice(0, 5).map((sug, idx) => (
-                    <div key={idx} className="p-3 hover:bg-gray-50">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center">
-                            <span className={`w-2 h-2 rounded-full mr-2 ${
-                              sug.urgencia === 'critica' ? 'bg-red-500' :
-                              sug.urgencia === 'alta' ? 'bg-orange-500' : 'bg-yellow-500'
-                            }`} />
-                            <span className="font-medium text-sm truncate">
-                              {sug.producto.nombreComercial}
-                            </span>
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            Stock: {sug.stockActual} / Min: {sug.stockMinimo}
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleCrearDesdeSugerencia(sug)}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-                {sugerenciasStock.length > 5 && (
-                  <button
-                    onClick={() => setIsSugerenciasModalOpen(true)}
-                    className="w-full p-3 text-center text-sm text-primary-600 hover:bg-primary-50 font-medium"
-                  >
-                    Ver todas ({sugerenciasStock.length})
-                  </button>
-                )}
-              </div>
-            )}
-          </Card>
-
-          {/* Cotizaciones Pendientes */}
-          <Card padding="none" className="overflow-hidden">
-            <div
-              className="px-4 py-3 bg-blue-50 border-b border-blue-200 flex items-center justify-between cursor-pointer"
-              onClick={() => setExpandedSections(prev => ({ ...prev, cotizaciones: !prev.cotizaciones }))}
-            >
-              <div className="flex items-center">
-                <ShoppingCart className="h-5 w-5 text-blue-500 mr-2" />
-                <span className="font-semibold text-blue-900">Cotizaciones con Faltante</span>
-                <span className="ml-2 bg-blue-200 text-blue-800 text-xs px-2 py-0.5 rounded-full">
-                  {cotizacionesConfirmadas.length}
-                </span>
-              </div>
-              {expandedSections.cotizaciones ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </div>
-            {expandedSections.cotizaciones && (
-              <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
-                {cotizacionesConfirmadas.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500 text-sm">
-                    No hay cotizaciones pendientes
-                  </div>
-                ) : (
-                  cotizacionesConfirmadas.slice(0, 5).map((venta) => (
-                    <div key={venta.id} className="p-3 hover:bg-gray-50">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">
-                            {venta.nombreCliente}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {venta.numeroVenta} • {venta.productos.length} productos
-                          </div>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleVincularOC(venta)}
-                            title="Vincular con OC existente"
-                          >
-                            <Link2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleCrearDesdeCotizacion(venta)}
-                            title="Crear requerimiento nuevo"
-                          >
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-                {cotizacionesConfirmadas.length > 5 && (
-                  <button
-                    onClick={() => setIsFromCotizacionModalOpen(true)}
-                    className="w-full p-3 text-center text-sm text-primary-600 hover:bg-primary-50 font-medium"
-                  >
-                    Ver todas ({cotizacionesConfirmadas.length})
-                  </button>
-                )}
-              </div>
-            )}
-          </Card>
-
-          {/* Métricas de Precisión */}
-          <Card padding="none" className="overflow-hidden">
-            <div className="px-4 py-3 bg-green-50 border-b border-green-200 flex items-center">
-              <BarChart3 className="h-5 w-5 text-green-500 mr-2" />
-              <span className="font-semibold text-green-900">Métricas de Compras</span>
-            </div>
-            <div className="p-4 space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">TC Actual</span>
-                  <span className="font-semibold">S/ {tcDelDia?.venta?.toFixed(3) || '3.700'}</span>
-                </div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">Total por aprobar</span>
-                  <span className="font-semibold">{formatCurrency(stats.costoEstimadoPendiente)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">En soles (aprox)</span>
-                  <span className="font-semibold text-gray-900">
-                    S/ {(stats.costoEstimadoPendiente * (tcDelDia?.venta || 3.70)).toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t">
-                <div className="text-xs text-gray-500 mb-2">Ciclo promedio</div>
-                <div className="flex items-baseline">
-                  <span className="text-2xl font-bold text-gray-900">7</span>
-                  <span className="text-sm text-gray-500 ml-1">días</span>
-                </div>
-                <div className="text-xs text-gray-500">desde requerimiento hasta recepción</div>
-              </div>
-            </div>
-          </Card>
-        </div>
+        <IntelligencePanel
+          sugerenciasStock={sugerenciasStock}
+          cotizacionesConfirmadas={cotizacionesConfirmadas}
+          stats={stats}
+          tcDelDia={tcDelDia}
+          expandedSections={expandedSections}
+          onToggleSection={handleToggleSection}
+          onCrearDesdeSugerencia={handleCrearDesdeSugerencia}
+          onVerTodasSugerencias={() => setIsSugerenciasModalOpen(true)}
+          onVincularOC={handleVincularOC}
+          onCrearDesdeCotizacion={handleCrearDesdeCotizacion}
+          onVerTodasCotizaciones={() => setIsFromCotizacionModalOpen(true)}
+        />
       )}
 
       {/* Vista Kanban o Lista */}
       {viewMode === 'kanban' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {KANBAN_COLUMNS.map(column => (
-            <div key={column.id} className="bg-gray-50 rounded-lg p-4">
-              {/* Header de columna */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <div className={`w-3 h-3 rounded-full ${column.color} mr-2`} />
-                  <span className="font-semibold text-gray-900">{column.label}</span>
-                </div>
-                <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">
-                  {requerimientosPorEstado[column.id]?.length || 0}
-                </span>
-              </div>
-
-              {/* Tarjetas */}
-              <div className="space-y-3 min-h-[200px]">
-                {loading ? (
-                  <div className="text-center text-gray-500 text-sm py-8">Cargando...</div>
-                ) : requerimientosPorEstado[column.id]?.length === 0 ? (
-                  <div className="text-center text-gray-400 text-sm py-8">
-                    Sin requerimientos
-                  </div>
-                ) : (
-                  requerimientosPorEstado[column.id]?.map(req => renderKanbanCard(req))
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <KanbanBoard
+          requerimientosPorEstado={requerimientosPorEstado}
+          loading={loading}
+          selectionMode={selectionMode}
+          selectedReqIds={selectedReqIds}
+          onToggleSelection={toggleReqSelection}
+          onOpenDetail={(req) => {
+            setSelectedRequerimiento(req);
+            setIsDetailModalOpen(true);
+          }}
+          onAprobar={handleAprobar}
+          onCancelar={handleCancelar}
+          onGenerarOC={handleGenerarOC}
+        />
       ) : (
-        /* Vista Lista */
-        <Card padding="none">
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Requerimientos ({requerimientosLN.length})
-            </h3>
-            <Button variant="ghost" size="sm" onClick={loadData}>
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Req</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Solicitante</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Productos</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Costo Est. USD</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Prioridad</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">Cargando...</td>
-                  </tr>
-                ) : requerimientosLN.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">No hay requerimientos registrados</td>
-                  </tr>
-                ) : (
-                  requerimientosLN.map((req) => (
-                    <tr key={req.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="font-medium text-primary-600">{req.numeroRequerimiento}</span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(req.fechaCreacion)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className="flex items-center">
-                          {getSolicitanteIcon(req.tipoSolicitante)}
-                          <span className="ml-2">{getSolicitanteLabel(req)}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        <div className="flex items-center">
-                          <Package className="h-4 w-4 text-gray-400 mr-2" />
-                          {req.productos.length} producto(s)
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                        {formatCurrency(req.expectativa?.costoTotalEstimadoUSD || 0)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {getPrioridadBadge(req.prioridad)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {getEstadoBadge(req.estado)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedRequerimiento(req);
-                              setIsDetailModalOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          {req.estado === 'pendiente' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleAprobar(req)}
-                              className="text-green-600 hover:text-green-700"
-                            >
-                              <Check className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+        <RequerimientosListView
+          requerimientos={requerimientosLN}
+          loading={loading}
+          onOpenDetail={(req) => {
+            setSelectedRequerimiento(req);
+            setIsDetailModalOpen(true);
+          }}
+          onAprobar={handleAprobar}
+          onRefresh={loadData}
+        />
       )}
 
-      {/* Modal Nuevo Requerimiento - Diseño Inteligente */}
-      <Modal
+      {/* Modal Nuevo Requerimiento */}
+      <RequerimientoFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title=""
-        size="xl"
-      >
-        <div className="space-y-6">
-          {/* Header con contexto */}
-          <div className="flex items-start justify-between border-b pb-4">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                <ClipboardList className="h-6 w-6 mr-2 text-primary-600" />
-                Nuevo Requerimiento de Compra
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {tcDelDia && `TC del día: S/ ${tcDelDia.venta.toFixed(3)}`}
-              </p>
-            </div>
-            {/* Prioridad visual */}
-            <div className="flex space-x-2">
-              {(['baja', 'media', 'alta'] as const).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setFormData({ ...formData, prioridad: p })}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    formData.prioridad === p
-                      ? p === 'alta' ? 'bg-red-500 text-white shadow-md'
-                      : p === 'media' ? 'bg-yellow-500 text-white shadow-md'
-                      : 'bg-gray-500 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {p === 'alta' && <AlertTriangle className="h-3 w-3 inline mr-1" />}
-                  {p.charAt(0).toUpperCase() + p.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Solicitante - Cards visuales */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">¿Quién solicita este requerimiento?</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-              {[
-                { id: 'administracion', label: 'Administración', sublabel: 'Mantener stock', icon: <Building2 className="h-5 w-5" />, color: 'gray' },
-                { id: 'ventas', label: 'Ventas', sublabel: 'Equipo comercial', icon: <Target className="h-5 w-5" />, color: 'green' },
-                { id: 'cliente', label: 'Cliente', sublabel: 'Pedido específico', icon: <Users className="h-5 w-5" />, color: 'blue' },
-                { id: 'investigacion', label: 'Investigación', sublabel: 'Producto nuevo', icon: <Lightbulb className="h-5 w-5" />, color: 'yellow' }
-              ].map((tipo) => (
-                <button
-                  key={tipo.id}
-                  onClick={() => setFormData({
-                    ...formData,
-                    tipoSolicitante: tipo.id as TipoSolicitante,
-                    nombreClienteSolicitante: tipo.id !== 'cliente' ? undefined : formData.nombreClienteSolicitante,
-                    clienteId: tipo.id !== 'cliente' ? undefined : formData.clienteId,
-                    clienteNombre: tipo.id !== 'cliente' ? undefined : formData.clienteNombre
-                  })}
-                  className={`p-4 rounded-xl border-2 text-left transition-all ${
-                    formData.tipoSolicitante === tipo.id
-                      ? `border-${tipo.color}-500 bg-${tipo.color}-50 shadow-md`
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  <div className={`${formData.tipoSolicitante === tipo.id ? `text-${tipo.color}-600` : 'text-gray-400'}`}>
-                    {tipo.icon}
-                  </div>
-                  <div className="mt-2 font-medium text-gray-900">{tipo.label}</div>
-                  <div className="text-xs text-gray-500">{tipo.sublabel}</div>
-                </button>
-              ))}
-            </div>
-            {/* Campo de cliente inteligente con autocompletado */}
-            {formData.tipoSolicitante === 'cliente' && (
-              <div className="mt-3">
-                <ClienteAutocomplete
-                  value={formData.clienteId ? {
-                    clienteId: formData.clienteId,
-                    nombre: formData.clienteNombre || formData.nombreClienteSolicitante || '',
-                  } as ClienteSnapshot : null}
-                  onChange={(cliente) => {
-                    if (cliente) {
-                      setFormData({
-                        ...formData,
-                        clienteId: cliente.clienteId,
-                        clienteNombre: cliente.nombre,
-                        nombreClienteSolicitante: cliente.nombre
-                      });
-                    } else {
-                      setFormData({
-                        ...formData,
-                        clienteId: undefined,
-                        clienteNombre: undefined,
-                        nombreClienteSolicitante: undefined
-                      });
-                    }
-                  }}
-                  placeholder="Buscar cliente por nombre, teléfono o DNI..."
-                  allowCreate
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Buscador de productos inteligente */}
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="font-semibold text-gray-900 flex items-center">
-                <Package className="h-5 w-5 mr-2 text-primary-600" />
-                Agregar Productos
-              </h4>
-              <div className="flex items-center gap-2">
-                {formData.productos && formData.productos.length > 0 && (
-                  <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
-                    {formData.productos.length} agregado(s)
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setShowProductoModal(true)}
-                  className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
-                >
-                  <PlusCircle className="h-4 w-4" />
-                  Crear Producto
-                </button>
-              </div>
-            </div>
-
-            {/* Buscador inteligente de productos */}
-            <div className="mb-4">
-              <ProductoSearchRequerimientos
-                productos={productos}
-                value={productoSnapshot}
-                onChange={handleProductoSnapshotSelect}
-                placeholder="Buscar producto por SKU, marca o nombre..."
-              />
-            </div>
-
-            {/* Producto seleccionado - Vista expandida */}
-            {productoTemp.productoId && (
-              <div className="bg-white rounded-xl border-2 border-primary-200 overflow-hidden">
-                {/* Info del producto */}
-                {(() => {
-                  const selectedProd = productos.find(p => p.id === productoTemp.productoId);
-                  return selectedProd ? (
-                    <div className="p-4 bg-primary-50 border-b border-primary-100">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <span className="text-xs font-medium text-primary-600 bg-primary-100 px-2 py-0.5 rounded">
-                            {selectedProd.sku}
-                          </span>
-                          <h5 className="font-semibold text-gray-900 mt-1">
-                            {selectedProd.marca} {selectedProd.nombreComercial}
-                          </h5>
-                          <p className="text-sm text-gray-500">
-                            {selectedProd.presentacion} • {selectedProd.contenido}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs text-gray-500">Stock actual</div>
-                          <div className={`text-lg font-bold ${(selectedProd.stockDisponible || 0) <= (selectedProd.stockMinimo || 5) ? 'text-red-600' : 'text-green-600'}`}>
-                            {selectedProd.stockDisponible || 0}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : null;
-                })()}
-
-                {/* Investigación de mercado - Visual mejorada */}
-                {loadingInvestigacion ? (
-                  <div className="p-4 flex items-center justify-center text-primary-600">
-                    <RefreshCw className="h-5 w-5 animate-spin mr-2" />
-                    Analizando historial de precios...
-                  </div>
-                ) : infoProductoSeleccionado && infoProductoSeleccionado.historial.length > 0 ? (
-                  <div className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-gray-700 flex items-center">
-                        <TrendingUp className="h-4 w-4 mr-1 text-green-500" />
-                        Análisis de Mercado
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setShowHistorial(showHistorial ? null : productoTemp.productoId)}
-                        className="text-xs text-primary-600 hover:underline"
-                      >
-                        {showHistorial ? 'Ocultar detalle' : 'Ver historial'}
-                      </button>
-                    </div>
-
-                    {/* Métricas de precio */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                      <div className="bg-gray-50 rounded-lg p-2 text-center">
-                        <div className="text-xs text-gray-500">Último</div>
-                        <div className="font-bold text-gray-900">${infoProductoSeleccionado.ultimoPrecioUSD.toFixed(2)}</div>
-                      </div>
-                      <div className="bg-green-50 rounded-lg p-2 text-center">
-                        <div className="text-xs text-green-600">Mínimo</div>
-                        <div className="font-bold text-green-700">${infoProductoSeleccionado.precioMinimoUSD.toFixed(2)}</div>
-                      </div>
-                      <div className="bg-blue-50 rounded-lg p-2 text-center">
-                        <div className="text-xs text-blue-600">Promedio</div>
-                        <div className="font-bold text-blue-700">${infoProductoSeleccionado.precioPromedioUSD.toFixed(2)}</div>
-                      </div>
-                      <div className="bg-red-50 rounded-lg p-2 text-center">
-                        <div className="text-xs text-red-600">Máximo</div>
-                        <div className="font-bold text-red-700">${infoProductoSeleccionado.precioMaximoUSD.toFixed(2)}</div>
-                      </div>
-                    </div>
-
-                    {/* Proveedor recomendado */}
-                    {infoProductoSeleccionado.proveedorRecomendado && (
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <Check className="h-5 w-5 text-green-500 mr-2" />
-                            <div>
-                              <div className="text-xs text-green-600">Proveedor recomendado</div>
-                              <div className="font-semibold text-green-800">
-                                {infoProductoSeleccionado.proveedorRecomendado.nombre}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-lg font-bold text-green-700">
-                              ${infoProductoSeleccionado.proveedorRecomendado.ultimoPrecioUSD.toFixed(2)}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Historial expandido */}
-                    {showHistorial === productoTemp.productoId && (
-                      <div className="mt-3 pt-3 border-t">
-                        <div className="text-xs font-medium text-gray-500 mb-2">Historial de compras</div>
-                        <div className="space-y-2 max-h-32 overflow-y-auto">
-                          {infoProductoSeleccionado.historial.map((h, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2">
-                              <span className="text-gray-700">{h.proveedorNombre}</span>
-                              <span className="font-medium text-gray-900">${h.costoUnitarioUSD.toFixed(2)}</span>
-                              <span className="text-gray-500 text-xs">{h.fechaCompra.toLocaleDateString('es-PE')}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : productoTemp.productoId && !loadingInvestigacion ? (
-                  <div className="p-4 bg-amber-50 border-t border-amber-100">
-                    <div className="flex items-center text-amber-700">
-                      <AlertCircle className="h-5 w-5 mr-2" />
-                      <span className="text-sm">Producto nuevo - Sin historial de compras</span>
-                    </div>
-                  </div>
-                ) : null}
-
-                {/* Campos de entrada */}
-                <div className="p-4 border-t bg-gray-50">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Cantidad</label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={productoTemp.cantidadSolicitada}
-                        onChange={(e) => setProductoTemp({ ...productoTemp, cantidadSolicitada: parseInt(e.target.value) || 1 })}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-0 text-center font-semibold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        Precio USD
-                        {infoProductoSeleccionado?.proveedorRecomendado && (
-                          <span className="text-green-600 ml-1">(sugerido)</span>
-                        )}
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">$</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={productoTemp.precioEstimadoUSD || ''}
-                          onChange={(e) => setProductoTemp({ ...productoTemp, precioEstimadoUSD: parseFloat(e.target.value) || 0 })}
-                          className="w-full pl-7 pr-3 py-2 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-0"
-                          placeholder="0.00"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Proveedor</label>
-                      <input
-                        type="text"
-                        value={productoTemp.proveedorSugerido}
-                        onChange={(e) => setProductoTemp({ ...productoTemp, proveedorSugerido: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-0"
-                        placeholder="Amazon, iHerb..."
-                      />
-                    </div>
-                    <div className="flex items-end">
-                      <Button
-                        variant="primary"
-                        onClick={handleAgregarProducto}
-                        disabled={!productoTemp.productoId}
-                        className="w-full"
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Agregar
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* URL opcional */}
-                  <div className="mt-3">
-                    <label className="block text-xs font-medium text-gray-600 mb-1">URL de referencia (opcional)</label>
-                    <input
-                      type="text"
-                      value={productoTemp.urlReferencia}
-                      onChange={(e) => setProductoTemp({ ...productoTemp, urlReferencia: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-0 text-sm"
-                      placeholder="https://www.amazon.com/..."
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Lista de productos agregados - Diseño mejorado */}
-          {formData.productos && formData.productos.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold text-gray-900">
-                  Productos en este requerimiento
-                </h4>
-                <div className="text-sm text-gray-500">
-                  Total estimado: <span className="font-bold text-gray-900">
-                    ${formData.productos.reduce((sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada, 0).toFixed(2)}
-                  </span>
-                  {tcDelDia && (
-                    <span className="text-gray-400 ml-2">
-                      (S/ {(formData.productos.reduce((sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada, 0) * tcDelDia.venta).toFixed(2)})
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="space-y-2">
-                {formData.productos.map((prod, index) => {
-                  const producto = productos.find((p) => p.id === prod.productoId);
-                  const subtotal = (prod.precioEstimadoUSD || 0) * prod.cantidadSolicitada;
-                  const detailParts = [producto?.presentacion, producto?.contenido, producto?.dosaje, producto?.sabor].filter(Boolean);
-                  const detailStr = detailParts.join(' · ');
-                  return (
-                    <div key={index} className="flex items-center justify-between bg-white rounded-xl border p-4 hover:shadow-sm transition-shadow">
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-primary-100 text-primary-700 w-10 h-10 rounded-lg flex items-center justify-center font-bold">
-                          {prod.cantidadSolicitada}
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {producto?.marca} {producto?.nombreComercial}
-                          </div>
-                          {detailStr && (
-                            <div className="text-xs text-gray-400">{detailStr}</div>
-                          )}
-                          <div className="text-sm text-gray-500">
-                            {producto?.sku}
-                            {prod.proveedorSugerido && ` • ${prod.proveedorSugerido}`}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="font-semibold text-gray-900">${subtotal.toFixed(2)}</div>
-                          {prod.precioEstimadoUSD && (
-                            <div className="text-xs text-gray-500">${prod.precioEstimadoUSD} c/u</div>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => handleRemoverProducto(index)}
-                          className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <XCircle className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Justificación con sugerencias */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Justificación
-              <span className="text-gray-400 font-normal ml-1">(opcional)</span>
-            </label>
-            <textarea
-              value={formData.justificacion || ''}
-              onChange={(e) => setFormData({ ...formData, justificacion: e.target.value })}
-              rows={2}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary-500 focus:ring-0 resize-none"
-              placeholder="Ej: Reponer stock agotado, cliente urgente, precio especial encontrado..."
-            />
-          </div>
-
-          {/* Footer con acciones y resumen */}
-          <div className="flex items-center justify-between pt-4 border-t bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
-            <div className="text-sm text-gray-500">
-              {formData.productos && formData.productos.length > 0 ? (
-                <span>
-                  <strong className="text-gray-900">{formData.productos.length}</strong> producto(s) •
-                  <strong className="text-gray-900 ml-1">
-                    ${formData.productos.reduce((sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada, 0).toFixed(2)} USD
-                  </strong>
-                </span>
-              ) : (
-                <span className="text-amber-600">Agrega al menos un producto</span>
-              )}
-            </div>
-            <div className="flex space-x-3">
-              <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleCrearRequerimiento}
-                disabled={isSubmitting || !formData.productos?.length}
-                className="px-6"
-              >
-                {isSubmitting ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Creando...
-                  </>
-                ) : (
-                  <>
-                    <Check className="h-4 w-4 mr-2" />
-                    Crear Requerimiento
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Modal>
+        formData={formData}
+        onFormDataChange={setFormData}
+        productoSnapshot={productoSnapshot}
+        onProductoSnapshotChange={handleProductoSnapshotSelect}
+        productoTemp={productoTemp}
+        onProductoTempChange={setProductoTemp}
+        productos={productos}
+        investigacionMercado={investigacionMercado}
+        loadingInvestigacion={loadingInvestigacion}
+        showHistorial={showHistorial}
+        onShowHistorialChange={setShowHistorial}
+        tcDelDia={tcDelDia}
+        isSubmitting={isSubmitting}
+        onAgregarProducto={handleAgregarProducto}
+        onRemoverProducto={handleRemoverProducto}
+        onCrearRequerimiento={handleCrearRequerimiento}
+        onAbrirCrearProducto={() => setShowProductoModal(true)}
+      />
 
       {/* Modal Sugerencias de Stock */}
-      <Modal
+      <SugerenciasStockModal
         isOpen={isSugerenciasModalOpen}
         onClose={() => setIsSugerenciasModalOpen(false)}
-        title="Productos con Stock Bajo"
-        size="lg"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Estos productos están por debajo del stock mínimo. Crea requerimientos para reabastecer.
-          </p>
+        sugerencias={sugerenciasStock}
+        onCrearDesdeSugerencia={handleCrearDesdeSugerencia}
+      />
 
-          <div className="divide-y border rounded-lg max-h-96 overflow-y-auto">
-            {sugerenciasStock.map((sug, idx) => (
-              <div key={idx} className="p-4 hover:bg-gray-50">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center">
-                      <span className={`w-3 h-3 rounded-full mr-2 ${
-                        sug.urgencia === 'critica' ? 'bg-red-500' :
-                        sug.urgencia === 'alta' ? 'bg-orange-500' : 'bg-yellow-500'
-                      }`} />
-                      <span className="font-medium">{sug.producto.sku}</span>
-                      <span className="mx-2 text-gray-400">-</span>
-                      <span>{sug.producto.marca} {sug.producto.nombreComercial}</span>
-                    </div>
-                    <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-500">Stock:</span>
-                        <span className={`ml-1 font-medium ${sug.stockActual === 0 ? 'text-red-600' : ''}`}>
-                          {sug.stockActual}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Mínimo:</span>
-                        <span className="ml-1 font-medium">{sug.stockMinimo}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Días:</span>
-                        <span className={`ml-1 font-medium ${sug.diasParaAgotarse <= 3 ? 'text-red-600' : ''}`}>
-                          {sug.diasParaAgotarse}
-                        </span>
-                      </div>
-                    </div>
-                    {sug.precioEstimadoUSD && (
-                      <div className="mt-1 text-sm text-gray-500">
-                        Precio estimado: ${sug.precioEstimadoUSD.toFixed(2)}
-                        {sug.proveedorSugerido && ` (${sug.proveedorSugerido})`}
-                      </div>
-                    )}
-                  </div>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleCrearDesdeSugerencia(sug)}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Crear
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-end pt-4 border-t">
-            <Button variant="ghost" onClick={() => setIsSugerenciasModalOpen(false)}>Cerrar</Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Modal Seleccionar Cotización */}
-      <Modal
+      {/* Modal Cotizaciones con Faltante */}
+      <CotizacionesFaltanteModal
         isOpen={isFromCotizacionModalOpen}
         onClose={() => setIsFromCotizacionModalOpen(false)}
-        title="Generar Requerimiento desde Cotización"
-        size="lg"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Selecciona una cotización confirmada para generar automáticamente un requerimiento de compra con los productos faltantes.
-          </p>
-
-          {cotizacionesConfirmadas.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No hay cotizaciones confirmadas con faltante de stock
-            </div>
-          ) : (
-            <div className="divide-y border rounded-lg max-h-96 overflow-y-auto">
-              {cotizacionesConfirmadas.map((venta) => (
-                <div key={venta.id} className="p-4 hover:bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {venta.numeroVenta} - {venta.nombreCliente}
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        Total: S/ {venta.totalPEN.toFixed(2)} | {venta.productos.length} productos
-                      </div>
-                      {venta.productosConFaltante && venta.productosConFaltante.length > 0 && (
-                        <div className="text-sm text-amber-600 mt-1">
-                          Faltantes: {venta.productosConFaltante.map(p => p.nombre).join(', ')}
-                        </div>
-                      )}
-                    </div>
-                    <Button variant="primary" size="sm" onClick={() => handleCrearDesdeCotizacion(venta)}>
-                      Generar
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex justify-end pt-4 border-t">
-            <Button variant="ghost" onClick={() => setIsFromCotizacionModalOpen(false)}>Cerrar</Button>
-          </div>
-        </div>
-      </Modal>
+        cotizaciones={cotizacionesConfirmadas}
+        onCrearDesdeCotizacion={handleCrearDesdeCotizacion}
+      />
 
       {/* Modal Detalle */}
-      <Modal
+      <RequerimientoDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
-        title={`Requerimiento ${selectedRequerimiento?.numeroRequerimiento || ''}`}
-        size="lg"
-      >
-        {selectedRequerimiento && (
-          <div className="space-y-6">
-            {/* Info general */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-gray-500">Estado</label>
-                <div className="mt-1">{getEstadoBadge(selectedRequerimiento.estado)}</div>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Prioridad</label>
-                <div className="mt-1">{getPrioridadBadge(selectedRequerimiento.prioridad)}</div>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Origen</label>
-                <div className="mt-1 font-medium">{selectedRequerimiento.origen.replace('_', ' ')}</div>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Fecha</label>
-                <div className="mt-1 font-medium">{formatDate(selectedRequerimiento.fechaCreacion)}</div>
-              </div>
-            </div>
-
-            {/* Solicitante */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <label className="text-sm text-gray-500">Solicitado por</label>
-              <div className="mt-1 font-medium text-gray-900 flex items-center">
-                {getSolicitanteIcon(selectedRequerimiento.tipoSolicitante)}
-                <span className="ml-2">
-                  {selectedRequerimiento.tipoSolicitante === 'cliente' && selectedRequerimiento.nombreClienteSolicitante
-                    ? `Cliente: ${selectedRequerimiento.nombreClienteSolicitante}`
-                    : selectedRequerimiento.tipoSolicitante === 'administracion' ? 'Administración (Stock)'
-                    : selectedRequerimiento.tipoSolicitante === 'ventas' ? 'Equipo de Ventas'
-                    : selectedRequerimiento.tipoSolicitante === 'investigacion' ? 'Investigación de Mercado'
-                    : '-'}
-                </span>
-              </div>
-            </div>
-
-            {/* Expectativa financiera */}
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-3 flex items-center">
-                <TrendingUp className="h-5 w-5 mr-2" />
-                Expectativa Financiera
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm">
-                <div>
-                  <label className="text-blue-600">TC Investigación</label>
-                  <div className="font-bold text-blue-900">
-                    S/ {selectedRequerimiento.expectativa?.tcInvestigacion?.toFixed(3) || '-'}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-blue-600">Costo Est. USD</label>
-                  <div className="font-bold text-blue-900">
-                    {formatCurrency(selectedRequerimiento.expectativa?.costoTotalEstimadoUSD || 0)}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-blue-600">Costo Est. PEN</label>
-                  <div className="font-bold text-blue-900">
-                    {formatCurrency(selectedRequerimiento.expectativa?.costoTotalEstimadoPEN || 0, 'PEN')}
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-3 text-sm">
-                <div>
-                  <label className="text-blue-600">Impuesto Est.</label>
-                  <div className="font-medium text-blue-900">
-                    {formatCurrency(selectedRequerimiento.expectativa?.impuestoEstimadoUSD || 0)}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-blue-600">Flete Est.</label>
-                  <div className="font-medium text-blue-900">
-                    {formatCurrency(selectedRequerimiento.expectativa?.fleteEstimadoUSD || 0)}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Productos */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Productos ({selectedRequerimiento.productos.length})</h4>
-              <div className="border rounded-lg divide-y">
-                {selectedRequerimiento.productos.map((prod, index) => {
-                  const detailParts = [prod.presentacion, prod.contenido, prod.dosaje, prod.sabor].filter(Boolean);
-                  const detailStr = detailParts.join(' · ');
-                  return (
-                    <div key={index} className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0 flex-1 mr-3">
-                          <div className="font-medium text-gray-900">
-                            {prod.sku} - {prod.marca} {prod.nombreComercial}
-                          </div>
-                          {detailStr && (
-                            <div className="text-xs text-gray-400 mt-0.5">{detailStr}</div>
-                          )}
-                          <div className="text-sm text-gray-500 mt-0.5">Cantidad: {prod.cantidadSolicitada}</div>
-                        </div>
-                        {prod.precioEstimadoUSD && (
-                          <div className="text-right flex-shrink-0">
-                            <div className="font-medium text-gray-900">{formatCurrency(prod.precioEstimadoUSD)}</div>
-                            <div className="text-xs text-gray-500">
-                              Total: {formatCurrency(prod.precioEstimadoUSD * prod.cantidadSolicitada)}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      {(prod.proveedorSugerido || prod.urlReferencia) && (
-                        <div className="mt-2 text-sm text-gray-500">
-                          {prod.proveedorSugerido && <span className="mr-4">Proveedor: {prod.proveedorSugerido}</span>}
-                          {prod.urlReferencia && (
-                            <a
-                              href={prod.urlReferencia}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary-600 hover:underline inline-flex items-center"
-                            >
-                              Ver referencia
-                              <ExternalLink className="h-3 w-3 ml-1" />
-                            </a>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Asignaciones de Responsables/Viajeros */}
-            {(selectedRequerimiento as any).asignaciones && (selectedRequerimiento as any).asignaciones.length > 0 && (
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <h4 className="font-medium text-green-900 mb-3 flex items-center">
-                  <Truck className="h-5 w-5 mr-2" />
-                  Responsables Asignados ({(selectedRequerimiento as any).asignaciones.length})
-                </h4>
-                <div className="space-y-3">
-                  {(selectedRequerimiento as any).asignaciones.map((asig: AsignacionResponsable, idx: number) => (
-                    <div key={asig.id || idx} className="bg-white rounded-lg p-3 border border-green-100">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <UserCheck className="h-4 w-4 text-green-600" />
-                            <span className="font-semibold text-gray-900">
-                              {asig.responsableNombre}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              ({asig.responsableCodigo})
-                            </span>
-                          </div>
-                          <div className="mt-1 text-sm text-gray-600">
-                            {asig.productos?.length || 0} producto(s) •
-                            {asig.productos?.reduce((sum, p) => sum + p.cantidadAsignada, 0) || 0} unidades
-                          </div>
-                          {asig.fechaEstimadaLlegada && (
-                            <div className="text-xs text-gray-500 mt-1">
-                              Llegada estimada: {formatDate(asig.fechaEstimadaLlegada)}
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          {getAsignacionEstadoBadge(asig.estado)}
-                          {asig.costoEstimadoUSD && (
-                            <div className="text-sm font-medium text-gray-700 mt-1">
-                              {formatCurrency(asig.costoEstimadoUSD)}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      {/* Detalle de productos asignados */}
-                      {asig.productos && asig.productos.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-green-100">
-                          <div className="text-xs text-gray-500 mb-1">Productos asignados:</div>
-                          <div className="flex flex-wrap gap-2">
-                            {asig.productos.map((prod, pIdx) => (
-                              <span
-                                key={pIdx}
-                                className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800"
-                              >
-                                {prod.sku}: {prod.cantidadAsignada} ud
-                                {prod.cantidadRecibida > 0 && (
-                                  <span className="ml-1 text-green-600">
-                                    ({prod.cantidadRecibida} recibidas)
-                                  </span>
-                                )}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Resumen de cantidades pendientes */}
-            {selectedRequerimiento.productos.some(p => (p as any).cantidadPendiente > 0) && (
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <h4 className="font-medium text-yellow-900 mb-2 flex items-center">
-                  <AlertCircle className="h-5 w-5 mr-2" />
-                  Cantidades Pendientes de Asignar
-                </h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {selectedRequerimiento.productos.filter(p => (p as any).cantidadPendiente > 0).map((prod, idx) => (
-                    <div key={idx} className="text-sm">
-                      <span className="font-medium">{prod.sku}:</span>
-                      <span className="text-yellow-800 ml-1">
-                        {(prod as any).cantidadPendiente || prod.cantidadSolicitada} pendientes
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* OC(s) vinculada(s) */}
-            {(selectedRequerimiento.ordenCompraIds?.length || selectedRequerimiento.ordenCompraId) && (
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <h4 className="font-medium text-purple-900 flex items-center">
-                  <Link2 className="h-5 w-5 mr-2" />
-                  {(selectedRequerimiento.ordenCompraIds?.length || 0) > 1
-                    ? `Órdenes de Compra (${selectedRequerimiento.ordenCompraIds!.length})`
-                    : 'Orden de Compra Vinculada'
-                  }
-                </h4>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {(selectedRequerimiento.ordenCompraNumeros || [selectedRequerimiento.ordenCompraNumero]).filter(Boolean).map((num, i) => (
-                    <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-purple-100 text-purple-900">
-                      {num}
-                    </span>
-                  ))}
-                </div>
-                {/* OC Coverage progress */}
-                {selectedRequerimiento.ocCoverage && selectedRequerimiento.ocCoverage.porcentaje < 100 && (
-                  <div className="mt-3 space-y-1">
-                    <div className="flex items-center gap-2 text-xs text-purple-700">
-                      <div className="flex-1 bg-purple-200 rounded-full h-2">
-                        <div
-                          className="bg-purple-600 rounded-full h-2 transition-all"
-                          style={{ width: `${selectedRequerimiento.ocCoverage.porcentaje}%` }}
-                        />
-                      </div>
-                      <span className="font-medium">{selectedRequerimiento.ocCoverage.porcentaje}% cubierto</span>
-                    </div>
-                    <p className="text-xs text-purple-600">
-                      {selectedRequerimiento.ocCoverage.productosPendientes} producto(s) pendientes de compra
-                    </p>
-                  </div>
-                )}
-                {/* Per-product OC breakdown */}
-                {selectedRequerimiento.productos.some(p => p.ordenCompraRefs && p.ordenCompraRefs.length > 0) && (
-                  <div className="mt-3 space-y-1.5">
-                    {selectedRequerimiento.productos.map((p, idx) => {
-                      const enOC = p.cantidadEnOC || 0;
-                      const pendiente = p.cantidadSolicitada - enOC;
-                      return (
-                        <div key={idx} className="flex items-center gap-2 text-xs">
-                          <span className="text-purple-800 font-medium truncate flex-1">{p.sku}</span>
-                          <span className="text-purple-600">{enOC}/{p.cantidadSolicitada}</span>
-                          {pendiente > 0 && (
-                            <span className="text-amber-600 font-medium">{pendiente} pend.</span>
-                          )}
-                          {pendiente <= 0 && (
-                            <Check className="h-3.5 w-3.5 text-green-500" />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Justificación */}
-            {selectedRequerimiento.justificacion && (
-              <div>
-                <label className="text-sm text-gray-500">Justificación</label>
-                <div className="mt-1 text-gray-900">{selectedRequerimiento.justificacion}</div>
-              </div>
-            )}
-
-            {/* Acciones según estado */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
-              <Button variant="ghost" onClick={() => setIsDetailModalOpen(false)}>Cerrar</Button>
-
-              {/* Botón para asignar responsable (disponible cuando está aprobado, parcial o en proceso) */}
-              {(selectedRequerimiento.estado === 'aprobado' || selectedRequerimiento.estado === 'parcial' || selectedRequerimiento.estado === 'en_proceso') && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsAsignacionModalOpen(true);
-                  }}
-                >
-                  <Truck className="h-4 w-4 mr-2" />
-                  Asignar Viajero
-                </Button>
-              )}
-
-              {/* Botón para generar OCs por viajero (cuando hay asignaciones sin OC) */}
-              {(selectedRequerimiento.estado === 'aprobado' || selectedRequerimiento.estado === 'parcial' || selectedRequerimiento.estado === 'en_proceso') &&
-               (selectedRequerimiento as any).asignaciones?.some((a: AsignacionResponsable) =>
-                 a.estado === 'pendiente' && !a.ordenCompraId
-               ) && (
-                <Button
-                  variant="primary"
-                  onClick={() => handleGenerarOCsPorViajero(selectedRequerimiento)}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Generar OCs por Viajero
-                </Button>
-              )}
-
-              {selectedRequerimiento.estado === 'pendiente' && (
-                <Button variant="primary" onClick={() => {
-                  handleAprobar(selectedRequerimiento);
-                  setIsDetailModalOpen(false);
-                }}>
-                  <Check className="h-4 w-4 mr-2" />
-                  Aprobar
-                </Button>
-              )}
-              {(selectedRequerimiento.estado === 'aprobado' || selectedRequerimiento.estado === 'parcial') && (
-                <Button variant="primary" onClick={() => {
-                  handleGenerarOC(selectedRequerimiento);
-                }}>
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  {selectedRequerimiento.estado === 'parcial' ? 'Continuar OC' : 'Generar OC'}
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-      </Modal>
+        requerimiento={selectedRequerimiento}
+        onAprobar={handleAprobar}
+        onGenerarOC={handleGenerarOC}
+        onGenerarOCsPorViajero={handleGenerarOCsPorViajero}
+        onAbrirAsignacion={() => setIsAsignacionModalOpen(true)}
+      />
 
       {/* Modal de Crear Producto */}
       {showProductoModal && (
@@ -2392,32 +809,15 @@ export const Requerimientos: React.FC = () => {
         />
       )}
 
-      {/* Barra flotante de selección para OC consolidada */}
-      {selectionMode && selectedReqIds.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white shadow-xl border border-primary-200 rounded-xl px-6 py-3 flex items-center gap-4">
-          <div className="text-sm text-gray-700">
-            <span className="font-semibold text-primary-600">{selectedReqIds.size}</span> requerimiento(s) seleccionado(s)
-          </div>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleGenerarOCConsolidada}
-          >
-            <Layers className="h-4 w-4 mr-2" />
-            Generar OC Consolidada
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setSelectionMode(false);
-              setSelectedReqIds(new Set());
-            }}
-          >
-            Cancelar
-          </Button>
-        </div>
-      )}
+      {/* Barra flotante de seleccion para OC consolidada */}
+      <SelectionFloatingBar
+        selectedCount={selectedReqIds.size}
+        onGenerarOCConsolidada={handleGenerarOCConsolidada}
+        onCancelar={() => {
+          setSelectionMode(false);
+          setSelectedReqIds(new Set());
+        }}
+      />
 
       {/* OC Builder Wizard */}
       <OCBuilder

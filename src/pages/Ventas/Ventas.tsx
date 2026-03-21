@@ -21,6 +21,8 @@ import { VentaService } from '../../services/venta.service';
 import { useEntregaStore } from '../../store/entregaStore';
 import type { Venta, VentaFormData, MetodoPago, AdelantoData, EditarVentaData } from '../../types/venta.types';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { ventaSociosService, MOTIVOS_VENTA_SOCIO } from '../../services/venta.socios.service';
+import type { ResumenVentasSocios } from '../../services/venta.socios.service';
 import type { ProgramarEntregaData } from '../../types/entrega.types';
 
 export const Ventas: React.FC = () => {
@@ -130,6 +132,20 @@ export const Ventas: React.FC = () => {
       return fecha && fecha >= inicioMes;
     });
   }, [ventas]);
+
+  // Resumen de ventas a socios con subsidio y alertas
+  const resumenSocios = useMemo<ResumenVentasSocios | null>(() => {
+    if (ventasSociosMes.length === 0) return null;
+    const ventasRegularesMes = ventas.filter(v => {
+      if (v.esVentaSocio) return false;
+      if (v.estado === 'cancelada') return false;
+      const fecha = v.fechaCreacion?.toDate?.();
+      const ahora = new Date();
+      const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+      return fecha && fecha >= inicioMes;
+    });
+    return ventaSociosService.calcularResumenSocios(ventasSociosMes, ventasRegularesMes);
+  }, [ventasSociosMes, ventas]);
 
   // Lead Time metrics (solo ventas entregadas con fechas completas)
   const leadTimeMetrics = useMemo(() => {
@@ -698,8 +714,8 @@ export const Ventas: React.FC = () => {
         title="Pipeline de Ventas"
       />
 
-      {/* Resumen Ventas a Socios (colapsable) */}
-      {ventasSociosMes.length > 0 && (
+      {/* Resumen Ventas a Socios (colapsable con KPIs + alertas) */}
+      {resumenSocios && (
         <Card padding="none">
           <button
             onClick={() => setMostrarVentasSocios(!mostrarVentasSocios)}
@@ -708,11 +724,16 @@ export const Ventas: React.FC = () => {
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-purple-600" />
               <span className="font-medium text-purple-900">
-                Ventas a Socios este mes ({ventasSociosMes.length})
+                Ventas a Socios — {new Date().toLocaleString('es-PE', { month: 'long' })} ({resumenSocios.totalVentas})
               </span>
               <span className="text-sm text-purple-600 font-semibold">
-                S/ {ventasSociosMes.reduce((sum, v) => sum + v.totalPEN, 0).toFixed(2)}
+                S/ {resumenSocios.totalCobradoPEN.toFixed(2)}
               </span>
+              {resumenSocios.alertas.length > 0 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                  <AlertTriangle className="h-3 w-3 mr-1" /> {resumenSocios.alertas.length}
+                </span>
+              )}
             </div>
             {mostrarVentasSocios
               ? <ChevronUp className="h-5 w-5 text-purple-400" />
@@ -722,17 +743,96 @@ export const Ventas: React.FC = () => {
           {mostrarVentasSocios && (
             <div className="px-6 pb-4 border-t border-purple-100">
               <p className="text-xs text-purple-500 mt-2 mb-3">
-                Estas ventas no se incluyen en los reportes de rentabilidad ni en los KPIs de margen.
+                Excluidas de reportes de rentabilidad. Subsidio = CTRU - precio cobrado. Costo oportunidad = precio regular promedio - precio socio.
               </p>
+
+              {/* KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                <div className="bg-purple-50 rounded-lg p-3 text-center">
+                  <p className="text-xs text-purple-500">Cobrado</p>
+                  <p className="text-lg font-bold text-purple-700">S/ {resumenSocios.totalCobradoPEN.toFixed(0)}</p>
+                </div>
+                <div className={`rounded-lg p-3 text-center ${resumenSocios.subsidioDirectoPEN > 0 ? 'bg-red-50' : 'bg-green-50'}`}>
+                  <p className="text-xs text-gray-500">Subsidio</p>
+                  <p className={`text-lg font-bold ${resumenSocios.subsidioDirectoPEN > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    S/ {resumenSocios.subsidioDirectoPEN.toFixed(0)}
+                  </p>
+                </div>
+                <div className="bg-amber-50 rounded-lg p-3 text-center">
+                  <p className="text-xs text-gray-500">Oportunidad</p>
+                  <p className="text-lg font-bold text-amber-600">S/ {resumenSocios.costoOportunidadPEN.toFixed(0)}</p>
+                </div>
+                <div className={`rounded-lg p-3 text-center ${resumenSocios.porcentajeInventarioUnidades > 15 ? 'bg-red-50' : 'bg-gray-50'}`}>
+                  <p className="text-xs text-gray-500">% Inventario</p>
+                  <p className={`text-lg font-bold ${resumenSocios.porcentajeInventarioUnidades > 15 ? 'text-red-600' : 'text-gray-700'}`}>
+                    {resumenSocios.porcentajeInventarioUnidades.toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+
+              {/* Alertas */}
+              {resumenSocios.alertas.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  {resumenSocios.alertas.map((alerta, i) => (
+                    <div key={i} className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg ${
+                      alerta.severidad === 'critical' ? 'bg-red-50 text-red-700' :
+                      alerta.severidad === 'warning' ? 'bg-amber-50 text-amber-700' :
+                      'bg-blue-50 text-blue-700'
+                    }`}>
+                      <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                      <span>{alerta.mensaje}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Tabla por socio */}
+              {resumenSocios.porSocio.length > 0 && (
+                <div className="overflow-x-auto mb-4">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-purple-200 text-left">
+                        <th className="pb-2 text-purple-600 font-medium">Socio</th>
+                        <th className="pb-2 text-purple-600 font-medium text-center">Ventas</th>
+                        <th className="pb-2 text-purple-600 font-medium text-right">Cobrado</th>
+                        <th className="pb-2 text-purple-600 font-medium text-right">Costo</th>
+                        <th className="pb-2 text-purple-600 font-medium text-right">Subsidio</th>
+                        <th className="pb-2 text-purple-600 font-medium text-right">Oportunidad</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {resumenSocios.porSocio.map(s => (
+                        <tr key={s.nombre} className="border-b border-purple-50">
+                          <td className="py-2 text-gray-900">{s.nombre}</td>
+                          <td className="py-2 text-center text-gray-600">{s.ventas}</td>
+                          <td className="py-2 text-right text-gray-700">S/ {s.cobradoPEN.toFixed(0)}</td>
+                          <td className="py-2 text-right text-gray-500">S/ {s.costoRealPEN.toFixed(0)}</td>
+                          <td className={`py-2 text-right font-medium ${s.subsidioPEN > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            S/ {s.subsidioPEN.toFixed(0)}
+                          </td>
+                          <td className="py-2 text-right text-amber-600">S/ {s.costoOportunidadPEN.toFixed(0)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Lista de ventas individuales */}
               <div className="space-y-2">
                 {ventasSociosMes.map(v => (
                   <div
                     key={v.id}
                     className="flex items-center justify-between py-2 px-3 bg-purple-50 rounded-lg text-sm"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <span className="font-mono text-purple-700">{v.numeroVenta}</span>
                       <span className="text-gray-700">{v.socioNombre || v.nombreCliente}</span>
+                      {v.motivoVentaSocio && (
+                        <span className="text-xs text-purple-500 bg-purple-100 px-2 py-0.5 rounded">
+                          {MOTIVOS_VENTA_SOCIO[v.motivoVentaSocio] || v.motivoVentaSocio}
+                        </span>
+                      )}
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         v.estado === 'entregada' ? 'bg-green-100 text-green-700' :
                         v.estado === 'cancelada' ? 'bg-red-100 text-red-700' :

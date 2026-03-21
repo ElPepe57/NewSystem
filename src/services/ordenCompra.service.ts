@@ -1,593 +1,133 @@
-import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  Timestamp,
-  serverTimestamp,
-  writeBatch
-} from 'firebase/firestore';
-import { getNextSequenceNumber } from '../lib/sequenceGenerator';
-import { db } from '../lib/firebase';
-import { COLLECTIONS } from '../config/collections';
-import { logger } from '../lib/logger';
+/**
+ * ordenCompra.service.ts — FACADE
+ *
+ * Aggregates all ordenCompra sub-modules into the original `OrdenCompraService`
+ * static class.  All existing imports of the form:
+ *
+ *   import { OrdenCompraService } from '../services/ordenCompra.service'
+ *
+ * continue to work without changes.
+ *
+ * Sub-modules:
+ *   ordenCompra.shared.ts              — constants and sequence-number helper
+ *   ordenCompra.proveedores.service.ts — CRUD for Proveedores
+ *   ordenCompra.crud.service.ts        — OC getAll/getById/create/update/delete/cambiarEstado
+ *   ordenCompra.pagos.service.ts       — registrarPago (Tesorería + Pool USD)
+ *   ordenCompra.recepcion.service.ts   — recibirOrdenParcial / recibirOrden / revertirRecepciones
+ *   ordenCompra.stats.service.ts       — getStats, precios históricos, investigación mercado
+ */
+
 import type {
   OrdenCompra,
   OrdenCompraFormData,
   EstadoOrden,
-  CambioEstadoOrden,
   OrdenCompraStats,
   Proveedor,
   ProveedorFormData,
-  ProductoOrden,
   PagoOrdenCompra,
   RecepcionParcial
 } from '../types/ordenCompra.types';
-import { ProductoService } from './producto.service';
-import { inventarioService } from './inventario.service';
-import { unidadService } from './unidad.service';
-import { almacenService } from './almacen.service';
-import { ExpectativaService } from './expectativa.service';
-import { tesoreriaService } from './tesoreria.service';
-import { poolUSDService } from './poolUSD.service';
-import { ctruService } from './ctru.service';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
-import { actividadService } from './actividad.service';
 
-const ORDENES_COLLECTION = COLLECTIONS.ORDENES_COMPRA;
-const PROVEEDORES_COLLECTION = COLLECTIONS.PROVEEDORES;
+// ─── Sub-module imports ───────────────────────────────────────────────────────
 
+import {
+  getAllProveedores,
+  getProveedorById,
+  createProveedor,
+  updateProveedor,
+  deleteProveedor
+} from './ordenCompra.proveedores.service';
+
+import {
+  getAll,
+  getById,
+  getByEstado,
+  create,
+  update,
+  cambiarEstado,
+  deleteOrden
+} from './ordenCompra.crud.service';
+
+import { registrarPago } from './ordenCompra.pagos.service';
+
+import {
+  recibirOrdenParcial,
+  recibirOrden,
+  revertirRecepciones
+} from './ordenCompra.recepcion.service';
+
+import {
+  getStats,
+  getPreciosHistoricos,
+  getMejorPrecioHistorico,
+  getPrecioPromedioHistorico,
+  getUltimoPrecioProveedor,
+  getInvestigacionMercado,
+  getProductosProveedor
+} from './ordenCompra.stats.service';
+
+// ─── Facade ───────────────────────────────────────────────────────────────────
+
+/**
+ * Servicio de Órdenes de Compra.
+ *
+ * All method signatures are identical to the original monolithic class so that
+ * every existing caller continues to work without modification.
+ */
 export class OrdenCompraService {
   // ========================================
   // PROVEEDORES
   // ========================================
 
-  /**
-   * Obtener todos los proveedores
-   */
   static async getAllProveedores(): Promise<Proveedor[]> {
-    try {
-      const q = query(
-        collection(db, PROVEEDORES_COLLECTION),
-        orderBy('nombre', 'asc')
-      );
-      
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Proveedor));
-    } catch (error: any) {
-      logger.error('Error al obtener proveedores:', error);
-      throw new Error('Error al cargar proveedores');
-    }
+    return getAllProveedores();
   }
 
-  /**
-   * Obtener proveedor por ID
-   */
   static async getProveedorById(id: string): Promise<Proveedor | null> {
-    try {
-      const docRef = doc(db, PROVEEDORES_COLLECTION, id);
-      const docSnap = await getDoc(docRef);
-
-      if (!docSnap.exists()) {
-        return null;
-      }
-
-      return {
-        id: docSnap.id,
-        ...docSnap.data()
-      } as Proveedor;
-    } catch (error: any) {
-      logger.error('Error al obtener proveedor:', error);
-      return null;
-    }
+    return getProveedorById(id);
   }
 
-  /**
-   * Crear proveedor
-   */
   static async createProveedor(data: ProveedorFormData, userId: string): Promise<Proveedor> {
-    try {
-      const nuevoProveedor: any = {
-        nombre: data.nombre,
-        tipo: data.tipo,
-        pais: data.pais,
-        activo: true,
-        creadoPor: userId,
-        fechaCreacion: serverTimestamp()
-      };
-      
-      // Agregar campos opcionales solo si existen
-      if (data.contacto) nuevoProveedor.contacto = data.contacto;
-      if (data.email) nuevoProveedor.email = data.email;
-      if (data.telefono) nuevoProveedor.telefono = data.telefono;
-      if (data.direccion) nuevoProveedor.direccion = data.direccion;
-      if (data.notasInternas) nuevoProveedor.notasInternas = data.notasInternas;
-      
-      const docRef = await addDoc(collection(db, PROVEEDORES_COLLECTION), nuevoProveedor);
-      
-      return {
-        id: docRef.id,
-        ...nuevoProveedor,
-        fechaCreacion: Timestamp.now()
-      } as Proveedor;
-    } catch (error: any) {
-      logger.error('Error al crear proveedor:', error);
-      throw new Error('Error al crear proveedor');
-    }
+    return createProveedor(data, userId);
   }
 
-  /**
-   * Actualizar proveedor
-   */
   static async updateProveedor(id: string, data: Partial<ProveedorFormData>): Promise<void> {
-    try {
-      const updates: any = {
-        ultimaEdicion: serverTimestamp()
-      };
-      
-      if (data.nombre !== undefined) updates.nombre = data.nombre;
-      if (data.tipo !== undefined) updates.tipo = data.tipo;
-      if (data.contacto !== undefined) updates.contacto = data.contacto;
-      if (data.email !== undefined) updates.email = data.email;
-      if (data.telefono !== undefined) updates.telefono = data.telefono;
-      if (data.direccion !== undefined) updates.direccion = data.direccion;
-      if (data.pais !== undefined) updates.pais = data.pais;
-      if (data.notasInternas !== undefined) updates.notasInternas = data.notasInternas;
-      
-      await updateDoc(doc(db, PROVEEDORES_COLLECTION, id), updates);
-    } catch (error: any) {
-      logger.error('Error al actualizar proveedor:', error);
-      throw new Error('Error al actualizar proveedor');
-    }
+    return updateProveedor(id, data);
   }
 
-  /**
-   * Eliminar proveedor (soft delete)
-   */
   static async deleteProveedor(id: string): Promise<void> {
-    try {
-      await updateDoc(doc(db, PROVEEDORES_COLLECTION, id), {
-        activo: false,
-        ultimaEdicion: serverTimestamp()
-      });
-    } catch (error: any) {
-      logger.error('Error al eliminar proveedor:', error);
-      throw new Error('Error al eliminar proveedor');
-    }
+    return deleteProveedor(id);
   }
 
   // ========================================
   // ÓRDENES DE COMPRA
   // ========================================
 
-  /**
-   * Obtener todas las órdenes de compra
-   */
   static async getAll(): Promise<OrdenCompra[]> {
-    try {
-      const q = query(
-        collection(db, ORDENES_COLLECTION),
-        orderBy('fechaCreacion', 'desc')
-      );
-      
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as OrdenCompra));
-    } catch (error: any) {
-      logger.error('Error al obtener órdenes:', error);
-      throw new Error('Error al cargar órdenes de compra');
-    }
+    return getAll();
   }
 
-  /**
-   * Obtener orden por ID
-   */
   static async getById(id: string): Promise<OrdenCompra | null> {
-    try {
-      const docSnap = await getDoc(doc(db, ORDENES_COLLECTION, id));
-      
-      if (!docSnap.exists()) {
-        return null;
-      }
-      
-      return {
-        id: docSnap.id,
-        ...docSnap.data()
-      } as OrdenCompra;
-    } catch (error: any) {
-      logger.error('Error al obtener orden:', error);
-      throw new Error('Error al cargar orden');
-    }
+    return getById(id);
   }
 
-  /**
-   * Obtener órdenes por estado
-   */
   static async getByEstado(estado: EstadoOrden): Promise<OrdenCompra[]> {
-    try {
-      const q = query(
-        collection(db, ORDENES_COLLECTION),
-        where('estado', '==', estado),
-        orderBy('fechaCreacion', 'desc')
-      );
-      
-      const snapshot = await getDocs(q);
-      
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as OrdenCompra));
-    } catch (error: any) {
-      logger.error('Error al obtener órdenes por estado:', error);
-      throw new Error('Error al cargar órdenes');
-    }
+    return getByEstado(estado);
   }
 
-  /**
-   * Crear orden de compra
-   */
   static async create(data: OrdenCompraFormData, userId: string): Promise<OrdenCompra> {
-    try {
-      // Obtener información del proveedor
-      const proveedorSnap = await getDoc(doc(db, PROVEEDORES_COLLECTION, data.proveedorId));
-      if (!proveedorSnap.exists()) {
-        throw new Error('Proveedor no encontrado');
-      }
-      const proveedor = proveedorSnap.data() as Proveedor;
-      
-      // Obtener información de productos y calcular totales
-      const productosOrden: ProductoOrden[] = [];
-      let subtotalUSD = 0;
-      
-      // Track lineaNegocioId from products for auto-inheritance
-      const lineaNegocioIds: string[] = [];
-      const lineaNegocioNombres: Record<string, string> = {};
-      const paisesOrigen: string[] = [];
-
-      for (const prod of data.productos) {
-        const producto = await ProductoService.getById(prod.productoId);
-        if (!producto) {
-          throw new Error(`Producto ${prod.productoId} no encontrado`);
-        }
-
-        const subtotal = prod.cantidad * prod.costoUnitario;
-        subtotalUSD += subtotal;
-
-        productosOrden.push({
-          productoId: prod.productoId,
-          sku: producto.sku,
-          marca: producto.marca,
-          nombreComercial: producto.nombreComercial,
-          presentacion: producto.presentacion,
-          cantidad: prod.cantidad,
-          costoUnitario: prod.costoUnitario,
-          subtotal
-        });
-
-        // Collect lineaNegocioId and paisOrigen from each product
-        if (producto.lineaNegocioId) {
-          lineaNegocioIds.push(producto.lineaNegocioId);
-          if (producto.lineaNegocioNombre) {
-            lineaNegocioNombres[producto.lineaNegocioId] = producto.lineaNegocioNombre;
-          }
-        }
-        if (producto.paisOrigen) {
-          paisesOrigen.push(producto.paisOrigen);
-        }
-      }
-
-      // Derive lineaNegocioId: if all same use that, otherwise most frequent
-      let derivedLineaNegocioId: string | undefined;
-      let derivedLineaNegocioNombre: string | undefined;
-      if (lineaNegocioIds.length > 0) {
-        const freq: Record<string, number> = {};
-        for (const id of lineaNegocioIds) {
-          freq[id] = (freq[id] || 0) + 1;
-        }
-        derivedLineaNegocioId = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
-        derivedLineaNegocioNombre = lineaNegocioNombres[derivedLineaNegocioId];
-      }
-
-      // Derive paisOrigen: from products first, fallback to proveedor.pais
-      let derivedPaisOrigen: string | undefined;
-      if (paisesOrigen.length > 0) {
-        const freq: Record<string, number> = {};
-        for (const p of paisesOrigen) {
-          freq[p] = (freq[p] || 0) + 1;
-        }
-        derivedPaisOrigen = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
-      } else if (proveedor.pais) {
-        derivedPaisOrigen = proveedor.pais;
-      }
-      
-      // Calcular total
-      const impuesto = data.impuestoUSD || 0;
-      const gastosEnvio = data.gastosEnvioUSD || 0;
-      const otrosGastos = data.otrosGastosUSD || 0;
-      const descuento = data.descuentoUSD || 0;
-      const totalUSD = subtotalUSD + impuesto + gastosEnvio + otrosGastos - descuento;
-      
-      // Generar número de orden
-      const numeroOrden = await this.generateNumeroOrden();
-      
-      const nuevaOrden: any = {
-        numeroOrden,
-        proveedorId: data.proveedorId,
-        nombreProveedor: proveedor.nombre,
-        productos: productosOrden,
-        subtotalUSD,
-        totalUSD,
-        estado: 'borrador',
-        estadoPago: 'pendiente',  // Estado de pago independiente
-        inventarioGenerado: false,
-        creadoPor: userId,
-        fechaCreacion: serverTimestamp()
-      };
-      
-      // Agregar campos opcionales
-      if (impuesto > 0) nuevaOrden.impuestoUSD = impuesto;
-      if (gastosEnvio > 0) nuevaOrden.gastosEnvioUSD = gastosEnvio;
-      if (otrosGastos > 0) nuevaOrden.otrosGastosUSD = otrosGastos;
-      if (descuento > 0) nuevaOrden.descuentoUSD = descuento;
-      if (data.tcCompra) nuevaOrden.tcCompra = data.tcCompra;
-      if (data.almacenDestino) {
-        nuevaOrden.almacenDestino = data.almacenDestino;
-        // Obtener nombre del almacén
-        const almacen = await almacenService.getById(data.almacenDestino);
-        if (almacen) {
-          nuevaOrden.nombreAlmacenDestino = almacen.nombre;
-        }
-      }
-      if (data.observaciones) nuevaOrden.observaciones = data.observaciones;
-
-      // Línea de negocio y país de origen (auto-heredados de productos)
-      // Prefer explicit form values (if ever passed), fallback to derived
-      const finalLineaNegocioId = data.lineaNegocioId || derivedLineaNegocioId;
-      const finalLineaNegocioNombre = data.lineaNegocioNombre || derivedLineaNegocioNombre;
-      const finalPaisOrigen = data.paisOrigen || derivedPaisOrigen;
-      if (finalLineaNegocioId) {
-        nuevaOrden.lineaNegocioId = finalLineaNegocioId;
-        if (finalLineaNegocioNombre) nuevaOrden.lineaNegocioNombre = finalLineaNegocioNombre;
-      }
-      if (finalPaisOrigen) nuevaOrden.paisOrigen = finalPaisOrigen;
-
-      if (data.requerimientoId) nuevaOrden.requerimientoId = data.requerimientoId;
-
-      // Soporte multi-requerimiento (OC consolidada)
-      if (data.requerimientoIds && data.requerimientoIds.length > 0) {
-        nuevaOrden.requerimientoIds = data.requerimientoIds;
-        nuevaOrden.requerimientoNumeros = [];
-        if (data.productosOrigen) {
-          nuevaOrden.productosOrigen = data.productosOrigen;
-          // Agregar origenRequerimientos a cada ProductoOrden
-          for (const prodOrden of productosOrden) {
-            prodOrden.origenRequerimientos = data.productosOrigen
-              .filter(o => o.productoId === prodOrden.productoId)
-              .map(o => ({
-                requerimientoId: o.requerimientoId,
-                cotizacionId: o.cotizacionId,
-                clienteNombre: o.clienteNombre,
-                cantidad: o.cantidad
-              }));
-          }
-        }
-        // Backwards compat: primer req como singular
-        if (!nuevaOrden.requerimientoId) {
-          nuevaOrden.requerimientoId = data.requerimientoIds[0];
-        }
-      }
-
-      const docRef = await addDoc(collection(db, ORDENES_COLLECTION), nuevaOrden);
-
-      // Vincular requerimiento(s) con la OC
-      const reqIdsToLink = data.requerimientoIds && data.requerimientoIds.length > 0
-        ? data.requerimientoIds
-        : data.requerimientoId ? [data.requerimientoId] : [];
-
-      // Use partial vinculo when productosOrigen is available (OC Builder flow)
-      const hasProductosOrigen = data.productosOrigen && data.productosOrigen.length > 0;
-
-      for (const reqId of reqIdsToLink) {
-        try {
-          const req = await ExpectativaService.getRequerimientoById(reqId);
-
-          if (hasProductosOrigen) {
-            // Partial-aware linking: update product-level tracking
-            const productosParaReq = data.productosOrigen!
-              .filter(o => o.requerimientoId === reqId)
-              .map(o => ({ productoId: o.productoId, cantidad: o.cantidad }));
-
-            if (productosParaReq.length > 0) {
-              await ExpectativaService.vincularConOCParcial(
-                reqId, docRef.id, numeroOrden, productosParaReq, userId
-              );
-            }
-          } else {
-            // Legacy: mark entire req as en_proceso
-            await ExpectativaService.vincularConOC(reqId, docRef.id, numeroOrden, userId);
-          }
-
-          // Llenar números para multi-req
-          if (data.requerimientoIds?.length) {
-            nuevaOrden.requerimientoNumeros.push(req?.numeroRequerimiento || '');
-          }
-        } catch (error) {
-          logger.error('Error al vincular requerimiento con OC:', error);
-        }
-      }
-
-      // Actualizar OC con los números de requerimiento resueltos
-      if (nuevaOrden.requerimientoNumeros?.length > 0) {
-        await updateDoc(docRef, {
-          requerimientoNumeros: nuevaOrden.requerimientoNumeros,
-          requerimientoNumero: nuevaOrden.requerimientoNumeros[0]
-        });
-      }
-
-      // Broadcast actividad (fire-and-forget)
-      actividadService.registrar({
-        tipo: 'oc_creada',
-        mensaje: `OC ${numeroOrden} creada - ${proveedor.nombre} por $${totalUSD.toFixed(2)}`,
-        userId,
-        displayName: userId,
-        metadata: { entidadId: docRef.id, entidadTipo: 'ordenCompra', monto: totalUSD, moneda: 'USD' }
-      }).catch(() => {});
-
-      return {
-        id: docRef.id,
-        ...nuevaOrden,
-        fechaCreacion: Timestamp.now()
-      } as OrdenCompra;
-    } catch (error: any) {
-      logger.error('Error al crear orden:', error);
-      throw new Error(error.message || 'Error al crear orden de compra');
-    }
+    return create(data, userId);
   }
 
-  /**
-   * Actualizar orden de compra (solo en borrador)
-   */
-  static async update(id: string, data: Partial<OrdenCompraFormData>, userId: string): Promise<void> {
-    try {
-      const orden = await this.getById(id);
-      if (!orden) {
-        throw new Error('Orden no encontrada');
-      }
-
-      if (orden.estado !== 'borrador') {
-        throw new Error('Solo se pueden editar órdenes en borrador');
-      }
-
-      const updates: any = {
-        ultimaEdicion: serverTimestamp(),
-        editadoPor: userId
-      };
-
-      // Si se actualizan los productos, recalcular totales
-      if (data.productos) {
-        const productosOrden: ProductoOrden[] = [];
-        let subtotalUSD = 0;
-
-        for (const prod of data.productos) {
-          const producto = await ProductoService.getById(prod.productoId);
-          if (!producto) continue;
-
-          const subtotal = prod.cantidad * prod.costoUnitario;
-          subtotalUSD += subtotal;
-
-          productosOrden.push({
-            productoId: prod.productoId,
-            sku: producto.sku,
-            marca: producto.marca,
-            nombreComercial: producto.nombreComercial,
-            presentacion: producto.presentacion,
-            cantidad: prod.cantidad,
-            costoUnitario: prod.costoUnitario,
-            subtotal
-          });
-        }
-
-        updates.productos = productosOrden;
-        updates.subtotalUSD = subtotalUSD;
-
-        const impuestoUSD = data.impuestoUSD !== undefined ? data.impuestoUSD : (orden.impuestoUSD || 0);
-        const gastosEnvio = data.gastosEnvioUSD !== undefined ? data.gastosEnvioUSD : (orden.gastosEnvioUSD || 0);
-        const otrosGastos = data.otrosGastosUSD !== undefined ? data.otrosGastosUSD : (orden.otrosGastosUSD || 0);
-        const descuentoOC = data.descuentoUSD !== undefined ? data.descuentoUSD : (orden.descuentoUSD || 0);
-        updates.totalUSD = subtotalUSD + impuestoUSD + gastosEnvio + otrosGastos - descuentoOC;
-      }
-
-      // Actualizar proveedor si cambió
-      if (data.proveedorId && data.proveedorId !== orden.proveedorId) {
-        const proveedor = await this.getProveedorById(data.proveedorId);
-        if (proveedor) {
-          updates.proveedorId = data.proveedorId;
-          updates.nombreProveedor = proveedor.nombre;
-        }
-      }
-
-      // Actualizar almacén destino si cambió
-      if (data.almacenDestino && data.almacenDestino !== orden.almacenDestino) {
-        const almacen = await almacenService.getById(data.almacenDestino);
-        if (almacen) {
-          updates.almacenDestino = data.almacenDestino;
-          updates.nombreAlmacenDestino = almacen.nombre;
-        }
-      }
-
-      if (data.impuestoUSD !== undefined) updates.impuestoUSD = data.impuestoUSD;
-      if (data.gastosEnvioUSD !== undefined) updates.gastosEnvioUSD = data.gastosEnvioUSD;
-      if (data.otrosGastosUSD !== undefined) updates.otrosGastosUSD = data.otrosGastosUSD;
-      if (data.tcCompra !== undefined) updates.tcCompra = data.tcCompra;
-      if (data.numeroTracking !== undefined) updates.numeroTracking = data.numeroTracking;
-      if (data.courier !== undefined) updates.courier = data.courier;
-      if (data.observaciones !== undefined) updates.observaciones = data.observaciones;
-
-      // Re-derive lineaNegocioId and paisOrigen if products changed
-      if (data.productos) {
-        const lineaIds: string[] = [];
-        const lineaNombres: Record<string, string> = {};
-        const paises: string[] = [];
-        for (const prod of data.productos) {
-          const producto = await ProductoService.getById(prod.productoId);
-          if (producto) {
-            if (producto.lineaNegocioId) {
-              lineaIds.push(producto.lineaNegocioId);
-              if (producto.lineaNegocioNombre) lineaNombres[producto.lineaNegocioId] = producto.lineaNegocioNombre;
-            }
-            if (producto.paisOrigen) paises.push(producto.paisOrigen);
-          }
-        }
-        if (lineaIds.length > 0) {
-          const freq: Record<string, number> = {};
-          for (const id of lineaIds) freq[id] = (freq[id] || 0) + 1;
-          const topId = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
-          updates.lineaNegocioId = topId;
-          if (lineaNombres[topId]) updates.lineaNegocioNombre = lineaNombres[topId];
-        }
-        if (paises.length > 0) {
-          const freq: Record<string, number> = {};
-          for (const p of paises) freq[p] = (freq[p] || 0) + 1;
-          updates.paisOrigen = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
-        }
-      }
-      // Also accept explicit values from form data
-      if (data.lineaNegocioId !== undefined) updates.lineaNegocioId = data.lineaNegocioId;
-      if (data.lineaNegocioNombre !== undefined) updates.lineaNegocioNombre = data.lineaNegocioNombre;
-      if (data.paisOrigen !== undefined) updates.paisOrigen = data.paisOrigen;
-
-      // Recalcular totalPEN si cambió tcCompra
-      if (data.tcCompra !== undefined || updates.totalUSD !== undefined) {
-        const tc = data.tcCompra !== undefined ? data.tcCompra : (orden.tcCompra || 0);
-        const total = updates.totalUSD !== undefined ? updates.totalUSD : orden.totalUSD;
-        if (tc > 0) {
-          updates.totalPEN = total * tc;
-        }
-      }
-
-      await updateDoc(doc(db, ORDENES_COLLECTION, id), updates);
-    } catch (error: any) {
-      logger.error('Error al actualizar orden:', error);
-      throw new Error(error.message || 'Error al actualizar orden');
-    }
+  static async update(
+    id: string,
+    data: Partial<OrdenCompraFormData>,
+    userId: string
+  ): Promise<void> {
+    return update(id, data, userId);
   }
 
-  /**
-   * Cambiar estado de orden
-   */
   static async cambiarEstado(
     id: string,
     nuevoEstado: EstadoOrden,
@@ -600,46 +140,9 @@ export class OrdenCompraService {
       observaciones?: string;
     }
   ): Promise<void> {
-    try {
-      const orden = await this.getById(id);
-      if (!orden) {
-        throw new Error('Orden no encontrada');
-      }
-      
-      const updates: any = {
-        estado: nuevoEstado,
-        ultimaEdicion: serverTimestamp(),
-        editadoPor: userId
-      };
-      
-      // Actualizar fechas según el estado
-      if (nuevoEstado === 'enviada' && !orden.fechaEnviada) {
-        updates.fechaEnviada = Timestamp.now();
-      } else if (nuevoEstado === 'en_transito' && !orden.fechaEnTransito) {
-        updates.fechaEnTransito = Timestamp.now();
-        
-        if (datos?.numeroTracking) updates.numeroTracking = datos.numeroTracking;
-        if (datos?.courier) updates.courier = datos.courier;
-      } else if (nuevoEstado === 'recibida_parcial') {
-        if (!orden.fechaPrimeraRecepcion) {
-          updates.fechaPrimeraRecepcion = Timestamp.now();
-        }
-      } else if (nuevoEstado === 'recibida' && !orden.fechaRecibida) {
-        updates.fechaRecibida = Timestamp.now();
-      }
-      
-      await updateDoc(doc(db, ORDENES_COLLECTION, id), updates);
-    } catch (error: any) {
-      logger.error('Error al cambiar estado:', error);
-      throw new Error(error.message || 'Error al cambiar estado');
-    }
+    return cambiarEstado(id, nuevoEstado, userId, datos);
   }
 
-  /**
-   * Registrar pago de orden (independiente del estado logístico)
-   * Soporta pagos en USD o PEN con historial estructurado
-   * Integrado con Tesorería
-   */
   static async registrarPago(
     id: string,
     datos: {
@@ -654,173 +157,9 @@ export class OrdenCompraService {
     },
     userId: string
   ): Promise<PagoOrdenCompra> {
-    try {
-      const orden = await this.getById(id);
-      if (!orden) {
-        throw new Error('Orden no encontrada');
-      }
-
-      if (orden.estado === 'cancelada') {
-        throw new Error('No se puede registrar pago en una orden cancelada');
-      }
-
-      const {
-        fechaPago,
-        monedaPago,
-        montoOriginal,
-        tipoCambio,
-        metodoPago,
-        cuentaOrigenId,
-        referencia,
-        notas
-      } = datos;
-
-      // Validar campos requeridos
-      if (!tipoCambio || tipoCambio <= 0) {
-        throw new Error('El tipo de cambio es requerido y debe ser mayor a 0');
-      }
-      if (!montoOriginal || montoOriginal <= 0) {
-        throw new Error('El monto es requerido y debe ser mayor a 0');
-      }
-
-      // Calcular equivalencias según la moneda de pago
-      const montoUSD = monedaPago === 'USD' ? montoOriginal : montoOriginal / tipoCambio;
-      const montoPEN = monedaPago === 'PEN' ? montoOriginal : montoOriginal * tipoCambio;
-
-      // Obtener nombre de cuenta si se especificó
-      let cuentaOrigenNombre: string | undefined;
-      if (cuentaOrigenId) {
-        try {
-          const cuenta = await tesoreriaService.getCuentaById(cuentaOrigenId);
-          if (cuenta) {
-            cuentaOrigenNombre = cuenta.nombre;
-          }
-        } catch (e) {
-          logger.warn('No se pudo obtener nombre de cuenta:', e);
-        }
-      }
-
-      // Crear registro de pago estructurado (sin campos undefined - Firestore no los acepta)
-      const pagoId = `PAG-OC-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
-      const nuevoPago: PagoOrdenCompra = {
-        id: pagoId,
-        fecha: Timestamp.fromDate(fechaPago),
-        monedaPago,
-        montoOriginal,
-        montoUSD,
-        montoPEN,
-        tipoCambio,
-        metodoPago,
-        registradoPor: userId,
-        fechaRegistro: Timestamp.now()
-      };
-
-      // Solo agregar campos opcionales si tienen valor
-      if (cuentaOrigenId) nuevoPago.cuentaOrigenId = cuentaOrigenId;
-      if (cuentaOrigenNombre) nuevoPago.cuentaOrigenNombre = cuentaOrigenNombre;
-      if (referencia) nuevoPago.referencia = referencia;
-      if (notas) nuevoPago.notas = notas;
-
-      // Calcular totales
-      const historialPagos = orden.historialPagos || [];
-      const totalPagadoUSD = historialPagos.reduce((sum, p) => sum + p.montoUSD, 0) + montoUSD;
-      const pendienteUSD = orden.totalUSD - totalPagadoUSD;
-
-      // Determinar estado de pago
-      const estadoPago = pendienteUSD <= 0.01 ? 'pagada' : 'pago_parcial';
-
-      // Preparar actualización
-      const updates: any = {
-        historialPagos: [...historialPagos, nuevoPago],
-        estadoPago,
-        tcPago: tipoCambio,
-        montoPendiente: Math.max(0, pendienteUSD * tipoCambio),
-        ultimaEdicion: serverTimestamp(),
-        editadoPor: userId
-      };
-
-      // Si es pago completo, marcar fecha de pago
-      if (estadoPago === 'pagada') {
-        updates.fechaPago = Timestamp.fromDate(fechaPago);
-        updates.totalPEN = orden.totalUSD * tipoCambio;
-
-        // Calcular diferencia cambiaria si existe TC de compra
-        if (orden.tcCompra) {
-          const costoEnCompra = orden.totalUSD * orden.tcCompra;
-          const costoEnPago = orden.totalUSD * tipoCambio;
-          updates.diferenciaCambiaria = costoEnPago - costoEnCompra;
-        }
-      }
-
-      // Actualizar la orden
-      await updateDoc(doc(db, ORDENES_COLLECTION, id), updates);
-
-      // ========== REGISTRAR EN TESORERÍA ==========
-      try {
-        const esPagoCompleto = estadoPago === 'pagada';
-        const movimientoData: any = {
-          tipo: 'pago_orden_compra',
-          moneda: monedaPago, // Registrar en la moneda real del pago
-          monto: montoOriginal,
-          tipoCambio,
-          metodo: metodoPago,
-          referencia,
-          concepto: `Pago ${esPagoCompleto ? 'completo' : 'parcial'} OC ${orden.numeroOrden} - ${orden.nombreProveedor}`,
-          ordenCompraId: id,
-          ordenCompraNumero: orden.numeroOrden,
-          notas: notas || `${monedaPago === 'USD' ? `≈ S/ ${montoPEN.toFixed(2)}` : `≈ $${montoUSD.toFixed(2)} USD`}`,
-          fecha: fechaPago
-        };
-
-        // Agregar cuenta origen (de donde sale el dinero)
-        if (cuentaOrigenId) {
-          movimientoData.cuentaOrigen = cuentaOrigenId;
-        }
-
-        const movimientoId = await tesoreriaService.registrarMovimiento(movimientoData, userId);
-        nuevoPago.movimientoTesoreriaId = movimientoId;
-
-        logger.success(`Pago OC registrado en tesorería: ${monedaPago} ${montoOriginal} para ${orden.numeroOrden}`);
-      } catch (tesoreriaError) {
-        // No bloquear el pago si falla tesorería
-        logger.error('Error registrando pago OC en tesorería:', tesoreriaError);
-      }
-
-      // ========== REGISTRAR EN POOL USD (solo pagos en USD) ==========
-      if (monedaPago === 'USD') {
-        try {
-          await poolUSDService.registrarMovimiento(
-            {
-              tipo: 'PAGO_OC',
-              montoUSD: montoOriginal,
-              tcOperacion: tipoCambio,
-              fecha: fechaPago,
-              documentoOrigenTipo: 'orden_compra',
-              documentoOrigenId: id,
-              documentoOrigenNumero: orden.numeroOrden,
-              notas: `Pago OC ${orden.numeroOrden} - ${orden.nombreProveedor}`,
-            },
-            userId
-          );
-          logger.success(`Pago OC registrado en Pool USD: $${montoOriginal} para ${orden.numeroOrden}`);
-        } catch (poolError) {
-          // No bloquear el pago si falla Pool USD (fire-and-forget)
-          logger.error('Error registrando pago OC en Pool USD:', poolError);
-        }
-      }
-
-      return nuevoPago;
-    } catch (error: any) {
-      logger.error('Error al registrar pago:', error);
-      throw new Error(error.message || 'Error al registrar pago');
-    }
+    return registrarPago(id, datos, userId);
   }
 
-  /**
-   * Recepción parcial de orden de compra
-   * Permite recibir productos en múltiples entregas (ej: Amazon envía en varios paquetes)
-   * Genera inventario solo para los productos recibidos en esta entrega
-   */
   static async recibirOrdenParcial(
     id: string,
     productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
@@ -834,528 +173,33 @@ export class OrdenCompraService {
     esRecepcionFinal: boolean;
     cotizacionVinculada?: string;
   }> {
-    try {
-      const orden = await this.getById(id);
-      if (!orden) {
-        throw new Error('Orden no encontrada');
-      }
-
-      // Validar estados permitidos
-      if (!['en_transito', 'enviada', 'recibida_parcial'].includes(orden.estado)) {
-        throw new Error('La orden debe estar enviada, en tránsito o recibida parcial para recibir productos');
-      }
-
-      // Si no hay TC de pago, usar TC de compra como fallback
-      const tcAplicable = orden.tcPago ?? orden.tcCompra;
-      if (!tcAplicable) {
-        throw new Error('Se requiere tipo de cambio para generar inventario');
-      }
-
-      if (!orden.almacenDestino) {
-        throw new Error('Se requiere almacén destino para generar inventario');
-      }
-
-      // Validar productos recibidos
-      const productosValidos = productosRecibidos.filter(pr => pr.cantidadRecibida > 0);
-      if (productosValidos.length === 0) {
-        throw new Error('Debe recibir al menos 1 producto con cantidad mayor a 0');
-      }
-
-      for (const pr of productosValidos) {
-        const productoOC = orden.productos.find(p => p.productoId === pr.productoId);
-        if (!productoOC) {
-          throw new Error(`Producto ${pr.productoId} no existe en esta orden`);
-        }
-        const yaRecibido = productoOC.cantidadRecibida || 0;
-        const pendiente = productoOC.cantidad - yaRecibido;
-        if (pr.cantidadRecibida > pendiente) {
-          throw new Error(`${productoOC.nombreComercial}: no se pueden recibir ${pr.cantidadRecibida} unidades, solo quedan ${pendiente} pendientes`);
-        }
-      }
-
-      // ================================================================
-      // OBTENER INFORMACIÓN DE REQUERIMIENTOS (soporte multi-req)
-      // ================================================================
-      const reservationMap = new Map<string, Array<{
-        requerimientoId: string;
-        cotizacionId: string;
-        cantidad: number;
-      }>>();
-
-      const reqIds: string[] = [];
-      if (orden.requerimientoIds && orden.requerimientoIds.length > 0) {
-        reqIds.push(...orden.requerimientoIds);
-      } else if (orden.requerimientoId) {
-        reqIds.push(orden.requerimientoId);
-      }
-
-      let cotizacionId: string | undefined;
-
-      for (const reqId of reqIds) {
-        try {
-          const req = await ExpectativaService.getRequerimientoById(reqId);
-          if (!req) continue;
-
-          const cotId = req.ventaRelacionadaId || '';
-          if (cotId && !cotizacionId) cotizacionId = cotId;
-
-          const productosDeEsteReq = orden.productosOrigen
-            ?.filter(po => po.requerimientoId === reqId)
-            || req.productos.map((p: any) => ({ productoId: p.productoId, cantidad: p.cantidadSolicitada }));
-
-          for (const prod of productosDeEsteReq) {
-            const existing = reservationMap.get(prod.productoId) || [];
-            existing.push({
-              requerimientoId: reqId,
-              cotizacionId: cotId,
-              cantidad: prod.cantidad
-            });
-            reservationMap.set(prod.productoId, existing);
-          }
-        } catch (error) {
-          logger.error(`Error al obtener requerimiento ${reqId}:`, error);
-        }
-      }
-
-      // Calcular prorrateo de costos sobre el total COMPLETO de la OC
-      // - Impuesto: UNIFORME por unidad (específico)
-      // - Envío, Otros, Descuento: PROPORCIONAL al costo base del producto
-      const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
-      const costoBaseTotal = orden.productos.reduce((sum, p) => sum + (p.costoUnitario * p.cantidad), 0);
-      const impuestoPorUnidad = totalUnidadesOrden > 0 ? (orden.impuestoUSD || 0) / totalUnidadesOrden : 0;
-      const costosProrrateo = (orden.gastosEnvioUSD || 0) + (orden.otrosGastosUSD || 0) - (orden.descuentoUSD || 0);
-
-      const getCostoAdicional = (costoUnitario: number): number => {
-        const proporcional = costoBaseTotal > 0
-          ? costosProrrateo * (costoUnitario / costoBaseTotal)
-          : 0;
-        return impuestoPorUnidad + proporcional;
-      };
-      // Promedio para metadata de recepción (backward compat)
-      const costoAdicionalPorUnidad = totalUnidadesOrden > 0
-        ? ((orden.impuestoUSD || 0) + costosProrrateo) / totalUnidadesOrden
-        : 0;
-
-      // Contar unidades ya reservadas en recepciones previas por producto
-      const unidadesYaReservadas = new Map<string, number>();
-      if (orden.recepcionesParciales) {
-        for (const recPrev of orden.recepcionesParciales) {
-          for (const id of recPrev.unidadesReservadas || []) {
-            // Las reservadas previas se cuentan por producto indirectamente
-            // Usamos el conteo directo de recepciones previas
-          }
-          for (const prPrev of recPrev.productosRecibidos) {
-            // No podemos saber cuántas fueron reservadas vs disponibles por producto
-            // desde el historial de recepciones, así que lo calculamos diferente
-          }
-        }
-      }
-      // Alternativa más precisa: calcular reservas restantes del reservationMap
-      // descontando lo ya recibido (cantidadRecibida) de cada producto
-      // La lógica de reserva tomará en cuenta el acumulado
-
-      const unidadesGeneradas: string[] = [];
-      const unidadesReservadas: string[] = [];
-      const unidadesDisponibles: string[] = [];
-      let totalUnidadesRecepcion = 0;
-
-      // Obtener información del almacén una sola vez
-      const almacen = await almacenService.getById(orden.almacenDestino);
-      if (!almacen) {
-        throw new Error(`Almacén ${orden.almacenDestino} no encontrado`);
-      }
-      const almacenInfo = { nombre: almacen.nombre, pais: almacen.pais };
-
-      // Generar inventario solo para los productos de ESTA entrega
-      for (const pr of productosValidos) {
-        const productoOC = orden.productos.find(p => p.productoId === pr.productoId)!;
-        const productoInfo = await ProductoService.getById(pr.productoId);
-        if (!productoInfo) {
-          throw new Error(`Producto ${pr.productoId} no encontrado`);
-        }
-
-        const costoUnitarioReal = productoOC.costoUnitario + getCostoAdicional(productoOC.costoUnitario);
-
-        // Lógica de reserva: descontar lo ya reservado en entregas previas
-        const reservations = reservationMap.get(pr.productoId) || [];
-        const yaRecibidoEsteProducto = productoOC.cantidadRecibida || 0;
-
-        // Calcular cuántas unidades ya se reservaron (entregas previas)
-        let totalReservaRequerida = 0;
-        for (const res of reservations) {
-          totalReservaRequerida += res.cantidad;
-        }
-        const yaReservadoPrevio = Math.min(totalReservaRequerida, yaRecibidoEsteProducto);
-        const reservaPendiente = totalReservaRequerida - yaReservadoPrevio;
-
-        let unidadesRestantes = pr.cantidadRecibida;
-
-        const datosBaseLote = {
-          productoId: pr.productoId,
-          lote: `OC-${orden.numeroOrden}`,
-          fechaVencimiento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-          almacenId: orden.almacenDestino,
-          costoUnitarioUSD: costoUnitarioReal,
-          ordenCompraId: id,
-          ordenCompraNumero: orden.numeroOrden,
-          fechaRecepcion: new Date(),
-          tcCompra: orden.tcCompra,
-          tcPago: orden.tcPago
-        };
-
-        // Crear lotes reservados (solo si quedan reservas pendientes)
-        if (reservaPendiente > 0 && reservations.length > 0) {
-          // Distribuir la reserva pendiente entre los requerimientos
-          let reservaPendienteRestante = reservaPendiente;
-          let yaConsumidoPrevio = yaReservadoPrevio;
-
-          for (const reserva of reservations) {
-            if (unidadesRestantes <= 0 || reservaPendienteRestante <= 0) break;
-            if (!reserva.cotizacionId) continue;
-
-            // Cuánto de esta reserva específica ya se cubrió en entregas previas
-            const consumidoDeEstaReserva = Math.min(reserva.cantidad, yaConsumidoPrevio);
-            yaConsumidoPrevio -= consumidoDeEstaReserva;
-            const pendienteDeEstaReserva = reserva.cantidad - consumidoDeEstaReserva;
-
-            if (pendienteDeEstaReserva <= 0) continue;
-
-            const cantReservar = Math.min(pendienteDeEstaReserva, unidadesRestantes);
-
-            const reservadasIds = await unidadService.crearLote(
-              {
-                ...datosBaseLote,
-                cantidad: cantReservar,
-                estadoInicial: 'reservada',
-                reservadoPara: reserva.cotizacionId,
-                requerimientoId: reserva.requerimientoId
-              },
-              userId,
-              { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
-              almacenInfo
-            );
-
-            unidadesGeneradas.push(...reservadasIds);
-            unidadesReservadas.push(...reservadasIds);
-            unidadesRestantes -= cantReservar;
-            reservaPendienteRestante -= cantReservar;
-
-            logger.success(`  → ${cantReservar} unidades de ${productoInfo.sku} RESERVADAS para cotización ${reserva.cotizacionId}`);
-          }
-        }
-
-        // Crear unidades DISPONIBLES (excedente o sin requerimiento)
-        if (unidadesRestantes > 0) {
-          const disponiblesIds = await unidadService.crearLote(
-            {
-              ...datosBaseLote,
-              cantidad: unidadesRestantes
-            },
-            userId,
-            { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
-            almacenInfo
-          );
-
-          unidadesGeneradas.push(...disponiblesIds);
-          unidadesDisponibles.push(...disponiblesIds);
-        }
-
-        totalUnidadesRecepcion += pr.cantidadRecibida;
-      }
-
-      // Calcular CTRU inicial para todas las unidades generadas en esta recepción
-      if (unidadesGeneradas.length > 0) {
-        try {
-          const ctruCalculadas = await ctruService.calcularCTRULote(unidadesGeneradas, id);
-          logger.success(`  → CTRU inicial calculado para ${ctruCalculadas} unidades`);
-        } catch (ctruError) {
-          // No bloquear la recepción si falla el cálculo de CTRU
-          logger.error('Error al calcular CTRU de lote (no bloqueante):', ctruError);
-        }
-      }
-
-      // Actualizar cantidadRecibida en productos de la OC
-      const productosActualizados = orden.productos.map(p => {
-        const recibido = productosValidos.find(pr => pr.productoId === p.productoId);
-        if (recibido) {
-          return {
-            ...p,
-            cantidadRecibida: (p.cantidadRecibida || 0) + recibido.cantidadRecibida
-          };
-        }
-        return p;
-      });
-
-      // Determinar si es recepción final
-      const esRecepcionFinal = productosActualizados.every(
-        p => (p.cantidadRecibida || 0) >= p.cantidad
-      );
-
-      // Crear registro de recepción parcial
-      const recepcionesPrevias = orden.recepcionesParciales || [];
-      const recepcionNumero = recepcionesPrevias.length + 1;
-      const recepcionId = `REC-${Date.now()}`;
-
-      const nuevaRecepcion: RecepcionParcial = {
-        id: recepcionId,
-        fecha: Timestamp.now(),
-        numero: recepcionNumero,
-        productosRecibidos: productosValidos.map(pr => {
-          const productoOC = orden.productos.find(p => p.productoId === pr.productoId)!;
-          return {
-            productoId: pr.productoId,
-            cantidadRecibida: pr.cantidadRecibida,
-            cantidadAcumulada: (productoOC.cantidadRecibida || 0) + pr.cantidadRecibida
-          };
-        }),
-        unidadesGeneradas,
-        unidadesReservadas,
-        unidadesDisponibles,
-        totalUnidadesRecepcion,
-        costoAdicionalPorUnidad,
-        registradoPor: userId,
-        ...(observaciones ? { observaciones } : {})
-      };
-
-      // Actualizar contadores del almacén
-      const valorRecepcionUSD = productosValidos.reduce((sum, pr) => {
-        const productoOC = orden.productos.find(p => p.productoId === pr.productoId)!;
-        return sum + (pr.cantidadRecibida * (productoOC.costoUnitario + getCostoAdicional(productoOC.costoUnitario)));
-      }, 0);
-
-      await almacenService.incrementarUnidadesRecibidas(orden.almacenDestino, totalUnidadesRecepcion);
-      await almacenService.actualizarValorInventario(orden.almacenDestino, valorRecepcionUSD);
-
-      // Sincronizar stock de productos afectados
-      const productosAfectados = productosValidos.map(pr => pr.productoId);
-      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
-
-      // Push stock actualizado hacia ML (fire-and-forget)
-      // GAP identificado: sin esto, ML no se entera de nuevo stock por recepción de OC
-      try {
-        const { mercadoLibreService } = await import('./mercadoLibre.service');
-        for (const pid of productosAfectados) {
-          mercadoLibreService.syncStock(pid).catch(e =>
-            logger.warn(`ML sync failed for ${pid} after OC reception:`, e.message)
-          );
-        }
-      } catch {
-        // mercadoLibreService import puede fallar si ML no está configurado — no bloquear OC
-      }
-
-      // Acumular unidades generadas globales
-      const todasUnidadesGeneradas = [...(orden.unidadesGeneradas || []), ...unidadesGeneradas];
-      const totalUnidadesRecibidasGlobal = (orden.totalUnidadesRecibidas || 0) + totalUnidadesRecepcion;
-
-      // Preparar actualización de la OC
-      const ocUpdates: any = {
-        productos: productosActualizados,
-        recepcionesParciales: [...recepcionesPrevias, nuevaRecepcion],
-        unidadesGeneradas: todasUnidadesGeneradas,
-        totalUnidadesRecibidas: totalUnidadesRecibidasGlobal,
-        ultimaEdicion: serverTimestamp(),
-        editadoPor: userId
-      };
-
-      if (esRecepcionFinal) {
-        ocUpdates.estado = 'recibida';
-        ocUpdates.fechaRecibida = Timestamp.now();
-        ocUpdates.inventarioGenerado = true;
-        ocUpdates.cotizacionVinculada = cotizacionId || null;
-      } else {
-        ocUpdates.estado = 'recibida_parcial';
-        if (!orden.fechaPrimeraRecepcion) {
-          ocUpdates.fechaPrimeraRecepcion = Timestamp.now();
-        }
-      }
-
-      await updateDoc(doc(db, ORDENES_COLLECTION, id), ocUpdates);
-
-      // Marcar requerimientos como completados SOLO si es recepción final
-      // y TODOS sus productos están completos
-      if (esRecepcionFinal) {
-        for (const reqId of reqIds) {
-          try {
-            await ExpectativaService.actualizarEstado(reqId, 'completado', userId);
-          } catch (error) {
-            logger.error(`Error al marcar requerimiento ${reqId} como completado:`, error);
-          }
-        }
-      }
-
-      // Log resumen
-      logger.success(`OC ${orden.numeroOrden} - Recepción #${recepcionNumero}: ${totalUnidadesRecepcion} unidades (${unidadesReservadas.length} reservadas, ${unidadesDisponibles.length} disponibles)${esRecepcionFinal ? ' - RECEPCIÓN FINAL' : ''}`);
-
-      // Broadcast actividad (fire-and-forget)
-      actividadService.registrar({
-        tipo: 'oc_recibida',
-        mensaje: `OC ${orden.numeroOrden} - Recepción #${recepcionNumero}: ${totalUnidadesRecepcion} unidades${esRecepcionFinal ? ' (FINAL)' : ''}`,
-        userId,
-        displayName: userId,
-        metadata: { entidadId: id, entidadTipo: 'ordenCompra' }
-      }).catch(() => {});
-
-      return {
-        recepcionId,
-        unidadesGeneradas,
-        unidadesReservadas,
-        unidadesDisponibles,
-        esRecepcionFinal,
-        cotizacionVinculada: cotizacionId
-      };
-    } catch (error: any) {
-      logger.error('Error al recibir orden parcial:', error);
-      throw new Error(error.message || 'Error al recibir orden parcial');
-    }
+    return recibirOrdenParcial(id, productosRecibidos, userId, observaciones);
   }
 
-  /**
-   * Recibir orden completa (wrapper que delega a recibirOrdenParcial)
-   * Recibe TODO lo pendiente de una sola vez
-   */
-  static async recibirOrden(id: string, userId: string): Promise<{
+  static async recibirOrden(
+    id: string,
+    userId: string
+  ): Promise<{
     unidadesGeneradas: string[];
     unidadesReservadas: string[];
     unidadesDisponibles: string[];
     cotizacionVinculada?: string;
   }> {
-    const orden = await this.getById(id);
-    if (!orden) {
-      throw new Error('Orden no encontrada');
-    }
-
-    // Calcular todo lo pendiente
-    const productosRecibidos = orden.productos
-      .map(p => ({
-        productoId: p.productoId,
-        cantidadRecibida: p.cantidad - (p.cantidadRecibida || 0)
-      }))
-      .filter(p => p.cantidadRecibida > 0);
-
-    if (productosRecibidos.length === 0) {
-      throw new Error('Todos los productos ya fueron recibidos');
-    }
-
-    const result = await this.recibirOrdenParcial(id, productosRecibidos, userId, 'Recepción completa');
-
-    return {
-      unidadesGeneradas: result.unidadesGeneradas,
-      unidadesReservadas: result.unidadesReservadas,
-      unidadesDisponibles: result.unidadesDisponibles,
-      cotizacionVinculada: result.cotizacionVinculada
-    };
+    return recibirOrden(id, userId);
   }
 
-  /**
-   * Eliminar orden (solo si no ha generado inventario)
-   * Permite eliminar borradores, enviadas y en tránsito que no tengan recepciones.
-   * Revierte el tracking parcial en los requerimientos vinculados.
-   */
   static async delete(id: string): Promise<void> {
-    try {
-      const orden = await this.getById(id);
-      if (!orden) {
-        throw new Error('Orden no encontrada');
-      }
-
-      // Bloquear eliminación si ya tiene unidades generadas
-      const tieneInventario = (orden.unidadesGeneradas?.length ?? 0) > 0
-        || (orden.recepcionesParciales?.length ?? 0) > 0
-        || orden.inventarioGenerado === true;
-
-      if (tieneInventario) {
-        throw new Error('No se puede eliminar una orden que ya generó inventario. Usa "Revertir Recepciones" primero.');
-      }
-
-      // Solo permitir eliminar estados sin impacto
-      const estadosPermitidos: EstadoOrden[] = ['borrador', 'enviada', 'en_transito', 'cancelada'];
-      if (!estadosPermitidos.includes(orden.estado)) {
-        throw new Error(`No se puede eliminar una orden en estado "${orden.estado}"`);
-      }
-
-      // Revertir tracking en requerimientos vinculados antes de eliminar
-      try {
-        const expectativaService = (await import('./expectativa.service')).ExpectativaService;
-        await expectativaService.desvincularOCDeRequerimientos(
-          id,
-          orden.numeroOrden || ''
-        );
-      } catch (e) {
-        logger.warn('Error al desvincular OC de requerimientos (no-blocking):', e);
-      }
-
-      await deleteDoc(doc(db, ORDENES_COLLECTION, id));
-    } catch (error: any) {
-      logger.error('Error al eliminar orden:', error);
-      throw new Error(error.message || 'Error al eliminar orden');
-    }
+    return deleteOrden(id);
   }
 
-  /**
-   * Obtener estadísticas
-   */
   static async getStats(): Promise<OrdenCompraStats> {
-    try {
-      const ordenes = await this.getAll();
-      
-      const stats: OrdenCompraStats = {
-        totalOrdenes: ordenes.length,
-        borradores: 0,
-        enviadas: 0,
-        pagadas: 0,
-        enTransito: 0,
-        recibidasParcial: 0,
-        recibidas: 0,
-        canceladas: 0,
-        valorTotalUSD: 0,
-        valorTotalPEN: 0
-      };
-
-      ordenes.forEach(orden => {
-        // Contar por estado logístico
-        if (orden.estado === 'borrador') stats.borradores++;
-        else if (orden.estado === 'enviada') stats.enviadas++;
-        else if (orden.estado === 'en_transito') stats.enTransito++;
-        else if (orden.estado === 'recibida_parcial') stats.recibidasParcial++;
-        else if (orden.estado === 'recibida') stats.recibidas++;
-        else if (orden.estado === 'cancelada') stats.canceladas++;
-
-        // Contar pagadas por estado de pago
-        if (orden.estadoPago === 'pagada') stats.pagadas++;
-        
-        // Sumar valores (solo órdenes no canceladas)
-        if (orden.estado !== 'cancelada') {
-          stats.valorTotalUSD += orden.totalUSD;
-          if (orden.totalPEN) {
-            stats.valorTotalPEN += orden.totalPEN;
-          }
-        }
-      });
-      
-      return stats;
-    } catch (error: any) {
-      logger.error('Error al obtener estadísticas:', error);
-      throw new Error('Error al generar estadísticas');
-    }
-  }
-
-  /**
-   * Generar número de orden (busca el máximo para evitar duplicados)
-   */
-  private static async generateNumeroOrden(): Promise<string> {
-    const year = new Date().getFullYear();
-    return getNextSequenceNumber(`OC-${year}`, 3);
+    return getStats();
   }
 
   // ========================================
   // LIMPIEZA DE DATOS DE PRUEBA
   // ========================================
 
-  /**
-   * Revertir TODAS las recepciones parciales de una OC
-   * Elimina las unidades generadas, revierte el estado de la OC y limpia los contadores
-   * USO: Solo para limpiar datos de prueba. No usar en producción con datos reales.
-   */
   static async revertirRecepciones(
     ordenId: string,
     userId: string
@@ -1364,153 +208,29 @@ export class OrdenCompraService {
     recepcionesEliminadas: number;
     estadoRestaurado: string;
   }> {
-    try {
-      const orden = await this.getById(ordenId);
-      if (!orden) throw new Error('Orden no encontrada');
-
-      if (!['recibida_parcial', 'recibida'].includes(orden.estado)) {
-        throw new Error('La orden no tiene recepciones que revertir');
-      }
-
-      const recepciones = orden.recepcionesParciales || [];
-      const todasUnidadesGeneradas = orden.unidadesGeneradas || [];
-
-      // 1. Eliminar todas las unidades generadas de Firestore
-      let unidadesEliminadas = 0;
-      const batchSize = 400;
-      for (let i = 0; i < todasUnidadesGeneradas.length; i += batchSize) {
-        const batch = writeBatch(db);
-        const chunk = todasUnidadesGeneradas.slice(i, i + batchSize);
-        for (const unidadId of chunk) {
-          batch.delete(doc(db, COLLECTIONS.UNIDADES, unidadId));
-          unidadesEliminadas++;
-        }
-        await batch.commit();
-      }
-
-      // 2. Calcular valor total a restar del almacén
-      // Impuesto: uniforme | Envío, Otros, Descuento: proporcional al costo
-      const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
-      const costoBaseTotal = orden.productos.reduce((sum, p) => sum + (p.costoUnitario * p.cantidad), 0);
-      const impuestoPorUnidad = totalUnidadesOrden > 0 ? (orden.impuestoUSD || 0) / totalUnidadesOrden : 0;
-      const costosProrrateo = (orden.gastosEnvioUSD || 0) + (orden.otrosGastosUSD || 0) - (orden.descuentoUSD || 0);
-
-      const totalUnidadesRecibidas = orden.totalUnidadesRecibidas || 0;
-      const valorARestar = orden.productos.reduce((sum, p) => {
-        const recibido = p.cantidadRecibida || 0;
-        const proporcional = costoBaseTotal > 0
-          ? costosProrrateo * (p.costoUnitario / costoBaseTotal)
-          : 0;
-        return sum + (recibido * (p.costoUnitario + impuestoPorUnidad + proporcional));
-      }, 0);
-
-      // 3. Restar del almacén
-      if (orden.almacenDestino && totalUnidadesRecibidas > 0) {
-        await almacenService.incrementarUnidadesRecibidas(orden.almacenDestino, -totalUnidadesRecibidas);
-      }
-
-      // 4. Restaurar productos a cantidadRecibida = 0
-      const productosRestaurados = orden.productos.map(p => ({
-        ...p,
-        cantidadRecibida: 0
-      }));
-
-      // 5. Determinar estado previo (antes de cualquier recepción)
-      const estadoRestaurado = 'en_transito';
-
-      // 6. Actualizar la OC
-      const updates: any = {
-        estado: estadoRestaurado,
-        productos: productosRestaurados,
-        recepcionesParciales: [],
-        unidadesGeneradas: [],
-        totalUnidadesRecibidas: 0,
-        inventarioGenerado: false,
-        ultimaEdicion: serverTimestamp(),
-        editadoPor: userId
-      };
-
-      // Limpiar campos de recepción
-      await updateDoc(doc(db, ORDENES_COLLECTION, ordenId), updates);
-
-      // 7. Sincronizar stock de productos afectados
-      const productosAfectados = orden.productos.map(p => p.productoId);
-      await inventarioService.sincronizarStockProductos_batch(productosAfectados);
-
-      logger.log(`[LIMPIEZA] OC ${orden.numeroOrden}: ${unidadesEliminadas} unidades eliminadas, ${recepciones.length} recepciones revertidas, estado → ${estadoRestaurado}`);
-
-      return {
-        unidadesEliminadas,
-        recepcionesEliminadas: recepciones.length,
-        estadoRestaurado
-      };
-    } catch (error: any) {
-      logger.error('Error al revertir recepciones:', error);
-      throw new Error(error.message || 'Error al revertir recepciones');
-    }
+    return revertirRecepciones(ordenId, userId);
   }
 
   // ========================================
   // INVESTIGACIÓN DE MERCADO / PRECIOS HISTÓRICOS
   // ========================================
 
-  /**
-   * Obtener historial de precios de un producto por proveedor
-   * Extrae información de órdenes de compra anteriores
-   */
-  static async getPreciosHistoricos(productoId: string): Promise<Array<{
-    proveedorId: string;
-    proveedorNombre: string;
-    costoUnitarioUSD: number;
-    cantidad: number;
-    fechaCompra: Date;
-    numeroOrden: string;
-    tcCompra?: number;
-  }>> {
-    try {
-      const ordenes = await this.getAll();
-      const precios: Array<{
-        proveedorId: string;
-        proveedorNombre: string;
-        costoUnitarioUSD: number;
-        cantidad: number;
-        fechaCompra: Date;
-        numeroOrden: string;
-        tcCompra?: number;
-      }> = [];
-
-      ordenes.forEach(orden => {
-        // Solo órdenes no canceladas
-        if (orden.estado === 'cancelada') return;
-
-        const producto = orden.productos.find(p => p.productoId === productoId);
-        if (producto) {
-          precios.push({
-            proveedorId: orden.proveedorId,
-            proveedorNombre: orden.nombreProveedor,
-            costoUnitarioUSD: producto.costoUnitario,
-            cantidad: producto.cantidad,
-            fechaCompra: orden.fechaCreacion.toDate(),
-            numeroOrden: orden.numeroOrden,
-            tcCompra: orden.tcCompra
-          });
-        }
-      });
-
-      // Ordenar por fecha más reciente
-      precios.sort((a, b) => b.fechaCompra.getTime() - a.fechaCompra.getTime());
-
-      return precios;
-    } catch (error: any) {
-      logger.error('Error al obtener precios históricos:', error);
-      return [];
-    }
+  static async getPreciosHistoricos(
+    productoId: string
+  ): Promise<
+    Array<{
+      proveedorId: string;
+      proveedorNombre: string;
+      costoUnitarioUSD: number;
+      cantidad: number;
+      fechaCompra: Date;
+      numeroOrden: string;
+      tcCompra?: number;
+    }>
+  > {
+    return getPreciosHistoricos(productoId);
   }
 
-  /**
-   * Obtener el mejor precio histórico de un producto
-   * Retorna el precio más bajo registrado
-   */
   static async getMejorPrecioHistorico(productoId: string): Promise<{
     proveedorId: string;
     proveedorNombre: string;
@@ -1518,191 +238,61 @@ export class OrdenCompraService {
     fechaCompra: Date;
     numeroOrden: string;
   } | null> {
-    const precios = await this.getPreciosHistoricos(productoId);
-
-    if (precios.length === 0) return null;
-
-    return precios.reduce((mejor, actual) =>
-      actual.costoUnitarioUSD < mejor.costoUnitarioUSD ? actual : mejor
-    );
+    return getMejorPrecioHistorico(productoId);
   }
 
-  /**
-   * Obtener precio promedio histórico de un producto
-   */
   static async getPrecioPromedioHistorico(productoId: string): Promise<number> {
-    const precios = await this.getPreciosHistoricos(productoId);
-
-    if (precios.length === 0) return 0;
-
-    const suma = precios.reduce((sum, p) => sum + p.costoUnitarioUSD, 0);
-    return suma / precios.length;
+    return getPrecioPromedioHistorico(productoId);
   }
 
-  /**
-   * Obtener último precio de un producto por proveedor específico
-   */
-  static async getUltimoPrecioProveedor(productoId: string, proveedorId: string): Promise<{
+  static async getUltimoPrecioProveedor(
+    productoId: string,
+    proveedorId: string
+  ): Promise<{
     costoUnitarioUSD: number;
     fechaCompra: Date;
     numeroOrden: string;
     tcCompra?: number;
   } | null> {
-    const precios = await this.getPreciosHistoricos(productoId);
-
-    const precioProveedor = precios.find(p => p.proveedorId === proveedorId);
-
-    if (!precioProveedor) return null;
-
-    return {
-      costoUnitarioUSD: precioProveedor.costoUnitarioUSD,
-      fechaCompra: precioProveedor.fechaCompra,
-      numeroOrden: precioProveedor.numeroOrden,
-      tcCompra: precioProveedor.tcCompra
-    };
+    return getUltimoPrecioProveedor(productoId, proveedorId);
   }
 
-  /**
-   * Obtener resumen de investigación de mercado para múltiples productos
-   * Útil para el formulario de requerimientos
-   */
-  static async getInvestigacionMercado(productoIds: string[]): Promise<Map<string, {
-    productoId: string;
-    precioPromedioUSD: number;
-    precioMinimoUSD: number;
-    precioMaximoUSD: number;
-    ultimoPrecioUSD: number;
-    proveedorRecomendado?: {
-      id: string;
-      nombre: string;
-      ultimoPrecioUSD: number;
-    };
-    historial: Array<{
-      proveedorNombre: string;
-      costoUnitarioUSD: number;
-      fechaCompra: Date;
-    }>;
-  }>> {
-    const resultado = new Map();
-
-    // Obtener precios de todos los productos en paralelo para mejor performance
-    const preciosPromises = productoIds.map(id =>
-      this.getPreciosHistoricos(id).then(precios => ({ productoId: id, precios }))
-    );
-
-    const todosLosPrecios = await Promise.all(preciosPromises);
-
-    for (const { productoId, precios } of todosLosPrecios) {
-      if (precios.length === 0) {
-        resultado.set(productoId, {
-          productoId,
-          precioPromedioUSD: 0,
-          precioMinimoUSD: 0,
-          precioMaximoUSD: 0,
-          ultimoPrecioUSD: 0,
-          proveedorRecomendado: undefined,
-          historial: []
-        });
-        continue;
-      }
-
-      const preciosUSD = precios.map(p => p.costoUnitarioUSD);
-      const precioMinimo = Math.min(...preciosUSD);
-      const precioMaximo = Math.max(...preciosUSD);
-      const precioPromedio = preciosUSD.reduce((a, b) => a + b, 0) / preciosUSD.length;
-
-      // Encontrar proveedor con mejor precio reciente (últimos 6 meses)
-      const seismesesAtras = new Date();
-      seismesesAtras.setMonth(seismesesAtras.getMonth() - 6);
-
-      const preciosRecientes = precios.filter(p => p.fechaCompra >= seismesesAtras);
-      const mejorReciente = preciosRecientes.length > 0
-        ? preciosRecientes.reduce((mejor, actual) =>
-            actual.costoUnitarioUSD < mejor.costoUnitarioUSD ? actual : mejor
-          )
-        : precios[0]; // Si no hay recientes, usar el más reciente de todos
-
-      resultado.set(productoId, {
-        productoId,
-        precioPromedioUSD: precioPromedio,
-        precioMinimoUSD: precioMinimo,
-        precioMaximoUSD: precioMaximo,
-        ultimoPrecioUSD: precios[0].costoUnitarioUSD,
-        proveedorRecomendado: {
-          id: mejorReciente.proveedorId,
-          nombre: mejorReciente.proveedorNombre,
-          ultimoPrecioUSD: mejorReciente.costoUnitarioUSD
-        },
-        historial: precios.slice(0, 5).map(p => ({
-          proveedorNombre: p.proveedorNombre,
-          costoUnitarioUSD: p.costoUnitarioUSD,
-          fechaCompra: p.fechaCompra
-        }))
-      });
-    }
-
-    return resultado;
-  }
-
-  /**
-   * Obtener productos comprados a un proveedor específico
-   */
-  static async getProductosProveedor(proveedorId: string): Promise<Array<{
-    productoId: string;
-    sku: string;
-    marca: string;
-    nombreComercial: string;
-    ultimoCostoUSD: number;
-    cantidadTotal: number;
-    ordenesCount: number;
-  }>> {
-    try {
-      const ordenes = await this.getAll();
-      const productosMap = new Map<string, {
+  static async getInvestigacionMercado(
+    productoIds: string[]
+  ): Promise<
+    Map<
+      string,
+      {
         productoId: string;
-        sku: string;
-        marca: string;
-        nombreComercial: string;
-        ultimoCostoUSD: number;
-        cantidadTotal: number;
-        ordenesCount: number;
-        ultimaFecha: Date;
-      }>();
+        precioPromedioUSD: number;
+        precioMinimoUSD: number;
+        precioMaximoUSD: number;
+        ultimoPrecioUSD: number;
+        proveedorRecomendado?: { id: string; nombre: string; ultimoPrecioUSD: number };
+        historial: Array<{
+          proveedorNombre: string;
+          costoUnitarioUSD: number;
+          fechaCompra: Date;
+        }>;
+      }
+    >
+  > {
+    return getInvestigacionMercado(productoIds);
+  }
 
-      ordenes
-        .filter(o => o.proveedorId === proveedorId && o.estado !== 'cancelada')
-        .forEach(orden => {
-          orden.productos.forEach(producto => {
-            const existing = productosMap.get(producto.productoId);
-            const fechaOrden = orden.fechaCreacion.toDate();
-
-            if (existing) {
-              existing.cantidadTotal += producto.cantidad;
-              existing.ordenesCount += 1;
-              // Actualizar precio si es más reciente
-              if (fechaOrden > existing.ultimaFecha) {
-                existing.ultimoCostoUSD = producto.costoUnitario;
-                existing.ultimaFecha = fechaOrden;
-              }
-            } else {
-              productosMap.set(producto.productoId, {
-                productoId: producto.productoId,
-                sku: producto.sku,
-                marca: producto.marca,
-                nombreComercial: producto.nombreComercial,
-                ultimoCostoUSD: producto.costoUnitario,
-                cantidadTotal: producto.cantidad,
-                ordenesCount: 1,
-                ultimaFecha: fechaOrden
-              });
-            }
-          });
-        });
-
-      return Array.from(productosMap.values()).map(({ ultimaFecha, ...rest }) => rest);
-    } catch (error: any) {
-      logger.error('Error al obtener productos del proveedor:', error);
-      return [];
-    }
+  static async getProductosProveedor(
+    proveedorId: string
+  ): Promise<
+    Array<{
+      productoId: string;
+      sku: string;
+      marca: string;
+      nombreComercial: string;
+      ultimoCostoUSD: number;
+      cantidadTotal: number;
+      ordenesCount: number;
+    }>
+  > {
+    return getProductosProveedor(proveedorId);
   }
 }

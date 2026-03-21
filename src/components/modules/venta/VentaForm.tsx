@@ -304,6 +304,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   // Venta a socio
   const [esVentaSocio, setEsVentaSocio] = useState(false);
   const [socioNombre, setSocioNombre] = useState('');
+  const [motivoVentaSocio, setMotivoVentaSocio] = useState('');
 
   // Alerta de precio de reposición (TCPA del pool)
   const [tcpaPool, setTcpaPool] = useState<number>(0);
@@ -520,6 +521,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
     if (esVentaSocio) {
       data.esVentaSocio = true;
       if (socioNombre.trim()) data.socioNombre = socioNombre.trim();
+      if (motivoVentaSocio.trim()) data.motivoVentaSocio = motivoVentaSocio.trim();
     }
 
     // Preparar datos del adelanto si corresponde
@@ -1310,15 +1312,37 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                 </div>
               </label>
               {esVentaSocio && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del socio</label>
-                  <input
-                    type="text"
-                    value={socioNombre}
-                    onChange={(e) => setSocioNombre(e.target.value)}
-                    placeholder="Ej: Carlos - Socio fundador"
-                    className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-purple-500 focus:border-purple-500"
-                  />
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del socio</label>
+                    <input
+                      type="text"
+                      value={socioNombre}
+                      onChange={(e) => setSocioNombre(e.target.value)}
+                      placeholder="Ej: Carlos - Socio fundador"
+                      className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-purple-500 focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Motivo <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={motivoVentaSocio}
+                      onChange={(e) => setMotivoVentaSocio(e.target.value)}
+                      className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-purple-500 focus:border-purple-500"
+                    >
+                      <option value="">Seleccionar motivo...</option>
+                      <option value="consumo_personal">Consumo personal</option>
+                      <option value="regalo_cliente_socio">Regalo a cliente del socio</option>
+                      <option value="producto_por_vencer">Producto por vencer</option>
+                      <option value="muestra">Muestra / demostración</option>
+                      <option value="otro">Otro</option>
+                    </select>
+                    {esVentaSocio && !motivoVentaSocio && (
+                      <p className="text-xs text-red-500 mt-1">El motivo es obligatorio para ventas a socios</p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -1455,7 +1479,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                 variant="secondary"
                 onClick={handleSubmitCotizacion}
                 loading={loading}
-                disabled={hayVentaBajoCosto && (!esAdminOGerente || !aprobacionBajoCosto)}
+                disabled={(hayVentaBajoCosto && (!esAdminOGerente || !aprobacionBajoCosto)) || (esVentaSocio && !motivoVentaSocio)}
                 className="w-full sm:w-auto"
               >
                 <span className="hidden sm:inline">Guardar como Cotización</span>
@@ -1466,7 +1490,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                 variant="primary"
                 onClick={handleSubmitVenta}
                 loading={loading}
-                disabled={hayVentaBajoCosto && (!esAdminOGerente || !aprobacionBajoCosto)}
+                disabled={(hayVentaBajoCosto && (!esAdminOGerente || !aprobacionBajoCosto)) || (esVentaSocio && !motivoVentaSocio)}
                 className="w-full sm:w-auto"
               >
                 <CheckCircle className="h-4 w-4 mr-1" />

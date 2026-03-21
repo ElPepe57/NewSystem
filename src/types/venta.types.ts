@@ -375,6 +375,7 @@ export interface Venta {
   // Venta a socio (precio especial, excluida de reportes de rentabilidad)
   esVentaSocio?: boolean;         // true si es venta a socio del negocio
   socioNombre?: string;           // Nombre del socio (ej: "Carlos - Socio")
+  motivoVentaSocio?: string;      // Motivo obligatorio (ej: "consumo personal")
 
   // Auditoría
   creadoPor: string;
@@ -426,6 +427,7 @@ export interface VentaFormData {
   // Venta a socio (precio especial, excluida de reportes de rentabilidad)
   esVentaSocio?: boolean;         // true si es venta a socio del negocio
   socioNombre?: string;           // Nombre del socio
+  motivoVentaSocio?: string;      // Motivo obligatorio (ej: "consumo_personal")
 }
 
 export interface AsignacionUnidad {

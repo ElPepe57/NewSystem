@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-21 (Sesion 12 — Deploy 12 + 13 exitosos: lazy loading Maestros 596KB→125KB + logger unificado 419 migrados + formatCurrency centralizado + performance limits + UI polish + codigo muerto eliminado)
+**Ultima actualizacion:** 2026-03-21 (Sesion 13 — Deploy 14 exitoso: split Transferencias.tsx + MercadoLibre.tsx + tesoreria.service.ts + console.log cleanup 183→33 en servicios + fix as-any casts + fix double-read inventario)
 **Branch activo:** main
 
 ---
@@ -12,12 +12,12 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 12 |
+| Sesiones de trabajo registradas | 13 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | 100 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12) |
+| Fixes aplicados | 106 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13) |
 | Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
-| Deploys realizados | 13 (ultimo: 2026-03-21 post-Sesion 12, commit 0c285af) |
+| Deploys realizados | 14 (ultimo: 2026-03-21 post-Sesion 13, commit 4eeb5c8) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | IMPLEMENTADO — badge, exclusiones de reportes, sección en Ventas.tsx (Sesion 10) |
 
@@ -1723,7 +1723,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: media
 - Hallazgo: R2-025
 - Accion: adoptar el logger existente en servicios criticos, eliminar logs de desarrollo
-- Estado: pendiente
+- Estado: RESUELTO SUSTANCIALMENTE — S12 CAMBIO-093: 419 migrados en 25 servicios criticos. S13 CAMBIO-103: 150 migrados en 14 servicios secundarios. Quedan 33 residuales en scripts de utilidad y migracion (aceptables — no son servicios de produccion)
 
 ### Prioridad 4 — Deuda tecnica y refactoring
 
@@ -1734,7 +1734,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: baja
 - Hallazgo: R2-004 + ARCH-005
 - Estimado: 8-12 horas por archivo
-- Estado: pendiente (no urgente)
+- Estado: EN PROCESO — Tesoreria.tsx (S9 CAMBIO-077), Maestros.tsx (S11 CAMBIO-089), Transferencias.tsx (S13 CAMBIO-100), MercadoLibre.tsx (S13 CAMBIO-101) completados. Pendientes: Cotizaciones.tsx (2533 lineas), Requerimientos.tsx (2453 lineas)
 
 **TAREA-015**
 - Titulo: Consolidar 3 notification stores en 1
@@ -1750,7 +1750,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Modulo: todos
 - Prioridad: baja
 - Hallazgo: R2-007
-- Estado: pendiente (reduccion gradual, prioritizar zonas rojas primero)
+- Estado: EN PROCESO — S13 CAMBIO-104: 14 casts `as any` removidos en venta.recalculo.service.ts. Reduccion gradual continua — prioritizar zonas rojas restantes
 
 **TAREA-017**
 - Titulo: Unificar patron de export de servicios
@@ -1935,9 +1935,9 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - 31 fixes (11 seguridad + 8 performance + 8 bugs + 4 UAT criticos)
 - Backup Firestore configurado: PITR (7 dias) + copias semanales (98 dias retencion)
 
-### Roadmap 30/60/90 dias (actualizado post-Sesion 12, 2026-03-21)
-- **0-30 dias:** Ejecutar carga retroactiva Pool USD (titular — accion manual), configurar metaPEN (titular), tests con Firebase mocking para servicios criticos (TAREA-019 continuacion), GitHub Actions CI (npm test como gate), split god-files Transferencias + MercadoLibre + tesoreria.service, validacion server-side ventaBajoCosto (TAREA-048), fix race condition gastos (TAREA-004), rotar secrets
-- **30-60 dias:** Validacion ventas a socios (titular — verificar reportes), TAREA-052 (ventas ML sin evaluacion bajo costo), comparativas periodo anterior (TAREA-042), costoReposicion en snapshots (TAREA-066), margenesPorLinea en store ventas (TAREA-067), optimizar full-collection reads (TAREA-005/006/037), console.log cleanup restante (241 en servicios secundarios)
+### Roadmap 30/60/90 dias (actualizado post-Sesion 13, 2026-03-21)
+- **0-30 dias:** Ejecutar carga retroactiva Pool USD (titular — accion manual), configurar metaPEN (titular), tests con Firebase mocking para servicios criticos (TAREA-019 continuacion), GitHub Actions CI (npm test como gate), split god-files restantes: Cotizaciones.tsx (2533 lineas) + Requerimientos.tsx (2453 lineas), split servicios: cotizacion.service.ts (1725 lineas) + ordenCompra.service.ts (1708 lineas), validacion server-side ventaBajoCosto (TAREA-048), fix race condition gastos (TAREA-004), validacion ventas a socios con titular, rotar secrets
+- **30-60 dias:** TAREA-052 (ventas ML sin evaluacion bajo costo), comparativas periodo anterior (TAREA-042), costoReposicion en snapshots (TAREA-066), margenesPorLinea en store ventas (TAREA-067), optimizar full-collection reads (TAREA-005/006/037), console.log cleanup restante (servicios secundarios menores)
 - **60-90 dias:** Evaluacion proveedor SUNAT, flujo devoluciones, entorno staging, reduccion adicional de :any (TAREA-016)
 
 ---
@@ -2285,6 +2285,7 @@ Implementar el modulo Rendimiento Cambiario V1 (ADR-002) completo en produccion:
 | Deploy 11 | 2026-03-21 | 32a2755 | hosting + firestore:rules (55 funciones sin cambios) | 91 |
 | Deploy 12 | 2026-03-21 | d9fc9ee | solo hosting — Maestros lazy loading (596KB→125KB) | 92 |
 | Deploy 13 | 2026-03-21 | 0c285af | solo hosting — refactoring masivo (logger + format + performance + UI) | 100 |
+| Deploy 14 | 2026-03-21 | 4eeb5c8 | solo hosting — god file splits + cleanup + fixes (sin cambios en functions) | 106 |
 
 ---
 
@@ -2771,5 +2772,141 @@ Liquidar la deuda tecnica acumulada de mayor impacto practico: console.log pollu
 
 ---
 
+---
+
+## SESION 13 — 2026-03-21 (God file splits + cleanup + fixes + Deploy 14)
+
+### Objetivo
+Continuar la reduccion de deuda tecnica estructural: dividir los tres god files restantes de mayor tamano (Transferencias.tsx, MercadoLibre.tsx, tesoreria.service.ts), completar una segunda pasada de console.log cleanup en servicios secundarios, y resolver casts `as any` innecesarios y una doble lectura de Firestore en inventario.
+
+### Agentes ejecutados
+1. frontend-design-specialist — Split Transferencias.tsx (3216 → 614 lineas)
+2. frontend-design-specialist — Split MercadoLibre.tsx (3142 → 334 lineas)
+3. backend-cloud-engineer — Split tesoreria.service.ts (2509 → 459 lineas facade)
+4. code-quality-refactor-specialist — Console.log cleanup en 14 servicios secundarios (183 → 33 llamadas)
+5. code-logic-analyst — Fix 14 casts `as any` en venta.recalculo.service.ts + fix double-read en inventario.getStats()
+
+### Fixes aplicados en Sesion 13
+
+#### CAMBIO-100 — Split Transferencias.tsx (god file 3216 → 614 lineas, -81%)
+- Tipo: Refactoring / Deuda tecnica (DT-003 parcial)
+- Descripcion: `Transferencias.tsx` dividido de 3216 a 614 lineas (-81%). Patron: mismo que Tesoreria.tsx en Sesion 9 — el componente principal retiene el estado y los callbacks, los sub-componentes reciben props. Ocho archivos nuevos extraidos:
+  - `UserName.tsx`: lookup de nombre de usuario por ID (componente auxiliar reutilizable)
+  - `TransferenciaCard.tsx`: tarjeta de transferencia en el listado
+  - `CreateTransferenciaModal.tsx`: modal de creacion de nueva transferencia
+  - `RecepcionModal.tsx`: modal de confirmacion de recepcion en destino
+  - `PagoViajeroModal.tsx`: modal de registro de pago a viajero
+  - `EditFleteModal.tsx`: modal de edicion de flete
+  - `TransferenciaDetailModal.tsx`: modal de detalle completo de transferencia
+  - `TransferenciaFilters.tsx`: panel de filtros del listado
+- Archivos: `src/pages/Transferencias/Transferencias.tsx` (reducido) + 8 nuevos en `src/pages/Transferencias/`
+- Reversible: si (merge de los sub-componentes al archivo principal)
+
+#### CAMBIO-101 — Split MercadoLibre.tsx (god file 3142 → 334 lineas, -89%)
+- Tipo: Refactoring / Deuda tecnica (DT-003 parcial)
+- Descripcion: `MercadoLibre.tsx` dividido de 3142 a 334 lineas (-89%). Los sub-componentes ya existian inline en el archivo original — se movieron a archivos propios sin cambio de logica. Siete archivos nuevos:
+  - `BuyBoxBadge.tsx`: badge de estado del Buy Box de ML
+  - `OrderRow.tsx`: fila de orden en la tabla de ordenes
+  - `TabResumen.tsx`: tab de resumen del canal ML
+  - `TabProductos.tsx`: tab de gestion de productos en ML
+  - `TabOrdenes.tsx`: tab de listado y gestion de ordenes
+  - `TabPreguntas.tsx`: tab de respuesta de preguntas de compradores
+  - `TabConfiguracion.tsx`: tab de configuracion de la integracion ML
+- Archivos: `src/pages/MercadoLibre/MercadoLibre.tsx` (reducido) + 7 nuevos en `src/pages/MercadoLibre/`
+- Reversible: si
+
+#### CAMBIO-102 — Split tesoreria.service.ts (god service 2509 → 459 lineas facade, -82%)
+- Tipo: Refactoring / Deuda tecnica (DT-006)
+- Descripcion: `tesoreria.service.ts` dividido de 2509 a 459 lineas de facade (-82%). Patron: mismo que venta.service.ts en Sesion 9 — el facade re-exporta todos los metodos de los sub-modulos, manteniendo la interfaz publica identica para los 24 importadores existentes (ninguno requirio cambios). Seis modulos nuevos extraidos:
+  - `tesoreria.shared.ts`: tipos compartidos, constantes y helpers internos del servicio
+  - `tesoreria.movimientos.service.ts`: CRUD de movimientos de caja (registrar, obtener, eliminar)
+  - `tesoreria.cuentas.service.ts`: gestion de cuentas de tesoreria (crear, actualizar, obtener saldos)
+  - `tesoreria.conversiones.service.ts`: conversiones cambiarias entre cuentas
+  - `tesoreria.stats.service.ts`: calculos de estadisticas y resumenes de tesoreria
+  - `tesoreria.capital.service.ts`: gestion del capital operativo y Pool USD
+- Archivos: `src/services/tesoreria.service.ts` (facade reducido) + 6 nuevos en `src/services/`
+- Reversible: si
+- Nota: interfaz externa identica — los 24 importadores del service no requirieron ningun cambio
+
+#### CAMBIO-103 — Console.log cleanup segunda pasada: 183 → 33 llamadas en servicios secundarios
+- Tipo: Code Quality (DT-001 segunda pasada)
+- Descripcion: Segunda ronda de migracion de console.* a logger.* en 14 servicios secundarios que quedaron fuera de la primera pasada (CAMBIO-093, Sesion 12). 150 llamadas a console.log/warn/error migradas. Los servicios procesados son todos de la capa de maestros y configuracion (no operativos criticos): `user.service.ts`, `proveedor.service.ts`, `marca.service.ts`, `etiqueta.service.ts`, `categoria.service.ts`, `tipoProducto.service.ts`, `competidor.service.ts`, `configuracion.service.ts`, `ctruLock.service.ts`, `expectativa.service.ts`, `auditoria.service.ts`, `presencia.service.ts`, `reporte.service.ts` (complemento), `llamada.service.ts`.
+- Archivos: 14 servicios modificados
+- Reversible: si
+- Nota: quedan 33 console.* residuales en archivos de utilidad y scripts de migracion — considerados aceptables (no son servicios de produccion)
+
+#### CAMBIO-104 — Fix 14 casts `as any` en venta.recalculo.service.ts
+- Tipo: Code Quality / Type safety (TAREA-016 parcial, DT-004 parcial)
+- Descripcion: 14 casts `as any` innecesarios removidos en `venta.recalculo.service.ts`. Los casts caian en dos categorias:
+  (1) Casts donde el campo ya existia en los tipos `Venta` o `Unidad` — eliminados directamente usando el tipo correcto.
+  (2) Acceso dinamico a claves de objeto (patron `obj[key]`) — reemplazado por `as unknown as Record<string, unknown>` que es type-safe sin usar `any`.
+  (3) Parametro `calcularCtruPEN` que recibia un objeto sin tipo — reemplazado por el tipo `Unidad` explicitamente.
+- Archivo: `src/services/venta.recalculo.service.ts`
+- Reversible: si
+
+#### CAMBIO-105 — Fix double-read Firestore en inventario.getStats()
+- Tipo: Performance / Bug fix (PERF-003 del backlog, Sesion 13)
+- Descripcion: `inventario.service.ts` — el metodo `getStats()` ejecutaba dos lecturas completas de la coleccion `unidades`: una interna propia y otra dentro de `getInventarioAgregado()`. Con inventarios grandes esto duplicaba el costo en lecturas de Firestore sin necesidad. La solucion agrega un parametro opcional `preloadedUnidades?: Unidad[]` a `getInventarioAgregado()`. Cuando `getStats()` llama a `getInventarioAgregado()`, pasa las unidades ya cargadas en su propia lectura previa, eliminando la segunda lectura redundante. Todos los demas llamadores de `getInventarioAgregado()` (sin el parametro) mantienen el comportamiento original sin cambios.
+- Archivo: `src/services/inventario.service.ts`
+- Reversible: si
+- Impacto: elimina 1 lectura completa de la coleccion `unidades` por cada llamada a `getStats()`
+
+### Deploy 14 — 2026-03-21
+
+- **Commit:** 4eeb5c8
+- **Comando:** firebase deploy --only hosting
+- **Resultado:** exitoso — hosting actualizado
+- **Cloud Functions:** sin cambios (55 funciones estables, no requirio redespliegue)
+- **Firestore Rules:** sin cambios en esta sesion
+- **Push a main:** exitoso
+- **URL de produccion:** https://vitaskinperu.web.app
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados | 41 |
+| Archivos nuevos | 21 (8 Transferencias + 7 MercadoLibre + 6 tesoreria sub-modulos) |
+| Lineas agregadas | +9,229 |
+| Lineas eliminadas | -8,113 |
+| Lineas netas | +1,116 |
+| Cambios registrados | 6 (CAMBIO-100 a CAMBIO-105) |
+| Tests | 122 passing (sin regresiones) |
+| Agentes ejecutados | 5 |
+| Fixes acumulados | 100 → 106 |
+
+### Items del backlog cerrados en Sesion 13
+
+| Item | Descripcion | Cambio |
+|------|-------------|--------|
+| DT-003 | God files Transferencias.tsx + MercadoLibre.tsx — ambos divididos | CAMBIO-100 + CAMBIO-101 |
+| DT-006 | tesoreria.service.ts god service — dividido en 6 modulos + facade | CAMBIO-102 |
+| DT-001 | console.log cleanup segunda pasada — 183→33 en servicios secundarios | CAMBIO-103 |
+| DT-004 | as any en venta.recalculo.service.ts — 14 casts removidos | CAMBIO-104 |
+| PERF-003 | Double-read en inventario.getStats() — eliminada lectura redundante | CAMBIO-105 |
+
+### Tareas pendientes para la proxima sesion (priorizadas)
+
+**Prioridad alta (acciones del titular):**
+1. Ejecutar carga retroactiva Pool USD (boton disponible en /rendimiento-cambiario, requiere login admin en produccion)
+2. Configurar metaPEN en Pool USD (campo editable en /rendimiento-cambiario)
+3. Validar flujo de ventas a socios: confirmar que exclusion de reportes es correcta en todos los casos
+
+**Prioridad alta (tecnica):**
+4. Tests con Firebase mocking para servicios criticos: `venta.service`, `poolUSD.service`, `tipoCambio.service` (TAREA-019 continuacion)
+5. GitHub Actions CI pipeline (npm test como gate de merge a main)
+6. Split god-files restantes: `Cotizaciones.tsx` (2533 lineas), `Requerimientos.tsx` (2453 lineas)
+7. Split god-services restantes: `cotizacion.service.ts` (1725 lineas), `ordenCompra.service.ts` (1708 lineas)
+
+**Prioridad media:**
+8. Kill dead code: `entrega-pdf.service.ts` ya eliminado en S12. Revisar si quedan otros archivos con 0 importadores.
+9. TAREA-048: validacion server-side ventaBajoCosto
+10. TAREA-004: race condition residual gasto.service.ts:756-763
+
+**Pendientes operativos del titular:**
+- Rotar secrets externos (ML, Google, Anthropic, Meta, Daily)
+
+---
+
 *Documento generado por implementation-controller (Agente 23)*
-*Ultima actualizacion: 2026-03-21 — Sesion 12 completada. Deploy 12 (d9fc9ee) + Deploy 13 (0c285af) exitosos, solo hosting. 9 cambios (CAMBIO-092 a CAMBIO-099). Lazy loading Maestros 596KB→125KB. Logger unificado: 419 console.* migrados en 25 servicios. formatCurrency: 48 duplicados → 1 fuente en 43 archivos. Limits en getAll() de Venta y Producto. ctruStore TTL 5 min. UI polish Dashboard + TCFreshnessBanner + alert → toast. entrega-pdf.service.ts eliminado (460 lineas, 0 importadores). 100 fixes acumulados en produccion.*
+*Ultima actualizacion: 2026-03-21 — Sesion 13 completada. Deploy 14 (4eeb5c8) exitoso, solo hosting. 6 cambios (CAMBIO-100 a CAMBIO-105). Split Transferencias.tsx 3216→614 lineas (-81%, 8 sub-componentes). Split MercadoLibre.tsx 3142→334 lineas (-89%, 7 sub-componentes). Split tesoreria.service.ts 2509→459 lineas facade (-82%, 6 modulos). Console.log cleanup segunda pasada: 183→33 en 14 servicios secundarios. Fix 14 casts as-any en venta.recalculo.service.ts. Fix double-read Firestore en inventario.getStats(). 106 fixes acumulados en produccion. 122 tests passing sin regresiones.*
