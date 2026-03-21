@@ -1259,6 +1259,9 @@ export class CotizacionService {
       // Si es validada sin adelanto, sí validar stock
       const esVentaDirectaSinReserva = cotizacion.estado === 'validada' && !tieneReservaStock;
 
+      // Flag para que crear() NO dispare métricas — confirmarCotizacion() las maneja después
+      (ventaData as any)._fromCotizacion = true;
+
       // Crear la venta (solo valida stock si NO tiene reserva previa)
       const venta = await VentaService.create(ventaData, userId, esVentaDirectaSinReserva);
 

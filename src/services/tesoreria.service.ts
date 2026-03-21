@@ -17,7 +17,7 @@ import {
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
-import { logger } from '../lib/logger';
+import { logger, logBackgroundError } from '../lib/logger';
 import { tipoCambioService } from './tipoCambio.service';
 import type {
   MovimientoTesoreria,
@@ -227,7 +227,10 @@ export const tesoreriaService = {
               notas: `Auto: ${data.concepto}`,
             },
             userId
-          ).catch(err => console.warn('[PoolUSD] Error registrando desde movimiento tesorería:', err));
+          ).catch(err => {
+            console.warn('[PoolUSD] Error registrando desde movimiento tesorería:', err);
+            logBackgroundError('poolUSD.movimientoTesoreria', err, 'critical', { refId, refNumero, tipoPool });
+          });
         }).catch(() => {});
       }
     }
@@ -776,7 +779,10 @@ export const tesoreriaService = {
         data.tipoCambio,
         data.fecha,
         userId
-      ).catch(err => console.warn('[PoolUSD] Error registrando movimiento desde conversión:', err));
+      ).catch(err => {
+        console.warn('[PoolUSD] Error registrando movimiento desde conversión:', err);
+        logBackgroundError('poolUSD.conversion', err, 'critical', { conversionId, numeroConversion });
+      });
     }).catch(() => {});
 
     // Broadcast actividad (fire-and-forget)

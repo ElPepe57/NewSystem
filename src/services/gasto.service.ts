@@ -31,6 +31,7 @@ import type { MetodoTesoreria, MonedaTesoreria } from '../types/tesoreria.types'
 import { actividadService } from './actividad.service';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
+import { logBackgroundError } from '../lib/logger';
 
 const GASTOS_COLLECTION = COLLECTIONS.GASTOS;
 
@@ -184,6 +185,7 @@ export const gastoService = {
           })
           .catch(error => {
             console.error('[CTRU] Error en auto-recálculo (no bloqueante):', error);
+            logBackgroundError('ctru.recalcPostGasto', error, 'critical', { gastoCategoria: data.categoria, esProrrateable: data.esProrrateable });
           });
       }
 

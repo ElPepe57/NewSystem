@@ -70,6 +70,7 @@ import { entregaService } from './entrega.service';
 import { gastoService } from './gasto.service';
 import { actividadService } from './actividad.service';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
+import { logBackgroundError } from '../lib/logger';
 
 // Módulos especializados
 import * as PagosService from './venta.pagos.service';
@@ -496,15 +497,19 @@ export class VentaService {
         metadata: { entidadId: docRef.id, entidadTipo: 'venta', monto: totalPEN, moneda: 'PEN' }
       }).catch(() => {});
 
-      // Métricas de cliente — solo para ventas directas (confirmadas al crear).
-      // Las cotizaciones actualizan métricas al pasar por confirmarVenta().
-      if (esVentaDirecta && clienteIdFinal) {
+      // Métricas de cliente — solo para ventas directas REALES (no cotizaciones).
+      // Las cotizaciones actualizan métricas al pasar por confirmarCotizacion().
+      const fromCotizacion = !!(data as any)._fromCotizacion;
+      if (esVentaDirecta && clienteIdFinal && !fromCotizacion) {
         import('./cliente.service').then(({ clienteService }) => {
           const productoIds = productosVenta.map((p: any) => p.productoId).filter(Boolean);
           withRetry(() => clienteService.actualizarMetricasPorVenta(clienteIdFinal!, {
             montoVenta: totalPEN,
             productoIds,
-          })).catch((err: any) => console.warn('[crear] Error actualizando métricas cliente:', err));
+          })).catch((err: any) => {
+            console.warn('[crear] Error actualizando métricas cliente:', err);
+            logBackgroundError('clienteMetricas.crear', err, 'high', { clienteId: clienteIdFinal, montoVenta: totalPEN });
+          });
         });
       }
 
@@ -621,7 +626,10 @@ export class VentaService {
           withRetry(() => clienteService.actualizarMetricasPorVenta(clienteId, {
             montoVenta: venta.totalPEN || 0,
             productoIds,
-          })).catch((err: any) => console.warn('[confirmarVenta] Error actualizando métricas cliente tras 3 intentos:', err));
+          })).catch((err: any) => {
+            console.warn('[confirmarVenta] Error actualizando métricas cliente tras 3 intentos:', err);
+            logBackgroundError('clienteMetricas.confirmarVenta', err, 'high', { clienteId, ventaId: id, montoVenta: venta.totalPEN });
+          });
           withRetry(() => clienteService.calcularCanalPrincipal(clienteId)).catch(() => {});
         });
       }
@@ -780,9 +788,10 @@ export class VentaService {
 
       import('./mercadoLibre.service').then(({ mercadoLibreService }) => {
         for (const pid of productosAfectados) {
-          mercadoLibreService.syncStock(pid).catch(e =>
-            console.error(`[ML Sync] Error post-asignación ${pid}:`, e)
-          );
+          mercadoLibreService.syncStock(pid).catch(e => {
+            console.error(`[ML Sync] Error post-asignación ${pid}:`, e);
+            logBackgroundError('mlSync.postAsignacion', e, 'high', { productoId: pid, ventaId: id });
+          });
         }
       });
 

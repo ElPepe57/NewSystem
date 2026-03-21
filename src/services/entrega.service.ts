@@ -37,6 +37,7 @@ import { auditoriaService } from './auditoria.service';
 import { inventarioService } from './inventario.service';
 import { actividadService } from './actividad.service';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
+import { logBackgroundError } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.ENTREGAS;
 
@@ -694,7 +695,10 @@ export const entregaService = {
         for (const productoId of productosAfectados) {
           mercadoLibreService.syncStock(productoId)
             .then(r => { if (r.synced > 0) console.log(`[ML Sync] Post-entrega: ${productoId} → ${r.synced} pubs actualizadas`); })
-            .catch(e => console.error(`[ML Sync] Error post-entrega ${productoId}:`, e));
+            .catch(e => {
+              console.error(`[ML Sync] Error post-entrega ${productoId}:`, e);
+              logBackgroundError('mlSync.postEntrega', e, 'high', { productoId, entregaId: entrega.id });
+            });
         }
       });
 
@@ -804,6 +808,7 @@ export const entregaService = {
           })
           .catch(error => {
             console.error('[CTRU] Error en auto-recalculo post-entrega:', error);
+            logBackgroundError('ctru.recalcPostEntrega', error, 'critical', { entregaId: entrega.id, entregaCodigo: entrega.codigo });
           });
       });
 

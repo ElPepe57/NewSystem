@@ -86,6 +86,9 @@ export const COLLECTIONS = {
 
   // === Estadísticas ===
   ESTADISTICAS: 'estadisticas',
+
+  // === Sistema: Error Log ===
+  ERROR_LOG: '_errorLog',
 } as const;
 
 /** Tipo union de todos los nombres de colección */

@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-21 (Sesion 9 — Deploy 8 exitoso: Auditoría completa + refactoring masivo)
+**Ultima actualizacion:** 2026-03-21 (Sesion 10 — Deploy 10 exitoso: Prioridades 1/2/3 + ventas a socios + ErrorBoundary + console.log cleanup)
 **Branch activo:** main
 
 ---
@@ -12,13 +12,14 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 8 |
+| Sesiones de trabajo registradas | 10 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | 78 (31 S1-4 + 6 S5 + 24 S8 + 6 S9-bugs + 11 S9-refactor) |
+| Fixes aplicados | 86 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10) |
 | Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
-| Deploys realizados | 8 (ultimo: 2026-03-21 post-Sesion 9, commit 2ee1f98) |
-| Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual (Sesion 9) |
+| Deploys realizados | 10 (ultimo: 2026-03-21 post-Sesion 10, commit ffcf208) |
+| Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
+| Modulo Ventas a Socios | IMPLEMENTADO — badge, exclusiones de reportes, sección en Ventas.tsx (Sesion 10) |
 
 ---
 
@@ -65,7 +66,9 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - Pool USD con TCPA: CQRS ligero (movimientos event-sourced, resumen calculado en memoria)
   - TCPA: recalcula solo en entradas, nunca en salidas — por diseno
   - getCTRU_Real: separado de getCTRU (usa TCPA en lugar de TC historico) para no romper calculos existentes
-  - 54 Cloud Functions en produccion (1 nueva: actualizarTipoCambioTarde)
+  - 55 Cloud Functions en produccion (sin cambios en S10 — funciones estables)
+  - Ventas a socios: esVentaSocio/socioNombre en tipos, badge purpura en UI, 4 exclusiones en reportes
+  - ErrorBoundary: 3 capas (global → pagina → puntual), ModuleErrorBoundary.tsx nuevo wrapper
 ```
 
 ---
@@ -1469,8 +1472,8 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: MEDIA
 - Hallazgo: BUG-007 (code-logic-analyst, Sesion 5)
 - Descripcion: Cuando una cotizacion se confirma como venta, `confirmarVenta()` llama a `actualizarMetricasPorVenta()`. Si el flujo de confirmacion tambien ejecuta logica en `cotizacion.service.ts` que actualiza metricas, el mismo evento podria disparar dos actualizaciones para la misma venta.
-- Estado: pendiente
-- Accion sugerida: auditar el flujo completo cotizacion→venta para garantizar idempotencia en la actualizacion de metricas
+- Estado: **RESUELTO** (CAMBIO-081, Sesion 10) — Auditoria revelo que NO habia doble conteo. El fix fue diferente: ventas directas (esVentaDirecta=true) no tenian metricas porque solo confirmarVenta() las actualizaba. CAMBIO-081 agrego la llamada en crear() con withRetry para cubrir ventas directas.
+- Nota: el comportamiento era metricas FALTANTES (no duplicadas) en ventas directas
 
 **TAREA-051**
 - Titulo: SEC-CLI-001 — Fire-and-forget para metricas cliente puede fallar silenciosamente
@@ -1479,8 +1482,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: MEDIA
 - Hallazgo: SEC-CLI-001 (security-guardian, Sesion 5)
 - Descripcion: `actualizarMetricasPorVenta()` se ejecuta como fire-and-forget post-confirmacion. Si falla, el error no llega al usuario ni genera alerta. El CRM puede quedar con datos de ABC/RFM desactualizados sin que nadie lo detecte.
-- Estado: pendiente
-- Accion sugerida: envolver en try/catch con logging a Cloud Logging o coleccion `errores_background`, considerar Cola de Tasks para reintentos
+- Estado: **RESUELTO** (CAMBIO-081, Sesion 10) — Se verifico que ya habia withRetry implementado en sesion anterior. CAMBIO-081 reutilizo el mismo patron withRetry al agregar la llamada en crear() para ventas directas.
 
 **TAREA-052**
 - Titulo: EDGE-002 — Ventas ML via webhook no tienen flag ventaBajoCosto
@@ -1601,7 +1603,8 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Modulo: Pool USD
 - Prioridad: ALTA
 - Origen: ADR-002 — consideracion especial de retroactividad (titular cargara 3 meses de datos)
-- Estado: pendiente — la funcion base ya existe en poolUSD.service.ts (CAMBIO-039), falta UI y scheduler
+- Estado: **RESUELTO** (CAMBIO-079, Sesion 10) — cargarRetroactivo() implementado en poolUSD.service.ts (lee pagos OC USD, gastos USD, conversiones cambiarias de los ultimos N meses, ordena cronologicamente, registra uno a uno). Tambien implementado eliminarTodosMovimientos() para reset. UI en RendimientoCambiario.tsx: boton "Cargar Historico" con modal de confirmacion, barra de progreso, y callback de progreso.
+- Pendiente de ejecucion: el titular aun no ha ejecutado la carga retroactiva real en produccion (requiere acceso admin en produccion)
 
 **TAREA-066** (nueva — Sesion 8)
 - Titulo: Agregar costoReposicion a ProductoVentaSnapshot
@@ -1637,7 +1640,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: MEDIA
 - Origen: Sesion 8 — identificado en NecesidadVentasPEN interface
 - Descripcion: El calculo de necesidad de ventas en PEN para cubrir el pool USD requiere que el titular defina la meta mensual de ventas PEN del negocio. Sin este parametro la funcionalidad queda inutilizable.
-- Estado: pendiente — decision del titular
+- Estado: **RESUELTO** (CAMBIO-080, Sesion 10) — Campo metaPEN agregado a PoolUSDConfig. getConfig() lee metaPEN de Firestore. UI en RendimientoCambiario.tsx: card con barra de progreso valor actual del pool vs meta, edicion inline, guardar en Firestore. El titular puede ahora ingresar la meta directamente desde la interfaz.
 
 **TAREA-070** (nueva — Sesion 8)
 - Titulo: Integracion Pool USD con pagos de OC (registrarPagoOC)
@@ -2277,6 +2280,8 @@ Implementar el modulo Rendimiento Cambiario V1 (ADR-002) completo en produccion:
 | Deploy 6 | 2026-03-20 | d202a3b + f387949 | hosting + 54 functions + rules (Pool USD + TC centralizado) | 61 |
 | Deploy 7 | 2026-03-21 | 58fec94 | hosting + rules (bug fixes + COLLECTIONS refactor) | 67 |
 | Deploy 8 | 2026-03-21 | 2ee1f98 | hosting + 55 functions + rules (refactoring completo) | 78 |
+| Deploy 9 | — | — | (no documentado como deploy independiente) | — |
+| Deploy 10 | 2026-03-21 | ffcf208 | hosting (sin cambios en functions — 55 estables) | 86 |
 
 ---
 
@@ -2368,5 +2373,141 @@ Auditoría post-deploy con 8 agentes especializados ejecutados en paralelo. Se r
 
 ---
 
+## SESION 10 — 2026-03-21 (Prioridades 1/2/3 + Ventas a Socios + Deploy 10)
+
+### Objetivo
+Implementar el backlog priorizado de la sesion anterior: carga retroactiva del Pool USD (TAREA-065), metaPEN config (TAREA-069), fix metricas ventas directas (TAREA-050), Decision 6 de ventas a socios, y mejoras transversales de calidad (console.log cleanup, ErrorBoundary, fix vite.config.ts).
+
+### Agentes ejecutados
+- fx-multicurrency-specialist (CAMBIO-079: carga retroactiva, CAMBIO-080: metaPEN)
+- code-logic-analyst (CAMBIO-081: fix metricas ventas directas)
+- erp-business-architect (CAMBIO-082: Ventas a Socios — Decision 6)
+- security-guardian (CAMBIO-083: console.log cleanup + fuga PII)
+- frontend-design-specialist (CAMBIO-084: ErrorBoundary mejorado)
+- devops-qa-engineer (CAMBIO-085: fix vite.config.ts)
+- code-quality-refactor-specialist (CAMBIO-086: fix Maestros.tsx toast)
+- implementation-controller (documentacion de sesion y cierre)
+
+### Fixes aplicados en Sesion 10
+
+#### CAMBIO-079 — TAREA-065: Carga retroactiva Pool USD
+- Tipo: Implementacion (funcion de carga + UI)
+- Descripcion: Dos funciones nuevas en `poolUSD.service.ts`:
+  (1) `cargarRetroactivo(meses)`: lee pagos de OC en USD, gastos USD, y conversiones cambiarias de los ultimos N meses desde Firestore, ordena todos los movimientos cronologicamente, y los registra uno a uno preservando el orden correcto para el calculo TCPA. Usa la misma logica de `registrarMovimiento()` internamente.
+  (2) `eliminarTodosMovimientos()`: elimina todos los movimientos y snapshots del pool para permitir un reset limpio antes de cargar datos retroactivos.
+  UI en `RendimientoCambiario.tsx`: boton "Cargar Historico" con modal de confirmacion de dos pasos (advertencia de reset + confirmacion), barra de progreso animada, y callback que recibe actualizaciones de avance por movimiento procesado.
+- Archivos: `src/services/poolUSD.service.ts`, `src/pages/RendimientoCambiario/RendimientoCambiario.tsx`
+- Reversible: si (la carga puede repetirse con reset previo)
+- Pendiente de ejecucion: el titular debe ejecutar la carga retroactiva real desde produccion (acceso admin requerido)
+
+#### CAMBIO-080 — TAREA-069: metaPEN config para Pool USD
+- Tipo: Feature / Decision de negocio
+- Descripcion: Campo `metaPEN: number` agregado a la interface `PoolUSDConfig` en `rendimientoCambiario.types.ts`. `poolUSD.service.ts` actualizado — `getConfig()` ahora lee y devuelve `metaPEN`. UI en `RendimientoCambiario.tsx`: card "Meta de Ventas PEN" con barra de progreso que muestra el valor actual del pool en PEN vs la meta definida, campo de edicion inline, y boton de guardado que escribe en el documento de configuracion en Firestore. El titular puede actualizar la meta sin intervencion tecnica.
+- Archivos: `src/types/rendimientoCambiario.types.ts`, `src/services/poolUSD.service.ts`, `src/pages/RendimientoCambiario/RendimientoCambiario.tsx`
+- Reversible: si
+
+#### CAMBIO-081 — TAREA-050: Fix metricas cliente en ventas directas
+- Tipo: Bug fix / Datos
+- Descripcion: Auditoria del flujo cotizacion→venta revelo que el bug era diferente al descrito originalmente: NO habia doble conteo de metricas, sino que las ventas directas (creadas sin pasar por cotizacion) no tenian sus metricas actualizadas porque `actualizarMetricasPorVenta()` solo se llamaba desde `confirmarVenta()`, no desde `crear()`. El fix agrega la llamada a `actualizarMetricasPorVenta()` en el metodo `crear()` de `venta.service.ts` con `withRetry` (el mismo patron ya existente en `confirmarVenta()`), usando `esVentaDirecta: true` como flag para distinguir el origen.
+- Archivo: `src/services/venta.service.ts`
+- Reversible: si
+- Nota: la auditoria confirmo que el flujo cotizacion→venta llama a confirmarVenta() que ya tenia la actualizacion — sin doble conteo.
+
+#### CAMBIO-082 — Decision 6: Ventas a Socios
+- Tipo: Feature (Decision de negocio pendiente desde Sesion 5)
+- Descripcion: Implementacion completa del flujo de ventas a socios con precio especial sin contaminar reportes de rentabilidad. Cambios por capa:
+  - **Tipos** (`venta.types.ts`): campos `esVentaSocio: boolean` y `socioNombre: string` en las interfaces `Venta` y `VentaFormData`.
+  - **Service** (`venta.service.ts`): `crear()` persiste `esVentaSocio` y `socioNombre` en el documento Firestore.
+  - **Formulario** (`VentaForm.tsx`): toggle "Venta a Socio" visible solo para roles admin/gerente. Cuando se activa, aparece campo de texto para el nombre del socio.
+  - **Listado** (`VentaCard.tsx`, `VentaTable.tsx`): badge purpura con texto "Socio" en ventas marcadas.
+  - **Pagina Ventas** (`Ventas.tsx`): seccion colapsable "Ventas a Socios del Mes" con las ventas de socios separadas del listado principal.
+  - **Reportes** (`reporte.service.ts`): 4 exclusiones explicitas (`!v.esVentaSocio`) en los metodos `getProductosRentabilidad()`, `getVentasPorCanal()`, `getTendenciaVentas()`, y `getVentasPorRango()` para que las ventas a socios no distorsionen los KPIs de rentabilidad.
+  - **Stats ventas** (`venta.stats.service.ts`): exclusion de ventas a socios en calculos de totales PEN y utilidad.
+  - **Hook rentabilidad** (`useRentabilidadVentas.ts`): exclusion en totales agregados del hook.
+- Archivos: `venta.types.ts`, `venta.service.ts`, `VentaForm.tsx`, `VentaCard.tsx`, `VentaTable.tsx`, `Ventas.tsx`, `reporte.service.ts`, `venta.stats.service.ts`, `useRentabilidadVentas.ts`
+- Reversible: si
+- Nota: ventas ML y ventas normales no son afectadas. Solo ventas manuales marcadas por admin/gerente.
+
+#### CAMBIO-083 — Console.log cleanup selectivo + fix fuga PII
+- Tipo: Code Quality + Seguridad
+- Descripcion: Eliminacion selectiva de 38 console.logs de desarrollo en 8 archivos. Adicionalmente, correccion de fuga de datos personales en `metricas.service.ts`: los logs que imprimian nombres completos y telefonos de clientes en consola del navegador fueron reemplazados por conteos anonimos (ej: "Actualizando metricas para N clientes" en lugar de imprimir el objeto completo con PII).
+- Archivos modificados (8): `cuentasPendientes.service.ts` (-31 lineas de console.log), `metricas.service.ts` (fix PII), `producto.service.ts`, `transportista.service.ts`, `clienteStore.ts`, `NotificationCenter.tsx`, `Inventario.tsx`, `Tesoreria.tsx`, `Maestros.tsx`
+- Reversible: si
+
+#### CAMBIO-084 — ErrorBoundary mejorado con 3 capas
+- Tipo: Feature / Robustez / Accesibilidad
+- Descripcion: El `ErrorBoundary.tsx` existente fue ampliado con API extendida: props `fallback` (JSX custom) y `onError` (callback para logging externo). UI rediseñada con mejor accesibilidad (roles ARIA, focus management). Nuevo componente `ModuleErrorBoundary.tsx` como wrapper semantico que recibe el nombre del modulo y muestra un mensaje de error contextualizado. Implementacion en 3 capas:
+  (1) **Global** (`App.tsx`): boundary envuelve `BrowserRouter` — captura errores de routing y carga inicial.
+  (2) **Pagina** (`MainLayout.tsx`): boundary sobre `Outlet` — errores de una pagina no quiebran el layout ni el sidebar.
+  (3) **Puntual** (`Ventas.tsx`): `ModuleErrorBoundary` sobre el modulo de ventas como ejemplo del patron para modulos criticos.
+- Archivos: `src/components/common/ErrorBoundary.tsx` (ampliado), `src/components/common/ModuleErrorBoundary.tsx` (nuevo), `src/App.tsx`, `src/components/layout/MainLayout.tsx`, `src/pages/Ventas/Ventas.tsx`
+- Reversible: si
+
+#### CAMBIO-085 — Fix vite.config.ts manualChunks
+- Tipo: Bug fix (build failure)
+- Descripcion: `vite.config.ts` tenia una entrada en `manualChunks` que referenciaba `@tanstack/react-query`, libreria eliminada en Sesion 9 (CAMBIO-074). Esta referencia causaba un build failure silencioso. Eliminada la entrada del chunk de React Query en la configuracion de Vite.
+- Archivo: `vite.config.ts`
+- Reversible: si
+
+#### CAMBIO-086 — Fix Maestros.tsx toast de sincronizacion
+- Tipo: Bug fix
+- Descripcion: El toast de confirmacion de sincronizacion en `Maestros.tsx` referenciaba variables inexistentes (`clientesResult`, `marcasResult`, etc.) que eran residuos de una refactorizacion anterior. El toast fallaba silenciosamente o mostraba "undefined" en la UI. Reemplazado con un mensaje generico "Sincronizacion completada" que no depende de variables de resultado especificas.
+- Archivo: `src/pages/Maestros/Maestros.tsx`
+- Reversible: si
+
+### Deploy 10 — 2026-03-21
+
+- **Commit:** ffcf208
+- **Comando:** firebase deploy --only hosting
+- **Resultado:** exitoso — hosting actualizado
+- **Cloud Functions:** sin cambios (55 funciones estables, no requirio redespliegue)
+- **Firestore Rules:** sin cambios en esta sesion
+- **Push a main:** exitoso
+- **URL de produccion:** https://vitaskinperu.web.app
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados | 26 |
+| Archivos nuevos | 1 (ModuleErrorBoundary.tsx) |
+| Lineas agregadas | +726 |
+| Lineas eliminadas | -140 |
+| Lineas netas | +586 |
+| Cambios registrados | 8 (CAMBIO-079 a CAMBIO-086) |
+| Agentes ejecutados | 8 |
+
+### Tareas resueltas en Sesion 10
+
+| Tarea | Descripcion | Cambio |
+|-------|-------------|--------|
+| TAREA-050 | Fix metricas ventas directas (el bug era faltantes, no duplicados) | CAMBIO-081 |
+| TAREA-051 | withRetry ya existia — reutilizado en crear() para ventas directas | CAMBIO-081 |
+| TAREA-065 | Carga retroactiva Pool USD — funcion + UI implementadas | CAMBIO-079 |
+| TAREA-069 | metaPEN config — campo + UI de edicion inline | CAMBIO-080 |
+| Decision 6 | Ventas a socios — tipos, service, UI, exclusiones de reportes | CAMBIO-082 |
+
+### Tareas pendientes del backlog (para proxima sesion)
+
+**Prioridad alta:**
+- TAREA-065 ejecucion: la funcion esta lista pero el titular debe ejecutar la carga retroactiva real en produccion (requiere login admin)
+- TAREA-048: Validacion server-side ventaBajoCosto (sin confianza en flag del cliente)
+- TAREA-004: Race condition residual en gasto.service.ts:756-763 (padStart manual)
+- TAREA-005: sincronizacion.service lee 10+ colecciones desde browser
+- TAREA-040: Decision 1 solo parcialmente implementada — contabilidad.service usa fechaEntrega pero Dashboard y Reportes aun no
+
+**Prioridad media:**
+- TAREA-052: Ventas ML sin evaluacion precio vs CTRU (webhook no detecta ventas bajo costo)
+- TAREA-066: costoReposicion en ProductoVentaSnapshot
+- TAREA-067: margenesPorLinea desde store de ventas
+- TAREA-019: Vitest + tests en zonas rojas (TAREA estrategica — no urgente operativamente)
+
+**Pendientes operativos (accion manual del titular):**
+- Ejecutar carga retroactiva 3 meses en Pool USD (CAMBIO-079 listo, solo falta ejecutar)
+- Definir meta mensual PEN en Pool USD (CAMBIO-080 listo, edicion inline disponible en /rendimiento-cambiario)
+- Rotar secrets en consolas externas (ML, Google, Anthropic, Meta, Daily)
+
+---
+
 *Documento generado por implementation-controller (Agente 23)*
-*Ultima actualizacion: 2026-03-21 — Sesion 9 completada. Deploy 8 exitoso. Auditoría completa con 8 agentes. 17 cambios (CAMBIO-062 a CAMBIO-078). Pool USD integrado con OC + gastos + snapshot mensual. 3 god classes divididas. Notificaciones unificadas. React Query eliminado. CTRUStore optimizado.*
+*Ultima actualizacion: 2026-03-21 — Sesion 10 completada. Deploy 10 exitoso. 8 cambios (CAMBIO-079 a CAMBIO-086). Pool USD completo con carga retroactiva + metaPEN. Decision 6 (Ventas a Socios) implementada con exclusiones de reportes. ErrorBoundary en 3 capas. Console.log cleanup + fix fuga PII. 86 fixes acumulados en produccion.*

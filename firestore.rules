@@ -196,6 +196,12 @@ service cloud.firestore {
       allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
     }
 
+    match /_errorLog/{docId} {
+      allow read: if isAdmin();
+      allow create: if isActiveUser();
+      allow update, delete: if false;
+    }
+
     match /estadisticas/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
       allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);

@@ -30,6 +30,7 @@ import type {
 import { ESTADOS_EN_ORIGEN, ESTADOS_EN_TRANSITO_ORIGEN } from '../types/unidad.types';
 import { TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/transferencia.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
+import { logBackgroundError } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.UNIDADES;
 
@@ -930,6 +931,7 @@ export const unidadService = {
           })
           .catch(error => {
             console.error('[CTRU] Error en auto-recalculo post-venta (no bloqueante):', error);
+            logBackgroundError('ctru.recalcPostVenta', error, 'critical', { unidadIds, exitos });
           });
       });
     }
