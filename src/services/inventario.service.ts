@@ -22,11 +22,13 @@ export const inventarioService = {
    * Obtener inventario agregado por producto y almacén
    * Consolida todas las unidades en una vista agregada
    */
-  async getInventarioAgregado(filtros?: InventarioFiltros): Promise<InventarioProducto[]> {
+  async getInventarioAgregado(filtros?: InventarioFiltros, preloadedUnidades?: Unidad[]): Promise<InventarioProducto[]> {
     // Obtener todas las unidades
-    const unidades = filtros
-      ? await unidadService.buscar(filtros)
-      : await unidadService.getAll();
+    const unidades = preloadedUnidades
+      ? preloadedUnidades
+      : filtros
+        ? await unidadService.buscar(filtros)
+        : await unidadService.getAll();
 
     // Obtener todos los productos para metadata adicional
     const productos = await ProductoService.getAll(false, Infinity);
@@ -74,7 +76,7 @@ export const inventarioService = {
       // ya que representan el valor real del inventario
       const unidadesActivas = unidadesGrupo.filter(u => esEstadoActivo(u.estado));
       const valorTotal = unidadesActivas.reduce((sum, u) => {
-        const costoFlete = (u as any).costoFleteUSD || 0;
+        const costoFlete = u.costoFleteUSD || 0;
         return sum + u.costoUnitarioUSD + costoFlete;
       }, 0);
       const costoPromedio = unidadesActivas.length > 0 ? valorTotal / unidadesActivas.length : 0;
@@ -212,11 +214,11 @@ export const inventarioService = {
    * Esto evita inconsistencias entre diferentes métricas
    */
   async getStats(): Promise<InventarioStats> {
-    const [inventario, unidades, transferencias] = await Promise.all([
-      this.getInventarioAgregado(),
+    const [unidades, transferencias] = await Promise.all([
       unidadService.getAll(),
       transferenciaService.getAll()
     ]);
+    const inventario = await this.getInventarioAgregado(undefined, unidades);
 
     // ================================================================
     // CALCULAR TODO DESDE LAS UNIDADES (fuente única de verdad)
@@ -239,7 +241,7 @@ export const inventarioService = {
     let valorPeru = 0;
 
     for (const u of unidades) {
-      const costoUnidad = u.costoUnitarioUSD + ((u as any).costoFleteUSD || 0);
+      const costoUnidad = u.costoUnitarioUSD + (u.costoFleteUSD || 0);
 
       if (esEstadoEnOrigen(u.estado)) {
         disponiblesOrigen++;

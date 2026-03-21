@@ -1,5 +1,6 @@
 import { doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
+import { logger } from '../lib/logger';
 
 /**
  * Servicio de Lock para recálculo CTRU
@@ -37,7 +38,7 @@ export const ctruLockService = {
   ): Promise<CTRUResult | null> {
     // Si ya está corriendo en esta pestaña, encolar (máximo 1 pendiente)
     if (isRunning) {
-      console.log('[CTRU Lock] Recálculo ya en ejecución, encolando petición');
+      logger.info('[CTRU Lock] Recálculo ya en ejecución, encolando petición');
 
       // Si ya hay uno encolado, reemplazarlo (solo interesa el más reciente)
       if (pendingResolve) {
@@ -59,7 +60,7 @@ export const ctruLockService = {
           const lockedAtMs = lockData.lockedAt.toMillis();
           const elapsed = Date.now() - lockedAtMs;
           if (elapsed < LOCK_TIMEOUT_MS) {
-            console.log(`[CTRU Lock] Otro tab tiene el lock (${Math.round(elapsed / 1000)}s). Encolando...`);
+            logger.info(`[CTRU Lock] Otro tab tiene el lock (${Math.round(elapsed / 1000)}s). Encolando...`);
             return new Promise<CTRUResult | null>((resolve) => {
               pendingResolve = resolve;
               pendingFn = fn;
@@ -76,12 +77,12 @@ export const ctruLockService = {
             });
           }
           // Lock expirado, proceder
-          console.warn('[CTRU Lock] Lock expirado encontrado, procediendo con recálculo');
+          logger.warn('[CTRU Lock] Lock expirado encontrado, procediendo con recálculo');
         }
       }
     } catch (e) {
       // Si falla la lectura del lock, proceder de todas formas (el mutex local protege)
-      console.warn('[CTRU Lock] No se pudo verificar lock remoto, usando solo lock local:', e);
+      logger.warn('[CTRU Lock] No se pudo verificar lock remoto, usando solo lock local:', e);
     }
 
     // Adquirir lock
@@ -94,7 +95,7 @@ export const ctruLockService = {
         status: 'running'
       }).catch(() => {}); // No bloquear si falla la escritura del lock
 
-      console.log('[CTRU Lock] Lock adquirido, ejecutando recálculo...');
+      logger.info('[CTRU Lock] Lock adquirido, ejecutando recálculo...');
 
       // Ejecutar la función protegida
       const result = await fn();
@@ -111,7 +112,7 @@ export const ctruLockService = {
         lockedAt: Timestamp.now()
       }).catch(() => {});
 
-      console.log(`[CTRU Lock] Recálculo completado: ${result.unidadesActualizadas} unidades`);
+      logger.info(`[CTRU Lock] Recálculo completado: ${result.unidadesActualizadas} unidades`);
       return result;
     } catch (error) {
       // Liberar lock en caso de error
@@ -133,7 +134,7 @@ export const ctruLockService = {
         pendingFn = null;
         pendingResolve = null;
 
-        console.log('[CTRU Lock] Procesando petición encolada...');
+        logger.info('[CTRU Lock] Procesando petición encolada...');
         // Delay breve para no martillar Firestore
         setTimeout(() => {
           this.executeWithLock(nextFn).then(nextResolve).catch(() => nextResolve(null));

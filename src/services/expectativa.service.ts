@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { tipoCambioService } from './tipoCambio.service';
 import { ctruService } from './ctru.service';
@@ -246,7 +247,7 @@ export const expectativaService = {
       r.estado !== 'cancelado'
     );
     if (reqExistente) {
-      console.warn(`Requerimiento ${reqExistente.numeroRequerimiento} ya existe para cotización ${cotizacionId}, reutilizando.`);
+      logger.warn(`Requerimiento ${reqExistente.numeroRequerimiento} ya existe para cotización ${cotizacionId}, reutilizando.`);
       return { id: reqExistente.id!, numero: reqExistente.numeroRequerimiento };
     }
 
@@ -381,7 +382,7 @@ export const expectativaService = {
         return;
       }
     } catch (error) {
-      console.warn('vincularConOC: no se pudo obtener OC para coverage, usando legacy:', error);
+      logger.warn('vincularConOC: no se pudo obtener OC para coverage, usando legacy:', error);
     }
 
     // Fallback legacy: marcar como en_proceso
@@ -409,7 +410,7 @@ export const expectativaService = {
     // Leer el req actual
     const reqDoc = await getDoc(doc(db, REQUERIMIENTOS_COLLECTION, requerimientoId));
     if (!reqDoc.exists()) {
-      console.warn(`vincularConOCParcial: req ${requerimientoId} no encontrado`);
+      logger.warn(`vincularConOCParcial: req ${requerimientoId} no encontrado`);
       return;
     }
     const reqData = reqDoc.data() as any;
@@ -1252,7 +1253,7 @@ export const expectativaService = {
         });
       }
     } catch (e) {
-      console.warn('No se pudo recalcular expectativa con datos de OC:', e);
+      logger.warn('No se pudo recalcular expectativa con datos de OC:', e);
     }
 
     // 3. Actualizar la OC con el requerimientoId (solo si no estaba ya vinculado)
@@ -1332,7 +1333,7 @@ export const expectativaService = {
         await updateDoc(ventaRef, updateData);
       }
     } catch (e) {
-      console.warn('No se pudo actualizar la venta con requerimientoId:', e);
+      logger.warn('No se pudo actualizar la venta con requerimientoId:', e);
     }
 
     return {
@@ -1488,7 +1489,7 @@ export const expectativaService = {
           await this.actualizarEstado(dup.id!, 'cancelado', userId);
           reqsCancelados.push(`${dup.numeroRequerimiento} (${dup.nombreClienteSolicitante || cotId})`);
         } catch (e) {
-          console.error(`Error cancelando ${dup.numeroRequerimiento}:`, e);
+          logger.error(`Error cancelando ${dup.numeroRequerimiento}:`, e);
         }
       }
     }
@@ -1517,7 +1518,7 @@ export const expectativaService = {
           });
           ventasCorregidas.push(`${venta.numeroVenta} (${venta.nombreCliente})`);
         } catch (e) {
-          console.error(`Error actualizando venta ${venta.numeroVenta}:`, e);
+          logger.error(`Error actualizando venta ${venta.numeroVenta}:`, e);
         }
       }
     }

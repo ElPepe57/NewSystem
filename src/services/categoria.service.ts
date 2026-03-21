@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
@@ -90,7 +91,7 @@ export const categoriaService = {
         return a.ordenDisplay - b.ordenDisplay;
       });
     } catch (error: any) {
-      console.error('Error al obtener categorias:', error);
+      logger.error('Error al obtener categorias:', error);
       throw new Error('Error al cargar categorias');
     }
   },
@@ -114,7 +115,7 @@ export const categoriaService = {
         return a.ordenDisplay - b.ordenDisplay;
       });
     } catch (error: any) {
-      console.error('Error al obtener categorias activas:', error);
+      logger.error('Error al obtener categorias activas:', error);
       throw new Error('Error al cargar categorias');
     }
   },
@@ -156,7 +157,7 @@ export const categoriaService = {
       if (!docSnap.exists()) return null;
       return { id: docSnap.id, ...docSnap.data() } as Categoria;
     } catch (error: any) {
-      console.error('Error al obtener categoria:', error);
+      logger.error('Error al obtener categoria:', error);
       throw new Error('Error al cargar categoria');
     }
   },
@@ -170,7 +171,7 @@ export const categoriaService = {
       const todas = await this.getAll();
       return todas.find(c => c.nombreNormalizado === nombreNorm) || null;
     } catch (error: any) {
-      console.error('Error al buscar categoria:', error);
+      logger.error('Error al buscar categoria:', error);
       return null;
     }
   },
@@ -240,7 +241,7 @@ export const categoriaService = {
 
       return { id: docRef.id, ...nuevaCategoria };
     } catch (error: any) {
-      console.error('Error al crear categoria:', error);
+      logger.error('Error al crear categoria:', error);
       throw new Error(error.message || 'Error al crear categoria');
     }
   },
@@ -297,7 +298,7 @@ export const categoriaService = {
 
       await updateDoc(docRef, updateData);
     } catch (error: any) {
-      console.error('Error al actualizar categoria:', error);
+      logger.error('Error al actualizar categoria:', error);
       throw new Error(error.message || 'Error al actualizar categoria');
     }
   },
@@ -314,7 +315,7 @@ export const categoriaService = {
         fechaActualizacion: Timestamp.now()
       });
     } catch (error: any) {
-      console.error('Error al cambiar estado:', error);
+      logger.error('Error al cambiar estado:', error);
       throw new Error('Error al cambiar estado de la categoria');
     }
   },
@@ -342,7 +343,7 @@ export const categoriaService = {
 
       await deleteDoc(doc(db, COLLECTION_NAME, id));
     } catch (error: any) {
-      console.error('Error al eliminar categoria:', error);
+      logger.error('Error al eliminar categoria:', error);
       throw new Error(error.message || 'Error al eliminar categoria');
     }
   },
@@ -358,7 +359,7 @@ export const categoriaService = {
         'metricas.subcategorias': subcategorias.length
       });
     } catch (error: any) {
-      console.error('Error al actualizar contador:', error);
+      logger.error('Error al actualizar contador:', error);
     }
   },
 
@@ -508,7 +509,7 @@ export const categoriaService = {
 
       return resultado;
     } catch (error: any) {
-      console.error('Error al buscar categorias:', error);
+      logger.error('Error al buscar categorias:', error);
       throw new Error('Error al buscar categorias');
     }
   },
@@ -523,7 +524,7 @@ export const categoriaService = {
         'metricas.productosActivos': productosActivos
       });
     } catch (error: any) {
-      console.error('Error al actualizar metricas:', error);
+      logger.error('Error al actualizar metricas:', error);
     }
   },
 
@@ -559,7 +560,7 @@ export const categoriaService = {
         }
       };
     } catch (error: any) {
-      console.error('Error al obtener estadisticas:', error);
+      logger.error('Error al obtener estadisticas:', error);
       throw new Error('Error al obtener estadisticas');
     }
   },
@@ -609,7 +610,7 @@ export const categoriaService = {
 
       return actualizados;
     } catch (error: any) {
-      console.error('Error al propagar cambios:', error);
+      logger.error('Error al propagar cambios:', error);
       return 0;
     }
   }

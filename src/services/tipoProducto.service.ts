@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
@@ -59,7 +60,7 @@ export const tipoProductoService = {
       })) as TipoProducto[];
       return tipos.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     } catch (error: any) {
-      console.error('Error al obtener tipos de producto:', error);
+      logger.error('Error al obtener tipos de producto:', error);
       throw new Error('Error al cargar tipos de producto');
     }
   },
@@ -80,7 +81,7 @@ export const tipoProductoService = {
       })) as TipoProducto[];
       return tipos.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     } catch (error: any) {
-      console.error('Error al obtener tipos activos:', error);
+      logger.error('Error al obtener tipos activos:', error);
       throw new Error('Error al cargar tipos de producto');
     }
   },
@@ -95,7 +96,7 @@ export const tipoProductoService = {
       if (!docSnap.exists()) return null;
       return { id: docSnap.id, ...docSnap.data() } as TipoProducto;
     } catch (error: any) {
-      console.error('Error al obtener tipo de producto:', error);
+      logger.error('Error al obtener tipo de producto:', error);
       throw new Error('Error al cargar tipo de producto');
     }
   },
@@ -120,7 +121,7 @@ export const tipoProductoService = {
       const todos = await this.getAll();
       return todos.find(t => t.nombreNormalizado === nombreNorm) || null;
     } catch (error: any) {
-      console.error('Error al buscar tipo por nombre:', error);
+      logger.error('Error al buscar tipo por nombre:', error);
       return null;
     }
   },
@@ -165,7 +166,7 @@ export const tipoProductoService = {
       const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevoTipo);
       return { id: docRef.id, ...nuevoTipo };
     } catch (error: any) {
-      console.error('Error al crear tipo de producto:', error);
+      logger.error('Error al crear tipo de producto:', error);
       throw new Error(error.message || 'Error al crear tipo de producto');
     }
   },
@@ -210,7 +211,7 @@ export const tipoProductoService = {
 
       await updateDoc(docRef, updateData);
     } catch (error: any) {
-      console.error('Error al actualizar tipo de producto:', error);
+      logger.error('Error al actualizar tipo de producto:', error);
       throw new Error(error.message || 'Error al actualizar tipo de producto');
     }
   },
@@ -227,7 +228,7 @@ export const tipoProductoService = {
         fechaActualizacion: Timestamp.now()
       });
     } catch (error: any) {
-      console.error('Error al cambiar estado:', error);
+      logger.error('Error al cambiar estado:', error);
       throw new Error('Error al cambiar estado del tipo de producto');
     }
   },
@@ -246,7 +247,7 @@ export const tipoProductoService = {
 
       await deleteDoc(doc(db, COLLECTION_NAME, id));
     } catch (error: any) {
-      console.error('Error al eliminar tipo de producto:', error);
+      logger.error('Error al eliminar tipo de producto:', error);
       throw new Error(error.message || 'Error al eliminar tipo de producto');
     }
   },
@@ -293,7 +294,7 @@ export const tipoProductoService = {
         await updateDoc(docRef, updateData);
       }
     } catch (error: any) {
-      console.error('Error al actualizar metricas:', error);
+      logger.error('Error al actualizar metricas:', error);
     }
   },
 
@@ -348,7 +349,7 @@ export const tipoProductoService = {
 
       return resultado;
     } catch (error: any) {
-      console.error('Error al buscar tipos:', error);
+      logger.error('Error al buscar tipos:', error);
       throw new Error('Error al buscar tipos de producto');
     }
   },
@@ -394,7 +395,7 @@ export const tipoProductoService = {
         topTiposPorMargen: topMargen
       };
     } catch (error: any) {
-      console.error('Error al obtener estadisticas:', error);
+      logger.error('Error al obtener estadisticas:', error);
       throw new Error('Error al obtener estadisticas');
     }
   },
@@ -430,7 +431,7 @@ export const tipoProductoService = {
       await batch.commit();
       return productosSnap.size;
     } catch (error: any) {
-      console.error('Error al propagar cambios:', error);
+      logger.error('Error al propagar cambios:', error);
       return 0;
     }
   }

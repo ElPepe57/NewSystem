@@ -55,7 +55,7 @@ class ProveedorService {
       // Ordenar por nombre en cliente
       return proveedores.sort((a, b) => a.nombre.localeCompare(b.nombre));
     } catch (error: any) {
-      console.error('Error al obtener proveedores:', error);
+      logger.error('Error al obtener proveedores:', error);
       throw new Error('Error al cargar proveedores');
     }
   }
@@ -68,7 +68,7 @@ class ProveedorService {
       const proveedores = await this.getAll();
       return proveedores.filter(p => p.activo);
     } catch (error: any) {
-      console.error('Error al obtener proveedores activos:', error);
+      logger.error('Error al obtener proveedores activos:', error);
       throw new Error('Error al cargar proveedores activos');
     }
   }
@@ -81,7 +81,7 @@ class ProveedorService {
       const proveedores = await this.getActivos();
       return proveedores.filter(p => p.pais === pais);
     } catch (error: any) {
-      console.error('Error al obtener proveedores por país:', error);
+      logger.error('Error al obtener proveedores por país:', error);
       throw new Error('Error al cargar proveedores');
     }
   }
@@ -101,7 +101,7 @@ class ProveedorService {
         ...docSnap.data()
       } as Proveedor;
     } catch (error: any) {
-      console.error('Error al obtener proveedor:', error);
+      logger.error('Error al obtener proveedor:', error);
       throw new Error('Error al cargar proveedor');
     }
   }
@@ -121,7 +121,7 @@ class ProveedorService {
         p.pais?.toLowerCase().includes(terminoLower)
       );
     } catch (error: any) {
-      console.error('Error en búsqueda:', error);
+      logger.error('Error en búsqueda:', error);
       return [];
     }
   }
@@ -136,7 +136,7 @@ class ProveedorService {
         p => p.nombre.toLowerCase() === nombre.toLowerCase()
       ) || null;
     } catch (error: any) {
-      console.error('Error buscando por nombre exacto:', error);
+      logger.error('Error buscando por nombre exacto:', error);
       return null;
     }
   }
@@ -185,7 +185,7 @@ class ProveedorService {
       const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevoProveedor);
       return docRef.id;
     } catch (error: any) {
-      console.error('Error al crear proveedor:', error);
+      logger.error('Error al crear proveedor:', error);
       throw new Error(error.message || 'Error al crear proveedor');
     }
   }
@@ -210,7 +210,7 @@ class ProveedorService {
 
       await updateDoc(doc(db, COLLECTION_NAME, id), updates);
     } catch (error: any) {
-      console.error('Error al actualizar proveedor:', error);
+      logger.error('Error al actualizar proveedor:', error);
       throw new Error('Error al actualizar proveedor');
     }
   }
@@ -226,7 +226,7 @@ class ProveedorService {
         editadoPor: userId
       });
     } catch (error: any) {
-      console.error('Error al cambiar estado del proveedor:', error);
+      logger.error('Error al cambiar estado del proveedor:', error);
       throw new Error('Error al cambiar estado del proveedor');
     }
   }
@@ -264,7 +264,7 @@ class ProveedorService {
 
       return { proveedor: nuevoProveedor, esNuevo: true };
     } catch (error: any) {
-      console.error('Error en getOrCreate:', error);
+      logger.error('Error en getOrCreate:', error);
       throw error;
     }
   }
@@ -297,7 +297,7 @@ class ProveedorService {
         'metricas.productosComprados': Array.from(productosSet)
       });
     } catch (error: any) {
-      console.error('Error actualizando métricas del proveedor:', error);
+      logger.error('Error actualizando métricas del proveedor:', error);
     }
   }
 
@@ -325,7 +325,7 @@ class ProveedorService {
 
       await updateDoc(doc(db, COLLECTION_NAME, proveedorId), updateData);
     } catch (error: any) {
-      console.error('Error actualizando métricas de investigación:', error);
+      logger.error('Error actualizando métricas de investigación:', error);
     }
   }
 
@@ -382,7 +382,7 @@ class ProveedorService {
 
       return stats;
     } catch (error: any) {
-      console.error('Error obteniendo stats de proveedores:', error);
+      logger.error('Error obteniendo stats de proveedores:', error);
       throw new Error('Error al cargar estadísticas');
     }
   }
@@ -468,7 +468,7 @@ class ProveedorService {
 
       return evaluacion;
     } catch (error: any) {
-      console.error('Error al recalcular evaluación:', error);
+      logger.error('Error al recalcular evaluación:', error);
       throw new Error('Error al recalcular evaluación');
     }
   }
@@ -533,7 +533,7 @@ class ProveedorService {
 
       return evaluacion;
     } catch (error: any) {
-      console.error('Error al evaluar manualmente:', error);
+      logger.error('Error al evaluar manualmente:', error);
       throw new Error(error.message || 'Error al evaluar proveedor');
     }
   }
@@ -601,7 +601,7 @@ class ProveedorService {
 
       logger.success(`Métricas SRM actualizadas para proveedor ${proveedorId}`);
     } catch (error: any) {
-      console.error('Error al actualizar métricas del proveedor:', error);
+      logger.error('Error al actualizar métricas del proveedor:', error);
     }
   }
 
@@ -620,7 +620,7 @@ class ProveedorService {
         ...d.data()
       } as Proveedor));
     } catch (error: any) {
-      console.error('Error al obtener proveedores por clasificación:', error);
+      logger.error('Error al obtener proveedores por clasificación:', error);
       return [];
     }
   }
@@ -641,7 +641,7 @@ class ProveedorService {
       const suspendidos = await this.getByClasificacion('suspendido');
       return [...condicionales, ...suspendidos];
     } catch (error: any) {
-      console.error('Error al obtener proveedores en riesgo:', error);
+      logger.error('Error al obtener proveedores en riesgo:', error);
       return [];
     }
   }
@@ -695,7 +695,7 @@ class ProveedorService {
 
       return stats;
     } catch (error: any) {
-      console.error('Error obteniendo stats de proveedores:', error);
+      logger.error('Error obteniendo stats de proveedores:', error);
       throw new Error('Error al cargar estadísticas');
     }
   }

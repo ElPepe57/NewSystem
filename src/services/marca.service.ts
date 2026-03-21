@@ -14,6 +14,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
@@ -113,7 +114,7 @@ export const marcaService = {
       // Ordenar en cliente
       return marcas.sort((a, b) => a.nombre.localeCompare(b.nombre));
     } catch (error: any) {
-      console.error('Error al obtener marcas:', error);
+      logger.error('Error al obtener marcas:', error);
       throw new Error('Error al cargar marcas');
     }
   },
@@ -136,7 +137,7 @@ export const marcaService = {
       // Ordenar en cliente
       return marcas.sort((a, b) => a.nombre.localeCompare(b.nombre));
     } catch (error: any) {
-      console.error('Error al obtener marcas activas:', error);
+      logger.error('Error al obtener marcas activas:', error);
       throw new Error('Error al cargar marcas');
     }
   },
@@ -156,7 +157,7 @@ export const marcaService = {
         ...docSnap.data()
       } as Marca;
     } catch (error: any) {
-      console.error('Error al obtener marca:', error);
+      logger.error('Error al obtener marca:', error);
       throw new Error('Error al cargar marca');
     }
   },
@@ -222,7 +223,7 @@ export const marcaService = {
 
       return resultados;
     } catch (error: any) {
-      console.error('Error al buscar marcas:', error);
+      logger.error('Error al buscar marcas:', error);
       throw new Error('Error en búsqueda de marcas');
     }
   },
@@ -248,7 +249,7 @@ export const marcaService = {
         ...snapshot.docs[0].data()
       } as Marca;
     } catch (error: any) {
-      console.error('Error al buscar por nombre exacto:', error);
+      logger.error('Error al buscar por nombre exacto:', error);
       throw new Error('Error en búsqueda');
     }
   },
@@ -289,7 +290,7 @@ export const marcaService = {
 
       return duplicados;
     } catch (error: any) {
-      console.error('Error al detectar duplicados:', error);
+      logger.error('Error al detectar duplicados:', error);
       return [];
     }
   },
@@ -339,7 +340,7 @@ export const marcaService = {
       const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevaMarca);
       return docRef.id;
     } catch (error: any) {
-      console.error('Error al crear marca:', error);
+      logger.error('Error al crear marca:', error);
       throw new Error(error.message || 'Error al crear marca');
     }
   },
@@ -372,7 +373,7 @@ export const marcaService = {
 
       await updateDoc(doc(db, COLLECTION_NAME, id), updates);
     } catch (error: any) {
-      console.error('Error al actualizar marca:', error);
+      logger.error('Error al actualizar marca:', error);
       throw new Error('Error al actualizar marca');
     }
   },
@@ -388,7 +389,7 @@ export const marcaService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error al cambiar estado:', error);
+      logger.error('Error al cambiar estado:', error);
       throw new Error('Error al cambiar estado');
     }
   },
@@ -430,7 +431,7 @@ export const marcaService = {
         }
       });
     } catch (error: any) {
-      console.error('Error al actualizar métricas:', error);
+      logger.error('Error al actualizar métricas:', error);
     }
   },
 
@@ -448,7 +449,7 @@ export const marcaService = {
         'metricas.productosActivos': Math.max(0, productosActivos)
       });
     } catch (error: any) {
-      console.error('Error al incrementar productos:', error);
+      logger.error('Error al incrementar productos:', error);
     }
   },
 
@@ -482,7 +483,7 @@ export const marcaService = {
 
       return { marca: nuevaMarca!, esNueva: true };
     } catch (error: any) {
-      console.error('Error en getOrCreate:', error);
+      logger.error('Error en getOrCreate:', error);
       throw new Error('Error al obtener/crear marca');
     }
   },
@@ -545,7 +546,7 @@ export const marcaService = {
         marcasPorTipo: marcasPorTipo as any
       };
     } catch (error: any) {
-      console.error('Error al obtener stats:', error);
+      logger.error('Error al obtener stats:', error);
       throw new Error('Error al obtener estadísticas');
     }
   },
@@ -572,7 +573,7 @@ export const marcaService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error al agregar alias:', error);
+      logger.error('Error al agregar alias:', error);
       throw new Error('Error al agregar alias');
     }
   },
@@ -591,7 +592,7 @@ export const marcaService = {
 
       await deleteDoc(doc(db, COLLECTION_NAME, id));
     } catch (error: any) {
-      console.error('Error al eliminar marca:', error);
+      logger.error('Error al eliminar marca:', error);
       throw new Error(error.message || 'Error al eliminar marca');
     }
   },
@@ -634,7 +635,7 @@ export const marcaService = {
 
       return { migradas, errores };
     } catch (error: any) {
-      console.error('Error en migración:', error);
+      logger.error('Error en migración:', error);
       throw new Error('Error al migrar marcas');
     }
   },
@@ -749,7 +750,7 @@ export const marcaService = {
 
       return { marcasActualizadas, errores };
     } catch (error: any) {
-      console.error('Error recalculando métricas:', error);
+      logger.error('Error recalculando métricas:', error);
       throw new Error('Error al recalcular métricas de marcas');
     }
   }

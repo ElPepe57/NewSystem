@@ -14,6 +14,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Competidor,
@@ -55,7 +56,7 @@ export const competidorService = {
         ...docSnap.data()
       })) as Competidor[];
     } catch (error: any) {
-      console.error('Error obteniendo competidores:', error);
+      logger.error('Error obteniendo competidores:', error);
       throw new Error('Error al cargar competidores');
     }
   },
@@ -68,7 +69,7 @@ export const competidorService = {
       const todos = await this.getAll();
       return todos.filter(c => c.estado === 'activo');
     } catch (error: any) {
-      console.error('Error obteniendo competidores activos:', error);
+      logger.error('Error obteniendo competidores activos:', error);
       throw new Error('Error al cargar competidores');
     }
   },
@@ -88,7 +89,7 @@ export const competidorService = {
         ...docSnap.data()
       } as Competidor;
     } catch (error: any) {
-      console.error('Error obteniendo competidor:', error);
+      logger.error('Error obteniendo competidor:', error);
       throw new Error('Error al cargar competidor');
     }
   },
@@ -106,7 +107,7 @@ export const competidorService = {
         c.alias?.some(a => normalizarTexto(a) === nombreNorm)
       ) || null;
     } catch (error: any) {
-      console.error('Error buscando competidor:', error);
+      logger.error('Error buscando competidor:', error);
       return null;
     }
   },
@@ -125,7 +126,7 @@ export const competidorService = {
         c.alias?.some(a => normalizarTexto(a).includes(textoNorm))
       );
     } catch (error: any) {
-      console.error('Error buscando competidores:', error);
+      logger.error('Error buscando competidores:', error);
       return [];
     }
   },
@@ -180,7 +181,7 @@ export const competidorService = {
       const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevoCompetidor);
       return docRef.id;
     } catch (error: any) {
-      console.error('Error creando competidor:', error);
+      logger.error('Error creando competidor:', error);
       throw new Error(error.message || 'Error al crear competidor');
     }
   },
@@ -237,7 +238,7 @@ export const competidorService = {
 
       await updateDoc(doc(db, COLLECTION_NAME, id), updates);
     } catch (error: any) {
-      console.error('Error actualizando competidor:', error);
+      logger.error('Error actualizando competidor:', error);
       throw new Error(error.message || 'Error al actualizar competidor');
     }
   },
@@ -253,7 +254,7 @@ export const competidorService = {
         fechaActualizacion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error cambiando estado:', error);
+      logger.error('Error cambiando estado:', error);
       throw new Error('Error al cambiar estado del competidor');
     }
   },
@@ -283,7 +284,7 @@ export const competidorService = {
 
       await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
     } catch (error: any) {
-      console.error('Error actualizando métricas:', error);
+      logger.error('Error actualizando métricas:', error);
     }
   },
 
@@ -301,7 +302,7 @@ export const competidorService = {
 
       await deleteDoc(doc(db, COLLECTION_NAME, id));
     } catch (error: any) {
-      console.error('Error eliminando competidor:', error);
+      logger.error('Error eliminando competidor:', error);
       throw new Error(error.message || 'Error al eliminar competidor');
     }
   },
@@ -427,7 +428,7 @@ export const competidorService = {
         competidoresAmenazaAlta
       };
     } catch (error: any) {
-      console.error('Error obteniendo stats:', error);
+      logger.error('Error obteniendo stats:', error);
       throw new Error('Error al cargar estadísticas');
     }
   },

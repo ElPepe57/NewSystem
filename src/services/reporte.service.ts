@@ -8,6 +8,7 @@ import type {
   AlertaInventario,
   RangoFechas
 } from '../types/reporte.types';
+import { logger } from '../lib/logger';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { VentaService } from './venta.service';
@@ -110,7 +111,7 @@ export class ReporteService {
         tcPromedio: tcPromedioMensual || (tcActual ? (tcActual.compra + tcActual.venta) / 2 : 0)
       };
     } catch (error: any) {
-      console.error('Error al obtener resumen ejecutivo:', error);
+      logger.error('Error al obtener resumen ejecutivo:', error);
       throw new Error('Error al generar resumen');
     }
   }
@@ -211,7 +212,7 @@ export class ReporteService {
       // Ordenar por ventas totales
       return productos.sort((a, b) => b.ventasTotalPEN - a.ventasTotalPEN);
     } catch (error: any) {
-      console.error('Error al obtener rentabilidad:', error);
+      logger.error('Error al obtener rentabilidad:', error);
       throw new Error('Error al calcular rentabilidad');
     }
   }
@@ -290,7 +291,7 @@ export class ReporteService {
 
       return inventarioValorizado.sort((a, b) => b.valorTotalPEN - a.valorTotalPEN);
     } catch (error: any) {
-      console.error('Error al obtener inventario valorizado:', error);
+      logger.error('Error al obtener inventario valorizado:', error);
       throw new Error('Error al calcular inventario');
     }
   }
@@ -346,7 +347,7 @@ export class ReporteService {
 
       return stats;
     } catch (error: any) {
-      console.error('Error al obtener ventas por canal:', error);
+      logger.error('Error al obtener ventas por canal:', error);
       throw new Error('Error al calcular ventas por canal');
     }
   }
@@ -401,7 +402,7 @@ export class ReporteService {
 
       return tendencias;
     } catch (error: any) {
-      console.error('Error al obtener tendencia:', error);
+      logger.error('Error al obtener tendencia:', error);
       throw new Error('Error al calcular tendencia');
     }
   }
@@ -479,7 +480,7 @@ export class ReporteService {
         return prioridadOrden[a.prioridad] - prioridadOrden[b.prioridad];
       });
     } catch (error: any) {
-      console.error('Error al obtener alertas:', error);
+      logger.error('Error al obtener alertas:', error);
       throw new Error('Error al generar alertas');
     }
   }

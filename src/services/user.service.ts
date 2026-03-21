@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import type { UserProfile, UserRole } from '../types/auth.types';
 import { DEFAULT_PERMISOS, PERMISOS } from '../types/auth.types';
 import { auditoriaService } from './auditoria.service';
@@ -95,7 +96,7 @@ export const userService = {
       }
       return null;
     } catch (error) {
-      console.error('Error al obtener usuario:', error);
+      logger.error('Error al obtener usuario:', error);
       throw error;
     }
   },
@@ -126,7 +127,7 @@ export const userService = {
 
       return { uid, ...userProfile };
     } catch (error) {
-      console.error('Error al crear perfil de usuario:', error);
+      logger.error('Error al crear perfil de usuario:', error);
       throw error;
     }
   },
@@ -141,7 +142,7 @@ export const userService = {
         ultimaConexion: Timestamp.now()
       });
     } catch (error) {
-      console.error('Error al actualizar última conexión:', error);
+      logger.error('Error al actualizar última conexión:', error);
     }
   },
 
@@ -156,7 +157,7 @@ export const userService = {
         permisos: DEFAULT_PERMISOS[role]
       });
     } catch (error) {
-      console.error('Error al actualizar rol:', error);
+      logger.error('Error al actualizar rol:', error);
       throw error;
     }
   },
@@ -169,7 +170,7 @@ export const userService = {
       const docRef = doc(db, COLLECTION_NAME, uid);
       await updateDoc(docRef, { permisos });
     } catch (error) {
-      console.error('Error al actualizar permisos:', error);
+      logger.error('Error al actualizar permisos:', error);
       throw error;
     }
   },
@@ -182,7 +183,7 @@ export const userService = {
       const docRef = doc(db, COLLECTION_NAME, uid);
       await updateDoc(docRef, { activo });
     } catch (error) {
-      console.error('Error al cambiar estado de usuario:', error);
+      logger.error('Error al cambiar estado de usuario:', error);
       throw error;
     }
   },
@@ -199,7 +200,7 @@ export const userService = {
         permisos: DEFAULT_PERMISOS[role]
       });
     } catch (error) {
-      console.error('Error al aprobar usuario:', error);
+      logger.error('Error al aprobar usuario:', error);
       throw error;
     }
   },
@@ -215,7 +216,7 @@ export const userService = {
         ...doc.data()
       })) as UserProfile[];
     } catch (error) {
-      console.error('Error al obtener usuarios:', error);
+      logger.error('Error al obtener usuarios:', error);
       throw error;
     }
   },
@@ -235,7 +236,7 @@ export const userService = {
         ...doc.data()
       })) as UserProfile[];
     } catch (error) {
-      console.error('Error al obtener usuarios por rol:', error);
+      logger.error('Error al obtener usuarios por rol:', error);
       throw error;
     }
   },
@@ -255,7 +256,7 @@ export const userService = {
         ...doc.data()
       })) as UserProfile[];
     } catch (error) {
-      console.error('Error al obtener usuarios activos:', error);
+      logger.error('Error al obtener usuarios activos:', error);
       throw error;
     }
   },
@@ -339,7 +340,7 @@ export const userService = {
 
       throw new Error('Error al crear usuario');
     } catch (error: any) {
-      console.error('Error al crear usuario:', error);
+      logger.error('Error al crear usuario:', error);
 
       // Manejar errores específicos de Cloud Functions
       if (error.code === 'functions/already-exists') {
@@ -367,7 +368,7 @@ export const userService = {
       const docRef = doc(db, COLLECTION_NAME, uid);
       await updateDoc(docRef, data);
     } catch (error) {
-      console.error('Error al actualizar perfil:', error);
+      logger.error('Error al actualizar perfil:', error);
       throw error;
     }
   },
@@ -401,7 +402,7 @@ export const userService = {
         );
       }
     } catch (error: any) {
-      console.error('Error al actualizar rol y permisos:', error);
+      logger.error('Error al actualizar rol y permisos:', error);
 
       if (error.code === 'functions/permission-denied') {
         throw new Error('No tienes permisos para modificar usuarios');
@@ -450,7 +451,7 @@ export const userService = {
         );
       }
     } catch (error: any) {
-      console.error('Error al eliminar usuario:', error);
+      logger.error('Error al eliminar usuario:', error);
 
       if (error.code === 'functions/permission-denied') {
         throw new Error('No tienes permisos para eliminar usuarios');
@@ -491,7 +492,7 @@ export const userService = {
         );
       }
     } catch (error: any) {
-      console.error('Error al resetear contraseña:', error);
+      logger.error('Error al resetear contraseña:', error);
 
       if (error.code === 'functions/permission-denied') {
         throw new Error('No tienes permisos para resetear contraseñas');
@@ -541,7 +542,7 @@ export const userService = {
       await this.updateProfile(uid, { photoURL: url });
       return url;
     } catch (error) {
-      console.error('Error al subir foto de perfil:', error);
+      logger.error('Error al subir foto de perfil:', error);
       throw new Error('Error al subir la foto. Intenta con una imagen más pequeña.');
     }
   },
@@ -563,7 +564,7 @@ export const userService = {
         throw new Error('Error al cambiar contraseña');
       }
     } catch (error: any) {
-      console.error('Error al cambiar contraseña:', error);
+      logger.error('Error al cambiar contraseña:', error);
 
       if (error.code === 'functions/invalid-argument') {
         throw new Error(error.message || 'La contraseña debe tener al menos 6 caracteres');
@@ -592,7 +593,7 @@ export const userService = {
         throw new Error('Error al desconectar usuario');
       }
     } catch (error: any) {
-      console.error('Error al desconectar usuario:', error);
+      logger.error('Error al desconectar usuario:', error);
       throw new Error(error.message || 'Error al desconectar usuario');
     }
   },
@@ -615,7 +616,7 @@ export const userService = {
 
       return result.data.disconnected || 0;
     } catch (error: any) {
-      console.error('Error al desconectar todos los usuarios:', error);
+      logger.error('Error al desconectar todos los usuarios:', error);
       throw new Error(error.message || 'Error al desconectar usuarios');
     }
   },

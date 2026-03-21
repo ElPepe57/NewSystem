@@ -13,7 +13,8 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { 
+import { logger } from '../lib/logger';
+import type {
   EmpresaInfo,
   ConfiguracionGeneral,
   Almacen,
@@ -47,7 +48,7 @@ export class ConfiguracionService {
         ...docSnap.data()
       } as EmpresaInfo;
     } catch (error: any) {
-      console.error('Error al obtener empresa:', error);
+      logger.error('Error al obtener empresa:', error);
       throw new Error('Error al cargar información de la empresa');
     }
   }
@@ -78,7 +79,7 @@ export class ConfiguracionService {
         });
       }
     } catch (error: any) {
-      console.error('Error al guardar empresa:', error);
+      logger.error('Error al guardar empresa:', error);
       throw new Error('Error al guardar información');
     }
   }
@@ -121,7 +122,7 @@ export class ConfiguracionService {
         ...docSnap.data()
       } as ConfiguracionGeneral;
     } catch (error: any) {
-      console.error('Error al obtener configuración:', error);
+      logger.error('Error al obtener configuración:', error);
       throw new Error('Error al cargar configuración');
     }
   }
@@ -151,7 +152,7 @@ export class ConfiguracionService {
         await setDoc(configRef, configData);
       }
     } catch (error: any) {
-      console.error('Error al guardar configuración:', error);
+      logger.error('Error al guardar configuración:', error);
       throw new Error('Error al guardar configuración');
     }
   }
@@ -172,7 +173,7 @@ export class ConfiguracionService {
         ...doc.data()
       } as Almacen));
     } catch (error: any) {
-      console.error('Error al obtener almacenes:', error);
+      logger.error('Error al obtener almacenes:', error);
       throw new Error('Error al cargar almacenes');
     }
   }
@@ -202,7 +203,7 @@ export class ConfiguracionService {
         fechaCreacion: Timestamp.now()
       } as Almacen;
     } catch (error: any) {
-      console.error('Error al crear almacén:', error);
+      logger.error('Error al crear almacén:', error);
       throw new Error('Error al crear almacén');
     }
   }
@@ -224,7 +225,7 @@ export class ConfiguracionService {
       
       await updateDoc(doc(db, ALMACENES_COLLECTION, id), updates);
     } catch (error: any) {
-      console.error('Error al actualizar almacén:', error);
+      logger.error('Error al actualizar almacén:', error);
       throw new Error('Error al actualizar almacén');
     }
   }
@@ -239,7 +240,7 @@ export class ConfiguracionService {
         ultimaEdicion: serverTimestamp()
       });
     } catch (error: any) {
-      console.error('Error al eliminar almacén:', error);
+      logger.error('Error al eliminar almacén:', error);
       throw new Error('Error al eliminar almacén');
     }
   }

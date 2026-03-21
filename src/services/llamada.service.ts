@@ -12,6 +12,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import type { LlamadaActiva } from '../types/collaboration.types';
 
@@ -102,16 +103,16 @@ export const llamadaService = {
             .filter(l => l.creadorId !== myUid);
           callback(llamadas);
         }, (error) => {
-          console.error('Error en suscripcion de llamadas entrantes:', error.message);
+          logger.error('Error en suscripcion de llamadas entrantes:', error.message);
           unsub = null;
           if (!cancelled && retryCount < 10) {
             retryCount++;
-            console.log(`[Llamadas] Reintentando suscripción en 3s (intento ${retryCount}/10)...`);
+            logger.info(`[Llamadas] Reintentando suscripción en 3s (intento ${retryCount}/10)...`);
             retryTimeout = setTimeout(subscribe, 3000);
           }
         });
       } catch (err) {
-        console.error('[Llamadas] Error creando query:', err);
+        logger.error('[Llamadas] Error creando query:', err);
       }
     };
 
@@ -139,7 +140,7 @@ export const llamadaService = {
       }
       callback({ id: snapshot.id, ...snapshot.data() } as LlamadaActiva);
     }, (error) => {
-      console.error('Error en suscripcion de llamada:', error);
+      logger.error('Error en suscripcion de llamada:', error);
     });
   },
 
@@ -164,7 +165,7 @@ export const llamadaService = {
         await Promise.all(deletions);
       }
     } catch (error) {
-      console.error('Error limpiando llamadas antiguas:', error);
+      logger.error('Error limpiando llamadas antiguas:', error);
     }
   },
 };

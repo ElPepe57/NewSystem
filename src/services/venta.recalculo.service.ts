@@ -31,6 +31,7 @@ import type {
   EstadoAsignacionProducto,
   EditarVentaData,
 } from '../types/venta.types';
+import type { Unidad } from '../types/unidad.types';
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
 import { entregaService } from './entrega.service';
@@ -48,7 +49,7 @@ const COLLECTION_NAME = COLLECTIONS.VENTAS;
 /**
  * Calcular el CTRU en PEN para una unidad, usando ctruDinamico si está disponible.
  */
-function calcularCtruPEN(unidad: any, tipoCambioFallback: number): number {
+function calcularCtruPEN(unidad: Unidad, tipoCambioFallback: number): number {
   if (unidad.ctruDinamico && unidad.ctruDinamico > 0) {
     return unidad.ctruDinamico;
   }
@@ -200,7 +201,7 @@ export async function corregirPrecioProducto(
   try {
     const movimientos = await tesoreriaService.getMovimientos({});
     const movimientosVenta = movimientos.filter(
-      m => (m.ventaId === ventaId || ((venta as any).cotizacionOrigenId && m.cotizacionId === (venta as any).cotizacionOrigenId)) &&
+      m => (m.ventaId === ventaId || (venta.cotizacionOrigenId && m.cotizacionId === venta.cotizacionOrigenId)) &&
         (m.tipo === 'ingreso_venta' || m.tipo === 'ingreso_anticipo') && m.estado === 'ejecutado'
     );
 
@@ -284,7 +285,7 @@ export async function corregirProductoVenta(
   };
   if (nuevoProducto.contenido) productoCorregido.contenido = nuevoProducto.contenido;
   if (nuevoProducto.dosaje) productoCorregido.dosaje = nuevoProducto.dosaje;
-  if ((nuevoProducto as any).sabor) productoCorregido.sabor = (nuevoProducto as any).sabor;
+  if (nuevoProducto.sabor) productoCorregido.sabor = nuevoProducto.sabor;
 
   const productosActualizados = [...venta.productos];
   productosActualizados[productoIndex] = productoCorregido as ProductoVenta;
@@ -300,9 +301,9 @@ export async function corregirProductoVenta(
   cambios.push(`Venta: ${nombreAnterior} → ${nombreNuevo}`);
 
   // Cascada a cotización origen
-  if ((venta as any).cotizacionOrigenId) {
+  if (venta.cotizacionOrigenId) {
     try {
-      const cotRef = doc(db, COLLECTIONS.COTIZACIONES, (venta as any).cotizacionOrigenId);
+      const cotRef = doc(db, COLLECTIONS.COTIZACIONES, venta.cotizacionOrigenId);
       const cotSnap = await getDoc(cotRef);
       if (cotSnap.exists()) {
         const cotData = cotSnap.data();
@@ -328,7 +329,7 @@ export async function corregirProductoVenta(
             ultimaEdicion: serverTimestamp(),
             editadoPor: userId
           });
-          cambios.push(`Cotización ${cotData.numeroCotizacion || (venta as any).numeroCotizacionOrigen}: Producto actualizado`);
+          cambios.push(`Cotización ${cotData.numeroCotizacion || venta.numeroCotizacionOrigen}: Producto actualizado`);
         } else {
           cambios.push(`Cotización: Producto no encontrado en cotización (verificar manualmente)`);
         }
@@ -350,8 +351,8 @@ export async function corregirProductoVenta(
       const vinculado =
         req.ventaId === ventaId ||
         req.ventaRelacionadaId === ventaId ||
-        ((venta as any).cotizacionOrigenId && req.cotizacionId === (venta as any).cotizacionOrigenId) ||
-        ((venta as any).cotizacionOrigenId && req.ventaRelacionadaId === (venta as any).cotizacionOrigenId);
+        (venta.cotizacionOrigenId && req.cotizacionId === venta.cotizacionOrigenId) ||
+        (venta.cotizacionOrigenId && req.ventaRelacionadaId === venta.cotizacionOrigenId);
 
       if (!vinculado) continue;
       if (req.estado === 'cancelado') continue;
@@ -516,7 +517,7 @@ export async function editarVenta(
 
     for (const campo of camposCliente) {
       const nuevoValor = cambios[campo.key] as string | undefined;
-      if (nuevoValor !== undefined && nuevoValor !== ((venta as any)[campo.ventaKey] || '')) {
+      if (nuevoValor !== undefined && nuevoValor !== ((venta as unknown as Record<string, unknown>)[campo.ventaKey] || '')) {
         updates[campo.ventaKey] = nuevoValor;
         log.push(`${campo.label} actualizado`);
       }
@@ -620,7 +621,7 @@ export async function editarVenta(
     try {
       const movimientos = await tesoreriaService.getMovimientos({});
       const movimientosVenta = movimientos.filter(
-        m => (m.ventaId === ventaId || ((venta as any).cotizacionOrigenId && m.cotizacionId === (venta as any).cotizacionOrigenId)) &&
+        m => (m.ventaId === ventaId || (venta.cotizacionOrigenId && m.cotizacionId === venta.cotizacionOrigenId)) &&
           (m.tipo === 'ingreso_venta' || m.tipo === 'ingreso_anticipo') && m.estado === 'ejecutado'
       );
 
@@ -696,7 +697,7 @@ export async function diagnosticarAsignacionesFEFO(): Promise<{
     const snap = await getDocs(q);
 
     for (const docSnap of snap.docs) {
-      const venta = { id: docSnap.id, ...docSnap.data() } as any;
+      const venta = { id: docSnap.id, ...docSnap.data() } as Venta;
 
       if (!venta.cotizacionOrigenId) continue;
 
@@ -709,9 +710,8 @@ export async function diagnosticarAsignacionesFEFO(): Promise<{
         });
 
         const huerfanas = unidadesReservadasDB.filter(u => {
-          const ext = u as any;
-          const refs = [ext.reservadaPara, ext.reservadoPara].filter(Boolean);
-          return refs.some((ref: string) =>
+          const refs = [u.reservadaPara, (u as unknown as Record<string, unknown>)['reservadoPara'] as string | undefined].filter(Boolean);
+          return refs.some((ref) =>
             ref === venta.id || ref === venta.cotizacionOrigenId
           );
         });
@@ -781,7 +781,7 @@ export async function corregirAsignacionFEFO(
     throw new Error(`Venta ${ventaId} no encontrada`);
   }
 
-  const venta = { id: ventaDoc.id, ...ventaDoc.data() } as any;
+  const venta = { id: ventaDoc.id, ...ventaDoc.data() } as Venta;
   const estadosCorregibles = ['asignada', 'en_entrega', 'despachada', 'entrega_parcial'];
 
   if (!estadosCorregibles.includes(venta.estado)) {
@@ -809,9 +809,8 @@ export async function corregirAsignacionFEFO(
     });
 
     const huerfanas = unidadesReservadasDB.filter(u => {
-      const ext = u as any;
-      const refs = [ext.reservadaPara, ext.reservadoPara].filter(Boolean);
-      return refs.some((ref: string) =>
+      const refs = [u.reservadaPara, (u as unknown as Record<string, unknown>)['reservadoPara'] as string | undefined].filter(Boolean);
+      return refs.some((ref) =>
         ref === ventaId || ref === venta.cotizacionOrigenId
       );
     });
@@ -864,7 +863,7 @@ export async function corregirAsignacionFEFO(
         fechaActualizacion: serverTimestamp()
       });
 
-      const ctruPEN = calcularCtruPEN(unidad as any, tipoCambioVenta);
+      const ctruPEN = calcularCtruPEN(unidad, tipoCambioVenta);
 
       nuevasAsignaciones.push({
         unidadId: unidad.id,
@@ -891,7 +890,7 @@ export async function corregirAsignacionFEFO(
     for (const uid of idsMantenidos) {
       const unidad = await unidadService.getById(uid);
       if (unidad) {
-        costoProducto += calcularCtruPEN(unidad as any, tipoCambioVenta);
+        costoProducto += calcularCtruPEN(unidad, tipoCambioVenta);
       }
     }
 

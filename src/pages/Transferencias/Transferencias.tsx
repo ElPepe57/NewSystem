@@ -2,34 +2,31 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   ArrowRightLeft,
-  Plane,
-  Package,
+  Truck,
   Clock,
   AlertTriangle,
   Plus,
-  ChevronRight,
-  ChevronDown,
   CheckCircle,
-  XCircle,
-  Truck,
-  Search,
-  Calculator,
   DollarSign,
-  Minus,
-  CreditCard,
-  Banknote,
-  ScanLine,
-  X as XIcon
+  RefreshCw,
+  Package,
 } from "lucide-react";
-import { Button, Card, Badge, Modal, Select, Input, useConfirmDialog, ConfirmDialog, PipelineHeader, GradientHeader, StatCard, StatDistribution } from "../../components/common";
-import { BarcodeScanner } from "../../components/common/BarcodeScanner";
+import {
+  Button,
+  Card,
+  ConfirmDialog,
+  useConfirmDialog,
+  PipelineHeader,
+  GradientHeader,
+  StatCard,
+  StatDistribution,
+} from "../../components/common";
 import type { PipelineStage } from "../../components/common";
-import { FileText, Send, CheckCircle2, XOctagon, RefreshCw } from "lucide-react";
+import { FileText, CheckCircle2, XOctagon } from "lucide-react";
 import { useTransferenciaStore } from "../../store/transferenciaStore";
 import { useProductoStore } from "../../store/productoStore";
 import { useAlmacenStore } from "../../store/almacenStore";
 import { useAuthStore } from "../../store/authStore";
-import { unidadService } from "../../services/unidad.service";
 import { tesoreriaService } from "../../services/tesoreria.service";
 import { useTipoCambioStore } from "../../store/tipoCambioStore";
 import type {
@@ -37,37 +34,20 @@ import type {
   TipoTransferencia,
   EstadoTransferencia,
   TransferenciaFormData,
-  RecepcionFormData
+  RecepcionFormData,
 } from "../../types/transferencia.types";
-import type { Unidad } from "../../types/unidad.types";
 import type { CuentaCaja, MetodoTesoreria } from "../../types/tesoreria.types";
-import { userService } from "../../services/user.service";
-import { esTipoTransferenciaInterna, esTipoTransferenciaInternacional, getLabelTipoTransferencia, esPaisOrigen } from '../../utils/multiOrigen.helpers';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { esTipoTransferenciaInterna, esTipoTransferenciaInternacional, esPaisOrigen } from "../../utils/multiOrigen.helpers";
+import { useLineaNegocioStore } from "../../store/lineaNegocioStore";
 
-// Mini-componente para resolver userId → displayName
-const userNameCache = new Map<string, string>();
-const UserName: React.FC<{ userId: string }> = ({ userId }) => {
-  const [name, setName] = useState<string | null>(null);
-  useEffect(() => {
-    if (!userId) return;
-    // Si ya parece un nombre legible (no un UID largo), mostrarlo directo
-    if (userId.length < 20 || userId.includes(' ') || userId.includes('@')) {
-      setName(userId);
-      return;
-    }
-    if (userNameCache.has(userId)) {
-      setName(userNameCache.get(userId)!);
-      return;
-    }
-    userService.getByUid(userId).then(profile => {
-      const displayName = profile?.displayName || profile?.email || userId.slice(0, 8) + '...';
-      userNameCache.set(userId, displayName);
-      setName(displayName);
-    }).catch(() => setName(userId.slice(0, 8) + '...'));
-  }, [userId]);
-  return <>{name ?? userId.slice(0, 8) + '...'}</>;
-};
+// Sub-componentes extraidos
+import { TransferenciaCard } from "./TransferenciaCard";
+import { CreateTransferenciaModal } from "./CreateTransferenciaModal";
+import { RecepcionModal } from "./RecepcionModal";
+import { PagoViajeroModal } from "./PagoViajeroModal";
+import { EditFleteModal } from "./EditFleteModal";
+import { TransferenciaDetailModal } from "./TransferenciaDetailModal";
+import { TransferenciaFilters } from "./TransferenciaFilters";
 
 export const Transferencias: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -88,7 +68,7 @@ export const Transferencias: React.FC = () => {
     cancelarTransferencia,
     registrarPagoViajero,
     actualizarFlete,
-    reconciliarPagoViajero
+    reconciliarPagoViajero,
   } = useTransferenciaStore();
 
   const { getTCDelDia } = useTipoCambioStore();
@@ -96,16 +76,14 @@ export const Transferencias: React.FC = () => {
 
   const {
     almacenes: todosAlmacenes,
-    almacenesUSA,
-    almacenesPeru,
     viajeros,
     fetchAlmacenes: fetchTodosAlmacenes,
     fetchAlmacenesUSA,
     fetchAlmacenesPeru,
-    fetchViajeros
+    fetchViajeros,
   } = useAlmacenStore();
 
-  // Almacenes dinámicos por tipo (origen vs destino Peru)
+  // Almacenes dinamicos por tipo
   const almacenesOrigen = useMemo(() =>
     todosAlmacenes.filter(a => a.estadoAlmacen === 'activo' && esPaisOrigen(a.pais)),
     [todosAlmacenes]
@@ -122,6 +100,7 @@ export const Transferencias: React.FC = () => {
     return map;
   }, [todosProductos]);
 
+  // Estado de modales
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRecepcionModal, setShowRecepcionModal] = useState(false);
   const [showPagoModal, setShowPagoModal] = useState(false);
@@ -130,20 +109,20 @@ export const Transferencias: React.FC = () => {
   const [selectedTransferencia, setSelectedTransferencia] = useState<Transferencia | null>(null);
   const [showEditFleteModal, setShowEditFleteModal] = useState(false);
   const [transferenciaParaFlete, setTransferenciaParaFlete] = useState<Transferencia | null>(null);
+
+  // Estado de filtros
   const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes'>('todas');
   const [filtroTipo, setFiltroTipo] = useState<TipoTransferencia | 'todas'>('todas');
   const [filtroEstado, setFiltroEstado] = useState<EstadoTransferencia | 'todas'>('todas');
   const [busqueda, setBusqueda] = useState('');
-  const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
   const [pipelineStage, setPipelineStage] = useState<string | null>(null);
+
+  const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
   const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
-
-  // Hook para dialogo de confirmacion
   const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
-
-  // Deep-link: abrir detalle desde query param (ej. desde Tesorería CxP)
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // Carga inicial de datos
   useEffect(() => {
     fetchTransferencias();
     fetchEnTransito();
@@ -153,31 +132,27 @@ export const Transferencias: React.FC = () => {
     fetchAlmacenesUSA();
     fetchAlmacenesPeru();
     fetchViajeros();
-    // Cargar tipo de cambio del día
     getTCDelDia().then(tc => setTipoCambioActual(tc ? { tasaVenta: tc.venta } : null)).catch(console.error);
-    // Cargar cuentas de tesorería
     tesoreriaService.getCuentas().then(setCuentasTesoreria).catch(console.error);
   }, [fetchTransferencias, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia]);
 
-  // Cargar productos para resolver marca, presentación, dosaje, etc.
   useEffect(() => {
     if (todosProductos.length === 0) fetchProductos();
   }, [todosProductos.length, fetchProductos]);
 
-  // Abrir transferencia por query param (deep link desde Tesorería)
+  // Deep-link desde query param (ej. desde Tesoreria CxP)
   useEffect(() => {
     const transferenciaId = searchParams.get('transferenciaId');
     if (transferenciaId && transferencias.length > 0) {
       const found = transferencias.find(t => t.id === transferenciaId);
       if (found) {
         setSelectedTransferencia(found);
-        // Limpiar el query param para no re-abrir al navegar
         setSearchParams({}, { replace: true });
       }
     }
   }, [searchParams, transferencias, setSearchParams]);
 
-  // Pipeline stages para visualización
+  // Pipeline stages para visualizacion
   const pipelineStages: PipelineStage[] = useMemo(() => {
     const contarPorEstado = (estados: EstadoTransferencia[]) =>
       transferencias.filter(t => estados.includes(t.estado)).length;
@@ -188,40 +163,40 @@ export const Transferencias: React.FC = () => {
         label: 'Borrador',
         count: contarPorEstado(['borrador']),
         color: 'gray' as const,
-        icon: <FileText className="h-4 w-4" />
+        icon: <FileText className="h-4 w-4" />,
       },
       {
         id: 'preparando',
         label: 'Preparando',
         count: contarPorEstado(['preparando']),
         color: 'yellow' as const,
-        icon: <Package className="h-4 w-4" />
+        icon: <Package className="h-4 w-4" />,
       },
       {
         id: 'en_transito',
-        label: 'En Tránsito',
+        label: 'En Transito',
         count: contarPorEstado(['en_transito']),
         color: 'blue' as const,
-        icon: <Truck className="h-4 w-4" />
+        icon: <Truck className="h-4 w-4" />,
       },
       {
         id: 'recibida',
         label: 'Recibida',
         count: contarPorEstado(['recibida_parcial', 'recibida_completa']),
         color: 'green' as const,
-        icon: <CheckCircle2 className="h-4 w-4" />
+        icon: <CheckCircle2 className="h-4 w-4" />,
       },
       {
         id: 'cancelada',
         label: 'Cancelada',
         count: contarPorEstado(['cancelada']),
         color: 'red' as const,
-        icon: <XOctagon className="h-4 w-4" />
-      }
+        icon: <XOctagon className="h-4 w-4" />,
+      },
     ];
   }, [transferencias]);
 
-  // Calcular valor total en tránsito
+  // Calcular valor total en transito
   const valorEnTransito = useMemo(() => {
     return transferenciasEnTransito.reduce((total, t) => {
       const valorTransferencia = t.productosSummary?.reduce((sum, p) => sum + ((p as { costoTotalUSD?: number }).costoTotalUSD || 0), 0) || 0;
@@ -230,19 +205,17 @@ export const Transferencias: React.FC = () => {
   }, [transferenciasEnTransito]);
 
   // Filtrar transferencias
-  const getTransferenciasFiltradas = () => {
+  const transferenciasFiltradas = useMemo(() => {
     let lista = activeTab === 'en_transito'
       ? transferenciasEnTransito
       : activeTab === 'pendientes'
         ? transferenciasPendientes
         : transferencias;
 
-    // Filtrar por línea de negocio global
     if (lineaFiltroGlobal) {
       lista = lista.filter(t => !t.lineaNegocioId || t.lineaNegocioId === lineaFiltroGlobal);
     }
 
-    // Filtrar por etapa del pipeline
     if (pipelineStage) {
       if (pipelineStage === 'recibida') {
         lista = lista.filter(t => t.estado === 'recibida_parcial' || t.estado === 'recibida_completa');
@@ -278,2255 +251,129 @@ export const Transferencias: React.FC = () => {
     }
 
     return lista;
-  };
+  }, [activeTab, transferenciasEnTransito, transferenciasPendientes, transferencias,
+      lineaFiltroGlobal, pipelineStage, filtroTipo, filtroEstado, busqueda]);
 
-  const handleConfirmar = async (id: string) => {
+  // Handlers de acciones
+  const handleConfirmar = useCallback(async (id: string) => {
     if (!user) return;
     const confirmed = await confirmDialog({
       title: 'Confirmar Transferencia',
-      message: '¿Confirmar esta transferencia para preparacion?',
+      message: 'Confirmar esta transferencia para preparacion?',
       confirmText: 'Confirmar',
-      variant: 'info'
+      variant: 'info',
     });
     if (confirmed) {
       await confirmarTransferencia(id, user.uid);
     }
-  };
+  }, [user, confirmDialog, confirmarTransferencia]);
 
-  const handleEnviar = async (id: string) => {
+  const handleEnviar = useCallback(async (id: string) => {
     if (!user) return;
     const confirmed = await confirmDialog({
       title: 'Enviar Transferencia',
-      message: '¿Marcar esta transferencia como enviada?',
+      message: 'Marcar esta transferencia como enviada?',
       confirmText: 'Enviar',
-      variant: 'info'
+      variant: 'info',
     });
     if (confirmed) {
       await enviarTransferencia(id, { fechaSalida: new Date() }, user.uid);
     }
-  };
+  }, [user, confirmDialog, enviarTransferencia]);
 
-  const handleCancelar = async (id: string) => {
+  const handleCancelar = useCallback(async (id: string) => {
     if (!user) return;
-    const motivo = prompt("Ingrese el motivo de cancelación:");
+    const motivo = prompt("Ingrese el motivo de cancelacion:");
     if (motivo) {
       await cancelarTransferencia(id, motivo, user.uid);
     }
-  };
+  }, [user, cancelarTransferencia]);
 
-  const handleIniciarRecepcion = (transferencia: Transferencia) => {
+  const handleIniciarRecepcion = useCallback((transferencia: Transferencia) => {
     setTransferenciaParaRecepcion(transferencia);
     setSelectedTransferencia(null);
     setShowRecepcionModal(true);
-  };
+  }, []);
 
-  const handleAbrirPagoViajero = (transferencia: Transferencia) => {
+  const handleAbrirPagoViajero = useCallback((transferencia: Transferencia) => {
     setTransferenciaParaPago(transferencia);
     setSelectedTransferencia(null);
     setShowPagoModal(true);
-  };
-
-  // Formatear estado
-  const getEstadoBadge = (estado: EstadoTransferencia) => {
-    const config: Record<EstadoTransferencia, { variant: "default" | "warning" | "success" | "danger" | "info"; label: string }> = {
-      borrador: { variant: "default", label: "Borrador" },
-      preparando: { variant: "warning", label: "Preparando" },
-      en_transito: { variant: "info", label: "En Tránsito" },
-      recibida_parcial: { variant: "warning", label: "Parcial" },
-      recibida_completa: { variant: "success", label: "Completada" },
-      cancelada: { variant: "danger", label: "Cancelada" }
-    };
-    const { variant, label } = config[estado];
-    return <Badge variant={variant}>{label}</Badge>;
-  };
-
-  // Formatear tipo
-  const getTipoBadge = (tipo: TipoTransferencia, paisOrigen?: string) => {
-    return esTipoTransferenciaInterna(tipo)
-      ? <Badge variant="default">{getLabelTipoTransferencia(tipo, paisOrigen)}</Badge>
-      : <Badge variant="info">{getLabelTipoTransferencia(tipo, paisOrigen)}</Badge>;
-  };
-
-  // Card de transferencia
-  const TransferenciaCard = ({ transferencia }: { transferencia: Transferencia }) => {
-    const fechaCreacion = transferencia.fechaCreacion.toDate();
-    const fechaSalida = transferencia.fechaSalida?.toDate();
-
-    return (
-      <Card
-        padding="md"
-        className="hover:shadow-lg transition-shadow cursor-pointer"
-        onClick={() => setSelectedTransferencia(transferencia)}
-      >
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-              esTipoTransferenciaInternacional(transferencia.tipo) ? 'bg-blue-100' : 'bg-gray-100'
-            }`}>
-              {esTipoTransferenciaInternacional(transferencia.tipo)
-                ? <Plane className="h-6 w-6 text-blue-600" />
-                : <ArrowRightLeft className="h-6 w-6 text-gray-600" />
-              }
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">{transferencia.numeroTransferencia}</h3>
-              <div className="flex items-center space-x-2 mt-1">
-                {getTipoBadge(transferencia.tipo, (transferencia as any).paisOrigen)}
-                {getEstadoBadge(transferencia.estado)}
-              </div>
-            </div>
-          </div>
-          <div className="text-right text-sm text-gray-500">
-            {fechaCreacion.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
-          </div>
-        </div>
-
-        {/* Ruta */}
-        <div className="flex items-center space-x-2 mb-4 p-3 bg-gray-50 rounded-lg">
-          <div className="flex-1">
-            <div className="text-xs text-gray-500">Origen</div>
-            <div className="font-medium text-gray-900">{transferencia.almacenOrigenNombre}</div>
-            <div className="text-xs text-gray-500">{transferencia.almacenOrigenCodigo}</div>
-          </div>
-          <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
-          <div className="flex-1 text-right">
-            <div className="text-xs text-gray-500">Destino</div>
-            <div className="font-medium text-gray-900">{transferencia.almacenDestinoNombre}</div>
-            <div className="text-xs text-gray-500">{transferencia.almacenDestinoCodigo}</div>
-          </div>
-        </div>
-
-        {/* Productos */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-gray-500 uppercase">
-              {transferencia.productosSummary.length} producto{transferencia.productosSummary.length !== 1 ? 's' : ''} · {transferencia.totalUnidades} unidades
-            </span>
-            {transferencia.costoFleteTotal != null && transferencia.costoFleteTotal > 0 ? (
-              <span className="text-xs font-medium text-green-600">Flete: ${transferencia.costoFleteTotal.toFixed(2)}</span>
-            ) : esTipoTransferenciaInternacional(transferencia.tipo) ? (
-              <span className="text-xs text-amber-500">Sin flete</span>
-            ) : null}
-          </div>
-          <div className="space-y-1">
-            {transferencia.productosSummary.slice(0, 4).map(producto => {
-              // Calcular flete por unidad desde las unidades de la transferencia
-              const unidadesProducto = transferencia.unidades.filter(u => u.productoId === producto.productoId);
-              const fleteUnitario = unidadesProducto.length > 0 ? unidadesProducto[0].costoFleteUSD : 0;
-              // Buscar lotes únicos
-              const lotes = [...new Set(unidadesProducto.map(u => u.lote).filter(Boolean))];
-
-              const pFull = productosMapGlobal.get(producto.productoId);
-              return (
-                <div key={producto.productoId} className="flex items-center justify-between py-1.5 px-2 bg-gray-50 rounded text-sm">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</span>
-                      <span className="text-xs text-gray-400 flex-shrink-0">×{producto.cantidad}</span>
-                    </div>
-                    {pFull && (
-                      <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                        {pFull.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
-                        {pFull.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
-                        {pFull.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
-                        {pFull.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
-                        {pFull.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <span>{producto.sku}</span>
-                      {lotes.length > 0 && (
-                        <>
-                          <span className="text-gray-300">·</span>
-                          <span>Lote{lotes.length > 1 ? 's' : ''}: {lotes.slice(0, 2).join(', ')}{lotes.length > 2 ? ` +${lotes.length - 2}` : ''}</span>
-                        </>
-                      )}
-                      {fleteUnitario > 0 && (
-                        <>
-                          <span className="text-gray-300">·</span>
-                          <span className="text-green-600">Flete: ${fleteUnitario.toFixed(2)}/u</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {transferencia.productosSummary.length > 4 && (
-              <div className="text-xs text-gray-400 text-center py-1">
-                +{transferencia.productosSummary.length - 4} productos más
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Estado específico */}
-        {transferencia.estado === 'en_transito' && fechaSalida && (
-          <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg text-sm">
-            <div className="flex items-center text-blue-700">
-              <Truck className="h-4 w-4 mr-2" />
-              En camino desde {fechaSalida.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
-            </div>
-            {transferencia.diasEnTransito && (
-              <span className="text-blue-600 font-medium">{transferencia.diasEnTransito} días</span>
-            )}
-          </div>
-        )}
-
-        {/* Progreso de recepción parcial */}
-        {transferencia.estado === 'recibida_parcial' && (() => {
-          const recibidas = transferencia.totalUnidadesRecibidas ?? transferencia.unidades.filter(u => u.estadoTransferencia === 'recibida').length;
-          const danadas = transferencia.totalUnidadesDanadas ?? transferencia.unidades.filter(u => u.estadoTransferencia === 'danada').length;
-          const procesadas = recibidas + danadas;
-          const totalU = transferencia.totalUnidades;
-          const numRecepciones = (transferencia.recepcionesTransferencia || []).length || (transferencia.recepcion ? 1 : 0);
-          return (
-            <div className="p-2 bg-purple-50 rounded-lg text-sm">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-purple-700 font-medium flex items-center gap-1">
-                  <Package className="h-4 w-4" />
-                  {procesadas}/{totalU} recibidas
-                </span>
-                <span className="text-xs text-purple-500">{numRecepciones} recep.</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-1.5">
-                <div className="bg-purple-500 h-1.5 rounded-full transition-all" style={{ width: `${(procesadas / totalU) * 100}%` }} />
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Tracking */}
-        {transferencia.numeroTracking && (
-          <div className="mt-3 flex items-center text-sm text-gray-600">
-            <Package className="h-4 w-4 mr-2 text-gray-400" />
-            Tracking: {transferencia.numeroTracking}
-          </div>
-        )}
-
-        {/* Acciones rápidas */}
-        {(transferencia.estado === 'borrador' || transferencia.estado === 'preparando') && (
-          <div className="mt-4 pt-4 border-t flex justify-end space-x-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={(e) => { e.stopPropagation(); handleCancelar(transferencia.id); }}
-            >
-              <XCircle className="h-4 w-4 mr-1" />
-              Cancelar
-            </Button>
-            {transferencia.estado === 'borrador' && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={(e) => { e.stopPropagation(); handleConfirmar(transferencia.id); }}
-              >
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Confirmar
-              </Button>
-            )}
-            {transferencia.estado === 'preparando' && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={(e) => { e.stopPropagation(); handleEnviar(transferencia.id); }}
-              >
-                <Truck className="h-4 w-4 mr-1" />
-                Enviar
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Acción rápida para recepción parcial */}
-        {transferencia.estado === 'recibida_parcial' && (
-          <div className="mt-4 pt-4 border-t flex justify-end">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={(e) => { e.stopPropagation(); handleIniciarRecepcion(transferencia); }}
-            >
-              <Package className="h-4 w-4 mr-1" />
-              Recepción Adicional
-            </Button>
-          </div>
-        )}
-
-        <div className="mt-4 flex justify-end">
-          <ChevronRight className="h-5 w-5 text-gray-400" />
-        </div>
-      </Card>
-    );
-  };
-
-  // Formulario de creación con selector de unidades
-  const CreateTransferenciaModal = () => {
-    const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Config, 2: Unidades, 3: Confirmar
-    const [formData, setFormData] = useState<Partial<TransferenciaFormData>>({
-      tipo: 'internacional_peru',
-      unidadesIds: []
-    });
-    const [unidadesDisponibles, setUnidadesDisponibles] = useState<Unidad[]>([]);
-    const [unidadesSeleccionadas, setUnidadesSeleccionadas] = useState<string[]>([]);
-    const [loadingUnidades, setLoadingUnidades] = useState(false);
-    // Costo de flete POR UNIDAD por producto: { [productoId]: costoFleteUnitario }
-    const [costoFleteUnitarioPorProducto, setCostoFleteUnitarioPorProducto] = useState<Record<string, number>>({});
-    // Toggle para agregar flete ahora o después
-    const [agregarFleteAhora, setAgregarFleteAhora] = useState(false);
-    // Estado para controlar qué productos están expandidos
-    const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
-    // Cantidad rápida a seleccionar por producto
-    const [cantidadRapida, setCantidadRapida] = useState<Record<string, number>>({});
-    // Scanner inline en paso 2
-    const [showScanner, setShowScanner] = useState(false);
-
-    // Cargar unidades cuando se selecciona almacén origen
-    const handleSelectOrigen = async (almacenId: string) => {
-      setFormData({ ...formData, almacenOrigenId: almacenId, unidadesIds: [] });
-      setUnidadesSeleccionadas([]);
-
-      if (almacenId) {
-        setLoadingUnidades(true);
-        try {
-          const unidades = await unidadService.getDisponiblesPorAlmacen(almacenId);
-          setUnidadesDisponibles(unidades);
-        } catch (error) {
-          console.error('Error cargando unidades:', error);
-          setUnidadesDisponibles([]);
-        } finally {
-          setLoadingUnidades(false);
-        }
-      } else {
-        setUnidadesDisponibles([]);
-      }
-    };
-
-    // Toggle selección de unidad
-    const toggleUnidad = (unidadId: string) => {
-      setUnidadesSeleccionadas(prev =>
-        prev.includes(unidadId)
-          ? prev.filter(id => id !== unidadId)
-          : [...prev, unidadId]
-      );
-    };
-
-    // Seleccionar todas las unidades de un producto
-    const toggleProducto = (productoId: string) => {
-      const unidadesDelProducto = unidadesDisponibles.filter(u => u.productoId === productoId);
-      const idsDelProducto = unidadesDelProducto.map(u => u.id);
-      const todasSeleccionadas = idsDelProducto.every(id => unidadesSeleccionadas.includes(id));
-
-      if (todasSeleccionadas) {
-        setUnidadesSeleccionadas(prev => prev.filter(id => !idsDelProducto.includes(id)));
-      } else {
-        setUnidadesSeleccionadas(prev => [...new Set([...prev, ...idsDelProducto])]);
-      }
-    };
-
-    // Handler de escaneo en paso 2
-    const handleBarcodeScan = async (barcode: string) => {
-      setShowScanner(false);
-      // Primero buscar por SKU en unidades agrupadas
-      let productoId = Object.keys(unidadesAgrupadas).find(pid =>
-        unidadesAgrupadas[pid].sku === barcode
-      );
-      // Si no, buscar por UPC via Firestore
-      if (!productoId) {
-        try {
-          const { ProductoService } = await import('../../services/producto.service');
-          const producto = await ProductoService.getByCodigoUPC(barcode);
-          if (producto && unidadesAgrupadas[producto.id]) {
-            productoId = producto.id;
-          }
-        } catch { /* silent */ }
-      }
-      if (productoId) {
-        toggleProducto(productoId);
-      } else {
-        alert(`Codigo ${barcode} no encontrado en unidades disponibles`);
-      }
-    };
-
-    // Seleccionar cantidad específica de unidades (FEFO - primero los que vencen primero)
-    const seleccionarCantidad = (productoId: string, cantidad: number) => {
-      const unidadesDelProducto = unidadesDisponibles
-        .filter(u => u.productoId === productoId)
-        // Ordenar por fecha de vencimiento (FEFO)
-        .sort((a, b) => {
-          const fechaA = a.fechaVencimiento?.toDate?.()?.getTime() || 0;
-          const fechaB = b.fechaVencimiento?.toDate?.()?.getTime() || 0;
-          return fechaA - fechaB;
-        });
-
-      // Quitar todas las unidades del producto primero
-      const sinProducto = unidadesSeleccionadas.filter(
-        id => !unidadesDelProducto.map(u => u.id).includes(id)
-      );
-
-      // Agregar la cantidad especificada
-      const idsASeleccionar = unidadesDelProducto.slice(0, cantidad).map(u => u.id);
-      setUnidadesSeleccionadas([...sinProducto, ...idsASeleccionar]);
-    };
-
-    // Toggle expandir/colapsar producto
-    const toggleExpandirProducto = (productoId: string) => {
-      setProductosExpandidos(prev => {
-        const newSet = new Set(prev);
-        if (newSet.has(productoId)) {
-          newSet.delete(productoId);
-        } else {
-          newSet.add(productoId);
-        }
-        return newSet;
-      });
-    };
-
-    // Seleccionar todas las unidades disponibles
-    const seleccionarTodas = () => {
-      setUnidadesSeleccionadas(unidadesDisponibles.map(u => u.id));
-    };
-
-    // Deseleccionar todas
-    const deseleccionarTodas = () => {
-      setUnidadesSeleccionadas([]);
-    };
-
-    // Agrupar unidades por producto
-    const unidadesAgrupadas = useMemo(() => {
-      const grupos: { [productoId: string]: { nombre: string; sku: string; unidades: Unidad[] } } = {};
-      unidadesDisponibles.forEach(u => {
-        if (!grupos[u.productoId]) {
-          grupos[u.productoId] = { nombre: u.productoNombre, sku: u.productoSKU, unidades: [] };
-        }
-        grupos[u.productoId].unidades.push(u);
-      });
-      return grupos;
-    }, [unidadesDisponibles]);
-
-    // Calcular productos seleccionados con sus unidades
-    const productosConUnidadesSeleccionadas = useMemo(() => {
-      const resultado: { productoId: string; nombre: string; sku: string; unidades: number; costoMercancia: number }[] = [];
-
-      Object.entries(unidadesAgrupadas).forEach(([productoId, grupo]) => {
-        const unidadesSelec = grupo.unidades.filter(u => unidadesSeleccionadas.includes(u.id));
-        if (unidadesSelec.length > 0) {
-          resultado.push({
-            productoId,
-            nombre: grupo.nombre,
-            sku: grupo.sku,
-            unidades: unidadesSelec.length,
-            costoMercancia: unidadesSelec.reduce((sum, u) => sum + u.costoUnitarioUSD, 0)
-          });
-        }
-      });
-
-      return resultado;
-    }, [unidadesAgrupadas, unidadesSeleccionadas]);
-
-    // Calcular costo total de flete por producto (costoUnitario × cantidad)
-    const costoFleteTotalPorProducto = useMemo(() => {
-      const resultado: Record<string, number> = {};
-
-      productosConUnidadesSeleccionadas.forEach(prod => {
-        const costoUnitario = costoFleteUnitarioPorProducto[prod.productoId] || 0;
-        resultado[prod.productoId] = costoUnitario * prod.unidades;
-      });
-
-      return resultado;
-    }, [productosConUnidadesSeleccionadas, costoFleteUnitarioPorProducto]);
-
-    // Calcular costo total de flete (suma de todos los productos)
-    const costoFleteTotal = useMemo(() => {
-      return Object.values(costoFleteTotalPorProducto).reduce((sum, costo) => sum + (costo || 0), 0);
-    }, [costoFleteTotalPorProducto]);
-
-    // Resumen de selección
-    const resumenSeleccion = useMemo(() => {
-      const seleccionadas = unidadesDisponibles.filter(u => unidadesSeleccionadas.includes(u.id));
-      const costoTotal = seleccionadas.reduce((sum, u) => sum + u.costoUnitarioUSD, 0);
-      const productosUnicos = new Set(seleccionadas.map(u => u.productoId)).size;
-      return { cantidad: seleccionadas.length, costoTotal, productosUnicos };
-    }, [unidadesDisponibles, unidadesSeleccionadas]);
-
-    const handleSubmit = async () => {
-      if (!user || !formData.almacenOrigenId || !formData.almacenDestinoId) return;
-      if (unidadesSeleccionadas.length === 0) {
-        alert('Debes seleccionar al menos una unidad');
-        return;
-      }
-
-      try {
-        const dataFinal: TransferenciaFormData = {
-          ...formData as TransferenciaFormData,
-          unidadesIds: unidadesSeleccionadas,
-          // Solo pasar flete si el usuario eligió agregarlo ahora
-          costoFletePorProducto: agregarFleteAhora ? costoFleteTotalPorProducto : {}
-        };
-        await crearTransferencia(dataFinal, user.uid);
-        setShowCreateModal(false);
-        setStep(1);
-        setFormData({ tipo: 'internacional_peru', unidadesIds: [] });
-        setUnidadesSeleccionadas([]);
-        setCostoFleteUnitarioPorProducto({});
-        setAgregarFleteAhora(false);
-        setProductosExpandidos(new Set());
-        setCantidadRapida({});
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Error desconocido';
-        alert("Error: " + message);
-      }
-    };
-
-    // Dinámico: origen = almacenes de cualquier país de origen; destino = Peru (int'l) o mismo origen (interna)
-    const almacenesOrigenModal = esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
-      ? almacenesOrigen
-      : almacenesOrigen;
-    const almacenesDestinoModal = esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
-      ? almacenesDestinoPeru
-      : almacenesOrigen.filter(a => a.id !== formData.almacenOrigenId);
-
-    const canProceedToStep2 = formData.almacenOrigenId && formData.almacenDestinoId;
-    const canProceedToStep3 = unidadesSeleccionadas.length > 0;
-
-    return (
-      <Modal
-        isOpen={showCreateModal}
-        onClose={() => { setShowCreateModal(false); setStep(1); }}
-        title={`Nueva Transferencia - Paso ${step} de 3`}
-        size="xl"
-      >
-        {/* Progress Steps */}
-        <div className="flex items-center justify-center mb-6">
-          <div className="flex items-center">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 1 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
-            <div className={`w-24 h-1 mx-2 ${step >= 2 ? 'bg-primary-600' : 'bg-gray-200'}`}></div>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 2 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
-            <div className={`w-24 h-1 mx-2 ${step >= 3 ? 'bg-primary-600' : 'bg-gray-200'}`}></div>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 3 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'}`}>3</div>
-          </div>
-        </div>
-
-        {/* Step 1: Configuración básica */}
-        {step === 1 && (
-          <div className="space-y-6">
-            {/* Tipo de transferencia */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tipo de Transferencia
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, tipo: 'internacional_peru', almacenDestinoId: undefined })}
-                  className={`p-4 rounded-lg border-2 text-center transition-all ${
-                    esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
-                  }`}
-                >
-                  <Plane className="h-8 w-8 mx-auto mb-2" />
-                  <span className="block font-medium">Origen → Perú</span>
-                  <span className="text-xs">Envío internacional</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, tipo: 'interna_origen', almacenDestinoId: undefined })}
-                  className={`p-4 rounded-lg border-2 text-center transition-all ${
-                    esTipoTransferenciaInterna(formData.tipo as TipoTransferencia)
-                      ? 'border-purple-500 bg-purple-50 text-purple-700'
-                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
-                  }`}
-                >
-                  <ArrowRightLeft className="h-8 w-8 mx-auto mb-2" />
-                  <span className="block font-medium">Interna Origen</span>
-                  <span className="text-xs">Entre viajeros/almacenes</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Origen */}
-            <Select
-              label="Almacén/Viajero Origen"
-              value={formData.almacenOrigenId || ''}
-              onChange={(e) => handleSelectOrigen(e.target.value)}
-              options={[
-                { value: '', label: 'Seleccionar origen...' },
-                ...almacenesOrigenModal.map(a => ({
-                  value: a.id,
-                  label: `${a.nombre} (${a.codigo}) [${a.pais}] - ${a.unidadesActuales || 0} uds`
-                }))
-              ]}
-              required
-            />
-
-            {/* Destino */}
-            <Select
-              label={esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia) ? 'Almacén Destino (Perú)' : 'Viajero/Almacén Destino'}
-              value={formData.almacenDestinoId || ''}
-              onChange={(e) => setFormData({ ...formData, almacenDestinoId: e.target.value })}
-              options={[
-                { value: '', label: 'Seleccionar destino...' },
-                ...almacenesDestinoModal.map(a => ({
-                  value: a.id,
-                  label: `${a.nombre} (${a.codigo}) [${a.pais}]`
-                }))
-              ]}
-              required
-              disabled={!formData.almacenOrigenId}
-            />
-
-            {/* Viajero (solo para USA → Perú) */}
-            {esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia) && (
-              <Select
-                label="Viajero que transporta"
-                value={formData.viajeroId || ''}
-                onChange={(e) => setFormData({ ...formData, viajeroId: e.target.value })}
-                options={[
-                  { value: '', label: 'Seleccionar viajero...' },
-                  ...viajeros.map(v => ({
-                    value: v.id,
-                    label: `${v.nombre} - ${v.frecuenciaViaje || 'Sin frecuencia definida'}`
-                  }))
-                ]}
-              />
-            )}
-
-            {/* Motivo (solo para interna USA) */}
-            {esTipoTransferenciaInterna(formData.tipo as TipoTransferencia) && (
-              <Select
-                label="Motivo de la transferencia"
-                value={formData.motivo || ''}
-                onChange={(e) => setFormData({ ...formData, motivo: e.target.value as TransferenciaFormData['motivo'] })}
-                options={[
-                  { value: '', label: 'Seleccionar motivo...' },
-                  { value: 'consolidacion', label: 'Consolidación de inventario' },
-                  { value: 'capacidad', label: 'Falta de capacidad' },
-                  { value: 'viaje_proximo', label: 'Mover a viajero con viaje próximo' },
-                  { value: 'costo_menor', label: 'Viajero con menor costo de flete' },
-                  { value: 'otro', label: 'Otro' }
-                ]}
-              />
-            )}
-
-            {/* Botones */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
-              <Button type="button" variant="secondary" onClick={() => setShowCreateModal(false)}>
-                Cancelar
-              </Button>
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => setStep(2)}
-                disabled={!canProceedToStep2}
-              >
-                Siguiente: Seleccionar Unidades
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Selección de unidades */}
-        {step === 2 && (
-          <div className="space-y-4">
-            {/* Resumen de selección - Sticky */}
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 sticky top-0 z-10">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium text-primary-900">Unidades seleccionadas</h4>
-                  <p className="text-sm text-primary-700">
-                    {resumenSeleccion.cantidad} unidades de {resumenSeleccion.productosUnicos} productos
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-primary-700">${resumenSeleccion.costoTotal.toFixed(2)}</div>
-                  <div className="text-xs text-primary-600">Valor total</div>
-                </div>
-              </div>
-
-              {/* Acciones rápidas globales */}
-              {unidadesDisponibles.length > 0 && (
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary-200">
-                  <button
-                    type="button"
-                    onClick={() => setShowScanner(!showScanner)}
-                    className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors ${
-                      showScanner ? 'bg-primary-200 text-primary-800' : 'text-primary-700 hover:text-primary-900 hover:bg-primary-100'
-                    }`}
-                  >
-                    <ScanLine className="h-3.5 w-3.5" />
-                    Escanear
-                  </button>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={seleccionarTodas}
-                      className="text-xs text-primary-700 hover:text-primary-900 font-medium"
-                    >
-                      Seleccionar todas ({unidadesDisponibles.length})
-                    </button>
-                    {unidadesSeleccionadas.length > 0 && (
-                      <>
-                        <span className="text-primary-300">|</span>
-                        <button
-                          type="button"
-                          onClick={deseleccionarTodas}
-                          className="text-xs text-primary-700 hover:text-primary-900 font-medium"
-                        >
-                          Limpiar selección
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Inline scanner */}
-              {showScanner && (
-                <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-gray-700">Escanear producto</span>
-                    <button type="button" onClick={() => setShowScanner(false)} className="text-gray-400 hover:text-gray-600">
-                      <XIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <BarcodeScanner onScan={handleBarcodeScan} mode="both" compact />
-                </div>
-              )}
-            </div>
-
-            {/* Lista de unidades agrupadas por producto */}
-            {loadingUnidades ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-              </div>
-            ) : Object.keys(unidadesAgrupadas).length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600">No hay unidades disponibles en este almacén</p>
-                <p className="text-sm text-gray-500 mt-1">Primero debes recibir una orden de compra</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                {Object.entries(unidadesAgrupadas).map(([productoId, grupo]) => {
-                  const unidadesProductoSeleccionadas = grupo.unidades.filter(u => unidadesSeleccionadas.includes(u.id)).length;
-                  const todasSeleccionadas = unidadesProductoSeleccionadas === grupo.unidades.length;
-                  const estaExpandido = productosExpandidos.has(productoId);
-                  const cantidadInput = cantidadRapida[productoId] ?? unidadesProductoSeleccionadas;
-
-                  return (
-                    <div key={productoId} className="border rounded-lg overflow-hidden bg-white">
-                      {/* Header del producto - Siempre visible */}
-                      <div className="p-3 bg-gray-50">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center flex-1">
-                            <input
-                              type="checkbox"
-                              checked={todasSeleccionadas}
-                              onChange={() => toggleProducto(productoId)}
-                              className="h-4 w-4 text-primary-600 rounded mr-3 flex-shrink-0"
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <h4 className="font-medium text-gray-900 truncate">{grupo.nombre}</h4>
-                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
-                                <span className="text-xs text-gray-500">{grupo.sku}</span>
-                                <span className="text-xs text-gray-300">·</span>
-                                <span className="text-xs text-green-600 font-medium">
-                                  ${grupo.unidades[0]?.costoUnitarioUSD.toFixed(2)}/u
-                                </span>
-                                <span className="text-xs text-gray-300">·</span>
-                                <span className="text-xs text-gray-500">
-                                  Total: ${grupo.unidades.reduce((s, u) => s + u.costoUnitarioUSD, 0).toFixed(2)}
-                                </span>
-                                {(() => {
-                                  const fechas = grupo.unidades
-                                    .map(u => u.fechaVencimiento?.toDate?.())
-                                    .filter(Boolean)
-                                    .sort((a, b) => a!.getTime() - b!.getTime());
-                                  if (fechas.length === 0) return null;
-                                  const proximaVencer = fechas[0]!;
-                                  const diasRestantes = Math.ceil((proximaVencer.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-                                  return (
-                                    <>
-                                      <span className="text-xs text-gray-300">·</span>
-                                      <span className={`text-xs ${diasRestantes < 90 ? 'text-red-600 font-medium' : diasRestantes < 180 ? 'text-amber-600' : 'text-gray-500'}`}>
-                                        Vence: {proximaVencer.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                        {diasRestantes < 180 && ` (${diasRestantes}d)`}
-                                      </span>
-                                    </>
-                                  );
-                                })()}
-                                {grupo.unidades[0]?.ordenCompraNumero && (
-                                  <>
-                                    <span className="text-xs text-gray-300">·</span>
-                                    <span className="text-xs text-blue-600">{grupo.unidades[0].ordenCompraNumero}</span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-3 ml-3">
-                            {/* Selector de cantidad rápida */}
-                            <div className="flex items-center bg-white border rounded-lg overflow-hidden">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newCant = Math.max(0, cantidadInput - 1);
-                                  setCantidadRapida({ ...cantidadRapida, [productoId]: newCant });
-                                  seleccionarCantidad(productoId, newCant);
-                                }}
-                                className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-r"
-                              >
-                                <Minus className="h-3 w-3" />
-                              </button>
-                              <input
-                                type="number"
-                                value={cantidadInput}
-                                onChange={(e) => {
-                                  const val = Math.min(Math.max(0, parseInt(e.target.value) || 0), grupo.unidades.length);
-                                  setCantidadRapida({ ...cantidadRapida, [productoId]: val });
-                                }}
-                                onBlur={() => {
-                                  seleccionarCantidad(productoId, cantidadInput);
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    seleccionarCantidad(productoId, cantidadInput);
-                                  }
-                                }}
-                                onClick={(e) => e.stopPropagation()}
-                                className="w-12 text-center text-sm py-1 border-0 focus:ring-0"
-                                min="0"
-                                max={grupo.unidades.length}
-                              />
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newCant = Math.min(grupo.unidades.length, cantidadInput + 1);
-                                  setCantidadRapida({ ...cantidadRapida, [productoId]: newCant });
-                                  seleccionarCantidad(productoId, newCant);
-                                }}
-                                className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-l"
-                              >
-                                <Plus className="h-3 w-3" />
-                              </button>
-                            </div>
-
-                            <Badge variant={todasSeleccionadas ? 'success' : unidadesProductoSeleccionadas > 0 ? 'warning' : 'default'}>
-                              {unidadesProductoSeleccionadas}/{grupo.unidades.length}
-                            </Badge>
-
-                            {/* Botón expandir/colapsar */}
-                            <button
-                              type="button"
-                              onClick={() => toggleExpandirProducto(productoId)}
-                              className="p-1 text-gray-400 hover:text-gray-600 rounded"
-                            >
-                              {estaExpandido ? (
-                                <ChevronDown className="h-5 w-5" />
-                              ) : (
-                                <ChevronRight className="h-5 w-5" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Info FEFO */}
-                        {!estaExpandido && unidadesProductoSeleccionadas > 0 && (
-                          <div className="mt-2 text-xs text-gray-500 ml-7">
-                            Selección FEFO: primeras {unidadesProductoSeleccionadas} unidades por vencer
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Lista de unidades del producto - Colapsable */}
-                      {estaExpandido && (
-                        <div className="divide-y max-h-48 overflow-y-auto">
-                          {grupo.unidades
-                            .sort((a, b) => {
-                              const fechaA = a.fechaVencimiento?.toDate?.()?.getTime() || 0;
-                              const fechaB = b.fechaVencimiento?.toDate?.()?.getTime() || 0;
-                              return fechaA - fechaB;
-                            })
-                            .map((unidad, idx) => (
-                            <div
-                              key={unidad.id}
-                              className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
-                                unidadesSeleccionadas.includes(unidad.id) ? 'bg-primary-50' : 'hover:bg-gray-50'
-                              }`}
-                              onClick={() => toggleUnidad(unidad.id)}
-                            >
-                              <div className="flex items-center">
-                                <input
-                                  type="checkbox"
-                                  checked={unidadesSeleccionadas.includes(unidad.id)}
-                                  onChange={() => toggleUnidad(unidad.id)}
-                                  className="h-4 w-4 text-primary-600 rounded mr-3"
-                                />
-                                <div>
-                                  <div className="flex items-center space-x-2">
-                                    <span className="text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">
-                                      #{idx + 1}
-                                    </span>
-                                    <span className="text-sm text-gray-900">Lote: {unidad.lote}</span>
-                                    {unidad.ordenCompraNumero && (
-                                      <span className="text-xs text-blue-600">{unidad.ordenCompraNumero}</span>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                                    <span>
-                                      Vence: {unidad.fechaVencimiento?.toDate?.().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) || 'N/A'}
-                                    </span>
-                                    {(() => {
-                                      const fecha = unidad.fechaVencimiento?.toDate?.();
-                                      if (!fecha) return null;
-                                      const dias = Math.ceil((fecha.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-                                      if (dias < 90) return <span className="text-red-600 font-medium">({dias}d)</span>;
-                                      if (dias < 180) return <span className="text-amber-600">({dias}d)</span>;
-                                      return null;
-                                    })()}
-                                    <span className="text-gray-300">·</span>
-                                    <span>Recibida: {unidad.fechaRecepcion?.toDate?.().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }) || 'N/A'}</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <span className="text-sm font-medium text-gray-900">${unidad.costoUnitarioUSD.toFixed(2)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Botones */}
-            <div className="flex justify-between pt-4 border-t">
-              <Button type="button" variant="secondary" onClick={() => setStep(1)}>
-                Anterior
-              </Button>
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => setStep(3)}
-                disabled={!canProceedToStep3}
-              >
-                Siguiente: Confirmar
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Confirmación (flete opcional) */}
-        {step === 3 && (
-          <div className="space-y-6">
-            {/* Resumen de la transferencia */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-3">Resumen de Transferencia</h4>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500">Tipo:</span>
-                  <span className="ml-2 font-medium">{getLabelTipoTransferencia(formData.tipo as TipoTransferencia)}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Unidades:</span>
-                  <span className="ml-2 font-medium">{resumenSeleccion.cantidad}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Productos:</span>
-                  <span className="ml-2 font-medium">{resumenSeleccion.productosUnicos}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Valor mercancía:</span>
-                  <span className="ml-2 font-medium">${resumenSeleccion.costoTotal.toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Toggle de flete (solo para USA → Perú) */}
-            {esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia) && (
-              <div>
-                <label className="flex items-center gap-3 cursor-pointer select-none mb-3">
-                  <input
-                    type="checkbox"
-                    checked={agregarFleteAhora}
-                    onChange={(e) => {
-                      setAgregarFleteAhora(e.target.checked);
-                      if (!e.target.checked) {
-                        setCostoFleteUnitarioPorProducto({});
-                      }
-                    }}
-                    className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <div>
-                    <span className="text-sm font-medium text-gray-900">Agregar costo de flete ahora</span>
-                    <p className="text-xs text-gray-500">Puedes agregar o editar el flete después desde el detalle de la transferencia</p>
-                  </div>
-                </label>
-
-                {agregarFleteAhora && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <Calculator className="h-5 w-5 text-blue-600 mr-2" />
-                        <h4 className="font-medium text-blue-900">Costo de Flete por Producto</h4>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-blue-700">${costoFleteTotal.toFixed(2)}</div>
-                        <div className="text-xs text-blue-600">Total Flete</div>
-                      </div>
-                    </div>
-
-                    {/* Lista de productos con input de flete */}
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
-                      {productosConUnidadesSeleccionadas.map((producto) => {
-                        const pFull = productosMapGlobal.get(producto.productoId);
-                        return (
-                        <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-blue-100">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                              <h5 className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</h5>
-                              <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                                {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
-                                {pFull?.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
-                                {pFull?.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
-                                {pFull?.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
-                                {pFull?.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
-                              </div>
-                              <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
-                                <span>{producto.sku}</span>
-                                <span>•</span>
-                                <span>{producto.unidades} unidades</span>
-                                <span>•</span>
-                                <span>Mercancía: ${producto.costoMercancia.toFixed(2)}</span>
-                              </div>
-                            </div>
-
-                            <div className="flex-shrink-0 w-40">
-                              <label className="block text-xs text-gray-500 mb-1">Flete por unidad (USD)</label>
-                              <div className="relative">
-                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
-                                <input
-                                  type="number"
-                                  value={costoFleteUnitarioPorProducto[producto.productoId] || ''}
-                                  onChange={(e) => {
-                                    const valor = parseFloat(e.target.value) || 0;
-                                    setCostoFleteUnitarioPorProducto(prev => ({
-                                      ...prev,
-                                      [producto.productoId]: valor
-                                    }));
-                                  }}
-                                  className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                  min="0"
-                                />
-                              </div>
-                              {(costoFleteUnitarioPorProducto[producto.productoId] || 0) > 0 && (
-                                <div className="text-xs text-blue-600 mt-1 text-right">
-                                  Total: ${costoFleteTotalPorProducto[producto.productoId]?.toFixed(2) || '0.00'}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                      })}
-                    </div>
-
-                    {/* Resumen de costos */}
-                    {costoFleteTotal > 0 && (
-                      <div className="mt-4 pt-3 border-t border-blue-200">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Total mercancía:</span>
-                          <span className="font-medium">${resumenSeleccion.costoTotal.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm mt-1">
-                          <span className="text-gray-600">Total flete:</span>
-                          <span className="font-medium">${costoFleteTotal.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-base mt-2 pt-2 border-t border-blue-200">
-                          <span className="font-medium text-gray-900">Costo total transferencia:</span>
-                          <span className="font-bold text-blue-700">${(resumenSeleccion.costoTotal + costoFleteTotal).toFixed(2)}</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {!agregarFleteAhora && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-amber-700">
-                        La transferencia se creará sin costo de flete. Podrás agregarlo en cualquier momento desde el detalle de la transferencia.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Info para transferencias internas */}
-            {esTipoTransferenciaInterna(formData.tipo as TipoTransferencia) && (
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <ArrowRightLeft className="h-5 w-5 text-purple-600 mr-2" />
-                  <span className="text-sm text-purple-700">
-                    Las transferencias internas en USA no generan costo de flete.
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Notas */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notas (opcional)</label>
-              <textarea
-                value={formData.notas || ''}
-                onChange={(e) => setFormData({ ...formData, notas: e.target.value })}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Notas adicionales..."
-              />
-            </div>
-
-            {/* Botones */}
-            <div className="flex justify-between pt-4 border-t">
-              <Button type="button" variant="secondary" onClick={() => setStep(2)}>
-                Anterior
-              </Button>
-              <Button
-                type="button"
-                variant="primary"
-                onClick={handleSubmit}
-                disabled={loading}
-              >
-                {loading ? 'Creando...' : 'Crear Transferencia'}
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
-    );
-  };
-
-  // Modal de Recepción de Transferencia
-  const RecepcionModal = ({
-    transferencia,
-    onClose,
-    onConfirm
-  }: {
-    transferencia: Transferencia;
-    onClose: () => void;
-    onConfirm: (data: RecepcionFormData) => Promise<void>;
+  }, []);
+
+  const handleAbrirEditFlete = useCallback((transferencia: Transferencia) => {
+    setTransferenciaParaFlete(transferencia);
+    setShowEditFleteModal(true);
+  }, []);
+
+  const handleReconciliarPago = useCallback(async (transferencia: Transferencia) => {
+    if (!user) return;
+    try {
+      await reconciliarPagoViajero(transferencia.id, user.uid);
+      setSelectedTransferencia(null);
+      alert('Pago sincronizado correctamente en Tesoreria');
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Error desconocido';
+      alert(msg);
+    }
+  }, [user, reconciliarPagoViajero]);
+
+  const handleCrearTransferencia = useCallback(async (data: TransferenciaFormData) => {
+    if (!user) return;
+    await crearTransferencia(data, user.uid);
+  }, [user, crearTransferencia]);
+
+  const handleRegistrarRecepcion = useCallback(async (data: RecepcionFormData) => {
+    if (!user) return;
+    try {
+      await registrarRecepcion(data, user.uid);
+      setShowRecepcionModal(false);
+      setTransferenciaParaRecepcion(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      alert('Error: ' + message);
+    }
+  }, [user, registrarRecepcion]);
+
+  const handleRegistrarPagoViajero = useCallback(async (datos: {
+    fechaPago: Date;
+    monedaPago: 'USD' | 'PEN';
+    montoOriginal: number;
+    tipoCambio: number;
+    metodoPago: MetodoTesoreria;
+    cuentaOrigenId?: string;
+    referencia?: string;
+    notas?: string;
   }) => {
-    // Unidades pendientes (no recibida ni danada)
-    const unidadesPendientes = transferencia.unidades.filter(
-      u => u.estadoTransferencia === 'enviada' || u.estadoTransferencia === 'faltante'
-        || u.estadoTransferencia === 'pendiente' || u.estadoTransferencia === 'preparada'
-    );
-    const esParcial = transferencia.estado === 'recibida_parcial';
-    const recepcionNumero = (transferencia.recepcionesTransferencia?.length || (transferencia.recepcion ? 1 : 0)) + 1;
+    if (!user || !transferenciaParaPago) return;
+    try {
+      await registrarPagoViajero(transferenciaParaPago.id, datos, user.uid);
+      setShowPagoModal(false);
+      setTransferenciaParaPago(null);
+      alert('Pago al viajero registrado correctamente');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      alert('Error: ' + message);
+    }
+  }, [user, transferenciaParaPago, registrarPagoViajero]);
 
-    // Agrupar por producto (solo agrupación, sin resolver productosMapGlobal para evitar stale data)
-    const productosAgrupados = useMemo(() => {
-      const map = new Map<string, typeof unidadesPendientes>();
-      for (const u of unidadesPendientes) {
-        const arr = map.get(u.productoId) || [];
-        arr.push(u);
-        map.set(u.productoId, arr);
-      }
-      return [...map.entries()].map(([productoId, unids]) => {
-        const pSummary = transferencia.productosSummary.find(p => p.productoId === productoId);
-        const totalEnvio = pSummary?.cantidad || unids.length;
-        const yaRecibido = transferencia.unidades.filter(u => u.productoId === productoId && u.estadoTransferencia === 'recibida').length;
-        const costoFleteUnit = unids[0].costoFleteUSD || 0;
-        const costoFleteTotal = unids.reduce((s, u) => s + (u.costoFleteUSD || 0), 0);
-        const fechasVenc = unids
-          .map(u => u.fechaVencimiento?.toDate?.())
-          .filter(Boolean) as Date[];
-        fechasVenc.sort((a, b) => a.getTime() - b.getTime());
-        return {
-          productoId,
-          nombreFallback: pSummary?.nombre || unids[0].sku,
-          sku: unids[0].sku,
-          lote: unids[0].lote,
-          fechaVencimiento: fechasVenc[0] || null,
-          costoFleteUnit,
-          costoFleteTotal,
-          unidades: unids,
-          totalEnvio,
-          yaRecibido,
-          pendiente: unids.length
-        };
-      });
-    }, [transferencia, unidadesPendientes]);
-
-    // Estado: cantidad a recibir por producto
-    const [cantidadRecibir, setCantidadRecibir] = useState<Record<string, number>>(() => {
-      const init: Record<string, number> = {};
-      productosAgrupados.forEach(p => { init[p.productoId] = 0; });
-      return init;
-    });
-    const [observaciones, setObservaciones] = useState('');
-    const [submitting, setSubmitting] = useState(false);
-    const [showRecepcionScanner, setShowRecepcionScanner] = useState(false);
-    const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
-
-    const totalARecibir = Object.values(cantidadRecibir).reduce((s, v) => s + v, 0);
-    const totalPendiente = unidadesPendientes.length;
-
-    const handleRecibirTodo = (checked: boolean) => {
-      const next: Record<string, number> = {};
-      productosAgrupados.forEach(p => { next[p.productoId] = checked ? p.pendiente : 0; });
-      setCantidadRecibir(next);
-    };
-
-    const toggleExpandirProductoRecepcion = (productoId: string) => {
-      setProductosExpandidos(prev => {
-        const next = new Set(prev);
-        if (next.has(productoId)) next.delete(productoId);
-        else next.add(productoId);
-        return next;
-      });
-    };
-
-    const handleRecepcionBarcodeScan = (barcode: string) => {
-      // Buscar producto que coincida con SKU/UPC
-      const prod = productosAgrupados.find(p => {
-        const pFull = productosMapGlobal.get(p.productoId);
-        return p.sku === barcode || (pFull as any)?.codigoBarras === barcode || (pFull as any)?.upc === barcode;
-      });
-      if (prod) {
-        const current = cantidadRecibir[prod.productoId] || 0;
-        if (current < prod.pendiente) {
-          setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: current + 1 }));
-        }
-      }
-    };
-
-    const handleSubmit = async () => {
-      if (totalARecibir === 0) return;
-      setSubmitting(true);
-      try {
-        const unidadesRecibidas: RecepcionFormData['unidadesRecibidas'] = [];
-        for (const prod of productosAgrupados) {
-          const cant = cantidadRecibir[prod.productoId] || 0;
-          prod.unidades.forEach((u, idx) => {
-            unidadesRecibidas.push({
-              unidadId: u.unidadId,
-              recibida: idx < cant,
-              danada: false
-            });
-          });
-        }
-        await onConfirm({
-          transferenciaId: transferencia.id,
-          unidadesRecibidas,
-          observaciones
-        });
-      } finally {
-        setSubmitting(false);
-      }
-    };
-
-    return (
-      <Modal
-        isOpen={true}
-        onClose={onClose}
-        title={`Recepción de Productos - ${transferencia.numeroTransferencia}`}
-        size="lg"
-      >
-        <div className="space-y-4">
-          {/* Sticky header - Resumen de recepción (same style as Step 2) */}
-          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 sticky top-0 z-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium text-primary-900">Unidades a recibir</h4>
-                <p className="text-sm text-primary-700">
-                  {totalARecibir} de {totalPendiente} pendientes · Recepción #{recepcionNumero}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-primary-700">
-                  {totalPendiente > 0 ? Math.round((totalARecibir / totalPendiente) * 100) : 0}%
-                </div>
-                <div className="text-xs text-primary-600">Progreso</div>
-              </div>
-            </div>
-
-            {/* Barra de progreso */}
-            <div className="w-full bg-primary-200 rounded-full h-2 mt-3">
-              <div
-                className="bg-primary-600 h-2 rounded-full transition-all"
-                style={{ width: `${totalPendiente > 0 ? (totalARecibir / totalPendiente) * 100 : 0}%` }}
-              />
-            </div>
-
-            {/* Acciones: Escanear + Recibir todas */}
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary-200">
-              <button
-                type="button"
-                onClick={() => setShowRecepcionScanner(!showRecepcionScanner)}
-                className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors ${
-                  showRecepcionScanner ? 'bg-primary-200 text-primary-800' : 'text-primary-700 hover:text-primary-900 hover:bg-primary-100'
-                }`}
-              >
-                <ScanLine className="h-3.5 w-3.5" />
-                Escanear
-              </button>
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => handleRecibirTodo(totalARecibir !== totalPendiente)}
-                  className="text-xs text-primary-700 hover:text-primary-900 font-medium"
-                >
-                  Seleccionar todas ({totalPendiente})
-                </button>
-                {totalARecibir > 0 && (
-                  <>
-                    <span className="text-primary-300">|</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRecibirTodo(false)}
-                      className="text-xs text-primary-700 hover:text-primary-900 font-medium"
-                    >
-                      Limpiar selección
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Inline scanner */}
-            {showRecepcionScanner && (
-              <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-gray-700">Escanear producto</span>
-                  <button type="button" onClick={() => setShowRecepcionScanner(false)} className="text-gray-400 hover:text-gray-600">
-                    <XIcon className="h-4 w-4" />
-                  </button>
-                </div>
-                <BarcodeScanner onScan={handleRecepcionBarcodeScan} mode="both" compact />
-              </div>
-            )}
-          </div>
-
-          {/* Lista de productos agrupados - same style as Step 2 */}
-          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-            {productosAgrupados.map((prod) => {
-              const cant = cantidadRecibir[prod.productoId] || 0;
-              const todoRecibido = cant === prod.pendiente;
-              const estaExpandido = productosExpandidos.has(prod.productoId);
-              // Resolver producto completo al render time (no en useMemo) para datos frescos
-              const pFull = productosMapGlobal.get(prod.productoId);
-
-              return (
-                <div key={prod.productoId} className="border rounded-lg overflow-hidden bg-white">
-                  {/* Header del producto */}
-                  <div className="p-3 bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center flex-1">
-                        <input
-                          type="checkbox"
-                          checked={todoRecibido}
-                          onChange={() => setCantidadRecibir(prev => ({
-                            ...prev,
-                            [prod.productoId]: todoRecibido ? 0 : prod.pendiente
-                          }))}
-                          className="h-4 w-4 text-primary-600 rounded mr-3 flex-shrink-0"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <h4 className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || prod.nombreFallback}</h4>
-                          {/* Tags: marca, presentacion, dosaje, contenido, sabor - resolved at render time */}
-                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
-                            {pFull?.marca && (
-                              <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{pFull.marca}</span>
-                            )}
-                            {pFull?.presentacion && (
-                              <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>
-                            )}
-                            {pFull?.dosaje && (
-                              <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{pFull.dosaje}</span>
-                            )}
-                            {pFull?.contenido && (
-                              <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{pFull.contenido}</span>
-                            )}
-                            {pFull?.sabor && (
-                              <span className="text-xs text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">{pFull.sabor}</span>
-                            )}
-                          </div>
-                          {/* SKU */}
-                          <div className="text-xs text-gray-500 mt-1">
-                            {prod.sku}
-                          </div>
-                          {/* Flete info */}
-                          {prod.costoFleteUnit > 0 && (
-                            <div className="text-xs text-green-600 font-medium mt-0.5">
-                              Flete: ${prod.costoFleteUnit.toFixed(2)}/u · Total flete: ${prod.costoFleteTotal.toFixed(2)}
-                            </div>
-                          )}
-                          {/* Ya recibidas */}
-                          {prod.yaRecibido > 0 && (
-                            <div className="flex items-center gap-1 text-xs text-green-600 mt-0.5">
-                              <CheckCircle className="h-3 w-3" />
-                              {prod.yaRecibido} recibidas
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-3 ml-3">
-                        {/* Selector de cantidad - same +/- as Step 2 */}
-                        <div className="flex items-center bg-white border rounded-lg overflow-hidden">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const newCant = Math.max(0, cant - 1);
-                              setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: newCant }));
-                            }}
-                            className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-r"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </button>
-                          <input
-                            type="number"
-                            value={cant}
-                            onChange={(e) => {
-                              const val = Math.min(Math.max(0, parseInt(e.target.value) || 0), prod.pendiente);
-                              setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: val }));
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-12 text-center text-sm py-1 border-0 focus:ring-0"
-                            min="0"
-                            max={prod.pendiente}
-                          />
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const newCant = Math.min(prod.pendiente, cant + 1);
-                              setCantidadRecibir(prev => ({ ...prev, [prod.productoId]: newCant }));
-                            }}
-                            className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-l"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
-                        </div>
-
-                        <Badge variant={todoRecibido ? 'success' : cant > 0 ? 'warning' : 'default'}>
-                          {cant}/{prod.pendiente}
-                        </Badge>
-
-                        {/* Botón expandir/colapsar */}
-                        <button
-                          type="button"
-                          onClick={() => toggleExpandirProductoRecepcion(prod.productoId)}
-                          className="p-1 text-gray-400 hover:text-gray-600 rounded"
-                        >
-                          {estaExpandido ? (
-                            <ChevronDown className="h-5 w-5" />
-                          ) : (
-                            <ChevronRight className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lista de unidades individuales - Colapsable */}
-                  {estaExpandido && (
-                    <div className="divide-y max-h-48 overflow-y-auto">
-                      {prod.unidades.map((unidad, idx) => (
-                        <div
-                          key={unidad.unidadId}
-                          className={`flex items-center justify-between p-3 ${
-                            idx < cant ? 'bg-primary-50' : 'hover:bg-gray-50'
-                          }`}
-                        >
-                          <div className="flex items-center">
-                            <div className={`h-2 w-2 rounded-full mr-3 ${idx < cant ? 'bg-green-500' : 'bg-gray-300'}`} />
-                            <div>
-                              <div className="flex items-center space-x-2">
-                                <span className="text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">
-                                  #{idx + 1}
-                                </span>
-                                {unidad.lote && <span className="text-sm text-gray-900">Lote: {unidad.lote}</span>}
-                              </div>
-                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                                {unidad.estadoTransferencia === 'faltante' && (
-                                  <span className="text-amber-600 font-medium">Prev. faltante</span>
-                                )}
-                                <span>Estado: {unidad.estadoTransferencia}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                            idx < cant ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                          }`}>
-                            {idx < cant ? 'Se recibirá' : 'Pendiente'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Observaciones */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Observaciones (opcional)
-            </label>
-            <textarea
-              value={observaciones}
-              onChange={(e) => setObservaciones(e.target.value)}
-              rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Ej: Paquete 2 de 3, tracking TBA12345..."
-            />
-          </div>
-
-          {/* Botones */}
-          <div className="flex justify-between pt-4 border-t">
-            <Button variant="secondary" onClick={onClose} disabled={submitting}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleSubmit}
-              disabled={submitting || totalARecibir === 0}
-            >
-              {submitting ? (
-                <span className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Procesando...
-                </span>
-              ) : (
-                <span className="flex items-center">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Registrar Recepción #{recepcionNumero}
-                </span>
-              )}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-    );
-  };
-
-  // Modal de Pago al Viajero - Inteligente
-  const PagoViajeroModal = ({
-    transferencia,
-    onClose,
-    onConfirm
-  }: {
-    transferencia: Transferencia;
-    onClose: () => void;
-    onConfirm: (datos: {
-      fechaPago: Date;
-      monedaPago: 'USD' | 'PEN';
-      montoOriginal: number;
-      tipoCambio: number;
-      metodoPago: MetodoTesoreria;
-      cuentaOrigenId?: string;
-      referencia?: string;
-      notas?: string;
-    }) => Promise<void>;
-  }) => {
-    // Datos de la transferencia
-    const fleteUSD = transferencia.costoFleteTotal || 0;
-    const monedaFleteOriginal = transferencia.monedaFlete || 'USD';
-    const tieneFleteDefinido = fleteUSD > 0;
-
-    // Pagos anteriores (backward compat)
-    const pagosAnteriores = transferencia.pagosViajero && transferencia.pagosViajero.length > 0
-      ? transferencia.pagosViajero
-      : (transferencia.pagoViajero ? [transferencia.pagoViajero] : []);
-    const montoPagadoUSD = pagosAnteriores.reduce((sum, p) => sum + p.montoUSD, 0);
-    const montoPendienteUSD = fleteUSD - montoPagadoUSD;
-    const tienePagosAnteriores = pagosAnteriores.length > 0;
-
-    const [formData, setFormData] = useState({
-      fechaPago: new Date().toISOString().split('T')[0],
-      monedaPago: monedaFleteOriginal as 'USD' | 'PEN',
-      montoOriginal: montoPendienteUSD > 0 ? montoPendienteUSD : fleteUSD,
-      tipoCambio: tipoCambioActual?.tasaVenta || 3.75,
-      metodoPago: 'transferencia_bancaria' as MetodoTesoreria,
-      cuentaOrigenId: '',
-      referencia: '',
-      notas: ''
-    });
-    const [submitting, setSubmitting] = useState(false);
-
-    // Hook para dialogo de confirmacion interno
-    const { dialogProps: pagoDialogProps, confirm: confirmPago } = useConfirmDialog();
-
-    // Cálculos de equivalencias
-    const montoUSD = formData.monedaPago === 'USD'
-      ? formData.montoOriginal
-      : formData.montoOriginal / formData.tipoCambio;
-    const montoPEN = formData.monedaPago === 'PEN'
-      ? formData.montoOriginal
-      : formData.montoOriginal * formData.tipoCambio;
-
-    // Filtrar cuentas por moneda seleccionada, incluyendo bi-moneda
-    const cuentasFiltradas = useMemo(() => {
-      return cuentasTesoreria.filter(c => c.activa && (c.esBiMoneda || c.moneda === formData.monedaPago));
-    }, [cuentasTesoreria, formData.monedaPago]);
-
-    // Auto-seleccionar cuenta al cambiar moneda
-    useEffect(() => {
-      const cuentaPorDefecto = cuentasFiltradas.find(c => c.esCuentaPorDefecto);
-      if (cuentaPorDefecto) {
-        setFormData(prev => ({ ...prev, cuentaOrigenId: cuentaPorDefecto.id }));
-      } else if (cuentasFiltradas.length > 0) {
-        setFormData(prev => ({ ...prev, cuentaOrigenId: cuentasFiltradas[0].id }));
-      } else {
-        setFormData(prev => ({ ...prev, cuentaOrigenId: '' }));
-      }
-    }, [cuentasFiltradas]);
-
-    // Actualizar monto cuando cambia la moneda (convertir automáticamente)
-    const montoBaseUSD = montoPendienteUSD > 0 ? montoPendienteUSD : fleteUSD;
-    const handleMonedaChange = (nuevaMoneda: 'USD' | 'PEN') => {
-      const nuevoMonto = nuevaMoneda === 'USD' ? montoBaseUSD : montoBaseUSD * formData.tipoCambio;
-      setFormData(prev => ({ ...prev, monedaPago: nuevaMoneda, montoOriginal: nuevoMonto }));
-    };
-
-    // Cuenta seleccionada y su saldo
-    const cuentaSeleccionada = cuentasTesoreria.find(c => c.id === formData.cuentaOrigenId);
-    const saldoCuenta = cuentaSeleccionada
-      ? (cuentaSeleccionada.esBiMoneda
-          ? (formData.monedaPago === 'USD' ? (cuentaSeleccionada.saldoUSD || 0) : (cuentaSeleccionada.saldoPEN || 0))
-          : cuentaSeleccionada.saldoActual)
-      : 0;
-    const saldoDespues = saldoCuenta - formData.montoOriginal;
-    const saldoInsuficiente = cuentaSeleccionada && saldoDespues < 0;
-
-    // Validaciones inteligentes
-    const montoReferenciaUSD = montoPendienteUSD > 0 ? montoPendienteUSD : fleteUSD;
-    const montoDiferenteAlFlete = tieneFleteDefinido && Math.abs(montoUSD - montoReferenciaUSD) > 0.01;
-    const montoPagaMasFlete = tieneFleteDefinido && montoUSD > montoReferenciaUSD + 0.01;
-
-    const handleSubmit = async () => {
-      if (formData.montoOriginal <= 0) {
-        alert('El monto debe ser mayor a 0');
-        return;
-      }
-      if (formData.tipoCambio <= 0) {
-        alert('El tipo de cambio debe ser mayor a 0');
-        return;
-      }
-      if (montoPagaMasFlete) {
-        const confirmar = await confirmPago({
-          title: 'Pago Mayor al Pendiente',
-          message: (
-            <div className="space-y-2">
-              <p>Estas pagando mas del monto pendiente:</p>
-              <div className="bg-amber-50 p-3 rounded-lg text-sm">
-                <div className="flex justify-between"><span>Pendiente:</span><span>${montoReferenciaUSD.toFixed(2)}</span></div>
-                <div className="flex justify-between"><span>Monto a pagar:</span><span>${montoUSD.toFixed(2)}</span></div>
-                <div className="flex justify-between font-medium text-amber-700"><span>Diferencia:</span><span>+${(montoUSD - montoReferenciaUSD).toFixed(2)}</span></div>
-              </div>
-            </div>
-          ),
-          confirmText: 'Continuar',
-          variant: 'warning'
-        });
-        if (!confirmar) return;
-      }
-      if (saldoInsuficiente) {
-        const simbolo = formData.monedaPago === 'USD' ? '$' : 'S/';
-        const confirmar = await confirmPago({
-          title: 'Saldo Insuficiente',
-          message: (
-            <div className="space-y-2">
-              <p>El saldo de la cuenta sera negativo despues del pago:</p>
-              <div className="bg-red-50 p-3 rounded-lg text-sm">
-                <div className="flex justify-between"><span>Saldo actual:</span><span>{simbolo} {saldoCuenta.toFixed(2)}</span></div>
-                <div className="flex justify-between"><span>Monto a pagar:</span><span>{simbolo} {formData.montoOriginal.toFixed(2)}</span></div>
-                <div className="flex justify-between font-medium text-red-700"><span>Saldo despues:</span><span>{simbolo} {saldoDespues.toFixed(2)}</span></div>
-              </div>
-            </div>
-          ),
-          confirmText: 'Continuar de Todas Formas',
-          variant: 'danger'
-        });
-        if (!confirmar) return;
-      }
-
-      setSubmitting(true);
-      try {
-        await onConfirm({
-          fechaPago: new Date(formData.fechaPago),
-          monedaPago: formData.monedaPago,
-          montoOriginal: formData.montoOriginal,
-          tipoCambio: formData.tipoCambio,
-          metodoPago: formData.metodoPago,
-          cuentaOrigenId: formData.cuentaOrigenId || undefined,
-          referencia: formData.referencia || undefined,
-          notas: formData.notas || undefined
-        });
-        onClose();
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Error desconocido';
-        alert('Error: ' + message);
-      } finally {
-        setSubmitting(false);
-      }
-    };
-
-    // Calcular costo por unidad
-    const costoPorUnidad = transferencia.totalUnidades > 0
-      ? fleteUSD / transferencia.totalUnidades
-      : 0;
-
-    return (
-      <Modal
-        isOpen={true}
-        onClose={onClose}
-        title={`Pago al Viajero - ${transferencia.numeroTransferencia}`}
-        size="lg"
-      >
-        <div className="space-y-5">
-          {/* Info de la transferencia */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs text-blue-600 uppercase tracking-wide">Viajero</div>
-                <div className="text-lg font-bold text-blue-900">
-                  {transferencia.almacenOrigenNombre}
-                </div>
-                <div className="text-sm text-blue-600 mt-1">
-                  {transferencia.totalUnidades} unidades • {transferencia.productosSummary.length} productos
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-blue-600 uppercase tracking-wide">Flete Total</div>
-                <div className="text-3xl font-bold text-blue-700">
-                  ${fleteUSD.toFixed(2)}
-                </div>
-                {montoPagadoUSD > 0 && (
-                  <div className="text-sm text-green-600 font-medium">
-                    Pagado: ${montoPagadoUSD.toFixed(2)} | Pendiente: ${montoPendienteUSD.toFixed(2)}
-                  </div>
-                )}
-                <div className="text-sm text-blue-500">
-                  ≈ S/ {(fleteUSD * formData.tipoCambio).toFixed(2)} • ${costoPorUnidad.toFixed(2)}/ud
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Pagos anteriores */}
-          {tienePagosAnteriores && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <div className="text-xs text-green-600 uppercase tracking-wide mb-2 font-semibold">
-                Pagos Anteriores ({pagosAnteriores.length})
-              </div>
-              {pagosAnteriores.map((pago, idx) => (
-                <div key={pago.id} className="flex justify-between items-center text-sm py-1.5 border-b border-green-100 last:border-0">
-                  <div>
-                    <span className="font-medium text-gray-900">Pago {idx + 1}</span>
-                    <span className="text-gray-500 ml-2">
-                      {pago.fecha?.toDate?.() ? pago.fecha.toDate().toLocaleDateString('es-PE') : ''}
-                    </span>
-                    <span className="text-gray-400 ml-2 text-xs capitalize">
-                      {pago.metodoPago?.replace(/_/g, ' ')}
-                    </span>
-                  </div>
-                  <span className="font-semibold text-green-700">
-                    ${pago.montoUSD.toFixed(2)} USD
-                  </span>
-                </div>
-              ))}
-              <div className="flex justify-between items-center text-sm font-bold pt-2 mt-1 border-t border-green-300">
-                <span>Pendiente</span>
-                <span className="text-amber-700">${montoPendienteUSD.toFixed(2)} USD</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div
-                  className="bg-green-500 h-2 rounded-full transition-all"
-                  style={{ width: `${Math.min(100, (montoPagadoUSD / fleteUSD) * 100)}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Advertencia si no hay flete definido */}
-          {!tieneFleteDefinido && (
-            <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 flex items-start gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-amber-800">
-                <strong>Sin flete registrado:</strong> Esta transferencia no tiene costo de flete definido.
-                Por favor ingresa el monto acordado con el viajero.
-              </div>
-            </div>
-          )}
-
-          {/* Formulario */}
-          <div className="space-y-4">
-            {/* Fecha y Moneda */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fecha de Pago *
-                </label>
-                <input
-                  type="date"
-                  value={formData.fechaPago}
-                  onChange={(e) => setFormData({ ...formData, fechaPago: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Moneda de Pago *
-                </label>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleMonedaChange('USD')}
-                    className={`flex-1 py-2.5 px-4 rounded-lg border-2 font-semibold transition-all ${
-                      formData.monedaPago === 'USD'
-                        ? 'border-green-500 bg-green-50 text-green-700 shadow-sm'
-                        : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-                    }`}
-                  >
-                    $ USD
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleMonedaChange('PEN')}
-                    className={`flex-1 py-2.5 px-4 rounded-lg border-2 font-semibold transition-all ${
-                      formData.monedaPago === 'PEN'
-                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
-                        : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-                    }`}
-                  >
-                    S/ PEN
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Tipo de cambio y Monto */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tipo de Cambio *
-                </label>
-                <input
-                  type="number"
-                  value={formData.tipoCambio}
-                  onChange={(e) => {
-                    const nuevoTC = parseFloat(e.target.value) || 0;
-                    // Si está en PEN, recalcular el monto
-                    if (formData.monedaPago === 'PEN') {
-                      setFormData({
-                        ...formData,
-                        tipoCambio: nuevoTC,
-                        montoOriginal: fleteUSD * nuevoTC
-                      });
-                    } else {
-                      setFormData({ ...formData, tipoCambio: nuevoTC });
-                    }
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  step="0.001"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Monto a Pagar ({formData.monedaPago}) *
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
-                    {formData.monedaPago === 'USD' ? '$' : 'S/'}
-                  </span>
-                  <input
-                    type="number"
-                    value={formData.montoOriginal}
-                    onChange={(e) => setFormData({ ...formData, montoOriginal: parseFloat(e.target.value) || 0 })}
-                    className={`w-full pl-9 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                      montoPagaMasFlete
-                        ? 'border-amber-400 focus:ring-amber-500 bg-amber-50'
-                        : 'border-gray-300 focus:ring-primary-500'
-                    }`}
-                    step="0.01"
-                    min="0"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {formData.monedaPago === 'USD'
-                    ? `≈ S/ ${montoPEN.toFixed(2)}`
-                    : `≈ $${montoUSD.toFixed(2)} USD`
-                  }
-                </p>
-              </div>
-            </div>
-
-            {/* Info de pago parcial */}
-            {montoDiferenteAlFlete && !montoPagaMasFlete && montoUSD > 0 && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-sm text-amber-700 flex items-center gap-2">
-                <DollarSign className="h-4 w-4 flex-shrink-0" />
-                <span>
-                  Pago parcial: quedará pendiente <strong>${(montoReferenciaUSD - montoUSD).toFixed(2)} USD</strong> de ${montoReferenciaUSD.toFixed(2)}
-                </span>
-              </div>
-            )}
-            {montoPagaMasFlete && (
-              <div className="bg-amber-50 border border-amber-300 rounded-lg p-2 text-sm text-amber-700 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                <strong>Pagando más del flete:</strong> ${(montoUSD - fleteUSD).toFixed(2)} adicionales
-              </div>
-            )}
-
-            {/* Método y Cuenta */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Método de Pago *
-                </label>
-                <select
-                  value={formData.metodoPago}
-                  onChange={(e) => setFormData({ ...formData, metodoPago: e.target.value as MetodoTesoreria })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                  <option value="transferencia_bancaria">Transferencia Bancaria</option>
-                  <option value="efectivo">Efectivo</option>
-                  <option value="yape">Yape</option>
-                  <option value="plin">Plin</option>
-                  <option value="tarjeta">Tarjeta</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Cuenta de Origen ({formData.monedaPago})
-                </label>
-                {cuentasFiltradas.length === 0 ? (
-                  <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded-lg">
-                    No hay cuentas en {formData.monedaPago}
-                  </div>
-                ) : (
-                  <select
-                    value={formData.cuentaOrigenId}
-                    onChange={(e) => setFormData({ ...formData, cuentaOrigenId: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="">Sin cuenta específica</option>
-                    {cuentasFiltradas.map(cuenta => {
-                      const saldo = cuenta.esBiMoneda
-                        ? (formData.monedaPago === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0))
-                        : cuenta.saldoActual;
-                      const simbolo = formData.monedaPago === 'USD' ? '$' : 'S/';
-                      const etiqueta = cuenta.esBiMoneda ? ' [BI]' : '';
-                      return (
-                        <option key={cuenta.id} value={cuenta.id}>
-                          {cuenta.nombre}{etiqueta} - {simbolo} {saldo.toFixed(2)}
-                        </option>
-                      );
-                    })}
-                  </select>
-                )}
-              </div>
-            </div>
-
-            {/* Info de cuenta seleccionada */}
-            {cuentaSeleccionada && (
-              <div className={`p-3 rounded-lg text-sm ${saldoInsuficiente ? 'bg-red-50 border border-red-200' : 'bg-gray-50'}`}>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center gap-1">
-                    {cuentaSeleccionada.nombre}
-                    {cuentaSeleccionada.esBiMoneda && (
-                      <span className="px-1.5 py-0.5 text-xs rounded bg-gradient-to-r from-green-100 to-blue-100 text-gray-600">
-                        BI-MONEDA
-                      </span>
-                    )}
-                  </span>
-                  <span className="font-medium">
-                    {formData.monedaPago === 'USD' ? '$' : 'S/'} {saldoCuenta.toFixed(2)}
-                  </span>
-                </div>
-                <div className={`flex justify-between mt-1 font-semibold ${saldoInsuficiente ? 'text-red-600' : 'text-primary-600'}`}>
-                  <span>Saldo después:</span>
-                  <span>
-                    {formData.monedaPago === 'USD' ? '$' : 'S/'} {saldoDespues.toFixed(2)}
-                    {saldoInsuficiente && ' ⚠️'}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Referencia y Notas en una fila */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Referencia / Nro. Operación
-                </label>
-                <input
-                  type="text"
-                  value={formData.referencia}
-                  onChange={(e) => setFormData({ ...formData, referencia: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Ej: OP-123456"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notas
-                </label>
-                <input
-                  type="text"
-                  value={formData.notas}
-                  onChange={(e) => setFormData({ ...formData, notas: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Observaciones..."
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Resumen del Pago */}
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs text-green-600 uppercase tracking-wide">Total a Pagar</div>
-                <div className="text-2xl font-bold text-green-700">
-                  {formData.monedaPago === 'USD' ? '$' : 'S/'} {formData.montoOriginal.toFixed(2)}
-                </div>
-                <div className="text-sm text-green-600">
-                  {formData.monedaPago === 'USD' ? `≈ S/ ${montoPEN.toFixed(2)}` : `≈ $${montoUSD.toFixed(2)} USD`}
-                </div>
-              </div>
-              <div className="text-right text-sm text-green-700">
-                <div>{new Date(formData.fechaPago).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
-                <div className="capitalize">{formData.metodoPago.replace('_', ' ')}</div>
-                <div>TC: {formData.tipoCambio.toFixed(3)}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Botones */}
-          <div className="flex justify-end space-x-3 pt-2">
-            <Button variant="secondary" onClick={onClose} disabled={submitting}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleSubmit}
-              disabled={submitting || formData.montoOriginal <= 0 || formData.tipoCambio <= 0}
-            >
-              {submitting ? (
-                <span className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Procesando...
-                </span>
-              ) : (
-                <span className="flex items-center">
-                  <Banknote className="h-4 w-4 mr-2" />
-                  Confirmar Pago
-                </span>
-              )}
-            </Button>
-          </div>
-
-          {/* Dialogo de Confirmacion */}
-          <ConfirmDialog {...pagoDialogProps} />
-        </div>
-      </Modal>
-    );
-  };
-
-  // Modal para editar/agregar flete a una transferencia existente
-  const EditFleteModal = ({
-    transferencia,
-    onClose,
-    onConfirm
-  }: {
-    transferencia: Transferencia;
-    onClose: () => void;
-    onConfirm: (costoFletePorProducto: Record<string, number>) => Promise<void>;
-  }) => {
-    const { productos } = useProductoStore();
-    const productosMap = useMemo(() => {
-      const map = new Map<string, typeof productos[0]>();
-      productos.forEach(p => map.set(p.id, p));
-      return map;
-    }, [productos]);
-
-    const [submitting, setSubmitting] = useState(false);
-    // Inicializar con los costos existentes (flete total por producto)
-    const [fletesPorProducto, setFletesPorProducto] = useState<Record<string, number>>(() => {
-      const initial: Record<string, number> = {};
-      // Calcular flete total actual por producto desde las unidades
-      for (const producto of transferencia.productosSummary) {
-        const unidadesProducto = transferencia.unidades.filter(u => u.productoId === producto.productoId);
-        const fleteTotal = unidadesProducto.reduce((sum, u) => sum + (u.costoFleteUSD || 0), 0);
-        if (fleteTotal > 0) {
-          initial[producto.productoId] = fleteTotal;
-        }
-      }
-      return initial;
-    });
-
-    const totalFlete = Object.values(fletesPorProducto).reduce((sum, v) => sum + (v || 0), 0);
-
-    const handleSubmit = async () => {
-      setSubmitting(true);
-      try {
-        await onConfirm(fletesPorProducto);
-      } catch {
-        setSubmitting(false);
-      }
-    };
-
-    return (
-      <Modal
-        isOpen={true}
-        onClose={onClose}
-        title={`Flete - ${transferencia.numeroTransferencia}`}
-        size="lg"
-      >
-        <div className="space-y-4">
-          {/* Info de la transferencia */}
-          <div className="bg-gray-50 rounded-lg p-3 text-sm">
-            <div className="grid grid-cols-2 gap-2">
-              <div><span className="text-gray-500">Destino:</span> <span className="font-medium">{transferencia.almacenDestinoNombre}</span></div>
-              <div><span className="text-gray-500">Unidades:</span> <span className="font-medium">{transferencia.totalUnidades}</span></div>
-              {transferencia.viajeroNombre && (
-                <div><span className="text-gray-500">Viajero:</span> <span className="font-medium">{transferencia.viajeroNombre}</span></div>
-              )}
-              <div>
-                <span className="text-gray-500">Flete actual:</span>{' '}
-                <span className="font-medium">
-                  {transferencia.costoFleteTotal && transferencia.costoFleteTotal > 0
-                    ? `$${transferencia.costoFleteTotal.toFixed(2)}`
-                    : 'Sin flete'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Flete por producto */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-medium text-gray-700">Costo de Flete por Producto</h4>
-              <div className="text-lg font-bold text-blue-700">${totalFlete.toFixed(2)}</div>
-            </div>
-
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {transferencia.productosSummary.map((producto) => {
-                const unidadesCount = producto.cantidad;
-                const fleteTotalProducto = fletesPorProducto[producto.productoId] || 0;
-                const fletePorUnidad = unidadesCount > 0 ? fleteTotalProducto / unidadesCount : 0;
-                const productoFull = productosMap.get(producto.productoId);
-
-                return (
-                  <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-gray-200">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <h5 className="font-medium text-gray-900 truncate">
-                          {productoFull?.nombreComercial || producto.nombre}
-                        </h5>
-                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
-                          {productoFull?.marca && (
-                            <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{productoFull.marca}</span>
-                          )}
-                          {productoFull?.presentacion && (
-                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded capitalize">{productoFull.presentacion.replace('_', ' ')}</span>
-                          )}
-                          {productoFull?.dosaje && (
-                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{productoFull.dosaje}</span>
-                          )}
-                          {productoFull?.contenido && (
-                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{productoFull.contenido}</span>
-                          )}
-                          {productoFull?.sabor && (
-                            <span className="text-xs text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">{productoFull.sabor}</span>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">{producto.sku} &middot; {producto.cantidad} unidades</p>
-                      </div>
-                      <div className="flex-shrink-0 w-40">
-                        <label className="block text-xs text-gray-500 mb-1">Flete total producto (USD)</label>
-                        <div className="relative">
-                          <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
-                          <input
-                            type="number"
-                            value={fletesPorProducto[producto.productoId] || ''}
-                            onChange={(e) => {
-                              const valor = parseFloat(e.target.value) || 0;
-                              setFletesPorProducto(prev => ({
-                                ...prev,
-                                [producto.productoId]: valor
-                              }));
-                            }}
-                            className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
-                            placeholder="0.00"
-                            step="0.01"
-                            min="0"
-                          />
-                        </div>
-                        {fletePorUnidad > 0 && (
-                          <div className="text-xs text-blue-600 mt-1 text-right">
-                            ${fletePorUnidad.toFixed(2)} / unidad
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {(transferencia.estado === 'recibida_completa' || transferencia.estado === 'recibida_parcial') && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-amber-700">
-                  Esta transferencia ya fue recibida. Al actualizar el flete, se recalculará el CTRU de las unidades afectadas.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Botones */}
-          <div className="flex justify-end space-x-3 pt-2 border-t">
-            <Button variant="secondary" onClick={onClose} disabled={submitting}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleSubmit}
-              disabled={submitting}
-            >
-              {submitting ? 'Guardando...' : 'Guardar Flete'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-    );
-  };
-
-  const transferenciasFiltradas = getTransferenciasFiltradas();
+  const handleActualizarFlete = useCallback(async (costoFletePorProducto: Record<string, number>) => {
+    if (!user || !transferenciaParaFlete) return;
+    try {
+      await actualizarFlete(transferenciaParaFlete.id, costoFletePorProducto, user.uid);
+      setShowEditFleteModal(false);
+      setTransferenciaParaFlete(null);
+      setSelectedTransferencia(null);
+      alert('Flete actualizado correctamente');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      alert('Error: ' + message);
+    }
+  }, [user, transferenciaParaFlete, actualizarFlete]);
 
   return (
     <div className="space-y-6">
-      {/* Header Profesional con Gradiente */}
+      {/* Header con Gradiente */}
       <GradientHeader
         title="Transferencias"
         subtitle="Gestiona el movimiento de productos entre almacenes"
@@ -2554,9 +401,9 @@ export const Transferencias: React.FC = () => {
         }
         stats={[
           { label: 'Total', value: transferencias.length },
-          { label: 'En Tránsito', value: resumen?.enTransito || 0 },
+          { label: 'En Transito', value: resumen?.enTransito || 0 },
           { label: 'Pendientes', value: resumen?.pendientesRecepcion || 0 },
-          { label: 'Completadas', value: resumen?.completadasMes || 0 }
+          { label: 'Completadas', value: resumen?.completadasMes || 0 },
         ]}
       />
 
@@ -2569,7 +416,7 @@ export const Transferencias: React.FC = () => {
           variant="blue"
         />
         <StatCard
-          label="En Tránsito"
+          label="En Transito"
           value={resumen?.enTransito || 0}
           icon={Truck}
           variant="blue"
@@ -2604,22 +451,22 @@ export const Transferencias: React.FC = () => {
         />
       </div>
 
-      {/* Distribución Visual */}
+      {/* Distribucion Visual */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <StatDistribution
           title="Estado de Transferencias"
           data={[
             { label: 'Borrador', value: pipelineStages[0]?.count || 0, color: 'bg-gray-400' },
             { label: 'Preparando', value: pipelineStages[1]?.count || 0, color: 'bg-yellow-500' },
-            { label: 'En Tránsito', value: pipelineStages[2]?.count || 0, color: 'bg-blue-500' },
-            { label: 'Recibida', value: pipelineStages[3]?.count || 0, color: 'bg-green-500' }
+            { label: 'En Transito', value: pipelineStages[2]?.count || 0, color: 'bg-blue-500' },
+            { label: 'Recibida', value: pipelineStages[3]?.count || 0, color: 'bg-green-500' },
           ]}
         />
         <StatDistribution
           title="Tipo de Transferencias"
           data={[
-            { label: 'Internacional → Perú', value: transferencias.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-blue-500' },
-            { label: 'Interna Origen', value: transferencias.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-gray-500' }
+            { label: 'Internacional → Peru', value: transferencias.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-blue-500' },
+            { label: 'Interna Origen', value: transferencias.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-gray-500' },
           ]}
         />
       </div>
@@ -2633,81 +480,19 @@ export const Transferencias: React.FC = () => {
       />
 
       {/* Tabs y Filtros */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
-        {/* Tabs */}
-        <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
-          <nav className="-mb-px flex space-x-4 sm:space-x-8">
-            <button
-              onClick={() => setActiveTab('todas')}
-              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
-                activeTab === 'todas'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Todas ({transferencias.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('en_transito')}
-              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
-                activeTab === 'en_transito'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              En Tránsito ({transferenciasEnTransito.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('pendientes')}
-              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
-                activeTab === 'pendientes'
-                  ? 'border-amber-500 text-amber-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Pendientes ({transferenciasPendientes.length})
-            </button>
-          </nav>
-        </div>
-
-        {/* Filtros */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-48"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <select
-              value={filtroTipo}
-              onChange={(e) => setFiltroTipo(e.target.value as TipoTransferencia | 'todas')}
-              className="flex-1 sm:flex-initial px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="todas">Todos los tipos</option>
-              <option value="internacional_peru">Internacional → Perú</option>
-              <option value="interna_origen">Interna Origen</option>
-            </select>
-            <select
-              value={filtroEstado}
-              onChange={(e) => setFiltroEstado(e.target.value as EstadoTransferencia | 'todas')}
-              className="flex-1 sm:flex-initial px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="todas">Todos los estados</option>
-              <option value="borrador">Borrador</option>
-              <option value="preparando">Preparando</option>
-              <option value="en_transito">En Tránsito</option>
-              <option value="recibida_parcial">Recibida Parcial</option>
-              <option value="recibida_completa">Completada</option>
-              <option value="cancelada">Cancelada</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <TransferenciaFilters
+        activeTab={activeTab}
+        filtroTipo={filtroTipo}
+        filtroEstado={filtroEstado}
+        busqueda={busqueda}
+        totalTransferencias={transferencias.length}
+        totalEnTransito={transferenciasEnTransito.length}
+        totalPendientes={transferenciasPendientes.length}
+        onTabChange={setActiveTab}
+        onFiltroTipoChange={setFiltroTipo}
+        onFiltroEstadoChange={setFiltroEstado}
+        onBusquedaChange={setBusqueda}
+      />
 
       {/* Lista de transferencias */}
       {loading ? (
@@ -2723,9 +508,9 @@ export const Transferencias: React.FC = () => {
             </h3>
             <p className="text-gray-600 mb-6">
               {activeTab === 'en_transito'
-                ? 'No hay transferencias en tránsito'
+                ? 'No hay transferencias en transito'
                 : activeTab === 'pendientes'
-                  ? 'No hay transferencias pendientes de recepción'
+                  ? 'No hay transferencias pendientes de recepcion'
                   : 'Crea tu primera transferencia para mover productos entre almacenes'
               }
             </p>
@@ -2740,452 +525,76 @@ export const Transferencias: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {transferenciasFiltradas.map(transferencia => (
-            <TransferenciaCard key={transferencia.id} transferencia={transferencia} />
+            <TransferenciaCard
+              key={transferencia.id}
+              transferencia={transferencia}
+              productosMap={productosMapGlobal}
+              onSelect={setSelectedTransferencia}
+              onConfirmar={handleConfirmar}
+              onEnviar={handleEnviar}
+              onCancelar={handleCancelar}
+              onIniciarRecepcion={handleIniciarRecepcion}
+            />
           ))}
         </div>
       )}
 
-      {/* Modal crear transferencia */}
-      <CreateTransferenciaModal />
+      {/* Modal: Crear transferencia */}
+      <CreateTransferenciaModal
+        isOpen={showCreateModal}
+        loading={loading}
+        almacenesOrigen={almacenesOrigen}
+        almacenesDestinoPeru={almacenesDestinoPeru}
+        viajeros={viajeros}
+        productosMap={productosMapGlobal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCrearTransferencia}
+      />
 
-      {/* Modal detalle transferencia */}
+      {/* Modal: Detalle de transferencia */}
       {selectedTransferencia && (
-        <Modal
-          isOpen={!!selectedTransferencia}
+        <TransferenciaDetailModal
+          transferencia={selectedTransferencia}
+          productosMap={productosMapGlobal}
+          userId={user?.uid}
           onClose={() => setSelectedTransferencia(null)}
-          title={`Transferencia ${selectedTransferencia.numeroTransferencia}`}
-          size="lg"
-        >
-          <div className="space-y-6">
-            {/* Estado y tipo */}
-            <div className="flex items-center space-x-3">
-              {getTipoBadge(selectedTransferencia.tipo)}
-              {getEstadoBadge(selectedTransferencia.estado)}
-            </div>
-
-            {/* Ruta */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex items-center space-x-4">
-                <div className="flex-1">
-                  <div className="text-xs text-gray-500 uppercase mb-1">Origen</div>
-                  <div className="font-semibold text-gray-900">{selectedTransferencia.almacenOrigenNombre}</div>
-                  <div className="text-sm text-gray-500">{selectedTransferencia.almacenOrigenCodigo}</div>
-                </div>
-                <div className="flex-shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
-                    <ChevronRight className="h-5 w-5 text-primary-600" />
-                  </div>
-                </div>
-                <div className="flex-1 text-right">
-                  <div className="text-xs text-gray-500 uppercase mb-1">Destino</div>
-                  <div className="font-semibold text-gray-900">{selectedTransferencia.almacenDestinoNombre}</div>
-                  <div className="text-sm text-gray-500">{selectedTransferencia.almacenDestinoCodigo}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Resumen de productos */}
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">
-                Productos ({selectedTransferencia.productosSummary.length}) · {selectedTransferencia.totalUnidades} unidades
-              </h4>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {selectedTransferencia.productosSummary.map(producto => {
-                  const unidadesProducto = selectedTransferencia.unidades.filter(u => u.productoId === producto.productoId);
-                  const fleteUnitario = unidadesProducto.length > 0 ? unidadesProducto[0].costoFleteUSD : 0;
-                  const fleteTotalProducto = unidadesProducto.reduce((sum, u) => sum + (u.costoFleteUSD || 0), 0);
-                  const lotes = [...new Set(unidadesProducto.map(u => u.lote).filter(Boolean))];
-                  // Obtener vencimientos
-                  const vencimientos = unidadesProducto
-                    .map(u => u.fechaVencimiento?.toDate?.())
-                    .filter(Boolean)
-                    .sort((a, b) => a!.getTime() - b!.getTime());
-                  const proximoVencer = vencimientos[0];
-                  // Contar estados
-                  const recibidas = unidadesProducto.filter(u => u.estadoTransferencia === 'recibida').length;
-                  const faltantes = unidadesProducto.filter(u => u.estadoTransferencia === 'faltante').length;
-                  const danadas = unidadesProducto.filter(u => u.estadoTransferencia === 'danada').length;
-
-                  const pFull = productosMapGlobal.get(producto.productoId);
-                  return (
-                    <div key={producto.productoId} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</div>
-                          <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                            {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
-                            {pFull?.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
-                            {pFull?.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
-                            {pFull?.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
-                            {pFull?.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
-                          </div>
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-gray-500">
-                            <span>{producto.sku}</span>
-                            {lotes.length > 0 && (
-                              <>
-                                <span className="text-gray-300">·</span>
-                                <span>Lote{lotes.length > 1 ? 's' : ''}: {lotes.join(', ')}</span>
-                              </>
-                            )}
-                            {proximoVencer && (() => {
-                              const dias = Math.ceil((proximoVencer.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-                              return (
-                                <>
-                                  <span className="text-gray-300">·</span>
-                                  <span className={dias < 90 ? 'text-red-600 font-medium' : dias < 180 ? 'text-amber-600' : ''}>
-                                    Vence: {proximoVencer.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                    {dias < 180 && ` (${dias}d)`}
-                                  </span>
-                                </>
-                              );
-                            })()}
-                          </div>
-                          {/* Flete info */}
-                          {fleteUnitario > 0 && (
-                            <div className="text-xs text-green-600 mt-1">
-                              Flete: ${fleteUnitario.toFixed(2)}/u · Total flete: ${fleteTotalProducto.toFixed(2)}
-                            </div>
-                          )}
-                          {/* Estado de recepción si aplica */}
-                          {(selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') && (
-                            <div className="flex items-center gap-2 mt-1">
-                              {recibidas > 0 && (
-                                <span className="text-xs text-green-600 flex items-center gap-0.5">
-                                  <CheckCircle className="h-3 w-3" /> {recibidas} recibida{recibidas > 1 ? 's' : ''}
-                                </span>
-                              )}
-                              {faltantes > 0 && (
-                                <span className="text-xs text-red-600 flex items-center gap-0.5">
-                                  <AlertTriangle className="h-3 w-3" /> {faltantes} faltante{faltantes > 1 ? 's' : ''}
-                                </span>
-                              )}
-                              {danadas > 0 && (
-                                <span className="text-xs text-amber-600 flex items-center gap-0.5">
-                                  <XCircle className="h-3 w-3" /> {danadas} dañada{danadas > 1 ? 's' : ''}
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-lg font-bold text-gray-900">{producto.cantidad}</div>
-                          <div className="text-xs text-gray-500">unid.</div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Fechas */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs text-gray-500 uppercase mb-1">Fecha Creación</div>
-                <div className="text-gray-900">
-                  {selectedTransferencia.fechaCreacion.toDate().toLocaleDateString('es-PE', {
-                    day: '2-digit', month: 'long', year: 'numeric'
-                  })}
-                </div>
-              </div>
-              {selectedTransferencia.fechaSalida && (
-                <div>
-                  <div className="text-xs text-gray-500 uppercase mb-1">Fecha Salida</div>
-                  <div className="text-gray-900">
-                    {selectedTransferencia.fechaSalida.toDate().toLocaleDateString('es-PE', {
-                      day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                    })}
-                  </div>
-                </div>
-              )}
-              {selectedTransferencia.fechaLlegadaReal && (
-                <div>
-                  <div className="text-xs text-gray-500 uppercase mb-1">Fecha Llegada</div>
-                  <div className="text-gray-900">
-                    {selectedTransferencia.fechaLlegadaReal.toDate().toLocaleDateString('es-PE', {
-                      day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Tracking */}
-            {selectedTransferencia.numeroTracking && (
-              <div>
-                <div className="text-xs text-gray-500 uppercase mb-1">Número de Tracking</div>
-                <div className="font-medium text-gray-900">{selectedTransferencia.numeroTracking}</div>
-              </div>
-            )}
-
-            {/* Costo de Flete (solo internacional) */}
-            {esTipoTransferenciaInternacional(selectedTransferencia.tipo) && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-xs text-gray-500 uppercase mb-1">Costo de Flete</div>
-                    {selectedTransferencia.costoFleteTotal && selectedTransferencia.costoFleteTotal > 0 ? (
-                      <div className="font-semibold text-blue-700">${selectedTransferencia.costoFleteTotal.toFixed(2)} USD</div>
-                    ) : (
-                      <div className="text-sm text-amber-600">Sin flete asignado</div>
-                    )}
-                  </div>
-                  {selectedTransferencia.estado !== 'cancelada' && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setTransferenciaParaFlete(selectedTransferencia);
-                        setShowEditFleteModal(true);
-                      }}
-                    >
-                      <DollarSign className="h-4 w-4 mr-1" />
-                      {selectedTransferencia.costoFleteTotal && selectedTransferencia.costoFleteTotal > 0 ? 'Editar Flete' : 'Agregar Flete'}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Historial de Pagos al Viajero */}
-            {esTipoTransferenciaInternacional(selectedTransferencia.tipo) && (() => {
-              const pagos = selectedTransferencia.pagosViajero && selectedTransferencia.pagosViajero.length > 0
-                ? selectedTransferencia.pagosViajero
-                : (selectedTransferencia.pagoViajero ? [selectedTransferencia.pagoViajero] : []);
-              if (pagos.length === 0) return null;
-              const totalPagadoUSD = selectedTransferencia.montoPagadoUSD || pagos.reduce((s, p) => s + p.montoUSD, 0);
-              const fleteTotal = selectedTransferencia.costoFleteTotal || 0;
-              return (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <div className="text-xs text-green-600 uppercase mb-2 font-semibold">
-                    Historial de Pagos ({pagos.length})
-                  </div>
-                  {pagos.map((pago, idx) => (
-                    <div key={pago.id} className="flex justify-between items-center text-sm py-1.5 border-b border-green-100 last:border-0">
-                      <div>
-                        <span className="font-medium text-gray-900">Pago {idx + 1}</span>
-                        <span className="text-gray-500 ml-2">
-                          {pago.fecha?.toDate?.() ? pago.fecha.toDate().toLocaleDateString('es-PE') : ''}
-                        </span>
-                        <span className="text-gray-400 ml-2 text-xs capitalize">
-                          {pago.metodoPago?.replace(/_/g, ' ')}
-                        </span>
-                      </div>
-                      <div className="text-right flex items-center gap-2">
-                        <span className="font-semibold text-green-700">${pago.montoUSD.toFixed(2)}</span>
-                        {pago.errorTesoreria && (
-                          <span className="text-xs text-red-500 bg-red-50 px-1.5 py-0.5 rounded">Sin sync</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {fleteTotal > 0 && (
-                    <div className="mt-2">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1">
-                        <span>Pagado: ${totalPagadoUSD.toFixed(2)}</span>
-                        <span>Total: ${fleteTotal.toFixed(2)}</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-green-500 h-2 rounded-full transition-all"
-                          style={{ width: `${Math.min(100, (totalPagadoUSD / fleteTotal) * 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-
-            {/* Historial de Recepciones */}
-            {(selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') && (() => {
-              const recepciones = selectedTransferencia.recepcionesTransferencia && selectedTransferencia.recepcionesTransferencia.length > 0
-                ? selectedTransferencia.recepcionesTransferencia
-                : (selectedTransferencia.recepcion ? [{ ...selectedTransferencia.recepcion, id: 'legacy', numero: 1 }] : []);
-              if (recepciones.length === 0) return null;
-              const totalRecibidas = selectedTransferencia.totalUnidadesRecibidas ?? recepciones.reduce((s, r) => s + r.unidadesRecibidas, 0);
-              const totalDanadas = selectedTransferencia.totalUnidadesDanadas ?? recepciones.reduce((s, r) => s + r.unidadesDanadas, 0);
-              const totalUnidades = selectedTransferencia.totalUnidades;
-              return (
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                  <div className="text-xs text-purple-600 uppercase mb-2 font-semibold">
-                    Historial de Recepciones ({recepciones.length})
-                  </div>
-                  {recepciones.map((rec, idx) => (
-                    <div key={rec.id || idx} className="text-sm py-2 border-b border-purple-100 last:border-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <span className="font-medium text-gray-900">Recepción #{rec.numero || idx + 1}</span>
-                          <span className="text-gray-500 text-xs">
-                            {rec.fechaRecepcion?.toDate?.() ? rec.fechaRecepcion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
-                          </span>
-                        </div>
-                      </div>
-                      {rec.recibidoPor && (
-                        <p className="text-[10px] text-gray-400 mt-0.5 truncate" title={rec.recibidoPor}>
-                          Por: <UserName userId={rec.recibidoPor} />
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        {rec.unidadesRecibidas > 0 && (
-                          <span className="text-xs text-green-600 flex items-center gap-0.5">
-                            <CheckCircle className="h-3 w-3" /> {rec.unidadesRecibidas} recibida{rec.unidadesRecibidas > 1 ? 's' : ''}
-                          </span>
-                        )}
-                        {rec.unidadesDanadas > 0 && (
-                          <span className="text-xs text-amber-600 flex items-center gap-0.5">
-                            <AlertTriangle className="h-3 w-3" /> {rec.unidadesDanadas} dañada{rec.unidadesDanadas > 1 ? 's' : ''}
-                          </span>
-                        )}
-                        {rec.unidadesFaltantes > 0 && (
-                          <span className="text-xs text-red-600 flex items-center gap-0.5">
-                            <XCircle className="h-3 w-3" /> {rec.unidadesFaltantes} faltante{rec.unidadesFaltantes > 1 ? 's' : ''}
-                          </span>
-                        )}
-                      </div>
-                      {rec.observaciones && (
-                        <div className="text-xs text-gray-500 mt-0.5 italic">"{rec.observaciones}"</div>
-                      )}
-                    </div>
-                  ))}
-                  <div className="mt-2">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
-                      <span>Recibidas: {totalRecibidas}{totalDanadas > 0 ? ` (${totalDanadas} dañadas)` : ''}</span>
-                      <span>Total: {totalUnidades}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-purple-500 h-2 rounded-full transition-all"
-                        style={{ width: `${Math.min(100, ((totalRecibidas + totalDanadas) / totalUnidades) * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Notas */}
-            {selectedTransferencia.notas && (
-              <div>
-                <div className="text-xs text-gray-500 uppercase mb-1">Notas</div>
-                <div className="text-gray-900">{selectedTransferencia.notas}</div>
-              </div>
-            )}
-
-            {/* Acciones */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
-              <Button variant="secondary" onClick={() => setSelectedTransferencia(null)}>
-                Cerrar
-              </Button>
-              {selectedTransferencia.estado === 'borrador' && (
-                <Button variant="primary" onClick={() => { handleConfirmar(selectedTransferencia.id); setSelectedTransferencia(null); }}>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Confirmar
-                </Button>
-              )}
-              {selectedTransferencia.estado === 'preparando' && (
-                <Button variant="primary" onClick={() => { handleEnviar(selectedTransferencia.id); setSelectedTransferencia(null); }}>
-                  <Truck className="h-4 w-4 mr-2" />
-                  Marcar como Enviada
-                </Button>
-              )}
-              {(selectedTransferencia.estado === 'en_transito' || selectedTransferencia.estado === 'recibida_parcial') && (
-                <Button variant="primary" onClick={() => handleIniciarRecepcion(selectedTransferencia)}>
-                  <Package className="h-4 w-4 mr-2" />
-                  {selectedTransferencia.estado === 'recibida_parcial' ? 'Registrar Recepción Adicional' : 'Registrar Recepción'}
-                </Button>
-              )}
-              {/* Botón para registrar pago al viajero */}
-              {esTipoTransferenciaInternacional(selectedTransferencia.tipo) &&
-               (selectedTransferencia.estado === 'recibida_completa' || selectedTransferencia.estado === 'recibida_parcial') &&
-               selectedTransferencia.estadoPagoViajero !== 'pagado' && (
-                <Button variant="success" onClick={() => handleAbrirPagoViajero(selectedTransferencia)}>
-                  <Banknote className="h-4 w-4 mr-2" />
-                  {selectedTransferencia.estadoPagoViajero === 'parcial'
-                    ? 'Registrar Pago Adicional'
-                    : 'Registrar Pago Viajero'}
-                </Button>
-              )}
-              {/* Badge parcial */}
-              {selectedTransferencia.estadoPagoViajero === 'parcial' && (
-                <Badge variant="warning">
-                  <Clock className="h-3 w-3 mr-1" />
-                  Pago Parcial ({((selectedTransferencia.montoPagadoUSD || 0) / (selectedTransferencia.costoFleteTotal || 1) * 100).toFixed(0)}%)
-                </Badge>
-              )}
-              {/* Badge + Botón reconciliar si ya está pagado */}
-              {selectedTransferencia.estadoPagoViajero === 'pagado' && (
-                <>
-                  <Badge variant="success">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Pago Registrado
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={async () => {
-                      if (!user) return;
-                      try {
-                        await reconciliarPagoViajero(selectedTransferencia.id, user.uid);
-                        setSelectedTransferencia(null);
-                        alert('Pago sincronizado correctamente en Tesorería');
-                      } catch (error) {
-                        const msg = error instanceof Error ? error.message : 'Error desconocido';
-                        alert(msg);
-                      }
-                    }}
-                    title="Verificar y sincronizar el movimiento en Tesorería"
-                  >
-                    <RefreshCw className="h-4 w-4 mr-1" />
-                    Sincronizar
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        </Modal>
+          onConfirmar={handleConfirmar}
+          onEnviar={handleEnviar}
+          onIniciarRecepcion={handleIniciarRecepcion}
+          onAbrirPagoViajero={handleAbrirPagoViajero}
+          onAbrirEditFlete={handleAbrirEditFlete}
+          onReconciliarPago={handleReconciliarPago}
+        />
       )}
 
-      {/* Modal de Recepción */}
+      {/* Modal: Recepcion */}
       {showRecepcionModal && transferenciaParaRecepcion && (
         <RecepcionModal
           transferencia={transferenciaParaRecepcion}
+          productosMap={productosMapGlobal}
           onClose={() => {
             setShowRecepcionModal(false);
             setTransferenciaParaRecepcion(null);
           }}
-          onConfirm={async (data: RecepcionFormData) => {
-            if (!user) return;
-            try {
-              await registrarRecepcion(data, user.uid);
-              setShowRecepcionModal(false);
-              setTransferenciaParaRecepcion(null);
-            } catch (error) {
-              const message = error instanceof Error ? error.message : 'Error desconocido';
-              alert('Error: ' + message);
-            }
-          }}
+          onConfirm={handleRegistrarRecepcion}
         />
       )}
 
-      {/* Modal de Pago al Viajero */}
+      {/* Modal: Pago al Viajero */}
       {showPagoModal && transferenciaParaPago && (
         <PagoViajeroModal
           transferencia={transferenciaParaPago}
+          tipoCambioActual={tipoCambioActual}
+          cuentasTesoreria={cuentasTesoreria}
           onClose={() => {
             setShowPagoModal(false);
             setTransferenciaParaPago(null);
           }}
-          onConfirm={async (datos) => {
-            if (!user) return;
-            await registrarPagoViajero(transferenciaParaPago.id, datos, user.uid);
-            setShowPagoModal(false);
-            setTransferenciaParaPago(null);
-            alert('✅ Pago al viajero registrado correctamente');
-          }}
+          onConfirm={handleRegistrarPagoViajero}
         />
       )}
 
-      {/* Modal de Editar Flete */}
+      {/* Modal: Editar Flete */}
       {showEditFleteModal && transferenciaParaFlete && (
         <EditFleteModal
           transferencia={transferenciaParaFlete}
@@ -3193,19 +602,7 @@ export const Transferencias: React.FC = () => {
             setShowEditFleteModal(false);
             setTransferenciaParaFlete(null);
           }}
-          onConfirm={async (costoFletePorProducto: Record<string, number>) => {
-            if (!user) return;
-            try {
-              await actualizarFlete(transferenciaParaFlete.id, costoFletePorProducto, user.uid);
-              setShowEditFleteModal(false);
-              setTransferenciaParaFlete(null);
-              setSelectedTransferencia(null);
-              alert('Flete actualizado correctamente');
-            } catch (error) {
-              const message = error instanceof Error ? error.message : 'Error desconocido';
-              alert('Error: ' + message);
-            }
-          }}
+          onConfirm={handleActualizarFlete}
         />
       )}
 

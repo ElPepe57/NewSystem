@@ -12,6 +12,7 @@ import {
   DocumentSnapshot
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import type {
   AuditLog,
   AuditLogCreate,
@@ -36,7 +37,7 @@ class AuditoriaService {
       const { userProfile } = useAuthStore.getState();
 
       if (!userProfile) {
-        console.warn('No hay usuario autenticado para registrar auditoría');
+        logger.warn('No hay usuario autenticado para registrar auditoría');
         return null;
       }
 
@@ -75,7 +76,7 @@ class AuditoriaService {
         ...auditLog
       } as AuditLog;
     } catch (error: any) {
-      console.error('Error al registrar auditoría:', error);
+      logger.error('Error al registrar auditoría:', error);
       return null;
     }
   }
@@ -180,7 +181,7 @@ class AuditoriaService {
 
       return { logs: logsFiltrados, ultimoDoc: nuevoUltimoDoc };
     } catch (error: any) {
-      console.error('Error al obtener logs:', error);
+      logger.error('Error al obtener logs:', error);
       return { logs: [], ultimoDoc: null };
     }
   }
@@ -206,7 +207,7 @@ class AuditoriaService {
         ...doc.data()
       } as AuditLog));
     } catch (error: any) {
-      console.error('Error al obtener logs recientes:', error);
+      logger.error('Error al obtener logs recientes:', error);
       return [];
     }
   }
@@ -230,7 +231,7 @@ class AuditoriaService {
         ...doc.data()
       } as AuditLog));
     } catch (error: any) {
-      console.error('Error al obtener logs por entidad:', error);
+      logger.error('Error al obtener logs por entidad:', error);
       return [];
     }
   }
@@ -304,7 +305,7 @@ class AuditoriaService {
 
       return stats;
     } catch (error: any) {
-      console.error('Error al obtener estadísticas:', error);
+      logger.error('Error al obtener estadísticas:', error);
       return {
         totalHoy: 0,
         totalSemana: 0,

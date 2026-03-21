@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
@@ -76,7 +77,7 @@ export const etiquetaService = {
       })) as Etiqueta[];
       return etiquetas.sort((a, b) => (a.ordenDisplay || 0) - (b.ordenDisplay || 0));
     } catch (error: any) {
-      console.error('Error al obtener etiquetas:', error);
+      logger.error('Error al obtener etiquetas:', error);
       throw new Error('Error al cargar etiquetas');
     }
   },
@@ -97,7 +98,7 @@ export const etiquetaService = {
       })) as Etiqueta[];
       return etiquetas.sort((a, b) => (a.ordenDisplay || 0) - (b.ordenDisplay || 0));
     } catch (error: any) {
-      console.error('Error al obtener etiquetas activas:', error);
+      logger.error('Error al obtener etiquetas activas:', error);
       throw new Error('Error al cargar etiquetas');
     }
   },
@@ -152,7 +153,7 @@ export const etiquetaService = {
       if (!docSnap.exists()) return null;
       return { id: docSnap.id, ...docSnap.data() } as Etiqueta;
     } catch (error: any) {
-      console.error('Error al obtener etiqueta:', error);
+      logger.error('Error al obtener etiqueta:', error);
       throw new Error('Error al cargar etiqueta');
     }
   },
@@ -166,7 +167,7 @@ export const etiquetaService = {
       const todas = await this.getAll();
       return todas.find(e => e.nombreNormalizado === nombreNorm) || null;
     } catch (error: any) {
-      console.error('Error al buscar etiqueta:', error);
+      logger.error('Error al buscar etiqueta:', error);
       return null;
     }
   },
@@ -210,7 +211,7 @@ export const etiquetaService = {
       const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevaEtiqueta);
       return { id: docRef.id, ...nuevaEtiqueta };
     } catch (error: any) {
-      console.error('Error al crear etiqueta:', error);
+      logger.error('Error al crear etiqueta:', error);
       throw new Error(error.message || 'Error al crear etiqueta');
     }
   },
@@ -272,7 +273,7 @@ export const etiquetaService = {
         await this.propagarCambiosAProductos(id);
       }
     } catch (error: any) {
-      console.error('Error al actualizar etiqueta:', error);
+      logger.error('Error al actualizar etiqueta:', error);
       throw new Error(error.message || 'Error al actualizar etiqueta');
     }
   },
@@ -289,7 +290,7 @@ export const etiquetaService = {
         fechaActualizacion: Timestamp.now()
       });
     } catch (error: any) {
-      console.error('Error al cambiar estado:', error);
+      logger.error('Error al cambiar estado:', error);
       throw new Error('Error al cambiar estado de la etiqueta');
     }
   },
@@ -308,7 +309,7 @@ export const etiquetaService = {
 
       await deleteDoc(doc(db, COLLECTION_NAME, id));
     } catch (error: any) {
-      console.error('Error al eliminar etiqueta:', error);
+      logger.error('Error al eliminar etiqueta:', error);
       throw new Error(error.message || 'Error al eliminar etiqueta');
     }
   },
@@ -401,7 +402,7 @@ export const etiquetaService = {
 
       return resultado;
     } catch (error: any) {
-      console.error('Error al buscar etiquetas:', error);
+      logger.error('Error al buscar etiquetas:', error);
       throw new Error('Error al buscar etiquetas');
     }
   },
@@ -414,7 +415,7 @@ export const etiquetaService = {
       const docRef = doc(db, COLLECTION_NAME, id);
       await updateDoc(docRef, { productosActivos });
     } catch (error: any) {
-      console.error('Error al actualizar contador:', error);
+      logger.error('Error al actualizar contador:', error);
     }
   },
 
@@ -449,7 +450,7 @@ export const etiquetaService = {
         topEtiquetasPorUso: topUso
       };
     } catch (error: any) {
-      console.error('Error al obtener estadisticas:', error);
+      logger.error('Error al obtener estadisticas:', error);
       throw new Error('Error al obtener estadisticas');
     }
   },
@@ -494,7 +495,7 @@ export const etiquetaService = {
 
       return actualizados;
     } catch (error: any) {
-      console.error('Error al propagar cambios a clientes:', error);
+      logger.error('Error al propagar cambios a clientes:', error);
       return 0;
     }
   },
@@ -540,7 +541,7 @@ export const etiquetaService = {
 
       return actualizados;
     } catch (error: any) {
-      console.error('Error al propagar cambios:', error);
+      logger.error('Error al propagar cambios:', error);
       return 0;
     }
   },
@@ -564,7 +565,7 @@ export const etiquetaService = {
           creadas++;
         }
       } catch (error) {
-        console.error(`Error al crear preset ${preset.nombre}:`, error);
+        logger.error(`Error al crear preset ${preset.nombre}:`, error);
       }
     }
 

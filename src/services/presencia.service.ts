@@ -11,6 +11,7 @@ import {
   type Unsubscribe
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import type { PresenciaUsuario } from '../types/collaboration.types';
 import type { UserRole } from '../types/auth.types';
@@ -42,7 +43,7 @@ export const presenciaService = {
       if (photoURL) data.photoURL = photoURL;
       await setDoc(docRef, data, { merge: true });
     } catch (error) {
-      console.error('Error actualizando presencia:', error);
+      logger.error('Error actualizando presencia:', error);
     }
   },
 
@@ -58,7 +59,7 @@ export const presenciaService = {
         ultimaActividad: Timestamp.now(),
       }, { merge: true });
     } catch (error) {
-      console.error('Error marcando offline:', error);
+      logger.error('Error marcando offline:', error);
     }
   },
 
@@ -88,7 +89,7 @@ export const presenciaService = {
 
       callback(usuarios);
     }, (error) => {
-      console.error('Error en suscripción de presencia:', error);
+      logger.error('Error en suscripción de presencia:', error);
     });
   },
 
@@ -100,7 +101,7 @@ export const presenciaService = {
       const docRef = doc(db, COLLECTION_NAME, uid);
       await deleteDoc(docRef);
     } catch (error) {
-      console.error('Error eliminando presencia:', error);
+      logger.error('Error eliminando presencia:', error);
     }
   },
 
@@ -116,10 +117,10 @@ export const presenciaService = {
         .map(d => deleteDoc(d.ref));
       if (eliminaciones.length > 0) {
         await Promise.all(eliminaciones);
-        console.log(`Presencia: ${eliminaciones.length} documento(s) huérfano(s) eliminado(s)`);
+        logger.info(`Presencia: ${eliminaciones.length} documento(s) huérfano(s) eliminado(s)`);
       }
     } catch (error) {
-      console.error('Error limpiando presencia huérfana:', error);
+      logger.error('Error limpiando presencia huérfana:', error);
     }
   },
 
