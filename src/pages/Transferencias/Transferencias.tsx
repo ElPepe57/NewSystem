@@ -39,6 +39,7 @@ import type {
 import type { CuentaCaja, MetodoTesoreria } from "../../types/tesoreria.types";
 import { esTipoTransferenciaInterna, esTipoTransferenciaInternacional, esPaisOrigen } from "../../utils/multiOrigen.helpers";
 import { useLineaFilter } from "../../hooks/useLineaFilter";
+import { useToastStore } from "../../store/toastStore";
 
 // Sub-componentes extraidos
 import { TransferenciaCard } from "./TransferenciaCard";
@@ -51,6 +52,7 @@ import { TransferenciaFilters } from "./TransferenciaFilters";
 
 export const Transferencias: React.FC = () => {
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
   const {
     transferencias,
     transferenciasEnTransito,
@@ -311,10 +313,10 @@ export const Transferencias: React.FC = () => {
     try {
       await reconciliarPagoViajero(transferencia.id, user.uid);
       setSelectedTransferencia(null);
-      alert('Pago sincronizado correctamente en Tesoreria');
+      toast.success('Pago sincronizado correctamente en Tesorería');
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Error desconocido';
-      alert(msg);
+      toast.error(msg);
     }
   }, [user, reconciliarPagoViajero]);
 
@@ -331,7 +333,7 @@ export const Transferencias: React.FC = () => {
       setTransferenciaParaRecepcion(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error: ' + message);
+      toast.error('Error: ' + message);
     }
   }, [user, registrarRecepcion]);
 
@@ -350,10 +352,10 @@ export const Transferencias: React.FC = () => {
       await registrarPagoViajero(transferenciaParaPago.id, datos, user.uid);
       setShowPagoModal(false);
       setTransferenciaParaPago(null);
-      alert('Pago al viajero registrado correctamente');
+      toast.success('Pago al viajero registrado correctamente');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error: ' + message);
+      toast.error('Error: ' + message);
     }
   }, [user, transferenciaParaPago, registrarPagoViajero]);
 
@@ -364,10 +366,10 @@ export const Transferencias: React.FC = () => {
       setShowEditFleteModal(false);
       setTransferenciaParaFlete(null);
       setSelectedTransferencia(null);
-      alert('Flete actualizado correctamente');
+      toast.success('Flete actualizado correctamente');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error: ' + message);
+      toast.error('Error: ' + message);
     }
   }, [user, transferenciaParaFlete, actualizarFlete]);
 

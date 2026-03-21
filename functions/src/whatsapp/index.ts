@@ -30,9 +30,9 @@ function validateWhatsAppSignature(req: functions.https.Request): boolean {
 
   const appSecret = getSecret("WHATSAPP_APP_SECRET");
   if (!appSecret) {
-    // Si no hay secret configurado, permitir (backward compat) pero advertir
-    console.warn("[WA] WHATSAPP_APP_SECRET not configured — signature validation skipped");
-    return true;
+    // Fail-closed: sin secret configurado, rechazar webhook
+    console.error("[WA] WHATSAPP_APP_SECRET not configured — rejecting webhook");
+    return false;
   }
 
   const expectedSignature = "sha256=" +

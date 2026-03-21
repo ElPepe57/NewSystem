@@ -7,6 +7,7 @@
  * También limpia referencias huérfanas (ej: OCs que referencian productos eliminados)
  */
 
+import { logger } from '../lib/logger';
 import {
   collection,
   getDocs,
@@ -1152,7 +1153,7 @@ class SincronizacionService {
     // Los stores de Zustand se recargarán automáticamente
     // cuando los componentes vuelvan a montar o cuando
     // se llame a sus métodos fetch
-    console.log('[Sincronización] Caches invalidados - los stores se recargarán');
+    logger.info('[Sincronización] Caches invalidados - los stores se recargarán');
   }
 }
 

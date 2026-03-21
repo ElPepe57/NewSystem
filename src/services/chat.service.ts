@@ -1,3 +1,4 @@
+import { logger } from '../lib/logger';
 import {
   doc,
   collection,
@@ -53,16 +54,16 @@ function onSnapshotWithRetry(
         retryCount = 0;
         onData(snapshot);
       }, (error) => {
-        console.error(`[Chat] Error en suscripción ${label}:`, error.message);
+        logger.error(`[Chat] Error en suscripción ${label}:`, error.message);
         unsub = null;
         if (!cancelled && retryCount < MAX_RETRIES) {
           retryCount++;
-          console.log(`[Chat] Reintentando ${label} en ${RETRY_DELAY_MS / 1000}s (intento ${retryCount}/${MAX_RETRIES})...`);
+          logger.info(`[Chat] Reintentando ${label} en ${RETRY_DELAY_MS / 1000}s (intento ${retryCount}/${MAX_RETRIES})...`);
           retryTimeout = setTimeout(subscribe, RETRY_DELAY_MS);
         }
       });
     } catch (err) {
-      console.error(`[Chat] Error creando query ${label}:`, err);
+      logger.error(`[Chat] Error creando query ${label}:`, err);
     }
   };
 

@@ -672,9 +672,32 @@ export const poolUSDService = {
   // UTILIDADES
   // ==========================================================
 
-  /** Eliminar un movimiento (solo admin, para correcciones) */
+  /**
+   * Eliminar un movimiento (solo admin, para correcciones).
+   * BUG-001 FIX: tras eliminar el documento, recalcula _estado desde el
+   * último movimiento restante. Si no quedan movimientos, elimina _estado.
+   */
   async eliminarMovimiento(movimientoId: string): Promise<void> {
     await deleteDoc(doc(db, MOV_COLLECTION, movimientoId));
+
+    // Recalcular _estado desde el nuevo último movimiento
+    const estadoRef = ESTADO_DOC_REF();
+    const ultimo = await this.getUltimoMovimiento();
+
+    if (!ultimo) {
+      // No quedan movimientos: eliminar el documento de estado para evitar
+      // que registrarMovimiento lea un saldo/TCPA obsoleto.
+      await deleteDoc(estadoRef);
+      return;
+    }
+
+    // Actualizar _estado con los valores del último movimiento restante
+    await setDoc(estadoRef, {
+      saldoUSD: ultimo.poolUSDDespues,
+      tcpa: ultimo.tcpaDespues,
+      ultimoMovimientoId: ultimo.id,
+      ultimaActualizacion: Timestamp.now(),
+    });
   },
 
   /** Guardar configuración del módulo */

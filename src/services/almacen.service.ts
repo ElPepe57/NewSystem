@@ -547,10 +547,10 @@ export const almacenService = {
         }
       }
 
-      console.log(`[recalcularTodosLosAlmacenes] ${almacenesActualizados} almacenes actualizados`);
+      logger.info(`[recalcularTodosLosAlmacenes] ${almacenesActualizados} almacenes actualizados`);
     } catch (error: any) {
       errores.push(`Error general: ${error.message}`);
-      console.error('Error recalculando almacenes:', error);
+      logger.error('Error recalculando almacenes:', error);
     }
 
     return { almacenesActualizados, errores };

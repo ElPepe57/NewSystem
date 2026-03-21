@@ -1244,6 +1244,34 @@ export class VentaService {
         }
       }
 
+      // BUG-003 FIX: Revertir movimientos Pool USD asociados a esta venta.
+      // Los cobros en USD (Zelle/PayPal) generan movimientos Pool con
+      // documentoOrigenTipo='venta' y documentoOrigenId=ventaId.
+      // Eliminarlos uno a uno para que _estado quede consistente.
+      const hasUSDPayment = venta.pagos?.some(p => p.moneda === 'USD');
+      if (hasUSDPayment) {
+        try {
+          const { poolUSDService } = await import('./poolUSD.service');
+          const { collection: col, query: q, where: w, getDocs: gd } = await import('firebase/firestore');
+          const poolSnap = await gd(q(
+            col(db, COLLECTIONS.POOL_USD_MOVIMIENTOS),
+            w('documentoOrigenTipo', '==', 'venta'),
+            w('documentoOrigenId', '==', id)
+          ));
+          for (const poolDoc of poolSnap.docs) {
+            try {
+              await poolUSDService.eliminarMovimiento(poolDoc.id);
+            } catch (poolErr) {
+              logger.error(`[cancelar] Error eliminando movimiento Pool USD ${poolDoc.id}:`, poolErr);
+              logBackgroundError('poolUSD.cancelarVenta', poolErr, 'critical', { ventaId: id, movimientoId: poolDoc.id });
+            }
+          }
+        } catch (poolUSDError) {
+          logger.error(`[cancelar] Error revirtiendo Pool USD para venta ${id}:`, poolUSDError);
+          logBackgroundError('poolUSD.cancelarVenta', poolUSDError, 'critical', { ventaId: id });
+        }
+      }
+
       if (productosAfectados.size > 0) {
         await inventarioService.sincronizarStockProductos_batch([...productosAfectados]);
 

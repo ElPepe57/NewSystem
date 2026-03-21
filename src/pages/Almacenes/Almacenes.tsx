@@ -29,6 +29,7 @@ import {
 } from "../../components/common";
 import { useAlmacenStore } from "../../store/almacenStore";
 import { useAuthStore } from "../../store/authStore";
+import { useToastStore } from "../../store/toastStore";
 import type { Almacen, AlmacenFormData } from "../../types/almacen.types";
 import { AlmacenForm } from "../../components/modules/almacen/AlmacenForm";
 import { unidadService } from "../../services/unidad.service";
@@ -36,6 +37,7 @@ import { getPaisEmoji } from "../../utils/multiOrigen.helpers";
 
 export const Almacenes: React.FC = () => {
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
   const {
     almacenes,
     almacenesUSA,
@@ -94,10 +96,10 @@ export const Almacenes: React.FC = () => {
 
     try {
       await seedDefaultAlmacenes(user.uid);
-      alert("Almacenes creados correctamente");
+      toast.success("Almacenes creados correctamente");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert("Error: " + message);
+      toast.error("Error: " + message);
     }
   };
 
@@ -120,25 +122,20 @@ export const Almacenes: React.FC = () => {
       const resultado = await unidadService.recalcularCostosFlete();
 
       if (resultado.unidadesSinFlete === 0) {
-        alert("Todas las unidades ya tienen su costo de flete correctamente asignado.");
+        toast.success("Todas las unidades ya tienen su costo de flete correctamente asignado.");
       } else if (resultado.unidadesActualizadas === 0) {
-        alert(
+        toast.warning(
           `Se encontraron ${resultado.unidadesSinFlete} unidades sin costo de flete, ` +
-          "pero no se encontraron datos de transferencia para actualizarlas.\n\n" +
-          "Puede que las transferencias no tengan registrado el costo de flete."
+          "pero no se encontraron datos de transferencia para actualizarlas."
         );
       } else {
-        alert(
-          `Recálculo completado:\n\n` +
-          `• Unidades sin flete encontradas: ${resultado.unidadesSinFlete}\n` +
-          `• Unidades actualizadas: ${resultado.unidadesActualizadas}\n` +
-          `• Errores: ${resultado.errores}\n\n` +
-          "Los costos de las próximas ventas usarán los valores corregidos."
+        toast.success(
+          `Recálculo completado: ${resultado.unidadesActualizadas} de ${resultado.unidadesSinFlete} unidades actualizadas. Errores: ${resultado.errores}.`
         );
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert("Error al recalcular: " + message);
+      toast.error("Error al recalcular: " + message);
     } finally {
       setIsRecalculatingFlete(false);
     }
@@ -151,7 +148,7 @@ export const Almacenes: React.FC = () => {
       setShowFormModal(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert("Error al crear: " + message);
+      toast.error("Error al crear: " + message);
     }
   };
 
@@ -163,7 +160,7 @@ export const Almacenes: React.FC = () => {
       setShowFormModal(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert("Error al actualizar: " + message);
+      toast.error("Error al actualizar: " + message);
     }
   };
 

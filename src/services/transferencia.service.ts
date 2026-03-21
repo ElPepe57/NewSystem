@@ -551,13 +551,13 @@ export const transferenciaService = {
       }
     }
 
+    await batch.commit();
+
     // Actualizar métricas del almacén origen
     await almacenService.incrementarUnidadesEnviadas(
       transferencia.almacenOrigenId,
       transferencia.totalUnidades
     );
-
-    await batch.commit();
 
     // Sincronizar stock de productos afectados (después del commit para reflejar cambios reales)
     const productosAfectados = [...new Set(transferencia.unidades.map(u => u.productoId))];
@@ -835,12 +835,6 @@ export const transferenciaService = {
 
     batch.update(transferenciaRef, transferenciaUpdate);
 
-    // Actualizar métricas del almacén destino (solo las de ESTA recepcion)
-    await almacenService.incrementarUnidadesRecibidas(
-      transferencia.almacenDestinoId,
-      recEnEsta
-    );
-
     // Sincronizar stock de productos afectados (recibidos + faltantes devueltos a origen)
     const productosAfectados = [...new Set(
       data.unidadesRecibidas
@@ -852,6 +846,12 @@ export const transferenciaService = {
     )];
 
     await batch.commit();
+
+    // Actualizar métricas del almacén destino (solo las de ESTA recepcion)
+    await almacenService.incrementarUnidadesRecibidas(
+      transferencia.almacenDestinoId,
+      recEnEsta
+    );
 
     if (productosAfectados.length > 0) {
       await inventarioService.sincronizarStockProductos_batch(productosAfectados);

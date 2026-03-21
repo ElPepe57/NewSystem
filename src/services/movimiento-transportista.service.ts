@@ -1,3 +1,4 @@
+import { logger } from '../lib/logger';
 import {
   collection,
   addDoc,
@@ -200,7 +201,7 @@ export const movimientoTransportistaService = {
     };
 
     const docRef = await addDoc(collection(db, COLLECTION_NAME), movimiento);
-    console.log(`[Ajuste] ${transportistaNombre}: delta S/${delta.toFixed(2)}, saldo ${saldoAnterior.toFixed(2)} → ${saldoNuevo.toFixed(2)}`);
+    logger.info(`[Ajuste] ${transportistaNombre}: delta S/${delta.toFixed(2)}, saldo ${saldoAnterior.toFixed(2)} → ${saldoNuevo.toFixed(2)}`);
     return docRef.id;
   },
 

@@ -96,6 +96,11 @@ export async function registrarPago(
       throw new Error('El monto debe ser mayor a 0');
     }
 
+    // Rechazar pagos USD sin TC disponible (evita comparar USD raw vs PEN)
+    if (monedaCobro === 'USD' && !tcCobro) {
+      throw new Error('No se puede registrar pago en USD: tipo de cambio no disponible. Intente nuevamente.');
+    }
+
     // Comparar en PEN cuando el pago es en USD
     const montoValidacionPEN = monedaCobro === 'USD' && tcCobro
       ? datosPago.monto * tcCobro
@@ -385,7 +390,10 @@ export async function getResumenPagos(ventas: Venta[]): Promise<{
       venta.pagos.forEach(pago => {
         const fechaPago = pago.fecha.toDate();
         if (fechaPago >= inicioMes) {
-          cobranzaMesActual += pago.monto;
+          const montoEnPEN = pago.moneda === 'USD' && pago.montoEquivalentePEN
+            ? pago.montoEquivalentePEN
+            : pago.monto;
+          cobranzaMesActual += montoEnPEN;
         }
       });
     }

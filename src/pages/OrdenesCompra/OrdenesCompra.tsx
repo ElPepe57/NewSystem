@@ -63,6 +63,7 @@ export const OrdenesCompra: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
   const { productos, fetchProductos } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
   const [tcSugerido, setTcSugerido] = useState<number>(0);
@@ -144,7 +145,6 @@ export const OrdenesCompra: React.FC = () => {
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
   const { modalProps: actionModalProps, open: openActionModal } = useActionModal();
-  const toast = useToastStore();
 
   // Pipeline stages para filtrado visual
   const pipelineStages: PipelineStage[] = useMemo(() => {
@@ -343,9 +343,8 @@ export const OrdenesCompra: React.FC = () => {
             }
           });
 
-          alert(
-            `✅ OC creada para ${asignacionActualNombre}\n\n` +
-            `Siguiente: ${siguienteAsignacion.viajeroNombre} (${nuevosCompletados + 1}/${totalViajerosOriginal})`
+          toast.success(
+            `OC creada para ${asignacionActualNombre}. Siguiente: ${siguienteAsignacion.viajeroNombre} (${nuevosCompletados + 1}/${totalViajerosOriginal})`
           );
           // El modal permanece abierto para el siguiente viajero
         } else {
@@ -365,9 +364,8 @@ export const OrdenesCompra: React.FC = () => {
           setViajerosCompletados(0);
 
           // Mostrar mensaje DESPUÉS de limpiar estados
-          alert(
-            `✅ ¡Todas las OCs han sido creadas!\n\n` +
-            `Total: ${totalCreadas} órdenes de compra`
+          toast.success(
+            `¡Todas las OCs han sido creadas! Total: ${totalCreadas} órdenes de compra`
           );
         }
       } else {
@@ -376,7 +374,7 @@ export const OrdenesCompra: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Error al crear orden:', error);
-      alert(error.message);
+      toast.error(error.message);
       // En caso de error, marcar como completado y cerrar todo
       if (creandoMultiOC) {
         setMultiViajeroCompletado(true);
@@ -544,14 +542,14 @@ export const OrdenesCompra: React.FC = () => {
       }, user.uid);
 
       const simbolo = datos.monedaPago === 'USD' ? '$' : 'S/';
-      alert(`✅ Pago de ${simbolo} ${datos.montoOriginal.toFixed(2)} registrado exitosamente`);
+      toast.success(`Pago de ${simbolo} ${datos.montoOriginal.toFixed(2)} registrado exitosamente`);
       setIsPagoModalOpen(false);
 
       // Recargar órdenes para ver actualización
       await fetchOrdenes();
       refreshSelectedOrden(selectedOrden.id);
     } catch (error: any) {
-      alert(`❌ Error al registrar pago: ${error.message}`);
+      toast.error(`Error al registrar pago: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -617,7 +615,7 @@ export const OrdenesCompra: React.FC = () => {
     try {
       await deleteOrden(orden.id);
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 

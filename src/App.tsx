@@ -30,12 +30,12 @@ const Auditoria = React.lazy(() => import('./pages/Auditoria/Auditoria').then(m 
 const Contabilidad = React.lazy(() => import('./pages/Contabilidad/Contabilidad').then(m => ({ default: m.Contabilidad })));
 const ProductosIntel = React.lazy(() => import('./pages/ProductosIntel/ProductosIntel').then(m => ({ default: m.ProductosIntel })));
 const MiPerfil = React.lazy(() => import('./pages/Perfil/MiPerfil').then(m => ({ default: m.MiPerfil })));
-const TestPDF = React.lazy(() => import('./pages/TestPDF/TestPDF').then(m => ({ default: m.TestPDF })));
+// TestPDF removed — dev utility no longer needed in production
 const Escaner = React.lazy(() => import('./pages/Escaner/Escaner').then(m => ({ default: m.Escaner })));
 const MercadoLibre = React.lazy(() => import('./pages/MercadoLibre/MercadoLibre').then(m => ({ default: m.MercadoLibre })));
 const NotasIA = React.lazy(() => import('./pages/NotasIA/NotasIA').then(m => ({ default: m.NotasIA })));
 const LineaNegocio = React.lazy(() => import('./pages/LineaNegocio/LineaNegocio').then(m => ({ default: m.LineaNegocio })));
-const MigracionProductos = React.lazy(() => import('./pages/Migracion/MigracionProductos').then(m => ({ default: m.MigracionProductos })));
+// MigracionProductos removed — one-time migration tool no longer needed
 
 // Stores y servicios
 import { useAuthStore } from './store/authStore';
@@ -172,9 +172,7 @@ function App() {
               {/* Perfil */}
               <Route path="perfil" element={<MiPerfil />} />
 
-              {/* Utilidades */}
-              <Route path="migracion" element={<MigracionProductos />} />
-              <Route path="test-pdf" element={<TestPDF />} />
+              {/* Utilidades removed — dev tools no longer in production */}
             </Route>
 
             {/* Ruta Catch-all */}

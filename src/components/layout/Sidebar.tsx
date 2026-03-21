@@ -105,7 +105,7 @@ const menuGroups: MenuGroup[] = [
     icon: Users,
     defaultOpen: false,
     items: [
-      { icon: BrainCircuit, label: 'Notas IA', path: '/notas-ia' },
+      { icon: BrainCircuit, label: 'Notas IA', path: '/notas-ia', permiso: PERMISOS.VER_DASHBOARD },
     ]
   },
   {

@@ -21,12 +21,14 @@ import { tipoCambioService } from '../../services/tipoCambio.service';
 import type { Cotizacion, MotivoRechazo } from '../../types/cotizacion.types';
 import type { MetodoPago } from '../../types/venta.types';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
+import { useToastStore } from '../../store/toastStore';
 import type { CuentaCaja, MonedaTesoreria } from '../../types/tesoreria.types';
 
 type VistaType = 'kanban' | 'lista';
 
 export const Cotizaciones: React.FC = () => {
   const { user } = useAuthStore();
+  const toast = useToastStore();
   const { empresa, fetchEmpresa } = useConfiguracionStore();
   const { canales: canalesVenta, fetchCanales: fetchCanalesVenta } = useCanalVentaStore();
   const {
@@ -203,10 +205,10 @@ export const Cotizaciones: React.FC = () => {
     if (!confirmed) return;
     try {
       const resultado = await confirmarCotizacion(cotizacion.id, user.uid);
-      alert(`Cotización confirmada.\nVenta creada: ${resultado.numeroVenta}`);
+      toast.success(`Cotización confirmada. Venta creada: ${resultado.numeroVenta}`);
       setShowDetailsModal(false);
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
@@ -225,12 +227,12 @@ export const Cotizaciones: React.FC = () => {
         { motivo: motivoRechazo, descripcion: descripcionRechazo || undefined },
         user.uid
       );
-      alert('Cotización rechazada. Se guardó para análisis de demanda.');
+      toast.success('Cotización rechazada. Se guardó para análisis de demanda.');
       setShowRechazoModal(false);
       setCotizacionParaRechazar(null);
       setShowDetailsModal(false);
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
@@ -246,14 +248,14 @@ export const Cotizaciones: React.FC = () => {
       await deleteCotizacion(cotizacion.id);
       setShowDetailsModal(false);
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
   const handleEditar = (cotizacion: Cotizacion) => {
     const estadosEditables = ['nueva', 'validada', 'pendiente_adelanto'];
     if (!estadosEditables.includes(cotizacion.estado)) {
-      alert('Solo se pueden editar cotizaciones en estados: Nueva, Validada o Esperando Pago');
+      toast.warning('Solo se pueden editar cotizaciones en estados: Nueva, Validada o Esperando Pago');
       return;
     }
     setCotizacionEditar(cotizacion);
@@ -298,9 +300,9 @@ export const Cotizaciones: React.FC = () => {
     if (!confirmed) return;
     try {
       await validarCotizacion(cotizacion.id, user.uid);
-      alert('Cotización validada. Ahora puedes registrar el adelanto.');
+      toast.success('Cotización validada. Ahora puedes registrar el adelanto.');
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
@@ -315,9 +317,9 @@ export const Cotizaciones: React.FC = () => {
     if (!confirmed) return;
     try {
       await revertirValidacion(cotizacion.id, user.uid);
-      alert('Validación revertida.');
+      toast.success('Validación revertida.');
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
@@ -393,7 +395,7 @@ export const Cotizaciones: React.FC = () => {
           { monto: data.monto, porcentaje, diasParaPagar: 3 },
           user.uid
         );
-        alert(`Adelanto comprometido por ${formatCurrency(data.monto)}\n\nLa cotización ahora está en "Esperando Pago".\nRegistra el pago cuando el cliente lo realice.`);
+        toast.success(`Adelanto comprometido por ${formatCurrency(data.monto)}. Registra el pago cuando el cliente lo realice.`);
       } else {
         if (!data.metodoPago) {
           throw new Error('Selecciona un método de pago');
@@ -419,9 +421,9 @@ export const Cotizaciones: React.FC = () => {
           ? 'Stock reservado físicamente'
           : 'Reserva virtual creada';
         const monedaLabel = monedaPago === 'USD' && data.tipoCambio
-          ? `\n\nPago: ${formatCurrencyUtil(montoFinal, 'USD')} (TC: ${data.tipoCambio.toFixed(3)}) = ${formatCurrency(data.monto)}`
+          ? ` — Pago: ${formatCurrencyUtil(montoFinal, 'USD')} (TC: ${data.tipoCambio.toFixed(3)}) = ${formatCurrency(data.monto)}`
           : '';
-        alert(`${tipoMsg}${monedaLabel}\n\nVigencia: 90 días (con adelanto pagado)`);
+        toast.success(`${tipoMsg}${monedaLabel}. Vigencia: 90 días (con adelanto pagado)`);
       }
       setShowAdelantoModal(false);
       setCotizacionParaAdelanto(null);
@@ -435,7 +437,7 @@ export const Cotizaciones: React.FC = () => {
 
   const handleWhatsApp = (cotizacion: Cotizacion) => {
     if (!cotizacion.telefonoCliente) {
-      alert('No hay teléfono registrado');
+      toast.warning('No hay teléfono registrado');
       return;
     }
     const productos = cotizacion.productos.map(p =>
@@ -453,14 +455,14 @@ export const Cotizaciones: React.FC = () => {
 
   const handleDescargarPdf = async (cotizacion: Cotizacion) => {
     if (!empresa) {
-      alert('Error: No se ha cargado la información de la empresa');
+      toast.error('No se ha cargado la información de la empresa');
       return;
     }
     setGenerandoPdf(true);
     try {
       await CotizacionPdfService.downloadPdf(cotizacion, empresa);
     } catch (error: any) {
-      alert(`Error al generar PDF: ${error.message}`);
+      toast.error(`Error al generar PDF: ${error.message}`);
     } finally {
       setGenerandoPdf(false);
     }
@@ -468,14 +470,14 @@ export const Cotizaciones: React.FC = () => {
 
   const handleAbrirPdf = async (cotizacion: Cotizacion) => {
     if (!empresa) {
-      alert('Error: No se ha cargado la información de la empresa');
+      toast.error('No se ha cargado la información de la empresa');
       return;
     }
     setGenerandoPdf(true);
     try {
       await CotizacionPdfService.openPdf(cotizacion, empresa);
     } catch (error: any) {
-      alert(`Error al generar PDF: ${error.message}`);
+      toast.error(`Error al generar PDF: ${error.message}`);
     } finally {
       setGenerandoPdf(false);
     }

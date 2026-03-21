@@ -48,15 +48,13 @@ export const mlwebhook = functions.https.onRequest(async (req, res) => {
     res.status(503).send("Service unavailable");
     return;
   }
-  if (notification.application_id !== undefined) {
-    if (String(notification.application_id) !== String(expectedAppId)) {
-      functions.logger.warn("ML Webhook REJECTED: application_id mismatch", {
-        received: notification.application_id,
-        expected: expectedAppId,
-      });
-      res.status(403).send("Forbidden");
-      return;
-    }
+  if (!notification.application_id || String(notification.application_id) !== String(expectedAppId)) {
+    functions.logger.warn("ML Webhook REJECTED: application_id missing or mismatch", {
+      received: notification.application_id,
+      expected: expectedAppId,
+    });
+    res.status(403).send("Forbidden");
+    return;
   }
 
   // SEC-003 FIX: Validar que el user_id corresponde a una cuenta ML registrada

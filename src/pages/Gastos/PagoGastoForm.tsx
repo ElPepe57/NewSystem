@@ -4,6 +4,7 @@ import { Button } from '../../components/common';
 import { useAuthStore } from '../../store/authStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
+import { useToastStore } from '../../store/toastStore';
 import { tesoreriaService } from '../../services/tesoreria.service';
 import type { Gasto } from '../../types/gasto.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
@@ -22,6 +23,7 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
   const { user } = useAuthStore();
   const { registrarPagoGasto } = useGastoStore();
   const { getTCDelDia } = useTipoCambioStore();
+  const toast = useToastStore();
 
   // Calcular monto pendiente (compat con gastos sin pagos[])
   const pendientePEN = gasto.montoPendiente !== undefined ? gasto.montoPendiente : gasto.montoPEN;
@@ -118,28 +120,28 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
     e.preventDefault();
 
     if (!user) {
-      alert('Debe iniciar sesión');
+      toast.error('Debe iniciar sesión');
       return;
     }
 
     if (!cuentaOrigenId) {
-      alert('Debe seleccionar una cuenta de origen');
+      toast.warning('Debe seleccionar una cuenta de origen');
       return;
     }
 
     if (montoPago <= 0) {
-      alert('El monto debe ser mayor a 0');
+      toast.warning('El monto debe ser mayor a 0');
       return;
     }
 
     if (tipoCambio <= 0) {
-      alert('El tipo de cambio debe ser mayor a 0');
+      toast.warning('El tipo de cambio debe ser mayor a 0');
       return;
     }
 
     // Validar que no exceda el pendiente
     if (montoPEN > pendientePEN + 0.01) {
-      alert(`El monto excede el saldo pendiente: S/ ${pendientePEN.toFixed(2)}`);
+      toast.warning(`El monto excede el saldo pendiente: S/ ${pendientePEN.toFixed(2)}`);
       return;
     }
 
@@ -157,10 +159,10 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
         notas: notas || undefined
       }, user.uid);
 
-      alert(esPagoTotal ? '✅ Pago completo registrado' : '✅ Pago parcial registrado');
+      toast.success(esPagoTotal ? 'Pago completo registrado' : 'Pago parcial registrado');
       onSuccess();
     } catch (error: any) {
-      alert(`❌ Error al registrar pago: ${error.message}`);
+      toast.error(`Error al registrar pago: ${error.message}`);
     } finally {
       setLoading(false);
     }
