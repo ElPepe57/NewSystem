@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-21 (Sesion 13 — Deploy 14 exitoso: split Transferencias.tsx + MercadoLibre.tsx + tesoreria.service.ts + console.log cleanup 183→33 en servicios + fix as-any casts + fix double-read inventario)
+**Ultima actualizacion:** 2026-03-21 (Sesion 14 — Deploy 15 exitoso: split Cotizaciones.tsx + Requerimientos.tsx + cotizacion.service.ts + ordenCompra.service.ts + Ventas a Socios flujo completo con subsidio/alertas)
 **Branch activo:** main
 
 ---
@@ -12,14 +12,15 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 13 |
+| Sesiones de trabajo registradas | 14 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | 106 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13) |
+| Fixes aplicados | 111 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14) |
 | Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
-| Deploys realizados | 14 (ultimo: 2026-03-21 post-Sesion 13, commit 4eeb5c8) |
+| Deploys realizados | 15 (ultimo: 2026-03-21 post-Sesion 14, commit 329b8b6) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
-| Modulo Ventas a Socios | IMPLEMENTADO — badge, exclusiones de reportes, sección en Ventas.tsx (Sesion 10) |
+| Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
+| TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
 
 ---
 
@@ -1734,7 +1735,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: baja
 - Hallazgo: R2-004 + ARCH-005
 - Estimado: 8-12 horas por archivo
-- Estado: EN PROCESO — Tesoreria.tsx (S9 CAMBIO-077), Maestros.tsx (S11 CAMBIO-089), Transferencias.tsx (S13 CAMBIO-100), MercadoLibre.tsx (S13 CAMBIO-101) completados. Pendientes: Cotizaciones.tsx (2533 lineas), Requerimientos.tsx (2453 lineas)
+- Estado: **RESUELTO** (S14) — 6/6 completados: Tesoreria.tsx (S9 CAMBIO-077), Maestros.tsx (S11 CAMBIO-089), Transferencias.tsx (S13 CAMBIO-100), MercadoLibre.tsx (S13 CAMBIO-101), Cotizaciones.tsx (S14 CAMBIO-106), Requerimientos.tsx (S14 CAMBIO-107). Adicionalmente: cotizacion.service.ts (S14 CAMBIO-108) y ordenCompra.service.ts (S14 CAMBIO-109) divididos como god-services
 
 **TAREA-015**
 - Titulo: Consolidar 3 notification stores en 1
@@ -1935,9 +1936,9 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - 31 fixes (11 seguridad + 8 performance + 8 bugs + 4 UAT criticos)
 - Backup Firestore configurado: PITR (7 dias) + copias semanales (98 dias retencion)
 
-### Roadmap 30/60/90 dias (actualizado post-Sesion 13, 2026-03-21)
-- **0-30 dias:** Ejecutar carga retroactiva Pool USD (titular — accion manual), configurar metaPEN (titular), tests con Firebase mocking para servicios criticos (TAREA-019 continuacion), GitHub Actions CI (npm test como gate), split god-files restantes: Cotizaciones.tsx (2533 lineas) + Requerimientos.tsx (2453 lineas), split servicios: cotizacion.service.ts (1725 lineas) + ordenCompra.service.ts (1708 lineas), validacion server-side ventaBajoCosto (TAREA-048), fix race condition gastos (TAREA-004), validacion ventas a socios con titular, rotar secrets
-- **30-60 dias:** TAREA-052 (ventas ML sin evaluacion bajo costo), comparativas periodo anterior (TAREA-042), costoReposicion en snapshots (TAREA-066), margenesPorLinea en store ventas (TAREA-067), optimizar full-collection reads (TAREA-005/006/037), console.log cleanup restante (servicios secundarios menores)
+### Roadmap 30/60/90 dias (actualizado post-Sesion 14, 2026-03-21)
+- **0-30 dias:** Ejecutar carga retroactiva Pool USD (titular — accion manual, funcion lista en UI), configurar metaPEN (titular), tests con Firebase mocking para servicios criticos (TAREA-019 continuacion), GitHub Actions CI pipeline (npm test como gate), eliminar alias ExpectativaService en 4 importadores, crear useLineaFilter hook centralizado, validacion server-side ventaBajoCosto (TAREA-048), fix race condition gastos (TAREA-004), rotar secrets
+- **30-60 dias:** TAREA-052 (ventas ML sin evaluacion bajo costo), comparativas periodo anterior (TAREA-042), costoReposicion en snapshots (TAREA-066), margenesPorLinea en store ventas (TAREA-067), optimizar full-collection reads (TAREA-005/006/037), unificacion patron de export de servicios (TAREA-017)
 - **60-90 dias:** Evaluacion proveedor SUNAT, flujo devoluciones, entorno staging, reduccion adicional de :any (TAREA-016)
 
 ---
@@ -2908,5 +2909,160 @@ Continuar la reduccion de deuda tecnica estructural: dividir los tres god files 
 
 ---
 
+---
+
+## SESION 14 — 2026-03-21 (God file splits Cotizaciones + Requerimientos + Ventas Socios completo + Deploy 15)
+
+### Objetivo
+Completar la liquidacion de god files: dividir Cotizaciones.tsx y Requerimientos.tsx (los dos restantes de TAREA-014), dividir cotizacion.service.ts y ordenCompra.service.ts (god-services equivalentes), e implementar el flujo completo de Ventas a Socios con subsidio, oportunidad, alertas de anomalia y KPIs (Decision 6 completada con mayor profundidad que en S10).
+
+### Agentes ejecutados
+1. frontend-design-specialist — Split Cotizaciones.tsx (2533 → 658 lineas)
+2. frontend-design-specialist — Split Requerimientos.tsx (2453 → ~600 lineas)
+3. backend-cloud-engineer — Split cotizacion.service.ts (1725 → 235 lineas facade)
+4. backend-cloud-engineer — Split ordenCompra.service.ts (1708 → 240 lineas facade)
+5. erp-business-architect — Diseno flujo ventas a socios (subsidio + oportunidad + motivo obligatorio)
+6. financial-credit-manager — Impacto financiero ventas a socios (umbral S/800, alertas anomalia)
+7. bi-analyst — KPIs y alertas ventas a socios (4 cards + tabla resumen por socio)
+8. code-quality-refactor-specialist — Deep scan deuda tecnica (10 hallazgos identificados)
+9. performance-monitoring-specialist — Riesgos rendimiento (10 hallazgos identificados)
+
+### Fixes aplicados en Sesion 14
+
+#### CAMBIO-106 — Split Cotizaciones.tsx (god file 2533 → 658 lineas, -74%)
+- Tipo: Refactoring / Deuda tecnica (TAREA-014 — 5/6 completado)
+- Descripcion: `Cotizaciones.tsx` dividido de 2533 a 658 lineas (-74%). Patron: orquestador con estado + sub-componentes con props (identico a Transferencias.tsx en S13). Once archivos nuevos extraidos:
+  - `AdelantoModal.tsx`: modal de registro de adelanto en cotizacion
+  - `CotizacionDetailModal.tsx`: modal de detalle completo de cotizacion
+  - `CotizacionesAlertas.tsx`: panel de alertas de cotizaciones proximas a vencer o vencidas
+  - `CotizacionesFiltros.tsx`: panel de filtros del listado (estado, cliente, fecha, linea)
+  - `CotizacionesMetricas.tsx`: KPI cards del modulo (total, pendientes, tasa de conversion, monto)
+  - `KanbanCard.tsx`: tarjeta de cotizacion en la vista Kanban
+  - `KanbanView.tsx`: vista Kanban completa con columnas por estado
+  - `ListaView.tsx`: vista de lista/tabla de cotizaciones
+  - `RechazoModal.tsx`: modal de registro de motivo de rechazo
+  - `SeccionColapsable.tsx`: wrapper reutilizable de seccion colapsable con toggle
+- Archivos: `src/pages/Cotizaciones/Cotizaciones.tsx` (reducido) + 10 nuevos en `src/pages/Cotizaciones/`
+- Reversible: si
+
+#### CAMBIO-107 — Split Requerimientos.tsx (god file 2453 → ~600 lineas, -76%)
+- Tipo: Refactoring / Deuda tecnica (TAREA-014 — 6/6 completado)
+- Descripcion: `Requerimientos.tsx` dividido de 2453 a ~600 lineas (-76%). Once archivos nuevos extraidos:
+  - `CotizacionesFaltanteModal.tsx`: modal de gestion de cotizaciones faltantes en el requerimiento
+  - `IntelligencePanel.tsx`: panel de inteligencia de producto con sugerencias de stock y proveedores
+  - `KanbanBoard.tsx`: vista Kanban completa del modulo de requerimientos
+  - `KanbanCard.tsx`: tarjeta de requerimiento en la vista Kanban
+  - `RequerimientoDetailModal.tsx`: modal de detalle completo de requerimiento
+  - `RequerimientoFormModal.tsx`: modal de creacion y edicion de requerimiento
+  - `RequerimientosKPIGrid.tsx`: grid de KPI cards del modulo
+  - `RequerimientosListView.tsx`: vista de lista de requerimientos
+  - `SelectionFloatingBar.tsx`: barra flotante de acciones para seleccion multiple
+  - `SugerenciasStockModal.tsx`: modal de sugerencias de stock basadas en historial
+  - `requerimientos.types.ts`: tipos locales del modulo (extraidos del componente principal)
+- Archivos: `src/pages/Requerimientos/Requerimientos.tsx` (reducido) + 11 nuevos en `src/pages/Requerimientos/`
+- Reversible: si
+- Nota: TAREA-014 COMPLETADA al 100% — los 6 god files han sido divididos
+
+#### CAMBIO-108 — Split cotizacion.service.ts (god service 1725 → 235 lineas facade, -86%)
+- Tipo: Refactoring / Deuda tecnica (god-service — equivalente a TAREA-014 en servicios)
+- Descripcion: `cotizacion.service.ts` dividido de 1725 a 235 lineas de facade (-86%). Patron facade identico a tesoreria.service.ts (S13) y venta.service.ts (S9). Zero breaking changes para todos los importadores existentes — la interfaz publica es identica. Siete modulos nuevos extraidos:
+  - `cotizacion.shared.ts`: tipos compartidos, helpers y constantes internas del servicio
+  - `cotizacion.queries.ts`: funciones de consulta (getAll, getById, getByCliente, filtros)
+  - `cotizacion.crud.ts`: operaciones CRUD basicas (crear, actualizar, eliminar)
+  - `cotizacion.flujo.ts`: transiciones de estado (aprobar, rechazar, expirar, cancelar)
+  - `cotizacion.adelanto.ts`: gestion de adelantos y pagos parciales en cotizaciones
+  - `cotizacion.confirmar.ts`: logica de confirmacion y conversion a venta
+  - `cotizacion.stats.ts`: calculos de estadisticas y KPIs del modulo
+- Archivos: `src/services/cotizacion.service.ts` (facade reducido) + 7 nuevos en `src/services/`
+- Reversible: si
+
+#### CAMBIO-109 — Split ordenCompra.service.ts (god service 1708 → 240 lineas facade, -86%)
+- Tipo: Refactoring / Deuda tecnica (god-service — equivalente a TAREA-014 en servicios)
+- Descripcion: `ordenCompra.service.ts` dividido de 1708 a 240 lineas de facade (-86%). Zero breaking changes. Seis modulos nuevos extraidos:
+  - `ordenCompra.shared.ts`: tipos compartidos, helpers y constantes internas del servicio
+  - `ordenCompra.proveedores.ts`: logica de seleccion y evaluacion de proveedores por OC
+  - `ordenCompra.crud.ts`: operaciones CRUD (crear, actualizar, listar, buscar)
+  - `ordenCompra.pagos.ts`: registro y gestion de pagos de OC (con integracion Pool USD)
+  - `ordenCompra.recepcion.ts`: flujo de recepcion de mercancias y actualizacion de unidades
+  - `ordenCompra.stats.ts`: calculos de estadisticas y KPIs de compras
+- Archivos: `src/services/ordenCompra.service.ts` (facade reducido) + 6 nuevos en `src/services/`
+- Reversible: si
+
+#### CAMBIO-110 — Ventas a Socios: flujo completo con subsidio, oportunidad y alertas
+- Tipo: Feature (Decision 6 — expansion del CAMBIO-082 de S10)
+- Descripcion: Ampliacion del modulo de Ventas a Socios implementado en S10 (CAMBIO-082) con el flujo completo de clasificacion de ventas (subsidio vs oportunidad) y alertas de anomalia. Cambios por capa:
+  - **Nuevo servicio** (`venta.socios.service.ts`, ~190 lineas): logica de negocio exclusiva para ventas a socios. Funciones: `calcularSubsidio()` (diferencial precio socio vs precio lista), `calcularOportunidad()` (valor de mercado capturado por acceso preferente), `detectarAnomalias()` (umbral configurable S/800 sobre subsidio mensual por socio), `getResumenMensual()` (KPIs agregados: total cobrado, subsidio total, oportunidad generada, % sobre inventario total), `getVentasPorSocio()` (agrupacion por nombre de socio con totales).
+  - **Campo obligatorio** (`VentaForm.tsx`): selector `motivoVentaSocio` con 5 opciones: "Apoyo familiar", "Prueba de producto", "Muestra comercial", "Acuerdo de distribucion", "Otro". El campo aparece cuando se activa el toggle "Venta a Socio" y es requerido para guardar. Previene ventas a socios sin contexto registrado.
+  - **Panel expandido** (`Ventas.tsx`): seccion "Ventas a Socios del Mes" con: 4 KPI cards (total cobrado, subsidio total, oportunidad generada, % del inventario vendido a socios), alertas de anomalia (cuando el subsidio de un socio supera S/800 en el mes se genera una alerta naranja con nombre del socio y monto), tabla resumen por socio (nombre, ventas del mes, subsidio, oportunidad, motivo mas frecuente), motivo visible en cada tarjeta/fila de venta a socio.
+  - **Tipos actualizados** (`venta.types.ts`): campo `motivoVentaSocio: string` agregado a `Venta` y `VentaFormData`.
+  - **Service actualizado** (`venta.service.ts`): `crear()` persiste `motivoVentaSocio` en Firestore junto a los campos ya existentes `esVentaSocio` y `socioNombre`.
+- Archivos nuevos: `src/services/venta.socios.service.ts`
+- Archivos modificados: `src/types/venta.types.ts`, `src/pages/Ventas/Ventas.tsx`, `src/pages/Ventas/VentaForm.tsx`, `src/services/venta.service.ts`
+- Reversible: si
+- Decisiones del titular incorporadas: umbral de alerta S/800, campo motivo obligatorio, mix conceptual subsidio + oportunidad
+
+### Deploy 15 — 2026-03-21
+
+- **Commit:** 329b8b6
+- **Comando:** firebase deploy --only hosting
+- **Resultado:** exitoso — hosting actualizado
+- **Cloud Functions:** sin cambios (55 funciones estables — no requirio redespliegue)
+- **Firestore Rules:** sin cambios en esta sesion
+- **Push a main:** exitoso
+- **URL de produccion:** https://vitaskinperu.web.app
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados/creados | 43 |
+| Lineas agregadas | +8,435 |
+| Lineas eliminadas | -6,951 |
+| Lineas netas | +1,484 |
+| Cambios registrados | 5 (CAMBIO-106 a CAMBIO-110) |
+| Tests | 122 passing (sin regresiones) |
+| Build | 12.90s |
+| Agentes ejecutados | 9 |
+| Fixes acumulados | 106 → 111 |
+
+### Items del backlog cerrados en Sesion 14
+
+| Item | Descripcion | Cambio |
+|------|-------------|--------|
+| TAREA-014 | God files — 6/6 completados: Cotizaciones.tsx + Requerimientos.tsx | CAMBIO-106 + CAMBIO-107 |
+| God-services | cotizacion.service.ts + ordenCompra.service.ts divididos en facade + modulos | CAMBIO-108 + CAMBIO-109 |
+| Decision 6 | Ventas a socios — flujo completo: motivo obligatorio, subsidio/oportunidad, alertas S/800, KPIs | CAMBIO-110 |
+
+### Hallazgos identificados (pendientes de accion)
+
+El code-quality-refactor-specialist y el performance-monitoring-specialist identificaron 20 hallazgos nuevos en esta sesion. Se registran aqui como insumo para la proxima sesion:
+
+**Deuda tecnica (code-quality):** alias ExpectativaService con 4 importadores pendientes de eliminar, inline styles en componentes recien extraidos de Cotizaciones/Requerimientos, duplicacion de logica de filtrado entre ListaView y KanbanView, falta de memoizacion en callbacks de modales, `requerimientos.types.ts` podria consolidarse en el types global del proyecto.
+
+**Rendimiento (performance):** cotizacion.confirmar.ts realiza lectura de Firestore innecesaria antes de la transaccion, ordenCompra.recepcion.ts sin limit() en query de unidades pendientes, KanbanView de Cotizaciones re-renderiza en cada keystroke del filtro de texto (falta debounce o useMemo), panel de socios en Ventas.tsx calcula agregados en cada render sin cache, IntelligencePanel de Requerimientos podria usar React.memo para evitar re-renders por cambios de filtro superiores.
+
+### Tareas pendientes para la proxima sesion (priorizadas)
+
+**Prioridad alta (acciones del titular):**
+1. Ejecutar carga retroactiva Pool USD (boton disponible en /rendimiento-cambiario, requiere login admin en produccion)
+2. Configurar metaPEN en Pool USD (campo editable en /rendimiento-cambiario)
+
+**Prioridad alta (tecnica):**
+3. Tests con Firebase mocking para servicios criticos: `venta.service`, `poolUSD.service`, `tipoCambio.service` (TAREA-019 continuacion)
+4. GitHub Actions CI pipeline (npm test como gate de merge a main)
+5. Eliminar alias ExpectativaService (4 importadores identificados en S14)
+6. Crear useLineaFilter hook centralizado (patron repetido en Cotizaciones, Requerimientos, Ventas)
+
+**Prioridad media:**
+7. TAREA-048: validacion server-side ventaBajoCosto
+8. TAREA-004: race condition residual gasto.service.ts:756-763
+9. Fix debounce en filtro de texto del KanbanView de Cotizaciones
+10. Limit() en query de unidades pendientes en ordenCompra.recepcion.ts
+
+**Pendientes operativos del titular:**
+- Rotar secrets externos (ML, Google, Anthropic, Meta, Daily)
+
+---
+
 *Documento generado por implementation-controller (Agente 23)*
-*Ultima actualizacion: 2026-03-21 — Sesion 13 completada. Deploy 14 (4eeb5c8) exitoso, solo hosting. 6 cambios (CAMBIO-100 a CAMBIO-105). Split Transferencias.tsx 3216→614 lineas (-81%, 8 sub-componentes). Split MercadoLibre.tsx 3142→334 lineas (-89%, 7 sub-componentes). Split tesoreria.service.ts 2509→459 lineas facade (-82%, 6 modulos). Console.log cleanup segunda pasada: 183→33 en 14 servicios secundarios. Fix 14 casts as-any en venta.recalculo.service.ts. Fix double-read Firestore en inventario.getStats(). 106 fixes acumulados en produccion. 122 tests passing sin regresiones.*
+*Ultima actualizacion: 2026-03-21 — Sesion 14 completada. Deploy 15 (329b8b6) exitoso, solo hosting. 5 cambios (CAMBIO-106 a CAMBIO-110). Split Cotizaciones.tsx 2533→658 lineas (-74%, 10 sub-componentes). Split Requerimientos.tsx 2453→~600 lineas (-76%, 11 sub-componentes + types). Split cotizacion.service.ts 1725→235 lineas facade (-86%, 7 modulos). Split ordenCompra.service.ts 1708→240 lineas facade (-86%, 6 modulos). Ventas a Socios flujo completo: venta.socios.service.ts nuevo, motivo obligatorio, panel KPIs + alertas S/800. TAREA-014 COMPLETADA al 100% (6/6 god files). 111 fixes acumulados en produccion. 122 tests passing sin regresiones.*
