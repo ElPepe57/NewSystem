@@ -75,7 +75,7 @@ const CONFIG_DOC_ID = 'configuracion_contable';
 const DEFAULT_CONFIG: ConfiguracionContable = {
   capitalSocial: 0,  // Inicia en 0, el capital real viene de aportes registrados
   reservaLegal: 0,
-  tcPorDefecto: 3.75,
+  tcPorDefecto: 0, // Se resuelve dinámicamente via tipoCambioService.resolverTCVenta()
   provisionIncobrablesPct: 5,
 };
 
@@ -365,7 +365,7 @@ function calcularCompras(
   ordenes: OrdenCompra[],
   transferencias: Transferencia[],
   ventasNetas: number,
-  tcDefault: number = 3.75
+  tcDefault: number
 ): ComprasPeriodo {
   let costoProductos = 0;
   let impuestos = 0;
@@ -735,14 +735,8 @@ function calcularMetricas(
  * Basado en flujo de actividad del negocio
  */
 export async function generarEstadoResultados(mes: number, anio: number, lineaNegocioId?: string | null): Promise<EstadoResultados> {
-  // Obtener TC para conversiones
-  let tcDefault = 3.75;
-  try {
-    const tcData = await tipoCambioService.getTCDelDia();
-    if (tcData) tcDefault = tcData.venta;
-  } catch (e) {
-    console.warn('No se pudo obtener TC, usando default:', tcDefault);
-  }
+  // Obtener TC centralizado para conversiones
+  const tcDefault = await tipoCambioService.resolverTCVenta();
 
   // Obtener datos de todas las fuentes (filtrados por línea de negocio si aplica)
   const [ventas, gastos, ordenesCompra, transferencias] = await Promise.all([

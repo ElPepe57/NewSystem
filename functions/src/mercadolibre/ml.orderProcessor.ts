@@ -12,6 +12,7 @@ import * as admin from "firebase-admin";
 import * as functions from "firebase-functions/v1";
 import { MLOrderSync, MLOrderProduct } from "./ml.types";
 import { getOrder, getShipment } from "./ml.api";
+import { resolverTCVenta } from "../tipoCambio.util";
 
 const db = admin.firestore();
 const Timestamp = admin.firestore.Timestamp;
@@ -716,6 +717,7 @@ async function asignarInventarioFEFO(
   let costoTotalPEN = 0;
   let todasAsignadas = true;
   const productosActualizados = [...productos];
+  const tc = await obtenerTipoCambio();
 
   for (let i = 0; i < productosActualizados.length; i++) {
     const prod = productosActualizados[i];
@@ -754,7 +756,7 @@ async function asignarInventarioFEFO(
         ctru = uData.ctruDinamico;
       } else {
         const costoBase = (uData.costoUnitarioUSD || 0) + (uData.costoFleteUSD || 0);
-        const tcUnidad = uData.tcPago || uData.tcCompra || 3.70;
+        const tcUnidad = uData.tcPago || uData.tcCompra || tc;
         ctru = costoBase * tcUnidad;
       }
 
@@ -1356,33 +1358,8 @@ async function buscarCuentaMercadoPago(): Promise<string | null> {
   return fallbackQuery.empty ? null : fallbackQuery.docs[0].id;
 }
 
-async function obtenerTipoCambio(): Promise<number> {
-  try {
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    const tcQuery = await db.collection("tiposCambio")
-      .where("fecha", "==", today)
-      .limit(1)
-      .get();
-
-    if (!tcQuery.empty) {
-      return tcQuery.docs[0].data().venta || 3.70;
-    }
-
-    // Si no hay TC de hoy, buscar el más reciente
-    const recentTC = await db.collection("tiposCambio")
-      .orderBy("fecha", "desc")
-      .limit(1)
-      .get();
-
-    if (!recentTC.empty) {
-      return recentTC.docs[0].data().venta || 3.70;
-    }
-  } catch {
-    // Error consultando TC
-  }
-
-  return 3.70; // Fallback
-}
+// obtenerTipoCambio eliminada — usa resolverTCVenta de tipoCambio.util.ts
+const obtenerTipoCambio = resolverTCVenta;
 
 async function sincronizarStockProducto(productoId: string): Promise<void> {
   // Recálculo COMPLETO de stock — misma lógica que inventario.service.ts

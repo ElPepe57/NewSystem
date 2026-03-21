@@ -88,7 +88,7 @@ export const useProductoStore = create<ProductoState>((set) => ({
   // INVESTIGACIÓN DE MERCADO
   // ============================================
 
-  guardarInvestigacion: async (productoId, data, userId, tipoCambio = 3.70) => {
+  guardarInvestigacion: async (productoId, data, userId, tipoCambio) => {
     set({ loading: true, error: null });
     try {
       const investigacion = await ProductoService.guardarInvestigacion(productoId, data, userId, tipoCambio);

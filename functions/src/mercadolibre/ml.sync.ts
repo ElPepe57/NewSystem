@@ -8,6 +8,7 @@
 
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions/v1";
+import { resolverTCVenta } from "../tipoCambio.util";
 import {
   getSellerItems,
   getItems,
@@ -1422,18 +1423,8 @@ async function registrarGastoDistribucionAuto(
     .get();
   if (!mpQuery.empty) cuentaMPId = mpQuery.docs[0].id;
 
-  // Obtener tipo de cambio
-  let tc = 3.70;
-  try {
-    const today = fecha.toISOString().split("T")[0];
-    const tcQuery = await db.collection("tiposCambio")
-      .where("fecha", "==", today)
-      .limit(1)
-      .get();
-    if (!tcQuery.empty) tc = tcQuery.docs[0].data().venta || 3.70;
-  } catch {
-    // fallback
-  }
+  // Obtener tipo de cambio centralizado
+  const tc = await resolverTCVenta();
 
   // Crear PagoGasto (pagado automáticamente desde cuenta MP)
   const pagoGastoId = `PAG-GAS-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;

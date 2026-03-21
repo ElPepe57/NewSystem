@@ -175,6 +175,19 @@ service cloud.firestore {
       allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
     }
 
+    // ============================================================
+    // POOL USD — Rendimiento Cambiario
+    // ============================================================
+    match /poolUSDMovimientos/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    match /poolUSDSnapshots/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
     match /historialRecalculoCTRU/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
       allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
@@ -326,7 +339,9 @@ service cloud.firestore {
     // ============================================================
     match /configuracion/{docId} {
       allow read: if isActiveUser();
-      allow write: if hasAnyRole(['admin', 'gerente']);
+      // tipoCambio config es crítico — solo admin puede modificar umbrales
+      allow write: if (docId == 'tipoCambio' && hasAnyRole(['admin']))
+                   || (docId != 'tipoCambio' && hasAnyRole(['admin', 'gerente']));
     }
 
     // ============================================================

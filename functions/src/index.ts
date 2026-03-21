@@ -288,131 +288,297 @@ export const onOrdenCompraRecibida = functions.firestore
   });
 
 // ============================================================
-// FUNCIÓN 2: Obtener Tipo de Cambio Automático (SUNAT/SBS)
+// FUNCIÓN 2: Obtener Tipo de Cambio Automático (Dual: Paralelo + SUNAT)
+// Decisión 11: TC Paralelo (cuantoestaeldolar.pe) como fuente principal,
+//              TC SUNAT como fuente contable. Scraping + backup ExchangeRate-API.
 // ============================================================
 
 import axios from "axios";
+import { invalidarCache } from "./tipoCambio.util";
 
-interface TipoCambioAPI {
-  compra: number;
-  venta: number;
-  fecha: string;
+// Constantes de validación para USD/PEN
+const TC_MIN = 2.50;
+const TC_MAX = 5.50;
+const MAX_SPREAD = 0.02; // 2% máximo entre compra y venta
+const SCRAPER_TIMEOUT_MS = 15000;
+const API_TIMEOUT_MS = 10000;
+const EXCHANGE_RATE_SPREAD_FACTOR = 0.002; // 0.2% en cada lado = ~0.4% total
+const TC_DECIMAL_PRECISION = 1000; // 3 decimales
+
+interface TCDual {
+  paralelo: { compra: number; venta: number } | null;
+  sunat: { compra: number; venta: number } | null;
 }
 
 /**
- * Función programada: Obtiene TC diario a las 9:00 AM (hora Perú)
- * Se ejecuta de lunes a viernes
+ * Extrae un par compra/venta de TC del HTML scrapeado.
+ * Busca la etiqueta seguida de dos números decimales, con límite de distancia
+ * para no cruzar secciones del HTML y capturar valores de otra fuente.
  */
-export const obtenerTipoCambioDiario = functions.pubsub
-  .schedule("0 9 * * 1-5") // 9:00 AM, lunes a viernes
-  .timeZone("America/Lima")
-  .onRun(async () => {
-    functions.logger.info("Iniciando obtención de tipo de cambio diario");
+function extraerParTC(
+  html: string,
+  etiqueta: string
+): { compra: number; venta: number } | null {
+  const pattern = new RegExp(
+    `${etiqueta}[\\s\\S]{0,500}?(\\d+\\.\\d{2,3})[\\s\\S]{0,100}?(\\d+\\.\\d{2,3})`,
+    "i" // case-insensitive: match tanto "Sunat" como "SUNAT"
+  );
+  const match = html.match(pattern);
+  if (!match) return null;
 
-    try {
-      // Intentar obtener de API de SUNAT (o alternativa)
-      const tc = await obtenerTCDeAPI();
+  const val1 = parseFloat(match[1]);
+  const val2 = parseFloat(match[2]);
 
-      if (tc) {
-        // Guardar en Firestore
-        const hoy = new Date();
-        const fechaStr = hoy.toISOString().split("T")[0]; // YYYY-MM-DD
+  // Validar rango realista USD/PEN
+  if (val1 < TC_MIN || val1 > TC_MAX || val2 < TC_MIN || val2 > TC_MAX) {
+    functions.logger.warn(`[TC-Scraper] ${etiqueta}: valores fuera de rango (${val1}, ${val2})`);
+    return null;
+  }
 
-        const tcRef = db.collection(COLLECTIONS.TIPOS_CAMBIO).doc(fechaStr);
+  const compra = Math.min(val1, val2);
+  const venta = Math.max(val1, val2);
 
-        await tcRef.set({
-          fecha: admin.firestore.Timestamp.fromDate(hoy),
-          compra: tc.compra,
-          venta: tc.venta,
-          fuente: "API_SBS",
-          fechaObtencion: admin.firestore.FieldValue.serverTimestamp(),
-          esAutomatico: true,
-        });
+  // Validar spread razonable
+  const spread = (venta - compra) / compra;
+  if (spread > MAX_SPREAD) {
+    functions.logger.warn(
+      `[TC-Scraper] ${etiqueta}: spread inusual ${(spread * 100).toFixed(2)}% — posible captura cruzada`
+    );
+    return null;
+  }
 
-        functions.logger.info(`✅ TC guardado: Compra ${tc.compra}, Venta ${tc.venta}`);
-        return { success: true, tc };
+  return { compra, venta };
+}
+
+/**
+ * Scrapea cuantoestaeldolar.pe para obtener TC Paralelo y SUNAT.
+ * La página es Next.js SSR — los datos vienen embebidos en el HTML.
+ */
+async function scrapearCuantoEstaElDolar(): Promise<TCDual> {
+  const result: TCDual = { paralelo: null, sunat: null };
+
+  try {
+    const response = await axios.get("https://cuantoestaeldolar.pe/", {
+      timeout: SCRAPER_TIMEOUT_MS,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "text/html",
+      },
+    });
+
+    const html: string = response.data;
+    result.paralelo = extraerParTC(html, "Paralelo");
+    result.sunat = extraerParTC(html, "Sunat");
+
+    functions.logger.debug("[TC-Scraper] Resultado:", JSON.stringify(result));
+  } catch (error) {
+    functions.logger.warn("[TC-Scraper] Error scrapeando cuantoestaeldolar.pe:", error);
+  }
+
+  return result;
+}
+
+/**
+ * Backup: ExchangeRate-API (mid-market rate gratuito)
+ */
+async function obtenerTCBackup(): Promise<{ compra: number; venta: number } | null> {
+  try {
+    const response = await axios.get(
+      "https://api.exchangerate-api.com/v4/latest/USD",
+      { timeout: API_TIMEOUT_MS }
+    );
+
+    if (response.data?.rates?.PEN) {
+      const midRate = response.data.rates.PEN;
+
+      // Validar rango realista
+      if (midRate < TC_MIN || midRate > TC_MAX) {
+        functions.logger.warn(`[TC-Backup] Valor fuera de rango: ${midRate}`);
+        return null;
       }
 
-      functions.logger.warn("No se pudo obtener TC de API");
-      return { success: false, error: "No se pudo obtener TC" };
-    } catch (error) {
-      functions.logger.error("Error obteniendo TC:", error);
-      return { success: false, error: String(error) };
+      return {
+        compra: Math.round(midRate * (1 - EXCHANGE_RATE_SPREAD_FACTOR) * TC_DECIMAL_PRECISION) / TC_DECIMAL_PRECISION,
+        venta: Math.round(midRate * (1 + EXCHANGE_RATE_SPREAD_FACTOR) * TC_DECIMAL_PRECISION) / TC_DECIMAL_PRECISION,
+      };
     }
+    return null;
+  } catch (error) {
+    functions.logger.warn("[TC-Backup] Error en ExchangeRate-API:", error);
+    return null;
+  }
+}
+
+/**
+ * Convierte Date a string YYYY-MM-DD en zona horaria Lima.
+ * Cloud Functions corren en UTC — sin esto, llamadas nocturnas (>7PM Lima)
+ * guardarían el TC bajo la fecha del día siguiente.
+ */
+function fechaLimaStr(date: Date): string {
+  const lima = new Date(date.toLocaleString("en-US", { timeZone: "America/Lima" }));
+  return lima.getFullYear() + "-" +
+    String(lima.getMonth() + 1).padStart(2, "0") + "-" +
+    String(lima.getDate()).padStart(2, "0");
+}
+
+/**
+ * Lógica central: obtener TC dual y guardar en Firestore.
+ * Flujo: scraping cuantoestaeldolar.pe → backup ExchangeRate-API → falla
+ *
+ * Protección: si ya existe un TC manual para el día, no sobreescribe la raíz
+ * (pero sí actualiza el campo sunat anidado si lo obtiene).
+ */
+async function obtenerYGuardarTC(esAutomatico: boolean): Promise<{
+  success: boolean;
+  paralelo?: { compra: number; venta: number };
+  sunat?: { compra: number; venta: number };
+  error?: string;
+}> {
+  const hoy = new Date();
+  const fechaStr = fechaLimaStr(hoy);
+
+  // [1] Scraping cuantoestaeldolar.pe
+  const tcDual = await scrapearCuantoEstaElDolar();
+
+  // [2] Si no tenemos paralelo, intentar backup
+  let paraleloFinal = tcDual.paralelo;
+  if (!paraleloFinal) {
+    functions.logger.info("[TC] Paralelo no disponible, intentando backup...");
+    paraleloFinal = await obtenerTCBackup();
+  }
+
+  // [3] Si no tenemos nada, fallar
+  if (!paraleloFinal) {
+    functions.logger.error("[TC] Ninguna fuente de TC disponible");
+    return { success: false, error: "Ninguna fuente de TC disponible" };
+  }
+
+  // [4] Verificar si existe un TC manual que no debemos sobreescribir
+  const tcRef = db.collection(COLLECTIONS.TIPOS_CAMBIO).doc(fechaStr);
+  const existente = await tcRef.get();
+
+  if (existente.exists && existente.data()?.fuente === "manual") {
+    // TC manual del admin: NO tocar la raíz, solo actualizar sunat si lo tenemos
+    functions.logger.info(`[TC] TC manual existe para ${fechaStr} — protegiendo raíz`);
+
+    const updateData: Record<string, unknown> = {};
+    if (tcDual.sunat) {
+      updateData.sunat = tcDual.sunat;
+      updateData.sunatDisponible = true;
+    }
+    if (Object.keys(updateData).length > 0) {
+      await tcRef.update(updateData);
+      functions.logger.info(`[TC] Campo sunat actualizado en TC manual de ${fechaStr}`);
+    }
+
+    invalidarCache();
+    return {
+      success: true,
+      paralelo: paraleloFinal,
+      sunat: tcDual.sunat ?? undefined,
+    };
+  }
+
+  // [5] Guardar en Firestore con estructura dual
+  // compra/venta raíz = paralelo (fuente principal para operaciones)
+  const tcData: Record<string, unknown> = {
+    fecha: admin.firestore.Timestamp.fromDate(hoy),
+    compra: paraleloFinal.compra,
+    venta: paraleloFinal.venta,
+    promedio: (paraleloFinal.compra + paraleloFinal.venta) / 2,
+    fuente: tcDual.paralelo ? "paralelo" : "exchangerate-api",
+    paralelo: paraleloFinal,
+    fechaObtencion: admin.firestore.FieldValue.serverTimestamp(),
+    esAutomatico,
+  };
+
+  if (tcDual.sunat) {
+    tcData.sunat = tcDual.sunat;
+    tcData.sunatDisponible = true;
+  } else {
+    tcData.sunatDisponible = false;
+    functions.logger.warn(
+      "[TC] SUNAT no disponible — contabilidad usará TC paralelo como fallback"
+    );
+  }
+
+  await tcRef.set(tcData, { merge: true });
+
+  // Invalidar cache del resolver para que use el nuevo TC
+  invalidarCache();
+
+  functions.logger.info(
+    `✅ TC guardado [${fechaStr}]: Paralelo ${paraleloFinal.compra}/${paraleloFinal.venta}` +
+    (tcDual.sunat ? ` | SUNAT ${tcDual.sunat.compra}/${tcDual.sunat.venta}` : " | SUNAT no disponible")
+  );
+
+  return {
+    success: true,
+    paralelo: paraleloFinal,
+    sunat: tcDual.sunat ?? undefined,
+  };
+}
+
+/**
+ * Función programada: Obtiene TC a las 9:00 AM (hora Perú), todos los días
+ */
+export const obtenerTipoCambioDiario = functions.pubsub
+  .schedule("0 9 * * *")
+  .timeZone("America/Lima")
+  .onRun(async () => {
+    functions.logger.info("[TC-Cron] Ejecución 9:00 AM");
+    return obtenerYGuardarTC(true);
   });
 
 /**
- * Función HTTP para obtener TC manualmente
+ * Función programada: Actualización de TC a las 2:00 PM (hora Perú), todos los días
  */
-export const obtenerTipoCambioManual = functions.https.onCall(async () => {
+export const actualizarTipoCambioTarde = functions.pubsub
+  .schedule("0 14 * * *")
+  .timeZone("America/Lima")
+  .onRun(async () => {
+    functions.logger.info("[TC-Cron] Ejecución 2:00 PM");
+    return obtenerYGuardarTC(true);
+  });
+
+/**
+ * Función HTTP para obtener TC manualmente (callable desde frontend)
+ * Requiere autenticación y rol admin/gerente.
+ */
+export const obtenerTipoCambioManual = functions.https.onCall(async (data, context) => {
+  // Verificar autenticación
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "Debe estar autenticado para actualizar el tipo de cambio"
+    );
+  }
+
+  // Verificar rol
+  const userDoc = await db.collection(COLLECTIONS.USERS).doc(context.auth.uid).get();
+  const role = userDoc.data()?.role;
+  if (!["admin", "gerente"].includes(role)) {
+    throw new functions.https.HttpsError(
+      "permission-denied",
+      "Solo admin o gerente pueden actualizar el tipo de cambio"
+    );
+  }
+
   try {
-    const tc = await obtenerTCDeAPI();
-
-    if (tc) {
-      const hoy = new Date();
-      const fechaStr = hoy.toISOString().split("T")[0];
-
-      const tcRef = db.collection(COLLECTIONS.TIPOS_CAMBIO).doc(fechaStr);
-
-      await tcRef.set(
-        {
-          fecha: admin.firestore.Timestamp.fromDate(hoy),
-          compra: tc.compra,
-          venta: tc.venta,
-          fuente: "API_SBS",
-          fechaObtencion: admin.firestore.FieldValue.serverTimestamp(),
-          esAutomatico: false,
-        },
-        { merge: true }
-      );
-
-      return { success: true, tc };
+    const resultado = await obtenerYGuardarTC(false);
+    if (resultado.success) {
+      return resultado;
     }
-
     throw new functions.https.HttpsError(
       "unavailable",
-      "No se pudo obtener el tipo de cambio"
+      resultado.error || "No se pudo obtener el tipo de cambio"
     );
   } catch (error) {
-    functions.logger.error("Error en obtención manual de TC:", error);
+    if (error instanceof functions.https.HttpsError) throw error;
+    functions.logger.error("[TC-Manual] Error:", error);
     throw new functions.https.HttpsError("internal", "Error obteniendo TC");
   }
 });
-
-/**
- * Obtiene TC de API externa (SBS o alternativa)
- */
-async function obtenerTCDeAPI(): Promise<TipoCambioAPI | null> {
-  try {
-    // Opción 1: API de la SBS (requiere verificar disponibilidad)
-    // const response = await axios.get('https://api.apis.net.pe/v1/tipo-cambio-sunat');
-
-    // Opción 2: API alternativa gratuita
-    const response = await axios.get(
-      "https://api.exchangerate-api.com/v4/latest/USD"
-    );
-
-    if (response.data && response.data.rates && response.data.rates.PEN) {
-      const ventaUSD = response.data.rates.PEN;
-      // Aproximación: compra suele ser ~0.5% menor que venta
-      const compraUSD = ventaUSD * 0.995;
-
-      return {
-        compra: Math.round(compraUSD * 1000) / 1000,
-        venta: Math.round(ventaUSD * 1000) / 1000,
-        fecha: new Date().toISOString(),
-      };
-    }
-
-    return null;
-  } catch (error) {
-    functions.logger.error("Error llamando API de TC:", error);
-
-    // Fallback: valores por defecto si la API falla
-    // En producción, podrías tener un valor almacenado como fallback
-    return null;
-  }
-}
 
 // ============================================================
 // FUNCIÓN 3: Recalcular CTRU al registrar gasto prorrateable

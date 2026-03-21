@@ -8,6 +8,7 @@
 
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { resolverTCVenta } from "../tipoCambio.util";
 import {
   exchangeCodeForToken,
   saveTokens,
@@ -2855,12 +2856,8 @@ export const mlreingenieria = functions
     log.push(`Transportista Urbano: ${transportistaUrbanoId ? transportistaUrbanoNombre : "NO ENCONTRADO"}`);
     log.push("");
 
-    // Obtener TC
-    let tc = 3.70;
-    try {
-      const recentTC = await db.collection("tiposCambio").orderBy("fecha", "desc").limit(1).get();
-      if (!recentTC.empty) tc = recentTC.docs[0].data().venta || 3.70;
-    } catch { /* fallback */ }
+    // Obtener TC centralizado
+    const tc = await resolverTCVenta();
 
     // Contador para números de gasto
     let gastoCounter = 0;
@@ -4285,12 +4282,8 @@ export const mlrepairgastosml = functions
       if (!anyQuery.empty) cuentaMPId = anyQuery.docs[0].id;
     }
 
-    // 3. Obtener tipo de cambio
-    let tc = 3.7;
-    try {
-      const tcDoc = await db.collection("configuracion").doc("tipoCambio").get();
-      if (tcDoc.exists) tc = tcDoc.data()?.valorVenta || 3.7;
-    } catch { /* use default */ }
+    // 3. Obtener tipo de cambio centralizado
+    const tc = await resolverTCVenta();
 
     for (const ventaDoc of ventasSnap.docs) {
       const venta = ventaDoc.data();

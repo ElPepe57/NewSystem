@@ -15,6 +15,7 @@ import {
 import { db } from '../lib/firebase';
 import { auditoriaService } from './auditoria.service';
 import { inventarioService } from './inventario.service';
+import { tipoCambioService } from './tipoCambio.service';
 import type {
   Unidad,
   UnidadFormData,
@@ -1072,7 +1073,11 @@ export const unidadService = {
     }
 
     // Calcular CTRU con diferentes escenarios
-    const tc = unidadExtendida.tcPago || unidadExtendida.tcCompra || 3.70;
+    // Preferir TC histórico de la unidad; si no existe, usar TC centralizado
+    let tc = unidadExtendida.tcPago || unidadExtendida.tcCompra || 0;
+    if (!tc) {
+      tc = await tipoCambioService.resolverTCVenta();
+    }
     const costoFleteUSD = unidadExtendida.costoFleteUSD || 0;
 
     return {

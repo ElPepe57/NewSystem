@@ -53,6 +53,10 @@ export const COLLECTIONS = {
   TRANSPORTISTAS: "transportistas",
   TIPOS_CAMBIO: "tiposCambio",
 
+  // === Configuración ===
+  CONFIGURACION: "configuracion",
+  CONTADORES: "contadores",
+
   // === Sistema ===
   USERS: "users",
   NOTIFICACIONES: "notificaciones",
@@ -63,6 +67,10 @@ export const COLLECTIONS = {
   // === Escáner ===
   SCAN_HISTORY: "scanHistory",
   CONTEOS_INVENTARIO: "conteosInventario",
+
+  // === Rendimiento Cambiario (Pool USD) ===
+  POOL_USD_MOVIMIENTOS: "poolUSDMovimientos",
+  POOL_USD_SNAPSHOTS: "poolUSDSnapshots",
 
   // === Colaboración ===
   PRESENCIA: "presencia",

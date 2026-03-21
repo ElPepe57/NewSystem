@@ -404,14 +404,8 @@ export const cuentasPendientesService = {
    * Genera el dashboard consolidado de CxP/CxC
    */
   async getDashboard(): Promise<DashboardCuentasPendientes> {
-    // Obtener TC actual
-    let tc = 3.70;
-    try {
-      const tcData = await tipoCambioService.getTCDelDia();
-      if (tcData) tc = tcData.venta;
-    } catch (e) {
-      console.warn('No se pudo obtener TC, usando default:', tc);
-    }
+    // Obtener TC centralizado
+    const tc = await tipoCambioService.resolverTCVenta();
 
     // Obtener resúmenes
     const [cuentasPorCobrar, cuentasPorPagar] = await Promise.all([

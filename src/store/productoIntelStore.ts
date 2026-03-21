@@ -63,8 +63,13 @@ export const useProductoIntelStore = create<ProductoIntelState>((set, get) => ({
   ordenAscendente: false,
 
   // Actions
-  cargarDatos: async (tc = 3.7) => {
+  cargarDatos: async (tc?: number) => {
     set({ loading: true, error: null });
+    // Si no se provee TC, resolver del servicio centralizado
+    if (!tc) {
+      const { tipoCambioService } = await import('../services/tipoCambio.service');
+      tc = await tipoCambioService.resolverTCVenta();
+    }
 
     try {
       // Cargar analisis de todos los productos

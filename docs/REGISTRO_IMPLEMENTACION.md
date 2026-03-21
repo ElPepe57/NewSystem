@@ -2,8 +2,8 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-19
-**Branch activo:** feature/system-improvements
+**Ultima actualizacion:** 2026-03-20 (ADR-002 Pool USD con TCPA aprobado)
+**Branch activo:** main
 
 ---
 
@@ -12,12 +12,13 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 4 |
+| Sesiones de trabajo registradas | 6 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | 27 |
-| Tareas criticas pendientes | 0 (Node.js 22 ya migrado — TAREA-001 resuelta) |
-| Deploys realizados | 3 |
+| Fixes aplicados | 37 (31 sesiones 1-4 + 6 sesion 5) |
+| Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
+| Deploys realizados | 5 (ultimo: 2026-03-20 post-Sesion 5, commit e8e6d8f) |
+| Investigaciones en curso | 1 (rendimiento cambiario integral — Sesion 6) |
 
 ---
 
@@ -41,6 +42,7 @@ MODULOS ACTIVOS EN PRODUCCION:
   Transferencias            — ESTABLE — con rollback
   Contabilidad              — PARCIAL — Balance General basico, sin integr. SUNAT
   Inteligencia Producto     — PARCIAL — requiere calibracion de scores
+  Clientes Maestro          — INTEGRADO — auto-create via getOrCreate, metricas ABC/RFM activas (2026-03-20)
   WhatsApp                  — EN DESARROLLO — 3 funciones creadas, sin uso en produccion
 
 INTEGRACIONES ACTIVAS:
@@ -1024,6 +1026,53 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 - Archivo: `firestore.indexes.json`
 - Reversible: si (eliminar del archivo y redesplegar)
 
+### Fixes aplicados en Sesion 5
+
+#### CAMBIO-032 — Integracion Clientes Maestros en VentaForm (Decision 4)
+- Tipo: Feature / Integracion
+- Descripcion: `VentaForm.tsx` ahora pasa `clienteId` al service cuando el usuario selecciona un cliente del maestro CRM. Eliminada la llamada directa a `getOrCreate()` desde el form — la responsabilidad de creacion/vinculacion es exclusiva del service. El form solo transmite la seleccion del usuario.
+- Archivo: `src/components/modules/venta/VentaForm.tsx`
+- Reversible: si
+
+#### CAMBIO-033 — Integracion Clientes Maestros en CotizacionForm (Decision 4)
+- Tipo: Feature / Integracion
+- Descripcion: `CotizacionForm.tsx` aplica el mismo patron que CAMBIO-032 — pasa `clienteId` si hay cliente seleccionado del maestro, y delega la logica de auto-creacion al service. Eliminada la doble llamada a `getOrCreate()` que existia en el form.
+- Archivo: `src/pages/Cotizaciones/CotizacionForm.tsx`
+- Reversible: si
+
+#### CAMBIO-034 — Auto-creacion de cliente y metricas en venta.service (Decision 4)
+- Tipo: Feature / Integracion
+- Descripcion: `VentaService.crear()` ahora llama a `clienteService.getOrCreate()` via dynamic import para vincular o crear el cliente maestro en cada nueva venta. `confirmarVenta()` llama a `actualizarMetricasPorVenta()` como fire-and-forget para actualizar clasificacion ABC/RFM del cliente post-confirmacion.
+- Archivo: `src/services/venta.service.ts`
+- Reversible: si
+- Nota: fire-and-forget puede fallar silenciosamente — ver hallazgo diferido SEC-CLI-001
+
+#### CAMBIO-035 — Auto-creacion de cliente en cotizacion.service (Decision 4)
+- Tipo: Feature / Integracion
+- Descripcion: `crearCotizacion()` en `cotizacion.service.ts` ahora llama a `clienteService.getOrCreate()` via dynamic import al crear una cotizacion, garantizando que el cliente siempre exista como entidad estructurada. Al confirmar cotizacion→venta, consulta el CTRU actual de cada producto y auto-marca `ventaBajoCosto` si algun precio esta por debajo del costo.
+- Archivo: `src/services/cotizacion.service.ts`
+- Reversible: si
+
+#### CAMBIO-036 — Flujo de aprobacion precio bajo costo (Decision 5)
+- Tipo: Feature / Control
+- Descripcion: Implementacion completa del flujo de aprobacion de ventas con precio < CTRU:
+  - `VentaForm.tsx`: deteccion real-time por producto, alerta inline roja, banner en paso de confirmacion con desglose de perdidas estimadas. Admin/gerente: checkbox de aprobacion. Otros roles: botones deshabilitados con mensaje de bloqueo. Reset automatico de aprobacion cuando cambia la composicion de productos bajo costo (cambio en `productosBajoCosto.length`). Validacion explicita de `user.uid` antes de guardar `aprobadoPor`.
+  - `venta.service.ts`: guarda `ventaBajoCosto: true` y `aprobadoBajoCostoPor: uid` en documento Firestore.
+  - `cotizacion.service.ts`: al confirmar cotizacion→venta, evalua precio vs CTRU de cada producto y auto-marca `ventaBajoCosto` si corresponde.
+  - `venta.types.ts`: campos `ventaBajoCosto` (boolean) y `aprobadoBajoCostoPor` (string) en interface `Venta`. Campos `ventaBajoCosto` y `aprobadoPor` en `VentaFormData`.
+  - `firestore.rules`: vendedor NO puede crear ventas con `ventaBajoCosto: true` — solo admin/gerente. Regla split en create/update/delete.
+- Archivos: `VentaForm.tsx`, `venta.service.ts`, `cotizacion.service.ts`, `venta.types.ts`, `firestore.rules`
+- Reversible: si (revertir tipos, reglas y logica del form/service)
+
+#### CAMBIO-037 — BUG-001/003/004/005 resueltos como parte de Sesion 5
+- Tipo: Bug fix (seguridad + correctness)
+- Descripcion: Correccion de bugs encontrados durante revision de agentes security-guardian y code-logic-analyst sobre la implementacion de la Sesion 5:
+  - BUG-001 (renumerado en sesion 5): `aprobadoPor` podia ser `undefined` si la sesion expiraba antes de guardar → ahora valida `user.uid` explicitamente y bloquea si es undefined.
+  - BUG-003 (sesion 5): agregar un segundo producto bajo costo no reseteaba el checkbox de aprobacion → ahora resetea cuando cambia `productosBajoCosto.length` via useEffect.
+  - BUG-004/005 (sesion 5, consolidados): doble llamada a `getOrCreate()` existia en el form + service → eliminada del form, solo el service es responsable.
+- Archivos: `VentaForm.tsx`, `venta.service.ts`
+- Reversible: si
+
 ### Fixes aplicados en Sesion 4
 
 #### CAMBIO-016 — UAT-001: eliminarPago revierte movimiento en Tesoreria
@@ -1065,14 +1114,83 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 - Revisable: cuando el negocio decida abordar integracion SUNAT o cumplimiento GDPR
 - Tomada por: propietario del proyecto (Jose L.)
 
-### ADR-002 — Patron singleton como patron oficial de servicios
-- Fecha: 2026-03-19
-- Contexto: coexisten 3 patrones en el codebase (singleton objects, clases estaticas, singletons instanciados)
-- Decision: singleton objects `const serviceName = { metodo1, metodo2 }` es el patron oficial
-- Alternativas descartadas: clases estaticas (mas verbosidad sin beneficio real en este contexto), clases instanciadas (innecesario para servicios sin estado)
-- Consecuencias: los 5 servicios que son clases estaticas (`VentaService`, `OrdenCompraService`, `ProductoService`, `CotizacionService`, `ExpectativaService`) deben migrarse gradualmente
-- Revisable: si se necesitan features de POO (herencia, inyeccion de dependencias para testing)
-- Tomada por: code-quality-refactor-specialist (Ronda 2) + system-architect (Ronda 1)
+### ADR-002 — Pool USD con TCPA (TC Promedio Ponderado de Adquisicion) — Rendimiento Cambiario V1
+- Fecha decision: 2026-03-20
+- Estado: APROBADO por titular
+- Reemplaza: la seccion de analytics del modulo Expectativas (los CRUDs de requerimientos se CONSERVAN intactos)
+- Contexto: el titular necesita medir el impacto cambiario real en todo el ciclo de negocio (cotizacion → compra → pago → venta → cobro). El modulo Expectativas no cumple este proposito — su seccion de analytics es inutil y tiene bugs (dimensional units error en getStats). El sistema captura campos TC en multiples puntos del ciclo pero no calcula ni reporta el diferencial entre el TC esperado y el TC real en ninguna transaccion.
+- Opciones evaluadas:
+  - Opcion A: Extender el patron de Conversiones a cada punto del ciclo (agregar `tcReferencia` + `diferencialCambiario` en Venta, OC y Pago). Pros: cercano a la estructura actual. Contras: no consolida el "pool de dolares del negocio" — no responde la pregunta de cuanto costo cada dolar que tenemos.
+  - Opcion B: Reporte de conciliacion post-facto sin modificar estructura de datos. Pros: no invasivo. Contras: no captura el TCPA (costo promedio del pool), no sirve para gestion.
+  - Opcion C: Redisenar Expectativas para incluir rendimiento cambiario esperado. Pros: reutiliza modulo existente. Contras: mezcla conceptos distintos (expectativa futura vs rendimiento realizado).
+- Decision: Pool USD con TCPA — concepto de "pool de dolares del negocio" con calculo automatico del TC Promedio Ponderado de Adquisicion. Arquitectura nueva, no extension de modulo existente.
+- Razon: responde la pregunta central del negocio ("cuanto me costo cada dolar") y permite comparar TCPA vs TC de cada operacion para calcular ganancia/perdida por conversion en tiempo real.
+- Fomula TCPA: `newTCPA = (existingUSD * oldTCPA + newUSD * newTC) / (existingUSD + newUSD)`
+- Regla clave: TCPA recalcula solo en entradas (no en salidas/retiros)
+- Dual TC por transaccion: `tcPool` (TCPA, para gestion interna) + `tcSunat` (TC SBS del dia, para contabilidad/fiscal)
+
+#### Movimientos del Pool V1
+
+Entradas (aumentan pool y recalculan TCPA):
+  - COMPRA_USD_BANCO: conversion cambiaria PEN a USD
+  - COMPRA_USD_EFECTIVO: compra USD en efectivo
+  - COBRO_VENTA_USD: cobro de venta en USD via Zelle o PayPal
+  - SALDO_INICIAL: carga retroactiva del saldo existente
+  - AJUSTE_CONCILIACION_ENTRADA: conciliacion manual
+
+Salidas (reducen pool, NO recalculan TCPA):
+  - PAGO_OC: pago de orden de compra
+  - GASTO_IMPORTACION_USD: flete, aduana y similares
+  - GASTO_SERVICIO_USD: servicios pagados en USD
+  - COMISION_BANCARIA_USD: comisiones bancarias
+  - VENTA_USD: venta directa en USD (MercadoLibre = PEN, no aplica)
+  - RETIRO_CAPITAL: retiro de capital en USD
+  - AJUSTE_CONCILIACION_SALIDA: conciliacion manual
+
+#### Funcionalidades V1
+1. Registro automatico de movimientos del pool desde conversiones cambiarias
+2. TCPA calculado en tiempo real
+3. Ganancia/perdida por operacion = (tcPool - tcSunat) x montoUSD
+4. Dashboard con 4 tabs: Resumen, Por Operacion, Conversiones, Tendencias
+5. Snapshot mensual del TCPA
+6. Revaluacion de saldos al cierre: recalcular valor PEN del pool con TC del ultimo dia del mes, generar asiento contable 676/776
+7. Recalculo retroactivo: reconstruir pool desde cero con movimientos historicos (para carga de 3 meses retroactivos)
+8. Validacion: pool no puede quedar negativo
+9. Conciliacion: mecanismo de ajuste cuando pool calculado difiere del saldo real bancario
+
+#### Colecciones Firestore nuevas
+- `poolUSDMovimientos`: cada entrada/salida del pool
+- `poolUSDSnapshots`: foto mensual del estado del pool
+
+#### Campos a agregar en tipos existentes
+- `OrdenCompra`: `tcPool` (TCPA al pagar), `impactoCambiario` (ganancia/perdida)
+- `ConversionCambiaria`: `poolMovimientoId` (referencia al movimiento generado)
+- `Venta`: activar `tcCobro` (TC real del cobro — campo ya existe en types, nunca se graba)
+
+#### Bugs a corregir como prerequisito
+- `venta.service.ts` lineas 1758 y 2210: cobros USD via Zelle/PayPal se registran como PEN
+- Campo `tcCobro` en Venta nunca se escribe — activar al registrar cobro
+
+#### Consideracion especial: Retroactividad
+El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sistema debe:
+- Permitir carga de saldo inicial con fecha pasada
+- Funcion `recalcularPoolDesdeHistorico()` que reconstruye todo el pool desde el primer movimiento
+- Orden cronologico estricto para el calculo
+
+#### Tareas generadas
+- TAREA-057: Crear types rendimientoCambiario.types.ts
+- TAREA-058: Crear poolUSD.service.ts con logica TCPA
+- TAREA-059: Fix bug cobros USD como PEN en venta.service.ts
+- TAREA-060: Activar campo tcCobro al registrar cobro
+- TAREA-061: Crear poolUSDStore.ts (Zustand)
+- TAREA-062: Crear pagina RendimientoCambiario.tsx (4 tabs)
+- TAREA-063: Integrar pool con conversiones cambiarias existentes
+- TAREA-064: Snapshot mensual + revaluacion al cierre
+- TAREA-065: Recalculo retroactivo del pool
+
+- Consecuencias: el modulo Expectativas (seccion analytics) queda descontinuado — los CRUDs de requerimientos no se tocan. Se crean 2 colecciones nuevas y se extienden 3 tipos existentes. Los cobros USD en venta.service.ts requieren fix previo.
+- Revisable: si el volumen de operaciones USD justifica un sistema de hedging mas sofisticado, o si se integra SUNAT (que requerira TC oficial obligatorio).
+- Tomada por: titular (Jose L.) — 2026-03-20
 
 ### ADR-003 — Atomic counter como mecanismo de IDs secuenciales
 - Fecha: 2026-03-19
@@ -1082,6 +1200,15 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 - Consecuencias: los numeros son secuenciales y sin gaps bajo cualquier carga. Costo: 1 transaccion adicional por documento nuevo.
 - Revisable: si el volumen de transacciones genera costo significativo en Firestore
 - Tomada por: backend-cloud-engineer + code-quality-refactor-specialist (Ronda 2)
+
+### ADR-004 — Patron singleton como patron oficial de servicios
+- Fecha: 2026-03-19
+- Contexto: coexisten 3 patrones en el codebase (singleton objects, clases estaticas, singletons instanciados)
+- Decision: singleton objects `const serviceName = { metodo1, metodo2 }` es el patron oficial
+- Alternativas descartadas: clases estaticas (mas verbosidad sin beneficio real en este contexto), clases instanciadas (innecesario para servicios sin estado)
+- Consecuencias: los 5 servicios que son clases estaticas (`VentaService`, `OrdenCompraService`, `ProductoService`, `CotizacionService`, `ExpectativaService`) deben migrarse gradualmente
+- Revisable: si se necesitan features de POO (herencia, inyeccion de dependencias para testing)
+- Tomada por: code-quality-refactor-specialist (Ronda 2) + system-architect (Ronda 1)
 
 ---
 
@@ -1186,7 +1313,7 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 - Modulo: entregas (entrega.service.ts / entrega-pdf.service.ts)
 - Prioridad: ALTA
 - Hallazgo: BUG-001
-- Estado: pendiente (requiere investigacion mas profunda)
+- Estado: **RESUELTO** (CAMBIO-018, Sesion 4 — consolidado con TAREA-044)
 
 **TAREA-033**
 - Titulo: BUG-006 — getMovimientos ignora cuentaDestino en tesoreria
@@ -1202,8 +1329,7 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 - Modulo: Firebase
 - Prioridad: ALTA
 - Hallazgo: database-administrator (Ronda 3)
-- Estado: pendiente
-- Accion: gcloud firestore export scheduled (diario a bucket GCS)
+- Estado: **RESUELTO** (Sesion 4) — PITR habilitado (7 dias retencion) + copias semanales (lunes, 98 dias retencion) en consola Firebase
 
 **TAREA-035**
 - Titulo: PERF-001 — Corregir N+1 en actualizarCTRUPromedioProductos
@@ -1276,8 +1402,7 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 - Modulo: ventas / tesoreria (venta.service.ts:1758-1810)
 - Prioridad: CRITICA — BLOQUEA GO-LIVE
 - Hallazgo: UAT-001 (quality-uat-director)
-- Estado: pendiente
-- Accion: agregar llamada a `tesoreriaService.eliminarMovimiento()` cuando pago tiene `tesoreriaMovimientoId`
+- Estado: **RESUELTO** (CAMBIO-016, Sesion 4) — eliminarPago ahora reversa movimiento via tesoreriaService.eliminarMovimiento() + soporte legacy 'registrado'
 
 **TAREA-044**
 - Titulo: UAT-004/BUG-001 — Precio unitario incorrecto en entregas multi-producto
@@ -1285,17 +1410,15 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 - Modulo: entregas (entrega.service.ts:592-594)
 - Prioridad: CRITICA — BLOQUEA GO-LIVE
 - Hallazgo: UAT-004 = BUG-001 (TAREA-032)
-- Estado: pendiente
-- Accion: usar precio del producto por unidad en vez de promedio plano subtotalPEN/count
+- Estado: **RESUELTO** (CAMBIO-018, Sesion 4) — precio unitario por producto via mapa unidadId→precioUnitario desde entrega.productos[]
 
 **TAREA-045**
 - Titulo: UAT-003 — Unificar campo reservadaPara/reservadoPara + migracion datos
 - Tipo: Bug + Migracion
-- Modulo: unidades (venta.service.ts, unidad.service.ts)
+- Modulo: unidades (venta.service.ts, unidad.service.ts, cotizacion.service.ts)
 - Prioridad: CRITICA — BLOQUEA GO-LIVE
 - Hallazgo: UAT-003
-- Estado: pendiente
-- Accion: elegir nombre canonico, migrar documentos existentes, eliminar campo huerfano
+- Estado: **RESUELTO** (CAMBIO-019, Sesion 4) — todas las escrituras usan reservadaPara (canonico), lecturas con dual-fallback para legacy
 
 **TAREA-046**
 - Titulo: UAT-005 — Cancelar venta con pagos no revierte Tesoreria automaticamente
@@ -1303,8 +1426,7 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 - Modulo: ventas / tesoreria (venta.service.ts:1359-1481)
 - Prioridad: ALTA
 - Hallazgo: UAT-005
-- Estado: pendiente
-- Accion: en cancelar(), iterar pagos con tesoreriaMovimientoId y revertir cada uno
+- Estado: **RESUELTO** (CAMBIO-017, Sesion 4) — cancelar() ahora itera todos los pagos y reversa cada movimiento de tesoreria post-commit
 
 **TAREA-047**
 - Titulo: UAT-006 — TC fallback silencioso de 3.70 sin advertencia al usuario
@@ -1313,6 +1435,193 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 - Prioridad: ALTA
 - Hallazgo: UAT-006
 - Estado: pendiente
+
+**TAREA-048**
+- Titulo: SEC-VBC-003 — Validacion server-side de precio real vs CTRU (sin confianza en flag del cliente)
+- Tipo: Seguridad / Integridad
+- Modulo: ventas (venta.service.ts / Cloud Functions)
+- Prioridad: ALTA
+- Hallazgo: SEC-VBC-003 (security-guardian, Sesion 5)
+- Descripcion: El service actual confia en el flag `ventaBajoCosto` enviado desde el cliente. No hay verificacion server-side del precio real contra el CTRU del producto al momento de guardar. Un cliente malicioso o un bug podria crear una venta bajo costo sin el flag activado.
+- Estado: pendiente
+- Accion sugerida: Cloud Function o logica server-side que consulte CTRU actual y verifique independientemente
+
+**TAREA-049**
+- Titulo: BUG-006 — getOrCreate no deduplica clientes por nombre (solo por DNI/telefono)
+- Tipo: Bug / Datos
+- Modulo: clientes (cliente.service.ts)
+- Prioridad: ALTA
+- Hallazgo: BUG-006 (code-logic-analyst, Sesion 5)
+- Descripcion: `getOrCreate()` busca por DNI o telefono para detectar cliente existente. Clientes sin DNI ni telefono (datos minimos) siempre crean un registro nuevo aunque ya existan con el mismo nombre, generando duplicados en el maestro de clientes.
+- Estado: pendiente
+- Accion sugerida: agregar busqueda por nombre normalizado como tercer criterio de deduplicacion, o alertar cuando se crea cliente sin datos unicos
+
+**TAREA-050**
+- Titulo: BUG-007 — Posible doble actualizacion de metricas cliente en flujo cotizacion → venta
+- Tipo: Bug / Datos
+- Modulo: clientes / ventas (venta.service.ts, cotizacion.service.ts)
+- Prioridad: MEDIA
+- Hallazgo: BUG-007 (code-logic-analyst, Sesion 5)
+- Descripcion: Cuando una cotizacion se confirma como venta, `confirmarVenta()` llama a `actualizarMetricasPorVenta()`. Si el flujo de confirmacion tambien ejecuta logica en `cotizacion.service.ts` que actualiza metricas, el mismo evento podria disparar dos actualizaciones para la misma venta.
+- Estado: pendiente
+- Accion sugerida: auditar el flujo completo cotizacion→venta para garantizar idempotencia en la actualizacion de metricas
+
+**TAREA-051**
+- Titulo: SEC-CLI-001 — Fire-and-forget para metricas cliente puede fallar silenciosamente
+- Tipo: Observabilidad / Robustez
+- Modulo: ventas (venta.service.ts)
+- Prioridad: MEDIA
+- Hallazgo: SEC-CLI-001 (security-guardian, Sesion 5)
+- Descripcion: `actualizarMetricasPorVenta()` se ejecuta como fire-and-forget post-confirmacion. Si falla, el error no llega al usuario ni genera alerta. El CRM puede quedar con datos de ABC/RFM desactualizados sin que nadie lo detecte.
+- Estado: pendiente
+- Accion sugerida: envolver en try/catch con logging a Cloud Logging o coleccion `errores_background`, considerar Cola de Tasks para reintentos
+
+**TAREA-052**
+- Titulo: EDGE-002 — Ventas ML via webhook no tienen flag ventaBajoCosto
+- Tipo: Consistencia / Control
+- Modulo: MercadoLibre (ml.orderProcessor.ts)
+- Prioridad: MEDIA
+- Hallazgo: EDGE-002 (code-logic-analyst, Sesion 5)
+- Descripcion: Las ventas creadas automaticamente desde el webhook de MercadoLibre no pasan por el flujo de aprobacion de precio bajo costo. Si ML vende un producto con descuento por debajo del CTRU, la venta se registra sin advertencia ni flag.
+- Estado: pendiente
+- Accion sugerida: agregar evaluacion precio vs CTRU en `ml.orderProcessor.ts` al crear la venta, registrar `ventaBajoCosto: true` automaticamente y notificar al admin si corresponde
+
+**TAREA-053**
+- Titulo: Decidir arquitectura de rendimiento cambiario en el ciclo completo (ADR-002)
+- Tipo: Decision de negocio + diseno tecnico
+- Modulo: Tesoreria / Ventas / Compras / Expectativas
+- Prioridad: ALTA
+- Hallazgo: Sesion 6 (2026-03-20) — planteamiento del titular
+- Descripcion: El sistema captura campos TC en multiples puntos del ciclo pero no calcula ni reporta el diferencial entre TC esperado y TC real.
+- Estado: **RESUELTO** — ADR-002 aprobado por titular (2026-03-20). Arquitectura elegida: Pool USD con TCPA. Ver ADR-002 en seccion REGISTRO DE DECISIONES DE ARQUITECTURA.
+- Implementacion desbloqueada: TAREA-057 a TAREA-065
+
+**TAREA-054**
+- Titulo: Grabar campo tcCobro en Venta al registrar cobro
+- Tipo: Bug / Datos faltantes
+- Modulo: ventas (venta.service.ts)
+- Prioridad: ALTA
+- Hallazgo: Sesion 6 — system-context-reader
+- Descripcion: El tipo `Venta` tiene el campo `tcCobro` definido pero nunca se graba al registrar un pago/cobro. Esto hace imposible calcular el diferencial entre el TC de venta y el TC de cobro, que es uno de los cinco puntos del rendimiento cambiario.
+- Estado: pendiente — independiente de ADR-002 (debe corregirse sin importar la opcion elegida)
+- Accion: en `venta.service.ts`, al registrar un pago en moneda diferente a la de venta, grabar el TC del momento del cobro en `tcCobro`
+
+**TAREA-055**
+- Titulo: Auditar y documentar todos los puntos donde se usa TC en el ciclo completo
+- Tipo: Investigacion / Documentacion tecnica
+- Modulo: transversal (venta.service.ts, ordenCompra.service.ts, cotizacion.service.ts, tesoreria.service.ts, expectativa.service.ts)
+- Prioridad: MEDIA
+- Hallazgo: Sesion 6 — fx-multicurrency-specialist
+- Descripcion: Levantar un mapa completo de que campos TC existen, donde se graban, donde se leen, y donde hay gaps. Insumo para implementar ADR-002 una vez decidido.
+- Estado: pendiente (parcialmente iniciado en Sesion 6 — ver tabla de gaps en la sesion)
+
+**TAREA-056**
+- Titulo: Evaluar si el modulo Expectativas debe incorporar el concepto de rendimiento cambiario esperado
+- Tipo: Diseno funcional / Feature
+- Modulo: expectativas (expectativa.service.ts)
+- Prioridad: MEDIA
+- Hallazgo: Sesion 6 — planteamiento del titular ("para esto supuestamente se creo la seccion de Expectativas")
+- Descripcion: El titular intuia que Expectativas debia medir el rendimiento cambiario esperado vs real. En la implementacion actual no lo hace.
+- Dependencias: TAREA-053 (decision ADR-002)
+- Estado: **DESCARTADA** — ADR-002 eligio arquitectura Pool USD (no extension de Expectativas). La seccion analytics de Expectativas queda descontinuada. CRUDs de requerimientos NO se tocan.
+
+**TAREA-057**
+- Titulo: Crear types rendimientoCambiario.types.ts
+- Tipo: Implementacion (tipos)
+- Modulo: Pool USD / Rendimiento Cambiario
+- Prioridad: ALTA
+- Origen: ADR-002 aprobado (2026-03-20)
+- Descripcion: Definir interfaces TypeScript para el modulo Pool USD: `PoolUSDMovimiento` (con tipo de movimiento, montoUSD, tcPool, tcSunat, impactoCambiario, fecha, referencia al documento origen), `PoolUSDSnapshot` (estado mensual del pool: saldoUSD, tcpa, valorPEN, fecha), `TipoMovimientoPool` (enum con todos los tipos de entrada y salida definidos en ADR-002), `RendimientoCambiarioResumen` (para el dashboard).
+- Dependencias: ninguna
+- Estado: pendiente
+- Agente sugerido: system-architect + fx-multicurrency-specialist
+
+**TAREA-058**
+- Titulo: Crear poolUSD.service.ts con logica TCPA
+- Tipo: Implementacion (servicio)
+- Modulo: Pool USD / Rendimiento Cambiario
+- Prioridad: ALTA
+- Origen: ADR-002 aprobado (2026-03-20)
+- Descripcion: Servicio singleton que implementa: `registrarEntrada()` (agrega USD al pool y recalcula TCPA), `registrarSalida()` (reduce USD del pool sin cambiar TCPA), `calcularTCPA()` (formula ADR-002), `getEstadoActual()` (saldo USD + TCPA actual), `recalcularPoolDesdeHistorico()` (reconstruccion cronologica completa para carga retroactiva de 3 meses), validacion de pool no negativo en cada salida.
+- Dependencias: TAREA-057 (types)
+- Estado: pendiente
+- Agente sugerido: backend-cloud-engineer + fx-multicurrency-specialist
+
+**TAREA-059**
+- Titulo: Fix bug cobros USD via Zelle/PayPal se registran como PEN en venta.service.ts
+- Tipo: Bug fix (prerequisito critico)
+- Modulo: ventas (venta.service.ts)
+- Prioridad: ALTA
+- Origen: ADR-002 — bugs prerequisito identificados
+- Descripcion: Las lineas 1758 y 2210 de `venta.service.ts` registran cobros en USD (Zelle, PayPal) con moneda PEN. Esto impide que el Pool USD pueda identificar correctamente las entradas de tipo COBRO_VENTA_USD. Debe corregirse antes de integrar el pool.
+- Estado: pendiente
+- Agente sugerido: code-logic-analyst
+
+**TAREA-060**
+- Titulo: Activar campo tcCobro al registrar cobro en venta.service.ts
+- Tipo: Bug fix / Datos faltantes (prerequisito critico)
+- Modulo: ventas (venta.service.ts)
+- Prioridad: ALTA
+- Origen: ADR-002 — prerequisito. Tambien registrado como TAREA-054.
+- Descripcion: El campo `tcCobro` existe en el tipo `Venta` pero nunca se graba. Al registrar un cobro en moneda diferente a la de venta, grabar el TC del momento del cobro. Este TC es el insumo para calcular el diferencial en el punto 5 del ciclo (diferencial cobro).
+- Dependencias: TAREA-059 (fix moneda cobro)
+- Estado: pendiente
+- Nota: consolida TAREA-054
+
+**TAREA-061**
+- Titulo: Crear poolUSDStore.ts (Zustand)
+- Tipo: Implementacion (store frontend)
+- Modulo: Pool USD / Rendimiento Cambiario
+- Prioridad: MEDIA
+- Origen: ADR-002 aprobado (2026-03-20)
+- Descripcion: Store Zustand para el estado del pool en el frontend: `saldoUSD`, `tcpa`, `ultimaActualizacion`, `movimientos[]` (paginados), `isLoading`, `error`. Incluir selector `valorPENActual` (saldoUSD * tcpa). Pattern singleton standard del proyecto.
+- Dependencias: TAREA-057, TAREA-058
+- Estado: pendiente
+- Agente sugerido: frontend-design-specialist
+
+**TAREA-062**
+- Titulo: Crear pagina RendimientoCambiario.tsx con 4 tabs
+- Tipo: Implementacion (UI)
+- Modulo: Pool USD / Rendimiento Cambiario
+- Prioridad: MEDIA
+- Origen: ADR-002 aprobado (2026-03-20)
+- Descripcion: Pagina nueva con 4 tabs: (1) Resumen — saldo actual USD, TCPA, valor PEN del pool, ganancia/perdida acumulada del periodo; (2) Por Operacion — tabla de movimientos con tipo, monto, tcPool vs tcSunat, impacto cambiario; (3) Conversiones — historial de compras USD con TCPA resultante; (4) Tendencias — grafico de evolucion del TCPA en el tiempo.
+- Dependencias: TAREA-057, TAREA-058, TAREA-061
+- Estado: pendiente
+- Agente sugerido: frontend-design-specialist
+
+**TAREA-063**
+- Titulo: Integrar pool con conversiones cambiarias existentes en tesoreria.service.ts
+- Tipo: Implementacion (integracion)
+- Modulo: Pool USD / Tesoreria
+- Prioridad: MEDIA
+- Origen: ADR-002 aprobado (2026-03-20)
+- Descripcion: Cuando se registra una `ConversionCambiaria` de tipo PEN→USD, llamar automaticamente a `poolUSDService.registrarEntrada()` con tipo `COMPRA_USD_BANCO` o `COMPRA_USD_EFECTIVO`. Guardar el `poolMovimientoId` resultante en el documento de conversion. Este vinculo permite trazabilidad bidireccional.
+- Dependencias: TAREA-058, TAREA-059, TAREA-060
+- Estado: pendiente
+- Agente sugerido: backend-cloud-engineer
+
+**TAREA-064**
+- Titulo: Snapshot mensual del pool + revaluacion de saldos al cierre
+- Tipo: Implementacion (Cloud Function)
+- Modulo: Pool USD / Contabilidad
+- Prioridad: MEDIA
+- Origen: ADR-002 aprobado (2026-03-20)
+- Descripcion: Cloud Function scheduler (ultimo dia de cada mes) que: (1) toma el TC SBS del dia, (2) calcula el valor PEN del pool con ese TC, (3) compara con el valor PEN registrado al TCPA, (4) genera el diferencial como asiento contable 676 (perdida) o 776 (ganancia) segun NIC 21, (5) guarda snapshot en `poolUSDSnapshots`.
+- Dependencias: TAREA-058
+- Estado: pendiente
+- Agente sugerido: accounting-manager + backend-cloud-engineer
+
+**TAREA-065**
+- Titulo: Recalculo retroactivo del pool desde historico
+- Tipo: Implementacion (funcion de carga)
+- Modulo: Pool USD
+- Prioridad: ALTA
+- Origen: ADR-002 — consideracion especial de retroactividad (titular cargara 3 meses de datos)
+- Descripcion: Implementar `recalcularPoolDesdeHistorico()` que: (1) toma todos los movimientos del pool ordenados cronologicamente, (2) reconstruye el TCPA paso a paso desde el primer movimiento, (3) recalcula `impactoCambiario` de cada operacion con el TCPA correcto en su fecha, (4) permite cargar un `SALDO_INICIAL` con fecha pasada como punto de partida. Debe tolerar ejecuciones multiples (idempotente).
+- Dependencias: TAREA-058
+- Estado: pendiente
+- Agente sugerido: fx-multicurrency-specialist + database-administrator
 
 ### Prioridad 3 — Performance y costos
 
@@ -1551,43 +1860,130 @@ Completar Ronda 2 (code-logic-analyst) + Ronda 3 parcial (database-administrator
 
 ### Decisiones pendientes del titular
 
-| # | Decision | Opciones | Deadline |
-|---|----------|----------|----------|
-| 1 | Criterio de fecha para ventas | fechaCreacion vs fechaEntrega | Dia 30 |
-| 2 | TC para valorizar inventario | TC compra (historico) vs TC dia (mercado) | Dia 30 |
-| 3 | Timeline SUNAT | Iniciar en 60 dias vs posponer a 2027 | Dia 45 |
-| 4 | Rotar secrets en consolas | Accion directa | Inmediato |
-| 5 | Entidad Cliente estructurada | Sprint dedicado vs aplazar | Dia 30 |
+| # | Decision | Opciones | Deadline | Estado |
+|---|----------|----------|----------|--------|
+| 1 | Criterio de fecha para ventas | fechaCreacion vs fechaEntrega | Dia 30 | **PENDIENTE DE IMPLEMENTAR** — decision tomada (hibrido), refactoring no ejecutado |
+| 2 | TC para valorizar inventario | Centralizar 15 fallbacks 3.70 en servicio unico | Dia 30 | **PENDIENTE DE IMPLEMENTAR** — decision tomada, codigo no actualizado |
+| 3 | Timeline SUNAT | Iniciar en 60 dias vs posponer a 2027 | Dia 45 | Pospuesto (decision 2026-03-19) |
+| 4 | Rotar secrets en consolas | Accion directa | Inmediato | Pendiente — accion manual Jose L. |
+| 5 | Entidad Cliente estructurada | Sprint dedicado | Dia 30 | **IMPLEMENTADO** (Sesion 5, 2026-03-20) |
+| 6 | Precio vs CTRU: aprobacion admin | Alertar + bloquear para no-admin | Dia 30 | **IMPLEMENTADO** (Sesion 5, 2026-03-20) |
 
-### Recomendacion de deploy
-**SI — se recomienda deployar `feature/system-improvements` con los 27 fixes.**
-- Los 11 fixes de seguridad cierran vulnerabilidades activas en produccion
-- 4 bugs criticos corregidos afectan datos financieros
-- Todos los cambios son reversibles individualmente
-- Prerequisitos: rotar secrets + backup manual antes de deploy
-- Deploy en horario de baja actividad, verificar contadores post-deploy
+### Estado de deploy
+**Deploy 5 COMPLETADO — 2026-03-20**
+- Commit: `e8e6d8f` — `feat: integrate Clientes Maestros + below-cost sale approval flow`
+- Push a main exitoso
+- `firebase deploy --only hosting,firestore:rules` exitoso
+- Hosting URL: https://vitaskinperu.web.app
+- 37 fixes acumulados en produccion (31 de sesiones 1-4 + 6 de sesion 5)
 
-### Roadmap 30/60/90 dias
-- **0-30 dias:** Backup Firestore, deploy 27 fixes, rotar secrets, Vitest + tests zonas rojas, GitHub Actions, fix BUG-001, decisiones TC/fecha
-- **30-60 dias:** Implementar decisiones TC/fecha, entidad Cliente, reconocimiento ingresos NIC 15, comparativas periodo anterior, cleanup logs debug
-- **60-90 dias:** Evaluacion proveedor SUNAT, flujo devoluciones, entorno staging, lazy load pdf.service, inicio division god files
+**Deploy 4 (referencia) — 2026-03-19**
+- PR #1 mergeado a main + `firebase deploy` completo (hosting + 53 functions + rules + indexes)
+- 31 fixes (11 seguridad + 8 performance + 8 bugs + 4 UAT criticos)
+- Backup Firestore configurado: PITR (7 dias) + copias semanales (98 dias retencion)
+
+### Roadmap 30/60/90 dias (actualizado post-Sesion 5, 2026-03-20)
+- **0-30 dias:** Implementar Decision 1 (fecha hibrida Dashboard vs Contabilidad), Centralizar 15 fallbacks TC 3.70 (Decision 2), fix TC fallback 3.70 advertencia (TAREA-047), fix race condition gastos (TAREA-004), Vitest + tests zonas rojas (TAREA-019), GitHub Actions CI, rotar secrets
+- **30-60 dias:** Validacion server-side ventaBajoCosto (TAREA-048), fix deduplicacion clientes (TAREA-049), metricas ML ventas bajo costo (TAREA-052), comparativas periodo anterior (TAREA-042), cleanup 618 console.log, optimizar full-collection reads
+- **60-90 dias:** Evaluacion proveedor SUNAT, flujo devoluciones, entorno staging, inicio division god files
 
 ---
 
-## PROTOCOLO DE PROXIMA SESION
+## SESION 6 — 2026-03-20 (Continuacion, TC y rendimiento cambiario)
+
+### Objetivo
+Analisis profundo del manejo del tipo de cambio en el ciclo completo de negocio, disparado por pregunta critica del titular sobre el concepto de "rendimiento cambiario".
+
+### Agentes ejecutados
+- code-logic-analyst (analisis del modulo Expectativas — relacion con rendimiento cambiario)
+- system-context-reader (mapa de flujos TC en el sistema: donde se usa, donde falta)
+- fx-multicurrency-specialist (marco teorico: diferencial cambiario, puntos del ciclo)
+- accounting-manager (implicancias contables del diferencial por punto del ciclo)
+- implementation-controller (documentacion de hallazgos y decision pendiente)
+
+### Contexto planteado por el titular
+
+El titular identifico un concepto de negocio critico que el sistema no captura correctamente:
+
+"Los unicos momentos reales donde influye el TC es al momento de yo efectivamente cambiar soles a dólares, o viceversa. Yo cotizo a tal TC, compro a tal TC, vendo a tal TC, pago facturas a tal TC. El rendimiento de las conversiones puede generar un ajuste positivo/negativo en la operacion."
+
+El ciclo de negocio tiene CINCO puntos donde el TC puede generar diferencial cambiario:
+
+| # | Punto del ciclo | TC esperado | TC real | Diferencial |
+|---|-----------------|-------------|---------|-------------|
+| 1 | Cotizacion al cliente | TC cotizado | — | Referencia inicial |
+| 2 | Compra al proveedor | TC compra OC | TC pago OC | Diferencial Compra |
+| 3 | Pago de factura proveedor | TC acordado | TC del dia de pago | Diferencial Pago |
+| 4 | Venta al cliente | TC venta | TC cotizado | Diferencial Venta |
+| 5 | Cobro de la venta | TC venta acordado | TC del dia de cobro | Diferencial Cobro |
+
+El "rendimiento cambiario" del negocio es la suma neta de esos diferenciales en el periodo.
+
+### Hallazgos del analisis
+
+#### Estado actual del modulo Conversiones Cambiarias (Tesoreria)
+- El modulo de Conversiones en Tesoreria SI registra TC real vs TC referencia con spread calculado
+- Patron correcto: `montoOrigen`, `montoDestino`, `tcReal`, `tcReferencia`, `spread`
+- Problema: ese patron NO se replica en los demas puntos del ciclo
+
+#### Gaps identificados por punto del ciclo
+
+| Punto | Campo existe | Se graba | Diferencial calculado | Reporte disponible |
+|-------|-------------|----------|-----------------------|--------------------|
+| Cotizacion | `tcVenta` (en Cotizacion) | Si | No | No |
+| Compra OC | `tcCompra` (en OC) | Si | No | No |
+| Pago OC | `tcPago` (en OC) | Parcial | No | No |
+| Venta | `tcVenta` (en Venta) | Si | No | No |
+| Cobro venta | `tcCobro` (en Venta) | **No — campo existe en types pero nunca se graba** | No | No |
+
+#### Modulo de Expectativas — situacion actual
+- El modulo Expectativas en Finanzas registra expectativas de gastos/ingresos futuros
+- NO tiene el concepto de "rendimiento cambiario esperado vs real"
+- No captura la brecha entre el TC al que se cotizo y el TC al que efectivamente se cobro
+- El titular intuia que ese era su proposito, pero no lo es en la implementacion actual
+
+### Decision tomada — ADR-002
+
+**ADR-002: Pool USD con TCPA (Rendimiento Cambiario V1)**
+
+- Fecha identificacion: 2026-03-20
+- Estado: APROBADO por titular (2026-03-20) — ver seccion completa en REGISTRO DE DECISIONES DE ARQUITECTURA
+- Decision: Pool USD con TCPA. El titular eligio esta arquitectura sobre las opciones A (extension por punto), B (reporte post-facto) y C (extension de Expectativas).
+- Tareas generadas: TAREA-057 a TAREA-065
+- Prerequisito inmediato: TAREA-059 (fix cobros USD como PEN) y TAREA-060 (activar tcCobro)
+
+### Fixes aplicados en esta sesion
+Ninguno. Sesion de analisis y documentacion, sin cambios al codigo.
+
+### Tareas generadas en esta sesion
+
+Ver TAREA-053 a TAREA-056 en la seccion de backlog (Prioridad 2 — Alta).
 
 Al iniciar la proxima sesion, ejecutar en este orden:
 
 1. Leer este archivo (`docs/REGISTRO_IMPLEMENTACION.md`) como briefing
-2. **PRE-DEPLOY**: Rotar secrets (ML, Google, Meta, Anthropic, Daily) + backup manual Firestore
-3. **DEPLOY**: branch `feature/system-improvements` con 27 fixes acumulados (4 sesiones)
-4. **POST-DEPLOY**: Verificar contadores, CTRU <5s, saldos tesoreria con cuentaDestino
-5. **FIXES BLOQUEANTES UAT**: UAT-001 (pago→tesoreria), UAT-004/BUG-001 (precio entrega), UAT-003 (reservadaPara)
-6. **INFRAESTRUCTURA**: Configurar Firestore backup automatizado (TAREA-034)
-7. **TESTING**: Vitest + tests en zonas rojas (TAREA-019)
-8. **DECISIONES**: Obtener decision del titular sobre fecha de ventas y TC de inventario
+2. **DECISION ADR-002 PENDIENTE**: El titular debe elegir la arquitectura de rendimiento cambiario (Opcion A, B o C — ver Sesion 6). Esta decision desbloquea TAREA-053, TAREA-055 y TAREA-056.
+3. **FIX INDEPENDIENTE (no esperar ADR-002)**: TAREA-054 — grabar campo `tcCobro` en Venta al registrar cobro (dato faltante critico independiente de la arquitectura elegida)
+4. **DECISION 1 PENDIENTE DE IMPLEMENTAR**: fecha hibrida — Dashboard=fechaCreacion, Contabilidad/Reportes=fechaEntrega (cascade en Dashboard.tsx, Reportes, Contabilidad)
+5. **DECISION 2 PENDIENTE DE IMPLEMENTAR**: centralizar 15 fallbacks TC 3.70 en servicio unico (10 servicios afectados) — relacionado con TAREA-047
+6. **BUGS PENDIENTES**: TAREA-047 (TC fallback 3.70 advertencia), TAREA-004 (race condition gastos), TAREA-007 (ML webhook application_id)
+7. **SEGURIDAD**: TAREA-048 (validacion server-side ventaBajoCosto), TAREA-052 (ventas ML sin flag bajo costo)
+8. **DATOS**: TAREA-049 (deduplicacion clientes), TAREA-050 (doble metricas cotizacion→venta), TAREA-051 (fire-and-forget metricas)
+9. **PERFORMANCE**: TAREA-005 (sincronizacion full reads), TAREA-006 (inventario full reads), TAREA-037 (almacen full scans)
+10. **TESTING**: Vitest + tests en zonas rojas (TAREA-019)
+11. **INFRAESTRUCTURA**: GitHub Actions CI basico (lint + typecheck)
+12. **ACCIONES MANUALES**: Rotar secrets en consolas externas (preventivo)
+
+### Ya completado (no repetir):
+- ~~Deploy 4~~ — PR #1 mergeado + firebase deploy completo (2026-03-19)
+- ~~Deploy 5~~ — commit e8e6d8f + firebase deploy hosting+rules (2026-03-20)
+- ~~Backup Firestore~~ — PITR + copias semanales configurados
+- ~~Fixes bloqueantes UAT~~ — CAMBIO-016/017/018/019 desplegados
+- ~~Full review 6 rondas~~ — completo
+- ~~Decision 4 (Clientes Maestros)~~ — IMPLEMENTADO en Sesion 5 (CAMBIO-032/033/034/035)
+- ~~Decision 5 (Precio vs CTRU)~~ — IMPLEMENTADO en Sesion 5 (CAMBIO-036/037)
 
 ---
 
 *Documento generado por implementation-controller (Agente 23)*
-*Ultima actualizacion: 2026-03-19 — Sesion 4 (cierre del full review)*
+*Ultima actualizacion: 2026-03-20 — ADR-002 Pool USD con TCPA aprobado por titular. ADR-002 (singleton) renumerado como ADR-004. TAREA-053 resuelta. TAREA-056 descartada. TAREA-057 a TAREA-065 registradas.*

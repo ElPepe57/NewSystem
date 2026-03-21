@@ -200,9 +200,8 @@ export const marcaAnalyticsService = {
           return fechaVenta >= hace365Dias && v.estado !== 'cancelada';
         });
 
-      // 4. Obtener TC del día para cálculos
-      const tcData = await tipoCambioService.getTCDelDia();
-      const tcDelDia = tcData?.venta || 3.75;
+      // 4. Obtener TC centralizado
+      const tcDelDia = await tipoCambioService.resolverTCVenta();
 
       // 5. Calcular métricas por producto
       const productosMetrics = this.calcularMetricasProductos(productosData, ventas, tcDelDia);
@@ -327,7 +326,7 @@ export const marcaAnalyticsService = {
   /**
    * Calcula métricas por producto
    */
-  calcularMetricasProductos(productos: Producto[], ventas: Venta[], tcDelDia: number = 3.75): ProductoMarcaMetrics[] {
+  calcularMetricasProductos(productos: Producto[], ventas: Venta[], tcDelDia: number): ProductoMarcaMetrics[] {
     const ahora = new Date();
 
     return productos.map(producto => {

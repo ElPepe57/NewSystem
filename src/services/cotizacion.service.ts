@@ -338,8 +338,7 @@ export class CotizacionService {
       // Calcular expectativa de cotización (TC momento 1: al cotizar)
       let expectativaCotizacion: Record<string, any> | undefined;
       try {
-        const tcData = await tipoCambioService.getTCDelDia();
-        const tcCotizacion = tcData?.venta || 3.70;
+        const tcCotizacion = await tipoCambioService.resolverTCVenta();
         const expectativaCalc = await expectativaService.calcularExpectativaCotizacion(
           data.productos.map(p => ({
             productoId: p.productoId,
@@ -1116,8 +1115,7 @@ export class CotizacionService {
           // Obtener TC del día si no viene en los datos
           let tcParaMovimiento = data.tipoCambio || 1;
           if (!data.tipoCambio) {
-            const tcDelDia = await tipoCambioService.getTCDelDia();
-            tcParaMovimiento = tcDelDia?.venta || 3.7;
+            tcParaMovimiento = await tipoCambioService.resolverTCVenta();
           }
 
           // El monto para tesorería

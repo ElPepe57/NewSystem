@@ -12,7 +12,8 @@ import {
   limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { TipoCambio, TipoCambioFormData, TipoCambioFiltros, SunatTCResponse } from '../types/tipoCambio.types';
+import type { TipoCambio, TipoCambioFormData, TipoCambioFiltros, SunatTCResponse, TCResuelto, TCConfig, TCFreshness, TCModalidad } from '../types/tipoCambio.types';
+import { TC_CONFIG_DEFAULTS } from '../types/tipoCambio.types';
 import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.TIPOS_CAMBIO;
@@ -333,5 +334,234 @@ export const tipoCambioService = {
       id: doc.id,
       ...doc.data()
     } as TipoCambio));
-  }
+  },
+
+  // ============================================================
+  // TC CENTRALIZADO — resolverTC con cache y freshness
+  // ============================================================
+
+  /** Cache en memoria con TTL de 5 minutos */
+  _cache: null as { tc: TCResuelto; timestamp: number } | null,
+  _cacheSunat: null as { tc: TCResuelto; timestamp: number } | null,
+  _configCache: null as { config: TCConfig; timestamp: number } | null,
+  _CACHE_TTL_MS: 5 * 60 * 1000, // 5 minutos
+
+  /**
+   * Obtiene la configuración de umbrales de TC desde Firestore
+   */
+  async getConfig(): Promise<TCConfig> {
+    // Cache de config (10 min TTL)
+    if (this._configCache && Date.now() - this._configCache.timestamp < 10 * 60 * 1000) {
+      return this._configCache.config;
+    }
+    try {
+      const configDoc = await getDoc(doc(db, COLLECTIONS.CONFIGURACION, 'tipoCambio'));
+      if (configDoc.exists()) {
+        const data = configDoc.data();
+        const config: TCConfig = {
+          umbralFreshHoras: data.umbralFreshHoras ?? TC_CONFIG_DEFAULTS.umbralFreshHoras,
+          umbralStaleHoras: data.umbralStaleHoras ?? TC_CONFIG_DEFAULTS.umbralStaleHoras,
+          fallbackCompra: data.fallbackCompra ?? TC_CONFIG_DEFAULTS.fallbackCompra,
+          fallbackVenta: data.fallbackVenta ?? TC_CONFIG_DEFAULTS.fallbackVenta,
+          fallbackHabilitado: data.fallbackHabilitado ?? TC_CONFIG_DEFAULTS.fallbackHabilitado,
+          alertaVariacionPorcentaje: data.alertaVariacionPorcentaje ?? TC_CONFIG_DEFAULTS.alertaVariacionPorcentaje,
+        };
+        this._configCache = { config, timestamp: Date.now() };
+        return config;
+      }
+    } catch (error) {
+      console.warn('[TC] Error leyendo config, usando defaults:', error);
+    }
+    return TC_CONFIG_DEFAULTS;
+  },
+
+  /**
+   * Calcula la frescura del TC basada en su antigüedad
+   */
+  _calcularFreshness(fechaTC: Date, config: TCConfig): { freshness: TCFreshness; edadHoras: number } {
+    const edadHoras = (Date.now() - fechaTC.getTime()) / 3_600_000;
+    let freshness: TCFreshness;
+    if (edadHoras <= config.umbralFreshHoras) {
+      freshness = 'fresh';
+    } else if (edadHoras <= config.umbralStaleHoras) {
+      freshness = 'stale';
+    } else {
+      freshness = 'expired';
+    }
+    return { freshness, edadHoras };
+  },
+
+  /**
+   * MÉTODO PRINCIPAL: Resuelve el TC actual con información de frescura.
+   * Reemplaza TODOS los patrones `let tc = 3.70; try { ... } catch { }`.
+   *
+   * Flujo: cache memoria → query Firestore → fallback configurado
+   */
+  async resolverTC(): Promise<TCResuelto> {
+    // [1] Cache en memoria válido?
+    if (this._cache && Date.now() - this._cache.timestamp < this._CACHE_TTL_MS) {
+      return this._cache.tc;
+    }
+
+    const config = await this.getConfig();
+
+    // [2] Buscar TC más reciente en Firestore
+    try {
+      const tc = await this.getTCDelDia();
+      if (tc) {
+        const fechaTC = tc.fecha instanceof Timestamp ? tc.fecha.toDate() : new Date(tc.fecha as any);
+        const { freshness, edadHoras } = this._calcularFreshness(fechaTC, config);
+
+        // Usar campo paralelo si existe (Decisión 11), sino raíz
+        const paraleloData = tc.paralelo;
+        const compra = paraleloData?.compra ?? tc.compra;
+        const venta = paraleloData?.venta ?? tc.venta;
+
+        const resultado: TCResuelto = {
+          compra,
+          venta,
+          promedio: (compra + venta) / 2,
+          fuente: tc.fuente,
+          modalidad: paraleloData ? 'paralelo' : 'unico',
+          fechaTC,
+          freshness,
+          edadHoras,
+          esFallback: false,
+        };
+
+        this._cache = { tc: resultado, timestamp: Date.now() };
+        return resultado;
+      }
+    } catch (error) {
+      console.warn('[TC] Error buscando TC del día:', error);
+    }
+
+    // [3] Fallback de emergencia
+    if (config.fallbackHabilitado) {
+      const resultado: TCResuelto = {
+        compra: config.fallbackCompra,
+        venta: config.fallbackVenta,
+        promedio: (config.fallbackCompra + config.fallbackVenta) / 2,
+        fuente: 'manual',
+        modalidad: 'unico',
+        fechaTC: new Date(0), // Epoch = claramente no es real
+        freshness: 'expired',
+        edadHoras: Infinity,
+        esFallback: true,
+      };
+      // NO cachear fallback — cada llamada re-intenta Firestore
+      return resultado;
+    }
+
+    throw new Error('No hay tipo de cambio disponible y el fallback de emergencia está deshabilitado. Registre un TC manualmente.');
+  },
+
+  /**
+   * Igual que resolverTC pero LANZA ERROR si el TC está expired.
+   * Usar para operaciones transaccionales (crear venta, registrar pago).
+   */
+  async resolverTCEstricto(): Promise<TCResuelto> {
+    const tc = await this.resolverTC();
+    if (tc.esFallback) {
+      throw new Error(
+        'No hay tipo de cambio registrado. Registre un TC antes de continuar con esta operación.'
+      );
+    }
+    if (tc.freshness === 'expired') {
+      throw new Error(
+        `Tipo de cambio expirado (${Math.round(tc.edadHoras)}h de antigüedad). ` +
+        'Actualice el TC antes de continuar con esta operación.'
+      );
+    }
+    return tc;
+  },
+
+  /**
+   * Shortcut: devuelve solo el valor de venta del TC resuelto (permisivo).
+   * Reemplazo directo para `let tc = 3.70; try { tc = (await getTCDelDia()).venta } catch {}`
+   */
+  async resolverTCVenta(): Promise<number> {
+    const tc = await this.resolverTC();
+    return tc.venta;
+  },
+
+  /**
+   * Shortcut: devuelve solo el valor de compra del TC resuelto (permisivo).
+   */
+  async resolverTCCompra(): Promise<number> {
+    const tc = await this.resolverTC();
+    return tc.compra;
+  },
+
+  /**
+   * Shortcut estricto: devuelve venta del TC, lanza error si expired/fallback.
+   * Usar en operaciones transaccionales (crear venta, registrar pago, adelantos).
+   */
+  async resolverTCVentaEstricto(): Promise<number> {
+    const tc = await this.resolverTCEstricto();
+    return tc.venta;
+  },
+
+  /**
+   * Resuelve el TC SUNAT/oficial (para contabilidad y cumplimiento fiscal).
+   * Si el registro tiene campo sunat, lo usa. Sino devuelve el TC raíz.
+   */
+  async resolverTCSunat(): Promise<TCResuelto> {
+    // Cache separada para SUNAT
+    if (this._cacheSunat && Date.now() - this._cacheSunat.timestamp < this._CACHE_TTL_MS) {
+      return this._cacheSunat.tc;
+    }
+
+    const config = await this.getConfig();
+
+    try {
+      const tc = await this.getTCDelDia();
+      if (tc) {
+        const fechaTC = tc.fecha instanceof Timestamp ? tc.fecha.toDate() : new Date(tc.fecha as any);
+        const { freshness, edadHoras } = this._calcularFreshness(fechaTC, config);
+
+        // Usar campo sunat si existe, sino raíz (compatibilidad)
+        const sunatData = tc.sunat;
+        const compra = sunatData?.compra ?? tc.compra;
+        const venta = sunatData?.venta ?? tc.venta;
+
+        const resultado: TCResuelto = {
+          compra,
+          venta,
+          promedio: (compra + venta) / 2,
+          fuente: sunatData ? 'sunat' : tc.fuente,
+          modalidad: sunatData ? 'sunat' : 'unico',
+          fechaTC,
+          freshness,
+          edadHoras,
+          esFallback: false,
+        };
+
+        this._cacheSunat = { tc: resultado, timestamp: Date.now() };
+        return resultado;
+      }
+    } catch (error) {
+      console.warn('[TC] Error buscando TC SUNAT:', error);
+    }
+
+    // Fallback: devolver el resolver normal (mejor que nada)
+    return this.resolverTC();
+  },
+
+  /**
+   * Shortcut: devuelve venta del TC SUNAT (para contabilidad).
+   */
+  async resolverTCSunatVenta(): Promise<number> {
+    const tc = await this.resolverTCSunat();
+    return tc.venta;
+  },
+
+  /**
+   * Invalida el cache en memoria (usar después de registrar un TC nuevo)
+   */
+  invalidarCache(): void {
+    this._cache = null;
+    this._cacheSunat = null;
+    this._configCache = null;
+  },
 };

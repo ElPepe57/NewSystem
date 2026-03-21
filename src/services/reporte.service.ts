@@ -133,16 +133,8 @@ export class ReporteService {
         return fecha >= rango.inicio && fecha <= rango.fin;
       });
 
-      // Obtener tipo de cambio para conversión de costos legacy en USD
-      let tipoCambioVenta = 3.70;
-      try {
-        const tcDelDia = await tipoCambioService.getTCDelDia();
-        if (tcDelDia) {
-          tipoCambioVenta = tcDelDia.venta;
-        }
-      } catch (e) {
-        console.warn('No se pudo obtener TC del día para reportes');
-      }
+      // Obtener tipo de cambio centralizado (no bloquea si stale — es reporte)
+      const tipoCambioVenta = await tipoCambioService.resolverTCVenta();
 
       const productosMap = new Map<string, ProductoRentabilidad>();
 
@@ -230,16 +222,8 @@ export class ReporteService {
       const productos = await ProductoService.getAll();
       const inventarioValorizado: InventarioValorizado[] = [];
 
-      // Obtener tipo de cambio del día para conversión USD → PEN
-      let tipoCambioVenta = 3.70; // Valor por defecto
-      try {
-        const tcDelDia = await tipoCambioService.getTCDelDia();
-        if (tcDelDia) {
-          tipoCambioVenta = tcDelDia.venta;
-        }
-      } catch (e) {
-        console.warn('No se pudo obtener TC del día para inventario, usando valor por defecto');
-      }
+      // Obtener tipo de cambio centralizado para conversión USD → PEN
+      const tipoCambioVenta = await tipoCambioService.resolverTCVenta();
 
       for (const producto of productos) {
         if (producto.estado !== 'activo') continue;

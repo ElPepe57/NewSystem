@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useTipoCambio } from '../../hooks/useTipoCambio';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -74,6 +75,8 @@ export const Tesoreria: React.FC = () => {
   const user = useAuthStore(state => state.user);
   const userProfile = useAuthStore(state => state.userProfile);
   const toast = useToastStore();
+  const { tc: tcActual } = useTipoCambio();
+  const tcDefault = tcActual?.venta ?? 3.70;
   const {
     movimientos,
     conversiones,
@@ -125,13 +128,13 @@ export const Tesoreria: React.FC = () => {
     tipo: 'ingreso_venta',
     moneda: 'PEN',
     fecha: new Date(),
-    tipoCambio: 3.70,
+    tipoCambio: tcDefault,
     metodo: 'efectivo'
   });
   const [conversionForm, setConversionForm] = useState<Partial<ConversionCambiariaFormData>>({
     monedaOrigen: 'USD',
     fecha: new Date(),
-    tipoCambio: 3.70
+    tipoCambio: tcDefault
   });
   const [cuentaForm, setCuentaForm] = useState<Partial<CuentaCajaFormData>>({
     moneda: 'PEN',
@@ -145,7 +148,7 @@ export const Tesoreria: React.FC = () => {
   const [transferenciaForm, setTransferenciaForm] = useState<Partial<TransferenciaEntreCuentasFormData>>({
     moneda: 'PEN',
     fecha: new Date(),
-    tipoCambio: 3.70
+    tipoCambio: tcDefault
   });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -154,6 +157,16 @@ export const Tesoreria: React.FC = () => {
 
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
+
+  // Sincronizar TC en formularios cuando el hook async carga el valor real
+  useEffect(() => {
+    if (tcActual) {
+      const tcVenta = tcActual.venta;
+      setMovimientoForm(prev => ({ ...prev, tipoCambio: prev.tipoCambio === 3.70 ? tcVenta : prev.tipoCambio }));
+      setConversionForm(prev => ({ ...prev, tipoCambio: prev.tipoCambio === 3.70 ? tcVenta : prev.tipoCambio }));
+      setTransferenciaForm(prev => ({ ...prev, tipoCambio: prev.tipoCambio === 3.70 ? tcVenta : prev.tipoCambio }));
+    }
+  }, [tcActual]);
 
   // Cargar datos
   useEffect(() => {
@@ -340,7 +353,7 @@ export const Tesoreria: React.FC = () => {
         {
           ...movimientoForm,
           fecha: movimientoForm.fecha || new Date(),
-          tipoCambio: movimientoForm.tipoCambio || 3.70,
+          tipoCambio: movimientoForm.tipoCambio || tcDefault,
           metodo: movimientoForm.metodo || 'efectivo'
         } as MovimientoTesoreriaFormData,
         user.uid
@@ -350,7 +363,7 @@ export const Tesoreria: React.FC = () => {
         tipo: 'ingreso_venta',
         moneda: 'PEN',
         fecha: new Date(),
-        tipoCambio: 3.70,
+        tipoCambio: tcDefault,
         metodo: 'efectivo'
       });
       toast.success('Movimiento registrado');
@@ -392,7 +405,7 @@ export const Tesoreria: React.FC = () => {
           {
             ...movimientoForm,
             fecha: movimientoForm.fecha || new Date(),
-            tipoCambio: movimientoForm.tipoCambio || 3.70,
+            tipoCambio: movimientoForm.tipoCambio || tcDefault,
             metodo: movimientoForm.metodo || 'efectivo'
           } as MovimientoTesoreriaFormData,
           user.uid
@@ -403,7 +416,7 @@ export const Tesoreria: React.FC = () => {
           {
             ...movimientoForm,
             fecha: movimientoForm.fecha || new Date(),
-            tipoCambio: movimientoForm.tipoCambio || 3.70,
+            tipoCambio: movimientoForm.tipoCambio || tcDefault,
             metodo: movimientoForm.metodo || 'efectivo'
           } as MovimientoTesoreriaFormData,
           user.uid
@@ -426,7 +439,7 @@ export const Tesoreria: React.FC = () => {
       tipo: 'ingreso_venta',
       moneda: 'PEN',
       fecha: new Date(),
-      tipoCambio: 3.70,
+      tipoCambio: tcDefault,
       metodo: 'efectivo'
     });
   };
@@ -487,7 +500,7 @@ export const Tesoreria: React.FC = () => {
         {
           ...conversionForm,
           fecha: conversionForm.fecha || new Date(),
-          tipoCambio: conversionForm.tipoCambio || 3.70,
+          tipoCambio: conversionForm.tipoCambio || tcDefault,
           monedaOrigen: conversionForm.monedaOrigen || 'USD'
         } as ConversionCambiariaFormData,
         user.uid
@@ -496,7 +509,7 @@ export const Tesoreria: React.FC = () => {
       setConversionForm({
         monedaOrigen: 'USD',
         fecha: new Date(),
-        tipoCambio: 3.70,
+        tipoCambio: tcDefault,
         cuentaOrigenId: undefined,
         cuentaDestinoId: undefined
       });
@@ -518,7 +531,7 @@ export const Tesoreria: React.FC = () => {
         {
           ...transferenciaForm,
           fecha: transferenciaForm.fecha || new Date(),
-          tipoCambio: transferenciaForm.tipoCambio || 3.70,
+          tipoCambio: transferenciaForm.tipoCambio || tcDefault,
           moneda: transferenciaForm.moneda || 'PEN',
           monto: transferenciaForm.monto,
           cuentaOrigenId: transferenciaForm.cuentaOrigenId,
@@ -530,7 +543,7 @@ export const Tesoreria: React.FC = () => {
       setTransferenciaForm({
         moneda: 'PEN',
         fecha: new Date(),
-        tipoCambio: 3.70
+        tipoCambio: tcDefault
       });
       toast.success('Transferencia realizada');
       // Recargar datos y cargar historial de transferencias
@@ -1065,7 +1078,7 @@ export const Tesoreria: React.FC = () => {
             <Card padding="sm" className="bg-gray-50">
               <div className="text-[10px] sm:text-xs text-gray-500 mb-1"><span className="sm:hidden">TC Prom.</span><span className="hidden sm:inline">TC Promedio Usado</span></div>
               <div className="text-base sm:text-lg font-bold text-gray-800">
-                {(stats.tcPromedioMes || 3.70).toFixed(3)}
+                {(stats.tcPromedioMes || tcDefault).toFixed(3)}
               </div>
               <div className="text-xs text-gray-400 mt-1">
                 Este mes
@@ -3232,7 +3245,7 @@ export const Tesoreria: React.FC = () => {
           setTransferenciaForm({
             moneda: 'PEN',
             fecha: new Date(),
-            tipoCambio: 3.70
+            tipoCambio: tcDefault
           });
         }}
         title="Transferencia entre Cuentas"

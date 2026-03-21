@@ -6,6 +6,7 @@ import { CollaborationPanel } from './CollaborationPanel';
 const DailyCallModal = lazy(() => import('./DailyCallModal').then(m => ({ default: m.DailyCallModal })));
 const IncomingCallModal = lazy(() => import('./IncomingCallModal').then(m => ({ default: m.IncomingCallModal })));
 import { ErrorBoundary } from '../common/ErrorBoundary';
+import { TCFreshnessBanner } from '../common/TCFreshnessBanner';
 import { useNotificacionesAutoInit } from '../../hooks';
 import { useCollaborationInit } from '../../hooks/useCollaborationInit';
 import { useAuthStore } from '../../store/authStore';
@@ -103,6 +104,9 @@ export const MainLayout: React.FC = () => {
           onToggleSidebar={() => setSidebarCollapsed(prev => !prev)}
           sidebarCollapsed={sidebarCollapsed}
         />
+
+        {/* Banner de estado del TC */}
+        <TCFreshnessBanner />
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 lg:p-6">

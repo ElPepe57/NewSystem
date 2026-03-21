@@ -26,6 +26,7 @@ const Cotizaciones = React.lazy(() => import('./pages/Cotizaciones/Cotizaciones'
 const Requerimientos = React.lazy(() => import('./pages/Requerimientos/Requerimientos').then(m => ({ default: m.Requerimientos })));
 const Tesoreria = React.lazy(() => import('./pages/Tesoreria/Tesoreria').then(m => ({ default: m.Tesoreria })));
 const Expectativas = React.lazy(() => import('./pages/Expectativas/Expectativas').then(m => ({ default: m.Expectativas })));
+const RendimientoCambiario = React.lazy(() => import('./pages/RendimientoCambiario/RendimientoCambiario').then(m => ({ default: m.RendimientoCambiario })));
 const Maestros = React.lazy(() => import('./pages/Maestros/Maestros').then(m => ({ default: m.Maestros })));
 const Usuarios = React.lazy(() => import('./pages/Usuarios/Usuarios').then(m => ({ default: m.Usuarios })));
 const Auditoria = React.lazy(() => import('./pages/Auditoria/Auditoria').then(m => ({ default: m.Auditoria })));
@@ -165,6 +166,7 @@ function App() {
               <Route path="tipo-cambio" element={<TipoCambio />} />
               <Route path="ctru" element={<CTRUDashboard />} />
               <Route path="expectativas" element={<Expectativas />} />
+              <Route path="rendimiento-cambiario" element={<RendimientoCambiario />} />
               <Route path="reportes" element={<Reportes />} />
 
               {/* Administración */}

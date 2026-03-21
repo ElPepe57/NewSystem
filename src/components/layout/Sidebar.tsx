@@ -97,6 +97,7 @@ const menuGroups: MenuGroup[] = [
       { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
       { icon: Calculator, label: 'CTRU', path: '/ctru', permiso: PERMISOS.VER_CTRU },
       { icon: Target, label: 'Expectativas', path: '/expectativas', permiso: PERMISOS.VER_REPORTES },
+      { icon: Activity, label: 'Rendimiento FX', path: '/rendimiento-cambiario', permiso: PERMISOS.VER_TESORERIA },
       { icon: TrendingUp, label: 'Reportes', path: '/reportes', permiso: PERMISOS.VER_REPORTES },
     ]
   },

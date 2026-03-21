@@ -296,7 +296,8 @@ export const productoIntelService = {
   calcularRentabilidad(
     producto: Producto,
     ventas30d: Venta[],
-    ventas90d: Venta[]
+    ventas90d: Venta[],
+    tc: number = 3.70
   ): MetricasRentabilidad {
     const estadosValidos = ['confirmada', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada'];
 
@@ -332,10 +333,10 @@ export const productoIntelService = {
     const unidadesVendidas30d = this.sumarUnidadesVendidas(ventasProducto30d, producto.id);
     const utilidadPorUnidad = unidadesVendidas30d > 0
       ? utilidadTotal30d / unidadesVendidas30d
-      : (precioVentaPromedio - (costoPromedioConFlete * 3.7)); // Estimado con TC 3.7
+      : (precioVentaPromedio - (costoPromedioConFlete * tc));
 
     // ROI
-    const inversionPorUnidad = costoPromedioConFlete * 3.7; // TC aproximado
+    const inversionPorUnidad = costoPromedioConFlete * tc;
     const roiPromedio = inversionPorUnidad > 0
       ? Math.round((utilidadPorUnidad / inversionPorUnidad) * 100)
       : 0;
@@ -388,8 +389,8 @@ export const productoIntelService = {
   /**
    * Calcula margen teorico basado en datos del producto
    */
-  calcularMargenTeorico(producto: Producto): number {
-    const costo = (producto.ctruPromedio || 0) * 3.7; // TC aprox
+  calcularMargenTeorico(producto: Producto, tc: number = 3.70): number {
+    const costo = (producto.ctruPromedio || 0) * tc;
     const precio = 0; // precioSugerido removed - use actual sales data
     if (precio <= 0 || costo <= 0) return 0;
     return Math.round(((precio - costo) / precio) * 100);
@@ -428,7 +429,7 @@ export const productoIntelService = {
     producto: Producto,
     rotacion: MetricasRotacion,
     rentabilidad: MetricasRentabilidad,
-    tc: number = 3.7
+    tc: number
   ): ScoreLiquidez {
     // Componente Rotacion (0-50 puntos)
     // Muy alta = 50, Alta = 40, Media = 30, Baja = 15, Muy baja = 5, Sin mov = 0
@@ -646,7 +647,7 @@ export const productoIntelService = {
   /**
    * Genera analisis completo de inteligencia para un producto
    */
-  async analizarProducto(producto: Producto, tc: number = 3.7): Promise<ProductoIntel> {
+  async analizarProducto(producto: Producto, tc: number): Promise<ProductoIntel> {
     // Obtener ventas
     const [ventas90d, ordenesCompra] = await Promise.all([
       this.getVentasRecientes(90),
@@ -670,7 +671,7 @@ export const productoIntelService = {
 
     // Calcular metricas
     const rotacion = this.calcularRotacion(producto, ventas30d, ventas90d, ventas30dAnterior);
-    const rentabilidad = this.calcularRentabilidad(producto, ventas30d, ventas90d);
+    const rentabilidad = this.calcularRentabilidad(producto, ventas30d, ventas90d, tc);
     const liquidez = this.calcularScoreLiquidez(producto, rotacion, rentabilidad, tc);
     const alertas = this.generarAlertas(producto, rotacion, rentabilidad, liquidez);
 
@@ -696,7 +697,7 @@ export const productoIntelService = {
   /**
    * Analiza todos los productos con stock real (excluye solo investigados)
    */
-  async analizarTodosProductos(tc: number = 3.7): Promise<ProductoIntel[]> {
+  async analizarTodosProductos(tc: number): Promise<ProductoIntel[]> {
     const [productos, ventas90d, ordenesCompra] = await Promise.all([
       this.getProductosConStock(), // Solo productos con stock real o historial de compra
       this.getVentasRecientes(90),
@@ -721,7 +722,7 @@ export const productoIntelService = {
     // Analizar cada producto
     return productos.map(producto => {
       const rotacion = this.calcularRotacion(producto, ventas30d, ventas90d, ventas30dAnterior);
-      const rentabilidad = this.calcularRentabilidad(producto, ventas30d, ventas90d);
+      const rentabilidad = this.calcularRentabilidad(producto, ventas30d, ventas90d, tc);
       const liquidez = this.calcularScoreLiquidez(producto, rotacion, rentabilidad, tc);
       const alertas = this.generarAlertas(producto, rotacion, rentabilidad, liquidez);
       const leadTime = this.calcularLeadTimeProducto(producto.id, ordenesCompra);
@@ -756,7 +757,7 @@ export const productoIntelService = {
    * - Tránsito: Stock en camino USA → Perú
    * - Congelada: Stock sin movimiento o baja rotación
    */
-  generarResumenCaja(productosIntel: ProductoIntel[], preventasVirtuales?: import('../types/productoIntel.types').PreventaVirtual[]): ResumenCaja {
+  generarResumenCaja(productosIntel: ProductoIntel[], preventasVirtuales?: import('../types/productoIntel.types').PreventaVirtual[], tc: number = 3.70): ResumenCaja {
     // Inicializar categorías con estructura completa
     const cajaActiva = {
       productos: 0,
@@ -896,8 +897,7 @@ export const productoIntelService = {
       ? Math.round(totalRotacionActiva / productosConRotacion)
       : 0;
 
-    // Calcular USD (asumiendo TC ~3.7 como referencia)
-    const tcRef = 3.7;
+    const tcRef = tc;
     cajaActiva.valorInventarioUSD = Math.round(cajaActiva.valorInventarioPEN / tcRef * 100) / 100;
     cajaComprometida.valorInventarioUSD = Math.round(cajaComprometida.valorInventarioPEN / tcRef * 100) / 100;
     cajaTransito.valorInventarioUSD = Math.round(cajaTransito.valorInventarioPEN / tcRef * 100) / 100;
@@ -955,7 +955,7 @@ export const productoIntelService = {
    */
   async generarFlujoCajaProyectado(
     productosIntel: ProductoIntel[],
-    tc: number = 3.7
+    tc: number
   ): Promise<FlujoCajaProyectado> {
     // Proyeccion de ingresos basada en rotacion
     let ingresosProyectados7d = 0;
@@ -1022,7 +1022,7 @@ export const productoIntelService = {
    */
   generarSugerenciasReposicion(
     productosIntel: ProductoIntel[],
-    tc: number = 3.7
+    tc: number
   ): SugerenciaReposicion[] {
     const sugerencias: SugerenciaReposicion[] = [];
 

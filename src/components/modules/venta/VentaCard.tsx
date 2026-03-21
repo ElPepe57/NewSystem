@@ -6,6 +6,7 @@ import type { TimelineStep, NextAction } from '../../common';
 import type { Venta, EstadoVenta, EstadoPago } from '../../../types/venta.types';
 import type { Requerimiento } from '../../../types/requerimiento.types';
 import type { OrdenCompra } from '../../../types/ordenCompra.types';
+import { useTipoCambio } from '../../../hooks/useTipoCambio';
 import { gastoService } from '../../../services/gasto.service';
 import { requerimientoService } from '../../../services/requerimiento.service';
 import { OrdenCompraService } from '../../../services/ordenCompra.service';
@@ -66,8 +67,7 @@ const metodoPagoLabels: Record<string, string> = {
   otro: 'Otro'
 };
 
-// Tipo de cambio por defecto para conversión de costos legacy en USD
-const TC_DEFAULT = 3.70;
+// TC_DEFAULT eliminado — se usa useTipoCambio() hook en el componente
 
 /**
  * Detecta si un costo está en USD y lo convierte a PEN si es necesario
@@ -78,12 +78,13 @@ const convertirCostoSiEsUSD = (
   costo: number,
   cantidad: number,
   precioVenta: number,
-  tc: number = TC_DEFAULT
+  tc: number
 ): number => {
-  if (costo <= 0 || cantidad <= 0) return costo;
+  if (costo <= 0 || cantidad <= 0 || precioVenta <= 0) return costo;
 
   const costoPorUnidad = costo / cantidad;
   const precioPorUnidad = precioVenta / cantidad;
+  if (precioPorUnidad <= 0) return costo;
   const ratioCosteVenta = costoPorUnidad / precioPorUnidad;
 
   // Si el ratio es menor a 0.15 (15%), el costo está en USD
@@ -115,6 +116,10 @@ export const VentaCard: React.FC<VentaCardProps> = ({
     loading: boolean;
   }>({ requerimientos: [], ordenesCompra: [], loading: true });
   const [gastosDirectosVenta, setGastosDirectosVenta] = useState<number>(0);
+
+  // TC centralizado para conversión de costos legacy
+  const { tc: tcData } = useTipoCambio();
+  const tcVenta = tcData?.venta ?? 3.70; // fallback solo durante carga inicial
 
   // Siempre ejecutar el hook para tener acceso a datos globales (GA/GO totales)
   const ventasArray = useMemo(() => [venta], [venta]);
@@ -178,7 +183,8 @@ export const VentaCard: React.FC<VentaCardProps> = ({
     return sum + convertirCostoSiEsUSD(
       prod.costoTotalUnidades,
       prod.cantidad,
-      prod.subtotal || 0
+      prod.subtotal || 0,
+      tcVenta
     );
   }, 0);
 
@@ -895,7 +901,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
               {venta.productos.map((producto, index) => {
                 // Convertir costo si está en USD (datos legacy)
                 const costoCorregido = producto.costoTotalUnidades
-                  ? convertirCostoSiEsUSD(producto.costoTotalUnidades, producto.cantidad, producto.subtotal)
+                  ? convertirCostoSiEsUSD(producto.costoTotalUnidades, producto.cantidad, producto.subtotal, tcVenta)
                   : 0;
                 const utilidadProducto = producto.subtotal - costoCorregido;
                 const margenProductoCorregido = producto.subtotal > 0

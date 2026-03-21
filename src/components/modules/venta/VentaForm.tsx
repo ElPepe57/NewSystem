@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2, AlertCircle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight, Boxes, Calendar, DollarSign, Lock, MapPin, ShieldAlert } from 'lucide-react';
+import { Plus, Trash2, AlertCircle, AlertTriangle, Wallet, CreditCard, Banknote, Smartphone, Building2, TrendingUp, Info, PlusCircle, History, ShoppingBag, Star, Package, User, CheckCircle, ChevronLeft, ChevronRight, Boxes, Calendar, DollarSign, Lock, MapPin, ShieldAlert } from 'lucide-react';
 import { Button, Input, Select, Modal, Stepper, useStepper, StepContent, GoogleMapsAddressInput } from '../../common';
 import type { AddressData } from '../../common';
 import type { Step } from '../../common/Stepper';
@@ -300,6 +300,46 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   const [aprobacionBajoCosto, setAprobacionBajoCosto] = useState(false);
   const { userProfile } = useAuthStore();
   const esAdminOGerente = userProfile?.role === 'admin' || userProfile?.role === 'gerente';
+
+  // Alerta de precio de reposición (TCPA del pool)
+  const [tcpaPool, setTcpaPool] = useState<number>(0);
+  useEffect(() => {
+    import('../../../services/poolUSD.service').then(({ poolUSDService }) =>
+      poolUSDService.getUltimoMovimiento().then(mov => {
+        if (mov) setTcpaPool(mov.tcpaDespues);
+      }).catch(() => {})
+    ).catch(() => {});
+  }, []);
+
+  // Detectar productos cuyo precio está por debajo del costo de reposición (TCPA)
+  // pero por encima del CTRU nominal (no dispara alerta roja, solo amarilla)
+  const productosAlertaReposicion = useMemo(() => {
+    if (tcpaPool <= 0) return [];
+    return productos.filter(item => {
+      if (!item.productoId || item.precioUnitario <= 0 || !item.snapshot?.ctruPromedio) return false;
+      // Solo si NO es bajo costo nominal (esos ya tienen alerta roja)
+      if (item.precioUnitario < item.snapshot.ctruPromedio) return false;
+      // Estimar CTRU de reposición: escalar el CTRU por ratio TCPA/TC_implícito
+      // Aproximación: CTRU_repos ≈ ctruPromedio × (TCPA / TC_mercado_estimado)
+      // Dado que no tenemos TC exacto por producto, usamos un factor conservador
+      // Si TCPA > 1.05 × TC implícito del CTRU, alertar
+      const factorFX = tcpaPool > 3 ? tcpaPool / 3.70 : 1; // 3.70 = fallback TC base
+      const ctruReposicion = item.snapshot.ctruPromedio * factorFX;
+      return item.precioUnitario < ctruReposicion;
+    }).map(item => {
+      const factorFX = tcpaPool > 3 ? tcpaPool / 3.70 : 1;
+      const ctruReposicion = item.snapshot!.ctruPromedio! * factorFX;
+      return {
+        nombre: item.snapshot?.nombreComercial || item.snapshot?.sku || item.productoId,
+        precioUnitario: item.precioUnitario,
+        ctruNominal: item.snapshot!.ctruPromedio!,
+        ctruReposicion,
+        diferencia: ctruReposicion - item.precioUnitario,
+      };
+    });
+  }, [productos, tcpaPool]);
+
+  const hayAlertaReposicion = productosAlertaReposicion.length > 0;
 
   // Reset aprobación cuando cambia la cantidad de productos bajo costo
   useEffect(() => {
@@ -1293,6 +1333,35 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                   </span>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Alerta amarilla de precio de reposición (FX) */}
+          {hayAlertaReposicion && !hayVentaBajoCosto && (
+            <div className="bg-amber-50 border border-amber-300 rounded-lg p-4 space-y-2">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h5 className="font-semibold text-amber-800 text-sm">
+                    Precio por debajo del costo de reposición
+                  </h5>
+                  <p className="text-xs text-amber-700 mt-1">
+                    {productosAlertaReposicion.length === 1 ? 'Un producto tiene' : `${productosAlertaReposicion.length} productos tienen`} precio
+                    inferior al costo de reposición al TCPA actual ({tcpaPool.toFixed(4)}). El margen nominal es positivo,
+                    pero reponer este producto costará más de lo que cobras.
+                  </p>
+                </div>
+              </div>
+              <div className="bg-white/60 rounded-md p-2 space-y-1">
+                {productosAlertaReposicion.map((p, i) => (
+                  <div key={i} className="flex justify-between text-xs">
+                    <span className="text-amber-800 font-medium truncate mr-2">{p.nombre}</span>
+                    <span className="text-amber-700 whitespace-nowrap">
+                      S/ {p.precioUnitario.toFixed(2)} vs Repos. S/ {p.ctruReposicion.toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

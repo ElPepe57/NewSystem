@@ -12,6 +12,7 @@ import {
   limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { tipoCambioService } from './tipoCambio.service';
 import type {
   Almacen,
   ClasificacionAlmacen,
@@ -301,7 +302,10 @@ export interface AlmacenAnalytics {
 // ============================================
 
 class AlmacenAnalyticsService {
-  private tipoCambioPEN = 3.75; // Tipo de cambio por defecto
+  /** Obtiene TC actual del servicio centralizado */
+  private async getTipoCambio(): Promise<number> {
+    return tipoCambioService.resolverTCVenta();
+  }
 
   /**
    * Obtiene analytics completos de un almacén
@@ -538,7 +542,7 @@ class AlmacenAnalyticsService {
       productosUnicos,
       unidadesTotales,
       valorTotalUSD,
-      valorTotalPEN: valorTotalUSD * this.tipoCambioPEN,
+      valorTotalPEN: valorTotalUSD * await this.getTipoCambio(),
       capacidadTotal,
       capacidadUtilizada: unidadesTotales,
       porcentajeCapacidad,

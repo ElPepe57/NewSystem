@@ -191,6 +191,47 @@ export const tesoreriaService = {
       cuentaDestino: data.cuentaDestino
     }).catch(err => console.warn('Error actualizando estadísticas:', err));
 
+    // ── Pool USD: registrar movimiento automático si es operación en USD ──
+    // Mapeo: tipo tesorería → tipo pool. Conversiones se manejan en registrarConversion().
+    // Transferencias internas USD↔USD no afectan el pool (solo mueven entre cuentas).
+    if (data.moneda === 'USD' && !['conversion_pen_usd', 'conversion_usd_pen', 'transferencia_interna'].includes(data.tipo)) {
+      const tipoPoolMap: Record<string, string> = {
+        // Entradas USD
+        ingreso_venta: 'COBRO_VENTA_USD',
+        ingreso_anticipo: 'COBRO_VENTA_USD',
+        ingreso_otro: 'AJUSTE_CONCILIACION_ENTRADA',
+        aporte_capital: 'AJUSTE_CONCILIACION_ENTRADA',
+        ajuste_positivo: 'AJUSTE_CONCILIACION_ENTRADA',
+        // Salidas USD
+        pago_orden_compra: 'PAGO_OC',
+        pago_viajero: 'GASTO_IMPORTACION_USD',
+        pago_proveedor_local: 'PAGO_OC',
+        gasto_operativo: 'GASTO_SERVICIO_USD',
+        retiro_socio: 'RETIRO_CAPITAL',
+        ajuste_negativo: 'AJUSTE_CONCILIACION_SALIDA',
+      };
+      const tipoPool = tipoPoolMap[data.tipo];
+      if (tipoPool) {
+        const refNumero = data.ordenCompraNumero || data.ventaNumero || data.gastoNumero || numeroMovimiento;
+        const refId = data.ordenCompraId || data.ventaId || data.gastoId || docRef.id;
+        import('../services/poolUSD.service').then(({ poolUSDService }) => {
+          poolUSDService.registrarMovimiento(
+            {
+              tipo: tipoPool as any,
+              montoUSD: data.monto,
+              tcOperacion: data.tipoCambio,
+              fecha: data.fecha,
+              documentoOrigenTipo: 'manual',
+              documentoOrigenId: refId,
+              documentoOrigenNumero: refNumero,
+              notas: `Auto: ${data.concepto}`,
+            },
+            userId
+          ).catch(err => console.warn('[PoolUSD] Error registrando desde movimiento tesorería:', err));
+        }).catch(() => {});
+      }
+    }
+
     // Broadcast actividad (fire-and-forget)
     actividadService.registrar({
       tipo: 'pago_registrado',
@@ -722,6 +763,21 @@ export const tesoreriaService = {
       spreadCambiario,
       diferenciaVsReferencia
     }).catch(err => console.warn('Error actualizando estadísticas por conversión:', err));
+
+    // Registrar movimiento en Pool USD (fire-and-forget)
+    import('../services/poolUSD.service').then(({ poolUSDService }) => {
+      poolUSDService.registrarDesdeConversion(
+        conversionId,
+        numeroConversion,
+        data.monedaOrigen as 'USD' | 'PEN',
+        monedaDestino as 'USD' | 'PEN',
+        data.montoOrigen,
+        montoDestino,
+        data.tipoCambio,
+        data.fecha,
+        userId
+      ).catch(err => console.warn('[PoolUSD] Error registrando movimiento desde conversión:', err));
+    }).catch(() => {});
 
     // Broadcast actividad (fire-and-forget)
     actividadService.registrar({
@@ -1492,14 +1548,8 @@ export const tesoreriaService = {
       }
     });
 
-    // Obtener TC actual
-    let tcActual = 3.70;
-    try {
-      const tc = await tipoCambioService.getTCDelDia();
-      if (tc) tcActual = tc.venta;
-    } catch (e) {
-      console.warn('No se pudo obtener TC actual');
-    }
+    // Obtener TC centralizado
+    const tcActual = await tipoCambioService.resolverTCVenta();
 
     const estadisticas: EstadisticasTesoreriaAgregadas = {
       saldoTotalUSD,
@@ -1844,13 +1894,7 @@ export const tesoreriaService = {
       }
     });
 
-    let tcActual = 3.70;
-    try {
-      const tc = await tipoCambioService.getTCDelDia();
-      if (tc) tcActual = tc.venta;
-    } catch (e) {
-      console.warn('No se pudo obtener TC actual');
-    }
+    const tcActual = await tipoCambioService.resolverTCVenta();
 
     const saldoTotalEquivalentePEN = saldoTotalPEN + (saldoTotalUSD * tcActual);
 
@@ -1944,13 +1988,7 @@ export const tesoreriaService = {
       }
     });
 
-    let tcActual = 3.70;
-    try {
-      const tc = await tipoCambioService.getTCDelDia();
-      if (tc) tcActual = tc.venta;
-    } catch (e) {
-      console.warn('No se pudo obtener TC actual');
-    }
+    const tcActual = await tipoCambioService.resolverTCVenta();
 
     const saldoTotalEquivalentePEN = saldoTotalPEN + (saldoTotalUSD * tcActual);
 
@@ -2044,10 +2082,10 @@ export const tesoreriaService = {
     // Diferencia cambiaria
     const diferencia = await this.calcularDiferenciaCambiaria(mes, anio);
 
-    // TC promedio del mes
+    // TC promedio del mes (si no hay movimientos, usar TC actual)
     const tcPromedio = movimientos.length > 0
       ? movimientos.reduce((sum, m) => sum + m.tipoCambio, 0) / movimientos.length
-      : 3.70;
+      : await tipoCambioService.resolverTCVenta();
 
     // Calcular saldo inicial del mes (saldo final del mes anterior)
     // Obtenemos movimientos hasta el inicio del mes actual

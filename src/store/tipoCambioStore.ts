@@ -61,6 +61,7 @@ export const useTipoCambioStore = create<TipoCambioState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await tipoCambioService.create(data, userId);
+      tipoCambioService.invalidarCache();
       await get().fetchTiposCambio();
       set({ loading: false });
     } catch (error: any) {
@@ -73,6 +74,7 @@ export const useTipoCambioStore = create<TipoCambioState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await tipoCambioService.update(id, data, userId);
+      tipoCambioService.invalidarCache();
       await get().fetchTiposCambio();
       set({ loading: false });
     } catch (error: any) {
@@ -85,6 +87,7 @@ export const useTipoCambioStore = create<TipoCambioState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await tipoCambioService.registrarDesdeSunat(fecha, userId);
+      tipoCambioService.invalidarCache();
       await get().fetchTiposCambio();
       set({ loading: false });
     } catch (error: any) {

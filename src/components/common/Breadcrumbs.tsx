@@ -48,6 +48,7 @@ const ROUTE_LABELS: Record<string, string> = {
   'tesoreria': 'Tesorería',
   'requerimientos': 'Requerimientos',
   'expectativas': 'Expectativas',
+  'rendimiento-cambiario': 'Rendimiento Cambiario',
   'maestros': 'Maestros',
   'nuevo': 'Nuevo',
   'editar': 'Editar',

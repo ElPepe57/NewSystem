@@ -75,16 +75,8 @@ export const expectativaService = {
 
     const numeroRequerimiento = await this.generateNumeroRequerimiento();
 
-    // Obtener TC actual para la expectativa
-    let tcInvestigacion = 3.70;
-    try {
-      const tcDelDia = await tipoCambioService.getTCDelDia();
-      if (tcDelDia) {
-        tcInvestigacion = tcDelDia.venta;
-      }
-    } catch (e) {
-      console.warn('No se pudo obtener TC del día');
-    }
+    // Obtener TC centralizado para la expectativa (no bloquea — es estimación)
+    const tcInvestigacion = await tipoCambioService.resolverTCVenta();
 
     // Calcular expectativa financiera usando datos reales de investigación
     // Costo base = precio USA × cantidad
@@ -1232,12 +1224,8 @@ export const expectativaService = {
     try {
       const ordenCompra = await OrdenCompraService.getById(ordenCompraId);
       if (ordenCompra) {
-        // Obtener TC actual
-        let tcActual = 3.70;
-        try {
-          const tcDelDia = await tipoCambioService.getTCDelDia();
-          if (tcDelDia) tcActual = tcDelDia.venta;
-        } catch { /* usar fallback */ }
+        // Obtener TC centralizado
+        const tcActual = await tipoCambioService.resolverTCVenta();
 
         // Calcular costos reales basados en la OC
         const costoEstimadoUSD = productos.reduce((sum, p) => {

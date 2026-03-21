@@ -787,16 +787,8 @@ export class VentaService {
       // Usar el servicio de unidades que tiene la lógica FEFO implementada
       const seleccionFEFO = await unidadService.seleccionarFEFO(productoId, cantidad);
 
-      // Obtener tipo de cambio del día para conversión USD → PEN
-      let tipoCambioVenta = 3.70; // Valor por defecto
-      try {
-        const tcDelDia = await tipoCambioService.getTCDelDia();
-        if (tcDelDia) {
-          tipoCambioVenta = tcDelDia.venta;
-        }
-      } catch (e) {
-        console.warn('No se pudo obtener TC del día, usando valor por defecto');
-      }
+      // Obtener TC centralizado (estricto — operación transaccional)
+      const tipoCambioVenta = await tipoCambioService.resolverTCVentaEstricto();
 
       const asignaciones: AsignacionUnidad[] = seleccionFEFO.map(({ unidad }) => {
         // Calcular CTRU en PEN
@@ -851,16 +843,8 @@ export class VentaService {
     unidadesReservadasIds: string[]
   ): Promise<ResultadoAsignacion> {
     try {
-      // Obtener tipo de cambio del día para conversión USD → PEN
-      let tipoCambioVenta = 3.70;
-      try {
-        const tcDelDia = await tipoCambioService.getTCDelDia();
-        if (tcDelDia) {
-          tipoCambioVenta = tcDelDia.venta;
-        }
-      } catch (e) {
-        console.warn('No se pudo obtener TC del día, usando valor por defecto');
-      }
+      // Obtener TC centralizado (estricto — operación transaccional)
+      const tipoCambioVenta = await tipoCambioService.resolverTCVentaEstricto();
 
       const asignaciones: AsignacionUnidad[] = [];
 
@@ -1691,11 +1675,25 @@ export class VentaService {
 
       // Crear nuevo pago
       const pagosAnteriores = venta.pagos || [];
+
+      // Determinar moneda del pago según método (Zelle/PayPal = USD)
+      const metodosEnUSD: string[] = ['paypal', 'zelle'];
+      const monedaCobro: 'USD' | 'PEN' = metodosEnUSD.includes(datosPago.metodoPago) ? 'USD' : 'PEN';
+
+      // Obtener TC al momento del cobro
+      let tcCobro: number | undefined;
+      try {
+        tcCobro = await tipoCambioService.resolverTCVentaEstricto();
+      } catch { /* se obtiene más abajo de todas formas */ }
+
       const nuevoPago: PagoVenta = {
         id: `PAG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         monto: datosPago.monto,
+        moneda: monedaCobro,
         metodoPago: datosPago.metodoPago,
         tipoPago: pagosAnteriores.some(p => p.tipoPago === 'anticipo') ? 'saldo' : 'pago',
+        tipoCambio: tcCobro,
+        montoEquivalentePEN: monedaCobro === 'USD' && tcCobro ? datosPago.monto * tcCobro : undefined,
         fecha: Timestamp.now(),
         registradoPor: userId
       };
@@ -1725,6 +1723,7 @@ export class VentaService {
         montoPagado: nuevoMontoPagado,
         montoPendiente: Math.max(0, nuevoMontoPendiente),
         estadoPago: nuevoEstadoPago,
+        tcCobro: tcCobro ?? null,  // TC al momento del cobro (Decisión 11 — activar campo muerto)
         ultimaEdicion: serverTimestamp(),
         editadoPor: userId
       };
@@ -1754,30 +1753,28 @@ export class VentaService {
 
           const metodoTesoreria = metodoTesoreriaMap[datosPago.metodoPago] || 'efectivo';
 
+          // Determinar moneda según método de pago (Zelle/PayPal = USD)
+          const metodosUSD: string[] = ['paypal', 'zelle'];
+          const monedaPago = metodosUSD.includes(datosPago.metodoPago) ? 'USD' : 'PEN';
+
           // Buscar cuenta destino: usar la proporcionada o buscar por método de pago
           let cuentaDestinoId = datosPago.cuentaDestinoId;
           if (!cuentaDestinoId) {
             const cuentaPorDefecto = await tesoreriaService.getCuentaPorMetodoPago(
               metodoTesoreria as any,
-              'PEN'
+              monedaPago
             );
             cuentaDestinoId = cuentaPorDefecto?.id;
           }
 
-          // Obtener TC actual
-          let tipoCambio = 3.70;
-          try {
-            const tcDelDia = await tipoCambioService.getTCDelDia();
-            if (tcDelDia) tipoCambio = tcDelDia.venta;
-          } catch (e) {
-            console.warn('No se pudo obtener TC del día, usando valor por defecto');
-          }
+          // Obtener TC centralizado
+          const tipoCambio = await tipoCambioService.resolverTCVentaEstricto();
 
           // Crear movimiento de ingreso en tesorería
           const movimientoId = await tesoreriaService.registrarMovimiento(
             {
               tipo: 'ingreso_venta',
-              moneda: 'PEN',
+              moneda: monedaPago as any,
               monto: datosPago.monto,
               tipoCambio,
               metodo: metodoTesoreria as any,
@@ -2214,16 +2211,16 @@ export class VentaService {
         'tarjeta': 'tarjeta', 'paypal': 'paypal', 'zelle': 'otro', 'otro': 'otro'
       };
 
-      let tipoCambio = 3.70;
-      try {
-        const tcDelDia = await tipoCambioService.getTCDelDia();
-        if (tcDelDia) tipoCambio = tcDelDia.venta;
-      } catch { /* usar fallback */ }
+      const tipoCambio = await tipoCambioService.resolverTCVentaEstricto();
+
+      // Determinar moneda según método de pago (Zelle/PayPal = USD)
+      const metodosUSD: string[] = ['paypal', 'zelle'];
+      const monedaAdelanto = metodosUSD.includes(adelanto.metodoPago) ? 'USD' : 'PEN';
 
       let cuentaDestinoId = adelanto.cuentaDestinoId;
       if (!cuentaDestinoId) {
         const metodoTes = metodoTesoreriaMap[adelanto.metodoPago] || 'efectivo';
-        const cuentaPorDefecto = await tesoreriaService.getCuentaPorMetodoPago(metodoTes as any, 'PEN');
+        const cuentaPorDefecto = await tesoreriaService.getCuentaPorMetodoPago(metodoTes as any, monedaAdelanto);
         if (cuentaPorDefecto) {
           cuentaDestinoId = cuentaPorDefecto.id;
         } else {
@@ -2233,7 +2230,7 @@ export class VentaService {
 
       await tesoreriaService.registrarMovimiento({
         tipo: 'ingreso_anticipo',
-        moneda: 'PEN',
+        moneda: monedaAdelanto as any,
         monto: adelanto.monto,
         tipoCambio,
         metodo: (metodoTesoreriaMap[adelanto.metodoPago] || 'efectivo') as any,
@@ -3703,12 +3700,8 @@ export class VentaService {
 
     console.log(`[CORR-FEFO] Corrigiendo ${venta.numeroVenta} (${venta.estado})...`);
 
-    // Obtener TC del día para recalcular costos
-    let tipoCambioVenta = 3.70;
-    try {
-      const tcDelDia = await tipoCambioService.getTCDelDia();
-      if (tcDelDia) tipoCambioVenta = tcDelDia.venta;
-    } catch (_e) { /* usar default */ }
+    // Obtener TC centralizado para recalcular costos
+    const tipoCambioVenta = await tipoCambioService.resolverTCVentaEstricto();
 
     const productosActualizados = [...venta.productos];
     let costoTotalPEN = 0;

@@ -84,6 +84,23 @@ export function getCostoBasePEN(unidad: Pick<Unidad, 'ctruInicial' | 'costoUnita
 }
 
 /**
+ * Calcular CTRU Real usando TCPA (del Pool USD) en lugar del TC histórico de la unidad.
+ * Esto refleja el costo REAL de los dólares usados para comprar el producto,
+ * no el TC al que se pagó la OC (que puede ser diferente al costo real del dólar).
+ *
+ * Fórmula: (costoUnitarioUSD + costoFleteUSD) × TCPA + costoGAGOAsignado
+ */
+export function getCTRU_Real(
+  unidad: Pick<Unidad, 'costoUnitarioUSD' | 'costoFleteUSD'> & { costoGAGOAsignado?: number },
+  tcpa: number
+): number {
+  if (tcpa <= 0) return 0;
+  const costoUSD = (unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0);
+  const gagoAsignado = unidad.costoGAGOAsignado || 0;
+  return costoUSD * tcpa + gagoAsignado;
+}
+
+/**
  * Calcular la asignación proporcional de GA/GO para una unidad.
  * Fuente única de verdad para esta fórmula — usada por ctru.service (Firestore)
  * y ctruStore (analytics client-side).

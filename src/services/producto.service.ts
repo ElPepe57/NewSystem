@@ -507,9 +507,15 @@ export class ProductoService {
     productoId: string,
     data: InvestigacionFormData,
     userId: string,
-    tipoCambio: number = 3.70
+    tipoCambio?: number
   ): Promise<InvestigacionMercado> {
     try {
+      // Si no se provee TC, resolver del servicio centralizado
+      if (!tipoCambio) {
+        const { tipoCambioService } = await import('./tipoCambio.service');
+        tipoCambio = await tipoCambioService.resolverTCVenta();
+      }
+
       const producto = await this.getById(productoId);
       if (!producto) {
         throw new Error('Producto no encontrado');
