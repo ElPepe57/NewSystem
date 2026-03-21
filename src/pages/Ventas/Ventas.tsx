@@ -20,7 +20,7 @@ import { gastoService } from '../../services/gasto.service';
 import { VentaService } from '../../services/venta.service';
 import { useEntregaStore } from '../../store/entregaStore';
 import type { Venta, VentaFormData, MetodoPago, AdelantoData, EditarVentaData } from '../../types/venta.types';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { ventaSociosService, MOTIVOS_VENTA_SOCIO } from '../../services/venta.socios.service';
 import type { ResumenVentasSocios } from '../../services/venta.socios.service';
 import type { ProgramarEntregaData } from '../../types/entrega.types';
@@ -62,8 +62,6 @@ export const Ventas: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   const [mostrarVentasSocios, setMostrarVentasSocios] = useState(false);
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
-
   // Hook de rentabilidad con distribución proporcional de GA/GO
   const { datos: rentabilidad, getRentabilidadVenta, loading: loadingRentabilidad, refetch: refetchRentabilidad } = useRentabilidadVentas(ventas);
 
@@ -87,10 +85,7 @@ export const Ventas: React.FC = () => {
   const toast = useToastStore();
 
   // Ventas filtradas por línea de negocio global
-  const ventasLineaFiltradas = useMemo(() => {
-    if (!lineaFiltroGlobal) return ventas;
-    return ventas.filter(v => v.lineaNegocioId === lineaFiltroGlobal);
-  }, [ventas, lineaFiltroGlobal]);
+  const ventasLineaFiltradas = useLineaFilter(ventas, v => v.lineaNegocioId);
 
   // Pipeline stages para filtrado visual
   const pipelineStages: PipelineStage[] = useMemo(() => {

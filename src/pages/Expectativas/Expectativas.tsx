@@ -17,7 +17,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { Card } from '../../components/common';
-import { ExpectativaService } from '../../services/expectativa.service';
+import { expectativaService } from '../../services/expectativa.service';
 import { VentaService } from '../../services/venta.service';
 import { OrdenCompraService } from '../../services/ordenCompra.service';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
@@ -44,7 +44,7 @@ export const Expectativas: React.FC = () => {
     try {
       // Cargar stats con filtro de mes/año
       const [statsData, ventas, ordenes] = await Promise.all([
-        ExpectativaService.getStats(mesSeleccionado, anioSeleccionado),
+        expectativaService.getStats(mesSeleccionado, anioSeleccionado),
         VentaService.getAll(),
         OrdenCompraService.getAll()
       ]);
@@ -64,7 +64,7 @@ export const Expectativas: React.FC = () => {
 
       const comparacionesV: ComparacionVenta[] = [];
       for (const v of ventasPeriodo) {
-        const comp = await ExpectativaService.compararVenta(v.id);
+        const comp = await expectativaService.compararVenta(v.id);
         if (comp) comparacionesV.push(comp);
       }
       setComparacionesVentas(comparacionesV);
@@ -82,7 +82,7 @@ export const Expectativas: React.FC = () => {
 
       const comparacionesC: ComparacionCompra[] = [];
       for (const oc of ocsPeriodo) {
-        const comp = await ExpectativaService.compararCompra(oc.id);
+        const comp = await expectativaService.compararCompra(oc.id);
         if (comp) comparacionesC.push(comp);
       }
       setComparacionesCompras(comparacionesC);

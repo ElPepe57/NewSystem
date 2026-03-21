@@ -16,7 +16,7 @@ import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
 import { exportService } from '../../services/export.service';
 import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 
 // Interface para datos de requerimiento que viene del navigation state
 interface RequerimientoData {
@@ -96,13 +96,8 @@ export const OrdenesCompra: React.FC = () => {
     fetchStats
   } = useOrdenCompraStore();
 
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
-
   // Filtrar órdenes por línea de negocio global
-  const ordenesLN = useMemo(() => {
-    if (!lineaFiltroGlobal) return ordenes;
-    return ordenes.filter(o => o.lineaNegocioId === lineaFiltroGlobal);
-  }, [ordenes, lineaFiltroGlobal]);
+  const ordenesLN = useLineaFilter(ordenes, o => o.lineaNegocioId);
 
   const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);

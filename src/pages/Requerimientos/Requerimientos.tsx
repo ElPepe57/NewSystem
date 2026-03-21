@@ -23,7 +23,7 @@ import { inventarioService } from '../../services/inventario.service';
 import { tipoCambioService } from '../../services/tipoCambio.service';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
-import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
 import type {
   Requerimiento,
   RequerimientoFormData,
@@ -56,13 +56,8 @@ export const Requerimientos: React.FC = () => {
     limpiarDatosVinculacion: storeLimpiarDatos
   } = useExpectativaStore();
 
-  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
-
   // Filtrar requerimientos por linea de negocio global
-  const requerimientosLN = useMemo(() => {
-    if (!lineaFiltroGlobal) return requerimientos;
-    return requerimientos.filter(r => r.lineaNegocioId === lineaFiltroGlobal);
-  }, [requerimientos, lineaFiltroGlobal]);
+  const requerimientosLN = useLineaFilter(requerimientos, r => r.lineaNegocioId);
 
   // TC del dia
   const [tcDelDia, setTcDelDia] = useState<{ venta: number; compra: number } | null>(null);

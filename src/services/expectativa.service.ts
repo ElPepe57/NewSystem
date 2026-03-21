@@ -1534,5 +1534,3 @@ export const expectativaService = {
   }
 };
 
-// Alias para compatibilidad con imports existentes
-export const ExpectativaService = expectativaService;

@@ -22,7 +22,7 @@ import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { unidadService } from './unidad.service';
 import { almacenService } from './almacen.service';
-import { ExpectativaService } from './expectativa.service';
+import { expectativaService } from './expectativa.service';
 import { ctruService } from './ctru.service';
 import { actividadService } from './actividad.service';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
@@ -89,7 +89,7 @@ export async function recibirOrdenParcial(
 
     for (const reqId of reqIds) {
       try {
-        const req = await ExpectativaService.getRequerimientoById(reqId);
+        const req = await expectativaService.getRequerimientoById(reqId);
         if (!req) continue;
 
         const cotId = req.ventaRelacionadaId || '';
@@ -337,7 +337,7 @@ export async function recibirOrdenParcial(
     if (esRecepcionFinal) {
       for (const reqId of reqIds) {
         try {
-          await ExpectativaService.actualizarEstado(reqId, 'completado', userId);
+          await expectativaService.actualizarEstado(reqId, 'completado', userId);
         } catch (error) {
           logger.error(`Error al marcar requerimiento ${reqId} como completado:`, error);
         }

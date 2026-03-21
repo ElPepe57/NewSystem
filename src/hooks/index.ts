@@ -21,3 +21,6 @@ export type { DesgloseProducto, GAGOProducto, RentabilidadVenta, DatosRentabilid
 
 // User Names
 export { useUserName, useUserNames, getUserNameSync, preloadUserNames, clearUserNameCache } from './useUserNames';
+
+// Linea de negocio filter
+export { useLineaFilter } from './useLineaFilter';
