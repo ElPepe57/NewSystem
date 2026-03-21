@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Categoria,
@@ -25,7 +26,6 @@ import type {
   EstadoCategoria,
   NivelCategoria
 } from '../types/categoria.types';
-import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.CATEGORIAS;
 
@@ -588,7 +588,7 @@ export const categoriaService = {
       };
 
       // Buscar productos que tengan esta categoria
-      const productosRef = collection(db, 'productos');
+      const productosRef = collection(db, COLLECTIONS.PRODUCTOS);
       const q = query(productosRef, where('categoriaIds', 'array-contains', categoriaId));
       const productosSnap = await getDocs(q);
 

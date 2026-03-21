@@ -1042,7 +1042,7 @@ export const transferenciaService = {
       // Actualizar cada producto con su stock correcto en Perú
       for (const [productoId, stockPeru] of stockPeruPorProducto) {
         try {
-          const docRef = doc(db, 'productos', productoId);
+          const docRef = doc(db, COLLECTIONS.PRODUCTOS, productoId);
           await updateDoc(docRef, { stockPeru });
           productosActualizados++;
           logger.debug(`Producto ${productoId}: stockPeru = ${stockPeru}`);

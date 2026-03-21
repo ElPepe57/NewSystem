@@ -11,6 +11,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type { Cliente, ClasificacionABC, SegmentoCliente } from '../types/entidadesMaestras.types';
 import type { Venta, ProductoVenta } from '../types/venta.types';
 
@@ -192,7 +193,7 @@ export const clienteAnalyticsService = {
     try {
       // 1. Obtener el cliente
       const clienteDoc = await getDocs(
-        query(collection(db, 'clientes'), where('__name__', '==', clienteId))
+        query(collection(db, COLLECTIONS.CLIENTES), where('__name__', '==', clienteId))
       );
 
       if (clienteDoc.empty) return null;
@@ -200,7 +201,7 @@ export const clienteAnalyticsService = {
       const cliente = { id: clienteDoc.docs[0].id, ...clienteDoc.docs[0].data() } as Cliente;
 
       // 2. Obtener todas las ventas del cliente
-      const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+      const ventasSnapshot = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventasCliente = ventasSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() } as Venta))
         .filter(v => v.clienteId === clienteId && v.estado !== 'cancelada')
@@ -211,7 +212,7 @@ export const clienteAnalyticsService = {
         });
 
       // 3. Obtener productos para enriquecer datos
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosMap = new Map<string, { nombre: string; marca: string; grupo: string; cicloRecompraDias?: number }>();
       productosSnapshot.docs.forEach(doc => {
         const data = doc.data();
@@ -297,7 +298,7 @@ export const clienteAnalyticsService = {
       );
 
       // Comparaciones (necesita todos los clientes)
-      const todosClientes = await getDocs(collection(db, 'clientes'));
+      const todosClientes = await getDocs(collection(db, COLLECTIONS.CLIENTES));
       const { comparaciones, ranking, total } = await this.calcularComparaciones(
         cliente,
         gastoTotalHistorico,

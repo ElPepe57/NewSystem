@@ -76,6 +76,16 @@ export const COLLECTIONS = {
   CHAT_META: 'chat_meta',
   LLAMADAS: 'llamadas',
   LLAMADAS_INTEL: 'llamadasIntel',
+
+  // === MercadoLibre ===
+  ML_PRODUCT_MAP: 'mlProductMap',
+  ML_ORDER_SYNC: 'mlOrderSync',
+  ML_CONFIG: 'mlConfig',
+  ML_QUESTIONS: 'mlQuestions',
+  ML_WEBHOOK_LOG: 'mlWebhookLog',
+
+  // === Estadísticas ===
+  ESTADISTICAS: 'estadisticas',
 } as const;
 
 /** Tipo union de todos los nombres de colección */

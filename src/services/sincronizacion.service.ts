@@ -19,6 +19,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
 
@@ -117,7 +118,7 @@ class SincronizacionService {
 
     try {
       // Obtener todos los productos
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
 
       // Eliminar productos inactivos
       for (const docSnap of productosSnap.docs) {
@@ -126,18 +127,18 @@ class SincronizacionService {
           try {
             // Primero eliminar unidades asociadas al producto inactivo
             const unidadesQuery = query(
-              collection(db, 'unidades'),
+              collection(db, COLLECTIONS.UNIDADES),
               where('productoId', '==', docSnap.id)
             );
             const unidadesSnap = await getDocs(unidadesQuery);
 
             for (const unidadDoc of unidadesSnap.docs) {
-              await deleteDoc(doc(db, 'unidades', unidadDoc.id));
+              await deleteDoc(doc(db, COLLECTIONS.UNIDADES, unidadDoc.id));
               result.referenciasLimpiadas++;
             }
 
             // Luego eliminar el producto
-            await deleteDoc(doc(db, 'productos', docSnap.id));
+            await deleteDoc(doc(db, COLLECTIONS.PRODUCTOS, docSnap.id));
             result.registrosEliminados++;
           } catch (e: any) {
             result.errores.push(`Error eliminando producto inactivo ${docSnap.id}: ${e.message}`);
@@ -146,11 +147,11 @@ class SincronizacionService {
       }
 
       // Re-obtener productos después de eliminar inactivos
-      const productosActivosSnap = await getDocs(collection(db, 'productos'));
+      const productosActivosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosIds = new Set(productosActivosSnap.docs.map(d => d.id));
 
       // Obtener todas las unidades para calcular stock real
-      const unidadesSnap = await getDocs(collection(db, 'unidades'));
+      const unidadesSnap = await getDocs(collection(db, COLLECTIONS.UNIDADES));
       const stockPorProducto = new Map<string, { usa: number; peru: number; transito: number; reservado: number }>();
 
       // Inicializar todos los productos con stock 0
@@ -166,7 +167,7 @@ class SincronizacionService {
         // Si la unidad referencia un producto que no existe, marcar para eliminar
         if (!productosIds.has(productoId)) {
           try {
-            await deleteDoc(doc(db, 'unidades', docSnap.id));
+            await deleteDoc(doc(db, COLLECTIONS.UNIDADES, docSnap.id));
             result.referenciasLimpiadas++;
           } catch (e: any) {
             result.errores.push(`Error eliminando unidad huérfana ${docSnap.id}: ${e.message}`);
@@ -211,7 +212,7 @@ class SincronizacionService {
           stockActual.transito !== stockReal.transito ||
           stockActual.reservado !== stockReal.reservado
         ) {
-          batch.update(doc(db, 'productos', docSnap.id), {
+          batch.update(doc(db, COLLECTIONS.PRODUCTOS, docSnap.id), {
             stockUSA: stockReal.usa,
             stockPeru: stockReal.peru,
             stockTransito: stockReal.transito,
@@ -253,18 +254,18 @@ class SincronizacionService {
 
     try {
       // Obtener proveedores existentes
-      const proveedoresSnap = await getDocs(collection(db, 'proveedores'));
+      const proveedoresSnap = await getDocs(collection(db, COLLECTIONS.PROVEEDORES));
       const proveedoresIds = new Set(proveedoresSnap.docs.map(d => d.id));
 
       // Obtener OCs y verificar referencias a proveedores
-      const ocsSnap = await getDocs(collection(db, 'ordenesCompra'));
+      const ocsSnap = await getDocs(collection(db, COLLECTIONS.ORDENES_COMPRA));
 
       for (const docSnap of ocsSnap.docs) {
         const oc = docSnap.data();
         if (oc.proveedorId && !proveedoresIds.has(oc.proveedorId)) {
           // Limpiar referencia al proveedor eliminado
           try {
-            await updateDoc(doc(db, 'ordenesCompra', docSnap.id), {
+            await updateDoc(doc(db, COLLECTIONS.ORDENES_COMPRA, docSnap.id), {
               proveedorId: null,
               proveedorNombre: '[Proveedor eliminado]',
               ultimaEdicion: serverTimestamp()
@@ -297,7 +298,7 @@ class SincronizacionService {
           metricasActuales.montoTotalUSD !== totalCompras;
 
         if (necesitaActualizar) {
-          batch.update(doc(db, 'proveedores', proveedorId), {
+          batch.update(doc(db, COLLECTIONS.PROVEEDORES, proveedorId), {
             metricas: {
               ...metricasActuales,
               ordenesCompra: totalOCs,
@@ -339,11 +340,11 @@ class SincronizacionService {
 
     try {
       // Obtener productos existentes
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosIds = new Set(productosSnap.docs.map(d => d.id));
 
       // Obtener OCs
-      const ocsSnap = await getDocs(collection(db, 'ordenesCompra'));
+      const ocsSnap = await getDocs(collection(db, COLLECTIONS.ORDENES_COMPRA));
 
       for (const docSnap of ocsSnap.docs) {
         const oc = docSnap.data();
@@ -366,7 +367,7 @@ class SincronizacionService {
             const subtotal = itemsValidos.reduce((sum: number, item: any) => sum + (item.subtotal || 0), 0);
             const totalUnidades = itemsValidos.reduce((sum: number, item: any) => sum + (item.cantidad || 0), 0);
 
-            await updateDoc(doc(db, 'ordenesCompra', docSnap.id), {
+            await updateDoc(doc(db, COLLECTIONS.ORDENES_COMPRA, docSnap.id), {
               items: itemsValidos,
               subtotal,
               totalUnidades,
@@ -400,14 +401,14 @@ class SincronizacionService {
 
     try {
       // Obtener productos y clientes existentes
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosIds = new Set(productosSnap.docs.map(d => d.id));
 
-      const clientesSnap = await getDocs(collection(db, 'clientes'));
+      const clientesSnap = await getDocs(collection(db, COLLECTIONS.CLIENTES));
       const clientesIds = new Set(clientesSnap.docs.map(d => d.id));
 
       // Obtener ventas
-      const ventasSnap = await getDocs(collection(db, 'ventas'));
+      const ventasSnap = await getDocs(collection(db, COLLECTIONS.VENTAS));
 
       for (const docSnap of ventasSnap.docs) {
         const venta = docSnap.data();
@@ -443,7 +444,7 @@ class SincronizacionService {
         if (necesitaActualizar) {
           try {
             updates.ultimaEdicion = serverTimestamp();
-            await updateDoc(doc(db, 'ventas', docSnap.id), updates);
+            await updateDoc(doc(db, COLLECTIONS.VENTAS, docSnap.id), updates);
             result.registrosActualizados++;
           } catch (e: any) {
             result.errores.push(`Error actualizando venta ${docSnap.id}: ${e.message}`);
@@ -471,17 +472,17 @@ class SincronizacionService {
 
     try {
       // Obtener productos, OCs y almacenes existentes
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosIds = new Set(productosSnap.docs.map(d => d.id));
 
-      const ocsSnap = await getDocs(collection(db, 'ordenesCompra'));
+      const ocsSnap = await getDocs(collection(db, COLLECTIONS.ORDENES_COMPRA));
       const ocsIds = new Set(ocsSnap.docs.map(d => d.id));
 
-      const almacenesSnap = await getDocs(collection(db, 'almacenes'));
+      const almacenesSnap = await getDocs(collection(db, COLLECTIONS.ALMACENES));
       const almacenesIds = new Set(almacenesSnap.docs.map(d => d.id));
 
       // Obtener unidades
-      const unidadesSnap = await getDocs(collection(db, 'unidades'));
+      const unidadesSnap = await getDocs(collection(db, COLLECTIONS.UNIDADES));
 
       for (const docSnap of unidadesSnap.docs) {
         const unidad = docSnap.data();
@@ -499,7 +500,7 @@ class SincronizacionService {
 
         if (eliminar) {
           try {
-            await deleteDoc(doc(db, 'unidades', docSnap.id));
+            await deleteDoc(doc(db, COLLECTIONS.UNIDADES, docSnap.id));
             result.registrosEliminados++;
           } catch (e: any) {
             result.errores.push(`Error eliminando unidad ${docSnap.id}: ${e.message}`);
@@ -510,7 +511,7 @@ class SincronizacionService {
         // Verificar almacén
         if (unidad.almacenActualId && !almacenesIds.has(unidad.almacenActualId)) {
           try {
-            await updateDoc(doc(db, 'unidades', docSnap.id), {
+            await updateDoc(doc(db, COLLECTIONS.UNIDADES, docSnap.id), {
               almacenActualId: null,
               almacenActualNombre: '[Almacén eliminado]',
               ultimaEdicion: serverTimestamp()
@@ -542,10 +543,10 @@ class SincronizacionService {
 
     try {
       // Obtener clientes
-      const clientesSnap = await getDocs(collection(db, 'clientes'));
+      const clientesSnap = await getDocs(collection(db, COLLECTIONS.CLIENTES));
 
       // Obtener ventas para recalcular métricas
-      const ventasSnap = await getDocs(collection(db, 'ventas'));
+      const ventasSnap = await getDocs(collection(db, COLLECTIONS.VENTAS));
 
       const batch = writeBatch(db);
       let batchCount = 0;
@@ -564,7 +565,7 @@ class SincronizacionService {
 
         // Solo actualizar si hay diferencias
         if (cliente.totalVentas !== totalVentas || cliente.totalCompras !== totalCompras) {
-          batch.update(doc(db, 'clientes', clienteId), {
+          batch.update(doc(db, COLLECTIONS.CLIENTES, clienteId), {
             totalVentas,
             totalCompras,
             ultimaEdicion: serverTimestamp()
@@ -603,10 +604,10 @@ class SincronizacionService {
 
     try {
       // Obtener almacenes
-      const almacenesSnap = await getDocs(collection(db, 'almacenes'));
+      const almacenesSnap = await getDocs(collection(db, COLLECTIONS.ALMACENES));
 
       // Obtener unidades para recalcular stock por almacén
-      const unidadesSnap = await getDocs(collection(db, 'unidades'));
+      const unidadesSnap = await getDocs(collection(db, COLLECTIONS.UNIDADES));
 
       const stockPorAlmacen = new Map<string, number>();
       for (const docSnap of unidadesSnap.docs) {
@@ -628,7 +629,7 @@ class SincronizacionService {
         const stockReal = stockPorAlmacen.get(almacenId) || 0;
 
         if (almacen.stockActual !== stockReal) {
-          batch.update(doc(db, 'almacenes', almacenId), {
+          batch.update(doc(db, COLLECTIONS.ALMACENES, almacenId), {
             stockActual: stockReal,
             ultimaEdicion: serverTimestamp()
           });
@@ -666,14 +667,14 @@ class SincronizacionService {
 
     try {
       // Obtener almacenes y unidades existentes
-      const almacenesSnap = await getDocs(collection(db, 'almacenes'));
+      const almacenesSnap = await getDocs(collection(db, COLLECTIONS.ALMACENES));
       const almacenesIds = new Set(almacenesSnap.docs.map(d => d.id));
 
-      const unidadesSnap = await getDocs(collection(db, 'unidades'));
+      const unidadesSnap = await getDocs(collection(db, COLLECTIONS.UNIDADES));
       const unidadesIds = new Set(unidadesSnap.docs.map(d => d.id));
 
       // Obtener transferencias
-      const transferenciasSnap = await getDocs(collection(db, 'transferencias'));
+      const transferenciasSnap = await getDocs(collection(db, COLLECTIONS.TRANSFERENCIAS));
 
       for (const docSnap of transferenciasSnap.docs) {
         const transferencia = docSnap.data();
@@ -709,7 +710,7 @@ class SincronizacionService {
         if (necesitaActualizar) {
           try {
             updates.ultimaEdicion = serverTimestamp();
-            await updateDoc(doc(db, 'transferencias', docSnap.id), updates);
+            await updateDoc(doc(db, COLLECTIONS.TRANSFERENCIAS, docSnap.id), updates);
             result.registrosActualizados++;
           } catch (e: any) {
             result.errores.push(`Error actualizando transferencia ${docSnap.id}: ${e.message}`);
@@ -737,11 +738,11 @@ class SincronizacionService {
 
     try {
       // Obtener ventas existentes
-      const ventasSnap = await getDocs(collection(db, 'ventas'));
+      const ventasSnap = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventasIds = new Set(ventasSnap.docs.map(d => d.id));
 
       // Obtener gastos
-      const gastosSnap = await getDocs(collection(db, 'gastos'));
+      const gastosSnap = await getDocs(collection(db, COLLECTIONS.GASTOS));
 
       for (const docSnap of gastosSnap.docs) {
         const gasto = docSnap.data();
@@ -749,7 +750,7 @@ class SincronizacionService {
         // Si el gasto está asociado a una venta que ya no existe
         if (gasto.ventaId && !ventasIds.has(gasto.ventaId)) {
           try {
-            await updateDoc(doc(db, 'gastos', docSnap.id), {
+            await updateDoc(doc(db, COLLECTIONS.GASTOS, docSnap.id), {
               ventaId: null,
               ventaNumero: null,
               ultimaEdicion: serverTimestamp()
@@ -781,14 +782,14 @@ class SincronizacionService {
 
     try {
       // Obtener productos y clientes existentes
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosIds = new Set(productosSnap.docs.map(d => d.id));
 
-      const clientesSnap = await getDocs(collection(db, 'clientes'));
+      const clientesSnap = await getDocs(collection(db, COLLECTIONS.CLIENTES));
       const clientesIds = new Set(clientesSnap.docs.map(d => d.id));
 
       // Obtener cotizaciones
-      const cotizacionesSnap = await getDocs(collection(db, 'cotizaciones'));
+      const cotizacionesSnap = await getDocs(collection(db, COLLECTIONS.COTIZACIONES));
 
       for (const docSnap of cotizacionesSnap.docs) {
         const cotizacion = docSnap.data();
@@ -823,7 +824,7 @@ class SincronizacionService {
         if (necesitaActualizar) {
           try {
             updates.ultimaEdicion = serverTimestamp();
-            await updateDoc(doc(db, 'cotizaciones', docSnap.id), updates);
+            await updateDoc(doc(db, COLLECTIONS.COTIZACIONES, docSnap.id), updates);
             result.registrosActualizados++;
           } catch (e: any) {
             result.errores.push(`Error actualizando cotización ${docSnap.id}: ${e.message}`);
@@ -851,10 +852,10 @@ class SincronizacionService {
 
     try {
       // Obtener todos los tipos de producto
-      const tiposSnap = await getDocs(collection(db, 'tiposProducto'));
+      const tiposSnap = await getDocs(collection(db, COLLECTIONS.TIPOS_PRODUCTO));
 
       // Obtener productos para contar cuántos hay por tipo
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosPorTipo = new Map<string, { total: number; activos: number }>();
 
       // Contar productos por tipoProductoId
@@ -885,7 +886,7 @@ class SincronizacionService {
           metricasActuales.productosActivos !== conteo.activos;
 
         if (necesitaActualizar) {
-          batch.update(doc(db, 'tiposProducto', tipoId), {
+          batch.update(doc(db, COLLECTIONS.TIPOS_PRODUCTO, tipoId), {
             metricas: {
               ...metricasActuales,
               productosTotal: conteo.total,
@@ -927,10 +928,10 @@ class SincronizacionService {
 
     try {
       // Obtener todas las categorías
-      const categoriasSnap = await getDocs(collection(db, 'categorias'));
+      const categoriasSnap = await getDocs(collection(db, COLLECTIONS.CATEGORIAS));
 
       // Obtener productos para contar cuántos hay por categoría
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosPorCategoria = new Map<string, { total: number; activos: number }>();
 
       // Contar productos por categoría (array-contains)
@@ -961,7 +962,7 @@ class SincronizacionService {
           categoria.productosActivos !== conteo.activos;
 
         if (necesitaActualizar) {
-          batch.update(doc(db, 'categorias', catId), {
+          batch.update(doc(db, COLLECTIONS.CATEGORIAS, catId), {
             productosTotal: conteo.total,
             productosActivos: conteo.activos,
             ultimaEdicion: serverTimestamp()
@@ -1000,10 +1001,10 @@ class SincronizacionService {
 
     try {
       // Obtener todas las marcas
-      const marcasSnap = await getDocs(collection(db, 'marcas'));
+      const marcasSnap = await getDocs(collection(db, COLLECTIONS.MARCAS));
 
       // Obtener productos para contar cuántos hay por marca
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosPorMarca = new Map<string, { total: number; activos: number }>();
 
       // Contar productos por marcaId
@@ -1033,7 +1034,7 @@ class SincronizacionService {
           marca.productosActivos !== conteo.activos;
 
         if (necesitaActualizar) {
-          batch.update(doc(db, 'marcas', marcaId), {
+          batch.update(doc(db, COLLECTIONS.MARCAS, marcaId), {
             productosTotal: conteo.total,
             productosActivos: conteo.activos,
             ultimaEdicion: serverTimestamp()
@@ -1072,10 +1073,10 @@ class SincronizacionService {
 
     try {
       // Obtener todos los competidores
-      const competidoresSnap = await getDocs(collection(db, 'competidores'));
+      const competidoresSnap = await getDocs(collection(db, COLLECTIONS.COMPETIDORES));
 
       // Obtener productos para contar investigaciones por competidor
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
 
       // Contar productos analizados por competidorId
       const productosPorCompetidor = new Map<string, { count: number; precioTotal: number }>();
@@ -1114,7 +1115,7 @@ class SincronizacionService {
           Math.abs((metricasActuales.precioPromedio || 0) - precioPromedio) > 0.01;
 
         if (necesitaActualizar) {
-          batch.update(doc(db, 'competidores', competidorId), {
+          batch.update(doc(db, COLLECTIONS.COMPETIDORES, competidorId), {
             metricas: {
               ...metricasActuales,
               productosAnalizados: datos.count,

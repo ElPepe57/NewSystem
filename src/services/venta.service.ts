@@ -13,10 +13,12 @@ import {
   Timestamp,
   serverTimestamp,
   writeBatch,
+  runTransaction,
   onSnapshot,
   type Unsubscribe
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type {
   Venta,
   VentaFormData,
@@ -53,7 +55,6 @@ import { metricasService } from './metricas.service';
 import { entregaService } from './entrega.service';
 import { gastoService } from './gasto.service';
 import { actividadService } from './actividad.service';
-import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
@@ -717,7 +718,7 @@ export class VentaService {
 
         // Actualizar estado de las unidades a "asignada_pedido"
         for (const unidad of resultado.unidadesAsignadas) {
-          const unidadRef = doc(db, 'unidades', unidad.unidadId);
+          const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidad.unidadId);
           batch.update(unidadRef, {
             estado: 'asignada_pedido',
             ventaId: id,
@@ -1130,7 +1131,7 @@ export class VentaService {
 
         // Actualizar estado de las unidades a "entregada"
         for (const unidadId of unidadesAEntregar) {
-          const unidadRef = doc(db, 'unidades', unidadId);
+          const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
           batch.update(unidadRef, {
             estado: 'entregada',
             fechaEntrega: serverTimestamp()
@@ -1146,7 +1147,7 @@ export class VentaService {
 
       // Crear registro de entrega parcial
       const entregaParcial: EntregaParcial = {
-        id: doc(collection(db, 'entregas_parciales')).id,
+        id: doc(collection(db, COLLECTIONS.ENTREGAS_PARCIALES)).id,
         fecha: Timestamp.now(),
         productosEntregados,
         direccionEntrega: datos?.direccionEntrega,
@@ -1389,11 +1390,11 @@ export class VentaService {
             productosAfectados.add(producto.productoId);
             for (const unidadId of producto.unidadesAsignadas) {
               // Leer unidad para determinar estado correcto según país
-              const unidadSnap = await getDoc(doc(db, 'unidades', unidadId));
+              const unidadSnap = await getDoc(doc(db, COLLECTIONS.UNIDADES, unidadId));
               const unidadData = unidadSnap.data();
               const estadoLiberado = esPaisOrigen(unidadData?.pais) ? 'recibida_origen' : 'disponible_peru';
 
-              const unidadRef = doc(db, 'unidades', unidadId);
+              const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
               batch.update(unidadRef, {
                 estado: estadoLiberado,
                 ventaId: null,
@@ -1411,11 +1412,11 @@ export class VentaService {
         for (const prod of venta.stockReservado.productosReservados) {
           productosAfectados.add(prod.productoId);
           for (const unidadId of prod.unidadesReservadas) {
-            const unidadSnap = await getDoc(doc(db, 'unidades', unidadId));
+            const unidadSnap = await getDoc(doc(db, COLLECTIONS.UNIDADES, unidadId));
             const unidadData = unidadSnap.data();
             const estadoLiberado = esPaisOrigen(unidadData?.pais) ? 'recibida_origen' : 'disponible_peru';
 
-            const unidadRef = doc(db, 'unidades', unidadId);
+            const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
             batch.update(unidadRef, {
               estado: estadoLiberado,
               reservadaPara: null,
@@ -1454,7 +1455,7 @@ export class VentaService {
             } else if (pago.tesoreriaMovimientoId === 'registrado') {
               // Legacy: buscar por ventaId + monto
               const snap = await getDocs(query(
-                collection(db, 'movimientosTesoreria'),
+                collection(db, COLLECTIONS.MOVIMIENTOS_TESORERIA),
                 where('ventaId', '==', id),
                 where('tipo', '==', 'ingreso_venta')
               ));
@@ -1634,11 +1635,25 @@ export class VentaService {
     userId: string,
     registrarEnTesoreria: boolean = true
   ): Promise<PagoVenta> {
+    // Obtener TC ANTES de la transacción (llamada de red, no puede ir dentro)
+    let tcCobro: number | undefined;
     try {
-      const venta = await this.getById(ventaId);
-      if (!venta) {
+      tcCobro = await tipoCambioService.resolverTCVentaEstricto();
+    } catch { /* fallback: undefined */ }
+
+    // Determinar moneda del pago según método (Zelle/PayPal = USD)
+    const metodosEnUSD: string[] = ['paypal', 'zelle'];
+    const monedaCobro: 'USD' | 'PEN' = metodosEnUSD.includes(datosPago.metodoPago) ? 'USD' : 'PEN';
+
+    // === TRANSACCIÓN ATÓMICA: leer venta + validar + escribir pago ===
+    const ventaRef = doc(db, COLLECTION_NAME, ventaId);
+
+    const nuevoPago = await runTransaction(db, async (transaction) => {
+      const ventaSnap = await transaction.get(ventaRef);
+      if (!ventaSnap.exists()) {
         throw new Error('Venta no encontrada');
       }
+      const venta = { id: ventaSnap.id, ...ventaSnap.data() } as Venta;
 
       if (venta.estado === 'cancelada') {
         throw new Error('No se puede registrar pago en una venta cancelada');
@@ -1667,7 +1682,11 @@ export class VentaService {
         throw new Error('El monto debe ser mayor a 0');
       }
 
-      if (datosPago.monto > venta.montoPendiente) {
+      // P2-007 FIX: comparar en PEN cuando el pago es en USD
+      const montoValidacionPEN = monedaCobro === 'USD' && tcCobro
+        ? datosPago.monto * tcCobro
+        : datosPago.monto;
+      if (montoValidacionPEN > venta.montoPendiente * 1.01) { // 1% tolerancia por redondeo TC
         throw new Error(
           `El monto excede el saldo pendiente. Pendiente: S/ ${venta.montoPendiente.toFixed(2)}`
         );
@@ -1676,17 +1695,7 @@ export class VentaService {
       // Crear nuevo pago
       const pagosAnteriores = venta.pagos || [];
 
-      // Determinar moneda del pago según método (Zelle/PayPal = USD)
-      const metodosEnUSD: string[] = ['paypal', 'zelle'];
-      const monedaCobro: 'USD' | 'PEN' = metodosEnUSD.includes(datosPago.metodoPago) ? 'USD' : 'PEN';
-
-      // Obtener TC al momento del cobro
-      let tcCobro: number | undefined;
-      try {
-        tcCobro = await tipoCambioService.resolverTCVentaEstricto();
-      } catch { /* se obtiene más abajo de todas formas */ }
-
-      const nuevoPago: PagoVenta = {
+      const pago: PagoVenta = {
         id: `PAG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         monto: datosPago.monto,
         moneda: monedaCobro,
@@ -1698,13 +1707,16 @@ export class VentaService {
         registradoPor: userId
       };
 
-      if (datosPago.referencia) nuevoPago.referencia = datosPago.referencia;
-      if (datosPago.comprobante) nuevoPago.comprobante = datosPago.comprobante;
-      if (datosPago.notas) nuevoPago.notas = datosPago.notas;
+      if (datosPago.referencia) pago.referencia = datosPago.referencia;
+      if (datosPago.comprobante) pago.comprobante = datosPago.comprobante;
+      if (datosPago.notas) pago.notas = datosPago.notas;
 
-      // Calcular nuevos totales
-      const nuevosPagos = [...pagosAnteriores, nuevoPago];
-      const nuevoMontoPagado = venta.montoPagado + datosPago.monto;
+      // Calcular nuevos totales (P2-007 FIX: convertir USD→PEN antes de sumar)
+      const nuevosPagos = [...pagosAnteriores, pago];
+      const montoPagoEnPEN = monedaCobro === 'USD' && tcCobro
+        ? datosPago.monto * tcCobro
+        : datosPago.monto;
+      const nuevoMontoPagado = venta.montoPagado + montoPagoEnPEN;
       const nuevoMontoPendiente = venta.totalPEN - nuevoMontoPagado;
 
       // Determinar nuevo estado de pago
@@ -1723,85 +1735,82 @@ export class VentaService {
         montoPagado: nuevoMontoPagado,
         montoPendiente: Math.max(0, nuevoMontoPendiente),
         estadoPago: nuevoEstadoPago,
-        tcCobro: tcCobro ?? null,  // TC al momento del cobro (Decisión 11 — activar campo muerto)
+        tcCobro: tcCobro ?? null,
         ultimaEdicion: serverTimestamp(),
         editadoPor: userId
       };
 
-      // Si se completó el pago, registrar fecha
       if (nuevoEstadoPago === 'pagado') {
         updates.fechaPagoCompleto = serverTimestamp();
       }
 
-      await updateDoc(doc(db, COLLECTION_NAME, ventaId), updates);
+      transaction.update(ventaRef, updates);
 
-      // Registrar movimiento en Tesorería si está habilitado
-      if (registrarEnTesoreria) {
-        try {
-          // Mapear método de pago a método de tesorería
-          const metodoTesoreriaMap: Record<MetodoPago, string> = {
-            'yape': 'yape',
-            'plin': 'plin',
-            'efectivo': 'efectivo',
-            'transferencia': 'transferencia_bancaria',
-            'mercado_pago': 'mercado_pago',
-            'tarjeta': 'tarjeta',
-            'otro': 'otro',
-            'paypal': 'paypal',
-            'zelle': 'otro'
-          };
+      return pago;
+    });
 
-          const metodoTesoreria = metodoTesoreriaMap[datosPago.metodoPago] || 'efectivo';
+    // === POST-TRANSACCIÓN: Registrar en Tesorería (no crítico) ===
+    if (registrarEnTesoreria) {
+      try {
+        const metodoTesoreriaMap: Record<MetodoPago, string> = {
+          'yape': 'yape',
+          'plin': 'plin',
+          'efectivo': 'efectivo',
+          'transferencia': 'transferencia_bancaria',
+          'mercado_pago': 'mercado_pago',
+          'tarjeta': 'tarjeta',
+          'otro': 'otro',
+          'paypal': 'paypal',
+          'zelle': 'otro'
+        };
 
-          // Determinar moneda según método de pago (Zelle/PayPal = USD)
-          const metodosUSD: string[] = ['paypal', 'zelle'];
-          const monedaPago = metodosUSD.includes(datosPago.metodoPago) ? 'USD' : 'PEN';
+        const metodoTesoreria = metodoTesoreriaMap[datosPago.metodoPago] || 'efectivo';
+        const metodosUSD: string[] = ['paypal', 'zelle'];
+        const monedaPago = metodosUSD.includes(datosPago.metodoPago) ? 'USD' : 'PEN';
 
-          // Buscar cuenta destino: usar la proporcionada o buscar por método de pago
-          let cuentaDestinoId = datosPago.cuentaDestinoId;
-          if (!cuentaDestinoId) {
-            const cuentaPorDefecto = await tesoreriaService.getCuentaPorMetodoPago(
-              metodoTesoreria as any,
-              monedaPago
-            );
-            cuentaDestinoId = cuentaPorDefecto?.id;
-          }
-
-          // Obtener TC centralizado
-          const tipoCambio = await tipoCambioService.resolverTCVentaEstricto();
-
-          // Crear movimiento de ingreso en tesorería
-          const movimientoId = await tesoreriaService.registrarMovimiento(
-            {
-              tipo: 'ingreso_venta',
-              moneda: monedaPago as any,
-              monto: datosPago.monto,
-              tipoCambio,
-              metodo: metodoTesoreria as any,
-              concepto: `Pago de venta ${venta.numeroVenta}`,
-              fecha: new Date(),
-              referencia: datosPago.referencia,
-              notas: datosPago.notas || `Pago registrado desde venta. Cliente: ${venta.nombreCliente}`,
-              ventaId: ventaId,
-              ventaNumero: venta.numeroVenta,
-              cuentaDestino: cuentaDestinoId
-            },
-            userId
+        let cuentaDestinoId = datosPago.cuentaDestinoId;
+        if (!cuentaDestinoId) {
+          const cuentaPorDefecto = await tesoreriaService.getCuentaPorMetodoPago(
+            metodoTesoreria as any,
+            monedaPago
           );
-
-          // Guardar referencia del movimiento en el pago (ID real para poder revertir)
-          nuevoPago.tesoreriaMovimientoId = movimientoId;
-        } catch (tesoreriaError: any) {
-          // No fallar el pago si hay error en tesorería, solo loguear
-          console.error('Error registrando en tesorería (el pago fue registrado):', tesoreriaError);
+          cuentaDestinoId = cuentaPorDefecto?.id;
         }
-      }
 
-      return nuevoPago;
-    } catch (error: any) {
-      console.error('Error al registrar pago:', error);
-      throw new Error(error.message || 'Error al registrar pago');
+        const tipoCambio = await tipoCambioService.resolverTCVentaEstricto();
+
+        const movimientoId = await tesoreriaService.registrarMovimiento(
+          {
+            tipo: 'ingreso_venta',
+            moneda: monedaPago as any,
+            monto: datosPago.monto,
+            tipoCambio,
+            metodo: metodoTesoreria as any,
+            concepto: `Pago de venta ${nuevoPago.id.replace('PAG-', 'VT-')}`,
+            fecha: new Date(),
+            referencia: datosPago.referencia,
+            notas: datosPago.notas || `Pago registrado desde venta`,
+            ventaId: ventaId,
+            cuentaDestino: cuentaDestinoId
+          },
+          userId
+        );
+
+        // BUG-002 FIX: Persistir tesoreriaMovimientoId en Firestore (antes se perdía)
+        nuevoPago.tesoreriaMovimientoId = movimientoId;
+        const ventaActual = await this.getById(ventaId);
+        if (ventaActual) {
+          const pagosActualizados = (ventaActual.pagos || []).map((p: PagoVenta) =>
+            p.id === nuevoPago.id ? { ...p, tesoreriaMovimientoId: movimientoId } : p
+          );
+          await updateDoc(ventaRef, { pagos: pagosActualizados });
+        }
+      } catch (tesoreriaError: any) {
+        console.error('Error registrando en tesorería (el pago fue registrado):', tesoreriaError);
+      }
     }
+
+    return nuevoPago;
   }
 
   /**
@@ -1827,7 +1836,11 @@ export class VentaService {
 
       const pagoEliminado = pagos[pagoIndex];
       const nuevosPagos = pagos.filter(p => p.id !== pagoId);
-      const nuevoMontoPagado = venta.montoPagado - pagoEliminado.monto;
+      // P2-007 FIX: restar equivalente PEN cuando el pago fue en USD
+      const montoRestarPEN = pagoEliminado.moneda === 'USD' && pagoEliminado.montoEquivalentePEN
+        ? pagoEliminado.montoEquivalentePEN
+        : pagoEliminado.monto;
+      const nuevoMontoPagado = venta.montoPagado - montoRestarPEN;
       const nuevoMontoPendiente = venta.totalPEN - nuevoMontoPagado;
 
       // Revertir movimiento en Tesorería si existe
@@ -1841,7 +1854,7 @@ export class VentaService {
         // Legacy: pagos con ID='registrado' (pre-fix) — buscar por ventaId + monto + tipo
         try {
           const snap = await getDocs(query(
-            collection(db, 'movimientosTesoreria'),
+            collection(db, COLLECTIONS.MOVIMIENTOS_TESORERIA),
             where('ventaId', '==', ventaId),
             where('tipo', '==', 'ingreso_venta')
           ));
@@ -2075,7 +2088,7 @@ export class VentaService {
 
           for (const { unidad } of unidadesAReservar) {
             // Marcar unidad como reservada
-            const unidadRef = doc(db, 'unidades', unidad.id);
+            const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidad.id);
             batch.update(unidadRef, {
               estado: 'reservada',
               reservadaPara: cotizacionId,
@@ -2329,7 +2342,7 @@ export class VentaService {
       if (venta.stockReservado?.productosReservados) {
         for (const prod of venta.stockReservado.productosReservados) {
           for (const unidadId of prod.unidadesReservadas) {
-            const unidadRef = doc(db, 'unidades', unidadId);
+            const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
             const unidadSnap = await getDoc(unidadRef);
             const unidadData = unidadSnap.data();
             const estadoLiberado = esPaisOrigen(unidadData?.pais) ? 'recibida_origen' : 'disponible_peru';
@@ -2508,7 +2521,7 @@ export class VentaService {
 
           for (let i = 0; i < cantidadAsignada; i++) {
             const { unidad } = unidadesDisponibles[i];
-            const unidadRef = doc(db, 'unidades', unidad.id);
+            const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidad.id);
             batch.update(unidadRef, {
               estado: 'reservada',
               reservadaPara: ventaId,
@@ -2618,7 +2631,7 @@ export class VentaService {
       }
 
       // Obtener la cotización de origen
-      const cotizacionDoc = await getDoc(doc(db, 'cotizaciones', cotizacionOrigenId));
+      const cotizacionDoc = await getDoc(doc(db, COLLECTIONS.COTIZACIONES, cotizacionOrigenId));
       if (!cotizacionDoc.exists()) {
         return { sincronizado: false, mensaje: 'Cotización de origen no encontrada' };
       }
@@ -2985,7 +2998,11 @@ export class VentaService {
     // 7. Recalcular estado de pago (pagos NO se modifican, representan dinero realmente recibido)
     const pagos = venta.pagos || [];
 
-    const nuevoMontoPagadoFinal = pagos.reduce((sum, p) => sum + p.monto, 0);
+    // P2-007 FIX: sumar equivalente PEN para pagos en USD
+    const nuevoMontoPagadoFinal = pagos.reduce((sum, p) => {
+      if (p.moneda === 'USD' && p.montoEquivalentePEN) return sum + p.montoEquivalentePEN;
+      return sum + p.monto;
+    }, 0);
     const nuevoMontoPendienteFinal = nuevoTotalPEN - nuevoMontoPagadoFinal;
     let estadoPagoFinal: EstadoPago;
     if (nuevoMontoPendienteFinal <= 0) {
@@ -3053,7 +3070,7 @@ export class VentaService {
             entregaUpdates.montoPorCobrar = nuevoSubtotalEntrega;
           }
 
-          await updateDoc(doc(db, 'entregas', entrega.id), entregaUpdates);
+          await updateDoc(doc(db, COLLECTIONS.ENTREGAS, entrega.id), entregaUpdates);
           cambios.push(`Entrega ${entrega.codigo}: Subtotal S/ ${entrega.subtotalPEN.toFixed(2)} → S/ ${nuevoSubtotalEntrega.toFixed(2)}`);
         }
       }
@@ -3441,7 +3458,11 @@ export class VentaService {
     // 9. Recalcular estado de pago (pagos NO se modifican, representan dinero realmente recibido)
     const pagos = venta.pagos || [];
 
-    const montoPagadoFinal = pagos.reduce((sum, p) => sum + p.monto, 0);
+    // P2-007 FIX: sumar equivalente PEN para pagos en USD
+    const montoPagadoFinal = pagos.reduce((sum, p) => {
+      if (p.moneda === 'USD' && p.montoEquivalentePEN) return sum + p.montoEquivalentePEN;
+      return sum + p.monto;
+    }, 0);
     const montoPendienteFinal = nuevoTotalPEN - montoPagadoFinal;
 
     updates.montoPagado = montoPagadoFinal;
@@ -3495,7 +3516,7 @@ export class VentaService {
           if (entrega.montoPorCobrar && entrega.montoPorCobrar === entrega.subtotalPEN) {
             entregaUpdates.montoPorCobrar = nuevoSubtotalEntrega;
           }
-          await updateDoc(doc(db, 'entregas', entrega.id), entregaUpdates);
+          await updateDoc(doc(db, COLLECTIONS.ENTREGAS, entrega.id), entregaUpdates);
           log.push(`Entrega ${entrega.codigo} actualizada`);
         }
       } catch (err) {
@@ -3748,7 +3769,7 @@ export class VentaService {
 
       // 1. Liberar unidades FEFO incorrectas → disponible_peru
       for (const unidadId of idsALiberar) {
-        const unidadRef = doc(db, 'unidades', unidadId);
+        const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
         batch.update(unidadRef, {
           estado: 'disponible_peru',
           ventaId: null,
@@ -3767,7 +3788,7 @@ export class VentaService {
       for (const unidad of huerfanas) {
         if (asignadas >= cantidadNecesaria) break;
 
-        const unidadRef = doc(db, 'unidades', unidad.id);
+        const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidad.id);
         batch.update(unidadRef, {
           estado: 'asignada_pedido',
           ventaId: ventaId,
@@ -3902,7 +3923,7 @@ export class VentaService {
     console.log('[CORREGIR-CANALES] Iniciando corrección...');
 
     // 1. Cargar canales de venta (id → {nombre, id})
-    const canalesSnap = await getDocs(collection(db, 'canalesVenta'));
+    const canalesSnap = await getDocs(collection(db, COLLECTIONS.CANALES_VENTA));
     const canalesById = new Map<string, { id: string; nombre: string }>();
     const canalesByNombre = new Map<string, { id: string; nombre: string }>();
     canalesSnap.forEach(d => {
@@ -3915,7 +3936,7 @@ export class VentaService {
     });
 
     // 2. Cargar clientes (id → canalPrincipalActual/canalOrigen)
-    const clientesSnap = await getDocs(collection(db, 'clientes'));
+    const clientesSnap = await getDocs(collection(db, COLLECTIONS.CLIENTES));
     const clientesCanal = new Map<string, string>();
     clientesSnap.forEach(d => {
       const data = d.data();

@@ -291,7 +291,7 @@ export const metricasService = {
       // Obtener todas las ventas (excepto canceladas)
       const { collection, getDocs } = await import('firebase/firestore');
 
-      const ventasSnap = await getDocs(collection(db, 'ventas'));
+      const ventasSnap = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventas = ventasSnap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter((v: any) => v.estado !== 'cancelada') as any[];
@@ -410,7 +410,7 @@ export const metricasService = {
 
       // Obtener productos activos con marcaId
       const productosQuery = query(
-        collection(db, 'productos'),
+        collection(db, COLLECTIONS.PRODUCTOS),
         where('estado', '==', 'activo')
       );
 
@@ -472,7 +472,7 @@ export const metricasService = {
       const { collection, getDocs, query, where, updateDoc, doc } = await import('firebase/firestore');
 
       // Obtener ventas sin clienteId
-      const ventasSnap = await getDocs(collection(db, 'ventas'));
+      const ventasSnap = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventasSinCliente = ventasSnap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter((v: any) => !v.clienteId && v.estado !== 'cancelada') as any[];
@@ -509,7 +509,7 @@ export const metricasService = {
 
         if (clienteEncontrado) {
           try {
-            await updateDoc(doc(db, 'ventas', venta.id), {
+            await updateDoc(doc(db, COLLECTIONS.VENTAS, venta.id), {
               clienteId: clienteEncontrado.id
             });
             ventasVinculadas++;
@@ -551,7 +551,7 @@ export const metricasService = {
       const { collection, getDocs, updateDoc, doc, addDoc, serverTimestamp } = await import('firebase/firestore');
 
       // Obtener productos sin marcaId
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosSinMarca = productosSnap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter((p: any) => !p.marcaId && p.estado === 'activo') as any[];
@@ -627,7 +627,7 @@ export const metricasService = {
 
         // Vincular producto con marca
         try {
-          await updateDoc(doc(db, 'productos', producto.id), {
+          await updateDoc(doc(db, COLLECTIONS.PRODUCTOS, producto.id), {
             marcaId: marcaEncontrada.id
           });
           productosVinculados++;
@@ -667,11 +667,11 @@ export const metricasService = {
       const { collection, getDocs, updateDoc, doc, serverTimestamp } = await import('firebase/firestore');
 
       // Obtener todos los productos con investigación
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productos = productosSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
 
       // Obtener todos los proveedores del maestro
-      const proveedoresSnap = await getDocs(collection(db, 'proveedores'));
+      const proveedoresSnap = await getDocs(collection(db, COLLECTIONS.PROVEEDORES));
       const proveedores = proveedoresSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
 
       // Crear mapa de proveedores por nombre normalizado
@@ -732,7 +732,7 @@ export const metricasService = {
         // Actualizar producto si hubo cambios
         if (productoModificado) {
           try {
-            await updateDoc(doc(db, 'productos', producto.id), {
+            await updateDoc(doc(db, COLLECTIONS.PRODUCTOS, producto.id), {
               'investigacion.proveedoresUSA': proveedoresActualizados
             });
           } catch (error: any) {
@@ -748,7 +748,7 @@ export const metricasService = {
             ? datos.precios.reduce((a, b) => a + b, 0) / datos.precios.length
             : 0;
 
-          await updateDoc(doc(db, 'proveedores', proveedorId), {
+          await updateDoc(doc(db, COLLECTIONS.PROVEEDORES, proveedorId), {
             'metricas.productosAnalizados': datos.productosAnalizados,
             'metricas.precioPromedio': precioPromedio,
             'metricas.ultimaInvestigacion': serverTimestamp()
@@ -790,11 +790,11 @@ export const metricasService = {
       const { collection, getDocs, updateDoc, doc, serverTimestamp } = await import('firebase/firestore');
 
       // Obtener todos los productos con investigación
-      const productosSnap = await getDocs(collection(db, 'productos'));
+      const productosSnap = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productos = productosSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
 
       // Obtener todos los competidores del maestro
-      const competidoresSnap = await getDocs(collection(db, 'competidores'));
+      const competidoresSnap = await getDocs(collection(db, COLLECTIONS.COMPETIDORES));
       const competidores = competidoresSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
 
       // Crear mapa de competidores por nombre normalizado
@@ -861,7 +861,7 @@ export const metricasService = {
         // Actualizar producto si hubo cambios
         if (productoModificado) {
           try {
-            await updateDoc(doc(db, 'productos', producto.id), {
+            await updateDoc(doc(db, COLLECTIONS.PRODUCTOS, producto.id), {
               'investigacion.competidoresPeru': competidoresActualizadosArr
             });
           } catch (error: any) {
@@ -877,7 +877,7 @@ export const metricasService = {
             ? datos.precios.reduce((a, b) => a + b, 0) / datos.precios.length
             : 0;
 
-          await updateDoc(doc(db, 'competidores', competidorId), {
+          await updateDoc(doc(db, COLLECTIONS.COMPETIDORES, competidorId), {
             'metricas.productosAnalizados': datos.productosAnalizados,
             'metricas.precioPromedio': precioPromedio,
             'metricas.ultimaActualizacion': serverTimestamp()
@@ -920,7 +920,7 @@ export const metricasService = {
       const { collection, getDocs, updateDoc, doc, serverTimestamp, Timestamp } = await import('firebase/firestore');
 
       // Obtener todas las órdenes de compra (excepto canceladas)
-      const ordenesSnap = await getDocs(collection(db, 'ordenesCompra'));
+      const ordenesSnap = await getDocs(collection(db, COLLECTIONS.ORDENES_COMPRA));
       const ordenes = ordenesSnap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter((o: any) => o.estado !== 'cancelada') as any[];
@@ -988,7 +988,7 @@ export const metricasService = {
             );
           }
 
-          await updateDoc(doc(db, 'proveedores', proveedorId), updateData);
+          await updateDoc(doc(db, COLLECTIONS.PROVEEDORES, proveedorId), updateData);
           proveedoresActualizados++;
         } catch (error: any) {
           errores.push(`Proveedor ${proveedorId}: ${error.message}`);
@@ -1028,7 +1028,7 @@ export const metricasService = {
       const { collection, getDocs, updateDoc, doc, Timestamp } = await import('firebase/firestore');
 
       // Obtener todas las ventas válidas (excluir canceladas)
-      const ventasSnap = await getDocs(collection(db, 'ventas'));
+      const ventasSnap = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventas = ventasSnap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter((v: any) => v.estado !== 'cancelada') as any[];

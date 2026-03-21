@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   TipoProducto,
@@ -21,7 +22,6 @@ import type {
   TipoProductoStats,
   EstadoTipoProducto
 } from '../types/tipoProducto.types';
-import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.TIPOS_PRODUCTO;
 
@@ -415,7 +415,7 @@ export const tipoProductoService = {
       };
 
       // Buscar productos con este tipo
-      const productosRef = collection(db, 'productos');
+      const productosRef = collection(db, COLLECTIONS.PRODUCTOS);
       const q = query(productosRef, where('tipoProductoId', '==', tipoId));
       const productosSnap = await getDocs(q);
 

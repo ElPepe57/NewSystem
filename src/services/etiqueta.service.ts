@@ -12,6 +12,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Etiqueta,
@@ -23,7 +24,6 @@ import type {
   TipoEtiqueta,
   EstadoEtiqueta
 } from '../types/etiqueta.types';
-import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.ETIQUETAS;
 
@@ -520,7 +520,7 @@ export const etiquetaService = {
       };
 
       // Buscar productos que tengan esta etiqueta
-      const productosRef = collection(db, 'productos');
+      const productosRef = collection(db, COLLECTIONS.PRODUCTOS);
       const q = query(productosRef, where('etiquetaIds', 'array-contains', etiquetaId));
       const productosSnap = await getDocs(q);
 

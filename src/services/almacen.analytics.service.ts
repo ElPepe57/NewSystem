@@ -12,6 +12,7 @@ import {
   limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { tipoCambioService } from './tipoCambio.service';
 import type {
   Almacen,
@@ -314,7 +315,7 @@ class AlmacenAnalyticsService {
     try {
       // Obtener almacén
       const almacenDoc = await getDocs(
-        query(collection(db, 'almacenes'), where('__name__', '==', almacenId))
+        query(collection(db, COLLECTIONS.ALMACENES), where('__name__', '==', almacenId))
       );
 
       if (almacenDoc.empty) {
@@ -463,7 +464,7 @@ class AlmacenAnalyticsService {
    */
   private async getUnidadesAlmacen(almacenId: string): Promise<Unidad[]> {
     const q = query(
-      collection(db, 'unidades'),
+      collection(db, COLLECTIONS.UNIDADES),
       where('almacenId', '==', almacenId)
     );
     const snapshot = await getDocs(q);
@@ -479,8 +480,8 @@ class AlmacenAnalyticsService {
   private async getTransferenciasAlmacen(almacenId: string): Promise<Transferencia[]> {
     // Transferencias donde es origen o destino
     const [origenSnapshot, destinoSnapshot] = await Promise.all([
-      getDocs(query(collection(db, 'transferencias'), where('almacenOrigenId', '==', almacenId))),
-      getDocs(query(collection(db, 'transferencias'), where('almacenDestinoId', '==', almacenId)))
+      getDocs(query(collection(db, COLLECTIONS.TRANSFERENCIAS), where('almacenOrigenId', '==', almacenId))),
+      getDocs(query(collection(db, COLLECTIONS.TRANSFERENCIAS), where('almacenDestinoId', '==', almacenId)))
     ]);
 
     const transferencias: Transferencia[] = [];
@@ -507,7 +508,7 @@ class AlmacenAnalyticsService {
    * Obtiene todos los almacenes para comparativa
    */
   private async getTodosAlmacenes(): Promise<Almacen[]> {
-    const snapshot = await getDocs(collection(db, 'almacenes'));
+    const snapshot = await getDocs(collection(db, COLLECTIONS.ALMACENES));
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()

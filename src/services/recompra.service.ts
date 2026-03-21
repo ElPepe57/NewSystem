@@ -11,6 +11,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type { Venta, ProductoVenta } from '../types/venta.types';
 import type { Cliente } from '../types/entidadesMaestras.types';
 import type { Producto } from '../types/producto.types';
@@ -58,7 +59,7 @@ export const recompraService = {
   async getAlertasRecompra(): Promise<ResumenAlertasRecompra> {
     try {
       // 1. Obtener productos con ciclo de recompra definido
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosConCiclo = new Map<string, { ciclo: number; nombre: string; sku: string }>();
 
       productosSnapshot.docs.forEach(doc => {
@@ -88,14 +89,14 @@ export const recompraService = {
       hace6Meses.setMonth(hace6Meses.getMonth() - 6);
 
       const ventasQuery = query(
-        collection(db, 'ventas'),
+        collection(db, COLLECTIONS.VENTAS),
         where('estado', 'in', ['entregada', 'entrega_parcial'])
       );
 
       const ventasSnapshot = await getDocs(ventasQuery);
 
       // 3. Obtener clientes activos
-      const clientesSnapshot = await getDocs(collection(db, 'clientes'));
+      const clientesSnapshot = await getDocs(collection(db, COLLECTIONS.CLIENTES));
       const clientesMap = new Map<string, { nombre: string; telefono?: string }>();
 
       clientesSnapshot.docs.forEach(doc => {

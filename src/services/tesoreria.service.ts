@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
 import { tipoCambioService } from './tipoCambio.service';
 import type {
@@ -42,7 +43,6 @@ import type {
   RetiroCapitalFormData
 } from '../types/tesoreria.types';
 import { actividadService } from './actividad.service';
-import { COLLECTIONS } from '../config/collections';
 
 const MOVIMIENTOS_COLLECTION = COLLECTIONS.MOVIMIENTOS_TESORERIA;
 const CONVERSIONES_COLLECTION = COLLECTIONS.CONVERSIONES_CAMBIARIAS;
@@ -507,10 +507,10 @@ export const tesoreriaService = {
       let migrados = 0;
       for (const mov of ingresosVenta) {
         try {
-          const ventaSnap = await getDoc(doc(db, 'ventas', mov.ventaId!));
+          const ventaSnap = await getDoc(doc(db, COLLECTIONS.VENTAS, mov.ventaId!));
           if (!ventaSnap.exists()) {
             // Intentar como cotización (ventaId puede ser cotizacionId en adelantos)
-            const cotSnap = await getDoc(doc(db, 'cotizaciones', mov.ventaId!));
+            const cotSnap = await getDoc(doc(db, COLLECTIONS.COTIZACIONES, mov.ventaId!));
             if (cotSnap.exists()) {
               const cot = cotSnap.data();
               // Si la cotización no se ha convertido en venta entregada, es anticipo
@@ -2321,7 +2321,7 @@ export const tesoreriaService = {
     }).catch(err => console.warn('Error actualizando estadísticas:', err));
 
     // Registrar también en colección de aportes para contabilidad
-    await addDoc(collection(db, 'aportesCapital'), {
+    await addDoc(collection(db, COLLECTIONS.APORTES_CAPITAL), {
       movimientoId: docRef.id,
       numeroMovimiento,
       socioNombre: data.socioNombre,
@@ -2414,7 +2414,7 @@ export const tesoreriaService = {
     }).catch(err => console.warn('Error actualizando estadísticas:', err));
 
     // Registrar también en colección de retiros para contabilidad
-    await addDoc(collection(db, 'retirosCapital'), {
+    await addDoc(collection(db, COLLECTIONS.RETIROS_CAPITAL), {
       movimientoId: docRef.id,
       numeroMovimiento,
       socioNombre: data.socioNombre,
@@ -2440,7 +2440,7 @@ export const tesoreriaService = {
    */
   async getTotalAportesCapital(): Promise<{ totalPEN: number; totalUSD: number; cantidad: number }> {
     try {
-      const snapshot = await getDocs(collection(db, 'aportesCapital'));
+      const snapshot = await getDocs(collection(db, COLLECTIONS.APORTES_CAPITAL));
 
       let totalPEN = 0;
       let totalUSD = 0;
@@ -2467,7 +2467,7 @@ export const tesoreriaService = {
    */
   async getTotalRetirosCapital(): Promise<{ totalPEN: number; totalUSD: number; cantidad: number; porTipo: Record<string, number> }> {
     try {
-      const snapshot = await getDocs(collection(db, 'retirosCapital'));
+      const snapshot = await getDocs(collection(db, COLLECTIONS.RETIROS_CAPITAL));
 
       let totalPEN = 0;
       let totalUSD = 0;

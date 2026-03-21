@@ -637,32 +637,41 @@ export const onGastoCreado = functions.firestore
       const totalUnidades = unidadesSnapshot.size;
       const montoPorUnidad = gasto.montoPEN / totalUnidades;
 
-      const batch = db.batch();
+      // P2-008 FIX: chunking de batch para no exceder límite de 500 ops
+      const BATCH_LIMIT = 450; // margen de seguridad
       const unidadesIds: string[] = [];
+      const docs = unidadesSnapshot.docs;
 
-      unidadesSnapshot.docs.forEach((doc) => {
-        const unidad = doc.data();
-        const nuevoCtruGastos = (unidad.ctruGastos || 0) + montoPorUnidad;
-        const nuevoCtruDinamico = (unidad.ctruBase || 0) + nuevoCtruGastos;
+      for (let i = 0; i < docs.length; i += BATCH_LIMIT) {
+        const chunk = docs.slice(i, i + BATCH_LIMIT);
+        const batch = db.batch();
 
-        batch.update(doc.ref, {
-          ctruGastos: nuevoCtruGastos,
-          ctruDinamico: nuevoCtruDinamico,
-          ultimoRecalculoCTRU: admin.firestore.FieldValue.serverTimestamp(),
+        chunk.forEach((docSnap) => {
+          const unidad = docSnap.data();
+          const nuevoCtruGastos = (unidad.ctruGastos || 0) + montoPorUnidad;
+          const nuevoCtruDinamico = (unidad.ctruBase || 0) + nuevoCtruGastos;
+
+          batch.update(docSnap.ref, {
+            ctruGastos: nuevoCtruGastos,
+            ctruDinamico: nuevoCtruDinamico,
+            ultimoRecalculoCTRU: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+          unidadesIds.push(docSnap.id);
         });
 
-        unidadesIds.push(doc.id);
-      });
+        // Solo agregar el update del gasto en el último chunk
+        if (i + BATCH_LIMIT >= docs.length) {
+          batch.update(snapshot.ref, {
+            ctruRecalculado: true,
+            fechaRecalculoCTRU: admin.firestore.FieldValue.serverTimestamp(),
+            unidadesAfectadas: totalUnidades,
+            montoPorUnidad,
+          });
+        }
 
-      // Marcar gasto como recalculado
-      batch.update(snapshot.ref, {
-        ctruRecalculado: true,
-        fechaRecalculoCTRU: admin.firestore.FieldValue.serverTimestamp(),
-        unidadesAfectadas: totalUnidades,
-        montoPorUnidad,
-      });
-
-      await batch.commit();
+        await batch.commit();
+      }
 
       functions.logger.info(
         `✅ CTRU actualizado en ${totalUnidades} unidades. Impacto: S/ ${montoPorUnidad.toFixed(4)}/unidad`

@@ -11,6 +11,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type { Competidor } from '../types/entidadesMaestras.types';
 import type { Producto } from '../types/producto.types';
 
@@ -281,7 +282,7 @@ class CompetidorAnalyticsService {
     try {
       // Obtener competidor
       const competidorDoc = await getDocs(
-        query(collection(db, 'competidores'), where('__name__', '==', competidorId))
+        query(collection(db, COLLECTIONS.COMPETIDORES), where('__name__', '==', competidorId))
       );
 
       if (competidorDoc.empty) {
@@ -456,7 +457,7 @@ class CompetidorAnalyticsService {
    * Obtiene productos con sus precios
    */
   private async getProductosConPrecios(): Promise<Producto[]> {
-    const snapshot = await getDocs(collection(db, 'productos'));
+    const snapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -467,7 +468,7 @@ class CompetidorAnalyticsService {
    * Obtiene todos los competidores
    */
   private async getTodosCompetidores(): Promise<Competidor[]> {
-    const snapshot = await getDocs(collection(db, 'competidores'));
+    const snapshot = await getDocs(collection(db, COLLECTIONS.COMPETIDORES));
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()

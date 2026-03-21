@@ -10,6 +10,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type { Marca } from '../types/entidadesMaestras.types';
 import type { Producto } from '../types/producto.types';
 import type { Venta } from '../types/venta.types';
@@ -172,7 +173,7 @@ export const marcaAnalyticsService = {
     try {
       // 1. Obtener la marca
       const marcaDoc = await getDocs(
-        query(collection(db, 'marcas'), where('__name__', '==', marcaId))
+        query(collection(db, COLLECTIONS.MARCAS), where('__name__', '==', marcaId))
       );
 
       if (marcaDoc.empty) return null;
@@ -180,7 +181,7 @@ export const marcaAnalyticsService = {
       const marca = { id: marcaDoc.docs[0].id, ...marcaDoc.docs[0].data() } as Marca;
 
       // 2. Obtener productos de esta marca
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosData = productosSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() } as Producto))
         .filter(p =>
@@ -192,7 +193,7 @@ export const marcaAnalyticsService = {
       const hace365Dias = new Date();
       hace365Dias.setFullYear(hace365Dias.getFullYear() - 1);
 
-      const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+      const ventasSnapshot = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventas = ventasSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() } as Venta))
         .filter(v => {
@@ -579,7 +580,7 @@ export const marcaAnalyticsService = {
   async compararMarcasPorCategoria(categoria: string): Promise<ComparacionMarcas[]> {
     try {
       // 1. Obtener todos los productos de esta categoría
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosCategoria = productosSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() } as Producto))
         .filter(p => p.grupo?.toLowerCase() === categoria.toLowerCase());
@@ -597,7 +598,7 @@ export const marcaAnalyticsService = {
       });
 
       // 3. Obtener ventas
-      const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+      const ventasSnapshot = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventas = ventasSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() } as Venta))
         .filter(v => v.estado !== 'cancelada');
@@ -662,7 +663,7 @@ export const marcaAnalyticsService = {
    */
   async getCategorias(): Promise<string[]> {
     try {
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const categorias = new Set<string>();
 
       productosSnapshot.docs.forEach(doc => {
@@ -682,7 +683,7 @@ export const marcaAnalyticsService = {
    */
   async getTiposProducto(): Promise<string[]> {
     try {
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const tipos = new Set<string>();
 
       productosSnapshot.docs.forEach(doc => {
@@ -704,7 +705,7 @@ export const marcaAnalyticsService = {
   async compararMarcasPorTipoProducto(tipoProducto: string): Promise<ComparacionMarcas[]> {
     try {
       // 1. Obtener todos los productos de este tipo
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosTipo = productosSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() } as Producto))
         .filter(p => p.subgrupo?.toLowerCase() === tipoProducto.toLowerCase());
@@ -722,7 +723,7 @@ export const marcaAnalyticsService = {
       });
 
       // 3. Obtener ventas
-      const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+      const ventasSnapshot = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventas = ventasSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() } as Venta))
         .filter(v => v.estado !== 'cancelada');

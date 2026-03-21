@@ -14,6 +14,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Marca,
@@ -23,7 +24,6 @@ import type {
   MarcaStats,
   DuplicadoEncontrado
 } from '../types/entidadesMaestras.types';
-import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.MARCAS;
 
@@ -603,7 +603,7 @@ export const marcaService = {
   async migrarDesdeProductos(userId: string): Promise<{ migradas: number; errores: string[] }> {
     try {
       // Obtener todos los productos para extraer marcas únicas
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const marcasExistentes = new Set<string>();
       const errores: string[] = [];
       let migradas = 0;
@@ -660,7 +660,7 @@ export const marcaService = {
       const marcas = await this.getAll();
 
       // 2. Obtener todos los productos para mapear marcaId -> productos
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productosMap = new Map<string, string[]>(); // marcaId -> [productoIds]
       const productoToMarca = new Map<string, string>(); // productoId -> marcaId
 
@@ -685,7 +685,7 @@ export const marcaService = {
       });
 
       // 3. Obtener todas las ventas no canceladas
-      const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+      const ventasSnapshot = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventas = ventasSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter((v: any) => v.estado !== 'cancelada');

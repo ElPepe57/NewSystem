@@ -11,6 +11,7 @@ import {
   orderBy
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Transportista,
@@ -19,7 +20,6 @@ import type {
   TransportistaFilters,
   TipoTransportista
 } from '../types/transportista.types';
-import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.TRANSPORTISTAS;
 
@@ -300,7 +300,7 @@ export const transportistaService = {
 
     // Obtener entregas del período
     const q = query(
-      collection(db, 'entregas'),
+      collection(db, COLLECTIONS.ENTREGAS),
       where('transportistaId', '==', transportistaId),
       where('fechaProgramada', '>=', Timestamp.fromDate(fechaInicio)),
       where('fechaProgramada', '<=', Timestamp.fromDate(fechaFin))

@@ -10,6 +10,7 @@
  * El costo principal es las COMPRAS del período, no el CMV de ventas.
  */
 
+import { COLLECTIONS } from '../config/collections';
 import {
   collection,
   query,
@@ -84,7 +85,7 @@ const DEFAULT_CONFIG: ConfiguracionContable = {
  */
 async function getConfiguracionContable(): Promise<ConfiguracionContable> {
   try {
-    const docRef = doc(db, 'configuracion', CONFIG_DOC_ID);
+    const docRef = doc(db, COLLECTIONS.CONFIGURACION, CONFIG_DOC_ID);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -106,7 +107,7 @@ async function getConfiguracionContable(): Promise<ConfiguracionContable> {
 export async function actualizarConfiguracionContable(
   config: Partial<ConfiguracionContable>
 ): Promise<void> {
-  const docRef = doc(db, 'configuracion', CONFIG_DOC_ID);
+  const docRef = doc(db, COLLECTIONS.CONFIGURACION, CONFIG_DOC_ID);
   await setDoc(docRef, {
     ...config,
     fechaActualizacion: Timestamp.now()
@@ -140,7 +141,7 @@ async function obtenerTipoCambio(): Promise<number> {
  */
 async function getPagosViajerosPendientes(tc: number): Promise<number> {
   try {
-    const transferenciasRef = collection(db, 'transferencias');
+    const transferenciasRef = collection(db, COLLECTIONS.TRANSFERENCIAS);
     // No podemos filtrar por estadoPagoViajero !== 'pagado' en Firestore,
     // así que traemos todas las usa_peru y filtramos en memoria
     const q = query(
@@ -195,7 +196,7 @@ const MESES = [
  * Obtener ventas del período
  */
 async function getVentasPeriodo(mes: number, anio: number, lineaNegocioId?: string | null): Promise<Venta[]> {
-  const ventasRef = collection(db, 'ventas');
+  const ventasRef = collection(db, COLLECTIONS.VENTAS);
 
   const inicioMes = new Date(anio, mes - 1, 1);
   const finMes = new Date(anio, mes, 0, 23, 59, 59);
@@ -226,7 +227,7 @@ async function getVentasPeriodo(mes: number, anio: number, lineaNegocioId?: stri
  * Obtener gastos del período
  */
 async function getGastosPeriodo(mes: number, anio: number, lineaNegocioId?: string | null): Promise<Gasto[]> {
-  const gastosRef = collection(db, 'gastos');
+  const gastosRef = collection(db, COLLECTIONS.GASTOS);
 
   const q = query(
     gastosRef,
@@ -255,7 +256,7 @@ async function getGastosPeriodo(mes: number, anio: number, lineaNegocioId?: stri
  * Incluye: OCs completamente recibidas Y OCs con recepciones parciales en el período
  */
 async function getComprasPeriodo(mes: number, anio: number): Promise<OrdenCompra[]> {
-  const ordenesRef = collection(db, 'ordenesCompra');
+  const ordenesRef = collection(db, COLLECTIONS.ORDENES_COMPRA);
 
   const inicioMes = new Date(anio, mes - 1, 1);
   const finMes = new Date(anio, mes, 0, 23, 59, 59);
@@ -313,7 +314,7 @@ async function getComprasPeriodo(mes: number, anio: number): Promise<OrdenCompra
  */
 async function getTransferenciasPeriodo(mes: number, anio: number): Promise<Transferencia[]> {
   try {
-    const transferenciasRef = collection(db, 'transferencias');
+    const transferenciasRef = collection(db, COLLECTIONS.TRANSFERENCIAS);
 
     const inicioMes = new Date(anio, mes - 1, 1);
     const finMes = new Date(anio, mes, 0, 23, 59, 59);
@@ -949,7 +950,7 @@ export async function getTendenciaMensual(anio: number, lineaNegocioId?: string 
  * Obtener efectivo y equivalentes desde cuentas de tesorería
  */
 async function getEfectivoEquivalentes(tc: number): Promise<EfectivoEquivalentes> {
-  const cuentasRef = collection(db, 'cuentasCaja');
+  const cuentasRef = collection(db, COLLECTIONS.CUENTAS_CAJA);
   const q = query(cuentasRef, where('activa', '==', true));
   const snapshot = await getDocs(q);
 
@@ -1038,7 +1039,7 @@ async function getEfectivoEquivalentes(tc: number): Promise<EfectivoEquivalentes
  * Obtener cuentas por cobrar (ventas pendientes de pago)
  */
 async function getCuentasPorCobrar(): Promise<CuentasPorCobrar> {
-  const ventasRef = collection(db, 'ventas');
+  const ventasRef = collection(db, COLLECTIONS.VENTAS);
   const snapshot = await getDocs(ventasRef);
 
   let ventasPendientes = 0;
@@ -1108,7 +1109,7 @@ async function getCuentasPorCobrar(): Promise<CuentasPorCobrar> {
  * Obtener inventarios valorizados con CTRU
  */
 async function getInventarios(tc: number): Promise<Inventarios> {
-  const unidadesRef = collection(db, 'unidades');
+  const unidadesRef = collection(db, COLLECTIONS.UNIDADES);
   const snapshot = await getDocs(unidadesRef);
 
   // Origen (legacy: USA)
@@ -1214,7 +1215,7 @@ async function getInventarios(tc: number): Promise<Inventarios> {
  * Obtener cuentas por pagar a proveedores (OCs pendientes)
  */
 async function getCuentasPorPagarProveedores(tc: number): Promise<CuentasPorPagarProveedores> {
-  const ordenesRef = collection(db, 'ordenesCompra');
+  const ordenesRef = collection(db, COLLECTIONS.ORDENES_COMPRA);
   const snapshot = await getDocs(ordenesRef);
 
   let ordenesCompraPendientes = 0;
@@ -1271,7 +1272,7 @@ async function getCuentasPorPagarProveedores(tc: number): Promise<CuentasPorPaga
  */
 async function getOtrasCuentasPorPagar(tc: number): Promise<OtrasCuentasPorPagar> {
   // Gastos pendientes
-  const gastosRef = collection(db, 'gastos');
+  const gastosRef = collection(db, COLLECTIONS.GASTOS);
   const qGastos = query(gastosRef, where('estado', '==', 'pendiente'));
   const snapshotGastos = await getDocs(qGastos);
 
@@ -1347,7 +1348,7 @@ async function getAnticiposClientes(): Promise<AnticiposClientes> {
  * y suma préstamos de viajeros pendientes
  */
 async function getDeudasFinancieras(tc: number): Promise<DeudasFinancieras> {
-  const cuentasRef = collection(db, 'cuentasCaja');
+  const cuentasRef = collection(db, COLLECTIONS.CUENTAS_CAJA);
   const snapshot = await getDocs(query(cuentasRef, where('activa', '==', true)));
 
   let tarjetasCredito = 0;

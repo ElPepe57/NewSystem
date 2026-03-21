@@ -15,6 +15,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
@@ -30,7 +31,6 @@ import type {
   AnalisisRFM,
   HistorialClasificacion
 } from '../types/entidadesMaestras.types';
-import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.CLIENTES;
 
@@ -516,7 +516,7 @@ export const clienteService = {
    */
   async calcularCanalPrincipal(clienteId: string): Promise<string | null> {
     try {
-      const ventasRef = collection(db, 'ventas');
+      const ventasRef = collection(db, COLLECTIONS.VENTAS);
       const q = query(
         ventasRef,
         where('cliente.clienteId', '==', clienteId),

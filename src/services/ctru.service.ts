@@ -1,5 +1,6 @@
 import { doc, updateDoc, writeBatch, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { unidadService } from './unidad.service';
 import { gastoService } from './gasto.service';
 import { ProductoService } from './producto.service';
@@ -88,7 +89,7 @@ export const ctruService = {
         const chunk = unidadIds.slice(i, i + BATCH_LIMIT);
 
         for (const id of chunk) {
-          batch.update(doc(db, 'unidades', id), {
+          batch.update(doc(db, COLLECTIONS.UNIDADES, id), {
             ctruInicial,
             ctruDinamico: ctruInicial // Inicialmente igual, cambiará con GA/GO
           });
@@ -215,7 +216,7 @@ export const ctruService = {
           }
 
           allOps.push({
-            ref: doc(db, 'unidades', unidad.id),
+            ref: doc(db, COLLECTIONS.UNIDADES, unidad.id),
             data: updateData
           });
           actualizadas++;
@@ -242,7 +243,7 @@ export const ctruService = {
         }
 
         allOps.push({
-          ref: doc(db, 'unidades', unidad.id),
+          ref: doc(db, COLLECTIONS.UNIDADES, unidad.id),
           data: updateData
         });
       }
@@ -250,7 +251,7 @@ export const ctruService = {
       // 6. Marcar gastos como recalculados
       for (const gasto of gastosGAGO) {
         allOps.push({
-          ref: doc(db, 'gastos', gasto.id),
+          ref: doc(db, COLLECTIONS.GASTOS, gasto.id),
           data: {
             ctruRecalculado: true,
             fechaRecalculoCTRU: new Date()
@@ -340,7 +341,7 @@ export const ctruService = {
         const sumaCTRU = unidadesActivas.reduce((sum, u) => sum + getCTRU(u), 0);
         const ctruPromedio = sumaCTRU / unidadesActivas.length;
 
-        const prodRef = doc(db, 'productos', producto.id);
+        const prodRef = doc(db, COLLECTIONS.PRODUCTOS, producto.id);
         batch.update(prodRef, { ctruPromedio });
         productosActualizados++;
         opsEnBatch++;

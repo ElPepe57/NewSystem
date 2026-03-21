@@ -13,6 +13,7 @@ import {
   deleteField
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { auditoriaService } from './auditoria.service';
 import { inventarioService } from './inventario.service';
 import { tipoCambioService } from './tipoCambio.service';
@@ -26,7 +27,6 @@ import type {
   MovimientoUnidad,
   TipoMovimiento
 } from '../types/unidad.types';
-import { COLLECTIONS } from '../config/collections';
 import { ESTADOS_EN_ORIGEN, ESTADOS_EN_TRANSITO_ORIGEN } from '../types/unidad.types';
 import { TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/transferencia.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
@@ -673,7 +673,7 @@ export const unidadService = {
       // Obtener todas las transferencias internacionales completadas (generic + legacy)
       const transferenciasSnapshot = await getDocs(
         query(
-          collection(db, 'transferencias'),
+          collection(db, COLLECTIONS.TRANSFERENCIAS),
           where('tipo', 'in', TIPOS_TRANSFERENCIA_INTERNACIONAL)
         )
       );
@@ -786,7 +786,7 @@ export const unidadService = {
       }
 
       // 2. Obtener todas las ventas existentes
-      const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+      const ventasSnapshot = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventasExistentes = new Set(ventasSnapshot.docs.map(d => d.id));
 
       // 3. Identificar unidades a sincronizar
@@ -1048,7 +1048,7 @@ export const unidadService = {
     try {
       const transferenciasSnapshot = await getDocs(
         query(
-          collection(db, 'transferencias'),
+          collection(db, COLLECTIONS.TRANSFERENCIAS),
           where('tipo', 'in', TIPOS_TRANSFERENCIA_INTERNACIONAL)
         )
       );
@@ -1186,7 +1186,7 @@ export const unidadService = {
     // Si no se proporcionó el número de cotización, buscarlo en Firestore
     if (!cotizacionNumero && cotizacionId) {
       try {
-        const cotDoc = await getDoc(doc(db, 'cotizaciones', cotizacionId));
+        const cotDoc = await getDoc(doc(db, COLLECTIONS.COTIZACIONES, cotizacionId));
         if (cotDoc.exists()) {
           cotizacionNumero = cotDoc.data().numeroCotizacion || undefined;
         }

@@ -10,6 +10,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type { Transportista, TransportistaStats } from '../types/transportista.types';
 import type { Entrega } from '../types/entrega.types';
 
@@ -321,7 +322,7 @@ class TransportistaAnalyticsService {
     try {
       // Obtener transportista
       const transportistaDoc = await getDocs(
-        query(collection(db, 'transportistas'), where('__name__', '==', transportistaId))
+        query(collection(db, COLLECTIONS.TRANSPORTISTAS), where('__name__', '==', transportistaId))
       );
 
       if (transportistaDoc.empty) {
@@ -481,7 +482,7 @@ class TransportistaAnalyticsService {
   private async getEntregasTransportista(transportistaId: string): Promise<Entrega[]> {
     try {
       const q = query(
-        collection(db, 'entregas'),
+        collection(db, COLLECTIONS.ENTREGAS),
         where('transportistaId', '==', transportistaId)
       );
       const snapshot = await getDocs(q);
@@ -499,7 +500,7 @@ class TransportistaAnalyticsService {
    * Obtiene todos los transportistas
    */
   private async getTodosTransportistas(): Promise<Transportista[]> {
-    const snapshot = await getDocs(collection(db, 'transportistas'));
+    const snapshot = await getDocs(collection(db, COLLECTIONS.TRANSPORTISTAS));
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()

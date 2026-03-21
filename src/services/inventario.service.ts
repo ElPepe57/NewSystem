@@ -1,5 +1,6 @@
 import { Timestamp, collection, getDocs, doc, getDoc, updateDoc, writeBatch, query, where, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { unidadService } from './unidad.service';
 import { ProductoService } from './producto.service';
 import { transferenciaService } from './transferencia.service';
@@ -356,11 +357,11 @@ export const inventarioService = {
       }
 
       // Obtener todos los IDs de ventas existentes
-      const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+      const ventasSnapshot = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventasExistentes = new Set(ventasSnapshot.docs.map(d => d.id));
 
       // Obtener todos los IDs de cotizaciones existentes
-      const cotizacionesSnapshot = await getDocs(collection(db, 'cotizaciones'));
+      const cotizacionesSnapshot = await getDocs(collection(db, COLLECTIONS.COTIZACIONES));
       const cotizacionesExistentes = new Set(cotizacionesSnapshot.docs.map(d => d.id));
 
       let liberadas = 0;
@@ -383,7 +384,7 @@ export const inventarioService = {
         if (!referenciaId) {
           // Unidad reservada sin referencia - liberar
           try {
-            batch.update(doc(db, 'unidades', unidad.id), {
+            batch.update(doc(db, COLLECTIONS.UNIDADES, unidad.id), {
               estado: 'disponible_peru',
               reservadaPara: null,
               fechaReserva: null,
@@ -411,7 +412,7 @@ export const inventarioService = {
         // Si no existe ni como venta ni como cotización, liberar
         if (!esVenta && !esCotizacion) {
           try {
-            batch.update(doc(db, 'unidades', unidad.id), {
+            batch.update(doc(db, COLLECTIONS.UNIDADES, unidad.id), {
               estado: 'disponible_peru',
               reservadaPara: null,
               fechaReserva: null,
@@ -487,7 +488,7 @@ export const inventarioService = {
     }
 
     // Verificar si existe la venta
-    const ventaDoc = await getDoc(doc(db, 'ventas', referenciaId));
+    const ventaDoc = await getDoc(doc(db, COLLECTIONS.VENTAS, referenciaId));
     if (ventaDoc.exists()) {
       return {
         esValida: true,
@@ -497,7 +498,7 @@ export const inventarioService = {
     }
 
     // Verificar si existe la cotización
-    const cotizacionDoc = await getDoc(doc(db, 'cotizaciones', referenciaId));
+    const cotizacionDoc = await getDoc(doc(db, COLLECTIONS.COTIZACIONES, referenciaId));
     if (cotizacionDoc.exists()) {
       return {
         esValida: true,
@@ -538,7 +539,7 @@ export const inventarioService = {
   }> {
     try {
       // Obtener TODAS las unidades
-      const snapshot = await getDocs(collection(db, 'unidades'));
+      const snapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
       const todasUnidades = snapshot.docs.map(d => ({
         id: d.id,
         ...d.data()
@@ -555,15 +556,15 @@ export const inventarioService = {
       }
 
       // Obtener ventas y cotizaciones existentes para validar reservas
-      const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+      const ventasSnapshot = await getDocs(collection(db, COLLECTIONS.VENTAS));
       const ventasExistentes = new Set(ventasSnapshot.docs.map(d => d.id));
 
-      const cotizacionesSnapshot = await getDocs(collection(db, 'cotizaciones'));
+      const cotizacionesSnapshot = await getDocs(collection(db, COLLECTIONS.COTIZACIONES));
       const cotizacionesExistentes = new Set(cotizacionesSnapshot.docs.map(d => d.id));
 
       // Obtener transferencias activas (en_transito)
       const transferenciasQuery = query(
-        collection(db, 'transferencias'),
+        collection(db, COLLECTIONS.TRANSFERENCIAS),
         where('estado', 'in', ['pendiente', 'en_transito'])
       );
       const transferenciasSnapshot = await getDocs(transferenciasQuery);
@@ -654,7 +655,7 @@ export const inventarioService = {
               updateData.reservaVigenciaHasta = null;
             }
 
-            batch.update(doc(db, 'unidades', unidad.id), updateData);
+            batch.update(doc(db, COLLECTIONS.UNIDADES, unidad.id), updateData);
             batchCount++;
             correcciones++;
 
@@ -727,14 +728,14 @@ export const inventarioService = {
   }> {
     try {
       // Obtener TODAS las unidades
-      const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
+      const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
       const todasUnidades = unidadesSnapshot.docs.map(d => ({
         id: d.id,
         ...d.data()
       })) as Unidad[];
 
       // Obtener TODOS los productos
-      const productosSnapshot = await getDocs(collection(db, 'productos'));
+      const productosSnapshot = await getDocs(collection(db, COLLECTIONS.PRODUCTOS));
       const productos = productosSnapshot.docs.map(d => ({
         id: d.id,
         ...d.data()
@@ -832,7 +833,7 @@ export const inventarioService = {
 
         if (hayDiferencia) {
           try {
-            batch.update(doc(db, 'productos', producto.id), {
+            batch.update(doc(db, COLLECTIONS.PRODUCTOS, producto.id), {
               stockUSA: stockReal.usa,
               stockPeru: stockReal.peru,
               stockTransito: stockReal.transito,
@@ -970,7 +971,7 @@ export const inventarioService = {
     try {
       // Obtener unidades del producto
       const q = query(
-        collection(db, 'unidades'),
+        collection(db, COLLECTIONS.UNIDADES),
         where('productoId', '==', productoId)
       );
       const unidadesSnapshot = await getDocs(q);
@@ -1006,7 +1007,7 @@ export const inventarioService = {
       }
 
       // Leer stockPendienteML actual para calcular stockEfectivoML
-      const productoRef = doc(db, 'productos', productoId);
+      const productoRef = doc(db, COLLECTIONS.PRODUCTOS, productoId);
       const productoDoc = await getDoc(productoRef);
       const stockPendienteML = productoDoc.data()?.stockPendienteML || 0;
       const stockEfectivoML = Math.max(0, stockDisponiblePeru - stockPendienteML);

@@ -16,6 +16,7 @@ import {
   type Unsubscribe
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type {
   Entrega,
   ProgramarEntregaData,
@@ -35,7 +36,6 @@ import { tesoreriaService } from './tesoreria.service';
 import { auditoriaService } from './auditoria.service';
 import { inventarioService } from './inventario.service';
 import { actividadService } from './actividad.service';
-import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 
 const COLLECTION_NAME = COLLECTIONS.ENTREGAS;
@@ -410,7 +410,7 @@ export const entregaService = {
     const docRef = await addDoc(collection(db, COLLECTION_NAME), newEntrega);
 
     // Actualizar el estado de la venta a "en_entrega"
-    const ventaRef = doc(db, 'ventas', data.ventaId);
+    const ventaRef = doc(db, COLLECTIONS.VENTAS, data.ventaId);
     const ventaUpdateData: Record<string, unknown> = {
       estado: 'en_entrega',
       editadoPor: userId,
@@ -457,7 +457,7 @@ export const entregaService = {
     });
 
     // Update venta → despachada (only on first dispatch)
-    const ventaRef = doc(db, 'ventas', entrega.ventaId);
+    const ventaRef = doc(db, COLLECTIONS.VENTAS, entrega.ventaId);
     const ventaSnap = await getDoc(ventaRef);
     if (ventaSnap.exists()) {
       const venta = ventaSnap.data() as Venta;
@@ -622,7 +622,7 @@ export const entregaService = {
           }
         };
 
-        const unidadRef = doc(db, 'unidades', unidadId);
+        const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
         batch.update(unidadRef, {
           estado: 'vendida',
           ventaId: entrega.ventaId,
@@ -637,7 +637,7 @@ export const entregaService = {
 
       // A3. Actualizar estado de venta si corresponde
       if (estadoVentaPost.nuevoEstado) {
-        const ventaRef = doc(db, 'ventas', entrega.ventaId);
+        const ventaRef = doc(db, COLLECTIONS.VENTAS, entrega.ventaId);
         const ventaUpdate: Record<string, unknown> = {
           estado: estadoVentaPost.nuevoEstado,
           editadoPor: userId,
@@ -778,7 +778,7 @@ export const entregaService = {
       // B7. Reclasificar anticipos si la venta se marcó como entregada
       if (estadoVentaPost.nuevoEstado === 'entregada') {
         try {
-          const ventaRef = doc(db, 'ventas', entrega.ventaId);
+          const ventaRef = doc(db, COLLECTIONS.VENTAS, entrega.ventaId);
           const ventaSnap = await getDoc(ventaRef);
           const venta = ventaSnap.data() as Venta;
           const reclasificados = await tesoreriaService.reclasificarAnticipos(
@@ -921,7 +921,7 @@ export const entregaService = {
     itemsEntregaActual: number
   ): Promise<{ nuevoEstado: EstadoVenta | null; totalProductos: number; totalEntregados: number }> {
     try {
-      const ventaRef = doc(db, 'ventas', ventaId);
+      const ventaRef = doc(db, COLLECTIONS.VENTAS, ventaId);
       const ventaSnap = await getDoc(ventaRef);
 
       if (!ventaSnap.exists()) {
@@ -972,7 +972,7 @@ export const entregaService = {
   async actualizarEstadoVentaSiCompleta(ventaId: string, userId: string): Promise<void> {
     try {
       // Obtener la venta
-      const ventaRef = doc(db, 'ventas', ventaId);
+      const ventaRef = doc(db, COLLECTIONS.VENTAS, ventaId);
       const ventaSnap = await getDoc(ventaRef);
 
       if (!ventaSnap.exists()) {
@@ -1079,7 +1079,7 @@ export const entregaService = {
 
   async getResumenVenta(ventaId: string): Promise<ResumenEntregasVenta> {
     // Obtener venta
-    const ventaDoc = await getDoc(doc(db, 'ventas', ventaId));
+    const ventaDoc = await getDoc(doc(db, COLLECTIONS.VENTAS, ventaId));
     if (!ventaDoc.exists()) {
       throw new Error('Venta no encontrada');
     }
@@ -1326,7 +1326,7 @@ export const entregaService = {
         gastoUpdates.descripcion = `Entrega ${entrega.codigo} - ${nombreTransportistaActualizado}${entrega.distrito ? ` (${entrega.distrito})` : ''}`;
       }
 
-      const gastoRef = doc(db, 'gastos', entrega.gastoDistribucionId);
+      const gastoRef = doc(db, COLLECTIONS.GASTOS, entrega.gastoDistribucionId);
       await updateDoc(gastoRef, gastoUpdates);
       console.log(`[Entrega ${entrega.codigo}] Gasto GD ${entrega.gastoDistribucionId} actualizado (estado: ${entrega.estado})`);
     }
@@ -1422,7 +1422,7 @@ export const entregaService = {
     const costoTotalHistorico = Math.max(0, (transportista.costoTotalHistorico || 0) - costoEntrega);
     const costoPromedioPorEntrega = totalEntregas > 0 ? costoTotalHistorico / totalEntregas : 0;
 
-    const docRef = doc(db, 'transportistas', transportistaId);
+    const docRef = doc(db, COLLECTIONS.TRANSPORTISTAS, transportistaId);
     await updateDoc(docRef, {
       totalEntregas,
       entregasExitosas,
@@ -1445,7 +1445,7 @@ export const entregaService = {
     const totalEntregas = transportista.totalEntregas || 1;
     const costoPromedioPorEntrega = costoTotalHistorico / totalEntregas;
 
-    const docRef = doc(db, 'transportistas', transportistaId);
+    const docRef = doc(db, COLLECTIONS.TRANSPORTISTAS, transportistaId);
     await updateDoc(docRef, {
       costoTotalHistorico,
       costoPromedioPorEntrega

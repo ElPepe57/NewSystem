@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type {
   Cotizacion,
   CotizacionFormData,
@@ -50,7 +51,6 @@ import { tipoCambioService } from './tipoCambio.service';
 import { stockDisponibilidadService } from './stockDisponibilidad.service';
 import { expectativaService } from './expectativa.service';
 import { actividadService } from './actividad.service';
-import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.COTIZACIONES;
 const VENTAS_COLLECTION = COLLECTIONS.VENTAS;
@@ -72,7 +72,7 @@ export class CotizacionService {
     if (LEGACY_CANAL_NAMES[canal]) return LEGACY_CANAL_NAMES[canal];
     // Try Firestore lookup
     try {
-      const canalDoc = await getDoc(doc(db, 'canalesVenta', canal));
+      const canalDoc = await getDoc(doc(db, COLLECTIONS.CANALES_VENTA, canal));
       if (canalDoc.exists()) return canalDoc.data().nombre;
     } catch { /* ignore */ }
     return canal; // fallback: return raw value
@@ -936,7 +936,7 @@ export class CotizacionService {
             const unidadesDeEsteAlmacen = almacenInfo.unidadesIds.slice(0, almacenRec.cantidad);
 
             for (const unidadId of unidadesDeEsteAlmacen) {
-              const unidadRef = doc(db, 'unidades', unidadId);
+              const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
               batch.update(unidadRef, {
                 estado: 'reservada',
                 reservadaPara: id,
@@ -1281,7 +1281,7 @@ export class CotizacionService {
         }
       } catch { /* no bloquear si falla */ }
 
-      await updateDoc(doc(db, 'ventas', venta.id), ventaUpdateData);
+      await updateDoc(doc(db, COLLECTIONS.VENTAS, venta.id), ventaUpdateData);
 
       // Si hay adelanto, registrarlo como pago en la venta
       // El adelanto ya fue pagado en la cotización, debe reflejarse en la venta
@@ -1330,7 +1330,7 @@ export class CotizacionService {
           adelantoComprometidoData.tipoCambio = cotizacion.adelanto.tipoCambio;
         }
 
-        await updateDoc(doc(db, 'ventas', venta.id), {
+        await updateDoc(doc(db, COLLECTIONS.VENTAS, venta.id), {
           pagos: [pagoAdelanto],
           montoPagado: nuevoMontoPagado,
           montoPendiente: Math.max(0, nuevoMontoPendiente),
@@ -1347,7 +1347,7 @@ export class CotizacionService {
 
         for (const prod of cotizacion.reservaStock.productosReservados) {
           for (const unidadId of prod.unidadesReservadas) {
-            const unidadRef = doc(db, 'unidades', unidadId);
+            const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
             batch.update(unidadRef, {
               reservadaPara: venta.id, // Transferir reserva a la venta
               ventaId: venta.id
@@ -1398,7 +1398,7 @@ export class CotizacionService {
       if (cotizacion.reservaStock?.productosReservados) {
         for (const prod of cotizacion.reservaStock.productosReservados) {
           for (const unidadId of prod.unidadesReservadas) {
-            const unidadRef = doc(db, 'unidades', unidadId);
+            const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
             batch.update(unidadRef, {
               estado: 'disponible_peru',
               reservadaPara: null,

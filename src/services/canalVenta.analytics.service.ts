@@ -10,6 +10,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type { CanalVenta, CanalVentaStats } from '../types/canalVenta.types';
 import type { Venta } from '../types/venta.types';
 import type { Cotizacion } from '../types/cotizacion.types';
@@ -378,7 +379,7 @@ class CanalVentaAnalyticsService {
     try {
       // Obtener canal
       const canalDoc = await getDocs(
-        query(collection(db, 'canalesVenta'), where('__name__', '==', canalId))
+        query(collection(db, COLLECTIONS.CANALES_VENTA), where('__name__', '==', canalId))
       );
 
       if (canalDoc.empty) {
@@ -512,8 +513,8 @@ class CanalVentaAnalyticsService {
     try {
       // Intentar buscar por canalVentaId o canal
       const [porId, porCodigo] = await Promise.all([
-        getDocs(query(collection(db, 'ventas'), where('canalVentaId', '==', canalId))),
-        getDocs(query(collection(db, 'ventas'), where('canal', '==', canalCodigo)))
+        getDocs(query(collection(db, COLLECTIONS.VENTAS), where('canalVentaId', '==', canalId))),
+        getDocs(query(collection(db, COLLECTIONS.VENTAS), where('canal', '==', canalCodigo)))
       ]);
 
       const ventasMap = new Map<string, Venta>();
@@ -540,8 +541,8 @@ class CanalVentaAnalyticsService {
   private async getCotizacionesCanal(canalId: string, canalCodigo: string): Promise<Cotizacion[]> {
     try {
       const [porId, porCodigo] = await Promise.all([
-        getDocs(query(collection(db, 'cotizaciones'), where('canalVentaId', '==', canalId))),
-        getDocs(query(collection(db, 'cotizaciones'), where('canal', '==', canalCodigo)))
+        getDocs(query(collection(db, COLLECTIONS.COTIZACIONES), where('canalVentaId', '==', canalId))),
+        getDocs(query(collection(db, COLLECTIONS.COTIZACIONES), where('canal', '==', canalCodigo)))
       ]);
 
       const cotizacionesMap = new Map<string, Cotizacion>();
@@ -566,7 +567,7 @@ class CanalVentaAnalyticsService {
    * Obtiene todos los canales
    */
   private async getTodosCanales(): Promise<CanalVenta[]> {
-    const snapshot = await getDocs(collection(db, 'canalesVenta'));
+    const snapshot = await getDocs(collection(db, COLLECTIONS.CANALES_VENTA));
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()

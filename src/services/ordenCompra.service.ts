@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
 import type {
   OrdenCompra,
@@ -37,7 +38,6 @@ import { tesoreriaService } from './tesoreria.service';
 import { ctruService } from './ctru.service';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 import { actividadService } from './actividad.service';
-import { COLLECTIONS } from '../config/collections';
 
 const ORDENES_COLLECTION = COLLECTIONS.ORDENES_COMPRA;
 const PROVEEDORES_COLLECTION = COLLECTIONS.PROVEEDORES;
@@ -1358,7 +1358,7 @@ export class OrdenCompraService {
         const batch = writeBatch(db);
         const chunk = todasUnidadesGeneradas.slice(i, i + batchSize);
         for (const unidadId of chunk) {
-          batch.delete(doc(db, 'unidades', unidadId));
+          batch.delete(doc(db, COLLECTIONS.UNIDADES, unidadId));
           unidadesEliminadas++;
         }
         await batch.commit();

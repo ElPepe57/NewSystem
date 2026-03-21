@@ -18,6 +18,7 @@ import {
   onSnapshot,
   Timestamp,
 } from 'firebase/firestore';
+import { COLLECTIONS } from '../config/collections';
 import type { Unsubscribe } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../lib/firebase';
@@ -128,7 +129,7 @@ export const mercadoLibreService = {
    */
   async getProductMaps(): Promise<MLProductMap[]> {
     const snapshot = await getDocs(
-      query(collection(db, 'mlProductMap'), orderBy('mlTitle'))
+      query(collection(db, COLLECTIONS.ML_PRODUCT_MAP), orderBy('mlTitle'))
     );
     return snapshot.docs.map((d) => ({
       id: d.id,
@@ -230,7 +231,7 @@ export const mercadoLibreService = {
    * Listener en tiempo real para productos mapeados
    */
   onProductMapsChange(callback: (maps: MLProductMap[]) => void): Unsubscribe {
-    const q = query(collection(db, 'mlProductMap'), orderBy('mlTitle'));
+    const q = query(collection(db, COLLECTIONS.ML_PRODUCT_MAP), orderBy('mlTitle'));
     return onSnapshot(q, (snapshot) => {
       const maps = snapshot.docs.map((d) => ({
         id: d.id,
@@ -251,14 +252,14 @@ export const mercadoLibreService = {
     let q;
     if (estadoFilter) {
       q = query(
-        collection(db, 'mlOrderSync'),
+        collection(db, COLLECTIONS.ML_ORDER_SYNC),
         where('estado', '==', estadoFilter),
         orderBy('fechaOrdenML', 'desc'),
         limit(200)
       );
     } else {
       q = query(
-        collection(db, 'mlOrderSync'),
+        collection(db, COLLECTIONS.ML_ORDER_SYNC),
         orderBy('fechaOrdenML', 'desc'),
         limit(200)
       );
@@ -276,7 +277,7 @@ export const mercadoLibreService = {
    */
   onOrderSyncsChange(callback: (orders: MLOrderSync[]) => void): Unsubscribe {
     const q = query(
-      collection(db, 'mlOrderSync'),
+      collection(db, COLLECTIONS.ML_ORDER_SYNC),
       orderBy('fechaOrdenML', 'desc'),
       limit(200)
     );

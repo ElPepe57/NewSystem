@@ -6,6 +6,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type { Producto } from '../types/producto.types';
 import type { Unidad } from '../types/unidad.types';
 import type { Venta } from '../types/venta.types';
@@ -89,7 +90,7 @@ class ClasificacionAnalyticsService {
   ): Promise<ClasificacionAnalyticsResult> {
     // Obtener productos del tipo
     const productosQuery = query(
-      collection(db, 'productos'),
+      collection(db, COLLECTIONS.PRODUCTOS),
       where('tipoProductoId', '==', tipoProductoId)
     );
     const productosSnap = await getDocs(productosQuery);
@@ -111,7 +112,7 @@ class ClasificacionAnalyticsService {
   ): Promise<ClasificacionAnalyticsResult> {
     // Obtener productos de la categoría
     const productosQuery = query(
-      collection(db, 'productos'),
+      collection(db, COLLECTIONS.PRODUCTOS),
       where('categoriaIds', 'array-contains', categoriaId)
     );
     const productosSnap = await getDocs(productosQuery);
@@ -133,7 +134,7 @@ class ClasificacionAnalyticsService {
   ): Promise<ClasificacionAnalyticsResult> {
     // Obtener productos con la etiqueta
     const productosQuery = query(
-      collection(db, 'productos'),
+      collection(db, COLLECTIONS.PRODUCTOS),
       where('etiquetaIds', 'array-contains', etiquetaId)
     );
     const productosSnap = await getDocs(productosQuery);
@@ -171,7 +172,7 @@ class ClasificacionAnalyticsService {
 
     // Obtener todas las ventas del periodo
     const ventasQuery = query(
-      collection(db, 'ventas'),
+      collection(db, COLLECTIONS.VENTAS),
       where('fechaCreacion', '>=', Timestamp.fromDate(inicio)),
       where('fechaCreacion', '<=', Timestamp.fromDate(fin))
     );
@@ -195,7 +196,7 @@ class ClasificacionAnalyticsService {
     for (let i = 0; i < productIds.length; i += chunkSize) {
       const chunk = productIds.slice(i, i + chunkSize);
       const unidadesQuery = query(
-        collection(db, 'unidades'),
+        collection(db, COLLECTIONS.UNIDADES),
         where('productoId', 'in', chunk)
       );
       const unidadesSnap = await getDocs(unidadesQuery);

@@ -11,6 +11,7 @@ import {
   increment
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
@@ -25,7 +26,6 @@ import type {
   HistorialEvaluacionAlmacen,
   MetricasOperativasAlmacen
 } from '../types/almacen.types';
-import { COLLECTIONS } from '../config/collections';
 import { esPaisOrigen } from '../utils/multiOrigen.helpers';
 
 const COLLECTION_NAME = COLLECTIONS.ALMACENES;
@@ -148,7 +148,7 @@ export const almacenService = {
     }
 
     // Obtener todas las unidades en estos viajeros
-    const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
+    const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
     const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
 
     unidadesSnapshot.docs.forEach(docSnap => {
@@ -219,7 +219,7 @@ export const almacenService = {
     }
 
     // Obtener todas las unidades en estos almacenes
-    const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
+    const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
     const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
 
     unidadesSnapshot.docs.forEach(docSnap => {
@@ -275,7 +275,7 @@ export const almacenService = {
     const almacenesIds = almacenesOrigen.map(a => a.id);
     if (almacenesIds.length === 0) return [];
 
-    const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
+    const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
     const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
     const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
 
@@ -466,7 +466,7 @@ export const almacenService = {
     // Obtener todas las unidades de este almacén que están disponibles
     const unidadesSnapshot = await getDocs(
       query(
-        collection(db, 'unidades'),
+        collection(db, COLLECTIONS.UNIDADES),
         where('almacenId', '==', almacenId)
       )
     );
@@ -508,7 +508,7 @@ export const almacenService = {
       const almacenes = almacenesSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 
       // Obtener todas las unidades de una sola vez (más eficiente)
-      const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
+      const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
 
       // Agrupar unidades por almacenId
       const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
@@ -567,7 +567,7 @@ export const almacenService = {
     // Obtener todas las unidades de USA para calcular totales precisos
     const unidadesSnapshot = await getDocs(
       query(
-        collection(db, 'unidades'),
+        collection(db, COLLECTIONS.UNIDADES),
         where('pais', '==', 'USA')
       )
     );
@@ -669,7 +669,7 @@ export const almacenService = {
     const viajeros = activos.filter(a => a.esViajero);
 
     // Obtener unidades USA para cálculos precisos
-    const unidadesSnapshot = await getDocs(collection(db, 'unidades'));
+    const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
     const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
 
     const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};

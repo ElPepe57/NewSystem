@@ -7,6 +7,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import type { Producto } from '../types/producto.types';
 import type { Venta, ProductoVenta } from '../types/venta.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
@@ -44,7 +45,7 @@ export const productoIntelService = {
 
     try {
       const q = query(
-        collection(db, 'ventas'),
+        collection(db, COLLECTIONS.VENTAS),
         where('fechaCreacion', '>=', Timestamp.fromDate(fechaLimite)),
         orderBy('fechaCreacion', 'desc')
       );
@@ -56,7 +57,7 @@ export const productoIntelService = {
       } as Venta));
     } catch (error) {
       // Fallback sin indice
-      const allVentas = await getDocs(collection(db, 'ventas'));
+      const allVentas = await getDocs(collection(db, COLLECTIONS.VENTAS));
       return allVentas.docs
         .map(doc => ({ id: doc.id, ...doc.data() } as Venta))
         .filter(v => {
@@ -70,7 +71,7 @@ export const productoIntelService = {
    * Obtiene todas las OC para calcular lead time
    */
   async getOrdenesCompra(): Promise<OrdenCompra[]> {
-    const snapshot = await getDocs(collection(db, 'ordenesCompra'));
+    const snapshot = await getDocs(collection(db, COLLECTIONS.ORDENES_COMPRA));
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -86,7 +87,7 @@ export const productoIntelService = {
    */
   async getProductosConStock(): Promise<Producto[]> {
     const q = query(
-      collection(db, 'productos'),
+      collection(db, COLLECTIONS.PRODUCTOS),
       where('estado', '==', 'activo')
     );
     const snapshot = await getDocs(q);
@@ -109,7 +110,7 @@ export const productoIntelService = {
    */
   async getProductosActivos(): Promise<Producto[]> {
     const q = query(
-      collection(db, 'productos'),
+      collection(db, COLLECTIONS.PRODUCTOS),
       where('estado', '==', 'activo')
     );
     const snapshot = await getDocs(q);
@@ -1318,7 +1319,7 @@ export const productoIntelService = {
    */
   async getPreventasVirtuales(): Promise<import('../types/productoIntel.types').PreventaVirtual[]> {
     try {
-      const ventasRef = collection(db, 'ventas');
+      const ventasRef = collection(db, COLLECTIONS.VENTAS);
       const q = query(
         ventasRef,
         where('estado', '==', 'reservada')

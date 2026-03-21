@@ -12,6 +12,7 @@ import {
   where
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Producto,
@@ -33,7 +34,6 @@ import { metricasService } from './metricas.service';
 import { tipoProductoService } from './tipoProducto.service';
 import { categoriaService } from './categoria.service';
 import { etiquetaService } from './etiqueta.service';
-import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.PRODUCTOS;
 
@@ -872,14 +872,14 @@ export class ProductoService {
             const productosActuales = competidorActual?.metricas?.productosAnalizados || 0;
 
             // Actualizar métricas del competidor
-            await updateDoc(doc(db, 'competidores', competidorId), {
+            await updateDoc(doc(db, COLLECTIONS.COMPETIDORES, competidorId), {
               'metricas.productosAnalizados': productosActuales + 1,
               'metricas.precioPromedio': precioPromedio,
               'metricas.ultimaInvestigacion': serverTimestamp()
             });
           } else {
             // Solo actualizar precio promedio, sin incrementar contador
-            await updateDoc(doc(db, 'competidores', competidorId), {
+            await updateDoc(doc(db, COLLECTIONS.COMPETIDORES, competidorId), {
               'metricas.precioPromedio': precioPromedio,
               'metricas.ultimaInvestigacion': serverTimestamp()
             });

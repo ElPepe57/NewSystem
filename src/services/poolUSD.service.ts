@@ -12,6 +12,7 @@ import {
   limit,
   writeBatch,
   deleteDoc,
+  runTransaction,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
@@ -35,6 +36,8 @@ import { esEntrada, POOL_USD_CONFIG_DEFAULTS } from '../types/rendimientoCambiar
 
 const MOV_COLLECTION = COLLECTIONS.POOL_USD_MOVIMIENTOS;
 const SNAP_COLLECTION = COLLECTIONS.POOL_USD_SNAPSHOTS;
+/** Documento de estado atómico: mantiene saldo y TCPA actual para transacciones */
+const ESTADO_DOC_REF = () => doc(db, SNAP_COLLECTION, '_estado');
 
 // ============================================================
 // SERVICIO POOL USD — TCPA (TC Promedio Ponderado de Adquisición)
@@ -203,45 +206,17 @@ export const poolUSDService = {
   /**
    * Registrar un movimiento en el pool USD.
    * Calcula automáticamente TCPA, saldos, e impacto cambiario.
+   *
+   * BUG-003 FIX: Usa runTransaction + documento de estado (_estado)
+   * para garantizar atomicidad del saldo y TCPA bajo concurrencia.
    */
   async registrarMovimiento(
     data: PoolMovimientoFormData,
     userId: string
   ): Promise<PoolUSDMovimiento> {
     const entrada = esEntrada(data.tipo);
-    const ultimo = await this.getUltimoMovimiento();
 
-    const poolAntes = ultimo?.poolUSDDespues ?? 0;
-    const tcpaAntes = ultimo?.tcpaDespues ?? 0;
-
-    // Validar que no quede negativo en salidas
-    if (!entrada && data.montoUSD > poolAntes) {
-      throw new Error(
-        `Saldo insuficiente en pool USD. Disponible: $${poolAntes.toFixed(2)}, ` +
-        `requerido: $${data.montoUSD.toFixed(2)}`
-      );
-    }
-
-    // Calcular nuevo saldo
-    const poolDespues = entrada
-      ? poolAntes + data.montoUSD
-      : poolAntes - data.montoUSD;
-
-    // Calcular nuevo TCPA (solo cambia en entradas)
-    let tcpaDespues: number;
-    if (entrada) {
-      if (poolAntes === 0) {
-        // Primer movimiento o pool vacío: TCPA = TC de esta operación
-        tcpaDespues = data.tcOperacion;
-      } else {
-        // Fórmula TCPA: (existingUSD × oldTCPA + newUSD × newTC) / totalUSD
-        tcpaDespues = (poolAntes * tcpaAntes + data.montoUSD * data.tcOperacion) / poolDespues;
-      }
-    } else {
-      tcpaDespues = tcpaAntes; // Salidas NO cambian TCPA
-    }
-
-    // Obtener TC SUNAT del día
+    // Obtener TC SUNAT ANTES de la transacción (llamada de red externa)
     let tcSunat: number;
     try {
       const tcSunatResuelto = await tipoCambioService.resolverTCSunat();
@@ -250,40 +225,97 @@ export const poolUSDService = {
       tcSunat = data.tcOperacion; // Fallback al TC de operación
     }
 
-    // Calcular impacto cambiario (solo en salidas)
-    let impactoCambiario: number | undefined;
-    let impactoOperativo: number | undefined;
-    if (!entrada) {
-      // Ganancia = (tcSunat - tcpa) × montoUSD. >0 = ganancia
-      impactoCambiario = (tcSunat - tcpaAntes) * data.montoUSD;
-      // Impacto operativo = (tcOperacion - tcpa) × montoUSD
-      impactoOperativo = (data.tcOperacion - tcpaAntes) * data.montoUSD;
-    }
+    // === TRANSACCIÓN ATÓMICA: leer estado → calcular → escribir movimiento + actualizar estado ===
+    const estadoRef = ESTADO_DOC_REF();
+    const movDocRef = doc(collection(db, MOV_COLLECTION)); // Pre-generar ID
 
-    const movimiento: Omit<PoolUSDMovimiento, 'id'> = {
-      tipo: data.tipo,
-      direccion: entrada ? 'entrada' : 'salida',
-      montoUSD: data.montoUSD,
-      tcOperacion: data.tcOperacion,
-      tcSunat,
-      montoPEN: data.montoUSD * data.tcOperacion,
-      poolUSDAntes: poolAntes,
-      poolUSDDespues: poolDespues,
-      tcpaAntes,
-      tcpaDespues,
-      impactoCambiario,
-      impactoOperativo,
-      documentoOrigenTipo: data.documentoOrigenTipo,
-      documentoOrigenId: data.documentoOrigenId,
-      documentoOrigenNumero: data.documentoOrigenNumero,
-      fecha: Timestamp.fromDate(data.fecha),
-      fechaCreacion: Timestamp.now(),
-      creadoPor: userId,
-      notas: data.notas,
-    };
+    const movimiento = await runTransaction(db, async (transaction) => {
+      const estadoSnap = await transaction.get(estadoRef);
 
-    const docRef = await addDoc(collection(db, MOV_COLLECTION), movimiento);
-    return { id: docRef.id, ...movimiento };
+      let poolAntes: number;
+      let tcpaAntes: number;
+
+      if (estadoSnap.exists()) {
+        const estado = estadoSnap.data();
+        poolAntes = estado.saldoUSD ?? 0;
+        tcpaAntes = estado.tcpa ?? 0;
+      } else {
+        // Primera vez: inicializar desde último movimiento (migración) o cero
+        const ultimo = await this.getUltimoMovimiento();
+        poolAntes = ultimo?.poolUSDDespues ?? 0;
+        tcpaAntes = ultimo?.tcpaDespues ?? 0;
+      }
+
+      // Validar que no quede negativo en salidas
+      if (!entrada && data.montoUSD > poolAntes) {
+        throw new Error(
+          `Saldo insuficiente en pool USD. Disponible: $${poolAntes.toFixed(2)}, ` +
+          `requerido: $${data.montoUSD.toFixed(2)}`
+        );
+      }
+
+      // Calcular nuevo saldo
+      const poolDespues = entrada
+        ? poolAntes + data.montoUSD
+        : poolAntes - data.montoUSD;
+
+      // Calcular nuevo TCPA (solo cambia en entradas)
+      let tcpaDespues: number;
+      if (entrada) {
+        if (poolAntes === 0) {
+          tcpaDespues = data.tcOperacion;
+        } else {
+          tcpaDespues = (poolAntes * tcpaAntes + data.montoUSD * data.tcOperacion) / poolDespues;
+        }
+      } else {
+        tcpaDespues = tcpaAntes;
+      }
+
+      // Calcular impacto cambiario (solo en salidas)
+      let impactoCambiario: number | undefined;
+      let impactoOperativo: number | undefined;
+      if (!entrada) {
+        impactoCambiario = (tcSunat - tcpaAntes) * data.montoUSD;
+        impactoOperativo = (data.tcOperacion - tcpaAntes) * data.montoUSD;
+      }
+
+      const mov: Omit<PoolUSDMovimiento, 'id'> = {
+        tipo: data.tipo,
+        direccion: entrada ? 'entrada' : 'salida',
+        montoUSD: data.montoUSD,
+        tcOperacion: data.tcOperacion,
+        tcSunat,
+        montoPEN: data.montoUSD * data.tcOperacion,
+        poolUSDAntes: poolAntes,
+        poolUSDDespues: poolDespues,
+        tcpaAntes,
+        tcpaDespues,
+        impactoCambiario,
+        impactoOperativo,
+        documentoOrigenTipo: data.documentoOrigenTipo,
+        documentoOrigenId: data.documentoOrigenId,
+        documentoOrigenNumero: data.documentoOrigenNumero,
+        fecha: Timestamp.fromDate(data.fecha),
+        fechaCreacion: Timestamp.now(),
+        creadoPor: userId,
+        notas: data.notas,
+      };
+
+      // Escribir movimiento
+      transaction.set(movDocRef, mov);
+
+      // Actualizar documento de estado atómicamente
+      transaction.set(estadoRef, {
+        saldoUSD: poolDespues,
+        tcpa: tcpaDespues,
+        ultimoMovimientoId: movDocRef.id,
+        ultimaActualizacion: Timestamp.now(),
+      });
+
+      return { id: movDocRef.id, ...mov };
+    });
+
+    return movimiento as PoolUSDMovimiento;
   },
 
   // ==========================================================
@@ -376,6 +408,14 @@ export const poolUSDService = {
         impactoOperativo: impactoOperativo ?? null,
       });
     }
+
+    // Incluir actualización del documento de estado en el batch
+    batch.set(ESTADO_DOC_REF(), {
+      saldoUSD: poolUSD,
+      tcpa,
+      ultimoMovimientoId: movimientos[movimientos.length - 1].id,
+      ultimaActualizacion: Timestamp.now(),
+    });
 
     await batch.commit();
 

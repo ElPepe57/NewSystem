@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
+import { COLLECTIONS } from '../config/collections';
 import { tipoCambioService } from './tipoCambio.service';
 import { ctruService } from './ctru.service';
 import { VentaService } from './venta.service';
@@ -33,7 +34,6 @@ import type {
 import type { Venta } from '../types/venta.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 import { actividadService } from './actividad.service';
-import { COLLECTIONS } from '../config/collections';
 
 const REQUERIMIENTOS_COLLECTION = COLLECTIONS.REQUERIMIENTOS;
 
@@ -1510,7 +1510,7 @@ export const expectativaService = {
 
       if (tieneReqCompletadoConOC) {
         try {
-          const ventaRef = doc(db, 'ventas', venta.id);
+          const ventaRef = doc(db, COLLECTIONS.VENTAS, venta.id);
           await updateDoc(ventaRef, {
             requiereStock: false,
             productosConFaltante: null
