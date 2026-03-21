@@ -26,6 +26,7 @@ import type {
   PoolUSDMovimiento,
   PoolUSDSnapshot,
   PoolUSDResumen,
+  PoolUSDConfig,
   TipoMovimientoPool,
   RatioCobertura,
   MargenRealVsNominal,
@@ -117,10 +118,20 @@ export const RendimientoCambiario: React.FC = () => {
   const [siTCPA, setSiTCPA] = useState('');
   const [siFecha, setSiFecha] = useState('');
 
+  // Pool config (metaPEN etc.)
+  const [poolConfig, setPoolConfig] = useState<PoolUSDConfig | null>(null);
+
+  // Carga retroactiva
+  const [showRetroactiva, setShowRetroactiva] = useState(false);
+  const [retroProgress, setRetroProgress] = useState('');
+  const [retroPct, setRetroPct] = useState(0);
+  const [retroLoading, setRetroLoading] = useState(false);
+
   useEffect(() => {
     fetchMovimientos();
     fetchSnapshots();
     fetchResumen();
+    poolUSDService.getConfig().then(setPoolConfig).catch(() => {});
   }, []);
 
   // ============================================================
@@ -221,14 +232,24 @@ export const RendimientoCambiario: React.FC = () => {
         </div>
         <div className="flex gap-2">
           {movimientos.length === 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowSaldoInicial(true)}
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              Saldo Inicial
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSaldoInicial(true)}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Saldo Inicial
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowRetroactiva(true)}
+              >
+                <Calendar className="w-4 h-4 mr-1" />
+                Cargar Histórico
+              </Button>
+            </>
           )}
           <Button
             variant="outline"
@@ -284,7 +305,12 @@ export const RendimientoCambiario: React.FC = () => {
         </div>
       ) : (
         <>
-          {tabActiva === 'resumen' && <TabResumen resumen={resumen} tcActual={tcActual} onRecalcular={handleRecalcular} onSnapshot={handleGenerarSnapshot} />}
+          {tabActiva === 'resumen' && <TabResumen resumen={resumen} tcActual={tcActual} poolConfig={poolConfig} onRecalcular={handleRecalcular} onSnapshot={handleGenerarSnapshot} onSaveMetaPEN={async (meta: number) => {
+            if (!user?.uid) return;
+            await poolUSDService.guardarConfig({ metaPEN: meta }, user.uid);
+            setPoolConfig(prev => prev ? { ...prev, metaPEN: meta } : null);
+            toast.success('Meta PEN actualizada');
+          }} />}
           {tabActiva === 'ciclo' && <TabCicloPENUSD resumen={resumen} tcActual={tcActual} movimientos={movimientos} />}
           {tabActiva === 'simulador' && <TabSimuladorTC resumen={resumen} tcActual={tcActual} />}
           {tabActiva === 'operaciones' && <TabOperaciones movimientos={movimientos} />}
@@ -441,6 +467,86 @@ export const RendimientoCambiario: React.FC = () => {
           </div>
         </Modal>
       )}
+
+      {/* Modal: Carga Retroactiva */}
+      {showRetroactiva && (
+        <Modal
+          isOpen={showRetroactiva}
+          onClose={() => !retroLoading && setShowRetroactiva(false)}
+          title="Cargar Datos Históricos al Pool USD"
+        >
+          <div className="space-y-4">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-yellow-800">
+                  <p className="font-medium">Esta operación es irreversible</p>
+                  <p className="mt-1">
+                    Se leerán pagos de OC en USD, gastos USD pagados, y conversiones cambiarias
+                    de los últimos 3 meses y se registrarán cronológicamente en el pool.
+                  </p>
+                  <p className="mt-1">El pool debe estar vacío (sin movimientos previos).</p>
+                </div>
+              </div>
+            </div>
+
+            {retroLoading && (
+              <div className="space-y-2">
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full transition-all"
+                    style={{ width: `${retroPct}%` }}
+                  />
+                </div>
+                <p className="text-sm text-gray-600">{retroProgress}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowRetroactiva(false)}
+                disabled={retroLoading}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={retroLoading}
+                onClick={async () => {
+                  if (!user?.uid) return;
+                  setRetroLoading(true);
+                  setRetroProgress('Iniciando...');
+                  setRetroPct(0);
+                  try {
+                    const result = await poolUSDService.cargarRetroactivo(
+                      3,
+                      user.uid,
+                      (msg, pct) => { setRetroProgress(msg); setRetroPct(pct); }
+                    );
+                    toast.success(
+                      `Carga completada: ${result.totalMovimientos} movimientos ` +
+                      `(${result.conversiones} conv, ${result.pagosOC} pagos OC, ${result.gastosUSD} gastos). ` +
+                      `Saldo: $${result.saldoFinal.toFixed(2)}, TCPA: ${result.tcpaFinal.toFixed(4)}`
+                    );
+                    setShowRetroactiva(false);
+                    fetchMovimientos();
+                    fetchResumen();
+                  } catch (err: any) {
+                    toast.error(err.message || 'Error en la carga retroactiva');
+                  } finally {
+                    setRetroLoading(false);
+                  }
+                }}
+              >
+                {retroLoading ? 'Cargando...' : 'Iniciar Carga Retroactiva (3 meses)'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
@@ -452,9 +558,13 @@ export const RendimientoCambiario: React.FC = () => {
 const TabResumen: React.FC<{
   resumen: PoolUSDResumen | null;
   tcActual: any;
+  poolConfig: PoolUSDConfig | null;
   onRecalcular: () => void;
   onSnapshot: () => void;
-}> = ({ resumen, tcActual, onRecalcular, onSnapshot }) => {
+  onSaveMetaPEN: (meta: number) => Promise<void>;
+}> = ({ resumen, tcActual, poolConfig, onRecalcular, onSnapshot, onSaveMetaPEN }) => {
+  const [editingMeta, setEditingMeta] = useState(false);
+  const [metaInput, setMetaInput] = useState('');
   if (!resumen) {
     return (
       <div className="text-center py-12 text-gray-500">
@@ -567,6 +677,66 @@ const TabResumen: React.FC<{
           </div>
         </Card>
       </div>
+
+      {/* Meta PEN mensual */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-700">Meta Mensual de Ventas PEN</h3>
+          {!editingMeta ? (
+            <button
+              className="text-xs text-blue-600 hover:underline"
+              onClick={() => { setMetaInput(String(poolConfig?.metaPEN || '')); setEditingMeta(true); }}
+            >
+              {poolConfig?.metaPEN ? 'Editar meta' : 'Configurar meta'}
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                className="w-32 px-2 py-1 border rounded text-sm"
+                placeholder="Ej: 50000"
+                value={metaInput}
+                onChange={e => setMetaInput(e.target.value)}
+              />
+              <button
+                className="text-xs text-green-600 font-medium hover:underline"
+                onClick={async () => {
+                  const val = parseFloat(metaInput) || 0;
+                  await onSaveMetaPEN(val);
+                  setEditingMeta(false);
+                }}
+              >
+                Guardar
+              </button>
+              <button className="text-xs text-gray-500 hover:underline" onClick={() => setEditingMeta(false)}>
+                Cancelar
+              </button>
+            </div>
+          )}
+        </div>
+        {poolConfig?.metaPEN && poolConfig.metaPEN > 0 ? (
+          (() => {
+            const ventasPEN = resumen.valorPEN_tcpa;
+            const meta = poolConfig.metaPEN;
+            const pct = Math.min((ventasPEN / meta) * 100, 100);
+            const color = pct >= 100 ? 'bg-green-500' : pct >= 70 ? 'bg-blue-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500';
+            return (
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-600">Valor Pool PEN vs Meta</span>
+                  <span className="font-medium">S/ {formatMonto(ventasPEN)} / S/ {formatMonto(meta)}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className={`${color} h-3 rounded-full transition-all`} style={{ width: `${pct}%` }} />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">{pct.toFixed(1)}% de la meta mensual</p>
+              </div>
+            );
+          })()
+        ) : (
+          <p className="text-sm text-gray-400">Sin meta configurada. Configure una meta para ver el progreso.</p>
+        )}
+      </Card>
     </div>
   );
 };

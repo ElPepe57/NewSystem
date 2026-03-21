@@ -40,16 +40,19 @@ export function calcularStats(ventas: Venta[]): VentaStats {
     else if (venta.estado === 'cancelada') stats.canceladas++;
 
     // Contar por canal (solo ventas no canceladas ni cotizaciones)
+    // Excluir ventas a socios de totales de rentabilidad (distorsionan márgenes reales)
     if (venta.estado !== 'cancelada' && venta.estado !== 'cotizacion') {
       if (venta.canal === 'mercado_libre') stats.ventasML++;
       else if (venta.canal === 'directo') stats.ventasDirecto++;
       else stats.ventasOtro++;
 
-      stats.ventasTotalPEN += venta.totalPEN;
+      if (!venta.esVentaSocio) {
+        stats.ventasTotalPEN += venta.totalPEN;
 
-      if (venta.utilidadBrutaPEN !== undefined) {
-        stats.utilidadTotalPEN += venta.utilidadBrutaPEN;
-        sumaMargenPonderado += venta.margenPromedio! * venta.totalPEN;
+        if (venta.utilidadBrutaPEN !== undefined) {
+          stats.utilidadTotalPEN += venta.utilidadBrutaPEN;
+          sumaMargenPonderado += venta.margenPromedio! * venta.totalPEN;
+        }
       }
     }
   });

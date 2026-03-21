@@ -215,6 +215,8 @@ export function useRentabilidadVentas(ventas: Venta[]) {
           totalUnidadesVendidasCount += cantidadUnidades;
         }
       }
+      // Nota: ventas a socios SÍ se incluyen en el denominador de GA/GO para que
+      // la distribución proporcional refleje la realidad operativa
 
       const baseUnidades = totalUnidadesVendidasCount > 0 ? totalUnidadesVendidasCount : 1;
       const baseCostoTotal = costoBaseTotalUnidades > 0 ? costoBaseTotalUnidades : 1;
@@ -393,14 +395,16 @@ export function useRentabilidadVentas(ventas: Venta[]) {
           desgloseProductos: desgloseProductos.length > 0 ? desgloseProductos : undefined
         });
 
-        // Acumular totales
-        totalVentas += venta.totalPEN;
-        totalCostoBase += costoBase;
-        totalCostoGAGO += costoGAGO;
-        totalUtilidadBruta += utilidadBruta;
-        totalGastosGVSum += gastosGV;
-        totalGastosGDSum += gastosGD;
-        totalUtilidadNeta += utilidadNeta;
+        // Acumular totales (excluir ventas a socios para no distorsionar márgenes)
+        if (!venta.esVentaSocio) {
+          totalVentas += venta.totalPEN;
+          totalCostoBase += costoBase;
+          totalCostoGAGO += costoGAGO;
+          totalUtilidadBruta += utilidadBruta;
+          totalGastosGVSum += gastosGV;
+          totalGastosGDSum += gastosGD;
+          totalUtilidadNeta += utilidadNeta;
+        }
       }
 
       // Sumar GV/GD no vinculados a ventas específicas (para que el total sea real)

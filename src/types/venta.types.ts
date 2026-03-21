@@ -372,6 +372,10 @@ export interface Venta {
   ventaBajoCosto?: boolean;       // true si algún producto tiene precio < CTRU
   aprobadoBajoCostoPor?: string;  // UID del admin/gerente que aprobó
 
+  // Venta a socio (precio especial, excluida de reportes de rentabilidad)
+  esVentaSocio?: boolean;         // true si es venta a socio del negocio
+  socioNombre?: string;           // Nombre del socio (ej: "Carlos - Socio")
+
   // Auditoría
   creadoPor: string;
   ultimaEdicion?: Timestamp;
@@ -418,6 +422,10 @@ export interface VentaFormData {
   // Control de venta bajo costo
   ventaBajoCosto?: boolean;       // true si algún producto tiene precio < CTRU
   aprobadoPor?: string;           // UID del admin/gerente que aprobó
+
+  // Venta a socio (precio especial, excluida de reportes de rentabilidad)
+  esVentaSocio?: boolean;         // true si es venta a socio del negocio
+  socioNombre?: string;           // Nombre del socio
 }
 
 export interface AsignacionUnidad {

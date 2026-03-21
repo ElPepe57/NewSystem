@@ -46,6 +46,9 @@ import { AuthService } from './services/auth.service';
 // Notificaciones
 import ToastContainer from './components/common/ToastContainer';
 
+// Error boundary global
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+
 // Spinner de carga para Suspense
 const PageLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -109,6 +112,7 @@ function App() {
   }, [setUser, setLoading, fetchUserProfile]);
 
   return (
+    <ErrorBoundary fallbackMessage="La aplicación encontró un error crítico. Por favor recarga la página.">
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -183,6 +187,7 @@ function App() {
       <ToastContainer />
 
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

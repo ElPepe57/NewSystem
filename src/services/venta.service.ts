@@ -80,6 +80,22 @@ import * as StatsService from './venta.stats.service';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
 
+/**
+ * Reintenta una función async con backoff exponencial.
+ * Intentos: 1 inmediato + 2 reintentos (1 s → 2 s).
+ */
+async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i)));
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
+
 export class VentaService {
   // ==========================================================================
   // CONSULTAS BÁSICAS
@@ -441,6 +457,10 @@ export class VentaService {
         nuevaVenta.ventaBajoCosto = true;
         if (data.aprobadoPor) nuevaVenta.aprobadoBajoCostoPor = data.aprobadoPor;
       }
+      if (data.esVentaSocio) {
+        nuevaVenta.esVentaSocio = true;
+        if (data.socioNombre) nuevaVenta.socioNombre = data.socioNombre;
+      }
 
       if (derivedLineaNegocioId) {
         nuevaVenta.lineaNegocioId = derivedLineaNegocioId;
@@ -475,6 +495,18 @@ export class VentaService {
         displayName: userId,
         metadata: { entidadId: docRef.id, entidadTipo: 'venta', monto: totalPEN, moneda: 'PEN' }
       }).catch(() => {});
+
+      // Métricas de cliente — solo para ventas directas (confirmadas al crear).
+      // Las cotizaciones actualizan métricas al pasar por confirmarVenta().
+      if (esVentaDirecta && clienteIdFinal) {
+        import('./cliente.service').then(({ clienteService }) => {
+          const productoIds = productosVenta.map((p: any) => p.productoId).filter(Boolean);
+          withRetry(() => clienteService.actualizarMetricasPorVenta(clienteIdFinal!, {
+            montoVenta: totalPEN,
+            productoIds,
+          })).catch((err: any) => console.warn('[crear] Error actualizando métricas cliente:', err));
+        });
+      }
 
       return {
         id: docRef.id,
@@ -585,11 +617,12 @@ export class VentaService {
       if (venta.clienteId) {
         import('./cliente.service').then(({ clienteService }) => {
           const productoIds = venta.productos?.map((p: any) => p.productoId).filter(Boolean) || [];
-          clienteService.actualizarMetricasPorVenta(venta.clienteId!, {
+          const clienteId = venta.clienteId!;
+          withRetry(() => clienteService.actualizarMetricasPorVenta(clienteId, {
             montoVenta: venta.totalPEN || 0,
             productoIds,
-          }).catch((err: any) => console.warn('[confirmarVenta] Error actualizando métricas cliente:', err));
-          clienteService.calcularCanalPrincipal(venta.clienteId!).catch(() => {});
+          })).catch((err: any) => console.warn('[confirmarVenta] Error actualizando métricas cliente tras 3 intentos:', err));
+          withRetry(() => clienteService.calcularCanalPrincipal(clienteId)).catch(() => {});
         });
       }
     } catch (error: any) {

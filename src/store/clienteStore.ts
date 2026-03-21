@@ -264,11 +264,6 @@ export const useClienteStore = create<ClienteState>((set, get) => ({
       })
       .filter(r => r.score > 0);
 
-    // Debug: mostrar scores para verificar el algoritmo
-    console.log('[buscarLocal] Resultados con score:', terminoNorm);
-    resultadosConScore.forEach(r => {
-      console.log(`  - "${r.cliente.nombre}" => score: ${r.score}, palabras: [${r.palabrasNombre.join(', ')}], estado: ${r.cliente.estado}`);
-    });
 
     const resultados = resultadosConScore
       .sort((a, b) => {
@@ -291,18 +286,14 @@ export const useClienteStore = create<ClienteState>((set, get) => ({
 
     const { cacheActualizado, clientes, buscarLocal, cargarCacheInicial } = get();
 
-    console.log('[buscar] término:', termino, 'cacheActualizado:', cacheActualizado, 'clientes en cache:', clientes.length);
-
     // Si hay caché, usar búsqueda local inmediata
     if (cacheActualizado && clientes.length > 0) {
-      console.log('[buscar] Usando búsqueda LOCAL');
       const resultadosLocales = buscarLocal(termino);
       set({ resultadosBusqueda: resultadosLocales, buscando: false });
       return;
     }
 
     // Si no hay caché, cargar y luego buscar
-    console.log('[buscar] Cargando caché primero...');
     set({ buscando: true });
     try {
       await cargarCacheInicial();
@@ -310,7 +301,6 @@ export const useClienteStore = create<ClienteState>((set, get) => ({
       set({ resultadosBusqueda: resultadosLocales, buscando: false });
     } catch (error: any) {
       // Fallback a búsqueda en Firebase
-      console.log('[buscar] Fallback a Firebase');
       try {
         const resultados = await clienteService.buscar(termino);
         set({ resultadosBusqueda: resultados, buscando: false });

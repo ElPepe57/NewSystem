@@ -214,10 +214,6 @@ export const Tesoreria: React.FC = () => {
       const movsTrans = movimientos.filter(m =>
         m.tipo === 'transferencia_interna' && m.estado !== 'anulado'
       );
-      console.log(`[Transferencias] Total movimientos: ${movimientos.length}, tipo transferencia_interna: ${movsTrans.length}`);
-      movsTrans.forEach(m => {
-        console.log(`  - ${m.numeroMovimiento} | ${m.concepto} | ${m.moneda} ${m.monto} | cuentaOrigen: ${m.cuentaOrigen || 'N/A'} | cuentaDestino: ${m.cuentaDestino || 'N/A'} | fecha: ${m.fecha?.toDate?.()}`);
-      });
 
       const salidas = movsTrans.filter(m => m.cuentaOrigen && !m.cuentaDestino);
       const entradas = movsTrans.filter(m => m.cuentaDestino && !m.cuentaOrigen);

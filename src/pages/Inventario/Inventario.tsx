@@ -563,8 +563,7 @@ export const Inventario: React.FC = () => {
 
   // Handler para crear promoción
   const handleCrearPromocion = (promocion: PromocionData) => {
-    // Por ahora solo logueamos, en el futuro se puede guardar en Firestore
-    console.log('Promoción creada:', promocion);
+    // Por ahora sin acción — en el futuro se puede guardar en Firestore
     // Aquí se podría:
     // 1. Guardar en colección 'promociones' de Firestore
     // 2. Actualizar precios de venta en productos

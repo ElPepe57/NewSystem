@@ -280,47 +280,38 @@ export const Maestros: React.FC = () => {
     setIsSyncing(true);
     try {
       // 1. Vincular ventas con clientes
-      const ventasResult = await metricasService.vincularVentasConClientes();
-      console.log('Ventas vinculadas:', ventasResult);
+      await metricasService.vincularVentasConClientes();
 
       // 2. Vincular productos con marcas
-      const productosResult = await metricasService.vincularProductosConMarcas();
-      console.log('Productos vinculados:', productosResult);
+      await metricasService.vincularProductosConMarcas();
 
       // 3. Sincronizar métricas de clientes
-      const clientesResult = await metricasService.sincronizarMetricasClientes();
-      console.log('Métricas clientes:', clientesResult);
+      await metricasService.sincronizarMetricasClientes();
 
       // 4. Sincronizar métricas de marcas (productos activos)
-      const marcasResult = await metricasService.sincronizarMetricasMarcas();
-      console.log('Métricas marcas (productos):', marcasResult);
+      await metricasService.sincronizarMetricasMarcas();
 
       // 5. Sincronizar ventas de marcas (unidades, ingresos, margen)
-      const ventasMarcasResult = await metricasService.sincronizarVentasMarcas();
-      console.log('Métricas marcas (ventas):', ventasMarcasResult);
+      await metricasService.sincronizarVentasMarcas();
 
       // 7. Sincronizar métricas de proveedores (desde investigaciones de mercado)
-      const proveedoresInvResult = await metricasService.sincronizarMetricasProveedores();
-      console.log('Métricas proveedores (investigación):', proveedoresInvResult);
+      await metricasService.sincronizarMetricasProveedores();
 
       // 8. Sincronizar métricas de competidores (desde investigaciones de mercado)
-      const competidoresResult = await metricasService.sincronizarMetricasCompetidores();
-      console.log('Métricas competidores:', competidoresResult);
+      await metricasService.sincronizarMetricasCompetidores();
 
       // 9. Sincronizar órdenes de compra con proveedores
-      const ordenesProvResult = await metricasService.sincronizarOrdenesProveedores();
-      console.log('Órdenes proveedores:', ordenesProvResult);
+      await metricasService.sincronizarOrdenesProveedores();
 
       // 10. Recalcular inventario de todos los almacenes
-      const almacenesResult = await almacenService.recalcularTodosLosAlmacenes();
-      console.log('Almacenes recalculados:', almacenesResult);
+      await almacenService.recalcularTodosLosAlmacenes();
 
       // Recargar datos
       await loadAllData();
 
       toast.success(
-        `Clientes: ${clientesResult.clientesActualizados}, Marcas: ${marcasResult.marcasActualizadas}, Proveedores: ${ordenesProvResult.proveedoresActualizados}, Competidores: ${competidoresResult.competidoresActualizados}, Almacenes: ${almacenesResult.almacenesActualizados}`,
-        'Sincronizacion Completada'
+        'Métricas de clientes, marcas, proveedores, competidores y almacenes sincronizadas correctamente.',
+        'Sincronización Completada'
       );
     } catch (error: any) {
       console.error('Error en sincronización:', error);

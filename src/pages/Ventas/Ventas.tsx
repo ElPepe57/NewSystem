@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle } from 'lucide-react';
+import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal, ErrorBoundary } from '../../components/common';
 // Nota: ActionModal aún se usa para cancelar ventas
 import type { PipelineStage } from '../../components/common';
@@ -59,6 +59,7 @@ export const Ventas: React.FC = () => {
   const [selectedVenta, setSelectedVenta] = useState<Venta | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
+  const [mostrarVentasSocios, setMostrarVentasSocios] = useState(false);
   const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
 
   // Hook de rentabilidad con distribución proporcional de GA/GO
@@ -117,6 +118,18 @@ export const Ventas: React.FC = () => {
     if (!filtroEstado) return ventasLineaFiltradas;
     return ventasLineaFiltradas.filter(v => v.estado === filtroEstado);
   }, [ventasLineaFiltradas, filtroEstado]);
+
+  // Ventas a socios del mes actual
+  const ventasSociosMes = useMemo(() => {
+    const ahora = new Date();
+    const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+    return ventas.filter(v => {
+      if (!v.esVentaSocio) return false;
+      if (v.estado === 'cancelada') return false;
+      const fecha = v.fechaCreacion?.toDate?.();
+      return fecha && fecha >= inicioMes;
+    });
+  }, [ventas]);
 
   // Lead Time metrics (solo ventas entregadas con fechas completas)
   const leadTimeMetrics = useMemo(() => {
@@ -684,6 +697,58 @@ export const Ventas: React.FC = () => {
         onStageClick={setFiltroEstado}
         title="Pipeline de Ventas"
       />
+
+      {/* Resumen Ventas a Socios (colapsable) */}
+      {ventasSociosMes.length > 0 && (
+        <Card padding="none">
+          <button
+            onClick={() => setMostrarVentasSocios(!mostrarVentasSocios)}
+            className="w-full px-6 py-3 flex items-center justify-between hover:bg-purple-50 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-purple-600" />
+              <span className="font-medium text-purple-900">
+                Ventas a Socios este mes ({ventasSociosMes.length})
+              </span>
+              <span className="text-sm text-purple-600 font-semibold">
+                S/ {ventasSociosMes.reduce((sum, v) => sum + v.totalPEN, 0).toFixed(2)}
+              </span>
+            </div>
+            {mostrarVentasSocios
+              ? <ChevronUp className="h-5 w-5 text-purple-400" />
+              : <ChevronDown className="h-5 w-5 text-purple-400" />
+            }
+          </button>
+          {mostrarVentasSocios && (
+            <div className="px-6 pb-4 border-t border-purple-100">
+              <p className="text-xs text-purple-500 mt-2 mb-3">
+                Estas ventas no se incluyen en los reportes de rentabilidad ni en los KPIs de margen.
+              </p>
+              <div className="space-y-2">
+                {ventasSociosMes.map(v => (
+                  <div
+                    key={v.id}
+                    className="flex items-center justify-between py-2 px-3 bg-purple-50 rounded-lg text-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-purple-700">{v.numeroVenta}</span>
+                      <span className="text-gray-700">{v.socioNombre || v.nombreCliente}</span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        v.estado === 'entregada' ? 'bg-green-100 text-green-700' :
+                        v.estado === 'cancelada' ? 'bg-red-100 text-red-700' :
+                        'bg-blue-100 text-blue-700'
+                      }`}>
+                        {v.estado}
+                      </span>
+                    </div>
+                    <span className="font-semibold text-purple-700">S/ {v.totalPEN.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Tabla de Ventas */}
       <Card padding="none">

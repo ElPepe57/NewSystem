@@ -308,14 +308,8 @@ export const metricasService = {
 
       // Contar ventas sin clienteId
       const ventasSinCliente = ventas.filter((v: any) => !v.clienteId);
-      console.log(`[sincronizarMetricasClientes] Ventas sin clienteId: ${ventasSinCliente.length}`);
       if (ventasSinCliente.length > 0) {
-        console.log(`[sincronizarMetricasClientes] Ejemplos sin clienteId:`, ventasSinCliente.slice(0, 3).map((v: any) => ({
-          numero: v.numeroVenta,
-          cliente: v.nombreCliente,
-          telefono: v.telefonoCliente,
-          estado: v.estado
-        })));
+        console.warn(`[sincronizarMetricasClientes] ${ventasSinCliente.length} ventas sin clienteId`);
       }
 
       for (const venta of ventas) {
@@ -374,7 +368,6 @@ export const metricasService = {
 
           await updateDoc(clienteRef, updateData);
 
-          console.log(`[sincronizarMetricasClientes] Cliente ${clienteId}: ${datos.totalCompras} compras, S/${datos.montoTotal}, ultimaCompra: ${datos.ultimaCompra?.toISOString()}`);
           clientesActualizados++;
         } catch (error: any) {
           errores.push(`Cliente ${clienteId}: ${error.message}`);

@@ -359,6 +359,11 @@ export const VentaCard: React.FC<VentaCardProps> = ({
           <Badge variant={estadoInfo.variant} size="lg">
             {estadoInfo.label}
           </Badge>
+          {venta.esVentaSocio && (
+            <Badge variant="default" size="lg">
+              Socio{venta.socioNombre ? `: ${venta.socioNombre}` : ''}
+            </Badge>
+          )}
         </div>
       </div>
 

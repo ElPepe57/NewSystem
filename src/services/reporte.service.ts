@@ -125,6 +125,8 @@ export class ReporteService {
       const ventas = await VentaService.getAll();
       const ventasEntregadas = ventas.filter(v => {
         if (v.estado !== 'entregada') return false;
+        // Excluir ventas a socios de reportes de rentabilidad
+        if (v.esVentaSocio) return false;
         // Fallback: fechaEntrega → fechaDespacho → fechaCreacion (legacy sin fecha de entrega)
         const fecha = v.fechaEntrega?.toDate?.()
           || (v as any).fechaDespacho?.toDate?.()
@@ -299,9 +301,9 @@ export class ReporteService {
   static async getVentasPorCanal(rango?: RangoFechas): Promise<VentasPorCanal> {
     try {
       const ventas = await VentaService.getAll();
-      // Incluir todas las ventas válidas (no cotizaciones ni canceladas)
+      // Incluir todas las ventas válidas (no cotizaciones ni canceladas ni ventas a socios)
       const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada', 'reservada'];
-      let ventasValidas = ventas.filter(v => estadosValidos.includes(v.estado));
+      let ventasValidas = ventas.filter(v => estadosValidos.includes(v.estado) && !v.esVentaSocio);
 
       // Filtrar por rango si se proporciona
       if (rango) {
@@ -356,9 +358,9 @@ export class ReporteService {
   static async getTendenciaVentas(rango?: RangoFechas): Promise<TendenciaVentas[]> {
     try {
       const ventas = await VentaService.getAll();
-      // Incluir todas las ventas válidas (no cotizaciones ni canceladas)
+      // Incluir todas las ventas válidas (no cotizaciones ni canceladas ni ventas a socios)
       const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'despachada', 'entrega_parcial', 'entregada', 'reservada'];
-      const ventasValidas = ventas.filter(v => estadosValidos.includes(v.estado));
+      const ventasValidas = ventas.filter(v => estadosValidos.includes(v.estado) && !v.esVentaSocio);
 
       // Usar rango proporcionado o default últimos 30 días
       const fin = rango?.fin || new Date();
@@ -487,11 +489,12 @@ export class ReporteService {
    */
   private static async getVentasPorRango(rango: RangoFechas): Promise<{ cantidad: number; totalPEN: number; utilidadPEN: number }> {
     const ventas = await VentaService.getAll();
-    // Incluir todas las ventas válidas (no cotizaciones ni canceladas)
+    // Incluir todas las ventas válidas (no cotizaciones ni canceladas ni ventas a socios)
     const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada', 'reservada'];
 
     const ventasRango = ventas.filter(v => {
       if (!estadosValidos.includes(v.estado)) return false;
+      if (v.esVentaSocio) return false;
       // Usar fechaEntrega si existe, sino fechaConfirmacion, sino fechaCreacion
       const fechaVenta = v.fechaEntrega?.toDate() || v.fechaConfirmacion?.toDate() || v.fechaCreacion?.toDate();
       if (!fechaVenta) return false;

@@ -197,7 +197,6 @@ export function NotificationCenter() {
         }
         break;
       default:
-        console.log('Acción no implementada:', accion.accion);
     }
 
     setIsOpen(false);

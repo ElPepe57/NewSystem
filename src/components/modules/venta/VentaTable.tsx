@@ -285,7 +285,14 @@ const VentaCard: React.FC<{
             <Badge variant={estadoInfo.variant} size="sm">{estadoInfo.label}</Badge>
             <LineaNegocioBadge lineaNegocioId={venta.lineaNegocioId} />
           </div>
-          <div className="font-medium text-gray-900 text-sm truncate mt-1">{venta.nombreCliente}</div>
+          <div className="font-medium text-gray-900 text-sm truncate mt-1 flex items-center gap-1.5">
+            {venta.nombreCliente}
+            {venta.esVentaSocio && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700 flex-shrink-0">
+                SOCIO
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-1.5 text-xs text-gray-500">
             <span>{formatDate(venta.fechaCreacion)} - {getCanalLabel(venta)}</span>
             {venta.metodoEnvio === 'flex' && (
@@ -544,7 +551,14 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 </td>
                 
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{venta.nombreCliente}</div>
+                  <div className="text-sm text-gray-900 flex items-center gap-1.5">
+                    {venta.nombreCliente}
+                    {venta.esVentaSocio && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">
+                        SOCIO
+                      </span>
+                    )}
+                  </div>
                   {venta.dniRuc && (
                     <div className="text-xs text-gray-500">{venta.dniRuc}</div>
                   )}

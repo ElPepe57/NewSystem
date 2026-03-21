@@ -571,9 +571,6 @@ export class ProductoService {
               proveedorId: proveedor.id
             } as any;
 
-            if (esNuevo) {
-              console.log(`Proveedor "${prov.nombre}" creado automáticamente en Gestor Maestro`);
-            }
           } catch (error) {
             console.warn(`No se pudo auto-crear proveedor "${prov.nombre}":`, error);
           }
@@ -612,7 +609,6 @@ export class ProductoService {
                 competidorId: nuevoCompetidorId
               };
 
-              console.log(`Competidor "${comp.nombre}" creado automáticamente en Gestor Maestro`);
             }
           } catch (error) {
             console.warn(`No se pudo auto-crear competidor "${comp.nombre}":`, error);

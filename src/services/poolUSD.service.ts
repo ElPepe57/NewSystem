@@ -129,6 +129,7 @@ export const poolUSDService = {
           asientoAutoRevaluacion: data.asientoAutoRevaluacion ?? POOL_USD_CONFIG_DEFAULTS.asientoAutoRevaluacion,
           alertaDesviacionPorcentaje: data.alertaDesviacionPorcentaje ?? POOL_USD_CONFIG_DEFAULTS.alertaDesviacionPorcentaje,
           habilitado: data.habilitado ?? POOL_USD_CONFIG_DEFAULTS.habilitado,
+          metaPEN: data.metaPEN ?? POOL_USD_CONFIG_DEFAULTS.metaPEN,
         };
       }
     } catch (error) {
@@ -683,6 +684,233 @@ export const poolUSDService = {
       actualizadoPor: userId,
       fechaActualizacion: Timestamp.now(),
     }, { merge: true });
+  },
+
+  // ==========================================================
+  // CARGA RETROACTIVA (TAREA-065)
+  // ==========================================================
+
+  /**
+   * Carga retroactiva: recopila pagos OC en USD, gastos USD pagados,
+   * y conversiones cambiarias históricas, los ordena cronológicamente,
+   * y los registra en el pool uno a uno.
+   *
+   * PRECONDICIÓN: Pool debe estar vacío (sin movimientos).
+   * Si ya hay movimientos, lanzar error para evitar duplicados.
+   *
+   * @param mesesAtras - Cuántos meses hacia atrás cargar (default: 3)
+   * @param userId - ID del usuario que ejecuta la carga
+   * @returns Resumen de la carga
+   */
+  async cargarRetroactivo(
+    mesesAtras: number,
+    userId: string,
+    onProgress?: (msg: string, pct: number) => void
+  ): Promise<{
+    totalMovimientos: number;
+    pagosOC: number;
+    gastosUSD: number;
+    conversiones: number;
+    saldoFinal: number;
+    tcpaFinal: number;
+  }> {
+    // Verificar que no hay movimientos existentes
+    const existente = await this.getUltimoMovimiento();
+    if (existente) {
+      throw new Error(
+        'Ya existen movimientos en el pool. Elimine todos los movimientos primero si desea recargar.'
+      );
+    }
+
+    const ahora = new Date();
+    const fechaInicio = new Date(ahora.getFullYear(), ahora.getMonth() - mesesAtras, 1);
+
+    onProgress?.('Leyendo pagos de órdenes de compra...', 5);
+
+    // 1. Obtener pagos OC en USD
+    const ocSnap = await getDocs(collection(db, COLLECTIONS.ORDENES_COMPRA));
+    const pagosOC: Array<{
+      tipo: TipoMovimientoPool;
+      montoUSD: number;
+      tcOperacion: number;
+      fecha: Date;
+      docTipo: PoolUSDMovimiento['documentoOrigenTipo'];
+      docId: string;
+      docNumero: string;
+      notas: string;
+    }> = [];
+
+    ocSnap.docs.forEach(d => {
+      const oc = d.data();
+      const pagos = oc.historialPagos || [];
+      for (const pago of pagos) {
+        if (pago.monedaPago === 'USD' || (!pago.monedaPago && oc.moneda === 'USD')) {
+          const fechaPago = pago.fecha?.toDate?.() || pago.fechaRegistro?.toDate?.();
+          if (!fechaPago || fechaPago < fechaInicio) continue;
+          pagosOC.push({
+            tipo: 'PAGO_OC',
+            montoUSD: pago.montoUSD || pago.montoOriginal || 0,
+            tcOperacion: pago.tipoCambio || oc.tcPago || oc.tcCompra || 3.70,
+            fecha: fechaPago,
+            docTipo: 'orden_compra',
+            docId: d.id,
+            docNumero: oc.numeroOrden || d.id,
+            notas: `[Retro] Pago OC ${oc.numeroOrden || d.id}`,
+          });
+        }
+      }
+    });
+
+    onProgress?.(`${pagosOC.length} pagos OC encontrados. Leyendo gastos USD...`, 25);
+
+    // 2. Obtener gastos USD pagados
+    const gastosSnap = await getDocs(
+      query(collection(db, COLLECTIONS.GASTOS), where('moneda', '==', 'USD'))
+    );
+    const gastosUSD: typeof pagosOC = [];
+
+    gastosSnap.docs.forEach(d => {
+      const g = d.data();
+      if (g.estado !== 'pagado' && g.estado !== 'aprobado') return;
+      const fechaGasto = g.fechaPago?.toDate?.() || g.fecha?.toDate?.();
+      if (!fechaGasto || fechaGasto < fechaInicio) return;
+      const esImportacion = ['GI', 'flete', 'aduana'].includes(g.categoria);
+      gastosUSD.push({
+        tipo: esImportacion ? 'GASTO_IMPORTACION_USD' : 'GASTO_SERVICIO_USD',
+        montoUSD: g.montoOriginal || g.monto || 0,
+        tcOperacion: g.tipoCambio || 3.70,
+        fecha: fechaGasto,
+        docTipo: 'gasto',
+        docId: d.id,
+        docNumero: g.numeroGasto || d.id,
+        notas: `[Retro] Gasto ${g.numeroGasto || d.id}: ${g.descripcion || ''}`.slice(0, 200),
+      });
+    });
+
+    onProgress?.(`${gastosUSD.length} gastos USD encontrados. Leyendo conversiones...`, 50);
+
+    // 3. Obtener conversiones cambiarias
+    const convSnap = await getDocs(collection(db, COLLECTIONS.CONVERSIONES_CAMBIARIAS));
+    const conversiones: typeof pagosOC = [];
+
+    convSnap.docs.forEach(d => {
+      const c = d.data();
+      const fechaConv = c.fecha?.toDate?.();
+      if (!fechaConv || fechaConv < fechaInicio) return;
+
+      if (c.monedaOrigen === 'PEN' && c.monedaDestino === 'USD') {
+        // Compra USD: entrada
+        conversiones.push({
+          tipo: 'COMPRA_USD_BANCO',
+          montoUSD: c.montoDestino || 0,
+          tcOperacion: c.tipoCambio || 3.70,
+          fecha: fechaConv,
+          docTipo: 'conversion_cambiaria',
+          docId: d.id,
+          docNumero: c.numeroConversion || d.id,
+          notas: `[Retro] Conversión ${c.numeroConversion || d.id}: PEN→USD`,
+        });
+      } else if (c.monedaOrigen === 'USD' && c.monedaDestino === 'PEN') {
+        // Venta USD: salida
+        conversiones.push({
+          tipo: 'VENTA_USD',
+          montoUSD: c.montoOrigen || 0,
+          tcOperacion: c.tipoCambio || 3.70,
+          fecha: fechaConv,
+          docTipo: 'conversion_cambiaria',
+          docId: d.id,
+          docNumero: c.numeroConversion || d.id,
+          notas: `[Retro] Conversión ${c.numeroConversion || d.id}: USD→PEN`,
+        });
+      }
+    });
+
+    onProgress?.(`${conversiones.length} conversiones encontradas. Ordenando cronológicamente...`, 65);
+
+    // 4. Combinar y ordenar cronológicamente
+    const todosMovimientos = [...pagosOC, ...gastosUSD, ...conversiones]
+      .sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
+
+    if (todosMovimientos.length === 0) {
+      return {
+        totalMovimientos: 0,
+        pagosOC: 0,
+        gastosUSD: 0,
+        conversiones: 0,
+        saldoFinal: 0,
+        tcpaFinal: 0,
+      };
+    }
+
+    onProgress?.(`Registrando ${todosMovimientos.length} movimientos en orden...`, 70);
+
+    // 5. Registrar uno por uno en orden (cada uno actualiza _estado atómicamente)
+    for (let i = 0; i < todosMovimientos.length; i++) {
+      const m = todosMovimientos[i];
+      try {
+        await this.registrarMovimiento(
+          {
+            tipo: m.tipo,
+            montoUSD: m.montoUSD,
+            tcOperacion: m.tcOperacion,
+            fecha: m.fecha,
+            documentoOrigenTipo: m.docTipo,
+            documentoOrigenId: m.docId,
+            documentoOrigenNumero: m.docNumero,
+            notas: m.notas,
+          },
+          userId
+        );
+      } catch (err) {
+        console.warn(`[Retro] Error en movimiento ${i + 1}/${todosMovimientos.length}:`, err);
+        // Continuar con el siguiente — salidas sin saldo se ignoran
+      }
+      if ((i + 1) % 5 === 0 || i === todosMovimientos.length - 1) {
+        const pct = 70 + ((i + 1) / todosMovimientos.length) * 28;
+        onProgress?.(`Movimiento ${i + 1}/${todosMovimientos.length}...`, pct);
+      }
+    }
+
+    // 6. Obtener estado final
+    const ultimo = await this.getUltimoMovimiento();
+    onProgress?.('Carga retroactiva completada', 100);
+
+    return {
+      totalMovimientos: todosMovimientos.length,
+      pagosOC: pagosOC.length,
+      gastosUSD: gastosUSD.length,
+      conversiones: conversiones.length,
+      saldoFinal: ultimo?.poolUSDDespues ?? 0,
+      tcpaFinal: ultimo?.tcpaDespues ?? 0,
+    };
+  },
+
+  /**
+   * Eliminar TODOS los movimientos del pool (para reset antes de carga retroactiva).
+   * Solo admin.
+   */
+  async eliminarTodosMovimientos(): Promise<number> {
+    const snap = await getDocs(collection(db, MOV_COLLECTION));
+    if (snap.empty) return 0;
+
+    let eliminados = 0;
+    // Batch en grupos de 450
+    const docs = snap.docs;
+    for (let i = 0; i < docs.length; i += 450) {
+      const batch = writeBatch(db);
+      const slice = docs.slice(i, i + 450);
+      for (const d of slice) {
+        batch.delete(d.ref);
+      }
+      // También eliminar _estado en el último batch
+      if (i + 450 >= docs.length) {
+        batch.delete(ESTADO_DOC_REF());
+      }
+      await batch.commit();
+      eliminados += slice.length;
+    }
+
+    return eliminados;
   },
 
   // ==========================================================

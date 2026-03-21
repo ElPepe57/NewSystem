@@ -220,6 +220,8 @@ export interface PoolUSDConfig {
   alertaDesviacionPorcentaje: number;
   /** Pool habilitado */
   habilitado: boolean;
+  /** Meta mensual de ventas en PEN (0 = sin meta configurada) */
+  metaPEN: number;
 }
 
 export const POOL_USD_CONFIG_DEFAULTS: PoolUSDConfig = {
@@ -227,6 +229,7 @@ export const POOL_USD_CONFIG_DEFAULTS: PoolUSDConfig = {
   asientoAutoRevaluacion: false,  // Manual hasta que se valide
   alertaDesviacionPorcentaje: 5,
   habilitado: true,
+  metaPEN: 0,                     // 0 = sin meta configurada
 };
 
 // ============================================================

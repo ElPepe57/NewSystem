@@ -301,6 +301,10 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   const { userProfile } = useAuthStore();
   const esAdminOGerente = userProfile?.role === 'admin' || userProfile?.role === 'gerente';
 
+  // Venta a socio
+  const [esVentaSocio, setEsVentaSocio] = useState(false);
+  const [socioNombre, setSocioNombre] = useState('');
+
   // Alerta de precio de reposición (TCPA del pool)
   const [tcpaPool, setTcpaPool] = useState<number>(0);
   useEffect(() => {
@@ -510,6 +514,12 @@ export const VentaForm: React.FC<VentaFormProps> = ({
       }
       data.ventaBajoCosto = true;
       data.aprobadoPor = user.uid;
+    }
+
+    // Marcar venta a socio
+    if (esVentaSocio) {
+      data.esVentaSocio = true;
+      if (socioNombre.trim()) data.socioNombre = socioNombre.trim();
     }
 
     // Preparar datos del adelanto si corresponde
@@ -1278,6 +1288,39 @@ export const VentaForm: React.FC<VentaFormProps> = ({
             <div className="bg-gray-50 p-4 rounded-lg">
               <h5 className="font-medium text-gray-900 mb-2">Observaciones</h5>
               <p className="text-sm text-gray-600">{observaciones}</p>
+            </div>
+          )}
+
+          {/* Toggle Venta a Socio — solo admin/gerente */}
+          {esAdminOGerente && (
+            <div className={`border rounded-lg p-4 space-y-3 ${esVentaSocio ? 'bg-purple-50 border-purple-300' : 'bg-gray-50 border-gray-200'}`}>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={esVentaSocio}
+                  onChange={(e) => {
+                    setEsVentaSocio(e.target.checked);
+                    if (!e.target.checked) setSocioNombre('');
+                  }}
+                  className="w-4 h-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500"
+                />
+                <div>
+                  <span className="text-sm font-medium text-gray-900">Venta a Socio</span>
+                  <p className="text-xs text-gray-500">Precio especial. Se excluye de reportes de rentabilidad.</p>
+                </div>
+              </label>
+              {esVentaSocio && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del socio</label>
+                  <input
+                    type="text"
+                    value={socioNombre}
+                    onChange={(e) => setSocioNombre(e.target.value)}
+                    placeholder="Ej: Carlos - Socio fundador"
+                    className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+              )}
             </div>
           )}
 

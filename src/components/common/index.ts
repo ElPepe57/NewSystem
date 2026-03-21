@@ -115,6 +115,7 @@ export type { AddressData } from './GoogleMapsAddressInput';
 
 // Error Boundary
 export { ErrorBoundary } from './ErrorBoundary';
+export { ModuleErrorBoundary } from './ModuleErrorBoundary';
 
 // Línea de Negocio & País de Origen Badges
 export { LineaNegocioBadge, CompartidoBadge, GastoLineaBadge, PaisOrigenBadge, LineaFiltroActivoBanner } from './LineaBadges';

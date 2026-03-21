@@ -573,27 +573,6 @@ export const cuentasPendientesService = {
         (u: any) => estadosDisponibles.includes(u.estado)
       );
 
-      // Log detallado para debugging
-      console.group('📦 DETALLE INVENTARIO POR VENDER');
-      console.log(`TC usado: ${tc}`);
-      console.log(`Total unidades encontradas: ${unidades.length}`);
-      console.log(`Unidades disponibles (${estadosDisponibles.join(', ')}): ${unidadesDisponibles.length}`);
-      console.table(unidadesDisponibles.map((u: any) => {
-        const costoProductoUSD = u.costoUnitarioUSD || 0;
-        const costoFleteUSD = u.costoFleteUSD || 0;
-        const costoTotalUSD = costoProductoUSD + costoFleteUSD;
-        const costoBasePEN = costoTotalUSD * tc; // Siempre usar (costo + flete) × TC
-        return {
-          id: u.id?.substring(0, 8) + '...',
-          producto: u.productoNombre || u.productoSKU,
-          estado: u.estado,
-          'Costo Producto USD': costoProductoUSD.toFixed(2),
-          'Costo Flete USD': costoFleteUSD.toFixed(2),
-          'Costo Total USD': costoTotalUSD.toFixed(2),
-          'Costo Base PEN': costoBasePEN.toFixed(2),
-          'Valor Venta Est (30%)': (costoBasePEN * 1.3).toFixed(2)
-        };
-      }));
 
       for (const u of unidadesDisponibles) {
         // Calcular valor de venta estimado:
@@ -612,9 +591,6 @@ export const cuentasPendientesService = {
         inventarioDisponibleValor += valorVentaEstimado;
       }
 
-      console.log(`💰 INVERSIÓN TOTAL: S/ ${inversionTotalPEN.toFixed(2)}`);
-      console.log(`💰 VALOR VENTA (30%): S/ ${inventarioDisponibleValor.toFixed(2)}`);
-      console.groupEnd();
     } catch (e) {
       console.warn('Error obteniendo inventario:', e);
     }
@@ -650,13 +626,6 @@ export const cuentasPendientesService = {
       ? ((ganancia / inversionTotalReal) * 100)
       : 0;
 
-    console.log('📊 ROI:');
-    console.log(`   Saldo Actual: S/ ${saldoTotalPEN.toFixed(2)}`);
-    console.log(`   Inventario por Vender: S/ ${inventarioDisponibleValor.toFixed(2)}`);
-    console.log(`   Retorno Total: S/ ${retornoTotal.toFixed(2)}`);
-    console.log(`   Inversión Total (CxP): S/ ${inversionTotalReal.toFixed(2)}`);
-    console.log(`   Ganancia: S/ ${ganancia.toFixed(2)}`);
-    console.log(`   ROI: (${retornoTotal.toFixed(2)} - ${inversionTotalReal.toFixed(2)}) / ${inversionTotalReal.toFixed(2)} × 100 = ${roiProyectado.toFixed(2)}%`);
 
     const rentabilidadProyectada = roiProyectado;
 

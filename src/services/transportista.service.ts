@@ -414,7 +414,6 @@ export const transportistaService = {
     const existentes = await this.getAll();
 
     if (existentes.length > 0) {
-      console.log('Ya existen transportistas, no se ejecuta el seed');
       return;
     }
 
@@ -476,6 +475,5 @@ export const transportistaService = {
       await this.create(transportista, userId);
     }
 
-    console.log('Seed de transportistas completado:', transportistasDefault.length, 'transportistas creados');
   }
 };
