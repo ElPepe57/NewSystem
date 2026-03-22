@@ -26,6 +26,7 @@ import type { Venta, VentaFormData, MetodoPago, AdelantoData, EditarVentaData } 
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { ventaSociosService, MOTIVOS_VENTA_SOCIO } from '../../services/venta.socios.service';
 import type { ResumenVentasSocios } from '../../services/venta.socios.service';
+import { formatCurrencyPEN } from '../../utils/format';
 import type { ProgramarEntregaData } from '../../types/entrega.types';
 
 export const Ventas: React.FC = () => {
@@ -772,133 +773,226 @@ export const Ventas: React.FC = () => {
       {/* Resumen Ventas a Socios (colapsable con KPIs + alertas) */}
       {resumenSocios && (
         <Card padding="none">
+          {/* Header colapsable */}
           <button
             onClick={() => setMostrarVentasSocios(!mostrarVentasSocios)}
-            className="w-full px-6 py-3 flex items-center justify-between hover:bg-purple-50 transition-colors"
+            className="w-full px-6 py-3 flex items-center justify-between hover:bg-purple-50 transition-colors rounded-lg"
+            aria-expanded={mostrarVentasSocios}
           >
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-purple-600" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <Users className="h-5 w-5 text-purple-600 flex-shrink-0" />
               <span className="font-medium text-purple-900">
-                Ventas a Socios — {new Date().toLocaleString('es-PE', { month: 'long' })} ({resumenSocios.totalVentas})
+                Ventas a Socios — {new Date().toLocaleString('es-PE', { month: 'long', year: 'numeric' })}
               </span>
-              <span className="text-sm text-purple-600 font-semibold">
-                S/ {resumenSocios.totalCobradoPEN.toFixed(2)}
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                {resumenSocios.totalVentas} {resumenSocios.totalVentas === 1 ? 'venta' : 'ventas'}
+              </span>
+              <span className={`text-sm font-semibold ${
+                resumenSocios.totalCobradoPEN > ventaSociosService.UMBRAL_MONTO_MENSUAL_PEN
+                  ? 'text-red-600'
+                  : 'text-purple-600'
+              }`}>
+                {formatCurrencyPEN(resumenSocios.totalCobradoPEN)}
               </span>
               {resumenSocios.alertas.length > 0 && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-                  <AlertTriangle className="h-3 w-3 mr-1" /> {resumenSocios.alertas.length}
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  {resumenSocios.alertas.length} {resumenSocios.alertas.length === 1 ? 'alerta' : 'alertas'}
                 </span>
               )}
             </div>
             {mostrarVentasSocios
-              ? <ChevronUp className="h-5 w-5 text-purple-400" />
-              : <ChevronDown className="h-5 w-5 text-purple-400" />
+              ? <ChevronUp className="h-5 w-5 text-purple-400 flex-shrink-0" />
+              : <ChevronDown className="h-5 w-5 text-purple-400 flex-shrink-0" />
             }
           </button>
+
           {mostrarVentasSocios && (
-            <div className="px-6 pb-4 border-t border-purple-100">
-              <p className="text-xs text-purple-500 mt-2 mb-3">
-                Excluidas de reportes de rentabilidad. Subsidio = CTRU - precio cobrado. Costo oportunidad = precio regular promedio - precio socio.
+            <div className="px-6 pb-6 border-t border-purple-100">
+              <p className="text-xs text-purple-400 mt-3 mb-4">
+                Excluidas de reportes de rentabilidad. Subsidio = CTRU - precio cobrado. Costo de oportunidad = precio regular promedio - precio cobrado al socio.
               </p>
 
-              {/* KPI Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              {/* 5 KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
+                {/* Card 1: conteo de ventas */}
                 <div className="bg-purple-50 rounded-lg p-3 text-center">
-                  <p className="text-xs text-purple-500">Cobrado</p>
-                  <p className="text-lg font-bold text-purple-700">S/ {resumenSocios.totalCobradoPEN.toFixed(0)}</p>
-                </div>
-                <div className={`rounded-lg p-3 text-center ${resumenSocios.subsidioDirectoPEN > 0 ? 'bg-red-50' : 'bg-green-50'}`}>
-                  <p className="text-xs text-gray-500">Subsidio</p>
-                  <p className={`text-lg font-bold ${resumenSocios.subsidioDirectoPEN > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    S/ {resumenSocios.subsidioDirectoPEN.toFixed(0)}
+                  <p className="text-xs text-purple-500 mb-1">Ventas este mes</p>
+                  <p className="text-2xl font-bold text-purple-700">{resumenSocios.totalVentas}</p>
+                  <p className="text-xs text-purple-400 mt-0.5">
+                    {resumenSocios.porSocio.length} {resumenSocios.porSocio.length === 1 ? 'socio' : 'socios'}
                   </p>
                 </div>
-                <div className="bg-amber-50 rounded-lg p-3 text-center">
-                  <p className="text-xs text-gray-500">Oportunidad</p>
-                  <p className="text-lg font-bold text-amber-600">S/ {resumenSocios.costoOportunidadPEN.toFixed(0)}</p>
+
+                {/* Card 2: total cobrado — rojo si supera umbral */}
+                <div className={`rounded-lg p-3 text-center ${
+                  resumenSocios.totalCobradoPEN > ventaSociosService.UMBRAL_MONTO_MENSUAL_PEN
+                    ? 'bg-red-50'
+                    : 'bg-purple-50'
+                }`}>
+                  <p className="text-xs text-gray-500 mb-1">Total cobrado</p>
+                  <p className={`text-lg font-bold ${
+                    resumenSocios.totalCobradoPEN > ventaSociosService.UMBRAL_MONTO_MENSUAL_PEN
+                      ? 'text-red-600'
+                      : 'text-purple-700'
+                  }`}>
+                    {formatCurrencyPEN(resumenSocios.totalCobradoPEN)}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    umbral: {formatCurrencyPEN(ventaSociosService.UMBRAL_MONTO_MENSUAL_PEN)}
+                  </p>
                 </div>
-                <div className={`rounded-lg p-3 text-center ${resumenSocios.porcentajeInventarioUnidades > 15 ? 'bg-red-50' : 'bg-gray-50'}`}>
-                  <p className="text-xs text-gray-500">% Inventario</p>
-                  <p className={`text-lg font-bold ${resumenSocios.porcentajeInventarioUnidades > 15 ? 'text-red-600' : 'text-gray-700'}`}>
+
+                {/* Card 3: subsidio directo */}
+                <div className={`rounded-lg p-3 text-center ${
+                  resumenSocios.subsidioDirectoPEN > 0 ? 'bg-red-50' : 'bg-green-50'
+                }`}>
+                  <p className="text-xs text-gray-500 mb-1">Subsidio directo</p>
+                  <p className={`text-lg font-bold ${
+                    resumenSocios.subsidioDirectoPEN > 0 ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    {formatCurrencyPEN(resumenSocios.subsidioDirectoPEN)}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">CTRU - cobrado</p>
+                </div>
+
+                {/* Card 4: costo de oportunidad */}
+                <div className="bg-amber-50 rounded-lg p-3 text-center">
+                  <p className="text-xs text-gray-500 mb-1">Costo oportunidad</p>
+                  <p className="text-lg font-bold text-amber-600">
+                    {formatCurrencyPEN(resumenSocios.costoOportunidadPEN)}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">precio reg. - precio socio</p>
+                </div>
+
+                {/* Card 5: % inventario */}
+                <div className={`rounded-lg p-3 text-center ${
+                  resumenSocios.porcentajeInventarioUnidades > 15 ? 'bg-red-50' : 'bg-gray-50'
+                }`}>
+                  <p className="text-xs text-gray-500 mb-1">% Inventario</p>
+                  <p className={`text-lg font-bold ${
+                    resumenSocios.porcentajeInventarioUnidades > 15 ? 'text-red-600' : 'text-gray-700'
+                  }`}>
                     {resumenSocios.porcentajeInventarioUnidades.toFixed(1)}%
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {resumenSocios.unidadesConsumidas} uds. a socios
                   </p>
                 </div>
               </div>
 
               {/* Alertas */}
               {resumenSocios.alertas.length > 0 && (
-                <div className="space-y-2 mb-4">
+                <div className="space-y-2 mb-5">
                   {resumenSocios.alertas.map((alerta, i) => (
-                    <div key={i} className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg ${
-                      alerta.severidad === 'critical' ? 'bg-red-50 text-red-700' :
-                      alerta.severidad === 'warning' ? 'bg-amber-50 text-amber-700' :
-                      'bg-blue-50 text-blue-700'
-                    }`}>
-                      <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                    <div
+                      key={i}
+                      role="alert"
+                      className={`flex items-start gap-2 text-sm px-3 py-2 rounded-lg ${
+                        alerta.severidad === 'critical'
+                          ? 'bg-red-50 text-red-700 border border-red-200'
+                          : alerta.severidad === 'warning'
+                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                          : 'bg-blue-50 text-blue-700 border border-blue-200'
+                      }`}
+                    >
+                      <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                       <span>{alerta.mensaje}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Tabla por socio */}
+              {/* Tabla resumen por socio */}
               {resumenSocios.porSocio.length > 0 && (
-                <div className="overflow-x-auto mb-4">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-purple-200 text-left">
-                        <th className="pb-2 text-purple-600 font-medium">Socio</th>
-                        <th className="pb-2 text-purple-600 font-medium text-center">Ventas</th>
-                        <th className="pb-2 text-purple-600 font-medium text-right">Cobrado</th>
-                        <th className="pb-2 text-purple-600 font-medium text-right">Costo</th>
-                        <th className="pb-2 text-purple-600 font-medium text-right">Subsidio</th>
-                        <th className="pb-2 text-purple-600 font-medium text-right">Oportunidad</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {resumenSocios.porSocio.map(s => (
-                        <tr key={s.nombre} className="border-b border-purple-50">
-                          <td className="py-2 text-gray-900">{s.nombre}</td>
-                          <td className="py-2 text-center text-gray-600">{s.ventas}</td>
-                          <td className="py-2 text-right text-gray-700">S/ {s.cobradoPEN.toFixed(0)}</td>
-                          <td className="py-2 text-right text-gray-500">S/ {s.costoRealPEN.toFixed(0)}</td>
-                          <td className={`py-2 text-right font-medium ${s.subsidioPEN > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                            S/ {s.subsidioPEN.toFixed(0)}
-                          </td>
-                          <td className="py-2 text-right text-amber-600">S/ {s.costoOportunidadPEN.toFixed(0)}</td>
+                <div className="mb-5">
+                  <h4 className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-2">
+                    Resumen por socio
+                  </h4>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-purple-200 text-left">
+                          <th className="pb-2 pr-3 text-purple-600 font-medium">Socio</th>
+                          <th className="pb-2 px-3 text-purple-600 font-medium text-center">Ventas</th>
+                          <th className="pb-2 px-3 text-purple-600 font-medium text-right">Cobrado</th>
+                          <th className="pb-2 px-3 text-purple-600 font-medium text-right">Subsidio</th>
+                          <th className="pb-2 px-3 text-purple-600 font-medium text-right">Oportunidad</th>
+                          <th className="pb-2 pl-3 text-purple-600 font-medium">Motivos</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {resumenSocios.porSocio.map(s => (
+                          <tr key={s.nombre} className="border-b border-purple-50 hover:bg-purple-50/40 transition-colors">
+                            <td className="py-2 pr-3 font-medium text-gray-900">{s.nombre}</td>
+                            <td className="py-2 px-3 text-center text-gray-600">{s.ventas}</td>
+                            <td className="py-2 px-3 text-right text-gray-700">{formatCurrencyPEN(s.cobradoPEN)}</td>
+                            <td className={`py-2 px-3 text-right font-medium ${
+                              s.subsidioPEN > 0 ? 'text-red-600' : 'text-green-600'
+                            }`}>
+                              {formatCurrencyPEN(s.subsidioPEN)}
+                            </td>
+                            <td className="py-2 px-3 text-right text-amber-600">
+                              {formatCurrencyPEN(s.costoOportunidadPEN)}
+                            </td>
+                            <td className="py-2 pl-3">
+                              <div className="flex flex-wrap gap-1">
+                                {s.motivos.length > 0
+                                  ? s.motivos.map(m => (
+                                      <span
+                                        key={m}
+                                        className="inline-block text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded"
+                                      >
+                                        {MOTIVOS_VENTA_SOCIO[m] || m}
+                                      </span>
+                                    ))
+                                  : <span className="text-xs text-gray-400">—</span>
+                                }
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
               {/* Lista de ventas individuales */}
-              <div className="space-y-2">
-                {ventasSociosMes.map(v => (
-                  <div
-                    key={v.id}
-                    className="flex items-center justify-between py-2 px-3 bg-purple-50 rounded-lg text-sm"
-                  >
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="font-mono text-purple-700">{v.numeroVenta}</span>
-                      <span className="text-gray-700">{v.socioNombre || v.nombreCliente}</span>
-                      {v.motivoVentaSocio && (
-                        <span className="text-xs text-purple-500 bg-purple-100 px-2 py-0.5 rounded">
-                          {MOTIVOS_VENTA_SOCIO[v.motivoVentaSocio] || v.motivoVentaSocio}
+              <div>
+                <h4 className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-2">
+                  Ventas del mes
+                </h4>
+                <div className="space-y-1.5">
+                  {ventasSociosMes.map(v => (
+                    <div
+                      key={v.id}
+                      className="flex items-center justify-between py-2 px-3 bg-purple-50 rounded-lg text-sm"
+                    >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-xs text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">
+                          {v.numeroVenta}
                         </span>
-                      )}
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        v.estado === 'entregada' ? 'bg-green-100 text-green-700' :
-                        v.estado === 'cancelada' ? 'bg-red-100 text-red-700' :
-                        'bg-blue-100 text-blue-700'
-                      }`}>
-                        {v.estado}
+                        <span className="text-gray-700">{v.socioNombre || v.nombreCliente}</span>
+                        {v.motivoVentaSocio && (
+                          <span className="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded">
+                            {MOTIVOS_VENTA_SOCIO[v.motivoVentaSocio] || v.motivoVentaSocio}
+                          </span>
+                        )}
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          v.estado === 'entregada'  ? 'bg-green-100 text-green-700' :
+                          v.estado === 'cancelada' ? 'bg-red-100 text-red-700'   :
+                                                     'bg-blue-100 text-blue-700'
+                        }`}>
+                          {v.estado}
+                        </span>
+                      </div>
+                      <span className="font-semibold text-purple-700 flex-shrink-0 ml-2">
+                        {formatCurrencyPEN(v.totalPEN)}
                       </span>
                     </div>
-                    <span className="font-semibold text-purple-700">S/ {v.totalPEN.toFixed(2)}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           )}
