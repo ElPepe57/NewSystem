@@ -101,8 +101,11 @@ export const clienteService = {
    */
   async getAll(): Promise<Cliente[]> {
     try {
-      // Sin orderBy para evitar requerir índices compuestos
-      const snapshot = await getDocs(collection(db, COLLECTION_NAME));
+      // Sin orderBy para evitar requerir índices compuestos — limit de seguridad
+      const snapshot = await getDocs(query(
+        collection(db, COLLECTION_NAME),
+        limit(500)
+      ));
       const clientes = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()

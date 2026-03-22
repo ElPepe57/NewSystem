@@ -10,7 +10,7 @@ import { PendingApproval } from './pages/Auth/PendingApproval';
 const Dashboard = React.lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
 const Productos = React.lazy(() => import('./pages/Productos/Productos').then(m => ({ default: m.Productos })));
 const Inventario = React.lazy(() => import('./pages/Inventario/Inventario').then(m => ({ default: m.Inventario })));
-const Almacenes = React.lazy(() => import('./pages/Almacenes/Almacenes').then(m => ({ default: m.Almacenes })));
+// Almacenes page removed from routing — functionality lives in Maestros/AlmacenesLogistica
 const Transferencias = React.lazy(() => import('./pages/Transferencias/Transferencias').then(m => ({ default: m.Transferencias })));
 const Unidades = React.lazy(() => import('./pages/Unidades/Unidades').then(m => ({ default: m.Unidades })));
 const TipoCambio = React.lazy(() => import('./pages/TipoCambio/TipoCambio').then(m => ({ default: m.TipoCambio })));
@@ -136,7 +136,6 @@ function App() {
               <Route path="productos" element={<Productos />} />
               <Route path="productos-intel" element={<ProductosIntel />} />
               <Route path="inventario" element={<Inventario />} />
-              <Route path="almacenes" element={<Almacenes />} />
               <Route path="transferencias" element={<Transferencias />} />
               <Route path="unidades" element={<Unidades />} />
               <Route path="escaner" element={<Escaner />} />

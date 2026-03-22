@@ -13,6 +13,7 @@ import * as admin from "firebase-admin";
 import { processWebhookNotification } from "./ml.api";
 import { processOrderNotification, processShipmentNotification } from "./ml.sync";
 import { MLWebhookNotification } from "./ml.types";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 
@@ -59,7 +60,7 @@ export const mlwebhook = functions.https.onRequest(async (req, res) => {
 
   // SEC-003 FIX: Validar que el user_id corresponde a una cuenta ML registrada
   if (notification.user_id) {
-    const settingsDoc = await db.collection("mlConfig").doc("settings").get();
+    const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
     const registeredUserId = settingsDoc.exists ? settingsDoc.data()?.userId : null;
     if (registeredUserId && Number(notification.user_id) !== Number(registeredUserId)) {
       functions.logger.warn("ML Webhook REJECTED: user_id mismatch", {
@@ -79,7 +80,7 @@ export const mlwebhook = functions.https.onRequest(async (req, res) => {
 
   try {
     // Guardar notificación raw para auditoría
-    await db.collection("mlWebhookLog").add({
+    await db.collection(COLLECTIONS.ML_WEBHOOK_LOG).add({
       ...notification,
       processedAt: admin.firestore.Timestamp.now(),
       status: "processing",
@@ -106,7 +107,7 @@ export const mlwebhook = functions.https.onRequest(async (req, res) => {
       if (data) {
         const item = data as any;
         const mapQuery = await db
-          .collection("mlProductMap")
+          .collection(COLLECTIONS.ML_PRODUCT_MAP)
           .where("mlItemId", "==", item.id)
           .limit(1)
           .get();
@@ -127,7 +128,7 @@ export const mlwebhook = functions.https.onRequest(async (req, res) => {
       // Guardar pregunta para mostrar en el sidebar
       if (data) {
         const question = data as any;
-        await db.collection("mlQuestions").doc(String(question.id)).set({
+        await db.collection(COLLECTIONS.ML_QUESTIONS).doc(String(question.id)).set({
           ...question,
           syncedAt: admin.firestore.Timestamp.now(),
         }, { merge: true });

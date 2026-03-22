@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Lock, Clock, AlertTriangle, Package, CheckCircle } from 'lucide-react';
 import { Modal, Input, Select, Button } from '../../common';
 import { formatCurrencyPEN } from '../../../utils/format';
+import { useToastStore } from '../../../store/toastStore';
 import type { Venta, MetodoPago } from '../../../types/venta.types';
 
 interface RegistrarAdelantoModalProps {
@@ -37,6 +38,7 @@ export const RegistrarAdelantoModal: React.FC<RegistrarAdelantoModalProps> = ({
   onClose,
   onConfirm
 }) => {
+  const toast = useToastStore();
   const [montoAdelanto, setMontoAdelanto] = useState(0);
   const [metodoPago, setMetodoPago] = useState<MetodoPago>('yape');
   const [referencia, setReferencia] = useState('');
@@ -92,12 +94,12 @@ export const RegistrarAdelantoModal: React.FC<RegistrarAdelantoModalProps> = ({
     e.preventDefault();
 
     if (montoAdelanto <= 0) {
-      alert('El monto del adelanto debe ser mayor a 0');
+      toast.warning('El monto del adelanto debe ser mayor a 0');
       return;
     }
 
     if (montoAdelanto > venta.totalPEN) {
-      alert('El adelanto no puede ser mayor al total de la cotización');
+      toast.warning('El adelanto no puede ser mayor al total de la cotizacion');
       return;
     }
 
@@ -111,7 +113,7 @@ export const RegistrarAdelantoModal: React.FC<RegistrarAdelantoModalProps> = ({
       });
       onClose();
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }

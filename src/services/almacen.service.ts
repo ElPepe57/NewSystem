@@ -8,7 +8,8 @@ import {
   query,
   where,
   Timestamp,
-  increment
+  increment,
+  limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
@@ -147,13 +148,16 @@ export const almacenService = {
       return [];
     }
 
-    // Obtener todas las unidades en estos viajeros
-    const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
+    // Obtener solo las unidades que pertenecen a estos viajeros
+    const unidadesSnapshot = await getDocs(query(
+      collection(db, COLLECTIONS.UNIDADES),
+      where('almacenId', 'in', viajerosIds)
+    ));
     const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
 
     unidadesSnapshot.docs.forEach(docSnap => {
       const data = docSnap.data();
-      // Solo contar si pertenece a un viajero
+      // Solo contar si pertenece a un viajero (filtrado en DB, doble check por seguridad)
       if (!viajerosIds.includes(data.almacenId)) return;
       // Solo contar unidades disponibles o sin estado definido (legacy)
       // Excluir solo las que claramente no están disponibles
@@ -218,13 +222,16 @@ export const almacenService = {
       return [];
     }
 
-    // Obtener todas las unidades en estos almacenes
-    const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
+    // Obtener solo las unidades que pertenecen a estos almacenes USA
+    const unidadesSnapshot = await getDocs(query(
+      collection(db, COLLECTIONS.UNIDADES),
+      where('almacenId', 'in', almacenesIds)
+    ));
     const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
 
     unidadesSnapshot.docs.forEach(docSnap => {
       const data = docSnap.data();
-      // Solo contar si pertenece a un almacén USA
+      // Solo contar si pertenece a un almacén USA (filtrado en DB, doble check)
       if (!almacenesIds.includes(data.almacenId)) return;
       // Solo contar unidades disponibles (recibida_usa) o sin estado definido (legacy)
       // Excluir solo las que claramente no están disponibles
@@ -275,7 +282,10 @@ export const almacenService = {
     const almacenesIds = almacenesOrigen.map(a => a.id);
     if (almacenesIds.length === 0) return [];
 
-    const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
+    const unidadesSnapshot = await getDocs(query(
+      collection(db, COLLECTIONS.UNIDADES),
+      where('almacenId', 'in', almacenesIds)
+    ));
     const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};
     const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
 
@@ -507,8 +517,11 @@ export const almacenService = {
       const almacenesSnapshot = await getDocs(collection(db, COLLECTION_NAME));
       const almacenes = almacenesSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 
-      // Obtener todas las unidades de una sola vez (más eficiente)
-      const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
+      // Obtener todas las unidades de una sola vez (más eficiente) — limit de seguridad
+      const unidadesSnapshot = await getDocs(query(
+        collection(db, COLLECTIONS.UNIDADES),
+        limit(2000)
+      ));
 
       // Agrupar unidades por almacenId
       const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
@@ -668,8 +681,11 @@ export const almacenService = {
     const peru = activos.filter(a => a.pais === 'Peru');
     const viajeros = activos.filter(a => a.esViajero);
 
-    // Obtener unidades USA para cálculos precisos
-    const unidadesSnapshot = await getDocs(collection(db, COLLECTIONS.UNIDADES));
+    // Obtener unidades USA para cálculos precisos — limit de seguridad
+    const unidadesSnapshot = await getDocs(query(
+      collection(db, COLLECTIONS.UNIDADES),
+      limit(2000)
+    ));
     const estadosExcluidos = ['vendida', 'vencida', 'danada', 'en_transito_peru', 'en_transito_origen', 'en_transito_usa', 'asignada_pedido'];
 
     const unidadesPorAlmacen: Record<string, { cantidad: number; valor: number }> = {};

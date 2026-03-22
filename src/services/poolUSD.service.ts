@@ -231,6 +231,24 @@ export const poolUSDService = {
     const estadoRef = ESTADO_DOC_REF();
     const movDocRef = doc(collection(db, MOV_COLLECTION)); // Pre-generar ID
 
+    // DATA-002 FIX: getUltimoMovimiento() usa getDocs() — una query que Firestore
+    // no permite ejecutar dentro de runTransaction (solo acepta transaction.get()
+    // sobre DocumentReferences). Si _estado no existe (primera vez), lo resolvemos
+    // ANTES de entrar a la transacción y pasamos el resultado como captura.
+    // Si _estado sí existe, la transacción lo lee atómicamente y este valor queda sin usar.
+    const estadoInicialFallback = await (async () => {
+      // Verificar si _estado ya existe para evitar la query innecesaria en el caso normal
+      const estadoPreSnap = await getDoc(estadoRef);
+      if (estadoPreSnap.exists()) {
+        return { pool: 0, tcpa: 0 }; // no se usará; _estado tiene prioridad
+      }
+      const ultimo = await this.getUltimoMovimiento();
+      return {
+        pool: ultimo?.poolUSDDespues ?? 0,
+        tcpa: ultimo?.tcpaDespues ?? 0,
+      };
+    })();
+
     const movimiento = await runTransaction(db, async (transaction) => {
       const estadoSnap = await transaction.get(estadoRef);
 
@@ -242,10 +260,11 @@ export const poolUSDService = {
         poolAntes = estado.saldoUSD ?? 0;
         tcpaAntes = estado.tcpa ?? 0;
       } else {
-        // Primera vez: inicializar desde último movimiento (migración) o cero
-        const ultimo = await this.getUltimoMovimiento();
-        poolAntes = ultimo?.poolUSDDespues ?? 0;
-        tcpaAntes = ultimo?.tcpaDespues ?? 0;
+        // Primera vez: usar el fallback calculado fuera de la transacción.
+        // getUltimoMovimiento() no puede llamarse aquí porque usa getDocs()
+        // (query de colección), que Firestore prohíbe dentro de runTransaction.
+        poolAntes = estadoInicialFallback.pool;
+        tcpaAntes = estadoInicialFallback.tcpa;
       }
 
       // Validar que no quede negativo en salidas
@@ -751,8 +770,11 @@ export const poolUSDService = {
 
     onProgress?.('Leyendo pagos de órdenes de compra...', 5);
 
-    // 1. Obtener pagos OC en USD
-    const ocSnap = await getDocs(collection(db, COLLECTIONS.ORDENES_COMPRA));
+    // 1. Obtener pagos OC en USD — filtrar desde fechaInicio para evitar leer TODAS las OC
+    const ocSnap = await getDocs(query(
+      collection(db, COLLECTIONS.ORDENES_COMPRA),
+      where('fechaCreacion', '>=', Timestamp.fromDate(fechaInicio))
+    ));
     const pagosOC: Array<{
       tipo: TipoMovimientoPool;
       montoUSD: number;

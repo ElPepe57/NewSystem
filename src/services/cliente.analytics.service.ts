@@ -8,7 +8,8 @@ import {
   query,
   where,
   orderBy,
-  Timestamp
+  Timestamp,
+  limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
@@ -297,8 +298,11 @@ export const clienteAnalyticsService = {
         productosFavoritos
       );
 
-      // Comparaciones (necesita todos los clientes)
-      const todosClientes = await getDocs(collection(db, COLLECTIONS.CLIENTES));
+      // Comparaciones (necesita todos los clientes) — limit de seguridad para rankings
+      const todosClientes = await getDocs(query(
+        collection(db, COLLECTIONS.CLIENTES),
+        limit(500)
+      ));
       const { comparaciones, ranking, total } = await this.calcularComparaciones(
         cliente,
         gastoTotalHistorico,

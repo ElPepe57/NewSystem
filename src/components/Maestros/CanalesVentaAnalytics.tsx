@@ -42,6 +42,7 @@ import { CanalVentaDetailView } from './CanalVentaDetailView';
 import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useVentaStore } from '../../store/ventaStore';
 import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../store/toastStore';
 import type { CanalVenta, CanalVentaFormData } from '../../types/canalVenta.types';
 import type { Venta } from '../../types/venta.types';
 
@@ -89,6 +90,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
   onViewCanal
 }) => {
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
   const {
     canales,
     loading: loadingCanales,
@@ -379,7 +381,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       setShowFormModal(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error al crear: ' + message);
+      toast.error('Error al crear: ' + message);
     } finally {
       setIsSubmitting(false);
     }
@@ -394,7 +396,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       setShowFormModal(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error al actualizar: ' + message);
+      toast.error('Error al actualizar: ' + message);
     } finally {
       setIsSubmitting(false);
     }
@@ -404,7 +406,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
     if (!user) return;
 
     if (canal.esSistema && canal.estado === 'activo') {
-      alert('No se puede desactivar un canal del sistema');
+      toast.warning('No se puede desactivar un canal del sistema');
       return;
     }
 
@@ -419,7 +421,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       await cambiarEstado(canal.id, nuevoEstado, user.uid);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error: ' + message);
+      toast.error('Error: ' + message);
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useToastStore } from '../../store/toastStore';
 import {
   Tag,
   Plus,
@@ -40,6 +41,7 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
   onViewCanal
 }) => {
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
   const {
     canales,
     loading,
@@ -76,7 +78,7 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
       setShowFormModal(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error al crear: ' + message);
+      toast.error('Error al crear: ' + message);
     } finally {
       setIsSubmitting(false);
     }
@@ -91,7 +93,7 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
       setShowFormModal(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error al actualizar: ' + message);
+      toast.error('Error al actualizar: ' + message);
     } finally {
       setIsSubmitting(false);
     }
@@ -101,7 +103,7 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
     if (!user) return;
 
     if (canal.esSistema && canal.estado === 'activo') {
-      alert('No se puede desactivar un canal del sistema');
+      toast.warning('No se puede desactivar un canal del sistema');
       return;
     }
 
@@ -116,7 +118,7 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
       await cambiarEstado(canal.id, nuevoEstado, user.uid);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error: ' + message);
+      toast.error('Error: ' + message);
     }
   };
 

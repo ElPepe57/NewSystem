@@ -27,6 +27,7 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { useMercadoLibreStore, groupProductMaps } from '../../store/mercadoLibreStore';
+import { useToastStore } from '../../store/toastStore';
 import type { MLTabType } from '../../types/mercadoLibre.types';
 import { TabResumen } from './TabResumen';
 import { TabProductos } from './TabProductos';
@@ -60,6 +61,7 @@ const NoConnectionCard: React.FC<{ onConnect: () => void }> = ({ onConnect }) =>
 );
 
 export const MercadoLibre: React.FC = () => {
+  const toast = useToastStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const [oauthMessage, setOauthMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const {
@@ -128,7 +130,7 @@ export const MercadoLibre: React.FC = () => {
   const handleSync = async () => {
     try {
       const result = await syncItems();
-      alert(`Sincronización completada: ${result.total} items (${result.nuevos} nuevos, ${result.actualizados} actualizados)`);
+      toast.success(`Sincronizacion completada: ${result.total} items (${result.nuevos} nuevos, ${result.actualizados} actualizados)`);
     } catch {
       // Error ya manejado en el store
     }
@@ -137,7 +139,7 @@ export const MercadoLibre: React.FC = () => {
   const handleSyncStock = async () => {
     try {
       const result = await syncStock();
-      alert(`Stock sincronizado: ${result.synced} publicaciones actualizadas${result.errors > 0 ? `, ${result.errors} con error` : ''}`);
+      toast.success(`Stock sincronizado: ${result.synced} publicaciones actualizadas${result.errors > 0 ? `, ${result.errors} con error` : ''}`);
     } catch {
       // Error ya manejado en el store
     }
@@ -146,7 +148,7 @@ export const MercadoLibre: React.FC = () => {
   const handleSyncBuyBox = async () => {
     try {
       const result = await syncBuyBox();
-      alert(`Competencia actualizada: ${result.checked} revisadas — ${result.winning} ganando, ${result.competing} perdiendo, ${result.sharing} compartiendo, ${result.listed} sin competir${result.errors > 0 ? `, ${result.errors} errores` : ''}`);
+      toast.success(`Competencia actualizada: ${result.checked} revisadas. ${result.winning} ganando, ${result.competing} perdiendo, ${result.sharing} compartiendo, ${result.listed} sin competir${result.errors > 0 ? `, ${result.errors} errores` : ''}`);
     } catch {
       // Error ya manejado en el store
     }

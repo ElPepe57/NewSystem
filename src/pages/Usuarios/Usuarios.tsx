@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle, LogOut, Wifi, WifiOff, Clock, CheckCircle } from 'lucide-react';
+import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle, LogOut, Wifi, WifiOff, Clock, CheckCircle, Loader2 } from 'lucide-react';
+import { Modal } from '../../components/common/Modal';
 import { userService, PERMISOS_INFO } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
@@ -352,7 +353,7 @@ export const Usuarios: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 animate-spin text-primary-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -718,29 +719,20 @@ export const Usuarios: React.FC = () => {
       </div>
 
       {/* Modal Crear Usuario */}
-      {modalType === 'create' && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Crear Nuevo Usuario</h3>
-                  <p className="text-sm text-gray-500">Ingresa los datos del nuevo usuario</p>
-                </div>
-                <button
-                  onClick={() => setModalType('none')}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
+      <Modal
+        isOpen={modalType === 'create'}
+        onClose={() => setModalType('none')}
+        title="Crear Nuevo Usuario"
+        subtitle="Ingresa los datos del nuevo usuario"
+        size="md"
+      >
               <form onSubmit={handleCreateUser} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="usuario-nombre" className="block text-sm font-medium text-gray-700 mb-1">
                     Nombre completo
                   </label>
                   <input
+                    id="usuario-nombre"
                     type="text"
                     value={newUser.displayName}
                     onChange={(e) => setNewUser({ ...newUser, displayName: e.target.value })}
@@ -750,10 +742,11 @@ export const Usuarios: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="usuario-email" className="block text-sm font-medium text-gray-700 mb-1">
                     Email
                   </label>
                   <input
+                    id="usuario-email"
                     type="email"
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
@@ -763,11 +756,12 @@ export const Usuarios: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="usuario-password" className="block text-sm font-medium text-gray-700 mb-1">
                     Contraseña
                   </label>
                   <div className="relative">
                     <input
+                      id="usuario-password"
                       type={showPassword ? 'text' : 'password'}
                       value={newUser.password}
                       onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
@@ -779,6 +773,7 @@ export const Usuarios: React.FC = () => {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -787,10 +782,11 @@ export const Usuarios: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="usuario-rol" className="block text-sm font-medium text-gray-700 mb-1">
                     Rol
                   </label>
                   <select
+                    id="usuario-rol"
                     value={newUser.role}
                     onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRole })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -831,37 +827,22 @@ export const Usuarios: React.FC = () => {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Modal Editar Permisos */}
-      {modalType === 'edit-permisos' && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto py-8">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">
-                    Editar Permisos: {selectedUser.displayName}
-                  </h3>
-                  <p className="text-sm text-gray-500">{selectedUser.email}</p>
-                </div>
-                <button
-                  onClick={() => setModalType('none')}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
+      <Modal
+        isOpen={modalType === 'edit-permisos' && !!selectedUser}
+        onClose={() => setModalType('none')}
+        title={`Editar Permisos: ${selectedUser?.displayName ?? ''}`}
+        subtitle={selectedUser?.email}
+        size="lg"
+      >
               {/* Selector de Rol */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Rol del usuario
                 </label>
-                {selectedUser.uid === currentUser?.uid ? (
+                {selectedUser?.uid === currentUser?.uid ? (
                   <div>
                     <span className={`inline-block px-3 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white`}>
                       {ROLE_LABELS[editRole]}
@@ -951,23 +932,23 @@ export const Usuarios: React.FC = () => {
                   Guardar Cambios
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Modal Confirmar Eliminación */}
-      {modalType === 'delete-confirm' && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="p-6">
+      <Modal
+        isOpen={modalType === 'delete-confirm' && !!selectedUser}
+        onClose={() => setModalType('none')}
+        title="Eliminar Usuario"
+        subtitle="Esta accion no se puede deshacer"
+        size="md"
+      >
               <div className="flex items-center gap-4 mb-4">
                 <div className="p-3 bg-red-100 rounded-full">
                   <AlertTriangle className="h-6 w-6 text-red-600" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">Eliminar Usuario</h3>
-                  <p className="text-sm text-gray-500">Esta acción no se puede deshacer</p>
+                  <p className="text-sm text-gray-500">Esta accion no se puede deshacer</p>
                 </div>
               </div>
 
@@ -976,7 +957,7 @@ export const Usuarios: React.FC = () => {
                   Estás a punto de eliminar permanentemente al usuario:
                 </p>
                 <p className="font-medium text-red-900 mt-2">
-                  {selectedUser.displayName} ({selectedUser.email})
+                  {selectedUser?.displayName} ({selectedUser?.email})
                 </p>
                 <p className="text-xs text-red-700 mt-2">
                   Se eliminará de Firebase Auth y todos sus datos de Firestore.
@@ -1004,36 +985,24 @@ export const Usuarios: React.FC = () => {
                   Eliminar Usuario
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Modal Resetear Contraseña */}
-      {modalType === 'reset-password' && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Resetear Contraseña</h3>
-                  <p className="text-sm text-gray-500">{selectedUser.displayName}</p>
-                </div>
-                <button
-                  onClick={() => setModalType('none')}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
+      <Modal
+        isOpen={modalType === 'reset-password' && !!selectedUser}
+        onClose={() => setModalType('none')}
+        title="Resetear Contrasena"
+        subtitle={selectedUser?.displayName}
+        size="md"
+      >
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="reset-nueva-password" className="block text-sm font-medium text-gray-700 mb-1">
                     Nueva contraseña
                   </label>
                   <div className="relative">
                     <input
+                      id="reset-nueva-password"
                       type={showPassword ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
@@ -1044,6 +1013,7 @@ export const Usuarios: React.FC = () => {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -1051,10 +1021,11 @@ export const Usuarios: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="reset-confirmar-password" className="block text-sm font-medium text-gray-700 mb-1">
                     Confirmar contraseña
                   </label>
                   <input
+                    id="reset-confirmar-password"
                     type={showPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -1089,23 +1060,19 @@ export const Usuarios: React.FC = () => {
                   Cambiar Contraseña
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
-      {/* Modal Confirmar Desconexión Individual */}
-      {modalType === 'disconnect-confirm' && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="p-6">
+      {/* Modal Confirmar Desconexion Individual */}
+      <Modal
+        isOpen={modalType === 'disconnect-confirm' && !!selectedUser}
+        onClose={() => setModalType('none')}
+        title="Desconectar Usuario"
+        subtitle="Terminara la sesion activa del usuario"
+        size="md"
+      >
               <div className="flex items-center gap-4 mb-4">
                 <div className="p-3 bg-orange-100 rounded-full">
                   <LogOut className="h-6 w-6 text-orange-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Desconectar Usuario</h3>
-                  <p className="text-sm text-gray-500">Terminará la sesión activa del usuario</p>
                 </div>
               </div>
 
@@ -1114,7 +1081,7 @@ export const Usuarios: React.FC = () => {
                   Se cerrará la sesión activa de:
                 </p>
                 <p className="font-medium text-orange-900 mt-2">
-                  {selectedUser.displayName} ({selectedUser.email})
+                  {selectedUser?.displayName} ({selectedUser?.email})
                 </p>
                 <p className="text-xs text-orange-700 mt-2">
                   El usuario deberá iniciar sesión nuevamente para acceder al sistema.
@@ -1142,23 +1109,19 @@ export const Usuarios: React.FC = () => {
                   Desconectar
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
-      {/* Modal Confirmar Desconexión de TODOS */}
-      {modalType === 'disconnect-all-confirm' && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="p-6">
+      {/* Modal Confirmar Desconexion de TODOS */}
+      <Modal
+        isOpen={modalType === 'disconnect-all-confirm'}
+        onClose={() => setModalType('none')}
+        title="Desconectar Todos"
+        subtitle="Terminara todas las sesiones activas"
+        size="md"
+      >
               <div className="flex items-center gap-4 mb-4">
                 <div className="p-3 bg-red-100 rounded-full">
                   <WifiOff className="h-6 w-6 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Desconectar Todos</h3>
-                  <p className="text-sm text-gray-500">Terminará todas las sesiones activas</p>
                 </div>
               </div>
 
@@ -1192,30 +1155,20 @@ export const Usuarios: React.FC = () => {
                   Desconectar Todos
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Modal Aprobar Usuario */}
-      {modalType === 'approve-user' && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-            <div className="p-6">
-              <div className="flex items-center gap-4 mb-6">
+      <Modal
+        isOpen={modalType === 'approve-user' && !!selectedUser}
+        onClose={() => setModalType('none')}
+        title="Aprobar Solicitud de Acceso"
+        subtitle="Asigna un rol para activar la cuenta"
+        size="md"
+      >
+              <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 bg-green-100 rounded-xl">
                   <UserCheck className="h-6 w-6 text-green-600" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Aprobar Solicitud de Acceso</h3>
-                  <p className="text-sm text-gray-500">Asigna un rol para activar la cuenta</p>
-                </div>
-                <button
-                  onClick={() => setModalType('none')}
-                  className="ml-auto text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-5 w-5" />
-                </button>
               </div>
 
               {/* Info del usuario */}
@@ -1223,15 +1176,15 @@ export const Usuarios: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
                     <span className="text-amber-700 font-bold">
-                      {selectedUser.displayName?.charAt(0).toUpperCase() || 'U'}
+                      {selectedUser?.displayName?.charAt(0).toUpperCase() || 'U'}
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{selectedUser.displayName}</p>
-                    <p className="text-sm text-gray-500">{selectedUser.email}</p>
+                    <p className="font-medium text-gray-900">{selectedUser?.displayName}</p>
+                    <p className="text-sm text-gray-500">{selectedUser?.email}</p>
                   </div>
                 </div>
-                {selectedUser.fechaCreacion && (
+                {selectedUser?.fechaCreacion && (
                   <p className="text-xs text-gray-400 mt-3">
                     Registrado el {new Date(selectedUser.fechaCreacion.toDate()).toLocaleDateString('es-PE', {
                       day: '2-digit',
@@ -1298,10 +1251,7 @@ export const Usuarios: React.FC = () => {
                   Aprobar y Activar
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Info sobre roles */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

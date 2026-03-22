@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useToastStore } from '../../store/toastStore';
 import { calcularDiasParaVencer } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
 import {
@@ -64,11 +65,18 @@ type VistaInventario = 'cards' | 'tabla';
 type TabInventario = 'lista' | 'analytics' | 'alertas';
 
 export const Inventario: React.FC = () => {
-  const { unidades, loading: unidadesLoading, fetchUnidades } = useUnidadStore();
-  const { productos, fetchProductos } = useProductoStore();
-  const { almacenes, fetchAlmacenes } = useAlmacenStore();
-  const { stats, fetchStats } = useInventarioStore();
-  const { productosDetalle: ctruData, fetchAll: fetchCTRU } = useCTRUStore();
+  const toast = useToastStore();
+  const unidades = useUnidadStore(state => state.unidades);
+  const unidadesLoading = useUnidadStore(state => state.loading);
+  const fetchUnidades = useUnidadStore(state => state.fetchUnidades);
+  const productos = useProductoStore(state => state.productos);
+  const fetchProductos = useProductoStore(state => state.fetchProductos);
+  const almacenes = useAlmacenStore(state => state.almacenes);
+  const fetchAlmacenes = useAlmacenStore(state => state.fetchAlmacenes);
+  const stats = useInventarioStore(state => state.stats);
+  const fetchStats = useInventarioStore(state => state.fetchStats);
+  const ctruData = useCTRUStore(state => state.productosDetalle);
+  const fetchCTRU = useCTRUStore(state => state.fetchAll);
 
   // Pre-filtrar unidades por línea de negocio global
   const unidadesPorLinea = useLineaFilter(
@@ -483,7 +491,7 @@ export const Inventario: React.FC = () => {
       fetchStats();
     } catch (error: any) {
       console.error('Error sincronizando:', error);
-      alert('Error al sincronizar: ' + error.message);
+      toast.error('Error al sincronizar: ' + error.message);
     } finally {
       setSincronizando(false);
     }
@@ -559,7 +567,7 @@ export const Inventario: React.FC = () => {
     // 1. Guardar en colección 'promociones' de Firestore
     // 2. Actualizar precios de venta en productos
     // 3. Crear notificación o recordatorio
-    alert(`Promoción creada: ${promocion.porcentajeDescuento}% de descuento para ${productoPromocion?.producto?.sku}`);
+    toast.success(`Promocion creada: ${promocion.porcentajeDescuento}% de descuento para ${productoPromocion?.producto?.sku}`);
     setShowPromocionModal(false);
     setProductoPromocion(null);
   };

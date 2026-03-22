@@ -149,7 +149,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
       await pdfService.downloadGuiaTransportista(entrega);
     } catch (error) {
       console.error('Error generando guia:', error);
-      alert('Error al generar la guia de transportista');
+      toast.error('Error al generar la guia de transportista');
     }
   };
 
@@ -158,7 +158,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
       await pdfService.downloadCargoCliente(entrega);
     } catch (error) {
       console.error('Error generando cargo:', error);
-      alert('Error al generar el cargo de cliente');
+      toast.error('Error al generar el cargo de cliente');
     }
   };
 

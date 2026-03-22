@@ -14,6 +14,7 @@ import { WAWebhookPayload, WAWelcomeConfig } from "./whatsapp.types";
 import { handleIncomingMessage } from "./whatsapp.handler";
 import { verificarWebhook, enviarMensajeTexto } from "./whatsapp.meta";
 import { getSecret } from "../secrets";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 
@@ -149,7 +150,7 @@ export const wasetconfig = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError("invalid-argument", "phoneNumber requerido");
     }
 
-    await db.collection("whatsapp_sessions").doc(phoneNumber.replace(/\D/g, "")).set(
+    await db.collection(COLLECTIONS.WHATSAPP_SESSIONS).doc(phoneNumber.replace(/\D/g, "")).set(
       {
         phoneNumber: phoneNumber.replace(/\D/g, ""),
         nombre: nombre || "Equipo",
@@ -174,7 +175,7 @@ export const wasetconfig = functions.https.onCall(async (data, context) => {
       followUpDelayMinutes: data.followUpDelayMinutes,
     };
 
-    await db.collection("whatsapp_config").doc("welcome").set(config);
+    await db.collection(COLLECTIONS.WHATSAPP_CONFIG).doc("welcome").set(config);
     return { success: true, config };
   }
 
@@ -185,7 +186,7 @@ export const wasetconfig = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError("invalid-argument", "phoneNumber y mode válido requeridos");
     }
 
-    await db.collection("whatsapp_sessions").doc(phoneNumber.replace(/\D/g, "")).update({
+    await db.collection(COLLECTIONS.WHATSAPP_SESSIONS).doc(phoneNumber.replace(/\D/g, "")).update({
       mode,
       lastActivity: admin.firestore.FieldValue.serverTimestamp(),
     });

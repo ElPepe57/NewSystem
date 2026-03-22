@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
-import { X, Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote, AlertCircle } from 'lucide-react';
 import { Button, Input, Select, AutocompleteInput } from '../../components/common';
-import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../components/common/Modal';
+import { Modal } from '../../components/common/Modal';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
@@ -35,17 +35,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     fetchLineasActivas();
   }, [fetchLineasActivas]);
 
-  // Registrar modal abierto
-  useLayoutEffect(() => {
-    registerModalOpen();
-    document.body.setAttribute('data-modal-open', 'true');
-    return () => {
-      unregisterModalOpen();
-      if (getModalCount() === 0) {
-        document.body.removeAttribute('data-modal-open');
-      }
-    };
-  }, []);
+  // Modal registration ahora lo maneja el componente Modal
 
   const [formData, setFormData] = useState<GastoFormData>(() => {
     if (gastoEditar) {
@@ -365,18 +355,13 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-          <h2 className="text-lg sm:text-2xl font-bold text-gray-900">{isEditing ? 'Editar Gasto' : 'Nuevo Gasto'}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-5 w-5 sm:h-6 sm:w-6" />
-          </button>
-        </div>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={isEditing ? 'Editar Gasto' : 'Nuevo Gasto'}
+      size="xl"
+      contentPadding="none"
+    >
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 sm:space-y-6">
@@ -624,10 +609,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             {/* Monto y Tipo de Cambio */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="gasto-monto" className="block text-sm font-medium text-gray-700 mb-1">
                   Monto {formData.moneda === 'USD' ? '($)' : '(S/)'} *
                 </label>
                 <input
+                  id="gasto-monto"
                   type="number"
                   required
                   min="0"
@@ -639,10 +625,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="gasto-tipocambio" className="block text-sm font-medium text-gray-700 mb-1">
                   Tipo de Cambio *
                 </label>
                 <input
+                  id="gasto-tipocambio"
                   type="number"
                   required
                   min="0"
@@ -743,8 +730,9 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha del Gasto *</label>
+                <label htmlFor="gasto-fecha" className="block text-sm font-medium text-gray-700 mb-1">Fecha del Gasto *</label>
                 <input
+                  id="gasto-fecha"
                   type="date"
                   required
                   value={formData.fecha.toISOString().split('T')[0]}
@@ -822,7 +810,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
               {/* Cuenta de Origen */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="gasto-cuenta-origen" className="block text-sm font-medium text-gray-700 mb-1">
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4" />
                     Cuenta de Origen *
@@ -837,6 +825,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 ) : (
                   <>
                     <select
+                      id="gasto-cuenta-origen"
                       value={cuentaOrigenId}
                       onChange={(e) => setCuentaOrigenId(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
@@ -892,10 +881,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
               {/* Referencia de Pago */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="gasto-referencia" className="block text-sm font-medium text-gray-700 mb-1">
                   Referencia / Nº Operación (Opcional)
                 </label>
                 <input
+                  id="gasto-referencia"
                   type="text"
                   value={referenciaPago}
                   onChange={(e) => setReferenciaPago(e.target.value)}
@@ -929,10 +919,11 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label htmlFor="gasto-notas" className="block text-sm font-medium text-gray-700">
                 Notas (Opcional)
               </label>
               <textarea
+                id="gasto-notas"
                 value={formData.notas || ''}
                 onChange={(e) => handleChange('notas', e.target.value)}
                 rows={2}
@@ -960,7 +951,6 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };

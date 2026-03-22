@@ -14,6 +14,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { requireAdminRole } from "./ml.auth";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 
@@ -25,7 +26,7 @@ export const mlsyncitems = functions.https.onCall(async (_data, context) => {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
 
-  const settingsDoc = await db.collection("mlConfig").doc("settings").get();
+  const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
   if (!settingsDoc.exists || !settingsDoc.data()?.connected) {
     throw new functions.https.HttpsError("failed-precondition", "ML no está conectado");
   }
@@ -68,7 +69,7 @@ export const mlvinculateproduct = functions.https.onCall(async (data, context) =
   };
 
   // Actualizar el doc target
-  const targetRef = db.collection("mlProductMap").doc(mlProductMapId);
+  const targetRef = db.collection(COLLECTIONS.ML_PRODUCT_MAP).doc(mlProductMapId);
   await targetRef.update(updatePayload);
 
   // Cascade: vincular hermanos con mismo skuGroupKey (SKU o catalog_product_id)
@@ -79,7 +80,7 @@ export const mlvinculateproduct = functions.https.onCall(async (data, context) =
 
   if (groupKey) {
     const siblingsQuery = await db
-      .collection("mlProductMap")
+      .collection(COLLECTIONS.ML_PRODUCT_MAP)
       .where("skuGroupKey", "==", groupKey)
       .get();
 
@@ -95,7 +96,7 @@ export const mlvinculateproduct = functions.https.onCall(async (data, context) =
       const fallbackValue = targetData?.mlSku || targetData?.mlCatalogProductId;
       if (fallbackValue) {
         const fallbackQuery = await db
-          .collection("mlProductMap")
+          .collection(COLLECTIONS.ML_PRODUCT_MAP)
           .where(fallbackField, "==", fallbackValue)
           .get();
 
@@ -139,7 +140,7 @@ export const mldesvincularproduct = functions.https.onCall(async (data, context)
     fechaVinculacion: null,
   };
 
-  const targetRef = db.collection("mlProductMap").doc(mlProductMapId);
+  const targetRef = db.collection(COLLECTIONS.ML_PRODUCT_MAP).doc(mlProductMapId);
   const targetDoc = await targetRef.get();
 
   if (!targetDoc.exists) {
@@ -155,7 +156,7 @@ export const mldesvincularproduct = functions.https.onCall(async (data, context)
 
   if (groupKey) {
     const siblingsQuery = await db
-      .collection("mlProductMap")
+      .collection(COLLECTIONS.ML_PRODUCT_MAP)
       .where("skuGroupKey", "==", groupKey)
       .get();
 
@@ -173,7 +174,7 @@ export const mldesvincularproduct = functions.https.onCall(async (data, context)
       const fallbackValue = targetData?.mlSku || targetData?.mlCatalogProductId;
       if (fallbackValue) {
         const fallbackQuery = await db
-          .collection("mlProductMap")
+          .collection(COLLECTIONS.ML_PRODUCT_MAP)
           .where(fallbackField, "==", fallbackValue)
           .get();
 
@@ -206,13 +207,13 @@ export const mlsyncstock = functions.https.onCall(async (data, context) => {
   let mapQuery;
   if (productoId) {
     mapQuery = await db
-      .collection("mlProductMap")
+      .collection(COLLECTIONS.ML_PRODUCT_MAP)
       .where("productoId", "==", productoId)
       .where("vinculado", "==", true)
       .get();
   } else {
     mapQuery = await db
-      .collection("mlProductMap")
+      .collection(COLLECTIONS.ML_PRODUCT_MAP)
       .where("vinculado", "==", true)
       .get();
   }
@@ -226,14 +227,14 @@ export const mlsyncstock = functions.https.onCall(async (data, context) => {
   const stockMap = new Map<string, number>();
 
   for (const pid of productoIds) {
-    const disponiblesSnap = await db.collection("unidades")
+    const disponiblesSnap = await db.collection(COLLECTIONS.UNIDADES)
       .where("productoId", "==", pid)
       .where("estado", "==", "disponible_peru")
       .get();
     const stockDisponiblePeru = disponiblesSnap.size;
 
     // Leer stockPendienteML para calcular stockEfectivoML
-    const productoDoc = await db.collection("productos").doc(pid).get();
+    const productoDoc = await db.collection(COLLECTIONS.PRODUCTOS).doc(pid).get();
     const stockPendienteML = productoDoc.data()?.stockPendienteML || 0;
     const stockEfectivoML = Math.max(0, stockDisponiblePeru - stockPendienteML);
 
@@ -241,7 +242,7 @@ export const mlsyncstock = functions.https.onCall(async (data, context) => {
     stockMap.set(pid, stockEfectivoML);
 
     // Actualizar producto con stockDisponiblePeru y stockEfectivoML
-    await db.collection("productos").doc(pid).update({
+    await db.collection(COLLECTIONS.PRODUCTOS).doc(pid).update({
       stockDisponiblePeru,
       stockEfectivoML,
       ultimaActualizacionStock: admin.firestore.Timestamp.now(),
@@ -292,7 +293,7 @@ export const mlupdateprice = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError("invalid-argument", "mlProductMapId y newPrice (>0) son requeridos");
   }
 
-  const mapDoc = await db.collection("mlProductMap").doc(mlProductMapId).get();
+  const mapDoc = await db.collection(COLLECTIONS.ML_PRODUCT_MAP).doc(mlProductMapId).get();
   if (!mapDoc.exists) {
     throw new functions.https.HttpsError("not-found", "Producto ML no encontrado");
   }
@@ -342,7 +343,7 @@ export const mlmigratestockpendiente = functions.https.onCall(async (_data, cont
   await requireAdminRole(context); // SEC-008
 
   // 1. Leer todas las órdenes pendientes
-  const pendientesSnap = await db.collection("mlOrderSync")
+  const pendientesSnap = await db.collection(COLLECTIONS.ML_ORDER_SYNC)
     .where("estado", "==", "pendiente")
     .get();
 
@@ -379,7 +380,7 @@ export const mlmigratestockpendiente = functions.https.onCall(async (_data, cont
 
   // 3. Recalcular stockPendienteML y stockEfectivoML para TODOS los productos vinculados a ML
   // Esto cubre tanto productos con stockPendienteML > 0 como aquellos con stockEfectivoML desactualizado
-  const allVinculados = await db.collection("mlProductMap")
+  const allVinculados = await db.collection(COLLECTIONS.ML_PRODUCT_MAP)
     .where("vinculado", "==", true)
     .get();
   const allProductoIds = [...new Set(allVinculados.docs.map((d) => d.data().productoId as string))];
@@ -389,7 +390,7 @@ export const mlmigratestockpendiente = functions.https.onCall(async (_data, cont
 
   for (const productoId of allProductoIds) {
     try {
-      const prodDoc = await db.collection("productos").doc(productoId).get();
+      const prodDoc = await db.collection(COLLECTIONS.PRODUCTOS).doc(productoId).get();
       if (!prodDoc.exists) continue;
 
       const pData = prodDoc.data()!;
@@ -397,7 +398,7 @@ export const mlmigratestockpendiente = functions.https.onCall(async (_data, cont
       const currentPendiente = pData.stockPendienteML || 0;
 
       // Contar unidades disponible_peru reales (fuente de verdad)
-      const unidadesSnap = await db.collection("unidades")
+      const unidadesSnap = await db.collection(COLLECTIONS.UNIDADES)
         .where("productoId", "==", productoId)
         .where("estado", "==", "disponible_peru")
         .get();

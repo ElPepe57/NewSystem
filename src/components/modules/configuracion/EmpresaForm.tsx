@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { QrCode, Upload, X } from 'lucide-react';
 import { Button, Input, Select } from '../../common';
+import { useToastStore } from '../../../store/toastStore';
 import type { EmpresaFormData } from '../../../types/configuracion.types';
 
 interface EmpresaFormProps {
@@ -16,6 +17,7 @@ export const EmpresaForm: React.FC<EmpresaFormProps> = ({
   onCancel,
   loading = false
 }) => {
+  const toast = useToastStore();
   const [formData, setFormData] = useState<EmpresaFormData>({
     razonSocial: initialData?.razonSocial || '',
     nombreComercial: initialData?.nombreComercial || '',
@@ -126,13 +128,13 @@ export const EmpresaForm: React.FC<EmpresaFormProps> = ({
 
     // Validar que sea imagen
     if (!file.type.startsWith('image/')) {
-      alert('Por favor selecciona una imagen válida');
+      toast.warning('Por favor selecciona una imagen valida');
       return;
     }
 
     // Validar tamaño (máximo 2MB para procesamiento)
     if (file.size > 2 * 1024 * 1024) {
-      alert('La imagen es muy grande. Máximo 2MB');
+      toast.warning('La imagen es muy grande. Maximo 2MB');
       return;
     }
 

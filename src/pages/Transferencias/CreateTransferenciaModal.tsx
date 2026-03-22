@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useToastStore } from "../../store/toastStore";
 import {
   ArrowRightLeft,
   Plane,
@@ -47,6 +48,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
   onClose,
   onSubmit,
 }) => {
+  const toast = useToastStore();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [formData, setFormData] = useState<Partial<TransferenciaFormData>>({
     tipo: 'internacional_peru',
@@ -129,7 +131,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
     if (productoId) {
       toggleProducto(productoId);
     } else {
-      alert(`Codigo ${barcode} no encontrado en unidades disponibles`);
+      toast.warning(`Codigo ${barcode} no encontrado en unidades disponibles`);
     }
   };
 
@@ -223,7 +225,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
   const handleSubmit = async () => {
     if (!formData.almacenOrigenId || !formData.almacenDestinoId) return;
     if (unidadesSeleccionadas.length === 0) {
-      alert('Debes seleccionar al menos una unidad');
+      toast.warning('Debes seleccionar al menos una unidad');
       return;
     }
 
@@ -237,7 +239,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
       handleClose();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert("Error: " + message);
+      toast.error("Error: " + message);
     }
   };
 

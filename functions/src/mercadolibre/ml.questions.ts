@@ -8,6 +8,7 @@
 
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 
@@ -19,7 +20,7 @@ export const mlgetquestions = functions.https.onCall(async (_data, context) => {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
 
-  const settingsDoc = await db.collection("mlConfig").doc("settings").get();
+  const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
   if (!settingsDoc.exists || !settingsDoc.data()?.connected) {
     throw new functions.https.HttpsError("failed-precondition", "ML no está conectado");
   }

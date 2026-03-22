@@ -86,6 +86,20 @@ export const COLLECTIONS = {
   ML_ORDER_SYNC: "mlOrderSync",
   ML_WEBHOOK_LOG: "mlWebhookLog",
   ML_QUESTIONS: "mlQuestions",
+  ML_SHIPMENT_LOG: "mlShipmentLog",
+
+  // === Estadísticas ===
+  ESTADISTICAS: "estadisticas",
+
+  // === Sistema: Error Log ===
+  ERROR_LOG: "_errorLog",
+
+  // === WhatsApp ===
+  WHATSAPP_SESSIONS: "whatsapp_sessions",
+  WHATSAPP_CONFIG: "whatsapp_config",
+
+  // === Contadores (Cloud Functions) ===
+  COUNTERS: "counters",
 } as const;
 
 export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS];

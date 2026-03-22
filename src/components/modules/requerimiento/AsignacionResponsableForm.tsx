@@ -3,6 +3,7 @@ import { Users, Package, Calendar, DollarSign, Plus, X, Truck, Check, AlertCircl
 import { Button, Modal } from '../../common';
 import { almacenService } from '../../../services/almacen.service';
 import { requerimientoService } from '../../../services/requerimiento.service';
+import { useToastStore } from '../../../store/toastStore';
 import type { Almacen } from '../../../types/almacen.types';
 import type {
   Requerimiento,
@@ -26,6 +27,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
   onAsignacionCreada,
   userId
 }) => {
+  const toast = useToastStore();
   const [viajeros, setViajeros] = useState<Almacen[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -112,13 +114,13 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
 
   const handleSubmit = async () => {
     if (!selectedViajeroId) {
-      alert('Selecciona un viajero/responsable');
+      toast.warning('Selecciona un viajero/responsable');
       return;
     }
 
     const productosConCantidad = productosAsignados.filter(p => p.cantidad > 0);
     if (productosConCantidad.length === 0) {
-      alert('Asigna al menos un producto con cantidad mayor a 0');
+      toast.warning('Asigna al menos un producto con cantidad mayor a 0');
       return;
     }
 
@@ -137,11 +139,11 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
 
       await requerimientoService.asignarResponsable(requerimiento.id, data, userId);
 
-      alert('Responsable asignado correctamente');
+      toast.success('Responsable asignado correctamente');
       onAsignacionCreada();
       onClose();
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     } finally {
       setSubmitting(false);
     }

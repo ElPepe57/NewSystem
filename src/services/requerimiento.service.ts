@@ -899,14 +899,22 @@ export const requerimientoService = {
       const ocItem = productosOC.find(o => o.productoId === p.productoId);
       if (!ocItem) return p;
 
-      const cantidadEnOC = (p.cantidadEnOC || 0) + ocItem.cantidad;
+      const refs: Array<{ ordenCompraId: string; ordenCompraNumero: string; cantidad: number }> =
+        p.ordenCompraRefs || [];
+
+      // EDGE-003 FIX: deduplicar por ordenCompraId para que un reintento de red
+      // no duplique la entrada ni incremente cantidadEnOC más de una vez.
+      const indiceExistente = refs.findIndex((r) => r.ordenCompraId === ordenCompraId);
+      if (indiceExistente >= 0) {
+        // Ya vinculado — actualizar la cantidad en la entrada existente sin sumar de nuevo
+        refs[indiceExistente] = { ordenCompraId, ordenCompraNumero, cantidad: ocItem.cantidad };
+      } else {
+        refs.push({ ordenCompraId, ordenCompraNumero, cantidad: ocItem.cantidad });
+      }
+
+      // Recalcular cantidadEnOC sumando todas las refs para evitar doble conteo
+      const cantidadEnOC = refs.reduce((sum, r) => sum + r.cantidad, 0);
       const pendienteCompra = Math.max(0, (p.cantidadSolicitada || 0) - cantidadEnOC);
-      const refs = p.ordenCompraRefs || [];
-      refs.push({
-        ordenCompraId,
-        ordenCompraNumero,
-        cantidad: ocItem.cantidad,
-      });
 
       return {
         ...p,

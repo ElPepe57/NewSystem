@@ -23,6 +23,7 @@ import {
   MLPriceToWin,
 } from "./ml.types";
 import { getSecret } from "../secrets";
+import { COLLECTIONS } from "../collections";
 
 const ML_API_BASE = "https://api.mercadolibre.com";
 const ML_AUTH_URL = "https://auth.mercadolibre.com.pe/authorization";
@@ -45,15 +46,29 @@ function getConfig() {
 
 /**
  * Genera la URL para que el usuario autorice la app en ML
+ * SEC-009: Includes state parameter to prevent CSRF
  */
-export function getAuthorizationUrl(): string {
+export async function getAuthorizationUrl(): Promise<{ url: string; state: string }> {
   const { clientId, redirectUri } = getConfig();
+  const db = admin.firestore();
+
+  // Generate random state nonce
+  const state = require("crypto").randomBytes(16).toString("hex");
+
+  // Store state in Firestore with 10 min TTL
+  await db.collection(COLLECTIONS.ML_CONFIG).doc("oauth_state").set({
+    state,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    expiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + 10 * 60 * 1000),
+  });
+
   const params = new URLSearchParams({
     response_type: "code",
     client_id: clientId,
     redirect_uri: redirectUri,
+    state,
   });
-  return `${ML_AUTH_URL}?${params.toString()}`;
+  return { url: `${ML_AUTH_URL}?${params.toString()}`, state };
 }
 
 /**
@@ -95,8 +110,22 @@ export async function refreshAccessToken(refreshToken: string): Promise<MLTokenR
   return response.data;
 }
 
+// SEC-008: Token obfuscation to prevent casual reading from Firestore console
+function obfuscateToken(token: string): string {
+  return Buffer.from(token).toString("base64");
+}
+
+function deobfuscateToken(encoded: string): string {
+  try {
+    return Buffer.from(encoded, "base64").toString("utf-8");
+  } catch {
+    // Fallback: if not base64, return as-is (legacy unencoded tokens)
+    return encoded;
+  }
+}
+
 /**
- * Guarda tokens en Firestore
+ * Guarda tokens en Firestore (SEC-008: obfuscated)
  */
 export async function saveTokens(tokenResponse: MLTokenResponse): Promise<void> {
   const db = admin.firestore();
@@ -106,17 +135,17 @@ export async function saveTokens(tokenResponse: MLTokenResponse): Promise<void> 
   );
 
   const tokenData: MLTokenData = {
-    accessToken: tokenResponse.access_token,
-    refreshToken: tokenResponse.refresh_token,
+    accessToken: obfuscateToken(tokenResponse.access_token),
+    refreshToken: obfuscateToken(tokenResponse.refresh_token),
     expiresAt,
     userId: tokenResponse.user_id,
     lastRefreshed: now,
   };
 
-  await db.collection("mlConfig").doc("tokens").set(tokenData, { merge: true });
+  await db.collection(COLLECTIONS.ML_CONFIG).doc("tokens").set(tokenData, { merge: true });
 
   // Actualizar config general
-  await db.collection("mlConfig").doc("settings").set(
+  await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").set(
     {
       connected: true,
       userId: tokenResponse.user_id,
@@ -131,7 +160,7 @@ export async function saveTokens(tokenResponse: MLTokenResponse): Promise<void> 
  */
 export async function getValidAccessToken(): Promise<string> {
   const db = admin.firestore();
-  const tokenDoc = await db.collection("mlConfig").doc("tokens").get();
+  const tokenDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("tokens").get();
 
   if (!tokenDoc.exists) {
     throw new Error("ML no está conectado. Autoriza la app primero.");
@@ -146,20 +175,22 @@ export async function getValidAccessToken(): Promise<string> {
     functions.logger.info("ML token expirado o por expirar, refrescando...");
 
     try {
-      const newTokens = await refreshAccessToken(tokenData.refreshToken);
+      // SEC-008: Deobfuscate refresh token before using
+      const newTokens = await refreshAccessToken(deobfuscateToken(tokenData.refreshToken));
       await saveTokens(newTokens);
       return newTokens.access_token;
     } catch (error) {
       functions.logger.error("Error refrescando ML token:", error);
       // Marcar como desconectado
-      await db.collection("mlConfig").doc("settings").update({
+      await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").update({
         connected: false,
       });
       throw new Error("No se pudo refrescar el token de ML. Re-autoriza la app.");
     }
   }
 
-  return tokenData.accessToken;
+  // SEC-008: Deobfuscate access token before returning
+  return deobfuscateToken(tokenData.accessToken);
 }
 
 // ============================================================

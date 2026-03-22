@@ -3,6 +3,7 @@ import { X, CreditCard, Banknote, Smartphone, Building2, Wallet } from 'lucide-r
 import { Button, Input, Card, useConfirmDialog, ConfirmDialog } from '../../common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
 import { tesoreriaService } from '../../../services/tesoreria.service';
+import { useToastStore } from '../../../store/toastStore';
 import type { Venta, MetodoPago } from '../../../types/venta.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../../types/tesoreria.types';
 
@@ -51,6 +52,7 @@ export const PagoVentaForm: React.FC<PagoVentaFormProps> = ({
   onCancel,
   loading = false
 }) => {
+  const toast = useToastStore();
   const [monto, setMonto] = useState(venta.montoPendiente);
   const [metodoPago, setMetodoPago] = useState<MetodoPago>('efectivo');
   const [referencia, setReferencia] = useState('');
@@ -132,7 +134,7 @@ export const PagoVentaForm: React.FC<PagoVentaFormProps> = ({
     e.preventDefault();
 
     if (monto <= 0) {
-      alert('El monto debe ser mayor a 0');
+      toast.warning('El monto debe ser mayor a 0');
       return;
     }
 

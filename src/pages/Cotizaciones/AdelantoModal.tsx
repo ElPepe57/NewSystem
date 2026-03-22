@@ -2,6 +2,7 @@ import React from 'react';
 import { Clock, Lock, DollarSign } from 'lucide-react';
 import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../utils/format';
 import { Modal, Input, Select, Button } from '../../components/common';
+import { useToastStore } from '../../store/toastStore';
 import type { Cotizacion } from '../../types/cotizacion.types';
 import type { MetodoPago } from '../../types/venta.types';
 import type { CuentaCaja, MonedaTesoreria } from '../../types/tesoreria.types';
@@ -56,6 +57,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
   onConfirmar,
   onClose
 }) => {
+  const toast = useToastStore();
   const formatCurrency = (amount: number): string => formatCurrencyPEN(amount);
   const formatCurrencyBimoneda = (amount: number, mon: MonedaTesoreria): string =>
     formatCurrencyUtil(amount, mon as 'USD' | 'PEN');
@@ -71,7 +73,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
         tipoCambio: tipoModal === 'pago' && moneda === 'USD' ? tipoCambio : undefined
       });
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     }
   };
 

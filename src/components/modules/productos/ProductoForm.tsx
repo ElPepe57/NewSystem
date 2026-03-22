@@ -27,6 +27,7 @@ import { tipoProductoService } from '../../../services/tipoProducto.service';
 import { categoriaService } from '../../../services/categoria.service';
 import { etiquetaService } from '../../../services/etiqueta.service';
 import { useAuthStore } from '../../../store/authStore';
+import { useToastStore } from '../../../store/toastStore';
 import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
 import { METODO_ENVIO_LABELS } from '../../../types/paisOrigen.types';
@@ -89,6 +90,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   productosExistentes = []
 }) => {
   const { user } = useAuthStore();
+  const toast = useToastStore();
   const { activeTab, setActiveTab } = useTabs('origen');
   const { lineasActivas, fetchLineasActivas } = useLineaNegocioStore();
   const { paisesActivos, fetchPaisesActivos, createPais } = usePaisOrigenStore();
@@ -464,7 +466,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
       handleMarcaChange(nuevaMarca);
     } catch (error: any) {
       console.error('Error al crear marca:', error);
-      alert(`Error al crear marca: ${error.message}`);
+      toast.error(`Error al crear marca: ${error.message}`);
     }
   };
 
@@ -875,7 +877,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                           setNuevoPaisTiempoTransito('');
                           setMostrarNuevoPais(false);
                         } catch (err: any) {
-                          alert(err.message || 'Error al crear país');
+                          toast.error(err.message || 'Error al crear pais');
                         } finally {
                           setCreandoPais(false);
                         }

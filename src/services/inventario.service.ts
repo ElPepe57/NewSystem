@@ -16,6 +16,7 @@ import { ESTADOS_EN_ORIGEN, ESTADOS_EN_TRANSITO_ORIGEN, ESTADOS_ACTIVOS } from '
 import type { Producto } from '../types/producto.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esEstadoActivo, esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { logger } from '../lib/logger';
+import { timed } from '../lib/perf';
 
 export const inventarioService = {
   /**
@@ -214,6 +215,7 @@ export const inventarioService = {
    * Esto evita inconsistencias entre diferentes métricas
    */
   async getStats(): Promise<InventarioStats> {
+    return timed('inventarioService.getStats', async () => {
     const [unidades, transferencias] = await Promise.all([
       unidadService.getAll(),
       transferenciaService.getAll()
@@ -321,6 +323,7 @@ export const inventarioService = {
       movimientosUltimos7Dias: movimientosRecientes,
       transferenciasUltimos7Dias: transferenciasRecientes
     };
+    }); // fin timed('inventarioService.getStats')
   },
 
   /**

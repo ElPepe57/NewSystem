@@ -21,6 +21,7 @@ import {
   getApplicationConfig,
   registerWebhookUrl,
 } from "./ml.api";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 
@@ -30,7 +31,7 @@ export async function requireAdminRole(context: functions.https.CallableContext)
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
-  const userDoc = await db.collection("users").doc(context.auth.uid).get();
+  const userDoc = await db.collection(COLLECTIONS.USERS).doc(context.auth.uid).get();
   if (!userDoc.exists) {
     throw new functions.https.HttpsError("permission-denied", "Usuario no encontrado");
   }
@@ -80,6 +81,19 @@ export const mlauthcallback = functions.https.onRequest(async (req, res) => {
     return;
   }
 
+  // SEC-009: Validate state parameter to prevent CSRF
+  const incomingState = req.query.state as string | undefined;
+  if (incomingState) {
+    const stateDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("oauth_state").get();
+    if (!stateDoc.exists || stateDoc.data()?.state !== incomingState) {
+      functions.logger.error("ML OAuth: invalid state parameter (CSRF protection)");
+      res.redirect(`${erpBaseUrl}/mercado-libre?ml_status=error&ml_error=invalid_state`);
+      return;
+    }
+    // Clean up used state
+    await db.collection(COLLECTIONS.ML_CONFIG).doc("oauth_state").delete();
+  }
+
   try {
     // 1. Intercambiar code por tokens
     functions.logger.info("ML OAuth: exchanging code for tokens...");
@@ -92,7 +106,7 @@ export const mlauthcallback = functions.https.onRequest(async (req, res) => {
     const mlUser = await getUser(tokenResponse.user_id);
 
     // 4. Guardar configuración
-    await db.collection("mlConfig").doc("settings").set(
+    await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").set(
       {
         connected: true,
         userId: tokenResponse.user_id,
@@ -118,7 +132,7 @@ export const mlauthcallback = functions.https.onRequest(async (req, res) => {
     try {
       const webhookUrl = "https://us-central1-businessmn-269c9.cloudfunctions.net/mlwebhook";
       await registerWebhookUrl(webhookUrl);
-      await db.collection("mlConfig").doc("settings").update({
+      await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").update({
         webhookUrl,
         webhookRegistered: true,
         webhookRegisteredAt: admin.firestore.Timestamp.now(),
@@ -147,8 +161,9 @@ export const mlgetauthurl = functions.https.onCall(async (_data, context) => {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
 
-  const authUrl = getAuthorizationUrl();
-  return { url: authUrl };
+  // SEC-009: getAuthorizationUrl now returns { url, state } with CSRF protection
+  const { url } = await getAuthorizationUrl();
+  return { url };
 });
 
 // ============================================================
@@ -159,7 +174,7 @@ export const mlrefreshtoken = functions.pubsub
   .schedule("every 4 hours")
   .onRun(async () => {
     try {
-      const tokenDoc = await db.collection("mlConfig").doc("tokens").get();
+      const tokenDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("tokens").get();
 
       if (!tokenDoc.exists) {
         functions.logger.info("ML refresh: no hay tokens configurados");
@@ -188,7 +203,7 @@ export const mlgetstatus = functions.https.onCall(async (_data, context) => {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
 
-  const settingsDoc = await db.collection("mlConfig").doc("settings").get();
+  const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
   if (!settingsDoc.exists) {
     return { connected: false };
   }
@@ -206,7 +221,7 @@ export const mlgetstatus = functions.https.onCall(async (_data, context) => {
 export const mlregisterwebhook = functions.https.onCall(async (_data, context) => {
   await requireAdminRole(context); // SEC-008
 
-  const settingsDoc = await db.collection("mlConfig").doc("settings").get();
+  const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
   if (!settingsDoc.exists || !settingsDoc.data()?.connected) {
     throw new functions.https.HttpsError("failed-precondition", "ML no está conectado");
   }
@@ -226,7 +241,7 @@ export const mlregisterwebhook = functions.https.onCall(async (_data, context) =
     functions.logger.info(`ML Webhook: URL registrada exitosamente → ${webhookUrl}`);
 
     // 3. Guardar en config local
-    await db.collection("mlConfig").doc("settings").update({
+    await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").update({
       webhookUrl,
       webhookRegistered: true,
       webhookRegisteredAt: admin.firestore.Timestamp.now(),

@@ -100,8 +100,10 @@ export class AuthService {
       'auth/operation-not-allowed': 'Operación no permitida',
       'auth/weak-password': 'La contraseña es muy débil',
       'auth/user-disabled': 'Usuario deshabilitado',
-      'auth/user-not-found': 'Usuario no encontrado',
-      'auth/wrong-password': 'Contraseña incorrecta',
+      // SEC-004: Unified error messages to prevent email enumeration
+      'auth/user-not-found': 'Credenciales inválidas. Verifica tu email y contraseña.',
+      'auth/wrong-password': 'Credenciales inválidas. Verifica tu email y contraseña.',
+      'auth/invalid-credential': 'Credenciales inválidas. Verifica tu email y contraseña.',
       'auth/too-many-requests': 'Demasiados intentos, intenta más tarde',
       'auth/network-request-failed': 'Error de conexión'
     };

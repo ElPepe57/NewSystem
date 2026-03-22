@@ -19,6 +19,7 @@ import {
   Check,
 } from 'lucide-react';
 import { useMercadoLibreStore } from '../../store/mercadoLibreStore';
+import { useToastStore } from '../../store/toastStore';
 import { OrderRow } from './OrderRow';
 import type { MLOrderSync } from '../../types/mercadoLibre.types';
 
@@ -27,6 +28,7 @@ export interface TabOrdenesProps {
 }
 
 export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
+  const toast = useToastStore();
   const [filter, setFilter] = useState<string>('todos');
   const {
     procesarPendientes,
@@ -105,7 +107,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
     setPatchingEnvio(true);
     try {
       const result = await patchEnvio();
-      alert(`Migración completada: ${result.parchadas} parchadas, ${result.sinCambio} ya tenían método, ${result.sinMetodo} sin método`);
+      toast.success(`Migración completada: ${result.parchadas} parchadas, ${result.sinCambio} ya tenían método, ${result.sinMetodo} sin método`);
     } catch {
       // Error manejado en el store
     } finally {
@@ -222,7 +224,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
       }
       setResoluciones(autoMap);
     } catch (err: any) {
-      alert(`Error: ${err?.message || 'Error desconocido'}`);
+      toast.error(`Error: ${err?.message || 'Error desconocido'}`);
     } finally {
       setInconsistenciasLoading(false);
     }
@@ -240,16 +242,16 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
         accion: res.accion,
       });
     }
-    if (acciones.length === 0) { alert('No hay resoluciones seleccionadas'); return; }
+    if (acciones.length === 0) { toast.warning('No hay resoluciones seleccionadas'); return; }
     setResolviendoInconsistencias(true);
     try {
       const { mercadoLibreService } = await import('../../services/mercadoLibre.service');
       const res = await mercadoLibreService.resolverInconsistencias(acciones);
-      alert(`${res.exitosos}/${res.total} resueltas correctamente. Ahora corra Reingeniería Preview para verificar.`);
+      toast.success(`${res.exitosos}/${res.total} resueltas correctamente. Ahora corra Reingenieria Preview para verificar.`);
       setShowInconsistencias(false);
       setInconsistenciasData(null);
     } catch (err: any) {
-      alert(`Error: ${err?.message || 'Error desconocido'}`);
+      toast.error(`Error: ${err?.message || 'Error desconocido'}`);
     } finally {
       setResolviendoInconsistencias(false);
     }
@@ -360,7 +362,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
       setSelectedMatches(autoSelect);
       setShowVinculacion(true);
     } catch (err: any) {
-      alert(`Error: ${err?.message || 'Error desconocido'}`);
+      toast.error(`Error: ${err?.message || 'Error desconocido'}`);
     } finally {
       setVinculacionLoading(false);
     }
@@ -369,7 +371,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
   const handleConfirmMatches = async () => {
     const pairs = Object.entries(selectedMatches).map(([syncId, ventaId]) => ({ syncId, ventaId }));
     if (pairs.length === 0) {
-      alert('Selecciona al menos un par para vincular');
+      toast.warning('Selecciona al menos un par para vincular');
       return;
     }
     setVinculando(true);
@@ -381,7 +383,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
       setVinculacionData(updated);
       setSelectedMatches({});
     } catch (err: any) {
-      alert(`Error: ${err?.message || 'Error desconocido'}`);
+      toast.error(`Error: ${err?.message || 'Error desconocido'}`);
     } finally {
       setVinculando(false);
     }

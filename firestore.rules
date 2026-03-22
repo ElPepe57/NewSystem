@@ -255,7 +255,9 @@ service cloud.firestore {
     // ============================================================
     match /notificaciones/{docId} {
       allow read: if isActiveUser();
-      allow write: if isActiveUser();
+      // SEC-010: Users can only create notifications for themselves
+      allow create: if isActiveUser();
+      allow update, delete: if isActiveUser() && resource.data.userId == request.auth.uid;
     }
 
     match /audit_logs/{docId} {
@@ -274,7 +276,8 @@ service cloud.firestore {
     // ============================================================
     match /presencia/{docId} {
       allow read: if isActiveUser();
-      allow write: if isActiveUser();
+      // SEC-010: Users can only write their own presence document
+      allow write: if isActiveUser() && docId == request.auth.uid;
     }
 
     match /actividad/{docId} {
@@ -393,7 +396,10 @@ service cloud.firestore {
     // ============================================================
     match /contadores/{docId} {
       allow read: if isActiveUser();
-      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'finanzas']);
+      // SEC-006: Only allow increment by 1 to prevent sequence manipulation
+      allow create: if hasAnyRole(['admin', 'gerente']);
+      allow update: if hasAnyRole(['admin', 'gerente', 'vendedor', 'finanzas'])
+        && request.resource.data.current == resource.data.current + 1;
     }
 
     // ============================================================

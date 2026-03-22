@@ -60,6 +60,7 @@ import {
   Bar
 } from 'recharts';
 import { formatCurrencyPEN, formatCurrencyCompact } from '../utils/format';
+import { timed } from '../lib/perf';
 
 // Helper para formatear moneda de forma corta (para móvil) — delegado a utilidad central
 const formatCurrencyShort = (value: number): string => formatCurrencyCompact(value, 'PEN');
@@ -71,13 +72,24 @@ let dashboardLastFetchedAt = 0;
 export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
-  const { productos, fetchProductos } = useProductoStore();
-  const { resumen: resumenInventario, inventario, fetchResumen, fetchInventario } = useInventarioStore();
-  const { ventas, stats: ventasStats, fetchVentas, fetchStats: fetchVentasStats } = useVentaStore();
-  const { ordenes, stats: ordenesStats, fetchOrdenes, fetchStats: fetchOrdenesStats } = useOrdenCompraStore();
-  const { stats: gastosStats, fetchStats: fetchGastosStats } = useGastoStore();
-  const { getTCDelDia } = useTipoCambioStore();
-  const { userProfile } = useAuthStore();
+  const productos = useProductoStore(state => state.productos);
+  const fetchProductos = useProductoStore(state => state.fetchProductos);
+  const resumenInventario = useInventarioStore(state => state.resumen);
+  const inventario = useInventarioStore(state => state.inventario);
+  const fetchResumen = useInventarioStore(state => state.fetchResumen);
+  const fetchInventario = useInventarioStore(state => state.fetchInventario);
+  const ventas = useVentaStore(state => state.ventas);
+  const ventasStats = useVentaStore(state => state.stats);
+  const fetchVentas = useVentaStore(state => state.fetchVentas);
+  const fetchVentasStats = useVentaStore(state => state.fetchStats);
+  const ordenes = useOrdenCompraStore(state => state.ordenes);
+  const ordenesStats = useOrdenCompraStore(state => state.stats);
+  const fetchOrdenes = useOrdenCompraStore(state => state.fetchOrdenes);
+  const fetchOrdenesStats = useOrdenCompraStore(state => state.fetchStats);
+  const gastosStats = useGastoStore(state => state.stats);
+  const fetchGastosStats = useGastoStore(state => state.fetchStats);
+  const getTCDelDia = useTipoCambioStore(state => state.getTCDelDia);
+  const userProfile = useAuthStore(state => state.userProfile);
 
   const isAdmin = userProfile?.role === 'admin';
   const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
@@ -100,40 +112,54 @@ export const Dashboard: React.FC = () => {
 
     const loadDashboardData = async () => {
       try {
+        await timed('Dashboard.loadDashboardData', async () => {
         setLoading(true);
 
         // Cargar tipo de cambio por separado
         const tc = await getTCDelDia();
         setTipoCambioDelDia(tc);
 
-        // Cargar resto de datos en paralelo
+        // Fase 1 (inmediata): agregados ligeros que permiten mostrar KPIs rápido
         await Promise.all([
-          fetchProductos(),
           fetchResumen(),
-          fetchInventario({ soloConStock: true }),
-          fetchVentas(),
           fetchVentasStats(),
-          fetchOrdenes(),
           fetchOrdenesStats()
         ]);
 
-        // Intentar cargar gastos stats (puede fallar si no hay índice Firestore)
-        try {
-          await fetchGastosStats();
-        } catch (error) {
-          console.warn('No se pudieron cargar estadísticas de gastos. Puede requerir un índice Firestore:', error);
-        }
-
-        // Cargar dashboard de CxP/CxC
-        try {
-          const cxpCxc = await cuentasPendientesService.getDashboard();
-          setDashboardCxPCxC(cxpCxc);
-        } catch (error) {
-          console.warn('No se pudieron cargar cuentas pendientes:', error);
-        }
-
-        dashboardLastFetchedAt = Date.now();
+        // Mostrar interfaz con datos parciales mientras carga fase 2
         setLoading(false);
+        }); // fin timed('Dashboard.loadDashboardData')
+
+        // Fase 2 (diferida): colecciones completas — no bloquean el render inicial
+        setTimeout(async () => {
+          try {
+            await Promise.all([
+              fetchProductos(),
+              fetchInventario({ soloConStock: true }),
+              fetchVentas(),
+              fetchOrdenes()
+            ]);
+
+            // Intentar cargar gastos stats (puede fallar si no hay índice Firestore)
+            try {
+              await fetchGastosStats();
+            } catch (error) {
+              console.warn('No se pudieron cargar estadísticas de gastos. Puede requerir un índice Firestore:', error);
+            }
+
+            // Cargar dashboard de CxP/CxC
+            try {
+              const cxpCxc = await cuentasPendientesService.getDashboard();
+              setDashboardCxPCxC(cxpCxc);
+            } catch (error) {
+              console.warn('No se pudieron cargar cuentas pendientes:', error);
+            }
+
+            dashboardLastFetchedAt = Date.now();
+          } catch (error) {
+            console.error('Error cargando datos secundarios del dashboard:', error);
+          }
+        }, 100);
       } catch (error) {
         console.error('Error cargando datos del dashboard:', error);
         setLoading(false);

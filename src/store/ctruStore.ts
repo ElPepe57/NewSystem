@@ -6,6 +6,7 @@ import { ctruService } from '../services/ctru.service';
 import { transferenciaService } from '../services/transferencia.service';
 import { ProductoService } from '../services/producto.service';
 import { getCTRU, getCostoBasePEN, getTC, calcularGAGOProporcional } from '../utils/ctru.utils';
+import { timed } from '../lib/perf';
 import type { Unidad } from '../types/unidad.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
@@ -1040,6 +1041,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
 
     set({ loading: true, error: null });
     try {
+      await timed('ctruStore.fetchAll', async () => {
       // Phase 1: units + transferencias + products — run in parallel.
       // Units use a not-in filter to exclude 'vencida' and 'danada' at the DB level
       // (typical savings: 20-40 % of unit documents on mature datasets).
@@ -1152,6 +1154,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
         resumen, productosDetalle, historialMensual, historialGastos, lotesOC,
         loading: false
       });
+      }); // fin timed('ctruStore.fetchAll')
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });

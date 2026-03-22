@@ -18,6 +18,7 @@ import {
 import { Modal, Button, Input } from '../../common';
 import { useCanalVentaStore } from '../../../store/canalVentaStore';
 import { useAuthStore } from '../../../store/authStore';
+import { useToastStore } from '../../../store/toastStore';
 import type { CanalVenta, CanalVentaFormData } from '../../../types/canalVenta.types';
 
 // Mapeo de nombres de icono a componentes
@@ -56,6 +57,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
   className = ''
 }) => {
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
   const {
     canales,
     canalesActivos,
@@ -219,7 +221,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
       setNewCanalName('');
     } catch (err) {
       console.error('Error creando canal:', err);
-      alert(err instanceof Error ? err.message : 'Error al crear canal');
+      toast.error(err instanceof Error ? err.message : 'Error al crear canal');
     } finally {
       setIsCreating(false);
     }

@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useToastStore } from '../../store/toastStore';
 import {
   WifiOff,
   CheckCircle2,
@@ -11,6 +12,7 @@ import { useMercadoLibreStore } from '../../store/mercadoLibreStore';
 
 // ---- RECONCILE STOCK BUTTON ----
 const ReconcileStockButton: React.FC = () => {
+  const toast = useToastStore();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
     ordenesPendientes: number;
@@ -27,7 +29,7 @@ const ReconcileStockButton: React.FC = () => {
       setResult(res);
     } catch (err: any) {
       console.error('Error en reconciliación:', err);
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -71,6 +73,7 @@ export interface TabConfiguracionProps {
 
 export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onConnect }) => {
   const { updateConfig } = useMercadoLibreStore();
+  const toast = useToastStore();
   const [webhookStatus, setWebhookStatus] = useState<{
     registered: boolean;
     url: string | null;
@@ -90,7 +93,7 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
       setWebhookStatus({ registered: true, url: result.registeredUrl, loading: false });
     } catch (err: any) {
       console.error('Error registrando webhook:', err);
-      alert(`Error registrando webhook: ${err.message}`);
+      toast.error(`Error registrando webhook: ${err.message}`);
     } finally {
       setRegistering(false);
     }

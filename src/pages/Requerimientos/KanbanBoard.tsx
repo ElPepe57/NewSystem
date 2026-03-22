@@ -1,4 +1,5 @@
 import React from 'react';
+import { Loader2 } from 'lucide-react';
 import type { Requerimiento, EstadoRequerimiento } from '../../types/requerimiento.types';
 import { KanbanCard } from './KanbanCard';
 import { KANBAN_COLUMN_DEFS } from './requerimientos.types';
@@ -44,7 +45,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           {/* Tarjetas */}
           <div className="space-y-3 min-h-[200px]">
             {loading ? (
-              <div className="text-center text-gray-500 text-sm py-8">Cargando...</div>
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+              </div>
             ) : requerimientosPorEstado[column.id]?.length === 0 ? (
               <div className="text-center text-gray-400 text-sm py-8">
                 Sin requerimientos

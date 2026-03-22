@@ -11,7 +11,8 @@ import {
   Building2,
   Target,
   Lightbulb,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
@@ -119,7 +120,9 @@ export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-6 py-8 text-center text-gray-500">Cargando...</td>
+                <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary-600 mx-auto" />
+                </td>
               </tr>
             ) : requerimientos.length === 0 ? (
               <tr>

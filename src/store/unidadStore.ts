@@ -8,6 +8,10 @@ import type {
   CrearUnidadesLoteData
 } from '../types/unidad.types';
 
+// ---- TTL cache: evita re-descargar todas las unidades en cada montaje de página ----
+let _lastFetchAt = 0;
+const FETCH_TTL_MS = 5 * 60 * 1000; // 5 minutos
+
 interface UnidadState {
   unidades: Unidad[];
   unidadActual: Unidad | null;
@@ -58,12 +62,17 @@ export const useUnidadStore = create<UnidadState>((set, get) => ({
   error: null,
 
   fetchUnidades: async (filtros?: UnidadFiltros) => {
+    // Si no hay filtros específicos y los datos son recientes, omitir la descarga
+    if (!filtros && Date.now() - _lastFetchAt < FETCH_TTL_MS && get().unidades.length > 0) return;
+
     set({ loading: true, error: null });
     try {
       const unidades = filtros
         ? await unidadService.buscar(filtros)
         : await unidadService.getAll();
       set({ unidades, loading: false });
+      // Solo actualizar TTL cuando cargamos sin filtros (datos completos)
+      if (!filtros) _lastFetchAt = Date.now();
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;

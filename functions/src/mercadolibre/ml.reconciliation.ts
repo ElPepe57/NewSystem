@@ -15,6 +15,7 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { requireAdminRole } from "./ml.auth";
 import { MLOrderSync } from "./ml.types";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 
@@ -38,7 +39,7 @@ export const mldiagnosticosistema = functions
   try {
     // ── 1. VENTAS DUPLICADAS por mercadoLibreId ──
     log.push("=== 1. Escaneando ventas ML duplicadas por mercadoLibreId ===");
-    const ventasMLSnap = await db.collection("ventas")
+    const ventasMLSnap = await db.collection(COLLECTIONS.VENTAS)
       .where("canalNombre", "==", "Mercado Libre")
       .get();
 
@@ -100,7 +101,7 @@ export const mldiagnosticosistema = functions
 
     // ── 2. GASTOS HUÉRFANOS ──
     log.push("\n=== 2. Escaneando gastos ML huérfanos ===");
-    const gastosMLSnap = await db.collection("gastos")
+    const gastosMLSnap = await db.collection(COLLECTIONS.GASTOS)
       .where("tipo", "in", ["comision_ml", "cargo_envio_ml"])
       .get();
 
@@ -113,7 +114,7 @@ export const mldiagnosticosistema = functions
       const ventaId = data.ventaId;
 
       if (ventaId) {
-        const ventaDoc = await db.collection("ventas").doc(ventaId).get();
+        const ventaDoc = await db.collection(COLLECTIONS.VENTAS).doc(ventaId).get();
         if (!ventaDoc.exists) {
           gastosHuerfanos++;
           issues.push({
@@ -168,7 +169,7 @@ export const mldiagnosticosistema = functions
 
     // ── 3. MOVIMIENTOS TESORERÍA HUÉRFANOS ──
     log.push("\n=== 3. Escaneando movimientos tesorería ML huérfanos ===");
-    const movsMLSnap = await db.collection("movimientosTesoreria")
+    const movsMLSnap = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
       .where("creadoPor", "==", "ml-auto-processor")
       .get();
 
@@ -180,7 +181,7 @@ export const mldiagnosticosistema = functions
       const data = doc.data();
 
       if (data.ventaId) {
-        const ventaDoc = await db.collection("ventas").doc(data.ventaId).get();
+        const ventaDoc = await db.collection(COLLECTIONS.VENTAS).doc(data.ventaId).get();
         if (!ventaDoc.exists) {
           movsHuerfanosVenta++;
           issues.push({
@@ -201,7 +202,7 @@ export const mldiagnosticosistema = functions
       }
 
       if (data.gastoId) {
-        const gastoDoc = await db.collection("gastos").doc(data.gastoId).get();
+        const gastoDoc = await db.collection(COLLECTIONS.GASTOS).doc(data.gastoId).get();
         if (!gastoDoc.exists) {
           movsHuerfanosGasto++;
           issues.push({
@@ -232,7 +233,7 @@ export const mldiagnosticosistema = functions
 
     // ── 4. mlOrderSync INCONSISTENCIAS ──
     log.push("\n=== 4. Escaneando mlOrderSync inconsistencias ===");
-    const syncSnap = await db.collection("mlOrderSync").get();
+    const syncSnap = await db.collection(COLLECTIONS.ML_ORDER_SYNC).get();
 
     let stuckProcesando = 0;
     let ventaIdInvalido = 0;
@@ -255,7 +256,7 @@ export const mldiagnosticosistema = functions
       }
 
       if (data.estado === "procesada" && data.ventaId) {
-        const ventaDoc = await db.collection("ventas").doc(data.ventaId).get();
+        const ventaDoc = await db.collection(COLLECTIONS.VENTAS).doc(data.ventaId).get();
         if (!ventaDoc.exists) {
           ventaIdInvalido++;
           issues.push({
@@ -271,7 +272,7 @@ export const mldiagnosticosistema = functions
 
     // ── 5. BALANCE CUENTA MP ──
     log.push("\n=== 5. Verificando balance cuenta MercadoPago ===");
-    const cuentasSnap = await db.collection("cuentasCaja")
+    const cuentasSnap = await db.collection(COLLECTIONS.CUENTAS_CAJA)
       .where("nombre", ">=", "MercadoPago")
       .where("nombre", "<=", "MercadoPago\uf8ff")
       .limit(1)
@@ -281,7 +282,7 @@ export const mldiagnosticosistema = functions
       const cuentaMP = cuentasSnap.docs[0];
       const saldoRegistrado = cuentaMP.data().saldoActual || 0;
 
-      const allMovsMP = await db.collection("movimientosTesoreria")
+      const allMovsMP = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
         .where("estado", "==", "ejecutado")
         .get();
 
@@ -338,7 +339,7 @@ export const mlrecalcularbalancemp = functions
   const dryRun = data?.dryRun !== false;
 
   try {
-    const cuentasSnap = await db.collection("cuentasCaja").get();
+    const cuentasSnap = await db.collection(COLLECTIONS.CUENTAS_CAJA).get();
     let cuentaMP: FirebaseFirestore.QueryDocumentSnapshot | null = null;
 
     for (const doc of cuentasSnap.docs) {
@@ -360,7 +361,7 @@ export const mlrecalcularbalancemp = functions
     log.push(`Cuenta: ${cuentaMP.data().nombre} (${cuentaId})`);
     log.push(`Saldo registrado: S/ ${saldoAnterior.toFixed(2)}`);
 
-    const allMovs = await db.collection("movimientosTesoreria")
+    const allMovs = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
       .where("estado", "==", "ejecutado")
       .get();
 
@@ -427,7 +428,7 @@ export const mlrecalcularbalancemp = functions
     // Análisis forense
     log.push(`\n--- Análisis forense ---`);
 
-    const gastosMLSnap2 = await db.collection("gastos")
+    const gastosMLSnap2 = await db.collection(COLLECTIONS.GASTOS)
       .where("tipo", "in", ["comision_ml", "cargo_envio_ml"])
       .get();
 
@@ -451,12 +452,12 @@ export const mlrecalcularbalancemp = functions
       log.push(`  → ${gastosConPagoSinMov} gasto(s) descuentan S/ ${montoGastosSinMov.toFixed(2)} de MP sin movimiento de tesorería`);
     }
 
-    const ventasMLSnap2 = await db.collection("ventas")
+    const ventasMLSnap2 = await db.collection(COLLECTIONS.VENTAS)
       .where("canalNombre", "==", "Mercado Libre")
       .where("estadoPago", "==", "pagado")
       .get();
 
-    const allIngresosSnap = await db.collection("movimientosTesoreria")
+    const allIngresosSnap = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
       .where("estado", "==", "ejecutado")
       .get();
 
@@ -515,7 +516,7 @@ export const mlrecalcularbalancemp = functions
     if (!dryRun && ventasCanalIncorrectoIds.length > 0) {
       for (const ventaId of ventasCanalIncorrectoIds) {
         try {
-          await db.collection("ventas").doc(ventaId).update({
+          await db.collection(COLLECTIONS.VENTAS).doc(ventaId).update({
             canalNombre: "Venta Directa",
             canal: "directo",
           });
@@ -532,7 +533,7 @@ export const mlrecalcularbalancemp = functions
     let montoOrfanos = 0;
     for (const m of movimientosMP) {
       if (m.ventaId) {
-        const vDoc = await db.collection("ventas").doc(m.ventaId).get();
+        const vDoc = await db.collection(COLLECTIONS.VENTAS).doc(m.ventaId).get();
         if (!vDoc.exists) {
           movsOrfanos++;
           montoOrfanos += m.monto;
@@ -558,7 +559,7 @@ export const mlrecalcularbalancemp = functions
     }
 
     if (!dryRun) {
-      await db.collection("cuentasCaja").doc(cuentaId).update({
+      await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaId).update({
         saldoActual: Math.round(saldoCalculado * 100) / 100,
       });
       log.push(`\nBalance corregido: S/ ${saldoAnterior.toFixed(2)} → S/ ${saldoCalculado.toFixed(2)}`);
@@ -622,12 +623,12 @@ export const mlmatchsuggestions = functions.https.onCall(async (_data, context) 
   };
 
   try {
-    const pendientesSnap = await db.collection("mlOrderSync").where("estado", "==", "pendiente").get();
+    const pendientesSnap = await db.collection(COLLECTIONS.ML_ORDER_SYNC).where("estado", "==", "pendiente").get();
     const pendientesSinVenta = pendientesSnap.docs.filter(d => !d.data().ventaId);
 
-    const ventasSnap = await db.collection("ventas").where("canalNombre", "==", "Mercado Libre").get();
+    const ventasSnap = await db.collection(COLLECTIONS.VENTAS).where("canalNombre", "==", "Mercado Libre").get();
 
-    const procesadasSnap = await db.collection("mlOrderSync").where("estado", "==", "procesada").get();
+    const procesadasSnap = await db.collection(COLLECTIONS.ML_ORDER_SYNC).where("estado", "==", "procesada").get();
     const ventaIdsVinculadas = new Set<string>();
     for (const d of procesadasSnap.docs) {
       const vid = d.data().ventaId;
@@ -781,8 +782,8 @@ export const mlconfirmmatch = functions.https.onCall(async (data, context) => {
 
   for (const { syncId, ventaId } of matches) {
     try {
-      const syncRef = db.collection("mlOrderSync").doc(syncId);
-      const ventaRef = db.collection("ventas").doc(ventaId);
+      const syncRef = db.collection(COLLECTIONS.ML_ORDER_SYNC).doc(syncId);
+      const ventaRef = db.collection(COLLECTIONS.VENTAS).doc(ventaId);
 
       const [syncDoc, ventaDoc] = await Promise.all([syncRef.get(), ventaRef.get()]);
       if (!syncDoc.exists) {
@@ -829,7 +830,7 @@ export const mldiaginconsistencias = functions
   .https.onCall(async (_data, context) => {
   await requireAdminRole(context); // SEC-008
 
-  const cuentaMPQ = await db.collection("cuentasCaja")
+  const cuentaMPQ = await db.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("metodoPagoAsociado", "==", "mercado_pago")
     .where("activa", "==", true).limit(1).get();
   if (cuentaMPQ.empty) {
@@ -837,8 +838,8 @@ export const mldiaginconsistencias = functions
   }
   const cuentaMPId = cuentaMPQ.docs[0].id;
 
-  const syncProc = await db.collection("mlOrderSync").where("estado", "==", "procesada").get();
-  const syncPend = await db.collection("mlOrderSync").where("estado", "==", "pendiente").get();
+  const syncProc = await db.collection(COLLECTIONS.ML_ORDER_SYNC).where("estado", "==", "procesada").get();
+  const syncPend = await db.collection(COLLECTIONS.ML_ORDER_SYNC).where("estado", "==", "pendiente").get();
   const syncByVentaId = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
   const allSyncDocs: FirebaseFirestore.QueryDocumentSnapshot[] = [];
   for (const doc of syncProc.docs) {
@@ -852,11 +853,11 @@ export const mldiaginconsistencias = functions
     }
   }
 
-  const ventasSnap = await db.collection("ventas").where("canalNombre", "==", "Mercado Libre").get();
+  const ventasSnap = await db.collection(COLLECTIONS.VENTAS).where("canalNombre", "==", "Mercado Libre").get();
   const ventasMap = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
   for (const doc of ventasSnap.docs) ventasMap.set(doc.id, doc);
 
-  const movsSnap = await db.collection("movimientosTesoreria").where("estado", "==", "ejecutado").get();
+  const movsSnap = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).where("estado", "==", "ejecutado").get();
   const movsByVenta = new Map<string, FirebaseFirestore.QueryDocumentSnapshot[]>();
   for (const doc of movsSnap.docs) {
     const vid = doc.data().ventaId;
@@ -991,7 +992,7 @@ export const mlresolverinconsistencias = functions.https.onCall(async (data, con
   for (const acc of acciones) {
     try {
       if (acc.accion === "patch_sync" && acc.syncId && acc.patchData) {
-        const syncRef = db.collection("mlOrderSync").doc(acc.syncId);
+        const syncRef = db.collection(COLLECTIONS.ML_ORDER_SYNC).doc(acc.syncId);
         const syncDoc = await syncRef.get();
         if (!syncDoc.exists) {
           results.push({ id: acc.syncId, ok: false, error: "mlOrderSync no existe" });
@@ -1018,7 +1019,7 @@ export const mlresolverinconsistencias = functions.https.onCall(async (data, con
         continue;
       }
 
-      const movRef = db.collection("movimientosTesoreria").doc(acc.movimientoId);
+      const movRef = db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).doc(acc.movimientoId);
       const movDoc = await movRef.get();
       if (!movDoc.exists) {
         results.push({ id: acc.movimientoId, ok: false, error: "Movimiento no existe" });

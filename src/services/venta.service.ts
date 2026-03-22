@@ -28,6 +28,7 @@ import {
   Timestamp,
   serverTimestamp,
   writeBatch,
+  runTransaction,
   onSnapshot,
   type Unsubscribe
 } from 'firebase/firestore';
@@ -663,7 +664,6 @@ export class VentaService {
         throw new Error('Solo se puede asignar inventario a ventas confirmadas o reservadas');
       }
 
-      const batch = writeBatch(db);
       const resultados: ResultadoAsignacion[] = [];
       const productosActualizados: ProductoVenta[] = [];
       let costoTotalPEN = 0;
@@ -722,6 +722,8 @@ export class VentaService {
         }
       }
 
+      // Paso 1 (fuera de transacción): determinar qué unidades asignar usando FEFO/reservas.
+      // Estas lecturas pueden ser "stale" — por eso las re-verificamos dentro de la transacción.
       for (const producto of venta.productos) {
         let resultado: ResultadoAsignacion;
 
@@ -751,15 +753,6 @@ export class VentaService {
 
         costoTotalPEN += costoUnidades;
 
-        for (const unidad of resultado.unidadesAsignadas) {
-          const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidad.unidadId);
-          batch.update(unidadRef, {
-            estado: 'asignada_pedido',
-            ventaId: id,
-            fechaAsignacion: serverTimestamp()
-          });
-        }
-
         productosActualizados.push({
           ...producto,
           unidadesAsignadas: resultado.unidadesAsignadas.map(u => u.unidadId),
@@ -771,20 +764,48 @@ export class VentaService {
       const utilidadBrutaPEN = venta.totalPEN - costoTotalPEN;
       const margenPromedio = (utilidadBrutaPEN / venta.totalPEN) * 100;
 
-      const ventaRef = doc(db, COLLECTION_NAME, id);
-      batch.update(ventaRef, {
-        estado: 'asignada',
-        productos: productosActualizados,
-        costoTotalPEN,
-        utilidadBrutaPEN,
-        margenPromedio,
-        stockReservado: null,
-        fechaAsignacion: serverTimestamp(),
-        ultimaEdicion: serverTimestamp(),
-        editadoPor: userId
-      });
+      // Paso 2 (dentro de runTransaction): re-verificar estado de cada unidad seleccionada
+      // y escribir atómicamente. Esto previene que dos ventas concurrentes asignen la misma unidad.
+      const todasLasUnidades = resultados.flatMap(r => r.unidadesAsignadas);
+      const estadosValidosParaAsignar = new Set(['disponible_peru', 'reservada', ...ESTADOS_EN_ORIGEN]);
 
-      await batch.commit();
+      await runTransaction(db, async (transaction) => {
+        // Re-leer cada unidad dentro de la transacción para detectar cambios concurrentes
+        for (const asignacion of todasLasUnidades) {
+          const unidadRef = doc(db, COLLECTIONS.UNIDADES, asignacion.unidadId);
+          const unidadSnap = await transaction.get(unidadRef);
+          if (!unidadSnap.exists()) {
+            throw new Error(
+              `La unidad ${asignacion.unidadId} ya no existe. Intente asignar inventario nuevamente.`
+            );
+          }
+          const estadoActual = unidadSnap.data()?.estado as string | undefined;
+          if (!estadoActual || !estadosValidosParaAsignar.has(estadoActual)) {
+            throw new Error(
+              `La unidad ${asignacion.unidadId} fue modificada por una operación concurrente ` +
+              `(estado actual: ${estadoActual ?? 'desconocido'}). Intente asignar inventario nuevamente.`
+            );
+          }
+          transaction.update(unidadRef, {
+            estado: 'asignada_pedido',
+            ventaId: id,
+            fechaAsignacion: serverTimestamp()
+          });
+        }
+
+        const ventaRef = doc(db, COLLECTION_NAME, id);
+        transaction.update(ventaRef, {
+          estado: 'asignada',
+          productos: productosActualizados,
+          costoTotalPEN,
+          utilidadBrutaPEN,
+          margenPromedio,
+          stockReservado: null,
+          fechaAsignacion: serverTimestamp(),
+          ultimaEdicion: serverTimestamp(),
+          editadoPor: userId
+        });
+      });
 
       const productosAfectados = [...new Set(venta.productos.map(p => p.productoId))];
       await inventarioService.sincronizarStockProductos_batch(productosAfectados);
@@ -1220,6 +1241,8 @@ export class VentaService {
 
       // Revertir pagos en Tesorería
       if (venta.pagos && venta.pagos.length > 0) {
+        const pagosNoRevertidos: Array<{ monto: number; movimientoId?: string; error: unknown }> = [];
+
         for (const pago of venta.pagos) {
           try {
             if (pago.tesoreriaMovimientoId && pago.tesoreriaMovimientoId !== 'registrado') {
@@ -1240,7 +1263,26 @@ export class VentaService {
             }
           } catch (tesoreriaError) {
             logger.error(`[cancelar] Error revirtiendo pago en tesorería (monto: ${pago.monto}):`, tesoreriaError);
+            pagosNoRevertidos.push({
+              monto: pago.monto,
+              movimientoId: pago.tesoreriaMovimientoId,
+              error: tesoreriaError,
+            });
           }
+        }
+
+        if (pagosNoRevertidos.length > 0) {
+          logBackgroundError(
+            'tesoreria.cancelarVenta',
+            new Error(`${pagosNoRevertidos.length} pago(s) no revertido(s) en tesorería tras cancelar venta`),
+            'critical',
+            {
+              ventaId: id,
+              ventaNumero: venta.numeroVenta,
+              pagosNoRevertidos,
+              accionRequerida: 'Revisar y anular manualmente los movimientos de tesorería listados',
+            }
+          );
         }
       }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Plus, Search, Filter, X, Copy, Package, RefreshCw } from 'lucide-react';
+import { useToastStore } from '../../store/toastStore';
 import { Button, Card, Modal, GradientHeader } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ProductoTable } from '../../components/modules/productos/ProductoTable';
@@ -18,6 +19,7 @@ import type { TipoCambio } from '../../types/tipoCambio.types';
 
 export const Productos: React.FC = () => {
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
   const { productos, loading, fetchProductos, createProducto, updateProducto, deleteProducto, guardarInvestigacion, eliminarInvestigacion } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
   const { tiposActivos, fetchTiposActivos } = useTipoProductoStore();
@@ -157,17 +159,17 @@ export const Productos: React.FC = () => {
     try {
       if (isEditing && selectedProducto) {
         await updateProducto(selectedProducto.id, data);
-        alert('Producto actualizado correctamente');
+        toast.success('Producto actualizado correctamente');
       } else {
         await createProducto(data, user.uid);
-        alert('Producto creado correctamente');
+        toast.success('Producto creado correctamente');
       }
       setIsFormModalOpen(false);
       setSelectedProducto(null);
     } catch (error: any) {
       console.error('Error en handleSubmit:', error);
       const mensaje = error.message || 'Error desconocido al guardar el producto';
-      alert(`Error: ${mensaje}`);
+      toast.error(`Error: ${mensaje}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -180,9 +182,9 @@ export const Productos: React.FC = () => {
     
     try {
       await deleteProducto(producto.id);
-      alert('✅ Producto eliminado');
+      toast.success('Producto eliminado');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -225,7 +227,7 @@ export const Productos: React.FC = () => {
     try {
       const tc = tipoCambioActual?.venta || 3.70;
       await guardarInvestigacion(selectedProducto.id, data, user.uid, tc);
-      alert('Investigación guardada correctamente');
+      toast.success('Investigación guardada correctamente');
       setIsInvestigacionModalOpen(false);
 
       // Refrescar producto seleccionado si el view modal sigue abierto
@@ -233,7 +235,7 @@ export const Productos: React.FC = () => {
         refreshSelectedProducto(selectedProducto.id);
       }
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -249,7 +251,7 @@ export const Productos: React.FC = () => {
     setIsSubmitting(true);
     try {
       await eliminarInvestigacion(selectedProducto.id);
-      alert('Investigación eliminada');
+      toast.success('Investigación eliminada');
       setIsInvestigacionModalOpen(false);
 
       // Refrescar producto seleccionado si el view modal sigue abierto
@@ -257,7 +259,7 @@ export const Productos: React.FC = () => {
         refreshSelectedProducto(selectedProducto.id);
       }
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       setIsSubmitting(false);
     }

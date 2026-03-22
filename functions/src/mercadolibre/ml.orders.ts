@@ -14,6 +14,7 @@ import * as admin from "firebase-admin";
 import { requireAdminRole } from "./ml.auth";
 import { procesarOrdenCompleta } from "./ml.orderProcessor";
 import { MLOrderSync } from "./ml.types";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 
@@ -35,7 +36,7 @@ export const mlimporthistoricalorders = functions
   .https.onCall(async (data, context) => {
     await requireAdminRole(context); // SEC-008
 
-    const settingsDoc = await db.collection("mlConfig").doc("settings").get();
+    const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
     if (!settingsDoc.exists || !settingsDoc.data()?.connected) {
       throw new functions.https.HttpsError("failed-precondition", "ML no está conectado");
     }
@@ -71,7 +72,7 @@ export const mlprocesarorden = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError("invalid-argument", "orderSyncId es requerido");
   }
 
-  const orderSyncRef = db.collection("mlOrderSync").doc(orderSyncId);
+  const orderSyncRef = db.collection(COLLECTIONS.ML_ORDER_SYNC).doc(orderSyncId);
 
   // Claim transaccional: solo procesar si estado es "pendiente" o "error"
   // Esto previene race conditions si un webhook está procesando simultáneamente
@@ -125,7 +126,7 @@ export const mlprocesarpendientes = functions.https.onCall(async (_data, context
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
 
-  const pendientesQuery = await db.collection("mlOrderSync")
+  const pendientesQuery = await db.collection(COLLECTIONS.ML_ORDER_SYNC)
     .where("estado", "in", ["pendiente", "error"])
     .where("todosVinculados", "==", true)
     .get();
@@ -211,11 +212,11 @@ export const mlautocreateventas = functions
     const ahoraMs = ahora.toMillis();
 
     // Query por estado solamente — filtrar en memoria
-    const queryPendientes = await db.collection("mlOrderSync")
+    const queryPendientes = await db.collection(COLLECTIONS.ML_ORDER_SYNC)
       .where("estado", "==", "pendiente")
       .get();
 
-    const queryError = await db.collection("mlOrderSync")
+    const queryError = await db.collection(COLLECTIONS.ML_ORDER_SYNC)
       .where("estado", "==", "error")
       .get();
 
@@ -308,13 +309,13 @@ export const mlautocreateventas = functions
  * Helper: buscar cuenta MercadoPago directamente
  */
 async function buscarCuentaMPDirecta(): Promise<string | null> {
-  const q = await db.collection("cuentasCaja")
+  const q = await db.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("nombre", ">=", "Mercado")
     .where("nombre", "<=", "Mercado\uf8ff")
     .limit(1)
     .get();
   if (!q.empty) return q.docs[0].id;
-  const q2 = await db.collection("cuentasCaja")
+  const q2 = await db.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("tipo", "==", "mercado_pago")
     .limit(1)
     .get();
@@ -338,7 +339,7 @@ export const mlconsolidatepackorders = functions
     const log: string[] = [];
 
     // 1. Detectar duplicados por shipmentId
-    const allSyncs = await db.collection("mlOrderSync").get();
+    const allSyncs = await db.collection(COLLECTIONS.ML_ORDER_SYNC).get();
     const byShipment = new Map<number, FirebaseFirestore.QueryDocumentSnapshot[]>();
 
     for (const doc of allSyncs.docs) {
@@ -381,7 +382,7 @@ export const mlconsolidatepackorders = functions
 
       // Leer las ventas
       const ventaDocs = await Promise.all(
-        ventaIds.map(id => db.collection("ventas").doc(id).get())
+        ventaIds.map(id => db.collection(COLLECTIONS.VENTAS).doc(id).get())
       );
       const ventasExistentes = ventaDocs.filter(d => d.exists);
       if (ventasExistentes.length < 2) {
@@ -405,10 +406,10 @@ export const mlconsolidatepackorders = functions
         for (const vd of ventasDuplicadas) {
           const vdData = vd.data()!;
           // Gastos vinculados a la venta duplicada
-          const gastosQ = await db.collection("gastos").where("ventaId", "==", vd.id).get();
+          const gastosQ = await db.collection(COLLECTIONS.GASTOS).where("ventaId", "==", vd.id).get();
           log.push(`  [DRY RUN] Eliminar ${gastosQ.size} gasto(s) de venta ${vdData.numeroVenta}`);
           // Movimientos de tesorería
-          const movsQ = await db.collection("movimientosTesoreria").where("ventaId", "==", vd.id).get();
+          const movsQ = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).where("ventaId", "==", vd.id).get();
           log.push(`  [DRY RUN] Eliminar ${movsQ.size} movimiento(s) de tesorería`);
           // Envío duplicado
           log.push(`  [DRY RUN] Envío duplicado: costoEnvio=${vdData.costoEnvio || 0}, cargoEnvioML=${vdData.cargoEnvioML || 0}`);
@@ -452,7 +453,7 @@ export const mlconsolidatepackorders = functions
         // 2b. Actualizar venta principal con datos mergeados
         const subOrderIds = orderIds;
         const packId = shipmentId; // Usar shipmentId como packId de referencia
-        await db.collection("ventas").doc(ventaPrincipal.id).update({
+        await db.collection(COLLECTIONS.VENTAS).doc(ventaPrincipal.id).update({
           productos: mergedProductos,
           subtotalPEN: subtotalMerge,
           totalPEN: totalMerge,
@@ -476,7 +477,7 @@ export const mlconsolidatepackorders = functions
         const pagosMain = vpData.pagos || [];
         if (pagosMain.length > 0) {
           pagosMain[0].monto = totalMerge;
-          await db.collection("ventas").doc(ventaPrincipal.id).update({
+          await db.collection(COLLECTIONS.VENTAS).doc(ventaPrincipal.id).update({
             pagos: pagosMain,
           });
         }
@@ -489,7 +490,7 @@ export const mlconsolidatepackorders = functions
           const vdId = vd.id;
 
           // 3a. Liberar unidades reservadas por la venta duplicada
-          const unitsQ = await db.collection("unidades")
+          const unitsQ = await db.collection(COLLECTIONS.UNIDADES)
             .where("reservadaPara", "==", vdId)
             .get();
           for (const unitDoc of unitsQ.docs) {
@@ -501,7 +502,7 @@ export const mlconsolidatepackorders = functions
           log.push(`  ${unitsQ.size} unidad(es) reasignadas de ${vdData.numeroVenta} → ${vpData.numeroVenta}`);
 
           // 3b. Eliminar gastos vinculados a la venta duplicada
-          const gastosQ = await db.collection("gastos").where("ventaId", "==", vdId).get();
+          const gastosQ = await db.collection(COLLECTIONS.GASTOS).where("ventaId", "==", vdId).get();
           for (const gastoDoc of gastosQ.docs) {
             const gData = gastoDoc.data();
             saldoCorrection += gData.montoPEN || 0; // Estos egresos se eliminan → devolver al saldo
@@ -510,7 +511,7 @@ export const mlconsolidatepackorders = functions
           log.push(`  ${gastosQ.size} gasto(s) eliminados (S/ ${saldoCorrection.toFixed(2)} a devolver al saldo MP)`);
 
           // 3c. Eliminar movimientos de tesorería de la venta duplicada
-          const movsQ = await db.collection("movimientosTesoreria").where("ventaId", "==", vdId).get();
+          const movsQ = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).where("ventaId", "==", vdId).get();
           let ingresosDup = 0;
           let egresosDup = 0;
           for (const movDoc of movsQ.docs) {
@@ -531,14 +532,14 @@ export const mlconsolidatepackorders = functions
           const netBalanceAdjust = -ingresosDup + egresosDup;
 
           // 3e. Eliminar la venta duplicada
-          await db.collection("ventas").doc(vdId).delete();
+          await db.collection(COLLECTIONS.VENTAS).doc(vdId).delete();
           log.push(`  Venta duplicada ${vdData.numeroVenta} (${vdId}) eliminada`);
 
           // Aplicar corrección de saldo
           if (netBalanceAdjust !== 0) {
             const cuentaMP = await buscarCuentaMPDirecta();
             if (cuentaMP) {
-              await db.collection("cuentasCaja").doc(cuentaMP).update({
+              await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMP).update({
                 saldoActual: admin.firestore.FieldValue.increment(netBalanceAdjust),
               });
               log.push(`  Saldo MP ajustado: ${netBalanceAdjust > 0 ? "+" : ""}S/ ${netBalanceAdjust.toFixed(2)}`);
@@ -547,7 +548,7 @@ export const mlconsolidatepackorders = functions
         }
 
         // 4. Actualizar movimiento de tesorería de la venta principal (monto correcto)
-        const movsMainQ = await db.collection("movimientosTesoreria")
+        const movsMainQ = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
           .where("ventaId", "==", ventaPrincipal.id)
           .where("tipo", "==", "ingreso_venta")
           .limit(1)
@@ -563,7 +564,7 @@ export const mlconsolidatepackorders = functions
             // Corregir saldo MP por la diferencia del ingreso
             const cuentaMP = await buscarCuentaMPDirecta();
             if (cuentaMP) {
-              await db.collection("cuentasCaja").doc(cuentaMP).update({
+              await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMP).update({
                 saldoActual: admin.firestore.FieldValue.increment(diff),
               });
               log.push(`  Ingreso principal ajustado: S/ ${oldMonto.toFixed(2)} → S/ ${totalMerge.toFixed(2)} (diff: ${diff > 0 ? "+" : ""}${diff.toFixed(2)})`);
@@ -572,7 +573,7 @@ export const mlconsolidatepackorders = functions
         }
 
         // 5. Actualizar gastos de comisión de la venta principal (monto consolidado)
-        const gastosMainQ = await db.collection("gastos")
+        const gastosMainQ = await db.collection(COLLECTIONS.GASTOS)
           .where("ventaId", "==", ventaPrincipal.id)
           .where("tipo", "==", "comision_ml")
           .limit(1)
@@ -593,7 +594,7 @@ export const mlconsolidatepackorders = functions
               }],
             });
             // Ajustar saldo MP y movimiento de tesorería por la diferencia
-            const movGastoQ = await db.collection("movimientosTesoreria")
+            const movGastoQ = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
               .where("gastoId", "==", gastosMainQ.docs[0].id)
               .limit(1)
               .get();
@@ -604,7 +605,7 @@ export const mlconsolidatepackorders = functions
             }
             const cuentaMP = await buscarCuentaMPDirecta();
             if (cuentaMP) {
-              await db.collection("cuentasCaja").doc(cuentaMP).update({
+              await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMP).update({
                 saldoActual: admin.firestore.FieldValue.increment(-diff),
               });
               log.push(`  Comisión principal ajustada: S/ ${oldComision.toFixed(2)} → S/ ${comisionMerge.toFixed(2)}`);

@@ -27,6 +27,7 @@ import {
   MLProductMap,
 } from "./ml.types";
 import { corregirComisionML } from "./ml.orderProcessor";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 const Timestamp = admin.firestore.Timestamp;
@@ -84,7 +85,7 @@ export async function syncAllItems(sellerId: number): Promise<{
 
       // Buscar si ya existe en el mapeo
       const existingQuery = await db
-        .collection("mlProductMap")
+        .collection(COLLECTIONS.ML_PRODUCT_MAP)
         .where("mlItemId", "==", item.id)
         .limit(1)
         .get();
@@ -115,7 +116,7 @@ export async function syncAllItems(sellerId: number): Promise<{
         if (sku) {
           // Buscar producto en ERP por SKU
           const productoQuery = await db
-            .collection("productos")
+            .collection(COLLECTIONS.PRODUCTOS)
             .where("sku", "==", sku)
             .limit(1)
             .get();
@@ -130,7 +131,7 @@ export async function syncAllItems(sellerId: number): Promise<{
           }
         }
 
-        await db.collection("mlProductMap").add({
+        await db.collection(COLLECTIONS.ML_PRODUCT_MAP).add({
           ...mapData,
           productoId,
           productoSku,
@@ -148,7 +149,7 @@ export async function syncAllItems(sellerId: number): Promise<{
           if (groupKey) {
             // Buscar por skuGroupKey (que ya tiene el fallback SKU → catalog_product_id)
             const siblingQuery = await db
-              .collection("mlProductMap")
+              .collection(COLLECTIONS.ML_PRODUCT_MAP)
               .where("skuGroupKey", "==", groupKey)
               .where("vinculado", "==", false)
               .get();
@@ -176,7 +177,7 @@ export async function syncAllItems(sellerId: number): Promise<{
   }
 
   // 3. Actualizar última sync
-  await db.collection("mlConfig").doc("settings").update({
+  await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").update({
     lastSync: admin.firestore.Timestamp.now(),
   });
 
@@ -200,7 +201,7 @@ export async function syncAllItems(sellerId: number): Promise<{
 async function processPackSubOrder(order: MLOrder, packId: number): Promise<void> {
   const orderId = order.id;
   const packDocId = `ml-pack-${packId}`;
-  const packDocRef = db.collection("mlOrderSync").doc(packDocId);
+  const packDocRef = db.collection(COLLECTIONS.ML_ORDER_SYNC).doc(packDocId);
 
   functions.logger.info(`ML Order ${orderId}: es parte de pack ${packId}, consolidando...`);
 
@@ -309,7 +310,7 @@ async function processPackSubOrder(order: MLOrder, packId: number): Promise<void
   const productosVinculados = productosSubOrden.filter(p => p.productoId);
   for (const prod of productosVinculados) {
     try {
-      const prodRef = db.collection("productos").doc(prod.productoId!);
+      const prodRef = db.collection(COLLECTIONS.PRODUCTOS).doc(prod.productoId!);
       const prodDoc = await prodRef.get();
       const pData = prodDoc.data();
       const newPendiente = (pData?.stockPendienteML || 0) + prod.cantidad;
@@ -333,7 +334,7 @@ async function processPackSubOrder(order: MLOrder, packId: number): Promise<void
   await packDocRef.update({ stockPendienteContabilizado: true });
 
   // Auto-procesar si todos los productos están vinculados
-  const settingsDoc = await db.collection("mlConfig").doc("settings").get();
+  const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
   const settings = settingsDoc.data();
 
   // Releer el doc del pack para obtener estado actualizado
@@ -566,7 +567,7 @@ export async function processOrderNotification(order: MLOrder): Promise<void> {
   let syncDocRef: FirebaseFirestore.DocumentReference | null = null;
   let existingData: (MLOrderSync & Record<string, any>) | null = null;
 
-  const deterministicRef = db.collection("mlOrderSync").doc(`ml-${orderId}`);
+  const deterministicRef = db.collection(COLLECTIONS.ML_ORDER_SYNC).doc(`ml-${orderId}`);
   const deterministicDoc = await deterministicRef.get();
 
   if (deterministicDoc.exists) {
@@ -575,7 +576,7 @@ export async function processOrderNotification(order: MLOrder): Promise<void> {
   } else {
     // Fallback: buscar docs legacy con ID aleatorio
     const legacyQuery = await db
-      .collection("mlOrderSync")
+      .collection(COLLECTIONS.ML_ORDER_SYNC)
       .where("mlOrderId", "==", orderId)
       .limit(1)
       .get();
@@ -632,7 +633,7 @@ export async function processOrderNotification(order: MLOrder): Promise<void> {
       for (const prod of productos) {
         if (prod.productoId && prod.cantidad > 0) {
           try {
-            const prodRef = db.collection("productos").doc(prod.productoId);
+            const prodRef = db.collection(COLLECTIONS.PRODUCTOS).doc(prod.productoId);
             const prodDoc = await prodRef.get();
             const pData = prodDoc.data();
             const newPendiente = Math.max(0, (pData?.stockPendienteML || 0) - prod.cantidad);
@@ -961,7 +962,7 @@ export async function processOrderNotification(order: MLOrder): Promise<void> {
       if (productosVinculados.length > 0) {
         for (const prod of productosVinculados) {
           try {
-            const prodRef = db.collection("productos").doc(prod.productoId!);
+            const prodRef = db.collection(COLLECTIONS.PRODUCTOS).doc(prod.productoId!);
             const prodDoc = await prodRef.get();
             const pData = prodDoc.data();
             const newPendiente = (pData?.stockPendienteML || 0) + prod.cantidad;
@@ -986,7 +987,7 @@ export async function processOrderNotification(order: MLOrder): Promise<void> {
     }
 
     // 6. Si auto-crear ventas está activo Y todos los productos están vinculados
-    const settingsDoc = await db.collection("mlConfig").doc("settings").get();
+    const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
     const settings = settingsDoc.data();
 
     if (settings?.autoCreateVentas && todosVinculados) {
@@ -1052,14 +1053,14 @@ export async function processShipmentNotification(shipment: MLShipment): Promise
 
   // Buscar la orden asociada a este envío
   const orderSyncQuery = await db
-    .collection("mlOrderSync")
+    .collection(COLLECTIONS.ML_ORDER_SYNC)
     .where("shipmentId", "==", shipment.id)
     .limit(1)
     .get();
 
   if (orderSyncQuery.empty) {
     // Guardar info del shipment para vincular después
-    await db.collection("mlShipmentLog").doc(String(shipment.id)).set({
+    await db.collection(COLLECTIONS.ML_SHIPMENT_LOG).doc(String(shipment.id)).set({
       shipmentId: shipment.id,
       status: shipment.status,
       substatus: shipment.substatus,
@@ -1133,7 +1134,7 @@ export async function processShipmentNotification(shipment: MLShipment): Promise
   // Si se detectó metodoEnvio y hay venta vinculada, actualizar la venta también
   if (metodoEnvio && orderSync.ventaId) {
     try {
-      const ventaRef = db.collection("ventas").doc(orderSync.ventaId);
+      const ventaRef = db.collection(COLLECTIONS.VENTAS).doc(orderSync.ventaId);
       const ventaSnap = await ventaRef.get();
       if (ventaSnap.exists) {
         const ventaData = ventaSnap.data()!;
@@ -1159,7 +1160,7 @@ export async function processShipmentNotification(shipment: MLShipment): Promise
 
     try {
       // Obtener la venta
-      const ventaDoc = await db.collection("ventas").doc(orderSync.ventaId).get();
+      const ventaDoc = await db.collection(COLLECTIONS.VENTAS).doc(orderSync.ventaId).get();
       if (ventaDoc.exists) {
         const ventaData = ventaDoc.data()!;
 
@@ -1170,7 +1171,7 @@ export async function processShipmentNotification(shipment: MLShipment): Promise
           // Marcar todas las unidades asignadas como 'vendida'
           for (const prod of (ventaData.productos || [])) {
             for (const unidadId of (prod.unidadesAsignadas || [])) {
-              const unidadRef = db.collection("unidades").doc(unidadId);
+              const unidadRef = db.collection(COLLECTIONS.UNIDADES).doc(unidadId);
               batch.update(unidadRef, {
                 estado: "vendida",
                 fechaVenta: Timestamp.now(),
@@ -1197,7 +1198,7 @@ export async function processShipmentNotification(shipment: MLShipment): Promise
           for (const prodId of productoIds) {
             try {
               // Recálculo COMPLETO de stock — misma lógica que inventario.service.ts
-              const allUnitsQuery = await db.collection("unidades")
+              const allUnitsQuery = await db.collection(COLLECTIONS.UNIDADES)
                 .where("productoId", "==", prodId)
                 .get();
 
@@ -1216,11 +1217,11 @@ export async function processShipmentNotification(shipment: MLShipment): Promise
               }
 
               // Leer stockPendienteML para recalcular stockEfectivoML
-              const prodDocSnap = await db.collection("productos").doc(prodId as string).get();
+              const prodDocSnap = await db.collection(COLLECTIONS.PRODUCTOS).doc(prodId as string).get();
               const sPendienteML = prodDocSnap.data()?.stockPendienteML || 0;
               const sEfectivoML = Math.max(0, sDisponiblePeru - sPendienteML);
 
-              await db.collection("productos").doc(prodId as string).update({
+              await db.collection(COLLECTIONS.PRODUCTOS).doc(prodId as string).update({
                 stockUSA: sUSA,
                 stockPeru: sPeru,
                 stockTransito: sTransito,
@@ -1317,7 +1318,7 @@ function detectarMetodoEnvio(
 async function buscarTransportistaPorNombre(
   nombreBusqueda: string
 ): Promise<{ id: string; nombre: string } | null> {
-  const snap = await db.collection("transportistas").get();
+  const snap = await db.collection(COLLECTIONS.TRANSPORTISTAS).get();
 
   const busqueda = nombreBusqueda.toLowerCase();
   for (const doc of snap.docs) {
@@ -1349,7 +1350,7 @@ async function registrarGastoDistribucionAuto(
   if (!ventaId) return;
 
   // Verificar si ya existe un gasto GD para esta venta
-  const existingGD = await db.collection("gastos")
+  const existingGD = await db.collection(COLLECTIONS.GASTOS)
     .where("ventaId", "==", ventaId)
     .where("categoria", "==", "GD")
     .limit(1)
@@ -1399,7 +1400,7 @@ async function registrarGastoDistribucionAuto(
 
   // Generar número de gasto
   const gastoPrefix = "GAS-";
-  const lastGasto = await db.collection("gastos")
+  const lastGasto = await db.collection(COLLECTIONS.GASTOS)
     .where("numeroGasto", ">=", gastoPrefix)
     .where("numeroGasto", "<=", gastoPrefix + "\uf8ff")
     .orderBy("numeroGasto", "desc")
@@ -1416,7 +1417,7 @@ async function registrarGastoDistribucionAuto(
 
   // Buscar cuenta MercadoPago para el egreso
   let cuentaMPId: string | null = null;
-  const mpQuery = await db.collection("cuentasCaja")
+  const mpQuery = await db.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("metodoPagoAsociado", "==", "mercado_pago")
     .where("activa", "==", true)
     .limit(1)
@@ -1473,7 +1474,7 @@ async function registrarGastoDistribucionAuto(
     fechaCreacion: now,
   };
 
-  const gastoRef = await db.collection("gastos").add(gastoData);
+  const gastoRef = await db.collection(COLLECTIONS.GASTOS).add(gastoData);
 
   // Crear movimiento tesorería (egreso) si hay cuenta MP
   if (cuentaMPId) {
@@ -1495,10 +1496,10 @@ async function registrarGastoDistribucionAuto(
       creadoPor: "ml-auto-delivery",
       fechaCreacion: now,
     };
-    await db.collection("movimientosTesoreria").add(movimientoEgreso);
+    await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add(movimientoEgreso);
 
     // Actualizar saldo cuenta MP
-    await db.collection("cuentasCaja").doc(cuentaMPId).update({
+    await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMPId).update({
       saldoActual: admin.firestore.FieldValue.increment(-costoDistribucion),
     });
   }
@@ -1521,7 +1522,7 @@ async function registrarGastoDistribucionAuto(
     transportistaNombre: transportista.nombre,
   };
 
-  await db.collection("ventas").doc(ventaId).update(ventaUpdate);
+  await db.collection(COLLECTIONS.VENTAS).doc(ventaId).update(ventaUpdate);
 
   functions.logger.info(
     `ML GD Auto: ${numeroGasto} | ${metodoLabel} S/ ${costoDistribucion.toFixed(2)} → ` +
@@ -1582,7 +1583,7 @@ export async function importHistoricalOrders(
       try {
         // Verificar si ya existe en el sistema
         const existingQuery = await db
-          .collection("mlOrderSync")
+          .collection(COLLECTIONS.ML_ORDER_SYNC)
           .where("mlOrderId", "==", order.id)
           .limit(1)
           .get();
@@ -1854,7 +1855,7 @@ export async function importHistoricalOrders(
         }
 
         // ---- Crear registro completo en mlOrderSync ----
-        await db.collection("mlOrderSync").add({
+        await db.collection(COLLECTIONS.ML_ORDER_SYNC).add({
           mlOrderId: order.id,
           mlStatus: order.status,
           mlBuyerId: order.buyer.id,
@@ -1926,7 +1927,7 @@ export async function importHistoricalOrders(
   }
 
   // Actualizar última sync
-  await db.collection("mlConfig").doc("settings").update({
+  await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").update({
     lastHistoricalImport: Timestamp.now(),
   });
 
@@ -2024,7 +2025,7 @@ export async function reenrichBuyerData(): Promise<{
   errores: number;
   total: number;
 }> {
-  const snapshot = await db.collection("mlOrderSync").get();
+  const snapshot = await db.collection(COLLECTIONS.ML_ORDER_SYNC).get();
   let actualizadas = 0;
   let clientesActualizados = 0;
   let errores = 0;
@@ -2164,7 +2165,7 @@ export async function reenrichBuyerData(): Promise<{
       // Si ya tiene un cliente ERP vinculado, actualizarlo con datos completos
       if (data.clienteId) {
         try {
-          const clienteRef = db.collection("clientes").doc(data.clienteId);
+          const clienteRef = db.collection(COLLECTIONS.CLIENTES).doc(data.clienteId);
           const clienteDoc = await clienteRef.get();
           if (clienteDoc.exists) {
             const esEmpresa = buyerDocType === "RUC" || (buyerDni && buyerDni.length === 11);
@@ -2196,7 +2197,7 @@ export async function reenrichBuyerData(): Promise<{
       if (data.ventaId) {
         try {
           // Corregir nombre del cliente en la venta si difiere
-          const ventaRef = db.collection("ventas").doc(data.ventaId);
+          const ventaRef = db.collection(COLLECTIONS.VENTAS).doc(data.ventaId);
           const ventaDoc = await ventaRef.get();
           if (ventaDoc.exists) {
             const ventaData = ventaDoc.data()!;
@@ -2282,7 +2283,7 @@ export async function repararVentasUrbano(): Promise<{
   let errores = 0;
 
   // 1. Buscar todas las órdenes procesadas que tienen ventaId
-  const snapshot = await db.collection("mlOrderSync")
+  const snapshot = await db.collection(COLLECTIONS.ML_ORDER_SYNC)
     .where("estado", "==", "procesada")
     .get();
 
@@ -2312,7 +2313,7 @@ export async function repararVentasUrbano(): Promise<{
         continue;
       }
 
-      const ventaDoc = await db.collection("ventas").doc(ventaId).get();
+      const ventaDoc = await db.collection(COLLECTIONS.VENTAS).doc(ventaId).get();
       if (!ventaDoc.exists) {
         omitidas++;
         continue;
@@ -2373,7 +2374,7 @@ export async function repararVentasUrbano(): Promise<{
         }
 
         // C) Corregir movimiento de tesorería (ingreso_venta)
-        const movIngresoQuery = await db.collection("movimientosTesoreria")
+        const movIngresoQuery = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
           .where("ventaId", "==", ventaId)
           .where("tipo", "==", "ingreso_venta")
           .limit(1)
@@ -2392,7 +2393,7 @@ export async function repararVentasUrbano(): Promise<{
           });
 
           if (cuentaMPId && diferencia > 0) {
-            await db.collection("cuentasCaja").doc(cuentaMPId).update({
+            await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMPId).update({
               saldoActual: admin.firestore.FieldValue.increment(-diferencia),
             });
             detalles.push(
@@ -2470,7 +2471,7 @@ export async function repararNombresDniVentas(): Promise<{
   const db = admin.firestore();
 
   // Buscar todas las mlOrderSync procesadas
-  const syncSnap = await db.collection("mlOrderSync")
+  const syncSnap = await db.collection(COLLECTIONS.ML_ORDER_SYNC)
     .where("estado", "==", "procesada")
     .get();
 
@@ -2490,7 +2491,7 @@ export async function repararNombresDniVentas(): Promise<{
         continue;
       }
 
-      const ventaDoc = await db.collection("ventas").doc(ventaId).get();
+      const ventaDoc = await db.collection(COLLECTIONS.VENTAS).doc(ventaId).get();
       if (!ventaDoc.exists) {
         omitidas++;
         continue;
@@ -2522,7 +2523,7 @@ export async function repararNombresDniVentas(): Promise<{
       }
 
       // Actualizar venta
-      await db.collection("ventas").doc(ventaId).update(ventaUpdates);
+      await db.collection(COLLECTIONS.VENTAS).doc(ventaId).update(ventaUpdates);
 
       // Actualizar cliente vinculado si existe
       if (venta.clienteId) {
@@ -2539,7 +2540,7 @@ export async function repararNombresDniVentas(): Promise<{
         }
         if (Object.keys(clienteUpdates).length > 0) {
           try {
-            await db.collection("clientes").doc(venta.clienteId).update(clienteUpdates);
+            await db.collection(COLLECTIONS.CLIENTES).doc(venta.clienteId).update(clienteUpdates);
             changes.push("+ cliente actualizado");
           } catch {
             // Cliente puede no existir

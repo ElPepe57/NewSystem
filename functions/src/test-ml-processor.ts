@@ -22,6 +22,7 @@ const Timestamp = admin.firestore.Timestamp;
 
 // Importar el procesador (después de configurar emuladores)
 import { procesarOrdenCompleta } from "./mercadolibre/ml.orderProcessor";
+import { COLLECTIONS } from "./collections";
 
 // ============================================================
 // SEED DATA
@@ -31,7 +32,7 @@ async function seedData() {
   console.log("\n📦 Creando seed data...\n");
 
   // 1. ML Config
-  await db.collection("mlConfig").doc("settings").set({
+  await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").set({
     connected: true,
     userId: 123456789,
     nickname: "TESTUSER",
@@ -44,7 +45,7 @@ async function seedData() {
   console.log("  ✅ mlConfig/settings");
 
   // 2. Canal de Venta ML
-  const canalRef = await db.collection("canalesVenta").add({
+  const canalRef = await db.collection(COLLECTIONS.CANALES_VENTA).add({
     nombre: "Mercado Libre",
     codigo: "CV-002",
     activo: true,
@@ -52,7 +53,7 @@ async function seedData() {
   console.log(`  ✅ canalesVenta (${canalRef.id})`);
 
   // 3. Cuenta MercadoPago en tesorería
-  const cuentaRef = await db.collection("cuentasCaja").add({
+  const cuentaRef = await db.collection(COLLECTIONS.CUENTAS_CAJA).add({
     nombre: "MercadoPago",
     metodoPagoAsociado: "mercado_pago",
     esCuentaPorDefecto: true,
@@ -65,7 +66,7 @@ async function seedData() {
 
   // 4. Tipo de cambio de hoy
   const today = new Date().toISOString().split("T")[0];
-  await db.collection("tiposCambio").add({
+  await db.collection(COLLECTIONS.TIPOS_CAMBIO).add({
     fecha: today,
     compra: 3.68,
     venta: 3.72,
@@ -73,7 +74,7 @@ async function seedData() {
   console.log(`  ✅ tiposCambio (${today})`);
 
   // 5. Producto ERP
-  const productoRef = await db.collection("productos").add({
+  const productoRef = await db.collection(COLLECTIONS.PRODUCTOS).add({
     sku: "CRM-001",
     nombreComercial: "Crema Hidratante Vita Skin 50ml",
     marca: "Vita Skin",
@@ -90,7 +91,7 @@ async function seedData() {
     const fechaVencimiento = new Date();
     fechaVencimiento.setMonth(fechaVencimiento.getMonth() + 6 + i); // Vencen progresivamente
 
-    const uRef = await db.collection("unidades").add({
+    const uRef = await db.collection(COLLECTIONS.UNIDADES).add({
       productoId: productoRef.id,
       sku: "CRM-001",
       estado: "disponible_peru",
@@ -108,7 +109,7 @@ async function seedData() {
   console.log(`  ✅ ${unidadIds.length} unidades disponibles (FEFO test)`);
 
   // 7. Venta existente (para que el generador de numeración funcione)
-  await db.collection("ventas").add({
+  await db.collection(COLLECTIONS.VENTAS).add({
     numeroVenta: "VT-2026-047",
     estado: "entregada",
     totalPEN: 126.95,
@@ -117,7 +118,7 @@ async function seedData() {
   console.log("  ✅ venta existente VT-2026-047 (para secuencia)");
 
   // 8. Gasto existente (para secuencia)
-  await db.collection("gastos").add({
+  await db.collection(COLLECTIONS.GASTOS).add({
     numeroGasto: "GAS-0093",
     estado: "pagado",
     montoPEN: 17.70,
@@ -126,7 +127,7 @@ async function seedData() {
   console.log("  ✅ gasto existente GAS-0093 (para secuencia)");
 
   // 9. Cliente existente (no debería matchear — testing autoCreate)
-  await db.collection("clientes").add({
+  await db.collection(COLLECTIONS.CLIENTES).add({
     codigo: "CLI-010",
     nombre: "Otro Cliente",
     nombreLowercase: "otro cliente",
@@ -193,7 +194,7 @@ async function crearOrdenPrueba(productoId: string) {
     ],
   };
 
-  const orderRef = await db.collection("mlOrderSync").add(orderData);
+  const orderRef = await db.collection(COLLECTIONS.ML_ORDER_SYNC).add(orderData);
   console.log(`  ✅ mlOrderSync creada (${orderRef.id})`);
   console.log(`     Orden ML: #${orderData.mlOrderId}`);
   console.log(`     Buyer: ${orderData.mlBuyerName} (DNI: ${orderData.buyerDni})`);
@@ -225,7 +226,7 @@ async function verificarResultados(orderId: string) {
 
   // 1. Verificar mlOrderSync actualizada
   console.log("  --- mlOrderSync ---");
-  const orderDoc = await db.collection("mlOrderSync").doc(orderId).get();
+  const orderDoc = await db.collection(COLLECTIONS.ML_ORDER_SYNC).doc(orderId).get();
   const order = orderDoc.data()!;
   check("Estado = procesada", order.estado === "procesada", `estado: ${order.estado}`);
   check("ventaId poblado", !!order.ventaId, `ventaId: ${order.ventaId}`);
@@ -239,7 +240,7 @@ async function verificarResultados(orderId: string) {
 
   // 2. Verificar venta creada
   console.log("\n  --- Venta ---");
-  const ventaDoc = await db.collection("ventas").doc(order.ventaId).get();
+  const ventaDoc = await db.collection(COLLECTIONS.VENTAS).doc(order.ventaId).get();
   const venta = ventaDoc.data()!;
   check("Venta existe", ventaDoc.exists);
   check("Numero VT-2026-048", venta.numeroVenta === "VT-2026-048", `got: ${venta.numeroVenta}`);
@@ -282,7 +283,7 @@ async function verificarResultados(orderId: string) {
   // 3. Verificar cliente creado
   console.log("\n  --- Cliente ---");
   if (order.clienteId) {
-    const clienteDoc = await db.collection("clientes").doc(order.clienteId).get();
+    const clienteDoc = await db.collection(COLLECTIONS.CLIENTES).doc(order.clienteId).get();
     const cliente = clienteDoc.data()!;
     check("Cliente existe", clienteDoc.exists);
     check("Nombre = María García López", cliente.nombre === "María García López", `got: ${cliente.nombre}`);
@@ -305,7 +306,7 @@ async function verificarResultados(orderId: string) {
 
   // 5. Verificar movimientos de tesorería
   console.log("\n  --- Tesorería ---");
-  const movimientos = await db.collection("movimientosTesoreria").get();
+  const movimientos = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).get();
   const movs = movimientos.docs.map((d) => d.data());
   const ingreso = movs.find((m) => m.tipo === "ingreso_venta");
   const egreso = movs.find((m) => m.tipo === "gasto_operativo");
@@ -326,7 +327,7 @@ async function verificarResultados(orderId: string) {
 
   // 6. Verificar cuenta MercadoPago saldo neto
   console.log("\n  --- Saldo Cuenta MP ---");
-  const cuentas = await db.collection("cuentasCaja")
+  const cuentas = await db.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("metodoPagoAsociado", "==", "mercado_pago")
     .get();
   if (!cuentas.empty) {
@@ -341,7 +342,7 @@ async function verificarResultados(orderId: string) {
 
   // 7. Verificar gasto doc
   console.log("\n  --- Gasto Comisión ML ---");
-  const gastosSnapshot = await db.collection("gastos")
+  const gastosSnapshot = await db.collection(COLLECTIONS.GASTOS)
     .where("tipo", "==", "comision_ml")
     .get();
   check("Gasto comision_ml creado", !gastosSnapshot.empty, `count: ${gastosSnapshot.size}`);
@@ -357,7 +358,7 @@ async function verificarResultados(orderId: string) {
 
   // 8. Verificar unidades reservadas (FEFO)
   console.log("\n  --- Unidades FEFO ---");
-  const reservadas = await db.collection("unidades")
+  const reservadas = await db.collection(COLLECTIONS.UNIDADES)
     .where("estado", "==", "reservada")
     .get();
   check("2 unidades reservadas", reservadas.size === 2, `got: ${reservadas.size}`);

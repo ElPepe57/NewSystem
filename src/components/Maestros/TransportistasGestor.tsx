@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useToastStore } from '../../store/toastStore';
 import {
   Truck,
   User,
@@ -35,6 +36,7 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
   onViewTransportista
 }) => {
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
   const {
     transportistas,
     transportistasActivos,
@@ -70,10 +72,10 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
 
     try {
       await seedDefaultTransportistas(user.uid);
-      alert('Transportistas creados correctamente');
+      toast.success('Transportistas creados correctamente');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error: ' + message);
+      toast.error('Error: ' + message);
     }
   };
 
@@ -85,7 +87,7 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
       setShowFormModal(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error al crear: ' + message);
+      toast.error('Error al crear: ' + message);
     } finally {
       setIsSubmitting(false);
     }
@@ -100,7 +102,7 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
       setShowFormModal(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error al actualizar: ' + message);
+      toast.error('Error al actualizar: ' + message);
     } finally {
       setIsSubmitting(false);
     }
@@ -117,7 +119,7 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
       await toggleEstado(transportista.id, user.uid);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error: ' + message);
+      toast.error('Error: ' + message);
     }
   };
 

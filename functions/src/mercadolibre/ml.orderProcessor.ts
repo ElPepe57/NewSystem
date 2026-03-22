@@ -13,6 +13,7 @@ import * as functions from "firebase-functions/v1";
 import { MLOrderSync, MLOrderProduct } from "./ml.types";
 import { getOrder, getShipment } from "./ml.api";
 import { resolverTCVenta } from "../tipoCambio.util";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 const Timestamp = admin.firestore.Timestamp;
@@ -82,7 +83,7 @@ export async function procesarOrdenCompleta(
       let allDecrementsOk = true;
       for (const prod of productosVinculados) {
         try {
-          const prodRef = db.collection("productos").doc(prod.productoId!);
+          const prodRef = db.collection(COLLECTIONS.PRODUCTOS).doc(prod.productoId!);
           const prodDoc = await prodRef.get();
           const pData = prodDoc.data();
           const newPendiente = Math.max(0, (pData?.stockPendienteML || 0) - prod.cantidad);
@@ -178,7 +179,7 @@ export async function procesarOrdenCompleta(
     }
 
     // 0c. Obtener config ML
-    const configDoc = await db.collection("mlConfig").doc("settings").get();
+    const configDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
     const config = configDoc.data() || {};
 
     // 1. Buscar o crear cliente
@@ -195,7 +196,7 @@ export async function procesarOrdenCompleta(
     const deterministicVentaId = orderSync.packId
       ? `venta-ml-pack-${orderSync.packId}`
       : `venta-ml-${mlOrderId}`;
-    const deterministicCheck = await db.collection("ventas").doc(deterministicVentaId).get();
+    const deterministicCheck = await db.collection(COLLECTIONS.VENTAS).doc(deterministicVentaId).get();
 
     let existingVentaDoc: FirebaseFirestore.DocumentSnapshot | null = null;
 
@@ -203,13 +204,13 @@ export async function procesarOrdenCompleta(
       existingVentaDoc = deterministicCheck;
     } else {
       // Fallback: buscar por campo mercadoLibreId (para ventas antiguas con ID aleatorio)
-      let existingVentaQ = await db.collection("ventas")
+      let existingVentaQ = await db.collection(COLLECTIONS.VENTAS)
         .where("mercadoLibreId", "==", String(mlOrderId))
         .limit(1)
         .get();
 
       if (existingVentaQ.empty && orderSync.packId) {
-        existingVentaQ = await db.collection("ventas")
+        existingVentaQ = await db.collection(COLLECTIONS.VENTAS)
           .where("packId", "==", orderSync.packId)
           .limit(1)
           .get();
@@ -355,7 +356,7 @@ async function buscarOCrearCliente(
       if (orderSync.buyerEmail) updateData.email = orderSync.buyerEmail;
 
       if (Object.keys(updateData).length > 0) {
-        await db.collection("clientes").doc(clienteId).update(updateData);
+        await db.collection(COLLECTIONS.CLIENTES).doc(clienteId).update(updateData);
         functions.logger.info(`ML: Cliente ${clienteId} actualizado con datos de billing_info → ${nombreCompleto}`);
       }
     } catch (err: any) {
@@ -365,7 +366,7 @@ async function buscarOCrearCliente(
 
   // 1a. Buscar por DNI/RUC
   if (orderSync.buyerDni) {
-    const dniQuery = await db.collection("clientes")
+    const dniQuery = await db.collection(COLLECTIONS.CLIENTES)
       .where("dniRuc", "==", orderSync.buyerDni)
       .limit(1)
       .get();
@@ -382,7 +383,7 @@ async function buscarOCrearCliente(
   if (orderSync.buyerPhone) {
     const phoneNormalized = orderSync.buyerPhone.replace(/\D/g, "");
     if (phoneNormalized.length >= 7) {
-      const phoneQuery = await db.collection("clientes")
+      const phoneQuery = await db.collection(COLLECTIONS.CLIENTES)
         .where("telefono", "==", phoneNormalized)
         .limit(1)
         .get();
@@ -399,7 +400,7 @@ async function buscarOCrearCliente(
   // 1c. Buscar por nombre exacto (case-insensitive via lowercase)
   if (orderSync.mlBuyerName) {
     const nombreLower = orderSync.mlBuyerName.toLowerCase().trim();
-    const nameQuery = await db.collection("clientes")
+    const nameQuery = await db.collection(COLLECTIONS.CLIENTES)
       .where("nombreLowercase", "==", nombreLower)
       .limit(1)
       .get();
@@ -455,7 +456,7 @@ async function buscarOCrearCliente(
     }];
   }
 
-  const clienteRef = await db.collection("clientes").add(nuevoCliente);
+  const clienteRef = await db.collection(COLLECTIONS.CLIENTES).add(nuevoCliente);
   functions.logger.info(`ML: Cliente creado ${codigo} (${clienteRef.id})`);
   return clienteRef.id;
 }
@@ -485,7 +486,7 @@ async function crearVenta(
     // Obtener datos completos del producto ERP
     if (prod.productoId) {
       try {
-        const prodDoc = await db.collection("productos").doc(prod.productoId).get();
+        const prodDoc = await db.collection(COLLECTIONS.PRODUCTOS).doc(prod.productoId).get();
         if (prodDoc.exists) {
           const prodData = prodDoc.data()!;
           sku = prodData.sku || sku;
@@ -593,7 +594,7 @@ async function crearVenta(
   const deterministicId = orderSync.packId
     ? `venta-ml-pack-${orderSync.packId}`
     : `venta-ml-${orderSync.mlOrderId}`;
-  const ventaRef = db.collection("ventas").doc(deterministicId);
+  const ventaRef = db.collection(COLLECTIONS.VENTAS).doc(deterministicId);
 
   try {
     await ventaRef.create(ventaData);
@@ -632,7 +633,7 @@ async function registrarPagoCompleto(
   const numeroVenta = ventaData.numeroVenta;
 
   // Guard: verificar que no exista ya un pago para esta venta
-  const ventaActual = await db.collection("ventas").doc(ventaId).get();
+  const ventaActual = await db.collection(COLLECTIONS.VENTAS).doc(ventaId).get();
   if (ventaActual.exists) {
     const vData = ventaActual.data();
     if (vData?.estadoPago === "pagado" || (vData?.montoPagado || 0) >= totalPEN) {
@@ -657,7 +658,7 @@ async function registrarPagoCompleto(
   };
 
   // Actualizar venta con pago
-  await db.collection("ventas").doc(ventaId).update({
+  await db.collection(COLLECTIONS.VENTAS).doc(ventaId).update({
     pagos: admin.firestore.FieldValue.arrayUnion(nuevoPago),
     montoPagado: totalPEN,
     montoPendiente: 0,
@@ -693,10 +694,10 @@ async function registrarPagoCompleto(
     fechaCreacion: Timestamp.now(),
   };
 
-  await db.collection("movimientosTesoreria").add(movimientoIngreso);
+  await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add(movimientoIngreso);
 
   // Actualizar saldo de la cuenta MP
-  await db.collection("cuentasCaja").doc(cuentaMPId).update({
+  await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMPId).update({
     saldoActual: admin.firestore.FieldValue.increment(totalPEN),
   });
 
@@ -727,7 +728,7 @@ async function asignarInventarioFEFO(
     }
 
     // Query unidades disponibles, ordenadas por fecha de vencimiento (FEFO)
-    const unidadesQuery = await db.collection("unidades")
+    const unidadesQuery = await db.collection(COLLECTIONS.UNIDADES)
       .where("productoId", "==", prod.productoId)
       .where("estado", "==", "disponible_peru")
       .orderBy("fechaVencimiento", "asc")
@@ -814,7 +815,7 @@ async function asignarInventarioFEFO(
   const margenNeto = totalPEN > 0 ? (utilidadNetaPEN / totalPEN) * 100 : 0;
 
   // Actualizar venta con productos asignados y rentabilidad
-  await db.collection("ventas").doc(ventaId).update({
+  await db.collection(COLLECTIONS.VENTAS).doc(ventaId).update({
     productos: productosActualizados,
     estado: todasAsignadas ? "asignada" : "confirmada",
     costoTotalPEN,
@@ -854,7 +855,7 @@ async function registrarGastosML(
   // --- Gasto 1: Comisión ML ---
   if (comisionML > 0) {
     // Guard: verificar que no exista ya un gasto GV comision_ml para esta venta
-    const existingGV = await db.collection("gastos")
+    const existingGV = await db.collection(COLLECTIONS.GASTOS)
       .where("ventaId", "==", ventaId)
       .where("tipo", "==", "comision_ml")
       .limit(1)
@@ -910,10 +911,10 @@ async function registrarGastosML(
       }];
     }
 
-    const gastoRef = await db.collection("gastos").add(gastoData);
+    const gastoRef = await db.collection(COLLECTIONS.GASTOS).add(gastoData);
 
     if (hasCuenta) {
-      await db.collection("movimientosTesoreria").add({
+      await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add({
         numeroMovimiento: `MOV-mlgas-${Date.now()}`,
         tipo: "gasto_operativo",
         estado: "ejecutado",
@@ -932,7 +933,7 @@ async function registrarGastosML(
         fechaCreacion: now,
       });
 
-      await db.collection("cuentasCaja").doc(cuentaMPId!).update({
+      await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMPId!).update({
         saldoActual: admin.firestore.FieldValue.increment(-comisionML),
       });
     }
@@ -950,7 +951,7 @@ async function registrarGastosML(
   const cargoEnvioML = orderSync.cargoEnvioML || 0;
   if (cargoEnvioML > 0) {
     // Guard: verificar que no exista ya un gasto cargo_envio_ml para esta venta
-    const existingEnvioGV = await db.collection("gastos")
+    const existingEnvioGV = await db.collection(COLLECTIONS.GASTOS)
       .where("ventaId", "==", ventaId)
       .where("tipo", "==", "cargo_envio_ml")
       .limit(1)
@@ -1008,10 +1009,10 @@ async function registrarGastosML(
       }];
     }
 
-    const gastoEnvioRef = await db.collection("gastos").add(gastoEnvioData);
+    const gastoEnvioRef = await db.collection(COLLECTIONS.GASTOS).add(gastoEnvioData);
 
     if (hasCuenta) {
-      await db.collection("movimientosTesoreria").add({
+      await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add({
         numeroMovimiento: `MOV-mlenv-${Date.now()}`,
         tipo: "gasto_operativo",
         estado: "ejecutado",
@@ -1030,13 +1031,13 @@ async function registrarGastosML(
         fechaCreacion: now2,
       });
 
-      await db.collection("cuentasCaja").doc(cuentaMPId!).update({
+      await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMPId!).update({
         saldoActual: admin.firestore.FieldValue.increment(-cargoEnvioML),
       });
     }
 
     // Actualizar gastosVentaPEN en la venta para incluir envío
-    await db.collection("ventas").doc(ventaId).update({
+    await db.collection(COLLECTIONS.VENTAS).doc(ventaId).update({
       cargoEnvioMLRegistrado: true,
       gastosVentaPEN: admin.firestore.FieldValue.increment(cargoEnvioML),
     });
@@ -1056,7 +1057,7 @@ async function registrarGastosML(
 async function generarNumeroVenta(): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = `VT-${year}-`;
-  const counterRef = db.collection("counters").doc(`ventas-${year}`);
+  const counterRef = db.collection(COLLECTIONS.COUNTERS).doc(`ventas-${year}`);
 
   // Transacción atómica para prevenir números duplicados bajo concurrencia
   const nextNum = await db.runTransaction(async (tx) => {
@@ -1067,7 +1068,7 @@ async function generarNumeroVenta(): Promise<string> {
       current = counterDoc.data()!.lastNumber || 0;
     } else {
       // Inicializar: buscar el último número de venta existente
-      const lastVenta = await db.collection("ventas")
+      const lastVenta = await db.collection(COLLECTIONS.VENTAS)
         .where("numeroVenta", ">=", prefix)
         .where("numeroVenta", "<=", prefix + "\uf8ff")
         .orderBy("numeroVenta", "desc")
@@ -1092,7 +1093,7 @@ async function generarNumeroVenta(): Promise<string> {
 async function generarCodigoCliente(): Promise<string> {
   const prefix = "CLI-";
 
-  const lastCliente = await db.collection("clientes")
+  const lastCliente = await db.collection(COLLECTIONS.CLIENTES)
     .where("codigo", ">=", prefix)
     .where("codigo", "<=", prefix + "\uf8ff")
     .orderBy("codigo", "desc")
@@ -1112,7 +1113,7 @@ async function generarCodigoCliente(): Promise<string> {
 async function generarNumeroGasto(): Promise<string> {
   const prefix = "GAS-";
 
-  const lastGasto = await db.collection("gastos")
+  const lastGasto = await db.collection(COLLECTIONS.GASTOS)
     .where("numeroGasto", ">=", prefix)
     .where("numeroGasto", "<=", prefix + "\uf8ff")
     .orderBy("numeroGasto", "desc")
@@ -1130,7 +1131,7 @@ async function generarNumeroGasto(): Promise<string> {
 }
 
 async function obtenerCanalML(): Promise<string | null> {
-  const canalQuery = await db.collection("canalesVenta")
+  const canalQuery = await db.collection(COLLECTIONS.CANALES_VENTA)
     .where("nombre", "==", "Mercado Libre")
     .limit(1)
     .get();
@@ -1138,7 +1139,7 @@ async function obtenerCanalML(): Promise<string | null> {
   if (!canalQuery.empty) return canalQuery.docs[0].id;
 
   // Fallback: buscar por código
-  const canalCodeQuery = await db.collection("canalesVenta")
+  const canalCodeQuery = await db.collection(COLLECTIONS.CANALES_VENTA)
     .where("codigo", "==", "CV-002")
     .limit(1)
     .get();
@@ -1166,7 +1167,7 @@ export async function corregirComisionML(
 ): Promise<void> {
   if (nuevaComision <= 0) return;
 
-  const ventaRef = db.collection("ventas").doc(ventaId);
+  const ventaRef = db.collection(COLLECTIONS.VENTAS).doc(ventaId);
   const ventaDoc = await ventaRef.get();
   if (!ventaDoc.exists) return;
 
@@ -1175,7 +1176,7 @@ export async function corregirComisionML(
   const diff = nuevaComision - ventaComision;
 
   // Verificar si el gasto GV existe antes de decidir si saltamos
-  const gastosCheckQuery = await db.collection("gastos")
+  const gastosCheckQuery = await db.collection(COLLECTIONS.GASTOS)
     .where("ventaId", "==", ventaId)
     .where("tipo", "==", "comision_ml")
     .limit(1)
@@ -1223,7 +1224,7 @@ export async function corregirComisionML(
     });
 
     // Actualizar movimiento de tesorería
-    const movQuery = await db.collection("movimientosTesoreria")
+    const movQuery = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
       .where("gastoId", "==", gastoDoc.id)
       .limit(1)
       .get();
@@ -1234,7 +1235,7 @@ export async function corregirComisionML(
     // Ajustar saldo de la cuenta (diff negativo = más gasto)
     const cuentaId = gastoData.pagos?.[0]?.cuentaOrigenId || cuentaMPId;
     if (cuentaId) {
-      await db.collection("cuentasCaja").doc(cuentaId).update({
+      await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaId).update({
         saldoActual: admin.firestore.FieldValue.increment(-diff),
       });
     }
@@ -1292,10 +1293,10 @@ export async function corregirComisionML(
       }];
     }
 
-    const gastoRef = await db.collection("gastos").add(gastoData);
+    const gastoRef = await db.collection(COLLECTIONS.GASTOS).add(gastoData);
 
     if (hasCuenta) {
-      await db.collection("movimientosTesoreria").add({
+      await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add({
         numeroMovimiento: `MOV-mlgas-${Date.now()}`,
         tipo: "gasto_operativo",
         estado: "ejecutado",
@@ -1314,7 +1315,7 @@ export async function corregirComisionML(
         fechaCreacion: now,
       });
 
-      await db.collection("cuentasCaja").doc(cuentaMPId!).update({
+      await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMPId!).update({
         saldoActual: admin.firestore.FieldValue.increment(-nuevaComision),
       });
     }
@@ -1331,7 +1332,7 @@ export async function corregirComisionML(
 
 async function buscarCuentaMercadoPago(): Promise<string | null> {
   // 1. Buscar cuenta por defecto con método mercado_pago
-  const defaultQuery = await db.collection("cuentasCaja")
+  const defaultQuery = await db.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("metodoPagoAsociado", "==", "mercado_pago")
     .where("esCuentaPorDefecto", "==", true)
     .where("activa", "==", true)
@@ -1341,7 +1342,7 @@ async function buscarCuentaMercadoPago(): Promise<string | null> {
   if (!defaultQuery.empty) return defaultQuery.docs[0].id;
 
   // 2. Cualquier cuenta mercado_pago activa
-  const mpQuery = await db.collection("cuentasCaja")
+  const mpQuery = await db.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("metodoPagoAsociado", "==", "mercado_pago")
     .where("activa", "==", true)
     .limit(1)
@@ -1350,7 +1351,7 @@ async function buscarCuentaMercadoPago(): Promise<string | null> {
   if (!mpQuery.empty) return mpQuery.docs[0].id;
 
   // 3. Fallback: cualquier cuenta activa que acepte PEN
-  const fallbackQuery = await db.collection("cuentasCaja")
+  const fallbackQuery = await db.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("activa", "==", true)
     .limit(1)
     .get();
@@ -1363,7 +1364,7 @@ const obtenerTipoCambio = resolverTCVenta;
 
 async function sincronizarStockProducto(productoId: string): Promise<void> {
   // Recálculo COMPLETO de stock — misma lógica que inventario.service.ts
-  const allUnitsQuery = await db.collection("unidades")
+  const allUnitsQuery = await db.collection(COLLECTIONS.UNIDADES)
     .where("productoId", "==", productoId)
     .get();
 
@@ -1410,11 +1411,11 @@ async function sincronizarStockProducto(productoId: string): Promise<void> {
   }
 
   // Leer stockPendienteML actual para calcular stockEfectivoML
-  const productoDocSnap = await db.collection("productos").doc(productoId).get();
+  const productoDocSnap = await db.collection(COLLECTIONS.PRODUCTOS).doc(productoId).get();
   const stockPendienteML = productoDocSnap.data()?.stockPendienteML || 0;
   const stockEfectivoML = Math.max(0, stockDisponiblePeru - stockPendienteML);
 
-  await db.collection("productos").doc(productoId).update({
+  await db.collection(COLLECTIONS.PRODUCTOS).doc(productoId).update({
     stockUSA,
     stockPeru,
     stockTransito,
@@ -1432,7 +1433,7 @@ async function sincronizarStockProducto(productoId: string): Promise<void> {
  */
 async function sincronizarStockHaciaML(productoId: string): Promise<void> {
   // Buscar publicaciones ML vinculadas a este producto
-  const mapQuery = await db.collection("mlProductMap")
+  const mapQuery = await db.collection(COLLECTIONS.ML_PRODUCT_MAP)
     .where("productoId", "==", productoId)
     .where("vinculado", "==", true)
     .get();
@@ -1440,7 +1441,7 @@ async function sincronizarStockHaciaML(productoId: string): Promise<void> {
   if (mapQuery.empty) return;
 
   // Leer stockEfectivoML del doc producto (ya calculado por sincronizarStockProducto)
-  const productoDoc = await db.collection("productos").doc(productoId).get();
+  const productoDoc = await db.collection(COLLECTIONS.PRODUCTOS).doc(productoId).get();
   const pData = productoDoc.data();
   const erpStock = pData?.stockEfectivoML ?? pData?.stockDisponiblePeru ?? 0;
 

@@ -9,6 +9,7 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { resolverTCVenta } from "../tipoCambio.util";
 import { requireAdminRole } from "./ml.auth";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 
@@ -36,7 +37,7 @@ export const mlreingenieria = functions
     // ---- FASE 1: CARGA MASIVA ----
     log.push("--- Fase 1: Carga masiva ---");
 
-    const mpQuery = await db.collection("cuentasCaja")
+    const mpQuery = await db.collection(COLLECTIONS.CUENTAS_CAJA)
       .where("metodoPagoAsociado", "==", "mercado_pago")
       .where("activa", "==", true)
       .limit(1).get();
@@ -47,8 +48,8 @@ export const mlreingenieria = functions
     const saldoAnterior = mpQuery.docs[0].data().saldoActual || 0;
     log.push(`Cuenta MP: ${mpQuery.docs[0].data().nombre} (${cuentaMPId}) — Saldo: S/ ${saldoAnterior.toFixed(2)}`);
 
-    const syncProcesadasSnap = await db.collection("mlOrderSync").where("estado", "==", "procesada").get();
-    const syncPendientesSnap = await db.collection("mlOrderSync").where("estado", "==", "pendiente").get();
+    const syncProcesadasSnap = await db.collection(COLLECTIONS.ML_ORDER_SYNC).where("estado", "==", "procesada").get();
+    const syncPendientesSnap = await db.collection(COLLECTIONS.ML_ORDER_SYNC).where("estado", "==", "pendiente").get();
     const syncByVentaId = new Map<string, FirebaseFirestore.DocumentSnapshot>();
     const syncByMlOrderId = new Map<string, FirebaseFirestore.DocumentSnapshot>();
     const allSyncDocs: FirebaseFirestore.QueryDocumentSnapshot[] = [];
@@ -73,12 +74,12 @@ export const mlreingenieria = functions
     log.push(`mlOrderSync procesadas: ${syncProcesadasSnap.size}, pendientes: ${syncPendientesSnap.size} (${pendientesVinculadas} vinculadas)`);
     log.push(`Total órdenes a procesar: ${allSyncDocs.length}`);
 
-    const ventasSnap = await db.collection("ventas").where("canalNombre", "==", "Mercado Libre").get();
+    const ventasSnap = await db.collection(COLLECTIONS.VENTAS).where("canalNombre", "==", "Mercado Libre").get();
     const ventasMap = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
     for (const doc of ventasSnap.docs) ventasMap.set(doc.id, doc);
     log.push(`Ventas ML: ${ventasSnap.size}`);
 
-    const gastosGVSnap = await db.collection("gastos")
+    const gastosGVSnap = await db.collection(COLLECTIONS.GASTOS)
       .where("tipo", "in", ["comision_ml", "cargo_envio_ml"]).get();
     const gastosGVByVenta = new Map<string, FirebaseFirestore.QueryDocumentSnapshot[]>();
     for (const doc of gastosGVSnap.docs) {
@@ -89,7 +90,7 @@ export const mlreingenieria = functions
       }
     }
 
-    const gastosGDSnap = await db.collection("gastos").where("tipo", "==", "delivery").get();
+    const gastosGDSnap = await db.collection(COLLECTIONS.GASTOS).where("tipo", "==", "delivery").get();
     const gastosGDByVenta = new Map<string, FirebaseFirestore.QueryDocumentSnapshot[]>();
     const gastoDeliveryIds = new Set<string>();
     for (const doc of gastosGDSnap.docs) {
@@ -101,7 +102,7 @@ export const mlreingenieria = functions
       }
     }
 
-    const movsSnap = await db.collection("movimientosTesoreria").where("estado", "==", "ejecutado").get();
+    const movsSnap = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).where("estado", "==", "ejecutado").get();
     const movsByVenta = new Map<string, FirebaseFirestore.QueryDocumentSnapshot[]>();
     const movsByGastoId = new Map<string, FirebaseFirestore.QueryDocumentSnapshot[]>();
     for (const doc of movsSnap.docs) {
@@ -118,7 +119,7 @@ export const mlreingenieria = functions
       }
     }
 
-    const transportistaUrbanoQ = await db.collection("transportistas")
+    const transportistaUrbanoQ = await db.collection(COLLECTIONS.TRANSPORTISTAS)
       .where("nombre", ">=", "Urbano").where("nombre", "<=", "Urbano\uf8ff").limit(1).get();
     const transportistaUrbanoId = transportistaUrbanoQ.empty ? null : transportistaUrbanoQ.docs[0].id;
     const transportistaUrbanoNombre = transportistaUrbanoQ.empty ? "Urbano" : transportistaUrbanoQ.docs[0].data().nombre;
@@ -130,7 +131,7 @@ export const mlreingenieria = functions
     const tc = await resolverTCVenta();
 
     let gastoCounter = 0;
-    const lastGasto = await db.collection("gastos")
+    const lastGasto = await db.collection(COLLECTIONS.GASTOS)
       .where("numeroGasto", ">=", "GAS-").where("numeroGasto", "<=", "GAS-\uf8ff")
       .orderBy("numeroGasto", "desc").limit(1).get();
     if (!lastGasto.empty) {
@@ -339,7 +340,7 @@ export const mlreingenieria = functions
           if (!dryRun) {
             const gdNumero = nextGastoNum();
             const gdPagoId = `PAG-GAS-reeng-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-            await db.collection("gastos").add({
+            await db.collection(COLLECTIONS.GASTOS).add({
               numeroGasto: gdNumero, tipo: "delivery", categoria: "GD", claseGasto: "GVD",
               descripcion: `Distribución ML Urbano - ${numVenta} - Orden #${sync.mlOrderId}`,
               moneda: "PEN", montoOriginal: cargoEnvioML, montoPEN: cargoEnvioML, tipoCambio: tc,
@@ -407,13 +408,13 @@ export const mlreingenieria = functions
           }
           if (necesitaVincular) { updateData.ventaId = ventaId; updateData.ventaNumero = numVenta; }
           if (!dryRun && Object.keys(updateData).length > 0) {
-            await db.collection("movimientosTesoreria").doc(adelantoMovId).update(updateData);
+            await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).doc(adelantoMovId).update(updateData);
           }
         }
       } else {
         if (montoIngresoMP > 0.01) {
           if (!dryRun) {
-            await db.collection("movimientosTesoreria").add({
+            await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add({
               numeroMovimiento: `MOV-reeng-${Date.now()}-${Math.random().toString(36).slice(2, 4)}`,
               tipo: "ingreso_venta", estado: "ejecutado", moneda: "PEN", monto: montoIngresoMP,
               tipoCambio: tc, montoEquivalentePEN: montoIngresoMP, montoEquivalenteUSD: montoIngresoMP / tc,
@@ -434,7 +435,7 @@ export const mlreingenieria = functions
         const numGasto = nextGastoNum();
         const pagoId = `PAG-GAS-reeng-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
         if (!dryRun) {
-          const gastoRef = await db.collection("gastos").add({
+          const gastoRef = await db.collection(COLLECTIONS.GASTOS).add({
             numeroGasto: numGasto, tipo: "comision_ml", categoria: "GV", claseGasto: "GVD",
             descripcion: `Comisión ML - Orden #${sync.mlOrderId} - ${numVenta}`,
             moneda: "PEN", montoOriginal: comisionML, montoPEN: comisionML, tipoCambio: tc,
@@ -445,7 +446,7 @@ export const mlreingenieria = functions
             pagos: [{ id: pagoId, fecha: fechaOrden, monedaPago: "PEN", montoOriginal: comisionML, montoPEN: comisionML, tipoCambio: tc, metodoPago: "mercado_pago", cuentaOrigenId: cuentaMPId, registradoPor: "ml-reingenieria" }],
             montoPagado: comisionML, montoPendiente: 0, creadoPor: "ml-reingenieria", fechaCreacion: admin.firestore.Timestamp.now(),
           });
-          await db.collection("movimientosTesoreria").add({
+          await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add({
             numeroMovimiento: `MOV-reeng-com-${Date.now()}-${Math.random().toString(36).slice(2, 4)}`,
             tipo: "gasto_operativo", estado: "ejecutado", moneda: "PEN", monto: comisionML,
             tipoCambio: tc, montoEquivalentePEN: comisionML, montoEquivalenteUSD: comisionML / tc,
@@ -463,7 +464,7 @@ export const mlreingenieria = functions
         const numGastoEnvio = nextGastoNum();
         const pagoEnvioId = `PAG-GAS-reeng-env-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
         if (!dryRun) {
-          const gastoEnvioRef = await db.collection("gastos").add({
+          const gastoEnvioRef = await db.collection(COLLECTIONS.GASTOS).add({
             numeroGasto: numGastoEnvio, tipo: "cargo_envio_ml", categoria: "GV", claseGasto: "GVD",
             descripcion: `Cargo envío ML (Urbano) - Orden #${sync.mlOrderId} - ${numVenta}`,
             moneda: "PEN", montoOriginal: cargoEnvioML, montoPEN: cargoEnvioML, tipoCambio: tc,
@@ -474,7 +475,7 @@ export const mlreingenieria = functions
             pagos: [{ id: pagoEnvioId, fecha: fechaOrden, monedaPago: "PEN", montoOriginal: cargoEnvioML, montoPEN: cargoEnvioML, tipoCambio: tc, metodoPago: "mercado_pago", cuentaOrigenId: cuentaMPId, registradoPor: "ml-reingenieria" }],
             montoPagado: cargoEnvioML, montoPendiente: 0, creadoPor: "ml-reingenieria", fechaCreacion: admin.firestore.Timestamp.now(),
           });
-          await db.collection("movimientosTesoreria").add({
+          await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add({
             numeroMovimiento: `MOV-reeng-env-${Date.now()}-${Math.random().toString(36).slice(2, 4)}`,
             tipo: "gasto_operativo", estado: "ejecutado", moneda: "PEN", monto: cargoEnvioML,
             tipoCambio: tc, montoEquivalentePEN: cargoEnvioML, montoEquivalenteUSD: cargoEnvioML / tc,
@@ -508,7 +509,7 @@ export const mlreingenieria = functions
     log.push("");
     log.push("--- Fase 4: Recálculo balance MP ---");
 
-    const allMovsFinal = await db.collection("movimientosTesoreria").where("estado", "==", "ejecutado").get();
+    const allMovsFinal = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).where("estado", "==", "ejecutado").get();
 
     let saldoCalculado = 0;
     let totalIngresos = 0;
@@ -556,7 +557,7 @@ export const mlreingenieria = functions
           };
           if (ajusteReconciliacion > 0) ajusteData.cuentaDestino = cuentaMPId;
           else ajusteData.cuentaOrigen = cuentaMPId;
-          await db.collection("movimientosTesoreria").add(ajusteData);
+          await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add(ajusteData);
           stats.movsCreados++;
         }
         log.push(`→ ${dryRun ? "[DRY RUN] Se crearía" : "Creado"} ajuste: ${ajusteReconciliacion > 0 ? "ingreso" : "egreso"} S/ ${Math.abs(ajusteReconciliacion).toFixed(2)}`);
@@ -569,7 +570,7 @@ export const mlreingenieria = functions
     }
 
     if (!dryRun) {
-      await db.collection("cuentasCaja").doc(cuentaMPId).update({ saldoActual: saldoFinal });
+      await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMPId).update({ saldoActual: saldoFinal });
       log.push(`Saldo MP actualizado a S/ ${saldoFinal.toFixed(2)}`);
     } else {
       log.push(`[DRY RUN] Saldo pasaría de S/ ${saldoAnterior.toFixed(2)} → S/ ${saldoFinal.toFixed(2)}`);

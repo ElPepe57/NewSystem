@@ -16,12 +16,13 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { resolverTCVenta } from "../tipoCambio.util";
 import { requireAdminRole } from "./ml.auth";
+import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
 
 /** Helper: buscar cuenta MercadoPago */
 async function buscarCuentaMercadoPago(firestoreDb: FirebaseFirestore.Firestore): Promise<string | null> {
-  const defaultQuery = await firestoreDb.collection("cuentasCaja")
+  const defaultQuery = await firestoreDb.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("metodoPagoAsociado", "==", "mercado_pago")
     .where("esCuentaPorDefecto", "==", true)
     .where("activa", "==", true)
@@ -30,7 +31,7 @@ async function buscarCuentaMercadoPago(firestoreDb: FirebaseFirestore.Firestore)
 
   if (!defaultQuery.empty) return defaultQuery.docs[0].id;
 
-  const mpQuery = await firestoreDb.collection("cuentasCaja")
+  const mpQuery = await firestoreDb.collection(COLLECTIONS.CUENTAS_CAJA)
     .where("metodoPagoAsociado", "==", "mercado_pago")
     .where("activa", "==", true)
     .limit(1)
@@ -189,7 +190,7 @@ export const mlpatchenvio = functions
     await requireAdminRole(context); // SEC-008
 
     const { getShipment } = await import("./ml.api");
-    const snapshot = await db.collection("mlOrderSync").get();
+    const snapshot = await db.collection(COLLECTIONS.ML_ORDER_SYNC).get();
 
     let parchadas = 0;
     let sinCambio = 0;
@@ -293,7 +294,7 @@ export const mlfixventashistoricas = functions
   .https.onCall(async (_data, context) => {
     await requireAdminRole(context); // SEC-008
 
-    const ventasSnap = await db.collection("ventas")
+    const ventasSnap = await db.collection(COLLECTIONS.VENTAS)
       .where("creadoPor", "==", "ml-auto-processor")
       .get();
 
@@ -301,7 +302,7 @@ export const mlfixventashistoricas = functions
       return { corregidas: 0, sinCambio: 0, gastosEliminados: 0, total: 0, detalles: [] };
     }
 
-    const orderSyncSnap = await db.collection("mlOrderSync").get();
+    const orderSyncSnap = await db.collection(COLLECTIONS.ML_ORDER_SYNC).get();
     const orderSyncByMLId = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
     for (const doc of orderSyncSnap.docs) {
       const data = doc.data();
@@ -387,7 +388,7 @@ export const mlfixventashistoricas = functions
       await ventaDoc.ref.update(ventaUpdate);
 
       let gastoCargoEliminado = false;
-      const gastosCargoSnap = await db.collection("gastos")
+      const gastosCargoSnap = await db.collection(COLLECTIONS.GASTOS)
         .where("ventaId", "==", ventaDoc.id)
         .where("tipo", "==", "cargo_envio_ml")
         .get();
@@ -395,7 +396,7 @@ export const mlfixventashistoricas = functions
       for (const gastoDoc of gastosCargoSnap.docs) {
         const gasto = gastoDoc.data();
 
-        const movSnap = await db.collection("movimientosTesoreria")
+        const movSnap = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
           .where("gastoId", "==", gastoDoc.id)
           .get();
 
@@ -406,7 +407,7 @@ export const mlfixventashistoricas = functions
         if (gasto.pagos && gasto.pagos.length > 0) {
           const cuentaId = gasto.pagos[0].cuentaOrigenId;
           if (cuentaId) {
-            await db.collection("cuentasCaja").doc(cuentaId).update({
+            await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaId).update({
               saldoActual: admin.firestore.FieldValue.increment(gasto.montoPEN || 0),
             });
           }
@@ -420,7 +421,7 @@ export const mlfixventashistoricas = functions
       if (costoEnvioAntes !== costoEnvioCorrect) {
         const diferencia = costoEnvioAntes - costoEnvioCorrect;
 
-        const ingresoSnap = await db.collection("movimientosTesoreria")
+        const ingresoSnap = await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA)
           .where("ventaId", "==", ventaDoc.id)
           .where("tipo", "==", "ingreso_venta")
           .limit(1)
@@ -436,7 +437,7 @@ export const mlfixventashistoricas = functions
         if (diferencia > 0) {
           const cuentaMPId = await buscarCuentaMercadoPago(db);
           if (cuentaMPId) {
-            await db.collection("cuentasCaja").doc(cuentaMPId).update({
+            await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMPId).update({
               saldoActual: admin.firestore.FieldValue.increment(-diferencia),
             });
           }
@@ -484,7 +485,7 @@ export const mlrepairgastosml = functions
 
     const Timestamp = admin.firestore.Timestamp;
 
-    const ventasSnap = await db.collection("ventas")
+    const ventasSnap = await db.collection(COLLECTIONS.VENTAS)
       .where("comisionML", ">", 0)
       .get();
 
@@ -495,7 +496,7 @@ export const mlrepairgastosml = functions
     const detalles: Array<{ venta: string; comision: number; accion: string }> = [];
 
     let cuentaMPId: string | null = null;
-    const mpQuery = await db.collection("cuentasCaja")
+    const mpQuery = await db.collection(COLLECTIONS.CUENTAS_CAJA)
       .where("metodoPagoAsociado", "==", "mercado_pago")
       .where("activa", "==", true)
       .limit(1)
@@ -503,7 +504,7 @@ export const mlrepairgastosml = functions
     if (!mpQuery.empty) {
       cuentaMPId = mpQuery.docs[0].id;
     } else {
-      const anyQuery = await db.collection("cuentasCaja")
+      const anyQuery = await db.collection(COLLECTIONS.CUENTAS_CAJA)
         .where("activa", "==", true)
         .limit(1)
         .get();
@@ -523,7 +524,7 @@ export const mlrepairgastosml = functions
       }
 
       try {
-        const existingGV = await db.collection("gastos")
+        const existingGV = await db.collection(COLLECTIONS.GASTOS)
           .where("ventaId", "==", ventaDoc.id)
           .where("tipo", "==", "comision_ml")
           .limit(1)
@@ -540,7 +541,7 @@ export const mlrepairgastosml = functions
         const hasCuenta = !!cuentaMPId;
 
         const prefix = `GAS-${fechaDate.getFullYear()}-`;
-        const lastGasto = await db.collection("gastos")
+        const lastGasto = await db.collection(COLLECTIONS.GASTOS)
           .where("numeroGasto", ">=", prefix)
           .where("numeroGasto", "<", prefix + "\uf8ff")
           .orderBy("numeroGasto", "desc")
@@ -596,10 +597,10 @@ export const mlrepairgastosml = functions
           }];
         }
 
-        const gastoRef = await db.collection("gastos").add(gastoData);
+        const gastoRef = await db.collection(COLLECTIONS.GASTOS).add(gastoData);
 
         if (hasCuenta) {
-          await db.collection("movimientosTesoreria").add({
+          await db.collection(COLLECTIONS.MOVIMIENTOS_TESORERIA).add({
             numeroMovimiento: `MOV-repair-${Date.now()}`,
             tipo: "gasto_operativo",
             estado: "ejecutado",
@@ -618,7 +619,7 @@ export const mlrepairgastosml = functions
             fechaCreacion: now,
           });
 
-          await db.collection("cuentasCaja").doc(cuentaMPId!).update({
+          await db.collection(COLLECTIONS.CUENTAS_CAJA).doc(cuentaMPId!).update({
             saldoActual: admin.firestore.FieldValue.increment(-comisionML),
           });
         }
@@ -652,7 +653,7 @@ export const mlrepairmetodoenvio = functions
   .runWith({ timeoutSeconds: 120, memory: "256MB" })
   .https.onCall(async (_data, context) => {
     await requireAdminRole(context);
-    const ventasSnap = await db.collection("ventas")
+    const ventasSnap = await db.collection(COLLECTIONS.VENTAS)
       .where("mercadoLibreId", "!=", null)
       .get();
 
@@ -668,20 +669,20 @@ export const mlrepairmetodoenvio = functions
       sinMetodo++;
 
       const mlId = venta.mercadoLibreId;
-      const syncQuery = await db.collection("mlOrderSync")
+      const syncQuery = await db.collection(COLLECTIONS.ML_ORDER_SYNC)
         .where("mercadoLibreId", "==", Number(mlId))
         .limit(1)
         .get();
 
       if (syncQuery.empty) {
-        const syncQuery2 = await db.collection("mlOrderSync")
+        const syncQuery2 = await db.collection(COLLECTIONS.ML_ORDER_SYNC)
           .where("mercadoLibreId", "==", String(mlId))
           .limit(1)
           .get();
 
         if (syncQuery2.empty) {
           if (venta.packId) {
-            const packSyncDoc = await db.collection("mlOrderSync").doc(`ml-pack-${venta.packId}`).get();
+            const packSyncDoc = await db.collection(COLLECTIONS.ML_ORDER_SYNC).doc(`ml-pack-${venta.packId}`).get();
             if (packSyncDoc.exists) {
               const syncData = packSyncDoc.data()!;
               const result = await repairMetodoEnvioFromSync(

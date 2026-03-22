@@ -10,7 +10,8 @@ import {
   query,
   where,
   Timestamp,
-  writeBatch
+  writeBatch,
+  limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type {
@@ -220,8 +221,11 @@ export const gastoService = {
    */
   async getAll(): Promise<Gasto[]> {
     try {
-      // Obtener sin orderBy para evitar requerir índice compuesto
-      const snapshot = await getDocs(collection(db, GASTOS_COLLECTION));
+      // Obtener sin orderBy para evitar requerir índice compuesto — limit de seguridad
+      const snapshot = await getDocs(query(
+        collection(db, GASTOS_COLLECTION),
+        limit(1000)
+      ));
 
       const gastos = snapshot.docs.map(doc => ({
         id: doc.id,

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { useToastStore } from "../../store/toastStore";
 import {
   AlertTriangle,
   DollarSign,
@@ -32,6 +33,7 @@ export const PagoViajeroModal: React.FC<PagoViajeroModalProps> = ({
   onClose,
   onConfirm,
 }) => {
+  const toast = useToastStore();
   const fleteUSD = transferencia.costoFleteTotal || 0;
   const monedaFleteOriginal = transferencia.monedaFlete || 'USD';
   const tieneFleteDefinido = fleteUSD > 0;
@@ -104,11 +106,11 @@ export const PagoViajeroModal: React.FC<PagoViajeroModalProps> = ({
 
   const handleSubmit = async () => {
     if (formData.montoOriginal <= 0) {
-      alert('El monto debe ser mayor a 0');
+      toast.warning('El monto debe ser mayor a 0');
       return;
     }
     if (formData.tipoCambio <= 0) {
-      alert('El tipo de cambio debe ser mayor a 0');
+      toast.warning('El tipo de cambio debe ser mayor a 0');
       return;
     }
     if (montoPagaMasFlete) {
@@ -164,7 +166,7 @@ export const PagoViajeroModal: React.FC<PagoViajeroModalProps> = ({
       onClose();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      alert('Error: ' + message);
+      toast.error('Error: ' + message);
     } finally {
       setSubmitting(false);
     }

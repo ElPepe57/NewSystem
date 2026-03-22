@@ -18,6 +18,7 @@ import {
   WAMessage,
   ChatMode,
 } from "./whatsapp.types";
+import { COLLECTIONS } from "../collections";
 import {
   consultarStock,
   consultarStockBajo,
@@ -351,7 +352,7 @@ async function getOrCreateSession(
 }
 
 async function checkIfInternal(phoneNumber: string): Promise<boolean> {
-  const usersSnap = await db.collection("users").get();
+  const usersSnap = await db.collection(COLLECTIONS.USERS).get();
 
   for (const doc of usersSnap.docs) {
     const user = doc.data();

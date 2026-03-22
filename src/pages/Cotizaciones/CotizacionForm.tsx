@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { X, Plus, Trash2, Search, AlertTriangle, Package, TrendingUp, Info, PlusCircle, User, Star, ShoppingBag, History, Download, FileText, MapPin, Truck, Clock, ShoppingCart } from 'lucide-react';
+import { useToastStore } from '../../store/toastStore';
 import { formatCurrencyPEN } from '../../utils/format';
 import { Modal, Input, Select, Button, Badge, GoogleMapsAddressInput } from '../../components/common';
 import type { AddressData } from '../../components/common';
@@ -58,6 +59,7 @@ interface CotizacionFormProps {
 
 export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizacionEditar }) => {
   const { user } = useAuthStore();
+  const toast = useToastStore();
   const { empresa, fetchEmpresa } = useConfiguracionStore();
   const { createCotizacion, updateCotizacion, loading, fetchCotizacionById, selectedCotizacion } = useCotizacionStore();
 
@@ -207,7 +209,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
       handleClienteChange(nuevoCliente);
     } catch (error: any) {
       console.error('Error al crear cliente:', error);
-      alert(`Error al crear cliente: ${error.message}`);
+      toast.error(`Error al crear cliente: ${error.message}`);
     }
   };
 
@@ -298,7 +300,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
     if (snapshot) {
       // Verificar si ya existe
       if (lineas.some(l => l.productoId === snapshot.productoId)) {
-        alert('Este producto ya está en la cotización');
+        toast.warning('Este producto ya está en la cotización');
         setProductoSnapshot(null);
         return;
       }
@@ -341,7 +343,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
   const handleAgregarProducto = async (producto: typeof productos[0]) => {
     // Verificar si ya existe
     if (lineas.some(l => l.productoId === producto.id)) {
-      alert('Este producto ya está en la cotización');
+      toast.warning('Este producto ya está en la cotización');
       return;
     }
 
@@ -426,9 +428,9 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
       await fetchProductos();
       await fetchProductosDisponibles();
       setShowProductoModal(false);
-      alert('✅ Producto creado correctamente');
+      toast.success('Producto creado correctamente');
     } catch (error: any) {
-      alert(`❌ Error al crear producto: ${error.message}`);
+      toast.error(`Error al crear producto: ${error.message}`);
     } finally {
       setIsCreatingProducto(false);
     }
@@ -464,17 +466,17 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
     e.preventDefault();
 
     if (!user) {
-      alert('Debes iniciar sesión');
+      toast.warning('Debes iniciar sesión');
       return;
     }
 
     if (lineas.length === 0) {
-      alert('Agrega al menos un producto a la cotización');
+      toast.warning('Agrega al menos un producto a la cotización');
       return;
     }
 
     if (!formData.nombreCliente.trim()) {
-      alert('El nombre del cliente es requerido');
+      toast.warning('El nombre del cliente es requerido');
       return;
     }
 
@@ -515,7 +517,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
       if (modoEdicion && cotizacionEditar) {
         // MODO EDICIÓN: Actualizar cotización existente
         await updateCotizacion(cotizacionEditar.id, data, user.uid);
-        alert('✅ Cotización actualizada exitosamente');
+        toast.success('Cotización actualizada exitosamente');
         onClose();
       } else {
         // MODO CREACIÓN: Crear nueva cotización
@@ -531,13 +533,13 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
           setShowSuccessModal(true);
         } else {
           // Fallback si no se pudo obtener la cotización
-          alert('✅ Cotización creada exitosamente');
+          toast.success('Cotización creada exitosamente');
           onClose();
         }
       }
 
     } catch (error: any) {
-      alert(`❌ Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -553,7 +555,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
     try {
       await CotizacionPdfService.downloadPdf(cotizacionCreada, empresa);
     } catch (error: any) {
-      alert(`Error al generar PDF: ${error.message}`);
+      toast.error(`Error al generar PDF: ${error.message}`);
     } finally {
       setGenerandoPdf(false);
     }
@@ -567,7 +569,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
     try {
       await CotizacionPdfService.openPdf(cotizacionCreada, empresa);
     } catch (error: any) {
-      alert(`Error al generar PDF: ${error.message}`);
+      toast.error(`Error al generar PDF: ${error.message}`);
     } finally {
       setGenerandoPdf(false);
     }

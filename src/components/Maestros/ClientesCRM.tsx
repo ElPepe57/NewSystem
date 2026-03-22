@@ -49,6 +49,7 @@ import {
 } from '../common';
 import { useClienteStore } from '../../store/clienteStore';
 import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../store/toastStore';
 import { recompraService, type AlertaRecompra, type ResumenAlertasRecompra } from '../../services/recompra.service';
 import { ClienteDetailView } from './ClienteDetailView';
 import type { Cliente, ClasificacionABC, SegmentoCliente } from '../../types/entidadesMaestras.types';
@@ -70,6 +71,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
   onEditCliente
 }) => {
   const user = useAuthStore(state => state.user);
+  const toast = useToastStore();
   const [subTab, setSubTab] = useState<SubTabClientes>('lista');
   const [busqueda, setBusqueda] = useState('');
   const [isCalculating, setIsCalculating] = useState(false);
@@ -213,10 +215,10 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
       await calcularClasificacionABC();
       await recalcularSegmentos();
       await fetchAlertasCRM();
-      alert('Clasificación ABC y segmentos actualizados correctamente');
+      toast.success('Clasificacion ABC y segmentos actualizados correctamente');
     } catch (error) {
       console.error('Error recalculando:', error);
-      alert('Error al recalcular. Ver consola.');
+      toast.error('Error al recalcular. Ver consola.');
     } finally {
       setIsCalculating(false);
     }
