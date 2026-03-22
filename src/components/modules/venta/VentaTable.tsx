@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
-import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, PieChart, ChevronDown, ChevronUp, Package, DollarSign, Percent, Info, Truck, Zap } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, PieChart, ChevronDown, ChevronUp, Package, DollarSign, Percent, Info, Truck, Zap, RotateCcw } from 'lucide-react';
 import { Badge, Pagination, usePagination, LineaNegocioBadge } from '../../common';
 import type { Venta, EstadoVenta } from '../../../types/venta.types';
 import { useRentabilidadVentas, type RentabilidadVenta, type DatosRentabilidadGlobal } from '../../../hooks/useRentabilidadVentas';
 import { useCanalVentaStore } from '../../../store/canalVentaStore';
+
+/** Estados de venta desde los cuales se puede solicitar una devolución */
+const ESTADOS_DEVOLVIBLES: EstadoVenta[] = ['entregada', 'devolucion_parcial'];
 
 interface VentaTableProps {
   ventas: Venta[];
@@ -12,6 +15,7 @@ interface VentaTableProps {
   onDelete?: (venta: Venta) => void;
   onRegistrarAdelanto?: (venta: Venta) => void;
   onDespachar?: (venta: Venta) => void;
+  onDevolver?: (venta: Venta) => void;
   loading?: boolean;
   /** @deprecated - Ahora se usa distribución proporcional vía useRentabilidadVentas */
   cargaOperativaPorUnidad?: number;
@@ -270,7 +274,8 @@ const VentaCard: React.FC<{
   onView: (venta: Venta) => void;
   onDelete?: (venta: Venta) => void;
   onDespachar?: (venta: Venta) => void;
-}> = ({ venta, onView, onDelete, onDespachar }) => {
+  onDevolver?: (venta: Venta) => void;
+}> = ({ venta, onView, onDelete, onDespachar, onDevolver }) => {
   const canales = useCanalVentaStore(s => s.canales);
   const getCanalLabel = (v: Venta) => resolveCanalLabel(v, canales);
   const estadoInfo = estadoLabels[venta.estado];
@@ -359,6 +364,16 @@ const VentaCard: React.FC<{
               Despachar
             </button>
           )}
+          {ESTADOS_DEVOLVIBLES.includes(venta.estado) && onDevolver && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDevolver(venta); }}
+              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-orange-700 bg-orange-100 rounded-lg hover:bg-orange-200 transition-colors"
+              title="Solicitar devolución"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Devolver
+            </button>
+          )}
           <button onClick={(e) => { e.stopPropagation(); onView(venta); }} className="p-1.5 text-primary-600 hover:bg-primary-50 rounded">
             <Eye className="h-4 w-4" />
           </button>
@@ -379,6 +394,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
   onDelete,
   onRegistrarAdelanto,
   onDespachar,
+  onDevolver,
   loading = false
 }) => {
   // Canales de venta (para resolver IDs → nombres)
@@ -452,6 +468,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
             onView={onView}
             onDelete={onDelete}
             onDespachar={onDespachar}
+            onDevolver={onDevolver}
           />
         ))}
         {ventas.length > 0 && (
@@ -747,6 +764,18 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                       >
                         <Truck className="h-3 w-3" />
                         Despachar
+                      </button>
+                    )}
+
+                    {/* Botón de devolver - solo ventas entregadas o con devolución parcial */}
+                    {ESTADOS_DEVOLVIBLES.includes(venta.estado) && onDevolver && (
+                      <button
+                        onClick={() => onDevolver(venta)}
+                        className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-orange-700 bg-orange-100 rounded hover:bg-orange-200 transition-colors"
+                        title="Solicitar devolución"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        Devolver
                       </button>
                     )}
 

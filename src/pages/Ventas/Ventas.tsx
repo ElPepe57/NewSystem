@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users, RotateCcw } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal, ErrorBoundary } from '../../components/common';
+import { DevolucionesTab } from './DevolucionesTab';
+import { DevolucionFormModal } from './DevolucionFormModal';
+import { useDevolucionStore } from '../../store/devolucionStore';
 // Nota: ActionModal aún se usa para cancelar ventas
 import type { PipelineStage } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
@@ -62,6 +65,19 @@ export const Ventas: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   const [mostrarVentasSocios, setMostrarVentasSocios] = useState(false);
+
+  // Tab activo y devoluciones
+  const [tabActiva, setTabActiva] = useState<'ventas' | 'devoluciones'>('ventas');
+  const [isDevolucionFormOpen, setIsDevolucionFormOpen] = useState(false);
+  const [ventaParaDevolver, setVentaParaDevolver] = useState<Venta | null>(null);
+  const { devoluciones: todasDevoluciones, fetchDevoluciones } = useDevolucionStore();
+
+  // Contar devoluciones pendientes (solicitadas + aprobadas + ejecutadas)
+  const devolucionesPendientesCount = useMemo(() =>
+    todasDevoluciones.filter(d =>
+      d.estado === 'solicitada' || d.estado === 'aprobada' || d.estado === 'ejecutada'
+    ).length,
+  [todasDevoluciones]);
   // Hook de rentabilidad con distribución proporcional de GA/GO
   const { datos: rentabilidad, getRentabilidadVenta, loading: loadingRentabilidad, refetch: refetchRentabilidad } = useRentabilidadVentas(ventas);
 
@@ -412,6 +428,12 @@ export const Ventas: React.FC = () => {
     }
   };
 
+  // Abrir modal de devolución
+  const handleSolicitarDevolucion = (venta: Venta) => {
+    setVentaParaDevolver(venta);
+    setIsDevolucionFormOpen(true);
+  };
+
   // Abrir modal de pago
   const handleOpenPagoModal = () => {
     setIsPagoModalOpen(true);
@@ -674,6 +696,44 @@ export const Ventas: React.FC = () => {
         </Button>
       </div>
 
+      {/* Tabs: Ventas | Devoluciones */}
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex gap-6">
+          <button
+            onClick={() => setTabActiva('ventas')}
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+              tabActiva === 'ventas'
+                ? 'border-primary-600 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Ventas
+          </button>
+          <button
+            onClick={() => { setTabActiva('devoluciones'); fetchDevoluciones(); }}
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+              tabActiva === 'devoluciones'
+                ? 'border-primary-600 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <RotateCcw className="h-4 w-4" />
+            Devoluciones
+            {devolucionesPendientesCount > 0 && (
+              <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 text-xs font-bold bg-amber-500 text-white rounded-full">
+                {devolucionesPendientesCount}
+              </span>
+            )}
+          </button>
+        </nav>
+      </div>
+
+      {/* Contenido del tab Devoluciones */}
+      {tabActiva === 'devoluciones' && <DevolucionesTab />}
+
+      {/* Contenido del tab Ventas */}
+      {tabActiva === 'ventas' && (<>
+
       {/* Alerta si no hay stock disponible */}
       {productosDisponibles.length === 0 && (
         <Card padding="md">
@@ -897,9 +957,12 @@ export const Ventas: React.FC = () => {
           onView={handleViewDetails}
           onDelete={handleDelete}
           onDespachar={handleDespachar}
+          onDevolver={handleSolicitarDevolucion}
           loading={loading}
         />
       </Card>
+
+      </>)}
 
       {/* Modal Nueva Venta */}
       <Modal
@@ -1058,6 +1121,21 @@ export const Ventas: React.FC = () => {
 
       {/* Modal de Acciones con campos */}
       <ActionModal {...actionModalProps} />
+
+      {/* Modal: Solicitar Devolución */}
+      {ventaParaDevolver && (
+        <DevolucionFormModal
+          isOpen={isDevolucionFormOpen}
+          onClose={() => {
+            setIsDevolucionFormOpen(false);
+            setVentaParaDevolver(null);
+          }}
+          ventaId={ventaParaDevolver.id}
+          onSuccess={() => {
+            fetchDevoluciones();
+          }}
+        />
+      )}
     </div>
   );
 };
