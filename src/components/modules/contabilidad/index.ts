@@ -5,3 +5,4 @@
 
 export { default as EstadoResultados } from './EstadoResultados';
 export { default as BalanceGeneral } from './BalanceGeneral';
+export { default as CierreMensual } from './CierreMensual';

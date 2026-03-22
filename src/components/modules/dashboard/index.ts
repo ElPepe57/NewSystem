@@ -6,3 +6,4 @@ export { TopProductosWidget } from './TopProductosWidget';
 export { VentasPorCanalWidget } from './VentasPorCanalWidget';
 export { ActividadRecienteWidget } from './ActividadRecienteWidget';
 export type { ActividadItem, TipoActividad } from './ActividadRecienteWidget';
+export { TareasDelDia } from './TareasDelDia';

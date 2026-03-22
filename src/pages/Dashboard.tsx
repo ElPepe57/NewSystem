@@ -28,7 +28,8 @@ import {
   VencimientosWidget,
   TopProductosWidget,
   VentasPorCanalWidget,
-  ActividadRecienteWidget
+  ActividadRecienteWidget,
+  TareasDelDia
 } from '../components/modules/dashboard';
 import type { ActividadItem, TipoActividad } from '../components/modules/dashboard';
 import { useProductoStore } from '../store/productoStore';
@@ -493,6 +494,9 @@ export const Dashboard: React.FC = () => {
 
       {/* Banner de filtro activo por línea de negocio */}
       <LineaFiltroActivoBanner onClear={() => setLineaFiltroGlobal(null)} />
+
+      {/* Widget: Tareas del Dia — pendientes operativos priorizados */}
+      <TareasDelDia />
 
       {/* Métricas Principales */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">

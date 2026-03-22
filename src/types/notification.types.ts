@@ -26,6 +26,7 @@ export type TipoNotificacion =
   | 'usuario_nuevo'         // Nuevo usuario creado
   | 'sistema'               // Notificación del sistema
   | 'alerta'                // Alerta genérica
+  | 'cobro_vencido'         // Cobro pendiente de venta vencido
   | 'general';              // Notificación general
 
 /**

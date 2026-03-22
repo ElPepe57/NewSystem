@@ -44,6 +44,13 @@ export type TipoActividad =
   | 'pago_registrado'
   | 'gasto_creado'
   | 'conversion_registrada'
+  // Devoluciones
+  | 'devolucion_solicitada'
+  | 'devolucion_aprobada'
+  | 'devolucion_rechazada'
+  | 'devolucion_ejecutada'
+  | 'devolucion_completada'
+  | 'devolucion_cancelada'
   // Inventario
   | 'unidades_recibidas'
   | 'transferencia_creada'
@@ -146,6 +153,12 @@ export const ACTIVIDAD_CONFIG: Record<TipoActividad, { emoji: string; color: str
   pago_registrado:       { emoji: '💰', color: 'text-emerald-600' },
   gasto_creado:          { emoji: '💸', color: 'text-amber-600' },
   conversion_registrada: { emoji: '🔄', color: 'text-teal-600' },
+  devolucion_solicitada: { emoji: '↩️', color: 'text-amber-500' },
+  devolucion_aprobada:   { emoji: '↩️', color: 'text-amber-600' },
+  devolucion_rechazada:  { emoji: '🚫', color: 'text-red-600' },
+  devolucion_ejecutada:  { emoji: '📦', color: 'text-amber-700' },
+  devolucion_completada: { emoji: '✅', color: 'text-green-600' },
+  devolucion_cancelada:  { emoji: '❌', color: 'text-gray-500' },
   unidades_recibidas:    { emoji: '📦', color: 'text-sky-600' },
   transferencia_creada:  { emoji: '🔀', color: 'text-violet-600' },
   llamada_iniciada:      { emoji: '📞', color: 'text-green-600' },

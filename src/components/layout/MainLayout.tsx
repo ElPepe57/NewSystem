@@ -7,7 +7,7 @@ const DailyCallModal = lazy(() => import('./DailyCallModal').then(m => ({ defaul
 const IncomingCallModal = lazy(() => import('./IncomingCallModal').then(m => ({ default: m.IncomingCallModal })));
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import { TCFreshnessBanner } from '../common/TCFreshnessBanner';
-import { useNotificacionesAutoInit } from '../../hooks';
+import { useNotificacionesAutoInit, useAlertasCobro } from '../../hooks';
 import { useCollaborationInit } from '../../hooks/useCollaborationInit';
 import { useAuthStore } from '../../store/authStore';
 import { AuthService } from '../../services/auth.service';
@@ -16,8 +16,11 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
 export const MainLayout: React.FC = () => {
-  // Inicializar sistema de notificaciones automáticas
+  // Inicializar sistema de notificaciones automáticas (inventario)
   useNotificacionesAutoInit();
+
+  // Inicializar alertas automáticas de cobros vencidos
+  useAlertasCobro();
 
   // Inicializar sistema de colaboración (presencia, actividad, chat)
   useCollaborationInit();

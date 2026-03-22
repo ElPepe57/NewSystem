@@ -1,6 +1,6 @@
 /**
  * Página de Contabilidad
- * Vista completa con pestañas: Resumen, Balance General, Estado de Resultados, Indicadores, Tendencias
+ * Vista completa con pestañas: Resumen, Balance General, Estado de Resultados, Indicadores, Tendencias, Cierre
  */
 
 import { useState, useEffect } from 'react';
@@ -32,6 +32,7 @@ import {
   AlertCircle,
   Info,
   Loader2,
+  Lock,
 } from 'lucide-react';
 import {
   GradientHeader,
@@ -41,7 +42,7 @@ import {
   StatDistribution,
   Button,
 } from '../../components/common';
-import { EstadoResultados, BalanceGeneral } from '../../components/modules/contabilidad';
+import { EstadoResultados, BalanceGeneral, CierreMensual } from '../../components/modules/contabilidad';
 import { contabilidadService } from '../../services/contabilidad.service';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type {
@@ -54,7 +55,7 @@ import type {
 } from '../../types/contabilidad.types';
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 
-type TabActiva = 'resumen' | 'balance' | 'estado-resultados' | 'indicadores' | 'tendencias';
+type TabActiva = 'resumen' | 'balance' | 'estado-resultados' | 'indicadores' | 'tendencias' | 'cierre';
 
 // Alias local para mantener llamadas existentes sin alterar (PEN, 0 decimales no soportado
 // en format.ts — se usa formatCurrencyPEN que produce 2 decimales; la diferencia visual
@@ -173,6 +174,7 @@ export function Contabilidad() {
     { id: 'estado-resultados', label: 'Estado de Resultados', mobileLabel: 'Resultados', icon: FileText },
     { id: 'indicadores', label: 'Indicadores', mobileLabel: 'KPIs', icon: Activity },
     { id: 'tendencias', label: 'Tendencias', icon: LineChart },
+    { id: 'cierre', label: 'Cierre Mensual', mobileLabel: 'Cierre', icon: Lock },
   ];
 
   // Años disponibles
@@ -951,6 +953,11 @@ export function Contabilidad() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* CIERRE MENSUAL */}
+      {!loading && tabActiva === 'cierre' && (
+        <CierreMensual mes={mes} anio={anio} />
       )}
     </div>
   );

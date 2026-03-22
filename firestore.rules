@@ -392,6 +392,14 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // CIERRES CONTABLES (solo admin escribe, roles financieros leen)
+    // ============================================================
+    match /cierresContables/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if isAdmin();
+    }
+
+    // ============================================================
     // CONTADORES SECUENCIALES (numeros de venta, gasto, etc.)
     // ============================================================
     match /contadores/{docId} {
@@ -408,6 +416,19 @@ service cloud.firestore {
     match /whatsapp_messages/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente']);
       allow write: if false; // Solo Cloud Functions via admin SDK
+    }
+
+    // ============================================================
+    // DEVOLUCIONES
+    // Vendedor y almacenero pueden crear/leer; admin y gerente aprueban/rechazan.
+    // La lógica de roles finos se maneja en el servicio — aquí se permite a
+    // usuarios activos leer y a roles operativos escribir.
+    // ============================================================
+    match /devoluciones/{docId} {
+      allow read: if isActiveUser();
+      allow create: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero']);
+      allow update: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero']);
+      allow delete: if isAdmin();
     }
 
     // ============================================================

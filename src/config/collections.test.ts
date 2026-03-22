@@ -76,6 +76,6 @@ describe('COLLECTIONS', () => {
     const count = Object.keys(COLLECTIONS).length;
     // Si este test falla, se agregó o eliminó una colección —
     // actualizar el número y revisar que el cambio fue intencional.
-    expect(count).toBe(53);
+    expect(count).toBe(55);
   });
 });

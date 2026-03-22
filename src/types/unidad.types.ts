@@ -56,7 +56,8 @@ export type TipoMovimiento =
   | 'venta'            // Se vendió
   | 'ajuste'           // Ajuste de inventario
   | 'vencimiento'      // Se marcó como vencido
-  | 'daño';            // Se marcó como dañado
+  | 'daño'             // Se marcó como dañado
+  | 'devolucion';      // Devuelta por el cliente
 
 /**
  * Registro de movimiento de una unidad (para timeline)

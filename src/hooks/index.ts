@@ -15,6 +15,9 @@ export { usePermissions, useHasPermiso, useIsRole } from './usePermissions';
 // Notificaciones Auto
 export { useNotificacionesAuto, useNotificacionesAutoInit } from './useNotificacionesAuto';
 
+// Alertas de cobro vencido
+export { useAlertasCobro } from './useAlertasCobro';
+
 // Rentabilidad Ventas
 export { useRentabilidadVentas } from './useRentabilidadVentas';
 export type { DesgloseProducto, GAGOProducto, RentabilidadVenta, DatosRentabilidadGlobal } from './useRentabilidadVentas';

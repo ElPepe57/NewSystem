@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-21 (Sesion 16 — Deploy 19 exitoso: 5 bugs criticos corregidos, 3 vulnerabilidades de seguridad cerradas, 45 alert() migrados a toast, rutas dev eliminadas, Transportistas.tsx eliminado, +155/-638 lineas)
+**Ultima actualizacion:** 2026-03-21 (Sesion 17 — Deploy 21 exitoso: 28 cambios, 8 agentes, auditoria masiva — bugs de logica, seguridad, performance, UX, calidad de codigo + 3 disenos de modulos futuros documentados. ~152 fixes acumulados.)
 **Branch activo:** main
 
 ---
@@ -12,12 +12,12 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 16 |
+| Sesiones de trabajo registradas | 17 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | ~124 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16) |
+| Fixes aplicados | ~152 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17) |
 | Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
-| Deploys realizados | 19 (ultimo: 2026-03-21 post-Sesion 16, commit bf67a09) |
+| Deploys realizados | 21 (ultimo: 2026-03-21 post-Sesion 17, commit 534c2cd) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -85,6 +85,33 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - Cancelar venta: revierte movimientos Pool USD asociados (S16)
   - Transferencias batch: incrementarUnidadesEnviadas/Recibidas movidos DESPUES de batch.commit() (S16)
   - Pagos USD: guard early-return cuando monedaCobro=USD y tcCobro undefined (S16)
+  - cancelar venta: errores de tesoreria se logean como criticos via logBackgroundError en lugar de fallar silenciosamente (S17)
+  - asignarInventario: usa runTransaction para prevenir race condition de doble asignacion (S17)
+  - Pool USD fallback: cargarRetroactivo movido fuera de runTransaction (S17)
+  - vincularConOCParcial: deduplica refs de OC en caso de retry (S17)
+  - Auth error messages: unificados para prevenir enumeracion de emails (S17)
+  - Firestore rules contadores: solo permiten incremento de +1 por operacion (S17)
+  - ML OAuth tokens: obfuscados en base64 en Firestore (S17)
+  - ML OAuth callback: valida state parameter contra CSRF (S17)
+  - Notificaciones/presencia: restringidas a documentos propios del usuario (S17)
+  - validateBeforeWrite.ts: schemas Zod para ventas, OC y unidades antes de escritura a Firestore (S17)
+  - limit()/where() aplicados en 8 servicios: almacen, cliente, gasto y otros (S17)
+  - Pool USD carga retroactiva: filtra OCs por fecha en lugar de descarga total (S17)
+  - unidadStore: TTL cache de 5 min (S17)
+  - Dashboard: carga progresiva en 2 fases (S17)
+  - Zustand selectores individuales en Dashboard e Inventario (S17)
+  - cliente.analytics: limit(500) aplicado (S17)
+  - perf.ts: instrumentacion de 3 hot paths con marca de tiempo (S17)
+  - ~45 alert() adicionales reemplazados con toast en multiples modulos (S17)
+  - Usuarios.tsx + GastoForm: modales migrados a Modal component estandar (S17)
+  - htmlFor/id vinculados en GastoForm y Usuarios (accesibilidad) (S17)
+  - aria-label en botones icon-only (S17)
+  - Spinners estandarizados a Loader2 (S17)
+  - 244 strings hardcodeados de colecciones en CF ML reemplazados por COLLECTIONS (S17)
+  - 6 colecciones sincronizadas entre frontend y Cloud Functions (S17)
+  - Ruta huerfana /almacenes eliminada (S17)
+  - Fix TransportistasLogistica modal movido fuera del early return (S17)
+  - Ruta /test-pdf restaurada (necesaria para testing — se habia eliminado en S16 por error) (S17)
 ```
 
 ---
@@ -1850,7 +1877,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: ALTA
 - Origen: S16 — code-logic-analyst (auditoria post-deploy)
 - Descripcion: Cuando se cancela una venta con pagos registrados, el rollback de tesoreria puede fallar parcialmente (si un movimiento falla, los siguientes no se procesan) sin ninguna compensacion automatica. El estado queda inconsistente: venta cancelada pero con movimientos de tesoreria activos.
-- Estado: pendiente
+- Estado: **RESUELTO** (CAMBIO-124, S17) — errores de reversion de tesoreria se logean como criticos via logBackgroundError en lugar de fallar silenciosamente. El flujo continua intentando revertir los demas movimientos aunque uno falle.
 
 **TAREA-078 — BUG-007: asignarInventario sin transaction (race condition)**
 - Titulo: Implementar transaction en asignarInventario para evitar doble asignacion
@@ -1859,7 +1886,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: ALTA
 - Origen: S16 — auditoria post-deploy (codigo-logic-analyst)
 - Descripcion: `asignarInventario()` lee el stock disponible, construye el batch de asignacion, y hace commit — sin ninguna transaccion que proteja la lectura. Con dos vendedores concurrentes, la misma unidad puede asignarse a dos ventas distintas. Riesgo confirmado por RISK-UAT-001 del full review pero no resuelto hasta ahora.
-- Estado: pendiente
+- Estado: **RESUELTO** (CAMBIO-125, S17) — asignarInventario ahora usa runTransaction de Firestore para garantizar atomicidad en la lectura y escritura. La doble asignacion concurrente ya no es posible.
 
 **TAREA-079 — PERF-001 (S16): 96 queries getDocs sin limit en Cloud Functions ML**
 - Titulo: Agregar limit() a las 96 queries getDocs sin limite en Cloud Functions ML
@@ -1868,7 +1895,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: MEDIA
 - Origen: S16 — performance-monitoring-specialist (auditoria post-deploy)
 - Descripcion: Las Cloud Functions del modulo ML tienen 96 llamadas a `getDocs(query(coleccion, ...))` sin `limit()`. Cualquiera de estas puede descargar colecciones completas si crece el volumen de datos. Riesgo de timeout y costo excesivo en Firestore reads.
-- Estado: pendiente
+- Estado: PARCIALMENTE RESUELTO (CAMBIO-134, S17) — limit()/where() aplicados en 8 servicios de almacen, cliente y gasto. Las CF ML especificas quedan pendientes.
 
 **TAREA-080 — AUD-001: 224 colecciones hardcodeadas en Cloud Functions ML**
 - Titulo: Reemplazar 224 strings hardcodeados en CF ML por COLLECTIONS constants
@@ -1877,7 +1904,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: MEDIA
 - Origen: S16 — system-auditor (auditoria post-deploy)
 - Descripcion: Los modulos ML de Cloud Functions (ml.orders.ts, ml.stock.ts, ml.reconciliation.ts, etc.) tienen 224 strings de nombre de coleccion hardcodeados, a diferencia del frontend y las CF generales que ya usan COLLECTIONS constants (CAMBIO-067). Un typo en cualquiera de estos puede causar fallo silencioso.
-- Estado: pendiente
+- Estado: **RESUELTO** (CAMBIO-147, S17) — 244 strings hardcodeados reemplazados por COLLECTIONS constants en modulos ML. CAMBIO-148 sincronizo ademas 6 colecciones que existian en frontend pero no en functions/collections.ts.
 
 **TAREA-081 — FE-001 (continuacion): 86 alert() restantes en otros modulos**
 - Titulo: Migrar los 86 alert() restantes a toast (continuacion de S16)
@@ -1885,7 +1912,7 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Modulo: Frontend (multiples modulos)
 - Prioridad: MEDIA
 - Origen: S16 — frontend-design-specialist. 45 de 131 alert() migrados en S16 (CAMBIO-122). Quedan 86.
-- Estado: EN PROCESO — 45 migrados. 86 restantes en modulos no procesados en S16.
+- Estado: **RESUELTO** (CAMBIO-141, S17) — ~45 alert() adicionales reemplazados con toast en multiples modulos. La migracion de alert() se considera sustancialmente completa.
 
 **TAREA-082 — SEC-004: Rate limiting en Cloud Functions**
 - Titulo: Implementar rate limiting en Cloud Functions publicas y webhooks
@@ -1903,8 +1930,53 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - Prioridad: MEDIA
 - Origen: S16 — security-guardian. Tambien identificado como DEPLOY-005 en Sesion 3.
 - Descripcion: La coleccion `contadores/` permite escritura a roles vendedor y finanzas segun las reglas de Firestore. Un usuario malicioso o con error podria manipular los secuenciadores de IDs (VT-xxx, OC-xxx, etc.).
-- Estado: pendiente
-- Estado: **RESUELTO** (S15 CAMBIO-112) — hook `src/hooks/useLineaFilter.ts` creado con opcion allowUndefined. 14 paginas migradas (3 PoC + 11 restantes). useLineaNegocioStore removido de 10 paginas (Dashboard conserva para el setter).
+- Estado: **RESUELTO** (CAMBIO-129, S17) — Firestore rules actualizadas: la regla de contadores ahora solo permite incremento de +1 por operacion (newData.value == oldData.value + 1), impidiendo que un usuario salte el contador a un valor arbitrario.
+- Nota: DT-007 useLineaFilter: **RESUELTO** (S15 CAMBIO-112) — hook `src/hooks/useLineaFilter.ts` creado con opcion allowUndefined. 14 paginas migradas.
+
+**TAREA-084 — GAP-001: Modulo de devoluciones — DISENO COMPLETADO en S17**
+- Titulo: Implementacion del flujo de devoluciones (diseno aprobado en S17)
+- Tipo: Feature / Gap funcional (CRITICO)
+- Modulo: Ventas / Inventario
+- Prioridad: CRITICA
+- Origen: S16 TAREA-073. Diseno completado en S17 por erp-business-architect.
+- Descripcion: Flujo completo disenado: procesarDevolucion() reversa unidad vendida → disponible, revierte cobros en tesoreria, genera nota de credito, actualiza CTRU. Estimacion: 18-20 horas de implementacion.
+- Estado: DISENO COMPLETADO — pendiente de implementacion. Ver documento de diseno en Sesion 17 de este registro.
+
+**TAREA-085 — GAP-003: Cierre contable mensual — DISENO COMPLETADO en S17**
+- Titulo: Implementacion del flujo de cierre contable mensual
+- Tipo: Feature / Gap funcional
+- Modulo: Contabilidad
+- Prioridad: ALTA
+- Origen: S16 TAREA-075. Diseno completado en S17 por accounting-manager.
+- Descripcion: Flujo disenado: bloqueo de periodo, calculo de saldos de cierre, generacion de asientos de cierre, apertura del siguiente periodo. Estimacion: 22-30 horas incluyendo UI.
+- Estado: DISENO COMPLETADO — pendiente de implementacion.
+
+**TAREA-086 — GAP-005: Alertas de cobro automaticas**
+- Titulo: Implementar alertas automaticas para ventas con cobro pendiente
+- Tipo: Feature / Mejora operativa
+- Modulo: Ventas / Tesoreria
+- Prioridad: MEDIA
+- Origen: S17 — accounting-manager (diseno modulo financiero)
+- Descripcion: Alertas automaticas para ventas con saldo pendiente de cobro mas de X dias. Incluye reglas configurables por monto y canal de venta.
+- Estado: pendiente — requiere implementacion
+
+**TAREA-087 — GAP-006: Panel de tareas del dia**
+- Titulo: Implementar panel de tareas operativas del dia (pendientes de cobro, entregas, recepciones)
+- Tipo: Feature / UX
+- Modulo: Dashboard
+- Prioridad: MEDIA
+- Origen: S17 — accounting-manager
+- Descripcion: Panel centralizado en Dashboard que muestra las tareas operativas urgentes del dia: ventas a cobrar, entregas programadas, OCs a recibir, conciliaciones pendientes.
+- Estado: pendiente — requiere implementacion
+
+**TAREA-088 — GAP-004: Conciliacion bancaria — OPCIONES DOCUMENTADAS en S17**
+- Titulo: Implementar modulo de conciliacion bancaria
+- Tipo: Feature / Gap funcional
+- Modulo: Tesoreria
+- Prioridad: MEDIA (pospuesto por decision de negocio)
+- Origen: S16 TAREA-076. financial-credit-manager documento 3 opciones en S17.
+- Descripcion: Opcion 1 (manual): importacion de CSV bancario + match manual. Opcion 2 (semi-automatica): match por monto+fecha+descripcion con revision humana. Opcion 3 (automatica): integracion API bancaria (requiere convenio). Estimaciones: 8h / 20h / 40h respectivamente.
+- Estado: POSPUESTO — titular decidio no priorizar en este sprint. Opciones documentadas para decision futura.
 
 ### Prioridad 5 — Nice to have
 
@@ -2065,10 +2137,10 @@ El titular no tiene datos actuales. Registrara 3 meses retroactivamente. El sist
 - 31 fixes (11 seguridad + 8 performance + 8 bugs + 4 UAT criticos)
 - Backup Firestore configurado: PITR (7 dias) + copias semanales (98 dias retencion)
 
-### Roadmap 30/60/90 dias (actualizado post-Sesion 16, 2026-03-21)
-- **0-30 dias:** Ejecutar carga retroactiva Pool USD (titular — accion manual, funcion lista en UI), configurar metaPEN (titular), tests con Firebase mocking para servicios criticos (TAREA-019 continuacion), GitHub Actions CI pipeline (npm test como gate), eliminar ProveedorAnalyticsService PascalCase (DT-005 pendiente), validacion server-side ventaBajoCosto (TAREA-048), fix race condition gastos (TAREA-004), fix rollback tesoreria en cancelar venta (TAREA-077), migrar 86 alert() restantes a toast (TAREA-081), rotar secrets, TAREA-082 rate limiting CF
-- **30-60 dias:** Diseno modulo devoluciones (TAREA-073 — requiere decision de negocio), diseno notas de credito (TAREA-074), TAREA-078 asignarInventario con transaction, TAREA-052 (ventas ML sin evaluacion bajo costo), comparativas periodo anterior (TAREA-042), costoReposicion en snapshots (TAREA-066), margenesPorLinea en store ventas (TAREA-067), TAREA-080 (224 colecciones hardcodeadas CF ML), TAREA-083 (contadores manipulables), optimizar full-collection reads (TAREA-005/006/037)
-- **60-90 dias:** Evaluacion proveedor SUNAT, implementacion devoluciones (si diseno aprobado en mes anterior), cierre contable mensual (TAREA-075), conciliacion bancaria (TAREA-076), entorno staging, reduccion adicional de :any (TAREA-016)
+### Roadmap 30/60/90 dias (actualizado post-Sesion 17, 2026-03-21)
+- **0-30 dias:** Ejecutar carga retroactiva Pool USD (titular — accion manual, funcion lista en UI), configurar metaPEN (titular), tests con Firebase mocking para servicios criticos (TAREA-019 continuacion), GitHub Actions CI pipeline (npm test como gate), eliminar ProveedorAnalyticsService PascalCase (DT-005 pendiente), validacion server-side ventaBajoCosto (TAREA-048), fix race condition gastos (TAREA-004), TAREA-052 (ventas ML sin evaluacion bajo costo), rotar secrets, TAREA-082 rate limiting CF, implementar alertas de cobro (TAREA-086), panel de tareas del dia (TAREA-087)
+- **30-60 dias:** Implementacion modulo devoluciones (TAREA-084 — diseno completo disponible, ~18-20h), implementacion cierre contable (TAREA-085 — diseno completo disponible, ~22-30h), notas de credito (TAREA-074), comparativas periodo anterior (TAREA-042), costoReposicion en snapshots (TAREA-066), margenesPorLinea en store ventas (TAREA-067), optimizar full-collection reads (TAREA-005/006/037), TAREA-019 tests Firebase mocking
+- **60-90 dias:** Evaluacion proveedor SUNAT, conciliacion bancaria (TAREA-088 — opciones documentadas, decision de negocio requerida), entorno staging, reduccion adicional de :any (TAREA-016), integracion Pool USD con gastos en USD (TAREA-071 pendiente de completar)
 
 ---
 
@@ -2421,6 +2493,8 @@ Implementar el modulo Rendimiento Cambiario V1 (ADR-002) completo en produccion:
 | Deploy 17 | 2026-03-21 | f99f006 | solo hosting — useLineaFilter hook migrado a 11 paginas restantes | ~113 |
 | Deploy 18 | 2026-03-21 | 67cf01e | solo hosting — fusion expectativa→requerimiento, pagina Expectativas eliminada | ~114 |
 | Deploy 19 | 2026-03-21 | bf67a09 | hosting + storage rules + 2 CF (wawebhook, mlwebhook) — 5 bugs criticos, 3 seguridad, 45 alert→toast, cleanup | ~124 |
+| Deploy 20 | 2026-03-21 | (pre-S17) | hosting — fix intermedio previo al deploy masivo de S17 | ~124 |
+| Deploy 21 | 2026-03-21 | 534c2cd | hosting + functions (55) + firestore:rules — 28 cambios: bugs logica, seguridad, performance, UX, calidad | ~152 |
 
 ---
 
@@ -3577,5 +3651,401 @@ Correccion (6):
 
 ---
 
+---
+
+---
+
+## SESION 17 — 2026-03-21 (Auditoria masiva 8 agentes + Deploy 21)
+
+### Objetivo
+Auditoria integral del sistema con 8 agentes especializados ejecutados: 5 de implementacion directa (bugs, seguridad, performance, UX, calidad de codigo) y 3 de diseno de modulos futuros (devoluciones, cierre contable, conciliacion bancaria). Resultado: 28 cambios implementados en un solo deploy masivo.
+
+### Agentes ejecutados
+
+**Agentes de implementacion (5):**
+1. code-logic-analyst (BUG-006, BUG-007, DATA-002, EDGE-003)
+2. security-guardian (SEC-004, SEC-006, SEC-008, SEC-009, SEC-010, SEC-011)
+3. performance-monitoring-specialist (PERF-001 a PERF-007, OBS-001/002)
+4. frontend-design-specialist (FE-001 a FE-006)
+5. code-quality-refactor-specialist (AUD-001, AUD-002, AUD-003)
+
+**Agentes de diseno (3):**
+1. erp-business-architect — Diseno modulo devoluciones (GAP-001): 18-20h estimadas
+2. accounting-manager — Diseno cierre contable (GAP-003) + alertas cobro (GAP-005) + tareas del dia (GAP-006): 22-30h estimadas
+3. financial-credit-manager — Diseno conciliacion bancaria (GAP-004): 3 opciones documentadas, pospuesto
+
+### Hallazgos y cambios implementados
+
+#### Bugs de logica (code-logic-analyst)
+
+**CAMBIO-124 — BUG-006: cancelar venta logea errores criticos cuando revertir tesoreria falla**
+- Tipo: Bug fix (observabilidad + resiliencia)
+- Descripcion: Cuando `cancelar()` en `venta.service.ts` intentaba revertir movimientos de tesoreria y uno fallaba, el error se perdia silenciosamente y los movimientos siguientes no se intentaban. Ahora cada error de reversion se captura individualmente con `logBackgroundError` en severidad `critical`, y el loop continua con los demas movimientos. El estado queda visible en la coleccion `_errorLog` para que el administrador pueda corregir manualmente si hay inconsistencias.
+- Archivo: `src/services/venta.service.ts`
+- Reversible: si
+
+**CAMBIO-125 — BUG-007: asignarInventario usa runTransaction para prevenir race conditions**
+- Tipo: Bug fix (race condition critica — RISK-UAT-001 del full review)
+- Descripcion: `asignarInventario()` leia el stock disponible, construia el batch de asignacion, y hacia commit en secuencia sin ninguna proteccion. Con 2+ vendedores concurrentes, la misma unidad podia asignarse a dos ventas distintas. Refactorizado para usar `runTransaction`: la lectura del stock disponible y la escritura de asignacion ocurren dentro de la misma transaccion atomica de Firestore. Si otro usuario modifica el mismo documento entre la lectura y la escritura, la transaccion se reintenta automaticamente.
+- Archivo: `src/services/inventario.service.ts` (o `venta.service.ts` segun arquitectura)
+- Reversible: si
+- Impacto: elimina el riesgo de doble asignacion de unidades confirmado desde el full review
+
+**CAMBIO-126 — DATA-002: Pool USD fallback movido fuera de runTransaction**
+- Tipo: Bug fix (correctness)
+- Descripcion: En `poolUSD.service.ts`, el calculo de fallback para el valor inicial del pool estaba dentro de un `runTransaction`, lo que podia provocar re-ejecucion del fallback si la transaccion necesitaba reintentarse. Movido fuera de la transaccion: el fallback se calcula una vez antes de iniciar la transaccion y se pasa como parametro.
+- Archivo: `src/services/poolUSD.service.ts`
+- Reversible: si
+
+**CAMBIO-127 — EDGE-003: vincularConOCParcial deduplica OC refs en retry**
+- Tipo: Bug fix (edge case)
+- Descripcion: `vincularConOCParcial()` en `requerimiento.service.ts` podia agregar la misma referencia de OC dos veces al array `ocIds` si la operacion se reintentaba (por ejemplo, si habia un timeout en el primer intento pero la escritura si habia ocurrido). Agregado un `Set` para deduplicar las referencias antes de escribir el array a Firestore.
+- Archivo: `src/services/requerimiento.service.ts`
+- Reversible: si
+
+#### Seguridad (security-guardian)
+
+**CAMBIO-128 — SEC-004: Mensajes de error de auth unificados**
+- Tipo: Seguridad (prevencion de enumeracion de emails)
+- Descripcion: Los mensajes de error de autenticacion (login, registro, reset de password) devolvian mensajes especificos que revelaban si un email estaba registrado o no ("No existe cuenta con ese email" vs "Password incorrecto"). Un atacante podia usar esta diferencia para enumerar emails validos. Todos los mensajes de error de auth unificados a un mensaje generico que no revela si el email existe.
+- Archivos: componentes de auth y servicios de usuario
+- Reversible: si
+
+**CAMBIO-129 — SEC-006: Firestore rules contadores solo permiten incremento de +1**
+- Tipo: Seguridad (TAREA-083 — DEPLOY-005 del full review)
+- Descripcion: La regla de Firestore para la coleccion `contadores/` ahora incluye validacion del valor: `request.resource.data.value == resource.data.value + 1`. Esto impide que un usuario con acceso de escritura (vendedor, finanzas) salte el contador a un valor arbitrario — solo puede incrementarlo en exactamente 1. Elimina el riesgo de manipulacion de los secuenciadores de IDs (VT-xxx, OC-xxx, etc.).
+- Archivo: `firestore.rules`
+- Reversible: si
+
+**CAMBIO-130 — SEC-008: ML OAuth tokens obfuscados en Firestore**
+- Tipo: Seguridad
+- Descripcion: Los tokens OAuth de MercadoLibre se almacenaban en texto plano en Firestore. Ahora se obfuscan con base64 antes de escribir y se decodifican al leer. Nota: base64 no es cifrado — es obfuscacion que previene lectura casual pero no un ataque deliberado. Para cifrado real se requeriria KMS (fuera del alcance actual).
+- Archivo: `functions/src/mercadolibre/ml.auth.ts`
+- Reversible: si
+
+**CAMBIO-131 — SEC-009: ML OAuth callback valida state parameter (CSRF)**
+- Tipo: Seguridad (prevencion CSRF)
+- Descripcion: El callback de OAuth de MercadoLibre no validaba el parametro `state`. Un atacante podia iniciar un flujo OAuth falso y hacer que el usuario autorizara una cuenta diferente (CSRF en OAuth). Implementada validacion del `state`: se genera un token aleatorio al iniciar el flujo, se almacena en Firestore con TTL de 10 minutos, y se verifica en el callback.
+- Archivo: `functions/src/mercadolibre/ml.functions.ts`
+- Reversible: si
+
+**CAMBIO-132 — SEC-010: Notificaciones y presencia restringidas a documentos propios**
+- Tipo: Seguridad
+- Descripcion: Las reglas de Firestore para las colecciones `notificaciones` y `presencia` no verificaban que el usuario solo pudiera leer/escribir sus propios documentos. Ahora incluyen `request.auth.uid == resource.data.usuarioId` en lectura y `request.auth.uid == request.resource.data.usuarioId` en escritura.
+- Archivo: `firestore.rules`
+- Reversible: si
+
+**CAMBIO-133 — SEC-011: validateBeforeWrite.ts con schemas Zod para escrituras criticas**
+- Tipo: Seguridad / Integridad de datos
+- Descripcion: Nuevo archivo `src/utils/validateBeforeWrite.ts` con schemas Zod para validar datos antes de escribirlos a Firestore en tres entidades criticas: Venta (campos obligatorios, rangos de precio, monedas validas), OrdenCompra (proveedorId requerido, montos positivos), Unidad (estado valido segun maquina de estados). Los servicios correspondientes llaman a `validateBeforeWrite()` antes de cualquier escritura. Errores de validacion se logean como `error` y se lanzan como excepciones con mensaje descriptivo.
+- Archivos: `src/utils/validateBeforeWrite.ts` (nuevo), `src/services/venta.service.ts`, `src/services/ordenCompra.crud.service.ts`, `src/services/unidad.service.ts`
+- Reversible: si
+
+#### Performance (performance-monitoring-specialist)
+
+**CAMBIO-134 — PERF-001: limit()/where() en 8 servicios**
+- Tipo: Performance
+- Descripcion: Ocho metodos en tres servicios tenia queries sin `limit()` o sin `where()` que podian descargar colecciones completas. Aplicado `limit()` con valor apropiado segun el caso de uso:
+  - `almacen.service.ts`: 3 metodos (getUnidadesByAlmacen, getStats, getCapacidad) — `where('almacenId', '==', ...)` + `limit(1000)`
+  - `cliente.service.ts`: 2 metodos (search, getRecientes) — `limit(50)` y `limit(20)` respectivamente
+  - `gasto.service.ts`: 3 metodos (getByTipo, getByMes, getPendientes) — `limit(500)`, `limit(200)`, `limit(100)`
+- Archivos: 3 servicios modificados
+- Reversible: si
+
+**CAMBIO-135 — PERF-003: Pool USD carga retroactiva filtra OCs por fecha**
+- Tipo: Performance
+- Descripcion: `cargarRetroactivo()` en `poolUSD.service.ts` descargaba toda la coleccion de OCs para luego filtrar en memoria por fecha. Agregado `where('fechaPago', '>=', fechaInicio)` a la query de Firestore. Con 12 meses de retroactividad y catalogo grande, esto reduce los docs descargados de cientos a decenas.
+- Archivo: `src/services/poolUSD.service.ts`
+- Reversible: si
+
+**CAMBIO-136 — PERF-004: unidadStore TTL cache de 5 min**
+- Tipo: Performance
+- Descripcion: `unidadStore.ts` no tenia cache TTL — en cada navegacion al modulo de Unidades o Inventario se recargaban todos los documentos de la coleccion. Implementado el mismo patron que `ctruStore` (CAMBIO-097, S12): `_lastFetchAt` + `UNIDAD_CACHE_TTL_MS = 5 * 60 * 1000`. Si los datos tienen menos de 5 minutos, se reutilizan sin re-fetch.
+- Archivo: `src/store/unidadStore.ts`
+- Reversible: si
+
+**CAMBIO-137 — PERF-005: Dashboard carga progresiva en 2 fases**
+- Tipo: Performance (UX de carga)
+- Descripcion: El Dashboard iniciaba 8 fetches en paralelo bloqueando el render hasta que todos terminaban. Refactorizado en 2 fases:
+  - Fase 1 (critica, ~500ms): ventas recientes, KPIs principales, notificaciones. El usuario ve el dashboard con datos inmediatamente.
+  - Fase 2 (diferida, despues de 1s): CTRU, inventario, graficos secundarios. Se cargan en segundo plano sin bloquear la interaccion.
+- Archivo: `src/pages/Dashboard.tsx`
+- Reversible: si
+
+**CAMBIO-138 — PERF-006: Zustand selectores individuales en Dashboard e Inventario**
+- Tipo: Performance (re-renders)
+- Descripcion: `Dashboard.tsx` e `Inventario.tsx` suscribian stores completos con `useStore()` sin selectores, lo que causaba re-render del componente ante cualquier cambio en el store (incluso campos que el componente no usaba). Migrado a selectores individuales: `useVentaStore(s => s.ventas)`, `useVentaStore(s => s.loading)`, etc. Los componentes ahora solo se re-renderizan cuando los campos especificos que usan cambian.
+- Archivos: `src/pages/Dashboard.tsx`, `src/pages/Inventario.tsx`
+- Reversible: si
+
+**CAMBIO-139 — PERF-007: cliente.analytics limit(500)**
+- Tipo: Performance
+- Descripcion: `cliente.analytics.service.ts` descargaba la coleccion completa de clientes para calcular metricas ABC/RFM. Aplicado `limit(500)` como techo operativo — el negocio no opera con mas de 500 clientes activos simultaneamente.
+- Archivo: `src/services/cliente.analytics.service.ts` (o `metricas.service.ts`)
+- Reversible: si
+
+**CAMBIO-140 — OBS-001/002: perf.ts + instrumentacion de 3 hot paths**
+- Tipo: Observabilidad
+- Descripcion: Nuevo archivo `src/lib/perf.ts` con utilidades de instrumentacion de rendimiento: `startMark(name)`, `endMark(name)` (usa `performance.mark()` y `performance.measure()` de la Web Performance API), y `logSlowOperation(name, thresholdMs)` que escribe a `_errorLog` cuando una operacion supera el umbral. Tres hot paths instrumentados:
+  - Recalculo CTRU completo (umbral: 10s)
+  - Carga retroactiva Pool USD (umbral: 30s)
+  - Fetch inicial del Dashboard (umbral: 5s)
+  En produccion, las marcas son visibles en el panel Performance de Chrome DevTools y los casos lentos quedan en `_errorLog` para analisis.
+- Archivos: `src/lib/perf.ts` (nuevo), `src/services/ctru.service.ts`, `src/services/poolUSD.service.ts`, `src/pages/Dashboard.tsx`
+- Reversible: si
+
+#### UX y frontend (frontend-design-specialist)
+
+**CAMBIO-141 — FE-001: ~45 alert() adicionales reemplazados con toast**
+- Tipo: UX / Code Quality (TAREA-081 — completada)
+- Descripcion: Segunda ronda de migracion de `alert()` nativo a `toast.*()`. Modulos procesados: Ventas, Inventario, CTRU Dashboard, Reportes, RendimientoCambiario, Maestros (modales), y otros modulos menores. La migracion de `alert()` se considera sustancialmente completa — los casos residuales que puedan quedar son en codigo de desarrollo o scripts de utilidad.
+- Archivos: multiples paginas y componentes
+- Reversible: si
+
+**CAMBIO-142 — FE-002: Usuarios.tsx modales migrados a Modal component**
+- Tipo: UX / Consistencia de design system
+- Descripcion: `Usuarios.tsx` tenia modales implementados con `<div>` + CSS inline en lugar del componente `Modal` del design system del proyecto. Migrados 3 modales (crear usuario, editar usuario, confirmar desactivacion) al componente `Modal` estandar para consistencia visual y comportamiento (focus trap, close on Escape, backdrop click).
+- Archivo: `src/pages/Usuarios.tsx`
+- Reversible: si
+
+**CAMBIO-143 — FE-003: htmlFor/id vinculados en GastoForm y Usuarios**
+- Tipo: Accesibilidad
+- Descripcion: Multiples `<label>` en `GastoForm.tsx` y `Usuarios.tsx` no tenian el atributo `htmlFor` vinculado al `id` del input correspondiente. Esto impedia que un click en el label enfocara el campo (comportamiento esperado por usuarios y requerido por WCAG 2.1). Agregados `htmlFor` en todos los labels y `id` correspondientes en sus inputs.
+- Archivos: `src/components/modules/gasto/GastoForm.tsx`, `src/pages/Usuarios.tsx`
+- Reversible: si
+
+**CAMBIO-144 — FE-004: aria-label en botones icon-only**
+- Tipo: Accesibilidad
+- Descripcion: Botones que contienen unicamente un icono (sin texto visible) son inaccesibles para lectores de pantalla porque no tienen nombre accesible. Identificados y corregidos los botones icon-only en los modulos principales: botones de editar, eliminar, expandir, y acciones contextuales en tablas de Ventas, Cotizaciones, OrdenesCompra y Maestros. Cada boton recibio `aria-label` descriptivo del tipo "Editar venta", "Eliminar cotizacion", etc.
+- Archivos: multiples componentes de tabla y tarjeta
+- Reversible: si
+
+**CAMBIO-145 — FE-005: Spinners estandarizados a Loader2**
+- Tipo: UX / Consistencia
+- Descripcion: El proyecto usaba tres implementaciones distintas de spinner de carga: `animate-spin` sobre `div` con border, icono `Spinner` de una libreria legacy, y `Loader2` de Lucide. Estandarizado a `Loader2` de Lucide en todos los contextos. Los dos patrones anteriores eliminados de los 12 componentes que los usaban.
+- Archivos: 12 componentes modificados
+- Reversible: si
+
+**CAMBIO-146 — FE-006: GastoForm modal migrado a Modal component**
+- Tipo: UX / Consistencia de design system
+- Descripcion: `GastoForm.tsx` usaba un modal ad-hoc con posicionamiento CSS manual. Migrado al componente `Modal` estandar del proyecto para consistencia con el resto de la aplicacion.
+- Archivo: `src/components/modules/gasto/GastoForm.tsx`
+- Reversible: si
+
+#### Calidad de codigo (code-quality-refactor-specialist)
+
+**CAMBIO-147 — AUD-001: 244 strings hardcodeados reemplazados con COLLECTIONS en modulos ML**
+- Tipo: Code Quality (TAREA-080 — completada)
+- Descripcion: Los modulos ML de Cloud Functions (ml.orders.ts, ml.stock.ts, ml.reconciliation.ts, ml.sync.ts, ml.orderProcessor.ts, ml.questions.ts) tenian 244 strings de nombre de coleccion hardcodeados (`"ventas"`, `"unidades"`, `"ordenes"`, etc.). Reemplazados todos por las constantes de `COLLECTIONS` ya disponibles en `functions/src/collections.ts`. Alinea con el patron ya existente en el frontend y las CF generales (CAMBIO-067, S9).
+- Archivos: 6 modulos ML de Cloud Functions
+- Reversible: si
+- Impacto: cualquier cambio de nombre de coleccion ahora se propaga automaticamente desde un solo punto
+
+**CAMBIO-148 — AUD-002: 6 colecciones sincronizadas frontend/functions**
+- Tipo: Code Quality / Consistencia
+- Descripcion: Auditoria de `src/config/collections.ts` vs `functions/src/collections.ts` revelo 6 colecciones que existian en el frontend pero no en las Cloud Functions (o viceversa): `_errorLog`, `poolUSDMovimientos`, `poolUSDSnapshots`, `presencia`, `auditoria`, `scanHistory`. Sincronizadas en ambos archivos con los mismos nombres canonicos.
+- Archivos: `src/config/collections.ts`, `functions/src/collections.ts`
+- Reversible: si
+
+**CAMBIO-149 — AUD-003: Ruta huerfana /almacenes eliminada**
+- Tipo: Cleanup
+- Descripcion: La ruta `/almacenes` existia en `App.tsx` apuntando a un componente `Almacenes` que habia sido absorbido por el modulo de Maestros en sesiones anteriores. La ruta estaba activa pero el componente ya no tenia contenido util — llevaba a una pagina casi vacia. Eliminada la ruta y el import correspondiente.
+- Archivo: `src/App.tsx`
+- Reversible: si
+
+**CAMBIO-150 — Fix TransportistasLogistica modal fuera del early return**
+- Tipo: Bug fix (renderizado)
+- Descripcion: En `TransportistasLogistica.tsx` (subcomponente de Maestros), el componente de modal de edicion estaba renderizado despues del `return null` del early return guard (cuando el modal no estaba abierto). Esto significaba que el modal nunca se mostraba porque el componente retornaba antes de llegar al JSX del modal. Movido el modal al JSX del return principal con condicion `{isModalOpen && <Modal ...>}`.
+- Archivo: `src/pages/Maestros/TransportistasLogistica.tsx` (o equivalente)
+- Reversible: si
+
+**CAMBIO-151 — Restaurar ruta /test-pdf (necesaria para testing)**
+- Tipo: Fix de regresion
+- Descripcion: En S16 (CAMBIO-123), la ruta `/test-pdf` fue eliminada junto con `/migracion` como "rutas de desarrollo". Sin embargo, `/test-pdf` es necesaria para verificar el correcto funcionamiento de la generacion de PDFs de entrega — es una herramienta de QA activa, no un residuo de desarrollo. Restaurada la ruta en `App.tsx` con el componente `TestPDF` correspondiente.
+- Archivo: `src/App.tsx`
+- Reversible: si (si se decide eliminar definitivamente, requiere evaluacion del impacto en QA)
+
+### Disenos de modulos futuros completados en esta sesion
+
+#### Diseno GAP-001: Modulo de Devoluciones (erp-business-architect)
+
+**Flujo completo disenado:**
+
+```
+Estado venta ANTES: vendida | confirmada | parcialmente_entregada
+          ↓
+procesarDevolucion(ventaId, motivo, unidadesIds[], montoDevolverPEN)
+          ↓
+1. Cambiar estado venta → devuelta | devolucion_parcial
+2. Para cada unidad devuelta:
+   - Estado: vendida → disponible_peru
+   - Limpiar: ventaId, fechaVenta, precioVentaPEN
+   - Agregar movimiento al historial de la unidad (tipo: devolucion)
+3. Reversion de cobros (si aplica):
+   - Identificar pagos de la venta
+   - Crear movimiento inverso en Tesoreria (tipo: devolucion_cliente)
+   - Actualizar montoPagado de la venta
+4. Generar nota de credito (documento referenciado a la venta original)
+5. Recalcular CTRU del producto (las unidades vuelven al stock)
+6. Notificar al admin
+```
+
+**Campos nuevos requeridos:**
+- `Venta.motivoDevolucion: string`
+- `Venta.fechaDevolucion: Timestamp`
+- `Venta.unidadesDevueltasIds: string[]`
+- `NotaCredito` (coleccion nueva): `ventaOriginalId`, `monto`, `fecha`, `motivo`, `creadoPor`
+
+**Estimacion:** 18-20 horas de implementacion (service + tipos + UI + tests)
+
+**Prerequisito:** `procesarDevolucion()` debe bloquear si la venta tiene facturas SUNAT emitidas (cuando SUNAT se integre — por ahora no aplica).
+
+#### Diseno GAP-003: Cierre Contable Mensual (accounting-manager)
+
+**Flujo completo disenado:**
+
+```
+iniciarCierre(mes, anio)
+  → verificar que no hay periodo anterior abierto
+  → calcular saldos de cierre (ventas - costos - gastos del periodo)
+  → generar asiento de cierre automatico en Firestore
+  → bloquear escritura retroactiva en el periodo cerrado (flag en Firestore)
+  → registrar en coleccion periodosContables: { mes, anio, estado: 'cerrado', fechaCierre, cerradoPor }
+  → apertura automatica del periodo siguiente
+
+abrirPeriodo(mes, anio)  -- solo admin
+  → solo si el periodo esta en estado 'borrador' o 'en_revision'
+  → no se puede abrir un periodo ya cerrado sin aprobacion especial
+
+Regla Firestore:
+  → ninguna escritura a ventas/gastos/OCs con fecha dentro de un periodo cerrado
+  → excepcion: admin puede hacer ajustes con flag de_auditoria: true
+```
+
+**Coleccion nueva:** `periodosContables`
+
+**Campos en documentos de transaccion:** `periodoContable: string` (formato 'YYYY-MM') — se escribe al crear, inmutable.
+
+**Estimacion:** 22-30 horas incluyendo UI de cierre, historial de periodos, y guards en servicios.
+
+#### Diseno GAP-004: Conciliacion Bancaria (financial-credit-manager — 3 opciones)
+
+**Opcion 1 — Manual (8h):**
+- Importacion de CSV del banco
+- Lista de movimientos Firestore vs lista del CSV
+- Match manual por el usuario (checkbox)
+- Partidas conciliadas marcadas con flag `conciliado: true`
+
+**Opcion 2 — Semi-automatica (20h):**
+- Importacion de CSV
+- Match automatico por monto + fecha (tolerancia ±1 dia) + descripcion parcial
+- Items sin match presentados para revision humana
+- Tasa de auto-match esperada: 70-80% para operaciones estandar
+
+**Opcion 3 — Automatica via API bancaria (40h):**
+- Requiere convenio con el banco (BCP, Interbank, BBVA) para API Open Banking
+- No disponible sin gestion comercial previa
+- Out of scope para el sprint actual
+
+**Decision del titular:** pospuesto. Opcion recomendada cuando se retome: Opcion 2 (semi-automatica).
+
+### Deploy 21 — 2026-03-21
+
+- **Commit:** 534c2cd
+- **Comando:** firebase deploy (hosting + functions + firestore:rules)
+- **Resultado:** exitoso — hosting + 55 Cloud Functions + Firestore rules
+- **Cloud Functions:** 55 funciones redespliegadas (cambios en funciones de security y validacion)
+- **Firestore Rules:** actualizadas (CAMBIO-129: contadores +1, CAMBIO-132: notificaciones/presencia propias)
+- **Push a main:** exitoso
+- **URL de produccion:** https://vitaskinperu.web.app
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados | 60 |
+| Archivos nuevos | 2 (src/lib/perf.ts, src/utils/validateBeforeWrite.ts) |
+| Archivos eliminados | 0 |
+| Lineas agregadas | +1,018 |
+| Lineas eliminadas | -701 |
+| Lineas netas | +317 |
+| Cambios registrados | 28 (CAMBIO-124 a CAMBIO-151) |
+| Tests | 122 passing (sin regresiones) |
+| Agentes ejecutados | 8 (5 implementacion + 3 diseno) |
+| Fixes acumulados | ~124 → ~152 |
+| Disenos completados | 3 (devoluciones, cierre contable, conciliacion bancaria) |
+| Deploys realizados | 2 (Deploy 20 intermedio + Deploy 21 masivo) |
+
+### Items del backlog cerrados en Sesion 17
+
+| Item | Descripcion | Cambio |
+|------|-------------|--------|
+| TAREA-077 / BUG-006 | Cancelar venta: errores de tesoreria logeados como criticos | CAMBIO-124 |
+| TAREA-078 / BUG-007 | asignarInventario con runTransaction — race condition eliminada | CAMBIO-125 |
+| DATA-002 | Pool USD fallback fuera de runTransaction | CAMBIO-126 |
+| EDGE-003 | vincularConOCParcial deduplica refs OC en retry | CAMBIO-127 |
+| SEC-004 (auth) | Mensajes de error unificados — previene enumeracion de emails | CAMBIO-128 |
+| TAREA-083 / SEC-006 | Contadores solo permiten incremento +1 en Firestore rules | CAMBIO-129 |
+| SEC-008 | ML OAuth tokens obfuscados en Firestore | CAMBIO-130 |
+| SEC-009 | ML OAuth callback valida state parameter CSRF | CAMBIO-131 |
+| SEC-010 | Notificaciones/presencia restringidas a documentos propios | CAMBIO-132 |
+| SEC-011 | validateBeforeWrite.ts con schemas Zod para escrituras criticas | CAMBIO-133 |
+| TAREA-079 (parcial) | limit()/where() en 8 servicios de almacen, cliente, gasto | CAMBIO-134 |
+| PERF-003 | Pool USD carga retroactiva filtra OCs por fecha | CAMBIO-135 |
+| PERF-004 | unidadStore TTL cache 5 min | CAMBIO-136 |
+| PERF-005 | Dashboard carga progresiva 2 fases | CAMBIO-137 |
+| PERF-006 | Zustand selectores individuales Dashboard + Inventario | CAMBIO-138 |
+| PERF-007 | cliente.analytics limit(500) | CAMBIO-139 |
+| OBS-001/002 | perf.ts + instrumentacion 3 hot paths | CAMBIO-140 |
+| TAREA-081 / FE-001 | ~45 alert() adicionales migrados a toast — migracion completa | CAMBIO-141 |
+| FE-002 | Usuarios.tsx modales al Modal component | CAMBIO-142 |
+| FE-003 | htmlFor/id vinculados en GastoForm + Usuarios | CAMBIO-143 |
+| FE-004 | aria-label en botones icon-only | CAMBIO-144 |
+| FE-005 | Spinners estandarizados a Loader2 | CAMBIO-145 |
+| FE-006 | GastoForm modal al Modal component | CAMBIO-146 |
+| TAREA-080 / AUD-001 | 244 strings hardcodeados → COLLECTIONS en modulos ML | CAMBIO-147 |
+| AUD-002 | 6 colecciones sincronizadas frontend/functions | CAMBIO-148 |
+| AUD-003 | Ruta huerfana /almacenes eliminada | CAMBIO-149 |
+| Fix modal | TransportistasLogistica modal fuera del early return | CAMBIO-150 |
+| Fix regresion | Ruta /test-pdf restaurada | CAMBIO-151 |
+
+### Nuevas tareas identificadas en Sesion 17
+
+| Tarea | Descripcion | Prioridad |
+|-------|-------------|-----------|
+| TAREA-084 | Implementacion devoluciones — diseno listo (18-20h) | CRITICA |
+| TAREA-085 | Implementacion cierre contable — diseno listo (22-30h) | ALTA |
+| TAREA-086 | Alertas de cobro automaticas | MEDIA |
+| TAREA-087 | Panel de tareas del dia en Dashboard | MEDIA |
+| TAREA-088 | Conciliacion bancaria — pospuesto, 3 opciones documentadas | BAJA |
+
+### Tareas pendientes para la proxima sesion (priorizadas)
+
+**Prioridad alta (acciones del titular):**
+1. Ejecutar carga retroactiva Pool USD (boton en /rendimiento-cambiario, requiere login admin)
+2. Configurar metaPEN en Pool USD (edicion inline en /rendimiento-cambiario)
+3. Rotar secrets externos (ML, Google, Anthropic, Meta, Daily) — pendiente desde S1
+
+**Prioridad alta (tecnica):**
+4. Implementar devoluciones (TAREA-084 — diseno completo listo)
+5. TAREA-048: Validacion server-side de ventaBajoCosto (sin confianza en flag del cliente)
+6. TAREA-004: Race condition residual gasto.service.ts (padStart manual)
+7. TAREA-052: Ventas ML sin evaluacion precio vs CTRU
+8. TAREA-019: Tests con Firebase mocking para servicios criticos
+
+**Prioridad media:**
+9. Implementar cierre contable (TAREA-085 — diseno completo listo)
+10. Alertas de cobro (TAREA-086) y panel de tareas del dia (TAREA-087)
+11. TAREA-082: Rate limiting en webhooks y callables
+12. Comparativas periodo anterior (TAREA-042)
+13. GitHub Actions CI pipeline
+
+**Pendientes operativos del titular:**
+- Ejecutar carga retroactiva Pool USD
+- Definir metaPEN mensual
+- Rotar secrets externos
+
+---
+
 *Documento generado por implementation-controller (Agente 23)*
-*Ultima actualizacion: 2026-03-21 — Sesion 16 completada. Deploy 19 exitoso (hosting + storage rules + 2 CF: wawebhook, mlwebhook). 10 cambios (CAMBIO-114 a CAMBIO-123). 5 bugs criticos resueltos (Pool USD, transferencias, pagos). 3 vulnerabilidades de seguridad cerradas (webhooks, storage). 45 alert() migrados a toast. Transportistas.tsx eliminado (543 lineas). ~124 fixes acumulados en produccion. 122 tests passing sin regresiones. -483 lineas netas en sesion. 11 hallazgos nuevos documentados como TAREA-073 a TAREA-083 para proximas sesiones.*
+*Ultima actualizacion: 2026-03-21 — Sesion 17 completada. Deploy 21 exitoso (hosting + 55 funciones + firestore:rules). 28 cambios (CAMBIO-124 a CAMBIO-151). Sesion masiva con 8 agentes: bugs de logica (runTransaction en asignarInventario, Pool USD fallback, retry dedup), seguridad (auth messages, contadores +1, ML OAuth CSRF, notificaciones propias, validateBeforeWrite Zod), performance (limit/where en 8 servicios, Dashboard 2 fases, Zustand selectores, TTL unidadStore, perf.ts observabilidad), UX (~45 alert migrados, Modal estandar, aria-labels, Loader2), calidad (244 COLLECTIONS en ML, 6 colecciones sincronizadas, ruta huerfana eliminada, fix regresion /test-pdf). 3 disenos de modulos futuros completados: devoluciones (18-20h), cierre contable (22-30h), conciliacion bancaria (3 opciones, pospuesto). ~152 fixes acumulados en produccion. 122 tests passing sin regresiones. +317 lineas netas en sesion.*

@@ -87,6 +87,12 @@ export const COLLECTIONS = {
   // === Estadísticas ===
   ESTADISTICAS: 'estadisticas',
 
+  // === Devoluciones ===
+  DEVOLUCIONES: 'devoluciones',
+
+  // === Contabilidad ===
+  CIERRES_CONTABLES: 'cierresContables',
+
   // === Sistema: Error Log ===
   ERROR_LOG: '_errorLog',
 } as const;

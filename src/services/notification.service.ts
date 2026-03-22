@@ -395,6 +395,35 @@ export class NotificationService {
   // ─── VERIFICACIONES ANTI-SPAM ─────────────────────────────────────────────
 
   /**
+   * Busca si ya existe una notificación del mismo tipo para la misma entidad
+   * creada en los últimos N días. Usado para prevenir duplicados en alertas periódicas.
+   */
+  static async buscarExistente(
+    tipo: TipoNotificacion,
+    entidadId: string,
+    diasAtras: number
+  ): Promise<boolean> {
+    try {
+      const desde = Timestamp.fromDate(
+        new Date(Date.now() - diasAtras * 24 * 60 * 60 * 1000)
+      );
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('tipo', '==', tipo),
+        where('entidadId', '==', entidadId),
+        where('fechaCreacion', '>=', desde),
+        limit(1)
+      );
+      const snapshot = await getDocs(q);
+      return !snapshot.empty;
+    } catch (error) {
+      logger.error('Error en buscarExistente de notificación:', error);
+      // Prevenir duplicados ante error
+      return true;
+    }
+  }
+
+  /**
    * Verifica si existe una notificación activa (no accionada) para una venta y tipo
    */
   static async existeNotificacionActiva(
