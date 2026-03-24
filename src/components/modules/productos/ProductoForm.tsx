@@ -17,6 +17,7 @@ import {
   Layers,
   ShoppingBag,
   Sun,
+  GitBranch,
   Droplets,
   Palette
 } from 'lucide-react';
@@ -33,6 +34,7 @@ import { useAuthStore } from '../../../store/authStore';
 import { useToastStore } from '../../../store/toastStore';
 import { useDetectarVarianteCandidatos } from '../../../hooks/useDetectarVarianteCandidatos';
 import { SugerenciaVarianteBanner } from './SugerenciaVarianteBanner';
+import { VariantesTable, type VarianteRow } from './VariantesTable';
 import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
 import { METODO_ENVIO_LABELS } from '../../../types/paisOrigen.types';
@@ -52,6 +54,13 @@ interface ProductoFormProps {
   loading?: boolean;
   /** Lista de productos existentes para buscar investigaciones */
   productosExistentes?: Producto[];
+  /** true = modo "Producto con variantes" — muestra tab Variantes */
+  modoVariantes?: boolean;
+  /** Handler para crear grupo con variantes (batch) */
+  onSubmitConVariantes?: (
+    datosComunes: any,
+    variantes: { contenido: string; sabor?: string; dosaje?: string; volumen?: string; varianteLabel: string }[]
+  ) => Promise<void>;
 }
 
 interface SugerenciasProducto {
@@ -85,7 +94,9 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   onSubmit,
   onCancel,
   loading = false,
-  productosExistentes = []
+  productosExistentes = [],
+  modoVariantes = false,
+  onSubmitConVariantes
 }) => {
   const { user } = useAuthStore();
   const toast = useToastStore();
@@ -101,6 +112,12 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
   // Detección de variantes candidatas
   const [bannerVarianteDescartado, setBannerVarianteDescartado] = useState(false);
+
+  // Estado de variantes para modo "con_variantes"
+  const [variantesRows, setVariantesRows] = useState<VarianteRow[]>([
+    { id: 'v1', contenido: '', sabor: '', varianteLabel: '', esPrincipal: true },
+    { id: 'v2', contenido: '', sabor: '', varianteLabel: '', esPrincipal: false },
+  ]);
 
   // Estado para crear/editar país inline
   const [mostrarNuevoPais, setMostrarNuevoPais] = useState(false);
@@ -545,28 +562,39 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
   // Navegacion entre tabs
   const goToNextTab = () => {
-    const currentIndex = FORM_TABS.findIndex(t => t.id === activeTab);
-    if (currentIndex < FORM_TABS.length - 1) {
-      setActiveTab(FORM_TABS[currentIndex + 1].id);
+    const currentIndex = activeTabs.findIndex(t => t.id === activeTab);
+    if (currentIndex < activeTabs.length - 1) {
+      setActiveTab(activeTabs[currentIndex + 1].id);
     }
   };
 
   const goToPrevTab = () => {
-    const currentIndex = FORM_TABS.findIndex(t => t.id === activeTab);
+    const currentIndex = activeTabs.findIndex(t => t.id === activeTab);
     if (currentIndex > 0) {
-      setActiveTab(FORM_TABS[currentIndex - 1].id);
+      setActiveTab(activeTabs[currentIndex - 1].id);
     }
   };
 
-  const isFirstTab = activeTab === FORM_TABS[0].id;
-  const isLastTab = activeTab === FORM_TABS[FORM_TABS.length - 1].id;
+  // Dynamic tabs: add "Variantes" tab when in modoVariantes
+  const activeTabs = useMemo(() => {
+    if (modoVariantes) {
+      return [
+        ...FORM_TABS,
+        { id: 'variantes', label: 'Variantes', icon: <GitBranch className="h-4 w-4" /> },
+      ];
+    }
+    return FORM_TABS;
+  }, [modoVariantes]);
+
+  const isFirstTab = activeTab === activeTabs[0].id;
+  const isLastTab = activeTab === activeTabs[activeTabs.length - 1].id;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* === TABS DE NAVEGACION === */}
       <div className="border-t pt-6">
         <Tabs
-          tabs={FORM_TABS}
+          tabs={activeTabs}
           activeTab={activeTab}
           onChange={setActiveTab}
           variant="pills"
@@ -1410,7 +1438,32 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             )}
           </TabPanel>
 
-          {/* TAB 5: MERCADO LIBRE */}
+          {/* TAB 5: VARIANTES (solo en modo con_variantes) */}
+          {modoVariantes && (
+            <TabPanel tabId="variantes" className="mt-6">
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <GitBranch className="h-4 w-4 text-blue-600" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-800">Producto con variantes</p>
+                      <p className="text-xs text-blue-600">
+                        Los campos de los tabs anteriores (marca, nombre, categorías) se comparten entre todas las variantes.
+                        Aquí defines lo que cambia en cada una.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <VariantesTable
+                  variantes={variantesRows}
+                  onChange={setVariantesRows}
+                  skuPrefix={formData.lineaNegocioId ? 'SUP' : 'BMN'}
+                />
+              </div>
+            </TabPanel>
+          )}
+
         </TabsProvider>
       </div>
 
@@ -1445,6 +1498,41 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
               onClick={goToNextTab}
             >
               Siguiente
+            </Button>
+          ) : modoVariantes && onSubmitConVariantes ? (
+            <Button
+              type="button"
+              variant="primary"
+              loading={loading}
+              disabled={variantesRows.length < 2 || variantesRows.some(v => !v.contenido.trim())}
+              onClick={() => {
+                const datosComunes = {
+                  marca: formData.marca,
+                  nombreComercial: formData.nombreComercial,
+                  presentacion: formData.presentacion,
+                  dosaje: formData.dosaje,
+                  grupo: formData.grupo,
+                  subgrupo: formData.subgrupo,
+                  paisOrigen: formData.paisOrigen,
+                  lineaNegocioId: formData.lineaNegocioId,
+                  tipoProductoId: formData.tipoProductoId,
+                  categoriaIds: formData.categoriaIds,
+                  categoriaPrincipalId: formData.categoriaPrincipalId,
+                  etiquetaIds: formData.etiquetaIds,
+                  stockMinimo: formData.stockMinimo,
+                  stockMaximo: formData.stockMaximo,
+                };
+                const variantes = variantesRows.map(v => ({
+                  contenido: v.contenido,
+                  sabor: v.sabor || undefined,
+                  dosaje: formData.dosaje || undefined,
+                  varianteLabel: v.varianteLabel || v.contenido,
+                }));
+                onSubmitConVariantes(datosComunes, variantes);
+              }}
+            >
+              <GitBranch className="h-4 w-4 mr-1" />
+              Crear grupo ({variantesRows.length} variantes)
             </Button>
           ) : (
             <Button

@@ -1173,7 +1173,7 @@ export const Productos: React.FC = () => {
       <Modal
         isOpen={isFormModalOpen}
         onClose={handleCloseFormModal}
-        title={isEditing ? 'Editar Producto' : 'Nuevo Producto'}
+        title={isEditing ? 'Editar Producto' : wizardTipo === 'con_variantes' ? 'Nuevo Producto con Variantes' : 'Nuevo Producto'}
         size="xl"
       >
         <ProductoForm
@@ -1181,6 +1181,21 @@ export const Productos: React.FC = () => {
           onSubmit={handleSubmit}
           onCancel={handleCloseFormModal}
           loading={isSubmitting}
+          modoVariantes={!isEditing && wizardTipo === 'con_variantes'}
+          onSubmitConVariantes={async (datosComunes, variantes) => {
+            if (!user) return;
+            setIsSubmitting(true);
+            try {
+              await ProductoService.createConVariantes(datosComunes, variantes, user.uid);
+              toast.success(`Grupo creado con ${variantes.length} variantes`);
+              handleCloseFormModal();
+              fetchProductos();
+            } catch (err: any) {
+              toast.error(err.message || 'Error al crear grupo');
+            } finally {
+              setIsSubmitting(false);
+            }
+          }}
         />
       </Modal>
 
