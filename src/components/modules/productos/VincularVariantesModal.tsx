@@ -82,7 +82,7 @@ export const VincularVariantesModal: React.FC<VincularVariantesModalProps> = ({
   const gruposVinculados = gruposFiltrados.filter(g => vinculados.has(g.key));
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Vincular Variantes" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Agrupar Variantes" size="lg">
       <div className="space-y-4">
         <p className="text-sm text-gray-500">
           Se detectaron <strong>{gruposCandidatos.length}</strong> grupo{gruposCandidatos.length !== 1 ? 's' : ''} de productos con misma marca y nombre que podrían ser variantes.
@@ -124,7 +124,7 @@ export const VincularVariantesModal: React.FC<VincularVariantesModalProps> = ({
               </div>
 
               <div className="space-y-1.5">
-                <p className="text-xs text-gray-400 font-medium">Selecciona el producto padre:</p>
+                <p className="text-xs text-gray-400 font-medium">Selecciona el producto base del grupo:</p>
                 {grupo.productos.map(p => {
                   const desc = [p.presentacion, p.dosaje, p.contenido, p.sabor].filter(Boolean).join(' · ');
                   const isSelected = padreSeleccionado[grupo.key] === p.id;

@@ -982,8 +982,8 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
       {producto.esPadre && variantes && variantes.length > 0 && (
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
-            <GitBranch className="h-4 w-4 text-purple-500" />
-            Variantes ({variantes.length})
+            <GitBranch className="h-4 w-4" style={{ color: '#4d7c0f' }} />
+            Variantes del grupo ({variantes.length})
           </h4>
           <div className="space-y-1">
             {variantes.map(v => (

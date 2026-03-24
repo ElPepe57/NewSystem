@@ -6,7 +6,7 @@ import type { VarianteCandidato } from '../../../hooks/useDetectarVarianteCandid
 
 interface SugerenciaVarianteBannerProps {
   candidatos: VarianteCandidato[];
-  onAgregarComoVariante: (padre: Producto) => void;
+  onAgregarComoVariante: (grupoProducto: Producto) => void;
   onCrearIndependiente: () => void;
   onDescartar: () => void;
 }
@@ -30,7 +30,7 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
       <div className="flex items-center justify-between px-3 py-2 bg-blue-100/50">
         <div className="flex items-center gap-2 text-sm font-medium text-blue-800">
           <GitBranch className="h-4 w-4" />
-          Producto similar detectado
+          Ya existe un grupo con este producto
         </div>
         <button
           type="button"
@@ -44,7 +44,7 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
       {/* Content */}
       <div className="p-3 space-y-3">
         <p className="text-xs text-blue-700">
-          Encontramos {candidatos.length === 1 ? 'un producto' : `${candidatos.length} productos`} que {candidatos.length === 1 ? 'podría ser' : 'podrían ser'} del mismo grupo:
+          Encontramos {candidatos.length === 1 ? 'un producto' : `${candidatos.length} productos`} del mismo grupo. ¿Quieres agregar una nueva variante?
         </p>
 
         {/* Primary candidate */}
@@ -54,7 +54,7 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs text-blue-600">{principal.producto.sku}</span>
                 {principal.producto.esPadre && (
-                  <span className="px-1.5 py-0.5 text-[10px] rounded bg-purple-100 text-purple-700">Padre</span>
+                  <span className="px-1.5 py-0.5 text-[10px] rounded" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>Grupo</span>
                 )}
               </div>
               <p className="font-medium text-gray-900 text-sm mt-0.5">
@@ -127,7 +127,7 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
             onClick={() => onAgregarComoVariante(principal.producto)}
           >
             <GitBranch className="h-3.5 w-3.5 mr-1" />
-            Agregar como variante de {principal.producto.sku}
+            Agregar al grupo de {principal.producto.sku}
           </Button>
           <Button
             variant="secondary"

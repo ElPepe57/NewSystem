@@ -102,7 +102,7 @@ const ProductoCardResponsive: React.FC<{
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs text-primary-600 font-semibold">{producto.sku}</span>
             {producto.esPadre && (
-              <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">Padre</span>
+              <span className="text-[10px] bg-olive-100 text-olive-700 px-1.5 py-0.5 rounded" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>Grupo</span>
             )}
             <Badge variant={producto.estado === 'activo' ? 'success' : 'default'} size="sm">
               {producto.estado === 'activo' ? 'Activo' : 'Inactivo'}
@@ -117,11 +117,11 @@ const ProductoCardResponsive: React.FC<{
             {producto.contenido && <span>· {producto.contenido}</span>}
             {producto.sabor && <span>· {producto.sabor}</span>}
           </div>
-          {/* Conexión padre-hijo */}
+          {/* Conexión de grupo */}
           {producto.esVariante && (
             <div className="flex items-center gap-1 mt-1">
               <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
-                ↳ Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}
+                Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}
               </span>
             </div>
           )}
@@ -474,7 +474,7 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                       <div className="flex items-center gap-1">
                         <span className="text-xs font-mono font-semibold text-primary-600">{producto.sku}</span>
                         {producto.esPadre && (
-                          <span className="text-[9px] bg-purple-100 text-purple-700 px-1 py-0.5 rounded">P</span>
+                          <span className="text-[9px] px-1 py-0.5 rounded" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>G</span>
                         )}
                       </div>
                     </td>

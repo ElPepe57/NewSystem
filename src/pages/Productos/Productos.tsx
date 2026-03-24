@@ -641,7 +641,7 @@ export const Productos: React.FC = () => {
               className="text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5"
             >
               <GitBranch className="h-4 w-4 sm:mr-1.5" />
-              <span className="hidden sm:inline text-sm">Vincular</span>
+              <span className="hidden sm:inline text-sm">Agrupar</span>
             </Button>
             <Button variant="ghost" onClick={handleCreate} className="text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5">
               <Plus className="h-5 w-5 sm:mr-1.5" />
@@ -1068,7 +1068,7 @@ export const Productos: React.FC = () => {
         productos={productosArray}
       />
 
-      {/* Modal de Vincular Variantes */}
+      {/* Modal de Agrupar Variantes */}
       <VincularVariantesModal
         isOpen={isVincularModalOpen}
         onClose={() => setIsVincularModalOpen(false)}

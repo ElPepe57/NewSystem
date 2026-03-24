@@ -338,15 +338,15 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     formData.sabor,
   );
 
-  const handleAgregarComoVariante = (padre: Producto) => {
+  const handleAgregarComoVariante = (grupoProducto: Producto) => {
     setFormData(prev => ({
       ...prev,
-      parentId: padre.id,
+      parentId: grupoProducto.id,
       esVariante: true,
-      marca: padre.marca,
-      nombreComercial: padre.nombreComercial,
-      lineaNegocioId: padre.lineaNegocioId || prev.lineaNegocioId,
-      paisOrigen: padre.paisOrigen || prev.paisOrigen,
+      marca: grupoProducto.marca,
+      nombreComercial: grupoProducto.nombreComercial,
+      lineaNegocioId: grupoProducto.lineaNegocioId || prev.lineaNegocioId,
+      paisOrigen: grupoProducto.paisOrigen || prev.paisOrigen,
       varianteLabel: prev.contenido || '',
     }));
     setBannerVarianteDescartado(true);
