@@ -309,6 +309,53 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
     return map;
   }, [productos]);
 
+  // Estado de grupos expandidos
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  // Organizar productos en grupos (agrupadores con variantes) e independientes
+  const organizedProducts = useMemo(() => {
+    type OrgItem = { type: 'independent'; producto: Producto }
+      | { type: 'group-header'; producto: Producto; variantes: Producto[] }
+      | { type: 'group-variant'; producto: Producto; parentId: string };
+
+    const items: OrgItem[] = [];
+    const variantsByParent = new Map<string, Producto[]>();
+    const parentIds = new Set<string>();
+
+    // Classify products
+    productos.forEach(p => {
+      if (p.esPadre) parentIds.add(p.id);
+      if (p.parentId) {
+        const arr = variantsByParent.get(p.parentId) || [];
+        arr.push(p);
+        variantsByParent.set(p.parentId, arr);
+      }
+    });
+
+    // Build organized list
+    productos.forEach(p => {
+      if (p.esPadre) {
+        const variantes = variantsByParent.get(p.id) || [];
+        items.push({ type: 'group-header', producto: p, variantes });
+      } else if (p.parentId && parentIds.has(p.parentId)) {
+        // Skip — rendered under parent
+      } else {
+        items.push({ type: 'independent', producto: p });
+      }
+    });
+
+    return items;
+  }, [productos]);
+
+  const toggleGroup = (groupId: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
+  };
+
   // Estado interno para columnas si no se proporciona externamente
   const [internalVisibleColumns, setInternalVisibleColumns] = useState<ColumnGroup[]>(visibleColumns);
   const activeColumns = onToggleColumn ? visibleColumns : internalVisibleColumns;
@@ -349,16 +396,62 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
     <>
       {/* Vista móvil/tablet - Cards */}
       <div className="xl:hidden space-y-3">
-        {productos.map((producto) => (
-          <ProductoCardResponsive
-            key={producto.id}
-            producto={producto}
-            onView={onView}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onReactivar={onReactivar}
-          />
-        ))}
+        {organizedProducts.map((item) => {
+          if (item.type === 'group-header') {
+            const isExpanded = expandedGroups.has(item.producto.id);
+            const varCount = item.variantes.length;
+            return (
+              <div key={item.producto.id}>
+                {/* Group header — collapsible */}
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(item.producto.id)}
+                  className="w-full bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    {isExpanded ? <ChevronUp className="h-4 w-4 text-gray-400 flex-shrink-0" /> : <ChevronDown className="h-4 w-4 text-gray-400 flex-shrink-0" />}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
+                          Grupo · {varCount}v
+                        </span>
+                        <span className="font-medium text-gray-900 text-sm truncate">{item.producto.marca}</span>
+                      </div>
+                      <p className="text-xs text-gray-600 truncate">{item.producto.nombreComercial}</p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-400 flex-shrink-0">{isExpanded ? 'Colapsar' : `Ver ${varCount} variantes`}</span>
+                </button>
+                {/* Expanded variants */}
+                {isExpanded && (
+                  <div className="ml-4 mt-1 space-y-2 border-l-2 border-gray-200 pl-2">
+                    {item.variantes.map(v => (
+                      <ProductoCardResponsive
+                        key={v.id}
+                        producto={v}
+                        onView={onView}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onReactivar={onReactivar}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          }
+          // Independent product
+          return (
+            <ProductoCardResponsive
+              key={item.producto.id}
+              producto={item.producto}
+              onView={onView}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onReactivar={onReactivar}
+            />
+          );
+        })}
       </div>
 
       {/* Vista desktop - Tabla compacta */}
@@ -467,7 +560,41 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {productos.map((producto) => {
+              {/* Group headers and variants */}
+              {organizedProducts.flatMap((item) => {
+                if (item.type === 'group-header') {
+                  const isExpanded = expandedGroups.has(item.producto.id);
+                  const varCount = item.variantes.length;
+                  const rows = [
+                    <tr key={`group-${item.producto.id}`} className="bg-gray-50 hover:bg-gray-100 cursor-pointer" onClick={() => toggleGroup(item.producto.id)}>
+                      <td colSpan={20} className="px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-gray-400" /> : <ChevronDown className="h-3.5 w-3.5 text-gray-400" />}
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
+                            Grupo · {varCount}v
+                          </span>
+                          <span className="text-xs font-medium text-gray-700">{item.producto.marca} — {item.producto.nombreComercial}</span>
+                          {!isExpanded && <span className="text-[10px] text-gray-400 ml-auto">Click para expandir</span>}
+                        </div>
+                      </td>
+                    </tr>
+                  ];
+                  if (isExpanded) {
+                    item.variantes.forEach(v => rows.push(renderProductRow(v)));
+                  }
+                  return rows;
+                }
+                return [renderProductRow(item.producto)];
+              })}
+            </tbody>
+            {/* Desktop product row renderer */}
+          </table>
+        </div>
+      </div>
+    </>
+  );
+
+  function renderProductRow(producto: Producto) {
                 const invResumen = ProductoService.getResumenInvestigacion(producto);
                 const inv = producto.investigacion;
                 const precioCompra = inv?.ctruEstimado || 0;
@@ -660,11 +787,5 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                     </td>
                   </tr>
                 );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
-  );
+  }
 };

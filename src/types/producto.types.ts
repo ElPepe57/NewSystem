@@ -471,8 +471,11 @@ export interface Producto {
   rotacionPromedio: number;
   diasParaQuiebre: number;
 
-  esPadre: boolean;
-  parentId?: string;
+  // Agrupación de variantes
+  esPadre: boolean;             // Legacy: usar esAgrupador
+  esAgrupador?: boolean;        // true = producto contenedor (no vendible)
+  parentId?: string;            // Legacy: usar grupoId
+  grupoId?: string;             // ID del agrupador al que pertenece
   esVariante?: boolean;
   varianteLabel?: string;
 
@@ -551,8 +554,9 @@ export interface ProductoFormData {
    */
   cicloRecompraDias?: number;
 
-  // === VARIANTES ===
-  parentId?: string;
+  // === VARIANTES / GRUPO ===
+  parentId?: string;       // Legacy
+  grupoId?: string;        // Nuevo: ID del agrupador
   esVariante?: boolean;
   varianteLabel?: string;
 }

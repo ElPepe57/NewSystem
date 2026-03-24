@@ -57,7 +57,14 @@ export class ProductoService {
         isFinite(maxResults) ? query(col, limit(maxResults)) : col
       );
 
-      const productos = mapDocs<Producto>(snapshot);
+      const productosRaw = mapDocs<Producto>(snapshot);
+
+      // Normalizar campos legacy → nuevos (esPadre→esAgrupador, parentId→grupoId)
+      const productos = productosRaw.map(p => ({
+        ...p,
+        esAgrupador: p.esAgrupador ?? p.esPadre ?? false,
+        grupoId: p.grupoId ?? p.parentId,
+      }));
 
       // Siempre excluir productos en papelera (estado='eliminado')
       // Por defecto, también excluir inactivos
