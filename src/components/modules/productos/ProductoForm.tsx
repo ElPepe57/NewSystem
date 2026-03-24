@@ -62,14 +62,6 @@ interface SugerenciasProducto {
   contenidos: string[];
 }
 
-interface DemandaDetectada {
-  cotizaciones: number;
-  unidadesSolicitadas: number;
-  requerimientos: number;
-  ventasMensualesPromedio: number;
-  tendencia: 'subiendo' | 'bajando' | 'estable';
-}
-
 interface SugerenciasInteligentes {
   stockMinimo: number;
   stockMaximo: number;
@@ -176,7 +168,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   const [usarSugerenciasInteligentes, setUsarSugerenciasInteligentes] = useState(true);
 
   // Demanda detectada (simulada por ahora, se conectara a ventas/requerimientos reales)
-  const [demandaDetectada, setDemandaDetectada] = useState<DemandaDetectada | null>(null);
+  // demandaDetectada eliminada (DEAD-003) - era código muerto, nunca se seteaba
 
   // Resolver código de línea seleccionada para generar SKU
   const lineaSeleccionadaCodigo = useMemo(() => {
@@ -351,10 +343,10 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
   // Calcular sugerencias inteligentes basadas en investigacion y demanda
   const sugerenciasInteligentes = useMemo((): SugerenciasInteligentes | null => {
-    if (!investigacionSeleccionada && !demandaDetectada) return null;
+    if (!investigacionSeleccionada) return null;
 
     const inv = investigacionSeleccionada;
-    const demanda = demandaDetectada;
+    const demanda = null; // demandaDetectada eliminada (DEAD-003)
 
     // Calcular stocks basados en demanda
     let stockMinimo = 10;
@@ -380,7 +372,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
         stock: razonStock
       }
     };
-  }, [investigacionSeleccionada, demandaDetectada]);
+  }, [investigacionSeleccionada]);
 
   // Aplicar datos de investigacion seleccionada
   const aplicarInvestigacion = (producto: Producto) => {
@@ -421,7 +413,6 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   const limpiarInvestigacion = () => {
     setInvestigacionSeleccionada(null);
     setProductoInvestigacionId(null);
-    setDemandaDetectada(null);
   };
 
   // Handler para seleccion de marca desde el autocomplete
@@ -521,8 +512,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   };
 
   // Icono de tendencia
-  const TendenciaIcon = demandaDetectada?.tendencia === 'subiendo' ? TrendingUp :
-    demandaDetectada?.tendencia === 'bajando' ? TrendingDown : Minus;
+  // TendenciaIcon eliminado (DEAD-003) — era código muerto
 
   // Navegacion entre tabs
   const goToNextTab = () => {

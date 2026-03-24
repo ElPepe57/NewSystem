@@ -28,68 +28,8 @@ import type {
 
 const COLLECTION_NAME = COLLECTIONS.MARCAS;
 
-/**
- * Normalizar texto para búsqueda y comparación
- * Remueve acentos, convierte a minúsculas, elimina caracteres especiales
- */
-const normalizarTexto = (texto: string): string => {
-  return texto
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remover acentos
-    .replace(/[^a-z0-9\s]/g, '')     // Solo alfanuméricos
-    .trim();
-};
-
-/**
- * Calcular similitud entre dos strings (0-100)
- */
-const calcularSimilitud = (str1: string, str2: string): number => {
-  const s1 = normalizarTexto(str1);
-  const s2 = normalizarTexto(str2);
-
-  if (s1 === s2) return 100;
-  if (s1.includes(s2) || s2.includes(s1)) return 85;
-
-  // Verificar tokens comunes
-  const tokens1 = s1.split(/\s+/);
-  const tokens2 = s2.split(/\s+/);
-  const comunes = tokens1.filter(t => tokens2.includes(t));
-
-  if (comunes.length > 0) {
-    return Math.round((comunes.length / Math.max(tokens1.length, tokens2.length)) * 100);
-  }
-
-  // Distancia de Levenshtein simplificada
-  const longer = s1.length > s2.length ? s1 : s2;
-  const shorter = s1.length > s2.length ? s2 : s1;
-
-  if (longer.length === 0) return 100;
-
-  const editDistance = levenshteinDistance(longer, shorter);
-  return Math.round((1 - editDistance / longer.length) * 100);
-};
-
-const levenshteinDistance = (s1: string, s2: string): number => {
-  const costs: number[] = [];
-  for (let i = 0; i <= s1.length; i++) {
-    let lastValue = i;
-    for (let j = 0; j <= s2.length; j++) {
-      if (i === 0) {
-        costs[j] = j;
-      } else if (j > 0) {
-        let newValue = costs[j - 1];
-        if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-          newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-        }
-        costs[j - 1] = lastValue;
-        lastValue = newValue;
-      }
-    }
-    if (i > 0) costs[s2.length] = lastValue;
-  }
-  return costs[s2.length];
-};
+// Utilidades de texto centralizadas (DUP-002/003 fix)
+import { normalizarParaBusqueda as normalizarTexto, calcularSimilitud } from '../lib/textUtils';
 
 /**
  * Genera el siguiente código de marca automáticamente

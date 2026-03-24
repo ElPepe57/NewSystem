@@ -28,17 +28,8 @@ import type {
 
 const COLLECTION_NAME = COLLECTIONS.ETIQUETAS;
 
-/**
- * Normalizar texto para busqueda y slug
- */
-const normalizarTexto = (texto: string): string => {
-  return texto
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remover acentos
-    .replace(/[^a-z0-9\s-]/g, '')    // Solo alfanumericos y guiones
-    .trim();
-};
+// Utilidades de texto centralizadas (DUP-002 fix)
+import { normalizarParaBusqueda as normalizarTexto } from '../lib/textUtils';
 
 /**
  * Generar slug URL-friendly

@@ -26,14 +26,8 @@ import { COLLECTIONS } from '../config/collections';
 
 const COLLECTION_NAME = COLLECTIONS.COMPETIDORES;
 
-// Normalizar texto para búsquedas
-const normalizarTexto = (texto: string): string => {
-  return texto
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim();
-};
+// Utilidades de texto centralizadas (DUP-002 fix)
+import { normalizarTexto } from '../lib/textUtils';
 
 /**
  * Genera el siguiente código de competidor automáticamente

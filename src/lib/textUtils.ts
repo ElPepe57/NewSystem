@@ -56,18 +56,30 @@ export function levenshteinDistance(a: string, b: string): number {
 }
 
 /**
- * Calcula similitud entre dos strings (0-1, donde 1 = idénticos).
+ * Calcula similitud entre dos strings (0-100, donde 100 = idénticos).
  */
 export function calcularSimilitud(a: string, b: string): number {
   const normalA = normalizarTexto(a);
   const normalB = normalizarTexto(b);
 
-  if (normalA === normalB) return 1;
+  if (normalA === normalB) return 100;
   if (!normalA || !normalB) return 0;
 
+  // Verificar contenido
+  if (normalA.includes(normalB) || normalB.includes(normalA)) return 85;
+
+  // Verificar tokens comunes
+  const tokens1 = normalA.split(/\s+/);
+  const tokens2 = normalB.split(/\s+/);
+  const comunes = tokens1.filter(t => tokens2.includes(t));
+  if (comunes.length > 0) {
+    return Math.round((comunes.length / Math.max(tokens1.length, tokens2.length)) * 100);
+  }
+
+  // Levenshtein
   const maxLen = Math.max(normalA.length, normalB.length);
-  if (maxLen === 0) return 1;
+  if (maxLen === 0) return 100;
 
   const dist = levenshteinDistance(normalA, normalB);
-  return 1 - dist / maxLen;
+  return Math.round((1 - dist / maxLen) * 100);
 }
