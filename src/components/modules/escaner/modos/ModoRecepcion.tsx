@@ -155,6 +155,12 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
   const totalARecibir = Object.values(cantidadRecibir).reduce((s, n) => s + n, 0);
   const progreso = totalPendiente > 0 ? (totalARecibir / totalPendiente) * 100 : 0;
 
+  // Validar que todos los productos con unidades a recibir tengan fecha de vencimiento
+  const productosConRecepcionSinFecha = productosAgrupados.filter(
+    p => (cantidadRecibir[p.productoId] || 0) > 0 && !fechasVencimiento[p.productoId]
+  );
+  const faltanFechasVencimiento = productosConRecepcionSinFecha.length > 0;
+
   const handleConfirmarRecepcion = useCallback(async () => {
     if (!selectedTransferencia || !user?.uid || totalARecibir === 0) return;
     setIsSubmitting(true);
@@ -345,7 +351,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                           <Calendar className="h-3.5 w-3.5" />
                           Fecha de vencimiento
                           {!fechasVencimiento[prod.productoId] && (
-                            <span className="text-amber-500 text-[10px]">(recomendado)</span>
+                            <span className="text-red-500 text-[10px]">* obligatorio</span>
                           )}
                         </label>
                         <input
@@ -415,12 +421,14 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
             <button
               type="button"
               onClick={handleConfirmarRecepcion}
-              disabled={isSubmitting || totalARecibir === 0}
+              disabled={isSubmitting || totalARecibir === 0 || faltanFechasVencimiento}
               className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
             >
               <CheckCircle2 className="h-4 w-4" />
               {isSubmitting
                 ? 'Registrando...'
+                : faltanFechasVencimiento
+                ? `Falta fecha de vencimiento (${productosConRecepcionSinFecha.length} producto${productosConRecepcionSinFecha.length > 1 ? 's' : ''})`
                 : `Confirmar Recepcion (${totalARecibir} unidades)`
               }
             </button>

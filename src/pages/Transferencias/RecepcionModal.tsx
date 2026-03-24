@@ -81,6 +81,12 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
   const totalARecibir = Object.values(cantidadRecibir).reduce((s, v) => s + v, 0);
   const totalPendiente = unidadesPendientes.length;
 
+  // Validar fechas de vencimiento obligatorias
+  const productosSinFecha = productosAgrupados.filter(
+    p => (cantidadRecibir[p.productoId] || 0) > 0 && !fechasVencimiento[p.productoId]
+  );
+  const faltanFechas = productosSinFecha.length > 0;
+
   const handleRecibirTodo = (checked: boolean) => {
     const next: Record<string, number> = {};
     productosAgrupados.forEach(p => { next[p.productoId] = checked ? p.pendiente : 0; });
@@ -288,7 +294,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                             <Calendar className="h-3.5 w-3.5" />
                             Fecha de vencimiento
                             {!fechasVencimiento[prod.productoId] && (
-                              <span className="text-amber-500 text-[10px]">(recomendado)</span>
+                              <span className="text-red-500 text-[10px]">* obligatorio</span>
                             )}
                           </label>
                           <input
@@ -424,12 +430,16 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
           <Button
             variant="primary"
             onClick={handleSubmit}
-            disabled={submitting || totalARecibir === 0}
+            disabled={submitting || totalARecibir === 0 || faltanFechas}
           >
             {submitting ? (
               <span className="flex items-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 Procesando...
+              </span>
+            ) : faltanFechas ? (
+              <span className="flex items-center text-sm">
+                Falta fecha de vencimiento ({productosSinFecha.length})
               </span>
             ) : (
               <span className="flex items-center">
