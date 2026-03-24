@@ -103,7 +103,7 @@ const ProductoCardResponsive: React.FC<{
             <span className="font-mono text-xs text-primary-600 font-semibold">{producto.sku}</span>
             {producto.esPadre && (
               <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
-                Grupo · {variantCountMap.get(producto.id) || 0}v
+                Grupo
               </span>
             )}
             <Badge variant={producto.estado === 'activo' ? 'success' : 'default'} size="sm">
