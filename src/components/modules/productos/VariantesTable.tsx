@@ -5,6 +5,7 @@ import { Button } from '../../common';
 export interface VarianteRow {
   id: string;
   contenido: string;
+  dosaje: string;
   sabor: string;
   varianteLabel: string;
   esPrincipal: boolean;
@@ -31,7 +32,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
   const addVariante = () => {
     onChange([
       ...variantes,
-      { id: genId(), contenido: '', sabor: '', varianteLabel: '', esPrincipal: false },
+      { id: genId(), contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: false },
     ]);
   };
 
@@ -54,8 +55,8 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
       }
       const updated = { ...v, [field]: value };
       // Auto-generate varianteLabel
-      if (field === 'contenido' || field === 'sabor') {
-        updated.varianteLabel = [updated.contenido, updated.sabor].filter(Boolean).join(' - ');
+      if (field === 'contenido' || field === 'dosaje' || field === 'sabor') {
+        updated.varianteLabel = [updated.contenido, updated.dosaje, updated.sabor].filter(Boolean).join(' - ');
       }
       return updated;
     }));
@@ -79,8 +80,9 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
         {/* Header */}
         <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-gray-50 border-b text-[10px] sm:text-xs font-medium text-gray-500 uppercase">
           <div className="col-span-1 text-center">Ppal</div>
-          <div className="col-span-4">Contenido *</div>
-          <div className="col-span-3">Sabor</div>
+          <div className="col-span-3">Contenido *</div>
+          <div className="col-span-2">Dosaje</div>
+          <div className="col-span-2">Sabor</div>
           <div className="col-span-3">Label</div>
           <div className="col-span-1"></div>
         </div>
@@ -97,7 +99,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 className="text-primary-600"
               />
             </div>
-            <div className="col-span-4">
+            <div className="col-span-3">
               <input
                 type="text"
                 value={v.contenido}
@@ -106,7 +108,16 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 className="w-full px-2 py-1.5 text-xs sm:text-sm border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
-            <div className="col-span-3">
+            <div className="col-span-2">
+              <input
+                type="text"
+                value={v.dosaje}
+                onChange={(e) => updateVariante(v.id, 'dosaje', e.target.value)}
+                placeholder="1000mg"
+                className="w-full px-2 py-1.5 text-xs sm:text-sm border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+              />
+            </div>
+            <div className="col-span-2">
               <input
                 type="text"
                 value={v.sabor}

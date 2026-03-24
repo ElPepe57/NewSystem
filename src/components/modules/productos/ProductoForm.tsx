@@ -115,8 +115,8 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
   // Estado de variantes para modo "con_variantes"
   const [variantesRows, setVariantesRows] = useState<VarianteRow[]>([
-    { id: 'v1', contenido: '', sabor: '', varianteLabel: '', esPrincipal: true },
-    { id: 'v2', contenido: '', sabor: '', varianteLabel: '', esPrincipal: false },
+    { id: 'v1', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: true },
+    { id: 'v2', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: false },
   ]);
 
   // Estado para crear/editar país inline
@@ -994,8 +994,8 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             {/* === CAMPOS ESPECÍFICOS POR LÍNEA DE NEGOCIO === */}
             {esSuplemento ? (
               <>
-                {/* SUPLEMENTOS: Presentación, Dosaje, Contenido, Sabor */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* SUPLEMENTOS: Presentación (siempre visible, es compartida) */}
+                <div className={`grid grid-cols-1 ${!modoVariantes ? 'md:grid-cols-3' : ''} gap-4`}>
                   <AutocompleteInput
                     label="Presentacion"
                     value={formData.presentacion}
@@ -1007,46 +1007,68 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                     createLabel="Crear presentacion"
                   />
 
-                  <AutocompleteInput
-                    label="Dosaje"
-                    value={formData.dosaje}
-                    onChange={handleAutocompleteChange('dosaje')}
-                    suggestions={sugerencias.dosajes}
-                    placeholder="ej: 1000mg"
-                    allowCreate
-                    createLabel="Crear dosaje"
-                  />
+                  {/* Dosaje, Contenido — solo en modo simple (en variantes van por fila) */}
+                  {!modoVariantes && (
+                    <>
+                      <AutocompleteInput
+                        label="Dosaje"
+                        value={formData.dosaje}
+                        onChange={handleAutocompleteChange('dosaje')}
+                        suggestions={sugerencias.dosajes}
+                        placeholder="ej: 1000mg"
+                        allowCreate
+                        createLabel="Crear dosaje"
+                      />
 
-                  <AutocompleteInput
-                    label="Contenido"
-                    value={formData.contenido}
-                    onChange={handleAutocompleteChange('contenido')}
-                    suggestions={sugerencias.contenidos}
-                    placeholder="ej: 60 softgels"
-                    allowCreate
-                    createLabel="Crear contenido"
-                  />
+                      <AutocompleteInput
+                        label="Contenido"
+                        value={formData.contenido}
+                        onChange={handleAutocompleteChange('contenido')}
+                        suggestions={sugerencias.contenidos}
+                        placeholder="ej: 60 softgels"
+                        allowCreate
+                        createLabel="Crear contenido"
+                      />
+                    </>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    label="Sabor (opcional)"
-                    name="sabor"
-                    value={formData.sabor}
-                    onChange={handleChange}
-                    placeholder="ej: Limon, Fresa, Natural, Sin sabor"
-                  />
+                {/* Banner: campos que van en tab Variantes */}
+                {modoVariantes && (
+                  <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                    <GitBranch className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <span>
+                      <strong>Producto con variantes:</strong> Dosaje, Contenido y Sabor se definen por cada variante en el tab{' '}
+                      <button type="button" className="underline font-medium" onClick={() => setActiveTab('variantes')}>
+                        Variantes
+                      </button>.
+                    </span>
+                  </div>
+                )}
 
-                  <Input
-                    label="Codigo UPC/EAN (opcional)"
-                    name="codigoUPC"
-                    value={formData.codigoUPC}
-                    onChange={handleChange}
-                    placeholder="ej: 768990014307"
-                  />
-                </div>
+                {/* Sabor, UPC — solo en modo simple */}
+                {!modoVariantes && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                      label="Sabor (opcional)"
+                      name="sabor"
+                      value={formData.sabor}
+                      onChange={handleChange}
+                      placeholder="ej: Limon, Fresa, Natural, Sin sabor"
+                    />
 
-                {/* Ciclo de Recompra — solo suplementos */}
+                    <Input
+                      label="Codigo UPC/EAN (opcional)"
+                      name="codigoUPC"
+                      value={formData.codigoUPC}
+                      onChange={handleChange}
+                      placeholder="ej: 768990014307"
+                    />
+                  </div>
+                )}
+
+                {/* Ciclo de Recompra — solo suplementos, solo modo simple */}
+                {!modoVariantes && (
                 <div className="mt-6 pt-4 border-t border-gray-200">
                   <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
                     <Calculator className="h-4 w-4 text-primary-600" />
@@ -1104,6 +1126,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                     );
                   })()}
                 </div>
+                )}
               </>
             ) : (
               <>
@@ -1525,7 +1548,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                 const variantes = variantesRows.map(v => ({
                   contenido: v.contenido,
                   sabor: v.sabor || undefined,
-                  dosaje: formData.dosaje || undefined,
+                  dosaje: v.dosaje || formData.dosaje || undefined,
                   varianteLabel: v.varianteLabel || v.contenido,
                 }));
                 onSubmitConVariantes(datosComunes, variantes);
