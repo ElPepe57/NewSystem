@@ -8,6 +8,8 @@ export interface VarianteRow {
   contenido: string;
   dosaje: string;
   sabor: string;
+  codigoUPC: string;
+  servingsPerDay: number;
   varianteLabel: string;
   esPrincipal: boolean;
 }
@@ -33,7 +35,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
   const addVariante = () => {
     onChange([
       ...variantes,
-      { id: genId(), presentacion: '', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: false },
+      { id: genId(), presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, varianteLabel: '', esPrincipal: false },
     ]);
   };
 
@@ -76,23 +78,26 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
         </Button>
       </div>
 
-      {/* Table */}
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
+      {/* Table — scrollable horizontally on mobile */}
+      <div className="border border-gray-200 rounded-lg overflow-x-auto">
+        <div className="min-w-[700px]">
         {/* Header */}
-        <div className="grid grid-cols-12 gap-1.5 px-3 py-2 bg-gray-50 border-b text-[10px] sm:text-xs font-medium text-gray-500 uppercase">
-          <div className="col-span-1 text-center">Ppal</div>
-          <div className="col-span-2">Presentación</div>
-          <div className="col-span-2">Contenido *</div>
-          <div className="col-span-2">Dosaje</div>
-          <div className="col-span-2">Sabor</div>
-          <div className="col-span-2">Label</div>
-          <div className="col-span-1"></div>
+        <div className="grid grid-cols-[40px_100px_90px_80px_80px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 bg-gray-50 border-b text-[10px] font-medium text-gray-500 uppercase">
+          <div className="text-center">Ppal</div>
+          <div>Presentación</div>
+          <div>Contenido *</div>
+          <div>Dosaje</div>
+          <div>Sabor</div>
+          <div>UPC/EAN</div>
+          <div>Porc/día</div>
+          <div>Label</div>
+          <div></div>
         </div>
 
         {/* Rows */}
         {variantes.map((v, idx) => (
-          <div key={v.id} className={`grid grid-cols-12 gap-1.5 px-3 py-2 items-center border-b last:border-0 ${v.esPrincipal ? 'bg-primary-50/50' : ''}`}>
-            <div className="col-span-1 text-center">
+          <div key={v.id} className={`grid grid-cols-[40px_100px_90px_80px_80px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 items-center border-b last:border-0 ${v.esPrincipal ? 'bg-primary-50/50' : ''}`}>
+            <div className="text-center">
               <input
                 type="radio"
                 name="principal"
@@ -101,7 +106,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 className="text-primary-600"
               />
             </div>
-            <div className="col-span-2">
+            <div>
               <input
                 type="text"
                 value={v.presentacion}
@@ -110,7 +115,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
-            <div className="col-span-2">
+            <div>
               <input
                 type="text"
                 value={v.contenido}
@@ -119,7 +124,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
-            <div className="col-span-2">
+            <div>
               <input
                 type="text"
                 value={v.dosaje}
@@ -128,7 +133,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
-            <div className="col-span-2">
+            <div>
               <input
                 type="text"
                 value={v.sabor}
@@ -137,7 +142,26 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
-            <div className="col-span-2">
+            <div>
+              <input
+                type="text"
+                value={v.codigoUPC}
+                onChange={(e) => updateVariante(v.id, 'codigoUPC', e.target.value)}
+                placeholder="768990..."
+                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+              />
+            </div>
+            <div>
+              <input
+                type="number"
+                value={v.servingsPerDay || ''}
+                onChange={(e) => updateVariante(v.id, 'servingsPerDay', parseInt(e.target.value) || 0)}
+                placeholder="2"
+                min={0}
+                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+              />
+            </div>
+            <div>
               <span className="text-xs text-gray-500 truncate block">{v.varianteLabel || '—'}</span>
             </div>
             <div className="col-span-1 text-center">
@@ -153,6 +177,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
             </div>
           </div>
         ))}
+        </div>
       </div>
 
       {variantes.length < 2 && (

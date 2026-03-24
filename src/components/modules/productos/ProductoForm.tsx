@@ -115,8 +115,8 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
   // Estado de variantes para modo "con_variantes"
   const [variantesRows, setVariantesRows] = useState<VarianteRow[]>([
-    { id: 'v1', presentacion: '', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: true },
-    { id: 'v2', presentacion: '', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: false },
+    { id: 'v1', presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, varianteLabel: '', esPrincipal: true },
+    { id: 'v2', presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, varianteLabel: '', esPrincipal: false },
   ]);
 
   // Estado para crear/editar país inline
