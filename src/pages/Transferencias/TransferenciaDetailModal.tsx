@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ChevronRight,
   CheckCircle,
@@ -10,6 +10,7 @@ import {
   Clock,
   RefreshCw,
   Banknote,
+  ScanLine,
 } from "lucide-react";
 import { Modal, Button, Badge } from "../../components/common";
 import type { Transferencia, EstadoTransferencia, TipoTransferencia } from "../../types/transferencia.types";
@@ -20,6 +21,7 @@ import {
   getLabelTipoTransferencia,
 } from "../../utils/multiOrigen.helpers";
 import { UserName } from "./UserName";
+import { GestionDanadasModal } from "./GestionDanadasModal";
 
 interface TransferenciaDetailModalProps {
   transferencia: Transferencia;
@@ -64,7 +66,15 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
   onAbrirEditFlete,
   onReconciliarPago,
 }) => {
+  const [showGestionDanadas, setShowGestionDanadas] = useState(false);
+
+  // Count unresolved damaged incidencias
+  const incidenciasDanadasPendientes = (transferencia.incidencias || []).filter(
+    inc => inc.tipo === 'danada' && !inc.resuelta
+  ).length;
+
   return (
+    <>
     <Modal
       isOpen={true}
       onClose={onClose}
@@ -72,6 +82,29 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
       size="lg"
     >
       <div className="space-y-6">
+        {/* Alerta de unidades dañadas pendientes */}
+        {incidenciasDanadasPendientes > 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-amber-800">
+                  {incidenciasDanadasPendientes} unidad{incidenciasDanadasPendientes !== 1 ? 'es' : ''} con incidencia sin resolver
+                </p>
+                <p className="text-xs text-amber-600">Deben ser procesadas para cerrar esta transferencia.</p>
+              </div>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowGestionDanadas(true)}
+              className="flex-shrink-0"
+            >
+              Gestionar
+            </Button>
+          </div>
+        )}
+
         {/* Estado y tipo */}
         <div className="flex items-center space-x-3">
           {getTipoBadge(transferencia.tipo, (transferencia as any).paisOrigen)}
@@ -438,5 +471,19 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
         </div>
       </div>
     </Modal>
+
+      {/* Modal de gestión de dañadas */}
+      {showGestionDanadas && (
+        <GestionDanadasModal
+          transferencia={transferencia}
+          productosMap={productosMap}
+          onClose={() => setShowGestionDanadas(false)}
+          onSuccess={() => {
+            setShowGestionDanadas(false);
+            onClose(); // Cerrar detalle para refrescar
+          }}
+        />
+      )}
+    </>
   );
 };

@@ -29,7 +29,9 @@ export type EstadoUnidad =
   | 'vendida'             // Vendida y entregada
   // Estados especiales
   | 'vencida'             // Producto vencido
-  | 'danada';             // Producto dañado/inutilizable
+  | 'danada'              // Producto dañado — pendiente de disposición
+  | 'en_reclamo'          // En proceso de reclamo a viajero/proveedor
+  | 'baja';               // Baja definitiva confirmada (destruida/descartada)
 
 /**
  * Estados que representan "en origen" (genéricos + legacy)

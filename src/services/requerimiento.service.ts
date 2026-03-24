@@ -370,7 +370,7 @@ export const requerimientoService = {
    */
   async actualizarEstado(
     requerimientoId: string,
-    nuevoEstado: 'pendiente' | 'aprobado' | 'en_proceso' | 'completado' | 'cancelado',
+    nuevoEstado: 'pendiente' | 'pendiente_aprobacion' | 'aprobado' | 'en_proceso' | 'completado' | 'cancelado',
     userId: string
   ): Promise<void> {
     const updateData: Record<string, any> = {
@@ -401,20 +401,81 @@ export const requerimientoService = {
   },
 
   /**
-   * Aprobar requerimiento (alias que delega a actualizarEstado)
+   * Aprobar requerimiento con lógica de aprobación dual
+   * - Monto <= $1,000: aprobación directa
+   * - Monto > $1,000: requiere aprobación de gerente Y admin
    */
-  async aprobar(id: string, userId: string): Promise<void> {
+  async aprobar(id: string, userId: string, userRole: string): Promise<{ completa: boolean; pendiente?: 'gerente' | 'admin' }> {
     try {
       const requerimiento = await requerimientoService.getById(id);
       if (!requerimiento) {
         throw new Error('Requerimiento no encontrado');
       }
 
-      if (requerimiento.estado !== 'pendiente') {
+      if (requerimiento.estado !== 'pendiente' && requerimiento.estado !== 'pendiente_aprobacion') {
         throw new Error('Solo se pueden aprobar requerimientos pendientes');
       }
 
-      await requerimientoService.actualizarEstado(id, 'aprobado', userId);
+      const montoUSD = requerimiento.montoEstimadoUSD || 0;
+      const requiereDual = montoUSD > 1000;
+
+      if (!requiereDual) {
+        // Aprobación directa para montos <= $1,000
+        await requerimientoService.actualizarEstado(id, 'aprobado', userId);
+        return { completa: true };
+      }
+
+      // Aprobación dual: verificar rol y registrar firma
+      const aprobaciones = requerimiento.aprobaciones || {};
+      const rolAprobacion = userRole === 'admin' ? 'admin' : 'gerente';
+
+      if (rolAprobacion !== 'admin' && rolAprobacion !== 'gerente') {
+        throw new Error('Solo gerentes y administradores pueden aprobar requerimientos > $1,000');
+      }
+
+      // Registrar esta aprobación
+      aprobaciones[rolAprobacion] = {
+        aprobadoPor: userId,
+        fecha: serverTimestamp() as any,
+      };
+
+      // Verificar si ambas firmas están
+      const tieneGerente = !!aprobaciones.gerente;
+      const tieneAdmin = !!aprobaciones.admin;
+
+      if (tieneGerente && tieneAdmin) {
+        // Ambas firmas: aprobar completamente
+        await updateDoc(doc(db, COLLECTION_NAME, id), {
+          estado: 'aprobado',
+          aprobaciones,
+          aprobadoPor: userId,
+          fechaAprobacion: serverTimestamp(),
+          ultimaEdicion: serverTimestamp(),
+          editadoPor: userId,
+        });
+
+        actividadService.registrar({
+          tipo: 'requerimiento_aprobado',
+          mensaje: `Requerimiento ${id} aprobado (dual)`,
+          userId,
+          displayName: userId,
+          metadata: { entidadId: id, entidadTipo: 'requerimiento' }
+        }).catch(() => {});
+
+        return { completa: true };
+      } else {
+        // Falta una firma: marcar como pendiente_aprobacion
+        const pendiente = !tieneGerente ? 'gerente' : 'admin';
+        await updateDoc(doc(db, COLLECTION_NAME, id), {
+          estado: 'pendiente_aprobacion',
+          aprobaciones,
+          requiereAprobacionDual: true,
+          ultimaEdicion: serverTimestamp(),
+          editadoPor: userId,
+        });
+
+        return { completa: false, pendiente };
+      }
     } catch (error: any) {
       logger.error('Error al aprobar requerimiento:', error);
       throw new Error(error.message || 'Error al aprobar requerimiento');

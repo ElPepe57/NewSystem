@@ -704,9 +704,12 @@ export const transferenciaService = {
             fechaActualizacion: now
           };
 
-          // Aplicar fecha de vencimiento si fue proporcionada desde el escáner
-          if (data.fechasVencimiento?.[unidadTransferencia.productoId]) {
-            const fvStr = data.fechasVencimiento[unidadTransferencia.productoId];
+          // Aplicar fecha de vencimiento: prioridad unidadId > productoId (backward compat)
+          const fvByUnit = data.fechasVencimiento?.[unidadTransferencia.unidadId];
+          const fvByProduct = data.fechasVencimiento?.[unidadTransferencia.productoId]
+            || data.fechasVencimientoPorProducto?.[unidadTransferencia.productoId];
+          const fvStr = fvByUnit || fvByProduct;
+          if (fvStr) {
             updateData.fechaVencimiento = Timestamp.fromDate(new Date(fvStr + 'T00:00:00'));
           }
 

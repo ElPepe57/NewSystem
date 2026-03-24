@@ -215,6 +215,19 @@ export interface RecepcionTransferencia {
 }
 
 /**
+ * Tipo de disposición para unidades dañadas
+ */
+export type DisposicionDanada =
+  | 'baja_definitiva'        // Destruir/descartar — genera gasto en cuenta 6952
+  | 'devolucion_proveedor'   // Reclamo al viajero o proveedor — genera CxC en cuenta 162
+  | 'reparacion_reingreso';  // Reparar/relabelar — vuelve a disponible_peru
+
+/**
+ * Responsable del daño
+ */
+export type ResponsableDano = 'viajero' | 'proveedor' | 'sin_responsable';
+
+/**
  * Incidencia en una transferencia
  */
 export interface IncidenciaTransferencia {
@@ -222,6 +235,8 @@ export interface IncidenciaTransferencia {
   tipo: 'faltante' | 'danada' | 'diferente' | 'otro';
   unidadId?: string;
   sku?: string;
+  productoId?: string;
+  productoNombre?: string;
   descripcion: string;
   evidenciaURL?: string;
   fechaRegistro: Timestamp;
@@ -229,6 +244,14 @@ export interface IncidenciaTransferencia {
   resuelta: boolean;
   resolucion?: string;
   fechaResolucion?: Timestamp;
+  // Campos de disposición (para tipo 'danada')
+  disposicion?: DisposicionDanada;
+  disposicionMotivo?: string;
+  disposicionPor?: string;         // userId que decidió la disposición
+  disposicionFecha?: Timestamp;
+  responsable?: ResponsableDano;
+  montoReclamoPEN?: number;
+  estadoReclamo?: 'pendiente' | 'aceptado' | 'rechazado' | 'cobrado';
 }
 
 /**
@@ -273,9 +296,14 @@ export interface RecepcionFormData {
     incidencia?: string;
   }[];
 
-  // Fechas de vencimiento por productoId (YYYY-MM-DD)
-  // Se aplican a las unidades recibidas de cada producto
+  // Fechas de vencimiento por unidadId (YYYY-MM-DD)
+  // Cada unidad puede tener su propia fecha de vencimiento
+  // Key: unidadId, Value: fecha en formato YYYY-MM-DD
   fechasVencimiento?: Record<string, string>;
+
+  // Legacy: fechas por productoId (backward compat con recepciones antiguas)
+  // Si existe fechasVencimiento[unidadId], tiene prioridad sobre este
+  fechasVencimientoPorProducto?: Record<string, string>;
 
   observaciones?: string;
   fotoEvidencia?: string;

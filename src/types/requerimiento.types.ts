@@ -4,13 +4,19 @@ import { Timestamp } from 'firebase/firestore';
  * Estado del requerimiento
  */
 export type EstadoRequerimiento =
-  | 'borrador'        // En proceso de creación
-  | 'pendiente'       // Recién creado, sin asignar
-  | 'aprobado'        // Aprobado para compra
-  | 'parcial'         // Algunos productos en OC, otros pendientes
-  | 'en_proceso'      // En proceso de compra/envío (todos los productos en OC)
-  | 'completado'      // Todos los productos recibidos en Perú
-  | 'cancelado';      // Cancelado
+  | 'borrador'              // En proceso de creación
+  | 'pendiente'             // Recién creado, sin asignar
+  | 'pendiente_aprobacion'  // Monto > $1,000 — requiere aprobación dual (gerente + admin)
+  | 'aprobado'              // Aprobado para compra
+  | 'parcial'               // Algunos productos en OC, otros pendientes
+  | 'en_proceso'            // En proceso de compra/envío (todos los productos en OC)
+  | 'completado'            // Todos los productos recibidos en Perú
+  | 'cancelado';            // Cancelado
+
+/**
+ * Umbral de monto que requiere aprobación dual (en USD)
+ */
+export const UMBRAL_APROBACION_DUAL_USD = 1000;
 
 /**
  * Prioridad del requerimiento
@@ -261,6 +267,14 @@ export interface Requerimiento {
   fechaCreacion: Timestamp;
   actualizadoPor?: string;
   fechaActualizacion?: Timestamp;
+
+  // Aprobación dual (para montos > UMBRAL_APROBACION_DUAL_USD)
+  requiereAprobacionDual?: boolean;
+  aprobaciones?: {
+    gerente?: { aprobadoPor: string; fecha: Timestamp };
+    admin?: { aprobadoPor: string; fecha: Timestamp };
+  };
+  montoEstimadoUSD?: number;
 }
 
 /**
