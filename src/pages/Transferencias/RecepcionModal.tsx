@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ScanLine,
   X as XIcon,
+  Calendar,
 } from "lucide-react";
 import { Modal, Button, Badge } from "../../components/common";
 import { BarcodeScanner } from "../../components/common/BarcodeScanner";
@@ -71,6 +72,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
     productosAgrupados.forEach(p => { init[p.productoId] = 0; });
     return init;
   });
+  const [fechasVencimiento, setFechasVencimiento] = useState<Record<string, string>>({});
   const [observaciones, setObservaciones] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showRecepcionScanner, setShowRecepcionScanner] = useState(false);
@@ -122,9 +124,16 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
           });
         });
       }
+      // Filter valid dates
+      const fechasValidas: Record<string, string> = {};
+      for (const [pid, fecha] of Object.entries(fechasVencimiento)) {
+        if (fecha) fechasValidas[pid] = fecha;
+      }
+
       await onConfirm({
         transferenciaId: transferencia.id,
         unidadesRecibidas,
+        fechasVencimiento: Object.keys(fechasValidas).length > 0 ? fechasValidas : undefined,
         observaciones
       });
     } finally {
@@ -266,6 +275,33 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                             {prod.yaRecibido} recibidas
                           </div>
                         )}
+
+                        {/* Fecha de vencimiento — prominente */}
+                        <div className={`mt-2 p-2 rounded-lg border ${
+                          fechasVencimiento[prod.productoId]
+                            ? 'bg-green-50 border-green-200'
+                            : 'bg-amber-50 border-amber-200'
+                        }`}>
+                          <label className="flex items-center gap-1.5 text-xs font-medium mb-1" style={{
+                            color: fechasVencimiento[prod.productoId] ? '#166534' : '#92400E'
+                          }}>
+                            <Calendar className="h-3.5 w-3.5" />
+                            Fecha de vencimiento
+                            {!fechasVencimiento[prod.productoId] && (
+                              <span className="text-amber-500 text-[10px]">(recomendado)</span>
+                            )}
+                          </label>
+                          <input
+                            type="date"
+                            value={fechasVencimiento[prod.productoId] || ''}
+                            onChange={(e) => setFechasVencimiento(prev => ({
+                              ...prev,
+                              [prod.productoId]: e.target.value,
+                            }))}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full text-sm border rounded-md px-2 py-1.5 focus:ring-2 focus:ring-amber-400 bg-white"
+                          />
+                        </div>
                       </div>
                     </div>
 

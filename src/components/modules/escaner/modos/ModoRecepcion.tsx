@@ -20,7 +20,11 @@ interface ProductoAgrupado {
   unidadIds: string[];
 }
 
-export const ModoRecepcion = forwardRef<ModoRecepcionHandle>((_props, ref) => {
+interface ModoRecepcionProps {
+  preselectedTransferenciaId?: string | null;
+}
+
+export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>(({ preselectedTransferenciaId }, ref) => {
   const toast = useToastStore();
   const { user } = useAuthStore();
 
@@ -42,6 +46,12 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle>((_props, ref) => {
           t.estado === 'en_transito' || t.estado === 'recibida_parcial'
         );
         setTransferencias(validas);
+
+        // Pre-select transfer from query param
+        if (preselectedTransferenciaId && !selectedTransferencia) {
+          const found = validas.find(t => t.id === preselectedTransferenciaId);
+          if (found) setSelectedTransferencia(found);
+        }
       } catch {
         toast.error('Error al cargar transferencias');
       } finally {
@@ -323,9 +333,21 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle>((_props, ref) => {
                         {prod.sku} {prod.lote && `· Lote: ${prod.lote}`}
                       </p>
 
-                      {/* Fecha vencimiento input */}
-                      <div className="ml-6 mt-2 flex items-center gap-2">
-                        <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                      {/* Fecha vencimiento input — prominente */}
+                      <div className={`ml-0 mt-2 p-2 rounded-lg border ${
+                        fechasVencimiento[prod.productoId]
+                          ? 'bg-green-50 border-green-200'
+                          : 'bg-amber-50 border-amber-200'
+                      }`}>
+                        <label className="flex items-center gap-1.5 text-xs font-medium mb-1" style={{
+                          color: fechasVencimiento[prod.productoId] ? '#166534' : '#92400E'
+                        }}>
+                          <Calendar className="h-3.5 w-3.5" />
+                          Fecha de vencimiento
+                          {!fechasVencimiento[prod.productoId] && (
+                            <span className="text-amber-500 text-[10px]">(recomendado)</span>
+                          )}
+                        </label>
                         <input
                           type="date"
                           value={fechasVencimiento[prod.productoId] || ''}
@@ -333,8 +355,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle>((_props, ref) => {
                             ...prev,
                             [prod.productoId]: e.target.value,
                           }))}
-                          className="text-xs border border-gray-200 rounded px-2 py-1 focus:ring-1 focus:ring-primary-500"
-                          placeholder="Vencimiento"
+                          className="w-full text-sm border rounded-md px-2 py-1.5 focus:ring-2 focus:ring-amber-400 bg-white"
                         />
                       </div>
                     </div>
@@ -347,7 +368,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle>((_props, ref) => {
                           ...prev,
                           [prod.productoId]: Math.max(0, (prev[prod.productoId] || 0) - 1),
                         }))}
-                        className="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold"
+                        className="w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 text-base sm:text-sm font-bold"
                       >
                         -
                       </button>
@@ -366,7 +387,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle>((_props, ref) => {
                           [prod.productoId]: Math.min(prod.pendiente, (prev[prod.productoId] || 0) + 1),
                         }))}
                         disabled={completo}
-                        className="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-bold disabled:opacity-30"
+                        className="w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 text-base sm:text-sm font-bold disabled:opacity-30"
                       >
                         +
                       </button>

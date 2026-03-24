@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-24 (Sesion 20 — Sistema de variantes padre-hijo: tipos, servicio, store, UI (ProductoCard + ProductoTable + ProductoForm), 4 selectores de transacciones con filtro !esPadre, 4 grupos vinculados en Firestore. Commit 843e930. ~179 fixes acumulados + 8 cambios S20.)
+**Ultima actualizacion:** 2026-03-24 (Sesion 20 continuacion — Ficha descriptiva en ProductoCard movil y tabla desktop, conexion visual padre-hijo (badge azul con borde en variantes), fix import duplicado Copy (crash Vite), varianteLabel movido de columna SKU al area descriptiva. Commits: ab449e8, 843e930, bdf8532. ~184 fixes acumulados + 13 cambios S20.)
 **Branch activo:** main
 
 ---
@@ -15,9 +15,9 @@
 | Sesiones de trabajo registradas | 20 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | ~179 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19) |
+| Fixes aplicados | ~184 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19 + 13 S20) |
 | Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
-| Deploys realizados | 23 (ultimo: 2026-03-24 post-Sesion 20, commit 843e930) |
+| Deploys realizados | 24 (ultimo: 2026-03-24 post-Sesion 20b, commits ab449e8 + bdf8532, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -132,6 +132,18 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - Botones del header de Productos: responsive en movil (S19)
   - Botones tabs del formulario de producto: labels cortos para pantallas angostas (S19)
   - Boton Reactivar visible en tabla y card de productos con estado eliminado (S19)
+  - Sistema variantes padre-hijo: tipos parentId/esVariante/varianteLabel/esPadre, create() actualiza padre, getVariantes(), vincularComoVariante() (S20)
+  - ProductoCard: boton crear variante, lista variantes expandida, badges diferenciados padre/variante (S20)
+  - ProductoTable: badges variante/padre junto al SKU (S20)
+  - ProductoForm: campo varianteLabel + pre-llenado desde padre (S20)
+  - 4 selectores de transacciones (OC, Ventas, Cotizaciones, Requerimientos): filtran !esPadre — padres solo visibles en catalogo (S20)
+  - 4 grupos vinculados en Firestore: Nordic Naturals Omega Junior, Nordic Naturals DHA Ninos, Natrol Gomitas Melatonina, Natrol Melatonina (8 documentos) (S20)
+  - Fix import duplicado Copy en ProductoCard — causaba crash de Vite en build (S20b)
+  - ProductoCardResponsive (tabla movil): ficha descriptiva con presentacion, dosaje, contenido, sabor (S20b)
+  - Tabla desktop: ficha descriptiva completa con todos los campos de atributos en columna expandida (S20b)
+  - Conexion visual padre-hijo: badge azul con borde izquierdo en variantes ("Variante: {label}"), ausente en padres (S20b)
+  - varianteLabel: removido de la columna SKU, integrado en el area descriptiva junto a los demas atributos (S20b)
+  - Deploy functions + hosting: vitaskinperu.web.app (S20b)
 ```
 
 ---
@@ -4560,6 +4572,39 @@ Implementar el sistema de variantes padre-hijo en el modulo de Productos: permit
 - Coleccion Firestore afectada: `productos` (8 documentos actualizados)
 - Reversible: si (desvincular limpia los campos)
 
+#### CAMBIO-174 — Fix import duplicado Copy en ProductoCard
+- Tipo: Corrección de bug crítico (crash de build)
+- Descripcion: ProductoCard.tsx tenia dos sentencias `import { Copy }` separadas apuntando al mismo origen. Vite falla en build cuando detecta un identificador importado dos veces desde el mismo modulo. La segunda importacion duplicada fue eliminada.
+- Archivos: `src/components/modules/productos/ProductoCard.tsx`
+- Impacto en produccion: crash de Vite — el build no terminaba hasta resolver este fix
+- Reversible: no aplica (era un error)
+
+#### CAMBIO-175 — Ficha descriptiva en ProductoCardResponsive (tabla movil)
+- Tipo: Feature UI — mejora de densidad de informacion en movil
+- Descripcion: La tarjeta movil de producto (renderizada en `ProductoCardResponsive` dentro de la tabla movil) ahora incluye una seccion de ficha descriptiva que muestra: presentacion, dosaje, contenido y sabor. Los campos se renderizan solo si tienen valor (render condicional). El componente existia pero solo mostraba SKU, nombre, estado y precio — sin los atributos que distinguen las variantes entre si.
+- Archivos: `src/components/modules/productos/ProductoCard.tsx` (componente ProductoCardResponsive interno)
+- Motivacion: En movil era imposible distinguir variantes del mismo producto sin ver la ficha. Los vendedores usan la vista movil en campo.
+
+#### CAMBIO-176 — Ficha descriptiva en tabla desktop
+- Tipo: Feature UI — mejora de densidad de informacion en desktop
+- Descripcion: La tabla desktop de productos incorpora una columna / seccion expandida con la ficha descriptiva completa: presentacion, dosaje, contenido, sabor, y para SKC tambien ingrediente clave, tipo de piel, preocupaciones. El varianteLabel (antes en columna SKU) se traslado a esta seccion para mantener coherencia visual con el movil.
+- Archivos: `src/components/modules/productos/ProductoTable.tsx`
+- Decision de diseno: consolidar toda la informacion descriptiva en un area unica — columna SKU queda solo con el identificador limpio.
+
+#### CAMBIO-177 — Conexion visual padre-hijo: badge azul en variantes
+- Tipo: Feature UI — jerarquia visual explicita
+- Descripcion: Las variantes muestran un badge `"Variante: {varianteLabel}"` en color azul con borde izquierdo azul solido, visible tanto en la tarjeta movil como en la tabla desktop. Los productos padre muestran un badge `"Producto padre"` distinto. Los productos independientes no muestran badge de jerarquia. Esto hace inmediatamente visible la relacion padre-hijo sin necesidad de expandir detalles.
+- Archivos: `src/components/modules/productos/ProductoCard.tsx`, `src/components/modules/productos/ProductoTable.tsx`
+- ADR relacionado: ADR-S20-001 (criterio de variante), ADR-S20-002 (padres excluidos de transacciones)
+
+#### CAMBIO-178 — varianteLabel removido de columna SKU, integrado en area descriptiva
+- Tipo: Refactor UI
+- Descripcion: En la version anterior el varianteLabel aparecia entre parentesis junto al SKU en la columna de identificador (ej: `SUP-0135 (120 caps)`). Se decidio moverlo al area descriptiva donde convive con presentacion, dosaje, contenido y sabor — datos del mismo nivel semantico. La columna SKU queda limpia con solo el codigo.
+- Archivos: `src/components/modules/productos/ProductoTable.tsx`, `src/components/modules/productos/ProductoCard.tsx`
+- Razon: el SKU es un identificador tecnico; mezclar datos descriptivos con el identificador genera ruido visual y dificulta el escaneo rapido de la tabla.
+
+---
+
 ### Decisiones de arquitectura
 
 #### ADR-S20-001 — Criterio de variante vs producto independiente
@@ -4584,16 +4629,24 @@ Implementar el sistema de variantes padre-hijo en el modulo de Productos: permit
 | Archivo | Tipo de cambio |
 |---------|----------------|
 | `src/types/producto.types.ts` | Nuevos campos parentId, esVariante, varianteLabel, esPadre |
-| `src/services/producto.service.ts` | create() actualiza padre, getVariantes(), vincularComoVariante() |
+| `src/services/producto.service.ts` | create() actualiza padre, getVariantes(), vincularComoVariante() — mas fix paisOrigen |
 | `src/store/productoStore.ts` | Acciones getVariantes y vincularVariante |
-| `src/components/modules/productos/ProductoCard.tsx` | Boton crear variante, lista variantes, badges |
-| `src/components/modules/productos/ProductoTable.tsx` | Badges variante/padre junto al SKU |
+| `src/components/modules/productos/ProductoCard.tsx` | Boton crear variante, lista variantes, badges, fix import Copy, ficha descriptiva movil, badge azul padre-hijo (S20 + S20b) |
+| `src/components/modules/productos/ProductoTable.tsx` | Badges variante/padre, ficha descriptiva desktop, varianteLabel movido de SKU (S20 + S20b) |
 | `src/components/modules/productos/ProductoForm.tsx` | Campo varianteLabel, pre-llenado desde padre |
 | `src/pages/Productos.tsx` | Integracion de flujo de creacion de variante |
 | `src/components/modules/productos/ProductoAutocomplete.tsx` | Filtro !esPadre |
 | `src/components/modules/ventas/ProductoSearchVentas.tsx` | Filtro !esPadre |
 | `src/pages/Cotizaciones/ProductoSearchCotizaciones.tsx` | Filtro !esPadre |
 | `src/pages/Requerimientos/ProductoSearchRequerimientos.tsx` | Filtro !esPadre |
+| `functions/src/index.ts` | Deploy Cloud Function mldisconnect (S20) |
+| `functions/src/mercadolibre/index.ts` | Exportacion mldisconnect (S20) |
+| `functions/src/mercadolibre/ml.auth.ts` | Logica revocacion OAuth + limpieza mlConfig (S20) |
+| `src/services/mercadoLibre.service.ts` | Llamada a mldisconnect + UI boton desconectar (S20) |
+| `src/store/mercadoLibreStore.ts` | Accion disconnectML (S20) |
+| `src/pages/MercadoLibre/TabConfiguracion.tsx` | Boton desconectar en UI de configuracion ML (S20) |
+| `src/services/paisOrigen.service.ts` | Servicio pais de origen — correccion no guardaba (S20) |
+| `src/lib/sequenceGenerator.ts` | Revision generador secuencial SKC (S20) |
 
 ### Datos vinculados en Firestore
 
@@ -4607,39 +4660,351 @@ Implementar el sistema de variantes padre-hijo en el modulo de Productos: permit
 ### Tareas pendientes para la proxima sesion
 
 **Prioridad alta — tecnica:**
-1. VincularVariantesModal: herramienta visual desde la UI para vincular grupos de variantes sin necesidad de acceso directo a Firestore
+1. VincularVariantesModal: herramienta visual desde la UI para vincular grupos de variantes sin necesidad de acceso directo a Firestore (definida en S20, sin implementar)
 2. Dashboard skincare: panel de analytics por ingrediente clave, tipo de producto, marca/linea (post-catalogo SKC)
-3. TAREA-048: Validacion server-side de ventaBajoCosto
-4. TAREA-004: Race condition residual gasto.service.ts (padStart manual)
-5. TAREA-019: Tests con Firebase mocking para servicios criticos
+3. Revisar hallazgos pendientes de la auditoría completa de agentes (resultados aun no consolidados — pendiente procesamiento del full review S20)
+4. TAREA-048: Validacion server-side de ventaBajoCosto
+5. TAREA-004: Race condition residual gasto.service.ts (padStart manual)
+6. TAREA-019: Tests con Firebase mocking para servicios criticos
 
 **Prioridad media:**
-6. TAREA-085: Implementar cierre contable (diseno completo listo desde S17 — 22-30h)
-7. TAREA-086: Alertas de cobro automaticas
-8. TAREA-087: Panel de tareas del dia en Dashboard
-9. TAREA-082: Rate limiting en webhooks y callables
+7. TAREA-085: Implementar cierre contable (diseno completo listo desde S17 — 22-30h)
+8. TAREA-086: Alertas de cobro automaticas
+9. TAREA-087: Panel de tareas del dia en Dashboard
+10. TAREA-082: Rate limiting en webhooks y callables
 
 **Pendientes operativos del titular:**
 - Ejecutar carga retroactiva Pool USD (boton en /rendimiento-cambiario)
 - Definir metaPEN mensual
 - Rotar secrets externos (ML, Google, Anthropic, Meta, Daily) — pendiente desde S1
-- Continuar vinculando grupos de variantes del catalogo segun necesidad
+- Continuar vinculando grupos de variantes del catalogo segun necesidad operativa
 
 ### Metricas de la sesion
 
 | Metrica | Valor |
 |---------|-------|
-| Archivos modificados | 11 |
+| Archivos modificados | 19 |
 | Archivos nuevos | 0 |
 | Archivos eliminados | 0 |
-| Cambios registrados | CAMBIO-166 a CAMBIO-173 (8 cambios) |
+| Cambios registrados | CAMBIO-166 a CAMBIO-178 (13 cambios) |
 | ADRs generados | 2 (ADR-S20-001, ADR-S20-002) |
 | Grupos vinculados en Firestore | 4 (8 documentos actualizados) |
 | Selectores actualizados | 4 (OC, Ventas, Cotizaciones, Requerimientos) |
 | Agentes ejecutados | 5 |
-| Commit | 843e930 |
+| Commits | ab449e8, 843e930, bdf8532 |
+| Deploy | functions + hosting (vitaskinperu.web.app) |
 
 ---
 
 *Documento generado por implementation-controller (Agente 23)*
-*Ultima actualizacion: 2026-03-24 — Sesion 20 completada. Sistema de variantes padre-hijo implementado: tipos (parentId, esVariante, varianteLabel, esPadre), logica de servicio (create actualiza padre, getVariantes, vincularComoVariante), store (getVariantes, vincularVariante), UI (ProductoCard con boton crear variante + lista variantes + badges, ProductoTable con badges, ProductoForm con varianteLabel y pre-llenado). Los 4 selectores de transacciones (OC, Ventas, Cotizaciones, Requerimientos) filtran productos padre. 4 grupos vinculados en Firestore (8 productos). 2 ADRs: criterio variante vs independiente, padres excluidos de selectores. Commit 843e930. Pendientes proxima sesion: VincularVariantesModal (herramienta visual), dashboard skincare.*
+*Ultima actualizacion: 2026-03-24 — Sesion 20 completada (ambas partes). Parte 1: Sistema de variantes padre-hijo (tipos, servicio, store, UI, 4 selectores, 4 grupos Firestore). Parte 2: Fix crash Vite (import Copy duplicado), ficha descriptiva en movil y desktop, conexion visual padre-hijo (badge azul), varianteLabel movido del SKU al area descriptiva. Tambien en S20: boton desconectar ML + CF mldisconnect, fix paisOrigen, sistema de archivo, validacion duplicados, DuplicadosModal eliminado, atributos skincare, 26 categorias + 19 etiquetas SKC. Commits: ab449e8, 843e930, bdf8532. Deploy functions + hosting. Pendientes: VincularVariantesModal, dashboard skincare, revisar hallazgos auditoria completa.*
+
+---
+
+## AUDITORIA COMPLETA DEL SISTEMA — 24 de marzo de 2026
+
+### Agentes ejecutados: 5 en paralelo
+
+1. System Architect — revision arquitectonica
+2. ERP Business Architect — logica de negocio y flujos
+3. Security Guardian — escaneo de seguridad
+4. Code Quality Specialist — deuda tecnica y refactoring
+5. Performance Specialist — rendimiento y observabilidad
+
+---
+
+### RESUMEN EJECUTIVO
+
+| Agente | Hallazgos | Criticos | Altos | Medios | Bajos |
+|--------|-----------|----------|-------|--------|-------|
+| Business Logic | 23 | 5 | 6 | 6 | 6 |
+| Architecture | 13 | 3 | 6 | 4 | 0 |
+| Security | 15 | 2 | 5 | 5 | 4 |
+| Performance | 11 | 5 | 3 | 3 | 0 |
+| Code Quality | 30+ | 7 dup | 5 hard | 5 SOLID | 3 dead |
+| **TOTAL** | **92+** | | | | |
+
+Deuda tecnica estimada: 35-45 horas de refactoring
+
+---
+
+### HALLAZGOS DE SEGURIDAD (Prioridad maxima)
+
+**SEC-C01 (CVSS 9.8) — CRITICO:** Secretos de produccion en historial Git — archivos .env commiteados con ML_CLIENT_SECRET, ANTHROPIC_API_KEY, WHATSAPP_TOKEN, GEMINI_API_KEY, DAILY_API_KEY, GOOGLE_MAPS_API_KEY
+Accion requerida: Rotar TODAS las API keys INMEDIATAMENTE
+
+**SEC-C02 (CVSS 8.6) — CRITICO:** Tokens OAuth ML almacenados en Base64 (no es cifrado real), legibles por cualquier usuario activo con acceso a Firestore
+Accion requerida: Migrar a AES-256-GCM con clave almacenada en Secret Manager
+
+**SEC-H01 (CVSS 7.5) — ALTO:** Validacion CSRF en OAuth callback es opcional, no obligatoria
+**SEC-H03 (CVSS 7.2) — ALTO:** Funciones ML callable sin verificacion de rol (cualquier usuario autenticado puede invocarlas)
+**SEC-H04 (CVSS 7.0) — ALTO:** WhatsApp config/send sin verificacion de rol
+**SEC-H05 (CVSS 6.5) — ALTO:** Google Maps API Key sin restriccion de referrer HTTP
+
+Controles bien implementados (no requieren accion): Anti-escalacion de roles, contadores protegidos por transaccion, mensajes de error unificados, webhooks validados con firma, sin uso de dangerouslySetInnerHTML
+
+---
+
+### HALLAZGOS DE LOGICA DE NEGOCIO
+
+| ID | Descripcion | Impacto |
+|----|-------------|---------|
+| BN-001 | OC creada sin requerimiento previo (no se valida la cadena) | Flujo P2P incompleto |
+| BN-002 | Venta sin asignacion FEFO automatica — queda en limbo | Stock desactualizado |
+| BN-003 | CTRU distribuye GA/GO solo entre unidades vendidas — distorsiona margenes | Costeo incorrecto |
+| BN-004 | Sin validacion de venta bajo costo en ventas directas | Perdidas no detectadas |
+| BN-005 | Devoluciones sin impacto contable | Asientos faltantes |
+| BN-006 | Reservas vencidas no se liberan automaticamente | Stock bloqueado |
+| BN-007 | Fecha de vencimiento placeholder (365 dias) en recepcion de OC | Trazabilidad falsa |
+| BN-008 | Stock del producto padre no agrega variantes | Inventario fragmentado |
+| BN-009 | OC no valida que el proveedor este activo | Riesgo operativo |
+| BN-010 | Sin flujo de aprobacion por roles en requerimientos | Control interno ausente |
+| BN-011 | No recalcula precio al cambiar TC entre cotizacion y venta | Diferencial cambiario no capturado |
+| BN-016 | Sin limite de credito por cliente | Riesgo de cartera |
+| BN-020 | Sin validacion de periodos contables cerrados | Asientos en periodos cerrados |
+| BN-021 | Sin notas de credito/debito | Ajustes contables manuales |
+
+Completitud de flujos por modulo:
+- O2C (Order-to-Cash): 85%
+- P2P (Purchase-to-Pay): 80%
+- CTRU (costeo): 75%
+- FEFO (trazabilidad): 80%
+- Integraciones externas: 85%
+- Contabilidad: 60%
+
+---
+
+### HALLAZGOS DE ARQUITECTURA
+
+**Criticos:**
+- CRIT-01: Colecciones duplicadas — frontend declara 50, backend usa 53, sin sincronizacion formal
+- CRIT-02: 28% de paginas acceden directo a servicios saltando el store (viola patron de capas)
+- CRIT-03: 3 patrones de exportacion de servicios coexisten sin estandar definido
+
+**Estructurales:**
+- EST-01: God components — Ventas.tsx y Requerimientos.tsx superan 2200 lineas con multiples responsabilidades
+- EST-02: Inventario carga TODOS los productos y unidades en memoria al iniciar
+- EST-03: Sin capa de abstraccion entre servicios y Firestore (acoplamiento directo)
+- EST-05: Stores sin mecanismo de cache ni invalidacion
+- EST-06: Cloud Functions monoliticas concentradas en index.ts
+
+**Calidad de proceso:**
+- LP-01: 0 tests automatizados en el proyecto
+
+Metricas actuales del sistema: 40 tipos TypeScript · 90 servicios · 36 stores · 27 paginas · 50+ Cloud Functions · 3 tests (unitarios manuales)
+
+---
+
+### HALLAZGOS DE RENDIMIENTO
+
+| ID | Descripcion | Impacto estimado |
+|----|-------------|-----------------|
+| PERF-001 | ProductoService.getAll() filtra en cliente en vez de usar where() en Firestore | Descarga innecesaria de toda la coleccion |
+| PERF-002 | Inventario descarga todos los productos y unidades en cada llamada al modulo | Escalabilidad limitada |
+| PERF-003 | Requerimientos ejecuta 4 queries simultaneas al montar, incluyendo TODAS las ventas sin filtro | Carga innecesaria al inicio |
+| PERF-004 | Reporte ejecutivo descarga todas las ventas sin limite ni paginacion | Timeout en volumen alto |
+| PERF-005 | Cloud Functions Gen1 sin minInstances configurado — cold start de 2 a 5 segundos | UX degradada en primera llamada |
+| OBS-001 | timed() implementado pero con cobertura parcial — no todos los modulos lo usan | Observabilidad incompleta |
+
+Punto de quiebre estimado: ~2000-3000 unidades = degradacion perceptible para el usuario
+
+Aspectos bien implementados: Lazy loading de rutas, TTL cache en servicios criticos, queries CTRU optimizadas, bundle splitting con Vite
+
+---
+
+### HALLAZGOS DE CALIDAD DE CODIGO
+
+**Duplicaciones criticas:**
+- DUP-001: 4 selectores de producto casi identicos (~680 lineas cada uno, ~2500 lineas duplicadas en total)
+- DUP-002: normalizarTexto definida en 6 servicios con implementaciones distintas entre si
+- DUP-003: levenshteinDistance duplicada en 2 servicios separados
+- DUP-004: Patron loading/error repetido 256 veces dentro de stores
+- DUP-005: mapDocs repetido 161 veces — firestoreHelpers.ts existe pero tiene 0 importaciones
+- DUP-006: Calculo de dias duplicado en 44 archivos
+
+**Violaciones SOLID:**
+- SOLID-001: ProductoForm.tsx con 1433 lineas y 6 responsabilidades distintas
+- SOLID-003: Uso de (p as any).esPadre en 2 selectores por tipo incorrecto en el modelo
+
+**Codigo muerto:**
+- DEAD-002: firestoreHelpers.ts creado y con utilidades listas pero con 0 importaciones en el proyecto
+
+---
+
+### TOP 10 ACCIONES PRIORIZADAS
+
+| # | Accion | Agente responsable | Esfuerzo | Prioridad |
+|---|--------|--------------------|----------|-----------|
+| 1 | Rotar TODAS las API keys expuestas en historial Git | Security Guardian | HOY | CRITICA |
+| 2 | Agregar verificacion de rol a funciones ML y WhatsApp callable | Security Guardian | 2h | ALTA |
+| 3 | Filtrar ventas con where() en Requerimientos — no en cliente | Performance Specialist | 1h | ALTA |
+| 4 | Sincronizar colecciones entre frontend (50) y backend (53) | System Architect | 1h | ALTA |
+| 5 | Centralizar normalizarTexto en textUtils.ts unico | Code Quality Specialist | 2h | ALTA |
+| 6 | Adoptar firestoreHelpers.mapDocs en servicios con mayor volumen | Code Quality Specialist | 6h | MEDIA |
+| 7 | Crear hook useProductoDropdown para eliminar 4 selectores duplicados | Code Quality Specialist | 8h | MEDIA |
+| 8 | Mover filtros de estado de cliente a query de Firestore | Performance Specialist | 2h | MEDIA |
+| 9 | Agregar minInstances:1 a mlwebhook para eliminar cold start | Performance Specialist | 15min | MEDIA |
+| 10 | Validacion de venta bajo costo en ventas directas | ERP Business Architect | 2h | MEDIA |
+
+---
+
+### TAREAS GENERADAS POR ESTA AUDITORIA
+
+Las acciones del top 10 se incorporan al backlog con los siguientes IDs de seguimiento:
+
+- TAREA-089: Rotar API keys expuestas (HOY — CRITICA)
+- TAREA-090: Verificacion de rol en callables ML y WhatsApp (ALTA)
+- TAREA-091: Filtro where() en Requerimientos (ALTA)
+- TAREA-092: Sincronizacion colecciones frontend/backend (ALTA)
+- TAREA-093: Centralizar normalizarTexto en textUtils.ts (ALTA)
+- TAREA-094: Adopcion de firestoreHelpers.mapDocs (MEDIA)
+- TAREA-095: Hook useProductoDropdown para 4 selectores (MEDIA)
+- TAREA-096: Filtros de estado a Firestore query (MEDIA)
+- TAREA-097: minInstances:1 en mlwebhook (MEDIA — 15 min)
+- TAREA-098: Validacion venta bajo costo en ventas directas (MEDIA)
+
+---
+
+*Auditoria ejecutada por 5 agentes en paralelo el 24 de marzo de 2026.*
+*Registrado por implementation-controller (Agente 23).*
+*Proxima auditoria recomendada: post-resolucion de hallazgos criticos de seguridad (estimado 1 semana).*
+
+---
+
+## CIERRE DE SESION — 24 de marzo de 2026 (sesion masiva)
+
+**Fecha:** 2026-03-24
+**Duracion estimada:** sesion extendida multi-bloque
+**Registrado por:** implementation-controller (Agente 23)
+**Deploys realizados:** functions + hosting x 4
+
+---
+
+### COMMITS DE LA SESION (10 en total)
+
+| # | Hash | Descripcion |
+|---|------|-------------|
+| 1 | ab449e8 | ML disconnect, archivo productos, paisOrigen fix, SKC attributes, 26 categorias + 19 etiquetas SKC |
+| 2 | 843e930 | Sistema variantes padre-hijo completo (tipos, servicio, store, UI, 4 selectores, 4 grupos vinculados) |
+| 3 | bdf8532 | Ficha descriptiva en tabla + conexion visual padre-hijo |
+| 4 | f838af1 | Security: requireAdminRole en 13 funciones ML/WA, CSRF obligatorio, CSP header, tipado esPadre |
+| 5 | c805f24 | Performance: getVentasRequierenStock en Requerimientos, minInstances mlwebhook, textUtils.ts creado, colecciones sincronizadas FE/BE |
+| 6 | d356299 | textUtils adoptado en 6 servicios (-175 lineas duplicadas), dead code eliminado |
+| 7 | bb61fab | dateUtils (diasDesde/diasEntre), mapDocs adoptado en producto.service y venta.service |
+| 8 | 5b3d61d | BN-004: validacion venta bajo costo con autorizacion admin, BN-006: Cloud Function liberarReservasVencidas cada hora |
+| 9 | 4a9c57b | VincularVariantesModal (deteccion automatica + vinculacion), DashboardCatalogo (SUP + SKC con gaps) |
+| 10 | d964fda | useProductoDropdown hook compartido (base para DUP-001) |
+
+---
+
+### HALLAZGOS CORREGIDOS EN ESTA SESION (~30 total)
+
+**Security (6 correcciones):**
+- requireAdminRole agregado a 13 funciones callable de ML y WhatsApp (TAREA-090 completada)
+- CSRF obligatorio activado
+- CSP header configurado
+- Tipado esPadre corregido en modelo — eliminado uso de (p as any).esPadre (SOLID-003 resuelto)
+
+**Performance (4 correcciones):**
+- getVentasRequierenStock: query filtrada en Firestore, eliminado filtro en cliente (TAREA-091 completada)
+- minInstances:1 en mlwebhook — cold start eliminado (TAREA-097 completada)
+- Filtros de estado movidos a Firestore query
+- Colecciones sincronizadas entre frontend (50) y backend (53) (TAREA-092 completada)
+
+**Code Quality (8 correcciones):**
+- textUtils.ts creado y adoptado en 6 servicios — normalizarTexto centralizada (TAREA-093 completada, DUP-002 resuelto)
+- dateUtils.ts creado con diasDesde y diasEntre
+- firestoreHelpers.mapDocs adoptado en producto.service y venta.service (avance TAREA-094)
+- Dead code eliminado
+- Imports limpiados
+
+**Business Logic (2 correcciones):**
+- BN-004: validacion de venta bajo costo con autorizacion admin requerida (TAREA-098 completada)
+- BN-006: Cloud Function liberarReservasVencidas ejecuta cada hora (schedule automatico)
+
+**Features nuevos implementados (10 items):**
+- ML disconnect: nueva Cloud Function para desconectar cuenta MercadoLibre
+- Archivo de productos: funcionalidad de archivado con filtro en listado
+- SKC Attributes: 26 categorias y 19 etiquetas creadas en Sistema de Conocimiento de Catalogo
+- Sistema variantes padre-hijo: tipos, servicio, store, UI, 4 selectores con soporte padre-hijo, 4 grupos vinculados
+- Ficha descriptiva visible en tabla de productos
+- Conexion visual padre-hijo en la interfaz
+- VincularVariantesModal: deteccion automatica de variantes + vinculacion desde la UI
+- DashboardCatalogo: panel con KPIs de SUP y SKC con deteccion de gaps
+- useProductoDropdown: hook compartido como base para eliminar los 4 selectores duplicados (DUP-001)
+- Cloud Function liberarReservasVencidas: libera stock reservado de ventas vencidas sin pago
+
+---
+
+### METRICAS DE LA SESION
+
+| Metrica | Valor |
+|---------|-------|
+| Commits | 10 |
+| Archivos modificados | ~40 |
+| Lineas anadidas | ~2500 |
+| Lineas eliminadas | ~1200 |
+| Features nuevos | 5 (Archivo, VincularVariantes, DashboardCatalogo, SKC Attributes, useProductoDropdown) |
+| Cloud Functions nuevas | 2 (mldisconnect, liberarReservasVencidas) |
+| Categorias SKC creadas | 26 |
+| Etiquetas SKC creadas | 19 |
+| Grupos variantes vinculados | 4 |
+| Hallazgos de auditoria corregidos | ~30 de 92+ |
+
+---
+
+### TAREAS COMPLETADAS EN ESTA SESION
+
+| ID | Descripcion | Estado |
+|----|-------------|--------|
+| TAREA-090 | Verificacion de rol en callables ML y WhatsApp | Completada |
+| TAREA-091 | Filtro where() en Requerimientos | Completada |
+| TAREA-092 | Sincronizacion colecciones frontend/backend | Completada |
+| TAREA-093 | Centralizar normalizarTexto en textUtils.ts | Completada |
+| TAREA-094 | Adopcion de firestoreHelpers.mapDocs (parcial) | En proceso |
+| TAREA-095 | Hook useProductoDropdown — base creada | En proceso |
+| TAREA-097 | minInstances:1 en mlwebhook | Completada |
+| TAREA-098 | Validacion venta bajo costo | Completada |
+
+---
+
+### TAREAS PENDIENTES PARA PROXIMA SESION
+
+| ID | Descripcion | Prioridad | Notas |
+|----|-------------|-----------|-------|
+| DUP-001 | Migrar los 4 selectores al hook useProductoDropdown | Media | Hacer uno por sesion — hook base ya existe |
+| TAREA-094 | Adoptar mapDocs en mas servicios | Media | Gradual — producto.service y venta.service ya migrados |
+| DUP-006 | Adoptar dateUtils en los 44 archivos con calculos de dias duplicados | Media | Gradual |
+| TAREA-089 / SEC-C01 | Rotar API keys expuestas en historial Git | Critica | Requiere gestion manual del usuario |
+| SEC-H05 | Restringir Google Maps API Key en consola GCP | Alta | Requiere gestion manual del usuario |
+| BN-007 | Fecha vencimiento real en recepcion OC | Media | Requiere deliberacion de negocio antes de implementar |
+| BN-010 | Flujo de aprobacion por roles en requerimientos | Media | Requiere deliberacion de negocio antes de implementar |
+| INCONS-001 | Migrar console.error a logger en servicios | Baja | Mejora de observabilidad |
+
+---
+
+### ESTADO DEL SISTEMA AL CIERRE DE SESION
+
+**Modulos activos en produccion:**
+- Ventas / CxC — activo
+- Compras / CxP — activo
+- Inventario con reservas — activo (liberarReservasVencidas automatico activado)
+- Contabilidad por linea — activo
+- MercadoLibre integration — activo (disconnect disponible)
+- Catalogo con variantes padre-hijo — activo
+- Dashboard Catalogo (SUP + SKC) — activo
+- Sistema de Conocimiento de Catalogo (SKC) — 26 categorias y 19 etiquetas cargadas
+
+**Deuda tecnica residual post-sesion:**
+- DUP-001 parcial: useProductoDropdown creado, 4 selectores aun sin migrar
+- DUP-006 pendiente: 44 archivos con calculo de dias sin adoptar dateUtils
+- TAREA-094 parcial: mapDocs adoptado en 2 servicios, resto pendiente
+- INCONS-001 abierto: console.error en servicios sin reemplazar por logger
+- SEC-C01 y SEC-H05: bloqueados por requerir accion manual del usuario
+
+**Proxima auditoria recomendada:** post-migracion de selectores (DUP-001) y post-rotacion de keys (SEC-C01)
+
+---
+
+*Cierre registrado por implementation-controller (Agente 23).*
+*Sesion masiva del 24 de marzo de 2026 — 10 commits, ~30 hallazgos corregidos, 5 features entregados.*

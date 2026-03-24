@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Package,
-  Search,
   Check,
   X,
   AlertTriangle,
@@ -16,6 +15,7 @@ import {
 } from 'lucide-react';
 import { BarcodeScanner } from '../../common/BarcodeScanner';
 import type { ProductoDisponible } from '../../../types/venta.types';
+import { useProductoDropdown } from '../../../hooks/useProductoDropdown';
 
 /**
  * Snapshot del producto seleccionado para ventas
@@ -65,95 +65,49 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
   className = '',
   stockData
 }) => {
-  const [filteredProductos, setFilteredProductos] = useState<ProductoDisponible[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 300 });
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [showScanner, setShowScanner] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  // Hook compartido: click-outside, posicionamiento, filtrado, teclado
+  const {
+    containerRef,
+    inputRef,
+    dropdownRef,
+    inputValue,
+    setInputValue,
+    isOpen,
+    setIsOpen,
+    filteredItems: filteredProductos,
+    highlightedIndex,
+    dropdownPosition,
+    handleInputChange: hookInputChange,
+    handleKeyDown,
+    handleSelect: hookSelect,
+    handleClear: hookClear,
+    onSelectCallback,
+  } = useProductoDropdown<ProductoDisponible>({
+    items: Array.isArray(productos) ? productos : [],
+    getSearchableText: (p) => `${p.sku ?? ''} ${p.marca ?? ''} ${p.nombreComercial ?? ''} ${p.presentacion ?? ''} ${p.contenido ?? ''} ${p.dosaje ?? ''} ${p.sabor ?? ''}`,
+    getLabel: (p) => `${p.sku} - ${p.marca} ${p.nombreComercial}`,
+    extraFilter: (p) => !(p as any).esPadre,
+    maxResults: 15,
+    minChars: 1,
+    minDropdownWidth: 450,
+    useFixed: true,
+  });
+
+  // Vincular callback de selección
+  useEffect(() => {
+    onSelectCallback.current = (producto: ProductoDisponible) => {
+      handleSelectProducto(producto);
+    };
+  }, []);
 
   // Sincronizar valor inicial
   useEffect(() => {
     if (value?.sku && !inputValue) {
       setInputValue(`${value.sku} - ${value.marca} ${value.nombreComercial}`);
     }
-  }, [value, inputValue]);
-
-  // Click fuera para cerrar
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      const isInsideContainer = containerRef.current?.contains(target);
-      const isInsideDropdown = dropdownRef.current?.contains(target);
-
-      if (!isInsideContainer && !isInsideDropdown) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Actualizar posición del dropdown
-  useEffect(() => {
-    if (isOpen && containerRef.current) {
-      const updatePosition = () => {
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (rect) {
-          setDropdownPosition({
-            top: rect.bottom + 4,
-            left: rect.left,
-            width: Math.max(rect.width, 450) // Mínimo 450px para mostrar toda la info
-          });
-        }
-      };
-
-      updatePosition();
-      window.addEventListener('scroll', updatePosition, true);
-      window.addEventListener('resize', updatePosition);
-
-      return () => {
-        window.removeEventListener('scroll', updatePosition, true);
-        window.removeEventListener('resize', updatePosition);
-      };
-    }
-  }, [isOpen]);
-
-  // Filtrar productos al escribir
-  useEffect(() => {
-    if (inputValue.length >= 1) {
-      const searchLower = inputValue.toLowerCase();
-      const productosArr = Array.isArray(productos) ? productos : [];
-      const filtered = productosArr.filter(p => {
-        if (p.esPadre) return false;
-        const sku = (p.sku ?? '').toLowerCase();
-        const marca = (p.marca ?? '').toLowerCase();
-        const nombreComercial = (p.nombreComercial ?? '').toLowerCase();
-        const presentacion = (p.presentacion ?? '').toLowerCase();
-        const contenido = (p.contenido ?? '').toLowerCase();
-        const dosaje = (p.dosaje ?? '').toLowerCase();
-        const sabor = (p.sabor ?? '').toLowerCase();
-        return sku.includes(searchLower) ||
-               marca.includes(searchLower) ||
-               nombreComercial.includes(searchLower) ||
-               presentacion.includes(searchLower) ||
-               contenido.includes(searchLower) ||
-               dosaje.includes(searchLower) ||
-               sabor.includes(searchLower) ||
-               `${marca} ${nombreComercial}`.toLowerCase().includes(searchLower);
-      });
-
-      setFilteredProductos(filtered.slice(0, 15));
-      setHighlightedIndex(-1);
-    } else {
-      setFilteredProductos([]);
-    }
-  }, [inputValue, productos]);
+  }, [value]);
 
   // Obtener datos extendidos de stock para un producto
   const getStockExtendido = useCallback((productoId: string, productoBase: ProductoDisponible) => {
@@ -197,17 +151,9 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
   }, [productos]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const valor = e.target.value;
-    setInputValue(valor);
-
-    if (valor.length >= 1) {
-      setIsOpen(true);
-    }
-
-    if (value) {
-      onChange(null);
-    }
-  }, [value, onChange]);
+    hookInputChange(e.target.value);
+    if (value) onChange(null);
+  }, [value, onChange, hookInputChange]);
 
   // Seleccionar producto
   const handleSelectProducto = (producto: ProductoDisponible) => {
@@ -237,38 +183,9 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
 
   // Limpiar selección
   const handleClear = () => {
-    setInputValue('');
+    hookClear();
     onChange(null);
     inputRef.current?.focus();
-  };
-
-  // Keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isOpen) return;
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setHighlightedIndex(prev =>
-          prev < filteredProductos.length - 1 ? prev + 1 : 0
-        );
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setHighlightedIndex(prev =>
-          prev > 0 ? prev - 1 : filteredProductos.length - 1
-        );
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (highlightedIndex >= 0 && filteredProductos[highlightedIndex]) {
-          handleSelectProducto(filteredProductos[highlightedIndex]);
-        }
-        break;
-      case 'Escape':
-        setIsOpen(false);
-        break;
-    }
   };
 
   // Obtener color del margen

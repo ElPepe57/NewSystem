@@ -7,7 +7,9 @@ import {
   XCircle,
   Truck,
   Package,
+  ScanLine,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card, Badge, Button } from "../../components/common";
 import type { Transferencia, EstadoTransferencia, TipoTransferencia } from "../../types/transferencia.types";
 import type { Producto } from "../../types/producto.types";
@@ -239,6 +241,32 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
               Enviar
             </Button>
           )}
+        </div>
+      )}
+
+      {/* Acciones para en_transito: Recibir manual o con escáner */}
+      {transferencia.estado === 'en_transito' && (
+        <div className="mt-4 pt-4 border-t flex justify-end space-x-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={(e) => { e.stopPropagation(); onIniciarRecepcion(transferencia); }}
+          >
+            <Package className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">Recibir</span>
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.location.href = `/escaner?modo=recepcion&transferenciaId=${transferencia.id}`;
+            }}
+          >
+            <ScanLine className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">Recibir con Escáner</span>
+            <span className="sm:hidden">Escáner</span>
+          </Button>
         </div>
       )}
 

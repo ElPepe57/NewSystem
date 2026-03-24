@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Package,
   Check,
   X,
-  Loader2,
   TrendingUp,
-  AlertCircle,
   Lightbulb,
   Star,
   ExternalLink,
   History,
-  Calendar,
   TrendingDown,
   ChevronRight
 } from 'lucide-react';
-import type { Producto, InvestigacionMercado } from '../../../types/producto.types';
+import type { Producto } from '../../../types/producto.types';
+import { useProductoDropdown } from '../../../hooks/useProductoDropdown';
 
 export interface ProductoSnapshot {
   productoId: string;
@@ -74,100 +72,50 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
   historialCompras,
   showHistorialCompra = true
 }) => {
-  const [filteredProductos, setFilteredProductos] = useState<Producto[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedProducto, setSelectedProducto] = useState<Producto | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 300, openUp: false });
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  // Hook compartido: click-outside, posicionamiento, filtrado, teclado
+  const {
+    containerRef,
+    inputRef,
+    dropdownRef,
+    inputValue,
+    setInputValue,
+    isOpen,
+    setIsOpen,
+    filteredItems: filteredProductos,
+    highlightedIndex,
+    dropdownPosition,
+    handleInputChange: hookInputChange,
+    handleKeyDown,
+    handleSelect: hookSelect,
+    handleClear: hookClear,
+    onSelectCallback,
+  } = useProductoDropdown<Producto>({
+    items: Array.isArray(productos) ? productos : [],
+    getSearchableText: (p) => `${p.sku ?? ''} ${p.marca ?? ''} ${p.nombreComercial ?? ''}`,
+    getLabel: (p) => `${p.sku} - ${p.marca} ${p.nombreComercial}`,
+    extraFilter: (p) => !p.esPadre,
+    maxResults: 20,
+    minChars: 1,
+    useFixed: true,
+  });
+
+  // Vincular callback de selección al hook
+  useEffect(() => {
+    onSelectCallback.current = (producto: Producto) => {
+      handleSelectProducto(producto);
+    };
+  }, []);
 
   // Sincronizar valor inicial
   useEffect(() => {
     if (value?.sku && !inputValue) {
       setInputValue(`${value.sku} - ${value.marca} ${value.nombreComercial}`);
-      // Buscar producto completo para tener la investigación
       const prod = productos.find(p => p.id === value.productoId);
       if (prod) setSelectedProducto(prod);
     }
   }, [value, productos]);
-
-  // Click fuera para cerrar (incluyendo el dropdown fijo)
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      const isInsideContainer = containerRef.current?.contains(target);
-      const isInsideDropdown = dropdownRef.current?.contains(target);
-
-      if (!isInsideContainer && !isInsideDropdown) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Actualizar posición del dropdown cuando se abre
-  useEffect(() => {
-    if (isOpen && containerRef.current) {
-      const updatePosition = () => {
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (rect) {
-          const dropdownMaxH = 256; // max-h-64 = 16rem = 256px
-          const spaceBelow = window.innerHeight - rect.bottom;
-          const spaceAbove = rect.top;
-          const openUp = spaceBelow < dropdownMaxH + 8 && spaceAbove > spaceBelow;
-          setDropdownPosition({
-            top: openUp ? rect.top - 4 : rect.bottom + 4,
-            left: rect.left,
-            width: rect.width,
-            openUp,
-          });
-        }
-      };
-
-      updatePosition();
-
-      // Actualizar en scroll del modal
-      const handleScroll = () => updatePosition();
-      window.addEventListener('scroll', handleScroll, true);
-      window.addEventListener('resize', handleScroll);
-
-      return () => {
-        window.removeEventListener('scroll', handleScroll, true);
-        window.removeEventListener('resize', handleScroll);
-      };
-    }
-  }, [isOpen]);
-
-  // Filtrar productos al escribir (con validación segura)
-  useEffect(() => {
-    if (inputValue.length >= 1) {
-      const searchLower = inputValue.toLowerCase();
-      const productosArr = Array.isArray(productos) ? productos : [];
-      const filtered = productosArr.filter(p => {
-        // Excluir productos padre (solo variantes e independientes son seleccionables)
-        if (p.esPadre) return false;
-        const sku = (p.sku ?? '').toLowerCase();
-        const marca = (p.marca ?? '').toLowerCase();
-        const nombreComercial = (p.nombreComercial ?? '').toLowerCase();
-        return sku.includes(searchLower) ||
-               marca.includes(searchLower) ||
-               nombreComercial.includes(searchLower) ||
-               `${marca} ${nombreComercial}`.toLowerCase().includes(searchLower);
-      });
-
-      // Debug: ver cuántos productos hay
-      console.log(`[ProductoAutocomplete] Búsqueda: "${inputValue}", Total productos: ${productosArr.length}, Filtrados: ${filtered.length}`);
-
-      setFilteredProductos(filtered.slice(0, 20)); // Limitar a 20 resultados
-    } else {
-      setFilteredProductos([]);
-    }
-  }, [inputValue, productos]);
 
   // Obtener mejor proveedor de la investigación
   const getMejorProveedor = useCallback((producto: Producto): SugerenciaProveedor | null => {
@@ -215,19 +163,14 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
-    setInputValue(valor);
-
-    // Siempre abrir el dropdown cuando escribe (si tiene al menos 1 caracter)
-    if (valor.length >= 1) {
-      setIsOpen(true);
-    }
+    hookInputChange(valor);
 
     // Limpiar selección si el usuario está editando
     if (value) {
       onChange(null);
       setSelectedProducto(null);
     }
-  }, [value, onChange]);
+  }, [value, onChange, hookInputChange]);
 
   // Seleccionar producto
   const handleSelectProducto = (producto: Producto) => {
@@ -262,7 +205,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
 
   // Limpiar selección
   const handleClear = () => {
-    setInputValue('');
+    hookClear();
     onChange(null);
     setSelectedProducto(null);
     inputRef.current?.focus();
@@ -294,9 +237,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
   // Calcular días desde última compra
   const getDiasDesdeCompra = (fecha?: Date) => {
     if (!fecha) return null;
-    const ahora = new Date();
-    const diff = ahora.getTime() - fecha.getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
+    return Math.floor((Date.now() - fecha.getTime()) / 86400000);
   };
 
   // Obtener estilo de tendencia
@@ -324,14 +265,13 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
           type="text"
           value={inputValue}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           onFocus={() => {
-            // Al hacer focus, si ya hay texto, mostrar el dropdown
             if (inputValue.length >= 1) {
               setIsOpen(true);
             }
           }}
           onClick={() => {
-            // Al hacer click, si no está abierto y hay texto, abrir
             if (!isOpen && inputValue.length >= 1) {
               setIsOpen(true);
             }
@@ -394,19 +334,22 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
               <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 sticky top-0">
                 {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''} encontrado{filteredProductos.length !== 1 ? 's' : ''}
               </div>
-              {filteredProductos.map((producto) => {
+              {filteredProductos.map((producto, index) => {
                 const tieneInvestigacion = producto.investigacion?.estaVigente;
                 const mejorPrecio = tieneInvestigacion ? getMejorProveedor(producto) : null;
                 const historial = getHistorialProducto(producto.id);
                 const diasDesdeCompra = historial ? getDiasDesdeCompra(historial.ultimaCompraFecha) : null;
                 const tendenciaStyle = historial?.tendenciaPrecio ? getTendenciaStyle(historial.tendenciaPrecio) : null;
+                const isHighlighted = index === highlightedIndex;
 
                 return (
                   <button
                     key={producto.id}
                     type="button"
                     onClick={() => handleSelectProducto(producto)}
-                    className="w-full px-2.5 sm:px-4 py-2 sm:py-3 text-left hover:bg-primary-50 border-b border-gray-100 last:border-0 transition-colors"
+                    className={`w-full px-2.5 sm:px-4 py-2 sm:py-3 text-left border-b border-gray-100 last:border-0 transition-colors ${
+                      isHighlighted ? 'bg-primary-100' : 'hover:bg-primary-50'
+                    }`}
                   >
                     {/* Top: SKU + badges + chevron */}
                     <div className="flex items-center justify-between gap-1.5">

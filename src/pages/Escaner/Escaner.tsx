@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ScanLine, ToggleLeft, ToggleRight, Search, ClipboardCheck, Truck, PackageCheck, ArrowRightLeft } from 'lucide-react';
 import { GradientHeader } from '../../components/common';
 import { BarcodeScanner } from '../../components/common/BarcodeScanner';
@@ -32,8 +33,16 @@ const MODE_SUBTITLES: Record<ScannerModoId, string> = {
   transferencia: 'Mover productos entre almacenes',
 };
 
+const VALID_MODES: ScannerModoId[] = ['consulta', 'auditoria', 'recepcion', 'despacho', 'transferencia'];
+
 export const Escaner: React.FC = () => {
-  const [activeMode, setActiveMode] = useState<ScannerModoId>('consulta');
+  const [searchParams] = useSearchParams();
+  const modoParam = searchParams.get('modo') as ScannerModoId | null;
+  const transferenciaIdParam = searchParams.get('transferenciaId');
+
+  const [activeMode, setActiveMode] = useState<ScannerModoId>(
+    modoParam && VALID_MODES.includes(modoParam) ? modoParam : 'consulta'
+  );
   const [continuousMode, setContinuousMode] = useState(false);
 
   // Refs for each mode's scan handler
@@ -123,7 +132,7 @@ export const Escaner: React.FC = () => {
           <ModoAuditoria ref={auditoriaRef} />
         )}
         {activeMode === 'recepcion' && (
-          <ModoRecepcion ref={recepcionRef} />
+          <ModoRecepcion ref={recepcionRef} preselectedTransferenciaId={transferenciaIdParam} />
         )}
         {activeMode === 'despacho' && (
           <ModoDespacho ref={despachoRef} />
