@@ -9,6 +9,7 @@ import { InvestigacionModal } from '../../components/modules/productos/Investiga
 import { ArchivoModal } from '../../components/modules/productos/PapeleraModal';
 import { VincularVariantesModal } from '../../components/modules/productos/VincularVariantesModal';
 import { DashboardCatalogo } from '../../components/modules/productos/DashboardCatalogo';
+import { ProductoCreacionWizard, type TipoCreacion } from '../../components/modules/productos/ProductoCreacionWizard';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
@@ -40,6 +41,8 @@ export const Productos: React.FC = () => {
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   const [selectedProducto, setSelectedProducto] = useState<Producto | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [isBuscadorVarianteOpen, setIsBuscadorVarianteOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tipoCambioActual, setTipoCambioActual] = useState<TipoCambio | null>(null);
   const [variantesDelProducto, setVariantesDelProducto] = useState<Producto[]>([]);
@@ -143,9 +146,18 @@ export const Productos: React.FC = () => {
   }, [fetchProductos, getTCDelDia, fetchTiposActivos, fetchCategoriasActivas, fetchEtiquetasActivas]);
 
   const handleCreate = () => {
-    setSelectedProducto(null);
-    setIsEditing(false);
-    setIsFormModalOpen(true);
+    setIsWizardOpen(true);
+  };
+
+  const handleWizardSelect = (tipo: 'simple' | 'con_variantes' | 'variante_existente') => {
+    setIsWizardOpen(false);
+    if (tipo === 'simple' || tipo === 'con_variantes') {
+      setSelectedProducto(null);
+      setIsEditing(false);
+      setIsFormModalOpen(true);
+    } else if (tipo === 'variante_existente') {
+      setIsBuscadorVarianteOpen(true);
+    }
   };
 
   const handleEdit = (producto: Producto) => {
@@ -157,10 +169,10 @@ export const Productos: React.FC = () => {
   const handleView = async (producto: Producto) => {
     setSelectedProducto(producto);
     setIsViewModalOpen(true);
-    // Cargar variantes si es padre
-    if (producto.esPadre) {
-      const vars = await getVariantes(producto.id);
-      setVariantesDelProducto(vars);
+    // Cargar variantes si pertenece a un grupo
+    if (producto.grupoVarianteId || producto.esPadre) {
+      const vars = await getVariantes(producto.grupoVarianteId || producto.id);
+      setVariantesDelProducto(vars.filter(v => v.id !== producto.id));
     } else {
       setVariantesDelProducto([]);
     }
@@ -976,6 +988,19 @@ export const Productos: React.FC = () => {
           </>
         )}
       </Card>
+
+      {/* Wizard de intención al crear */}
+      <Modal
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        title="Crear Producto"
+        size="md"
+      >
+        <ProductoCreacionWizard
+          onSelect={handleWizardSelect}
+          onCancel={() => setIsWizardOpen(false)}
+        />
+      </Modal>
 
       <Modal
         isOpen={isFormModalOpen}
