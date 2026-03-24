@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-21 (Sesion 17 — Deploy 21 exitoso: 28 cambios, 8 agentes, auditoria masiva — bugs de logica, seguridad, performance, UX, calidad de codigo + 3 disenos de modulos futuros documentados. ~152 fixes acumulados.)
+**Ultima actualizacion:** 2026-03-24 (Sesion 20 — Sistema de variantes padre-hijo: tipos, servicio, store, UI (ProductoCard + ProductoTable + ProductoForm), 4 selectores de transacciones con filtro !esPadre, 4 grupos vinculados en Firestore. Commit 843e930. ~179 fixes acumulados + 8 cambios S20.)
 **Branch activo:** main
 
 ---
@@ -12,12 +12,12 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 17 |
+| Sesiones de trabajo registradas | 20 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | ~152 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17) |
+| Fixes aplicados | ~179 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19) |
 | Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
-| Deploys realizados | 21 (ultimo: 2026-03-21 post-Sesion 17, commit 534c2cd) |
+| Deploys realizados | 23 (ultimo: 2026-03-24 post-Sesion 20, commit 843e930) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -36,13 +36,13 @@ MODULOS ACTIVOS EN PRODUCCION:
   Compras/Requerimientos    — ESTABLE — desde: pre-2026
   Ordenes de Compra         — ESTABLE — desde: pre-2026 (multi-requerimiento)
   Inventario/Unidades       — ESTABLE — desde: pre-2026 (multi-pais)
-  Productos                 — ESTABLE — desde: pre-2026
+  Productos                 — ESTABLE — desde: pre-2026 (sistema archivo + atributos SKC/SUP independientes + validacion duplicados S19)
   Ventas/CxC                — ESTABLE — desde: pre-2026
   Cotizaciones              — ESTABLE — desde: pre-2026
   Entregas                  — ESTABLE — desde: pre-2026
   Gastos/Tesoreria          — ESTABLE — desde: pre-2026
   CTRU Dashboard v3         — ESTABLE — desde: 2026-02-18
-  MercadoLibre              — ESTABLE — desde: 2026-03-08 (con pack orders)
+  MercadoLibre              — ESTABLE — desde: 2026-03-08 (con pack orders, boton desconectar OAuth S18-S19, cuenta JOSSELINGAMBINI activa)
   Escaner                   — ESTABLE — desde: reciente (UPC linking + historial)
   Transferencias            — ESTABLE — con rollback
   Contabilidad              — PARCIAL — Balance General basico, sin integr. SUNAT
@@ -112,6 +112,26 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - Ruta huerfana /almacenes eliminada (S17)
   - Fix TransportistasLogistica modal movido fuera del early return (S17)
   - Ruta /test-pdf restaurada (necesaria para testing — se habia eliminado en S16 por error) (S17)
+  - Cloud Function mldisconnect: desplegada en us-central1, revoca OAuth en API ML, elimina mlConfig/tokens, limpia mlConfig/settings, audit log (S18/S19)
+  - Cuenta ML activa: JOSSELINGAMBINI (reemplaza JOSELUISPINTOTOSCANO) (S18/S19)
+  - Webhook ML marcado como registrado via Firestore directo — limitacion API ML: solo el dueno de la app puede re-registrar (S18)
+  - paisOrigen: corregido en producto.service.ts create() y update() — el campo se capturaba en el formulario pero no se escribia a Firestore (S19)
+  - Productos — estado 'eliminado': soft delete con fechaEliminacion y eliminadoPor (sin hard delete), SKUs nunca se reutilizan (S19)
+  - ArchivoModal: reemplaza PapeleraModal — busqueda + boton reactivar, sin purge — permanencia para trazabilidad (S19)
+  - Validacion de duplicados pre-creacion: compara marca+nombre+dosaje+contenido+sabor contra catalogo existente, muestra advertencia con SKUs similares (S19)
+  - DuplicadosModal.tsx: eliminado. Seccion "Pre-Investigacion Inteligente": eliminada del formulario (S19)
+  - AtributosSkincare: interface nueva con 9 campos propios (tipoProductoSKC, volumen, ingredienteClave, lineaProducto, tipoPiel, preocupaciones, SPF, PA, PAO) — 17 tipos de producto SKC (S19)
+  - ProductoForm: formulario condicional — SUP muestra campos suplementos, SKC muestra campos skincare (S19)
+  - Atributos SKC: campos de texto libre con autocomplete (no selects rigidos) — por decision de negocio (S19)
+  - Sync automatico AtributosSkincare → campos legacy para compatibilidad con codigo existente (S19)
+  - ProductoCard: badges diferenciados por color para SKC vs SUP (S19)
+  - Categorias Firestore: 26 categorias (7 nivel-1 + 19 nivel-2) vinculadas exclusivamente a linea SKC (S19)
+  - Etiquetas Firestore: 19 etiquetas (10 atributo + 6 marketing + 3 origen) vinculadas exclusivamente a linea SKC (S19)
+  - Contadores SKU: SUP corregido a 135, SKC inicializado a 0 (S19)
+  - SUP-0134 migrado de estado 'inactivo' a 'eliminado' para consistencia (S19)
+  - Botones del header de Productos: responsive en movil (S19)
+  - Botones tabs del formulario de producto: labels cortos para pantallas angostas (S19)
+  - Boton Reactivar visible en tabla y card de productos con estado eliminado (S19)
 ```
 
 ---
@@ -4247,5 +4267,379 @@ Implementar la funcionalidad de desconexion de cuenta de MercadoLibre desde el E
 
 ---
 
+---
+
+## SESION 19 — 2026-03-24
+
+### Objetivo
+Overhaul mayor del modulo Productos: sistema de archivo permanente, atributos Skincare independientes, validacion de duplicados pre-creacion, fix critico de paisOrigen, y limpieza de codigo muerto. Adicionalmente: confirmacion de deploy de mldisconnect (pendiente de S18) y fix de webhook ML.
+
+### Commit
+`ab449e8 — feat: major products overhaul — ML disconnect, archive system, skincare attributes`
+
+### Agentes ejecutados
+- code-logic-analyst (fix paisOrigen, logica archivo/reactivar)
+- frontend-design-specialist (ProductoForm condicional, badges, responsive, tabs)
+- system-architect (decision atributos independientes SUP vs SKC)
+- erp-business-architect (decision no reutilizar SKUs, archivo permanente)
+- accounting-manager (confirmacion: SKUs nunca se reutilizan — trazabilidad contable)
+- system-auditor (confirmacion: archivo permanente es correcto para auditoria)
+- code-quality-refactor-specialist (eliminacion DuplicadosModal y Pre-Investigacion)
+
+### Implementaciones completadas
+
+#### CAMBIO-157 — Cloud Function mldisconnect: deploy confirmado y operativo
+- Tipo: Confirmacion de deploy pendiente de S18
+- Descripcion: La Cloud Function `mldisconnect` quedo desplegada en us-central1 tras el segundo intento de deploy en S18 (CAMBIO-156 habia corregido el barrel export faltante). En S19 se confirmo que el boton "Desconectar cuenta" en TabConfiguracion funciona correctamente en produccion con la cuenta JOSSELINGAMBINI.
+- Estado: Operativo en produccion
+- Total Cloud Functions en produccion: 56
+
+#### CAMBIO-158 — Fix critico: paisOrigen no se escribia a Firestore
+- Tipo: Bug fix critico (datos perdidos silenciosamente)
+- Descripcion: El campo `paisOrigen` se capturaba correctamente en el formulario de producto y existia en el store, pero nunca se incluia en el objeto que se escribia a Firestore. El bug estaba presente en los metodos `create()` y `update()` de `producto.service.ts` — el campo simplemente no estaba mapeado en el payload de escritura. Todos los productos creados o editados desde que el campo fue agregado al formulario tenian `paisOrigen` como `undefined` en Firestore.
+- Archivos: `src/services/producto.service.ts` (create y update)
+- Reversible: no aplica (fix de datos hacia adelante; datos historicos requieren migracion manual si se necesita)
+- Impacto: critico — afectaba la funcion de filtro por pais de origen y reportes de importacion
+
+#### CAMBIO-159 — Sistema de archivo de productos (reemplaza papelera con purge)
+- Tipo: Feature + decision de arquitectura de datos
+- Descripcion: Reemplaza el sistema anterior de "papelera" que permitia eliminacion permanente (hard delete). El nuevo sistema usa el estado `eliminado` en el campo `estado` del documento de Firestore, complementado con `fechaEliminacion` (timestamp) y `eliminadoPor` (userId). Los productos nunca se borran fisicamente de Firestore. `PapeleraModal.tsx` fue renombrado a `ArchivoModal.tsx` con las siguientes capacidades: busqueda de productos archivados por nombre/SKU, boton "Reactivar" por producto (devuelve a estado `activo`), sin opcion de purge permanente.
+- Archivos: `src/services/producto.service.ts`, `src/store/productoStore.ts`, `src/components/modules/productos/PapeleraModal.tsx` (renombrado a ArchivoModal), `src/pages/Productos.tsx`
+- Decision de diseno: ver ADR-S19-001
+
+#### CAMBIO-160 — Validacion de duplicados pre-creacion de producto
+- Tipo: Feature (reemplaza DuplicadosModal eliminado)
+- Descripcion: Al crear un producto nuevo, antes de escribir a Firestore el sistema compara la combinacion `marca + nombre + dosaje + contenido + sabor` contra el catalogo existente (activos e inactivos, no eliminados). Si encuentra productos con combinacion identica o muy similar, muestra una advertencia inline con los SKUs coincidentes antes de permitir la confirmacion. El usuario puede ignorar la advertencia y continuar, o cancelar para revisar. Reemplaza el flujo anterior del `DuplicadosModal` que era un modal separado con logica compleja.
+- Archivos: `src/services/producto.service.ts`, `src/components/modules/productos/ProductoForm.tsx`
+
+#### CAMBIO-161 — Eliminacion de codigo muerto: DuplicadosModal y Pre-Investigacion
+- Tipo: Limpieza de codigo (code-quality-refactor-specialist)
+- Descripcion: Se elimino completamente `DuplicadosModal.tsx` (componente obsoleto tras CAMBIO-160). Se elimino la seccion "Pre-Investigacion Inteligente" del formulario de producto (`ProductoForm.tsx`) que habia quedado huerfana. Se limpiaron todas las importaciones y referencias en `Productos.tsx` y el store.
+- Archivos eliminados: `src/components/modules/productos/DuplicadosModal.tsx`
+- Archivos modificados: `src/pages/Productos.tsx`, `src/components/modules/productos/ProductoForm.tsx`
+
+#### CAMBIO-162 — Atributos Skincare (SKC): interface y formulario condicional
+- Tipo: Feature mayor (nuevo dominio de datos)
+- Descripcion: Se creo la interface `AtributosSkincare` con 9 campos especificos para productos de cuidado de piel:
+  - `tipoProductoSKC`: 17 tipos posibles (serum, crema, toner, esencia, mascarilla, limpiador, exfoliante, contorno de ojos, protector solar, aceite facial, ampolla, mist, parche, balsamo, tratamiento, base, corrector)
+  - `volumen`: texto libre (ej: "30ml", "50g")
+  - `ingredienteClave`: texto libre con autocomplete desde catalogo
+  - `lineaProducto`: texto libre (ej: "Hydro Boost", "Retinol 24")
+  - `tipoPiel`: texto libre con sugerencias (seca, grasa, mixta, sensible, normal, todo tipo)
+  - `preocupaciones`: texto libre con sugerencias (hidratacion, anti-edad, acne, manchas, poros, luminosidad)
+  - `SPF`: numero (factor de proteccion solar — aplica a protectores)
+  - `PA`: texto libre (clasificacion PA+/PA++/PA+++/PA++++ — norma japonesa)
+  - `PAO`: numero (periodo de validez tras apertura, en meses)
+  El `ProductoForm.tsx` muestra condicionalmente el bloque SUP (suplementos) o el bloque SKC (skincare) segun la linea del producto seleccionada. Se implemento sync automatico de `AtributosSkincare` hacia campos legacy (`sabor`, `contenido`, `dosaje`) para mantener compatibilidad con el resto del sistema sin reescribir servicios ni queries.
+- Archivos: `src/types/producto.types.ts`, `src/components/modules/productos/ProductoForm.tsx`, `src/services/producto.service.ts`
+- Decision de diseno: ver ADR-S19-002
+
+#### CAMBIO-163 — ProductoCard: badges diferenciados por linea
+- Tipo: Feature UI
+- Descripcion: `ProductoCard.tsx` ahora muestra badges con colores diferenciados segun la linea del producto. SKC (skincare) usa paleta rosa/lila. SUP (suplementos) mantiene la paleta verde/azul existente. Los badges muestran el `tipoProductoSKC` para productos skincare o el `sabor`/`forma` para suplementos.
+- Archivos: `src/components/modules/productos/ProductoCard.tsx`
+
+#### CAMBIO-164 — Categorias y etiquetas SKC en Firestore
+- Tipo: Configuracion de datos maestros
+- Descripcion: Se crearon en Firestore:
+  - 26 categorias organizadas en 2 niveles: 7 de nivel 1 (Cuidado Facial, Cuidado Corporal, Cuidado Solar, Cuidado de Ojos, Cuidado de Labios, Higiene y Limpieza, Tratamientos Especializados) con 19 subcategorias de nivel 2 vinculadas a la linea SKC. No se mezclan con las categorias de suplementos.
+  - 19 etiquetas organizadas en 3 grupos: 10 de atributo (libre de parabenos, vegano, cruelty-free, hipoalergenico, dermatologicamente probado, sin fragancia, organico, con SPF, waterproof, farmaceutico), 6 de marketing (bestseller, nuevo, edicion limitada, kit, recarga, mini), 3 de origen (coreano, japones, europeo). Todas vinculadas exclusivamente a linea SKC.
+- Colecciones Firestore afectadas: `categorias`, `etiquetas`
+
+#### CAMBIO-165 — Fixes varios de datos y UI
+- Tipo: Correcciones menores
+- Descripcion:
+  - Contadores de secuencia SKU: SUP corregido a 135 (habia desincronizacion), SKC inicializado en 0 (nuevo).
+  - SUP-0134 migrado de estado `inactivo` a `eliminado` para consistencia con el nuevo sistema de archivo.
+  - Botones del header de la pagina Productos: se agrego `flex-wrap` y clases responsive para que no se desborden en pantallas movil.
+  - Tabs del `ProductoForm`: labels acortados (ej: "Info. Basica" en lugar de "Informacion Basica") para caber correctamente en pantallas angostas.
+  - Boton "Reactivar" agregado en la fila de la tabla y en la card de producto cuando el estado es `eliminado`.
+  - Webhook ML: campo `webhookRegistered: true` marcado en Firestore para cuenta JOSSELINGAMBINI (resolucion definitiva del incidente 403 de S18).
+- Archivos: `src/lib/sequenceGenerator.ts`, `src/pages/Productos.tsx`, `src/components/modules/productos/ProductoForm.tsx`
+
+### Decisiones de arquitectura (ADRs)
+
+#### ADR-S19-001 — Archivo permanente en lugar de hard delete para productos
+- Fecha: 2026-03-24
+- Contexto: El sistema anterior permitia eliminar productos permanentemente (hard delete). Esto eliminaba el rastro de productos que habian tenido movimientos de inventario, ventas o compras.
+- Opciones evaluadas:
+  - Opcion A: Papelera con purge programado (30/60/90 dias). Pros: limpia la BD. Contras: rompe trazabilidad de transacciones historicas, viola buenas practicas contables.
+  - Opcion B: Archivo permanente sin hard delete. Pros: trazabilidad completa, compatible con auditorias, SKUs conservan su significado historico. Contras: la coleccion crece indefinidamente (aceptable dado el volumen del negocio).
+- Decision: Opcion B — archivo permanente
+- Razon: Consenso de erp-business-architect, accounting-manager y system-auditor. Un producto archivado puede haber generado ventas, entradas de inventario y ordenes de compra. Eliminarlo fisicamente romperia el historial de esas transacciones.
+- Consecuencias: Los queries de listado deben excluir `estado == 'eliminado'` explicitamente. Los productos archivados son accesibles desde ArchivoModal.
+- Tomada por: erp-business-architect + accounting-manager + system-auditor
+
+#### ADR-S19-002 — Atributos SKC y SUP completamente independientes, campos de texto libre
+- Fecha: 2026-03-24
+- Contexto: Habia que decidir si los atributos de skincare se implementaban como campos adicionales en la interface existente de producto (que esta orientada a suplementos) o como una interface separada. Tambien habia que decidir si los valores eran selects rigidos o texto libre.
+- Opciones evaluadas:
+  - Opcion A: Ampliar la interface `Producto` con campos opcionales SKC directamente. Pros: un solo tipo. Contras: interface creciente y confusa, validaciones cruzadas entre lineas.
+  - Opcion B: Interface `AtributosSkincare` separada, anidada en `Producto`. Pros: separacion de conceptos, formulario condicional limpio, extension sin contaminar tipos SUP. Contras: sync manual hacia campos legacy.
+  - Opcion C (desechada): Selects rigidos con opciones fijas. Contras: el catalogo SKC es muy dinamico (marcas coreanas/japonesas con nomenclatura no estandar), los selects rigidos quedarian obsoletos rapidamente.
+- Decision: Opcion B con campos de texto libre + autocomplete de sugerencias
+- Razon: Los atributos de skincare son fundamentalmente distintos de los de suplementos. Mezclarlos en una sola interface genera confusion y bugs. Los campos de texto libre con autocomplete dan flexibilidad para el catalogo actual sin perder la capacidad de busqueda por terminos comunes.
+- Consecuencias: Sync automatico `AtributosSkincare → legacy fields` es necesario mientras otros servicios usen los campos legacy. Revision futura cuando se migre completamente.
+- Revisable: Cuando el catalogo SKC sea suficientemente estable para definir enumeraciones.
+- Tomada por: system-architect + erp-business-architect
+
+#### ADR-S19-003 — SKUs nunca se reutilizan
+- Fecha: 2026-03-24
+- Contexto: Al archivar un producto, el SKU queda "libre" en el sentido de que no hay un producto activo con ese numero. La pregunta es si se puede reutilizar para un producto nuevo.
+- Decision: Los SKUs nunca se reutilizan. Los huecos en la secuencia son correctos y no representan un problema.
+- Razon: Consenso unanime de erp-business-architect, accounting-manager y system-auditor. Si un SKU fue reutilizado y existe historial de transacciones con ese numero, es imposible distinguir a que producto corresponde cada registro historico. Esto rompe auditorias, reportes de ventas y control de inventario historico.
+- Consecuencias: El contador de secuencia solo avanza, nunca retrocede. Gaps en la numeracion son normales.
+- Tomada por: erp-business-architect + accounting-manager + system-auditor
+
+### Archivos modificados en esta sesion
+
+| Archivo | Tipo de cambio |
+|---------|----------------|
+| `functions/src/mercadolibre/ml.auth.ts` | Deploy confirmado (sin cambios de codigo en S19) |
+| `functions/src/mercadolibre/ml.api.ts` | Ajustes menores relacionados a desconexion |
+| `functions/src/mercadolibre/index.ts` | Export mldisconnect (ya habia sido corregido en S18 CAMBIO-156) |
+| `functions/src/index.ts` | Sin cambios de codigo en S19 |
+| `src/services/producto.service.ts` | Fix paisOrigen, metodos archivo/reactivar, validacion duplicados, atributos SKC |
+| `src/services/paisOrigen.service.ts` | Ajustes menores de consulta |
+| `src/services/mercadoLibre.service.ts` | Sin cambios de logica en S19 |
+| `src/store/mercadoLibreStore.ts` | Sin cambios de logica en S19 |
+| `src/store/paisOrigenStore.ts` | Ajustes menores |
+| `src/components/modules/productos/ProductoForm.tsx` | Formulario condicional SKC/SUP, tabs cortos, validacion duplicados inline |
+| `src/pages/MercadoLibre/TabConfiguracion.tsx` | Boton desconectar (confirmado operativo) |
+| `src/lib/sequenceGenerator.ts` | Contadores SUP=135, SKC=0 |
+| `src/types/producto.types.ts` | Interface AtributosSkincare |
+| `src/components/modules/productos/ProductoCard.tsx` | Badges diferenciados SKC/SUP |
+| `src/pages/Productos.tsx` | ArchivoModal, boton reactivar, responsive header |
+| `src/components/modules/productos/PapeleraModal.tsx` | Renombrado/reescrito como ArchivoModal |
+
+### Archivos eliminados en esta sesion
+
+| Archivo | Razon |
+|---------|-------|
+| `src/components/modules/productos/DuplicadosModal.tsx` | Codigo muerto — reemplazado por validacion inline (CAMBIO-160/161) |
+
+### Tareas pendientes para la proxima sesion (priorizadas)
+
+**Prioridad alta — tecnica:**
+1. Implementar variantes padre-hijo de productos — analisis 360° completado en S19, falta implementar (~20-25h estimadas)
+2. Confirmar que la funcion `purgarPapelera` fue removida de Cloud Functions (ya no aplica con el sistema de archivo permanente) — `firebase deploy --only functions` si hay cambios en functions/
+3. TAREA-048: Validacion server-side de ventaBajoCosto
+4. TAREA-004: Race condition residual gasto.service.ts (padStart manual)
+5. TAREA-019: Tests con Firebase mocking para servicios criticos
+
+**Prioridad media:**
+6. Dashboard skincare: panel de analytics por ingrediente clave, tipo de producto, marca/linea (post-catalogo SKC)
+7. TAREA-085: Implementar cierre contable (diseno completo listo desde S17 — 22-30h)
+8. TAREA-086: Alertas de cobro automaticas
+9. TAREA-087: Panel de tareas del dia en Dashboard
+10. TAREA-082: Rate limiting en webhooks y callables
+11. SEC-ML-004: Migrar tokens ML de base64 a AES-256 con Secret Manager
+
+**Pendientes operativos del titular:**
+- Ejecutar carga retroactiva Pool USD (boton en /rendimiento-cambiario)
+- Definir metaPEN mensual
+- Rotar secrets externos (ML, Google, Anthropic, Meta, Daily) — pendiente desde S1
+- Revisar y limpiar registros de productos con paisOrigen vacio (bug corregido en CAMBIO-158, datos historicos sin corregir)
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados | 16 |
+| Archivos eliminados | 1 (DuplicadosModal.tsx) |
+| Cambios registrados | CAMBIO-157 a CAMBIO-165 (9 cambios) |
+| ADRs generados | 3 (ADR-S19-001, ADR-S19-002, ADR-S19-003) |
+| Bug critico resuelto | 1 (CAMBIO-158 — paisOrigen silencioso) |
+| Cloud Functions nuevas | 0 (mldisconnect ya estaba desplegada desde S18) |
+| Cloud Functions en produccion | 56 |
+| Agentes ejecutados | 7 |
+| Fixes acumulados | ~159 → ~179 |
+| Deploys | 1 (commit ab449e8 — hosting) |
+
+---
+
 *Documento generado por implementation-controller (Agente 23)*
-*Ultima actualizacion: 2026-03-23 — Sesion 18 completada (con notas post-deploy). Feature: boton desconectar MercadoLibre con revocacion OAuth, eliminacion de tokens en Firestore, audit log, y confirmacion de 2 pasos. 4 hallazgos de seguridad resueltos (SEC-ML-001/002/003/005), 3 bugs de logica (BUG-001 race condition listeners, BUG-003 setState desmontado, EDGE-002 boton habilitado). Cloud Function mldisconnect desplegada exitosamente (CAMBIO-156: fix barrel export en index.ts). Incidente 403 webhook resuelto via Firestore directo (limitacion API ML). Cuenta JOSSELINGAMBINI operativa. ~159 fixes acumulados.*
+*Ultima actualizacion: 2026-03-24 — Sesion 19 completada. 8 implementaciones: deploy confirmado de mldisconnect, fix critico paisOrigen (datos perdidos silenciosamente), sistema de archivo permanente de productos (sin hard delete — trazabilidad contable), validacion de duplicados pre-creacion, eliminacion de DuplicadosModal y Pre-Investigacion Inteligente, atributos Skincare independientes (interface AtributosSkincare — 9 campos, 17 tipos SKC, formulario condicional), categorias/etiquetas SKC en Firestore (26 + 19), fixes de contadores, estado SUP-0134, responsive. 3 ADRs: archivo permanente, atributos independientes texto libre, no reutilizar SKUs. Commit ab449e8. ~179 fixes acumulados.*
+
+---
+
+---
+
+## SESION 20 — 2026-03-24 (continuacion) — Sistema de Variantes Padre-Hijo
+
+### Objetivo
+Implementar el sistema de variantes padre-hijo en el modulo de Productos: permitir que un producto sea marcado como variante de otro (padre), con propagacion a la UI, a los selectores de transacciones y con 4 grupos reales vinculados en Firestore.
+
+### Commit
+`843e930`
+
+### Agentes ejecutados
+- system-architect (decision de modelo padre-hijo vs otros enfoques)
+- frontend-design-specialist (ProductoCard, ProductoTable, ProductoForm con variantes)
+- backend-cloud-engineer (producto.service.ts: create con padre, getVariantes, vincularComoVariante)
+- erp-business-architect (criterio de negocio: que es variante vs producto distinto)
+- code-quality-refactor-specialist (filtros en selectores de transacciones)
+
+### Implementaciones completadas
+
+#### CAMBIO-166 — Tipos: parentId, esVariante, varianteLabel en Producto y ProductoFormData
+- Tipo: Implementacion (tipos TypeScript)
+- Descripcion: Tres campos nuevos agregados a las interfaces `Producto` y `ProductoFormData` en `src/types/producto.types.ts`:
+  - `parentId?: string`: ID del producto padre al que esta variante pertenece
+  - `esVariante?: boolean`: flag booleano que indica si este producto es una variante de otro
+  - `varianteLabel?: string`: etiqueta libre que describe en que difiere la variante (ej: "120 caps", "30 gom", "200 tabs")
+  Se agrego tambien `esPadre?: boolean` para identificar productos que tienen al menos una variante vinculada.
+- Archivo: `src/types/producto.types.ts`
+- Reversible: si
+
+#### CAMBIO-167 — producto.service.ts: logica de variantes
+- Tipo: Implementacion (servicio)
+- Descripcion: Tres funciones nuevas o modificadas en `src/services/producto.service.ts`:
+  - `create()` modificado: cuando se crea un producto con `parentId` definido, el metodo actualiza automaticamente el documento del padre para setear `esPadre: true` en Firestore. Esto evita tener que actualizar el padre manualmente.
+  - `getVariantes(parentId: string)`: query de Firestore que retorna todos los documentos de la coleccion `productos` donde `parentId == id` y `esVariante == true`. Excluye productos eliminados.
+  - `vincularComoVariante(productoId, parentId, varianteLabel)`: vincula un producto existente como variante de otro. Escribe `esVariante: true`, `parentId` y `varianteLabel` en el documento hijo, y `esPadre: true` en el documento padre. Usa batch write para atomicidad.
+- Archivo: `src/services/producto.service.ts`
+- Reversible: si (desvincular setea los campos a `undefined`)
+
+#### CAMBIO-168 — productoStore.ts: actions getVariantes y vincularVariante
+- Tipo: Implementacion (store Zustand)
+- Descripcion: Dos acciones nuevas en `src/store/productoStore.ts`:
+  - `getVariantes(parentId)`: llama a `producto.service.getVariantes()` y devuelve la lista de variantes del producto padre.
+  - `vincularVariante(productoId, parentId, varianteLabel)`: llama a `producto.service.vincularComoVariante()` y actualiza el estado local del store reflejando los cambios.
+- Archivo: `src/store/productoStore.ts`
+- Reversible: si
+
+#### CAMBIO-169 — ProductoCard: boton Crear Variante, listado de variantes, badges
+- Tipo: Feature UI
+- Descripcion: `ProductoCard.tsx` ampliado con tres elementos visuales:
+  - Boton "Crear Variante" con icono `Copy` (Lucide) visible en productos activos. Al hacer click dirige al formulario de creacion con el `parentId` pre-seleccionado.
+  - Seccion colapsable "Variantes" que lista las variantes del producto padre cuando el producto tiene `esPadre: true`. Muestra el `varianteLabel` y el SKU de cada variante con un badge azul.
+  - Badge azul con texto "Variante" en tarjetas de productos que tienen `esVariante: true`.
+  - Badge purpura con texto "Padre" en tarjetas de productos que tienen `esPadre: true`.
+- Archivo: `src/components/modules/productos/ProductoCard.tsx`
+- Reversible: si
+
+#### CAMBIO-170 — ProductoTable: badges de variante/padre junto al SKU
+- Tipo: Feature UI
+- Descripcion: `ProductoTable.tsx` muestra en la columna de SKU:
+  - Badge azul pequeno "Variante" cuando el producto tiene `esVariante: true`.
+  - Badge purpura pequeno "Padre" cuando el producto tiene `esPadre: true`.
+  El SKU del padre aparece como texto secundario debajo del SKU de la variante para contexto rapido.
+- Archivo: `src/components/modules/productos/ProductoTable.tsx`
+- Reversible: si
+
+#### CAMBIO-171 — ProductoForm: campo varianteLabel y pre-llenado desde padre
+- Tipo: Feature UI
+- Descripcion: `ProductoForm.tsx` modificado para el flujo de creacion de variante:
+  - Cuando el formulario recibe un `parentId` como prop o parametro de navegacion, muestra el campo `varianteLabel` (texto libre requerido) con placeholder "ej: 120 caps, 30 gom, 200 tabs".
+  - Los campos del formulario se pre-llenan automaticamente con los datos del producto padre (marca, nombre, linea de negocio, proveedor, paisOrigen, atributos) para minimizar el ingreso manual. Solo se espera que el usuario cambie el contenido/dosaje/formato y complete el `varianteLabel`.
+  - Un banner informativo en la parte superior del formulario indica "Creando variante de [nombre del padre] (SKU: xxx)".
+- Archivo: `src/components/modules/productos/ProductoForm.tsx`
+- Reversible: si
+
+#### CAMBIO-172 — Selectores de transacciones: filtran padres, muestran solo variantes e independientes
+- Tipo: Feature (criterio de negocio aplicado en 4 selectores)
+- Descripcion: Los 4 componentes de busqueda/seleccion de producto usados en transacciones aplican ahora el mismo filtro: excluir productos con `esPadre: true`. Un producto padre es solo un agrupador — la unidad transaccionable es siempre la variante especifica o el producto independiente. Los 4 selectores afectados:
+  - `ProductoAutocomplete.tsx` (usado en Ordenes de Compra)
+  - `ProductoSearchVentas.tsx` (usado en VentaForm)
+  - `ProductoSearchCotizaciones.tsx` (usado en CotizacionForm)
+  - `ProductoSearchRequerimientos.tsx` (usado en RequerimientoForm)
+  El filtro se aplica en la funcion de busqueda/filtrado local de cada selector: `productos.filter(p => !p.esPadre && p.estado !== 'eliminado')`.
+- Archivos: `src/components/modules/productos/ProductoAutocomplete.tsx`, `src/components/modules/ventas/ProductoSearchVentas.tsx`, `src/pages/Cotizaciones/ProductoSearchCotizaciones.tsx`, `src/pages/Requerimientos/ProductoSearchRequerimientos.tsx`
+- Reversible: si
+- Decision de negocio: ver ADR-S20-001
+
+#### CAMBIO-173 — Vinculacion de 4 grupos en Firestore (datos reales)
+- Tipo: Configuracion de datos maestros
+- Descripcion: Se vincularon en Firestore los 4 primeros grupos de variantes del catalogo real de VitaSkin Peru:
+  - **Nordic Naturals Ultimate Omega Junior**: SUP-0048 (padre, 90 caps) — SUP-0135 (variante, 120 caps)
+  - **Nordic Naturals Zero Azucar DHA Ninos**: SUP-0016 (padre, 45 gom) — SUP-0035 (variante, 30 gom)
+  - **Natrol Gomitas Melatonina Ninos**: SUP-0068 (padre, 90 gom) — SUP-0082 (variante, 140 gom)
+  - **Natrol Melatonina**: SUP-0025 (padre, 250 tabs) — SUP-0064 (variante, 200 tabs)
+  Cada vinculacion actualiza los campos `esPadre`, `esVariante`, `parentId` y `varianteLabel` en los documentos de Firestore correspondientes.
+- Coleccion Firestore afectada: `productos` (8 documentos actualizados)
+- Reversible: si (desvincular limpia los campos)
+
+### Decisiones de arquitectura
+
+#### ADR-S20-001 — Criterio de variante vs producto independiente
+- Fecha: 2026-03-24
+- Contexto: El catalogo de VitaSkin tiene productos del mismo fabricante con el mismo nombre que solo difieren en el contenido/cantidad (ej: misma formula, diferente tamano de envase). Habia que decidir que nivel de diferencia justifica "variante" vs "producto distinto".
+- Decision: Solo se vinculan como variantes productos que son exactamente iguales en formula/ingredientes/marca y solo difieren en la cantidad/contenido del envase. Diferencias de dosaje activo, forma farmaceutica, o presentacion = productos distintos, no variantes.
+- Razon: Las variantes comparten ficha tecnica, proveedor y comportamiento de inventario base. Productos con dosaje distinto pueden tener diferente perfil de seguridad, precio de costo y margen — mezclarlos en el mismo grupo generaria confusion operativa.
+- Consecuencias: La vinculacion es gradual y manual — no se hace migracion masiva del catalogo. Cada grupo se vincula cuando hay necesidad operativa.
+- Revisable: Si en el futuro se implementa un motor de recomendaciones o cross-selling, el modelo padre-hijo podria extenderse.
+- Tomada por: erp-business-architect (propuesta) + titular (aprobacion)
+
+#### ADR-S20-002 — Productos padre excluidos de selectores de transacciones
+- Fecha: 2026-03-24
+- Contexto: Con el modelo padre-hijo activo, los selectores de OC, Ventas, Cotizaciones y Requerimientos podrian mostrar tanto el padre como las variantes, generando ambiguedad.
+- Decision: Los productos con `esPadre: true` no aparecen en ningun selector de transaccion. Solo son visibles en el catalogo de productos (pagina Productos) para gestion.
+- Razon: Un producto padre no tiene unidades propias — es un agrupador conceptual. Intentar vender o comprar un "padre" no tiene sentido operativo. La transaccion debe referenciar siempre la variante especifica.
+- Consecuencias: Los selectores requieren el filtro `!p.esPadre` para funcionar correctamente. Si en el futuro un producto padre tiene unidades directas (no variantes), esta regla debe revisarse.
+- Tomada por: erp-business-architect
+
+### Archivos modificados en esta sesion
+
+| Archivo | Tipo de cambio |
+|---------|----------------|
+| `src/types/producto.types.ts` | Nuevos campos parentId, esVariante, varianteLabel, esPadre |
+| `src/services/producto.service.ts` | create() actualiza padre, getVariantes(), vincularComoVariante() |
+| `src/store/productoStore.ts` | Acciones getVariantes y vincularVariante |
+| `src/components/modules/productos/ProductoCard.tsx` | Boton crear variante, lista variantes, badges |
+| `src/components/modules/productos/ProductoTable.tsx` | Badges variante/padre junto al SKU |
+| `src/components/modules/productos/ProductoForm.tsx` | Campo varianteLabel, pre-llenado desde padre |
+| `src/pages/Productos.tsx` | Integracion de flujo de creacion de variante |
+| `src/components/modules/productos/ProductoAutocomplete.tsx` | Filtro !esPadre |
+| `src/components/modules/ventas/ProductoSearchVentas.tsx` | Filtro !esPadre |
+| `src/pages/Cotizaciones/ProductoSearchCotizaciones.tsx` | Filtro !esPadre |
+| `src/pages/Requerimientos/ProductoSearchRequerimientos.tsx` | Filtro !esPadre |
+
+### Datos vinculados en Firestore
+
+| Grupo | Padre (SKU) | Variante (SKU) | Diferencia |
+|-------|------------|----------------|-----------|
+| Nordic Naturals Ultimate Omega Junior | SUP-0048 (90 caps) | SUP-0135 (120 caps) | Contenido |
+| Nordic Naturals Zero Azucar DHA Ninos | SUP-0016 (45 gom) | SUP-0035 (30 gom) | Contenido |
+| Natrol Gomitas Melatonina Ninos | SUP-0068 (90 gom) | SUP-0082 (140 gom) | Contenido |
+| Natrol Melatonina | SUP-0025 (250 tabs) | SUP-0064 (200 tabs) | Contenido |
+
+### Tareas pendientes para la proxima sesion
+
+**Prioridad alta — tecnica:**
+1. VincularVariantesModal: herramienta visual desde la UI para vincular grupos de variantes sin necesidad de acceso directo a Firestore
+2. Dashboard skincare: panel de analytics por ingrediente clave, tipo de producto, marca/linea (post-catalogo SKC)
+3. TAREA-048: Validacion server-side de ventaBajoCosto
+4. TAREA-004: Race condition residual gasto.service.ts (padStart manual)
+5. TAREA-019: Tests con Firebase mocking para servicios criticos
+
+**Prioridad media:**
+6. TAREA-085: Implementar cierre contable (diseno completo listo desde S17 — 22-30h)
+7. TAREA-086: Alertas de cobro automaticas
+8. TAREA-087: Panel de tareas del dia en Dashboard
+9. TAREA-082: Rate limiting en webhooks y callables
+
+**Pendientes operativos del titular:**
+- Ejecutar carga retroactiva Pool USD (boton en /rendimiento-cambiario)
+- Definir metaPEN mensual
+- Rotar secrets externos (ML, Google, Anthropic, Meta, Daily) — pendiente desde S1
+- Continuar vinculando grupos de variantes del catalogo segun necesidad
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados | 11 |
+| Archivos nuevos | 0 |
+| Archivos eliminados | 0 |
+| Cambios registrados | CAMBIO-166 a CAMBIO-173 (8 cambios) |
+| ADRs generados | 2 (ADR-S20-001, ADR-S20-002) |
+| Grupos vinculados en Firestore | 4 (8 documentos actualizados) |
+| Selectores actualizados | 4 (OC, Ventas, Cotizaciones, Requerimientos) |
+| Agentes ejecutados | 5 |
+| Commit | 843e930 |
+
+---
+
+*Documento generado por implementation-controller (Agente 23)*
+*Ultima actualizacion: 2026-03-24 — Sesion 20 completada. Sistema de variantes padre-hijo implementado: tipos (parentId, esVariante, varianteLabel, esPadre), logica de servicio (create actualiza padre, getVariantes, vincularComoVariante), store (getVariantes, vincularVariante), UI (ProductoCard con boton crear variante + lista variantes + badges, ProductoTable con badges, ProductoForm con varianteLabel y pre-llenado). Los 4 selectores de transacciones (OC, Ventas, Cotizaciones, Requerimientos) filtran productos padre. 4 grupos vinculados en Firestore (8 productos). 2 ADRs: criterio variante vs independiente, padres excluidos de selectores. Commit 843e930. Pendientes proxima sesion: VincularVariantesModal (herramienta visual), dashboard skincare.*

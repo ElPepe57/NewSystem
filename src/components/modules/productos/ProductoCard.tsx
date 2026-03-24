@@ -30,7 +30,6 @@ import {
   BarChart3,
   History,
   Info,
-  Copy,
   Check,
   Box
 } from 'lucide-react';
@@ -327,6 +326,25 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
             )}
           </button>
         </div>
+      </div>
+
+      {/* ============ FICHA DESCRIPTIVA ============ */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 px-1">
+        {producto.presentacion && (
+          <span><span className="text-gray-400">Presentación:</span> {producto.presentacion}</span>
+        )}
+        {producto.dosaje && (
+          <span><span className="text-gray-400">Dosaje:</span> {producto.dosaje}</span>
+        )}
+        {producto.contenido && (
+          <span><span className="text-gray-400">Contenido:</span> {producto.contenido}</span>
+        )}
+        {producto.sabor && (
+          <span><span className="text-gray-400">Sabor:</span> {producto.sabor}</span>
+        )}
+        {producto.varianteLabel && (
+          <span className="text-blue-600 font-medium">Variante: {producto.varianteLabel}</span>
+        )}
       </div>
 
       {/* ============ MÉTRICAS KPI ============ */}

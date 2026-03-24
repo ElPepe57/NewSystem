@@ -101,9 +101,6 @@ const ProductoCardResponsive: React.FC<{
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs text-primary-600 font-semibold">{producto.sku}</span>
-            {producto.esVariante && producto.varianteLabel && (
-              <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">{producto.varianteLabel}</span>
-            )}
             {producto.esPadre && (
               <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">Padre</span>
             )}
@@ -113,6 +110,21 @@ const ProductoCardResponsive: React.FC<{
           </div>
           <div className="font-medium text-gray-900 text-sm truncate mt-1">{producto.marca}</div>
           <div className="text-xs text-gray-600 truncate">{producto.nombreComercial}</div>
+          {/* Ficha descriptiva */}
+          <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1 text-[10px] text-gray-500">
+            {producto.presentacion && <span>{producto.presentacion}</span>}
+            {producto.dosaje && <span>· {producto.dosaje}</span>}
+            {producto.contenido && <span>· {producto.contenido}</span>}
+            {producto.sabor && <span>· {producto.sabor}</span>}
+          </div>
+          {/* Conexión padre-hijo */}
+          {producto.esVariante && (
+            <div className="flex items-center gap-1 mt-1">
+              <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
+                ↳ Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}
+              </span>
+            </div>
+          )}
           {producto.tipoProducto && (
             <div className="flex items-center gap-1 mt-1">
               <Tag className="h-3 w-3 text-blue-500" />
@@ -461,9 +473,6 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                     <td className="px-2 py-2 whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         <span className="text-xs font-mono font-semibold text-primary-600">{producto.sku}</span>
-                        {producto.esVariante && producto.varianteLabel && (
-                          <span className="text-[9px] bg-blue-100 text-blue-700 px-1 py-0.5 rounded">{producto.varianteLabel}</span>
-                        )}
                         {producto.esPadre && (
                           <span className="text-[9px] bg-purple-100 text-purple-700 px-1 py-0.5 rounded">P</span>
                         )}
@@ -475,8 +484,16 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                       <div className="text-sm font-medium text-gray-900 truncate max-w-[180px]">{producto.marca}</div>
                       <div className="text-xs text-gray-500 truncate max-w-[180px]">{producto.nombreComercial}</div>
                       <div className="text-[10px] text-gray-400 truncate">
-                        {producto.dosaje && `${producto.dosaje} · `}{producto.contenido}
+                        {producto.presentacion && `${producto.presentacion}`}
+                        {producto.dosaje && ` · ${producto.dosaje}`}
+                        {producto.contenido && ` · ${producto.contenido}`}
+                        {producto.sabor && ` · ${producto.sabor}`}
                       </div>
+                      {producto.esVariante && (
+                        <span className="text-[9px] text-blue-600 bg-blue-50 px-1 py-0.5 rounded border border-blue-200">
+                          ↳ Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}
+                        </span>
+                      )}
                     </td>
 
                     {/* Clasificación */}
