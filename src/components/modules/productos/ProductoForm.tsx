@@ -115,8 +115,8 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
   // Estado de variantes para modo "con_variantes"
   const [variantesRows, setVariantesRows] = useState<VarianteRow[]>([
-    { id: 'v1', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: true },
-    { id: 'v2', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: false },
+    { id: 'v1', presentacion: '', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: true },
+    { id: 'v2', presentacion: '', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: false },
   ]);
 
   // Estado para crear/editar país inline
@@ -994,22 +994,30 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             {/* === CAMPOS ESPECÍFICOS POR LÍNEA DE NEGOCIO === */}
             {esSuplemento ? (
               <>
-                {/* SUPLEMENTOS: Presentación (siempre visible, es compartida) */}
-                <div className={`grid grid-cols-1 ${!modoVariantes ? 'md:grid-cols-3' : ''} gap-4`}>
-                  <AutocompleteInput
-                    label="Presentacion"
-                    value={formData.presentacion}
-                    onChange={handleAutocompleteChange('presentacion')}
-                    suggestions={['Tabletas', 'Gomitas', 'Capsulas', 'Capsulas Blandas', 'Polvo', 'Liquido', ...sugerencias.presentaciones]}
-                    required
-                    placeholder="ej: Capsulas"
-                    allowCreate
-                    createLabel="Crear presentacion"
-                  />
-
-                  {/* Dosaje, Contenido — solo en modo simple (en variantes van por fila) */}
-                  {!modoVariantes && (
-                    <>
+                {/* SUPLEMENTOS: en modo variantes, todo va en tab Variantes */}
+                {modoVariantes ? (
+                  <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                    <GitBranch className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <span>
+                      <strong>Producto con variantes:</strong> Presentación, Dosaje, Contenido y Sabor se definen por cada variante en el tab{' '}
+                      <button type="button" className="underline font-medium" onClick={() => setActiveTab('variantes')}>
+                        Variantes
+                      </button>.
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <AutocompleteInput
+                        label="Presentacion"
+                        value={formData.presentacion}
+                        onChange={handleAutocompleteChange('presentacion')}
+                        suggestions={['Tabletas', 'Gomitas', 'Capsulas', 'Capsulas Blandas', 'Polvo', 'Liquido', ...sugerencias.presentaciones]}
+                        required
+                        placeholder="ej: Capsulas"
+                        allowCreate
+                        createLabel="Crear presentacion"
+                      />
                       <AutocompleteInput
                         label="Dosaje"
                         value={formData.dosaje}
@@ -1019,7 +1027,6 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         allowCreate
                         createLabel="Crear dosaje"
                       />
-
                       <AutocompleteInput
                         label="Contenido"
                         value={formData.contenido}
@@ -1029,42 +1036,24 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         allowCreate
                         createLabel="Crear contenido"
                       />
-                    </>
-                  )}
-                </div>
-
-                {/* Banner: campos que van en tab Variantes */}
-                {modoVariantes && (
-                  <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-                    <GitBranch className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                    <span>
-                      <strong>Producto con variantes:</strong> Dosaje, Contenido y Sabor se definen por cada variante en el tab{' '}
-                      <button type="button" className="underline font-medium" onClick={() => setActiveTab('variantes')}>
-                        Variantes
-                      </button>.
-                    </span>
-                  </div>
-                )}
-
-                {/* Sabor, UPC — solo en modo simple */}
-                {!modoVariantes && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="Sabor (opcional)"
-                      name="sabor"
-                      value={formData.sabor}
-                      onChange={handleChange}
-                      placeholder="ej: Limon, Fresa, Natural, Sin sabor"
-                    />
-
-                    <Input
-                      label="Codigo UPC/EAN (opcional)"
-                      name="codigoUPC"
-                      value={formData.codigoUPC}
-                      onChange={handleChange}
-                      placeholder="ej: 768990014307"
-                    />
-                  </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Input
+                        label="Sabor (opcional)"
+                        name="sabor"
+                        value={formData.sabor}
+                        onChange={handleChange}
+                        placeholder="ej: Limon, Fresa, Natural, Sin sabor"
+                      />
+                      <Input
+                        label="Codigo UPC/EAN (opcional)"
+                        name="codigoUPC"
+                        value={formData.codigoUPC}
+                        onChange={handleChange}
+                        placeholder="ej: 768990014307"
+                      />
+                    </div>
+                  </>
                 )}
 
                 {/* Ciclo de Recompra — solo suplementos, solo modo simple */}

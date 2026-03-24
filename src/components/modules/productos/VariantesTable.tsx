@@ -4,6 +4,7 @@ import { Button } from '../../common';
 
 export interface VarianteRow {
   id: string;
+  presentacion: string;
   contenido: string;
   dosaje: string;
   sabor: string;
@@ -32,7 +33,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
   const addVariante = () => {
     onChange([
       ...variantes,
-      { id: genId(), contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: false },
+      { id: genId(), presentacion: '', contenido: '', dosaje: '', sabor: '', varianteLabel: '', esPrincipal: false },
     ]);
   };
 
@@ -78,18 +79,19 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
       {/* Table */}
       <div className="border border-gray-200 rounded-lg overflow-hidden">
         {/* Header */}
-        <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-gray-50 border-b text-[10px] sm:text-xs font-medium text-gray-500 uppercase">
+        <div className="grid grid-cols-12 gap-1.5 px-3 py-2 bg-gray-50 border-b text-[10px] sm:text-xs font-medium text-gray-500 uppercase">
           <div className="col-span-1 text-center">Ppal</div>
-          <div className="col-span-3">Contenido *</div>
+          <div className="col-span-2">Presentación</div>
+          <div className="col-span-2">Contenido *</div>
           <div className="col-span-2">Dosaje</div>
           <div className="col-span-2">Sabor</div>
-          <div className="col-span-3">Label</div>
+          <div className="col-span-2">Label</div>
           <div className="col-span-1"></div>
         </div>
 
         {/* Rows */}
         {variantes.map((v, idx) => (
-          <div key={v.id} className={`grid grid-cols-12 gap-2 px-3 py-2 items-center border-b last:border-0 ${v.esPrincipal ? 'bg-primary-50/50' : ''}`}>
+          <div key={v.id} className={`grid grid-cols-12 gap-1.5 px-3 py-2 items-center border-b last:border-0 ${v.esPrincipal ? 'bg-primary-50/50' : ''}`}>
             <div className="col-span-1 text-center">
               <input
                 type="radio"
@@ -99,13 +101,22 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 className="text-primary-600"
               />
             </div>
-            <div className="col-span-3">
+            <div className="col-span-2">
+              <input
+                type="text"
+                value={v.presentacion}
+                onChange={(e) => updateVariante(v.id, 'presentacion', e.target.value)}
+                placeholder="Cápsulas"
+                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+              />
+            </div>
+            <div className="col-span-2">
               <input
                 type="text"
                 value={v.contenido}
                 onChange={(e) => updateVariante(v.id, 'contenido', e.target.value)}
                 placeholder="90 caps"
-                className="w-full px-2 py-1.5 text-xs sm:text-sm border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
             <div className="col-span-2">
@@ -114,7 +125,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 value={v.dosaje}
                 onChange={(e) => updateVariante(v.id, 'dosaje', e.target.value)}
                 placeholder="1000mg"
-                className="w-full px-2 py-1.5 text-xs sm:text-sm border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
             <div className="col-span-2">
@@ -123,10 +134,10 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 value={v.sabor}
                 onChange={(e) => updateVariante(v.id, 'sabor', e.target.value)}
                 placeholder="Natural"
-                className="w-full px-2 py-1.5 text-xs sm:text-sm border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
-            <div className="col-span-3">
+            <div className="col-span-2">
               <span className="text-xs text-gray-500 truncate block">{v.varianteLabel || '—'}</span>
             </div>
             <div className="col-span-1 text-center">
