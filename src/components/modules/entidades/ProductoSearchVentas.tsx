@@ -88,7 +88,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
     items: Array.isArray(productos) ? productos : [],
     getSearchableText: (p) => `${p.sku ?? ''} ${p.marca ?? ''} ${p.nombreComercial ?? ''} ${p.presentacion ?? ''} ${p.contenido ?? ''} ${p.dosaje ?? ''} ${p.sabor ?? ''}`,
     getLabel: (p) => `${p.sku} - ${p.marca} ${p.nombreComercial}`,
-    extraFilter: (p) => !(p as any).esPadre,
+    extraFilter: (p) => !(p as any).esPadre || !!(p as any).varianteLabel,
     maxResults: 15,
     minChars: 1,
     minDropdownWidth: 450,

@@ -335,7 +335,9 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
     // Build organized list
     productos.forEach(p => {
       if (p.esPadre) {
-        const variantes = variantsByParent.get(p.id) || [];
+        const childVariantes = variantsByParent.get(p.id) || [];
+        // Si el padre tiene varianteLabel, incluirlo como primera variante del grupo
+        const variantes = p.varianteLabel ? [p, ...childVariantes] : childVariantes;
         items.push({ type: 'group-header', producto: p, variantes });
       } else if (p.parentId && parentIds.has(p.parentId)) {
         // Skip — rendered under parent
@@ -615,7 +617,7 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                         <span className="text-xs font-mono font-semibold text-primary-600">{producto.sku}</span>
                         {producto.esPadre && (
                           <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
-                            G·{variantCountMap.get(producto.id) || 0}v
+                            G·{(variantCountMap.get(producto.id) || 0) + (producto.varianteLabel ? 1 : 0)}v
                           </span>
                         )}
                       </div>

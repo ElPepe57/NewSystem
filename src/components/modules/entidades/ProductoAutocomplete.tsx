@@ -96,7 +96,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
     items: Array.isArray(productos) ? productos : [],
     getSearchableText: (p) => `${p.sku ?? ''} ${p.marca ?? ''} ${p.nombreComercial ?? ''}`,
     getLabel: (p) => `${p.sku} - ${p.marca} ${p.nombreComercial}`,
-    extraFilter: (p) => !p.esPadre,
+    extraFilter: (p) => !p.esPadre || !!p.varianteLabel, // Excluir agrupadores puros, incluir padres que son productos reales
     maxResults: 20,
     minChars: 1,
     useFixed: true,

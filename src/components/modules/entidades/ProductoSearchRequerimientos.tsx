@@ -100,7 +100,7 @@ export const ProductoSearchRequerimientos: React.FC<ProductoSearchRequerimientos
     items: Array.isArray(productos) ? productos : [],
     getSearchableText: (p) => `${p.sku ?? ''} ${p.marca ?? ''} ${p.nombreComercial ?? ''}`,
     getLabel: (p) => `${p.sku} - ${p.marca} ${p.nombreComercial}`,
-    extraFilter: (p) => !p.esPadre,
+    extraFilter: (p) => !p.esPadre || !!p.varianteLabel, // Excluir agrupadores puros, incluir padres que son productos reales
     maxResults: 15,
     minChars: 1,
     minDropdownWidth: 550,
