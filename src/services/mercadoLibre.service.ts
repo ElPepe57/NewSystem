@@ -66,6 +66,15 @@ export const mercadoLibreService = {
   },
 
   /**
+   * Desconecta la cuenta de ML via Cloud Function
+   * Revoca token en ML API, elimina tokens de Firestore, registra audit log
+   */
+  async disconnect(): Promise<void> {
+    const fn = httpsCallable<void, { success: boolean }>(functions, 'mldisconnect');
+    await fn();
+  },
+
+  /**
    * Actualiza configuración de ML
    */
   async updateConfig(data: Partial<MLConfig>): Promise<void> {

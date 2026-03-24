@@ -15,7 +15,10 @@ import {
   Sparkles,
   Tag,
   Layers,
-  ShoppingBag
+  ShoppingBag,
+  Sun,
+  Droplets,
+  Palette
 } from 'lucide-react';
 import { Button, Input, AutocompleteInput, Tabs, TabsProvider, TabPanel, useTabs } from '../../common';
 import type { Tab } from '../../common/Tabs';
@@ -32,8 +35,9 @@ import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
 import { METODO_ENVIO_LABELS } from '../../../types/paisOrigen.types';
 import type { MetodoEnvio } from '../../../types/paisOrigen.types';
-import { Globe, Building2, Plus, MapPin, Truck } from 'lucide-react';
-import type { ProductoFormData, Producto, InvestigacionMercado } from '../../../types/producto.types';
+import { Globe, Building2, Plus, MapPin, Truck, Pencil, Trash2, Loader2 } from 'lucide-react';
+import type { ProductoFormData, Producto, InvestigacionMercado, AtributosSkincare, TipoProductoSKC, PasoRutinaSKC, TexturaSKC } from '../../../types/producto.types';
+import { TIPO_PRODUCTO_SKC_LABELS, PASO_RUTINA_LABELS, TEXTURA_LABELS, TIPO_PIEL_OPTIONS, PREOCUPACIONES_OPTIONS, ZONA_APLICACION_OPTIONS } from '../../../types/producto.types';
 import type { MarcaSnapshot, MarcaFormData } from '../../../types/entidadesMaestras.types';
 import type { TipoProductoSnapshot } from '../../../types/tipoProducto.types';
 import type { CategoriaSnapshot } from '../../../types/categoria.types';
@@ -76,9 +80,9 @@ interface SugerenciasInteligentes {
 
 // Definicion de tabs del formulario
 const FORM_TABS: Tab[] = [
-  { id: 'origen', label: 'Linea y Origen', icon: <Globe className="h-4 w-4" /> },
-  { id: 'basico', label: 'Informacion Basica', icon: <Tag className="h-4 w-4" /> },
-  { id: 'clasificacion', label: 'Clasificacion', icon: <Layers className="h-4 w-4" /> },
+  { id: 'origen', label: 'Origen', icon: <Globe className="h-4 w-4" /> },
+  { id: 'basico', label: 'Básico', icon: <Tag className="h-4 w-4" /> },
+  { id: 'clasificacion', label: 'Clasificación', icon: <Layers className="h-4 w-4" /> },
   { id: 'inventario', label: 'Inventario', icon: <Package className="h-4 w-4" /> },
 ];
 
@@ -93,7 +97,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   const toast = useToastStore();
   const { activeTab, setActiveTab } = useTabs('origen');
   const { lineasActivas, fetchLineasActivas } = useLineaNegocioStore();
-  const { paisesActivos, fetchPaisesActivos, createPais } = usePaisOrigenStore();
+  const { paisesActivos, fetchPaisesActivos, createPais, updatePais, deletePais, countProductosByPais } = usePaisOrigenStore();
 
   // Cargar líneas de negocio y países activos
   useEffect(() => {
@@ -101,14 +105,14 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     fetchPaisesActivos();
   }, [fetchLineasActivas, fetchPaisesActivos]);
 
-  // Estado para crear nuevo país inline
+  // Estado para crear/editar país inline
   const [mostrarNuevoPais, setMostrarNuevoPais] = useState(false);
   const [nuevoPaisNombre, setNuevoPaisNombre] = useState('');
   const [nuevoPaisCodigo, setNuevoPaisCodigo] = useState('');
-  const [nuevoPaisTarifaFlete, setNuevoPaisTarifaFlete] = useState('');
-  const [nuevoPaisMetodoEnvio, setNuevoPaisMetodoEnvio] = useState('');
-  const [nuevoPaisTiempoTransito, setNuevoPaisTiempoTransito] = useState('');
+  const [busquedaPais, setBusquedaPais] = useState('');
   const [creandoPais, setCreandoPais] = useState(false);
+  const [editandoPais, setEditandoPais] = useState<{ id: string; codigo: string } | null>(null);
+  const [eliminandoPais, setEliminandoPais] = useState<{ id: string; codigo: string; nombre: string; count: number } | null>(null);
 
   // Marca inteligente del maestro
   const [marcaSeleccionada, setMarcaSeleccionada] = useState<MarcaSnapshot | null>(null);
@@ -142,6 +146,8 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     // Línea de negocio y origen
     lineaNegocioId: initialData?.lineaNegocioId || '',
     paisOrigen: initialData?.paisOrigen || 'USA',
+    // Atributos Skincare
+    atributosSkincare: initialData?.atributosSkincare || undefined,
   });
 
   // Estados para snapshots de clasificacion (para guardar datos desnormalizados)
@@ -487,6 +493,28 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Helper para actualizar atributos skincare
+  const updateSKC = (updates: Partial<AtributosSkincare>) => {
+    setFormData(prev => ({
+      ...prev,
+      atributosSkincare: {
+        tipoProductoSKC: 'otro',
+        volumen: '',
+        ...(prev.atributosSkincare || {}),
+        ...updates,
+      } as AtributosSkincare,
+    }));
+  };
+
+  // Toggle chip para arrays de skincare
+  const toggleSKCChip = (field: 'tipoPiel' | 'preocupaciones' | 'zonaAplicacion', value: string) => {
+    const current = formData.atributosSkincare?.[field] || [];
+    const updated = current.includes(value)
+      ? current.filter((v: string) => v !== value)
+      : [...current, value];
+    updateSKC({ [field]: updated });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
@@ -516,178 +544,6 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* === SECCION PRE-INVESTIGACION (siempre visible) === */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-amber-500" />
-            Pre-Investigacion Inteligente
-          </h3>
-          {investigacionSeleccionada && (
-            <button
-              type="button"
-              onClick={limpiarInvestigacion}
-              className="text-sm text-red-600 hover:text-red-800"
-            >
-              Limpiar
-            </button>
-          )}
-        </div>
-
-        {!investigacionSeleccionada ? (
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
-            <p className="text-sm text-amber-800 mb-3">
-              Carga datos desde una investigacion de mercado existente para autocompletar precios, margenes y stocks sugeridos.
-            </p>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setMostrarSelectorInvestigacion(!mostrarSelectorInvestigacion)}
-              className="w-full justify-center"
-            >
-              <Search className="h-4 w-4 mr-2" />
-              {mostrarSelectorInvestigacion ? 'Ocultar selector' : 'Buscar investigacion existente'}
-              {productosConInvestigacion.length > 0 && (
-                <span className="ml-2 bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs">
-                  {productosConInvestigacion.length} disponibles
-                </span>
-              )}
-            </Button>
-
-            {mostrarSelectorInvestigacion && (
-              <div className="mt-4 space-y-3">
-                <Input
-                  label=""
-                  name="busquedaInvestigacion"
-                  value={busquedaInvestigacion}
-                  onChange={(e) => setBusquedaInvestigacion(e.target.value)}
-                  placeholder="Buscar por marca, nombre o SKU..."
-                />
-
-                <div className="max-h-48 overflow-y-auto space-y-2">
-                  {productosFiltrados.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-4">
-                      {productosConInvestigacion.length === 0
-                        ? 'No hay productos con investigacion vigente'
-                        : 'No se encontraron coincidencias'}
-                    </p>
-                  ) : (
-                    productosFiltrados.map(producto => {
-                      const inv = producto.investigacion!;
-                      return (
-                        <button
-                          key={producto.id}
-                          type="button"
-                          onClick={() => aplicarInvestigacion(producto)}
-                          className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-amber-300 transition-colors"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium text-gray-900">
-                                {producto.marca} - {producto.nombreComercial}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {producto.sku} | {producto.presentacion} {producto.dosaje} {producto.contenido}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm font-medium text-green-600">
-                                {inv.margenEstimado?.toFixed(1)}% margen
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                CTRU: S/{inv.ctruEstimado?.toFixed(2)}
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="font-medium text-green-800">Investigacion cargada</p>
-                  <p className="text-sm text-green-700">
-                    {formData.marca} - {formData.nombreComercial}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-lg font-bold text-green-700">
-                  {investigacionSeleccionada.margenEstimado?.toFixed(1)}%
-                </p>
-                <p className="text-xs text-green-600">margen estimado</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-3 mt-4">
-              <div className="bg-white/50 rounded p-2 text-center">
-                <p className="text-xs text-gray-600">Precio USA</p>
-                <p className="font-semibold text-gray-900">
-                  ${investigacionSeleccionada.precioUSAMin?.toFixed(2)}
-                </p>
-              </div>
-              <div className="bg-white/50 rounded p-2 text-center">
-                <p className="text-xs text-gray-600">CTRU</p>
-                <p className="font-semibold text-gray-900">
-                  S/{investigacionSeleccionada.ctruEstimado?.toFixed(2)}
-                </p>
-              </div>
-              <div className="bg-white/50 rounded p-2 text-center">
-                <p className="text-xs text-gray-600">Precio Peru</p>
-                <p className="font-semibold text-gray-900">
-                  S/{investigacionSeleccionada.precioPERUMin?.toFixed(2)}
-                </p>
-              </div>
-              <div className="bg-white/50 rounded p-2 text-center">
-                <p className="text-xs text-gray-600">Demanda</p>
-                <p className="font-semibold text-gray-900 capitalize">
-                  {investigacionSeleccionada.demandaEstimada}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {demandaDetectada && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
-              <h4 className="font-medium text-blue-800">Demanda detectada en el sistema</h4>
-            </div>
-            <div className="grid grid-cols-4 gap-3">
-              <div className="bg-white/50 rounded p-2 text-center">
-                <p className="text-xs text-gray-600">Cotizaciones</p>
-                <p className="font-semibold text-gray-900">{demandaDetectada.cotizaciones}</p>
-              </div>
-              <div className="bg-white/50 rounded p-2 text-center">
-                <p className="text-xs text-gray-600">Unidades</p>
-                <p className="font-semibold text-gray-900">{demandaDetectada.unidadesSolicitadas}</p>
-              </div>
-              <div className="bg-white/50 rounded p-2 text-center">
-                <p className="text-xs text-gray-600">Ventas/Mes</p>
-                <p className="font-semibold text-gray-900">{demandaDetectada.ventasMensualesPromedio}</p>
-              </div>
-              <div className="bg-white/50 rounded p-2 text-center flex items-center justify-center gap-1">
-                <TendenciaIcon className={`h-4 w-4 ${
-                  demandaDetectada.tendencia === 'subiendo' ? 'text-green-600' :
-                  demandaDetectada.tendencia === 'bajando' ? 'text-red-600' : 'text-gray-600'
-                }`} />
-                <p className="font-semibold capitalize">{demandaDetectada.tendencia}</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* === TABS DE NAVEGACION === */}
       <div className="border-t pt-6">
         <Tabs
@@ -743,35 +599,83 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                 <Globe className="h-4 w-4 text-blue-600" />
                 País de Origen
               </label>
+              {paisesActivos.length > 4 && (
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={busquedaPais}
+                    onChange={(e) => setBusquedaPais(e.target.value)}
+                    placeholder="Buscar país por nombre o código..."
+                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              )}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {paisesActivos.map(pais => (
-                  <button
-                    key={pais.id}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, paisOrigen: pais.codigo }))}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
-                      formData.paisOrigen === pais.codigo
-                        ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200'
-                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-                    }`}
-                  >
-                    <MapPin className={`h-5 w-5 ${formData.paisOrigen === pais.codigo ? 'text-blue-600' : 'text-gray-400'}`} />
-                    <div className="text-center">
-                      <p className={`text-sm font-medium ${formData.paisOrigen === pais.codigo ? 'text-blue-900' : 'text-gray-900'}`}>
-                        {pais.nombre}
-                      </p>
-                      <p className="text-xs text-gray-500">{pais.codigo}</p>
-                      {pais.tiempoTransitoEstimadoDias != null && pais.tiempoTransitoEstimadoDias > 0 && (
-                        <p className="text-xs text-gray-400 mt-0.5">~{pais.tiempoTransitoEstimadoDias}d tránsito</p>
-                      )}
+                {paisesActivos.filter(p => {
+                  if (!busquedaPais) return true;
+                  const q = busquedaPais.toLowerCase();
+                  return p.nombre.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q);
+                }).map(pais => (
+                  <div key={pais.id} className="relative group">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, paisOrigen: pais.codigo }))}
+                      className={`w-full flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                        formData.paisOrigen === pais.codigo
+                          ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200'
+                          : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                      }`}
+                    >
+                      <MapPin className={`h-5 w-5 ${formData.paisOrigen === pais.codigo ? 'text-blue-600' : 'text-gray-400'}`} />
+                      <div className="text-center">
+                        <p className={`text-sm font-medium ${formData.paisOrigen === pais.codigo ? 'text-blue-900' : 'text-gray-900'}`}>
+                          {pais.nombre}
+                        </p>
+                        <p className="text-xs text-gray-500">{pais.codigo}</p>
+                      </div>
+                    </button>
+                    {/* Acciones: editar / eliminar */}
+                    <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditandoPais({ id: pais.id, codigo: pais.codigo });
+                          setNuevoPaisNombre(pais.nombre);
+                          setNuevoPaisCodigo(pais.codigo);
+                          setMostrarNuevoPais(true);
+                        }}
+                        className="p-1 rounded bg-white/80 hover:bg-blue-100 text-gray-400 hover:text-blue-600 transition-colors"
+                        title="Editar país"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const count = await countProductosByPais(pais.codigo);
+                          setEliminandoPais({ id: pais.id, codigo: pais.codigo, nombre: pais.nombre, count });
+                        }}
+                        className="p-1 rounded bg-white/80 hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors"
+                        title="Eliminar país"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
                     </div>
-                  </button>
+                  </div>
                 ))}
 
                 {/* Botón Agregar País */}
                 <button
                   type="button"
-                  onClick={() => setMostrarNuevoPais(!mostrarNuevoPais)}
+                  onClick={() => {
+                    setEditandoPais(null);
+                    setNuevoPaisNombre('');
+                    setNuevoPaisCodigo('');
+                    setMostrarNuevoPais(!mostrarNuevoPais);
+                  }}
                   className="flex flex-col items-center justify-center gap-2 p-3 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-blue-400 hover:text-blue-500 transition-all"
                 >
                   <Plus className="h-5 w-5" />
@@ -779,10 +683,53 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                 </button>
               </div>
 
-              {/* Formulario inline para crear nuevo país */}
+              {/* Diálogo de confirmación para eliminar */}
+              {eliminandoPais && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-3 space-y-3">
+                  <h5 className="text-sm font-medium text-red-800">Eliminar "{eliminandoPais.nombre}" ({eliminandoPais.codigo})</h5>
+                  {eliminandoPais.count > 0 ? (
+                    <p className="text-xs text-red-700">
+                      Este país está asociado a <strong>{eliminandoPais.count} producto{eliminandoPais.count > 1 ? 's' : ''}</strong>. Se limpiará el campo de origen de esos productos.
+                    </p>
+                  ) : (
+                    <p className="text-xs text-red-700">Este país no tiene productos asociados.</p>
+                  )}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const result = await deletePais(eliminandoPais.id, eliminandoPais.codigo);
+                          if (formData.paisOrigen === eliminandoPais.codigo) {
+                            setFormData(prev => ({ ...prev, paisOrigen: '' }));
+                          }
+                          toast.success(`País "${eliminandoPais.nombre}" eliminado${result.productosLimpiados > 0 ? ` (${result.productosLimpiados} productos actualizados)` : ''}`);
+                          setEliminandoPais(null);
+                        } catch (err: any) {
+                          toast.error(err.message || 'Error al eliminar país');
+                        }
+                      }}
+                      className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700"
+                    >
+                      Confirmar eliminación
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEliminandoPais(null)}
+                      className="px-4 py-2 text-gray-600 text-sm rounded-lg hover:bg-gray-100"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Formulario inline para crear/editar país */}
               {mostrarNuevoPais && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-3 space-y-3">
-                  <h5 className="text-sm font-medium text-blue-800">Agregar nuevo país de origen</h5>
+                <div className={`${editandoPais ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'} border rounded-lg p-4 mt-3 space-y-3`}>
+                  <h5 className={`text-sm font-medium ${editandoPais ? 'text-amber-800' : 'text-blue-800'}`}>
+                    {editandoPais ? 'Editar país de origen' : 'Agregar nuevo país de origen'}
+                  </h5>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs text-gray-600 mb-1">Nombre del país</label>
@@ -807,51 +754,6 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                     </div>
                   </div>
 
-                  {/* Freight / shipping fields */}
-                  <div className="border-t border-blue-200 pt-3 mt-2">
-                    <h6 className="text-xs font-medium text-blue-700 mb-2 flex items-center gap-1">
-                      <Truck className="h-3.5 w-3.5" /> Tarifa de flete estimada (ruta hacia Perú)
-                    </h6>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Flete USD/unidad</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={nuevoPaisTarifaFlete}
-                          onChange={(e) => setNuevoPaisTarifaFlete(e.target.value)}
-                          placeholder="ej: 3.50"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Método de envío</label>
-                        <select
-                          value={nuevoPaisMetodoEnvio}
-                          onChange={(e) => setNuevoPaisMetodoEnvio(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                        >
-                          <option value="">-- Seleccionar --</option>
-                          {Object.entries(METODO_ENVIO_LABELS).map(([val, label]) => (
-                            <option key={val} value={val}>{label}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Tránsito (días)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          value={nuevoPaisTiempoTransito}
-                          onChange={(e) => setNuevoPaisTiempoTransito(e.target.value)}
-                          placeholder="ej: 5"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -860,41 +762,47 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         if (!user || !nuevoPaisNombre || !nuevoPaisCodigo) return;
                         setCreandoPais(true);
                         try {
-                          await createPais({
-                            nombre: nuevoPaisNombre,
-                            codigo: nuevoPaisCodigo,
-                            activo: true,
-                            tarifaFleteEstimadaUSD: nuevoPaisTarifaFlete ? parseFloat(nuevoPaisTarifaFlete) : undefined,
-                            metodoEnvio: (nuevoPaisMetodoEnvio || undefined) as MetodoEnvio | undefined,
-                            tiempoTransitoDias: nuevoPaisTiempoTransito ? parseInt(nuevoPaisTiempoTransito) : undefined,
-                          }, user.uid);
+                          if (editandoPais) {
+                            await updatePais(editandoPais.id, {
+                              nombre: nuevoPaisNombre,
+                              codigo: nuevoPaisCodigo,
+                            }, user.uid);
+                            if (formData.paisOrigen === editandoPais.codigo && nuevoPaisCodigo !== editandoPais.codigo) {
+                              setFormData(prev => ({ ...prev, paisOrigen: nuevoPaisCodigo }));
+                            }
+                            toast.success('País actualizado');
+                          } else {
+                            await createPais({
+                              nombre: nuevoPaisNombre,
+                              codigo: nuevoPaisCodigo,
+                              activo: true,
+                            }, user.uid);
+                            setFormData(prev => ({ ...prev, paisOrigen: nuevoPaisCodigo }));
+                          }
                           await fetchPaisesActivos();
-                          setFormData(prev => ({ ...prev, paisOrigen: nuevoPaisCodigo }));
                           setNuevoPaisNombre('');
                           setNuevoPaisCodigo('');
-                          setNuevoPaisTarifaFlete('');
-                          setNuevoPaisMetodoEnvio('');
-                          setNuevoPaisTiempoTransito('');
+                          setEditandoPais(null);
                           setMostrarNuevoPais(false);
                         } catch (err: any) {
-                          toast.error(err.message || 'Error al crear pais');
+                          toast.error(err.message || `Error al ${editandoPais ? 'actualizar' : 'crear'} país`);
                         } finally {
                           setCreandoPais(false);
                         }
                       }}
-                      className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={`px-4 py-2 text-white text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+                        editandoPais ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700'
+                      }`}
                     >
-                      {creandoPais ? 'Creando...' : 'Crear país'}
+                      {creandoPais ? (editandoPais ? 'Guardando...' : 'Creando...') : (editandoPais ? 'Guardar cambios' : 'Crear país')}
                     </button>
                     <button
                       type="button"
                       onClick={() => {
                         setMostrarNuevoPais(false);
+                        setEditandoPais(null);
                         setNuevoPaisNombre('');
                         setNuevoPaisCodigo('');
-                        setNuevoPaisTarifaFlete('');
-                        setNuevoPaisMetodoEnvio('');
-                        setNuevoPaisTiempoTransito('');
                       }}
                       className="px-4 py-2 text-gray-600 text-sm rounded-lg hover:bg-gray-100"
                     >
@@ -1128,53 +1036,96 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
               </>
             ) : (
               <>
-                {/* SKINCARE / OTRAS LÍNEAS: Tipo, Volumen, Ingredientes, Tipo Piel */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* SKINCARE — Todos los campos son libres con sugerencias */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <AutocompleteInput
                     label="Tipo de Producto"
-                    value={formData.presentacion}
-                    onChange={handleAutocompleteChange('presentacion')}
-                    suggestions={['Serum', 'Crema', 'Tonico', 'Limpiador', 'Mascarilla', 'Protector Solar', 'Exfoliante', 'Aceite', 'Esencia', 'Parches', 'Contorno de Ojos', 'Bruma Facial']}
-                    required
-                    placeholder="ej: Serum"
+                    value={formData.atributosSkincare?.tipoProductoSKC || ''}
+                    onChange={(v) => updateSKC({ tipoProductoSKC: v as TipoProductoSKC })}
+                    suggestions={Object.values(TIPO_PRODUCTO_SKC_LABELS)}
+                    placeholder="ej: Serum, Crema, Protector Solar..."
                     allowCreate
-                    createLabel="Crear tipo"
+                    createLabel="Usar"
                   />
-
                   <AutocompleteInput
                     label="Volumen / Peso"
-                    value={formData.contenido}
-                    onChange={handleAutocompleteChange('contenido')}
-                    suggestions={['30ml', '50ml', '100ml', '150ml', '200ml', '250ml', '300ml', '50g', '100g', '150g']}
-                    placeholder="ej: 50ml"
+                    value={formData.atributosSkincare?.volumen || ''}
+                    onChange={(v) => updateSKC({ volumen: v })}
+                    suggestions={[]}
+                    placeholder="ej: 50ml, 27g, 200ml..."
                     allowCreate
-                    createLabel="Crear volumen"
+                    createLabel="Usar"
                   />
-
                   <AutocompleteInput
                     label="Ingrediente Clave"
-                    value={formData.dosaje}
-                    onChange={handleAutocompleteChange('dosaje')}
-                    suggestions={['Niacinamida', 'Acido Hialuronico', 'Retinol', 'Vitamina C', 'AHA/BHA', 'Centella Asiatica', 'Snail Mucin', 'Ceramidas', 'Peptidos', 'Acido Salicilico', 'Tea Tree', 'Collageno']}
-                    placeholder="ej: Niacinamida"
+                    value={formData.atributosSkincare?.ingredienteClave || ''}
+                    onChange={(v) => updateSKC({ ingredienteClave: v })}
+                    suggestions={[]}
+                    placeholder="ej: Centella, Niacinamida..."
                     allowCreate
-                    createLabel="Crear ingrediente"
+                    createLabel="Usar"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <AutocompleteInput
-                    label="Tipo de Piel (opcional)"
-                    value={formData.sabor || ''}
-                    onChange={handleAutocompleteChange('sabor')}
-                    suggestions={['Todo tipo de piel', 'Piel grasa', 'Piel seca', 'Piel mixta', 'Piel sensible', 'Piel madura', 'Piel con acne']}
-                    placeholder="ej: Piel mixta"
+                    label="Línea del Producto"
+                    value={formData.atributosSkincare?.lineaProducto || ''}
+                    onChange={(v) => updateSKC({ lineaProducto: v })}
+                    suggestions={[]}
+                    placeholder="ej: Madagascar Centella..."
                     allowCreate
-                    createLabel="Crear tipo de piel"
+                    createLabel="Usar"
                   />
+                  <AutocompleteInput
+                    label="Tipo de Piel"
+                    value={(formData.atributosSkincare?.tipoPiel || []).join(', ')}
+                    onChange={(v) => updateSKC({ tipoPiel: v ? v.split(',').map(s => s.trim()).filter(Boolean) : [] })}
+                    suggestions={TIPO_PIEL_OPTIONS}
+                    placeholder="ej: Grasa, Mixta, Sensible..."
+                    allowCreate
+                    createLabel="Usar"
+                  />
+                  <AutocompleteInput
+                    label="Preocupaciones"
+                    value={(formData.atributosSkincare?.preocupaciones || []).join(', ')}
+                    onChange={(v) => updateSKC({ preocupaciones: v ? v.split(',').map(s => s.trim()).filter(Boolean) : [] })}
+                    suggestions={PREOCUPACIONES_OPTIONS}
+                    placeholder="ej: Acné, Poros, Manchas..."
+                    allowCreate
+                    createLabel="Usar"
+                  />
+                </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <Input
-                    label="Codigo UPC/EAN (opcional)"
+                    label="SPF"
+                    name="spf"
+                    type="number"
+                    value={formData.atributosSkincare?.spf || ''}
+                    onChange={(e) => updateSKC({ spf: parseInt(e.target.value) || undefined })}
+                    placeholder="ej: 50 (solo protectores)"
+                  />
+                  <Input
+                    label="PA"
+                    name="pa"
+                    value={formData.atributosSkincare?.pa || ''}
+                    onChange={(e) => updateSKC({ pa: e.target.value || undefined })}
+                    placeholder="ej: PA++++"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input
+                    label="PAO (meses post-apertura)"
+                    name="pao"
+                    type="number"
+                    value={formData.atributosSkincare?.pao || ''}
+                    onChange={(e) => updateSKC({ pao: parseInt(e.target.value) || undefined })}
+                    placeholder="ej: 12"
+                  />
+                  <Input
+                    label="Código UPC/EAN"
                     name="codigoUPC"
                     value={formData.codigoUPC}
                     onChange={handleChange}

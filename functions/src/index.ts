@@ -56,6 +56,7 @@ export {
   mlrepairgastosml,
   mlrepairmetodoenvio,
   mlautocreateventas,
+  mldisconnect,
 } from "./mercadolibre";
 
 // ============================================================
@@ -2046,3 +2047,5 @@ export const poolUSDSnapshotMensual = functions.pubsub
       return null;
     }
   });
+
+// Auto-purge eliminado: los productos archivados se conservan permanentemente para trazabilidad

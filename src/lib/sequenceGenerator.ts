@@ -40,6 +40,28 @@ export async function getNextSequenceNumber(
 }
 
 /**
+ * Obtiene el próximo número de secuencia SIN incrementar el contador.
+ * Solo lectura — para preview en formularios.
+ */
+export async function peekNextSequenceNumber(
+  prefix: string,
+  padLength: number = 3
+): Promise<string> {
+  const counterRef = doc(db, 'contadores', prefix);
+  const { getDoc } = await import('firebase/firestore');
+  const counterDoc = await getDoc(counterRef);
+
+  let current = 0;
+  if (counterDoc.exists()) {
+    current = counterDoc.data().current || 0;
+  }
+
+  const next = current + 1;
+  const separator = prefix.includes('-') ? '-' : '-';
+  return `${prefix}${separator}${next.toString().padStart(padLength, '0')}`;
+}
+
+/**
  * Inicializa un contador basado en los datos existentes.
  * Ejecutar UNA VEZ para migrar del patrón anterior (full-collection scan)
  * al patrón de contador atómico.

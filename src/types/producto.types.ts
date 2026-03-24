@@ -15,7 +15,131 @@ export type Presentacion =
   | 'polvo'
   | 'liquido';
 
-export type EstadoProducto = 'activo' | 'inactivo' | 'descontinuado';
+export type EstadoProducto = 'activo' | 'inactivo' | 'descontinuado' | 'eliminado';
+
+// ============================================
+// ATRIBUTOS SKINCARE (SKC)
+// ============================================
+
+export type TipoProductoSKC =
+  | 'serum'
+  | 'crema'
+  | 'tonico'
+  | 'limpiador'
+  | 'aceite_limpiador'
+  | 'exfoliante'
+  | 'mascarilla'
+  | 'protector_solar'
+  | 'esencia'
+  | 'ampolla'
+  | 'contorno_ojos'
+  | 'bruma'
+  | 'balsamo'
+  | 'parches'
+  | 'peeling'
+  | 'mist'
+  | 'otro';
+
+export type PasoRutinaSKC =
+  | 'limpieza_aceite'
+  | 'limpieza_agua'
+  | 'exfoliacion'
+  | 'tonificacion'
+  | 'esencia'
+  | 'serum_tratamiento'
+  | 'mascarilla'
+  | 'contorno_ojos'
+  | 'hidratacion'
+  | 'proteccion_solar';
+
+export type TexturaSKC =
+  | 'gel'
+  | 'crema'
+  | 'aceite'
+  | 'espuma'
+  | 'stick'
+  | 'parche'
+  | 'polvo'
+  | 'agua'
+  | 'balsamo'
+  | 'locion';
+
+export interface AtributosSkincare {
+  tipoProductoSKC: TipoProductoSKC;
+  volumen: string;
+  unidadMedida?: 'ml' | 'g' | 'oz' | 'unidades';
+  ingredienteClave?: string;
+  ingredientesSecundarios?: string[];
+  lineaProducto?: string;
+  tipoPiel?: string[];
+  preocupaciones?: string[];
+  pasoRutina?: PasoRutinaSKC;
+  textura?: TexturaSKC;
+  zonaAplicacion?: string[];
+  spf?: number;
+  pa?: string;
+  pao?: number;
+}
+
+// Labels para UI
+export const TIPO_PRODUCTO_SKC_LABELS: Record<TipoProductoSKC, string> = {
+  serum: 'Serum',
+  crema: 'Crema',
+  tonico: 'Tónico',
+  limpiador: 'Limpiador',
+  aceite_limpiador: 'Aceite Limpiador',
+  exfoliante: 'Exfoliante',
+  mascarilla: 'Mascarilla',
+  protector_solar: 'Protector Solar',
+  esencia: 'Esencia',
+  ampolla: 'Ampolla',
+  contorno_ojos: 'Contorno de Ojos',
+  bruma: 'Bruma Facial',
+  balsamo: 'Bálsamo',
+  parches: 'Parches',
+  peeling: 'Peeling',
+  mist: 'Mist',
+  otro: 'Otro',
+};
+
+export const PASO_RUTINA_LABELS: Record<PasoRutinaSKC, string> = {
+  limpieza_aceite: 'Limpieza (Aceite)',
+  limpieza_agua: 'Limpieza (Agua)',
+  exfoliacion: 'Exfoliación',
+  tonificacion: 'Tonificación',
+  esencia: 'Esencia',
+  serum_tratamiento: 'Serum / Tratamiento',
+  mascarilla: 'Mascarilla',
+  contorno_ojos: 'Contorno de Ojos',
+  hidratacion: 'Hidratación',
+  proteccion_solar: 'Protección Solar',
+};
+
+export const TEXTURA_LABELS: Record<TexturaSKC, string> = {
+  gel: 'Gel',
+  crema: 'Crema',
+  aceite: 'Aceite',
+  espuma: 'Espuma',
+  stick: 'Stick',
+  parche: 'Parche',
+  polvo: 'Polvo',
+  agua: 'Agua / Mist',
+  balsamo: 'Bálsamo',
+  locion: 'Loción',
+};
+
+export const TIPO_PIEL_OPTIONS = [
+  'Todo tipo', 'Grasa', 'Seca', 'Mixta', 'Sensible', 'Madura', 'Con acné',
+];
+
+export const PREOCUPACIONES_OPTIONS = [
+  'Acné', 'Manchas', 'Arrugas', 'Poros', 'Hidratación', 'Protección Solar',
+  'Luminosidad', 'Firmeza', 'Rojeces', 'Textura', 'Oleosidad',
+];
+
+export const ZONA_APLICACION_OPTIONS = [
+  'Rostro', 'Cuerpo', 'Contorno de ojos', 'Labios', 'Cuello', 'Manos',
+];
 
 // ============================================
 // INVESTIGACIÓN DE MERCADO
@@ -305,6 +429,8 @@ export interface Producto {
   codigoUPC: string;
 
   estado: EstadoProducto;
+  fechaEliminacion?: any;
+  eliminadoPor?: string;
   etiquetas: string[];
 
   // === COSTOS ===
@@ -324,6 +450,9 @@ export interface Producto {
   paisOrigen?: string;                    // País de origen del producto ('USA', 'China', 'Corea', 'Peru')
   lineaNegocioId?: string;                // ID de la línea de negocio
   lineaNegocioNombre?: string;            // Desnormalizado para display
+
+  // === ATRIBUTOS SKINCARE (solo línea SKC) ===
+  atributosSkincare?: AtributosSkincare;
 
   // === STOCK ===
   /** @deprecated Usar stockOrigen para multi-país */
@@ -403,6 +532,9 @@ export interface ProductoFormData {
   costoFleteInternacional?: number;
   paisOrigen?: string;                      // País de origen del producto
   lineaNegocioId?: string;                  // ID de la línea de negocio
+
+  // === ATRIBUTOS SKINCARE (solo línea SKC) ===
+  atributosSkincare?: AtributosSkincare;
 
   // === CICLO DE RECOMPRA ===
   /**

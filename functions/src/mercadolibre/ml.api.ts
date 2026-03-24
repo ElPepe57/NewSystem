@@ -110,6 +110,48 @@ export async function refreshAccessToken(refreshToken: string): Promise<MLTokenR
   return response.data;
 }
 
+/**
+ * Revoca el access_token en la API de ML (RFC 7009)
+ * Después de esto, el token ya no es válido para llamadas a la API
+ */
+export async function revokeMLToken(accessToken: string): Promise<void> {
+  const { clientId, clientSecret } = getConfig();
+
+  try {
+    await axios.post(`${ML_API_BASE}/oauth/token`, {
+      grant_type: "revoke",
+      client_id: clientId,
+      client_secret: clientSecret,
+      token: accessToken,
+    });
+  } catch (err: any) {
+    // Log but don't throw — token may already be expired/invalid
+    functions.logger.warn("ML token revocation failed (may already be expired):", err.response?.data || err.message);
+  }
+}
+
+/**
+ * Elimina tokens y limpia config de ML en Firestore
+ */
+export async function clearMLConnection(): Promise<void> {
+  const db = admin.firestore();
+
+  // Delete tokens document
+  await db.collection(COLLECTIONS.ML_CONFIG).doc("tokens").delete();
+
+  // Clean settings
+  await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").set({
+    connected: false,
+    userId: null,
+    nickname: null,
+    email: null,
+    tokenExpiresAt: null,
+    webhookRegistered: false,
+    webhookUrl: null,
+    disconnectedAt: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+}
+
 // SEC-008: Token obfuscation to prevent casual reading from Firestore console
 function obfuscateToken(token: string): string {
   return Buffer.from(token).toString("base64");

@@ -102,6 +102,8 @@ interface MercadoLibreState {
   getAuthUrl: () => Promise<string>;
   refreshStatus: () => Promise<void>;
   updateConfig: (data: Partial<MLConfig>) => Promise<void>;
+  disconnect: () => Promise<void>;
+  disconnecting: boolean;
 
   // Productos
   syncItems: () => Promise<{ total: number; nuevos: number; actualizados: number }>;
@@ -209,6 +211,7 @@ export const useMercadoLibreStore = create<MercadoLibreState>((set, get) => ({
   syncingBuyBox: false,
   consolidatingPacks: false,
   runningDiagnostic: false,
+  disconnecting: false,
   error: null,
   initialized: false,
   _unsubConfig: null,
@@ -302,6 +305,31 @@ export const useMercadoLibreStore = create<MercadoLibreState>((set, get) => ({
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error actualizando config';
       set({ error: message });
+      throw error;
+    }
+  },
+
+  disconnect: async () => {
+    set({ disconnecting: true, error: null });
+    try {
+      // BUG-001 fix: cancel listeners BEFORE writing to Firestore
+      // to prevent onConfigChange from receiving the intermediate snapshot
+      get().cleanup();
+      await mercadoLibreService.disconnect();
+      set({
+        config: null,
+        productMaps: [],
+        orderSyncs: [],
+        questions: [],
+        questionsTotal: 0,
+        disconnecting: false,
+        initialized: false,
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error desconectando ML';
+      set({ error: message, disconnecting: false });
+      // Re-initialize listeners if disconnect failed
+      get().initialize();
       throw error;
     }
   },

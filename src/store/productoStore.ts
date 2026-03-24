@@ -4,15 +4,19 @@ import { ProductoService } from '../services/producto.service';
 
 interface ProductoState {
   productos: Producto[];
+  archivados: Producto[];
   loading: boolean;
+  loadingArchivados: boolean;
   error: string | null;
   selectedProducto: Producto | null;
 
   // Actions
-  fetchProductos: () => Promise<void>;
+  fetchProductos: (incluirInactivos?: boolean) => Promise<void>;
+  fetchArchivados: () => Promise<void>;
   createProducto: (data: any, userId: string) => Promise<void>;
   updateProducto: (id: string, data: any) => Promise<void>;
-  deleteProducto: (id: string) => Promise<void>;
+  deleteProducto: (id: string, userId?: string) => Promise<void>;
+  reactivarProducto: (id: string) => Promise<void>;
   setSelectedProducto: (producto: Producto | null) => void;
 
   // Investigación de Mercado
@@ -22,17 +26,29 @@ interface ProductoState {
 
 export const useProductoStore = create<ProductoState>((set) => ({
   productos: [],
+  archivados: [],
   loading: false,
+  loadingArchivados: false,
   error: null,
   selectedProducto: null,
   
-  fetchProductos: async () => {
+  fetchProductos: async (incluirInactivos = false) => {
     set({ loading: true, error: null });
     try {
-      const productos = await ProductoService.getAll();
+      const productos = await ProductoService.getAll(incluirInactivos);
       set({ productos, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
+    }
+  },
+
+  fetchArchivados: async () => {
+    set({ loadingArchivados: true });
+    try {
+      const archivados = await ProductoService.getArchivados();
+      set({ archivados, loadingArchivados: false });
+    } catch (error: any) {
+      set({ error: error.message, loadingArchivados: false });
     }
   },
   
@@ -66,10 +82,10 @@ export const useProductoStore = create<ProductoState>((set) => ({
     }
   },
   
-  deleteProducto: async (id) => {
+  deleteProducto: async (id, userId) => {
     set({ loading: true, error: null });
     try {
-      await ProductoService.delete(id);
+      await ProductoService.delete(id, userId);
       set(state => ({
         productos: state.productos.filter(p => p.id !== id),
         loading: false
@@ -80,6 +96,23 @@ export const useProductoStore = create<ProductoState>((set) => ({
     }
   },
   
+  reactivarProducto: async (id) => {
+    try {
+      await ProductoService.reactivar(id);
+      set(state => {
+        const producto = state.archivados.find(p => p.id === id) || state.productos.find(p => p.id === id);
+        const reactivado = producto ? { ...producto, estado: 'activo' as const, fechaEliminacion: undefined, eliminadoPor: undefined } : null;
+        return {
+          eliminados: state.archivados.filter(p => p.id !== id),
+          productos: reactivado ? [reactivado, ...state.productos.filter(p => p.id !== id)] : state.productos,
+        };
+      });
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    }
+  },
+
   setSelectedProducto: (producto) => {
     set({ selectedProducto: producto });
   },

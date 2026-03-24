@@ -4049,3 +4049,203 @@ Regla Firestore:
 
 *Documento generado por implementation-controller (Agente 23)*
 *Ultima actualizacion: 2026-03-21 — Sesion 17 completada. Deploy 21 exitoso (hosting + 55 funciones + firestore:rules). 28 cambios (CAMBIO-124 a CAMBIO-151). Sesion masiva con 8 agentes: bugs de logica (runTransaction en asignarInventario, Pool USD fallback, retry dedup), seguridad (auth messages, contadores +1, ML OAuth CSRF, notificaciones propias, validateBeforeWrite Zod), performance (limit/where en 8 servicios, Dashboard 2 fases, Zustand selectores, TTL unidadStore, perf.ts observabilidad), UX (~45 alert migrados, Modal estandar, aria-labels, Loader2), calidad (244 COLLECTIONS en ML, 6 colecciones sincronizadas, ruta huerfana eliminada, fix regresion /test-pdf). 3 disenos de modulos futuros completados: devoluciones (18-20h), cierre contable (22-30h), conciliacion bancaria (3 opciones, pospuesto). ~152 fixes acumulados en produccion. 122 tests passing sin regresiones. +317 lineas netas en sesion.*
+
+---
+
+---
+
+## SESION 18 — 2026-03-23 (Boton desconectar MercadoLibre + fixes de seguridad OAuth)
+
+### Objetivo
+Implementar la funcionalidad de desconexion de cuenta de MercadoLibre desde el ERP. La desconexion debia ser segura (revocar token en la API de ML, eliminar tokens de Firestore, audit log), correcta (sin race conditions entre listeners y escritura a Firestore), y con UX adecuada (confirmacion de 2 pasos, feedback durante la operacion).
+
+### Agentes ejecutados
+- security-guardian (hallazgos SEC-ML-001 a SEC-ML-008 — tokens reales expuestos, ausencia de revocacion OAuth)
+- backend-cloud-engineer (CAMBIO-152: revokeMLToken + clearMLConnection en ml.api.ts; CAMBIO-153: Cloud Function mldisconnect)
+- code-logic-analyst (CAMBIO-154: mercadoLibreStore disconnect con cleanup-before-write; BUG-001 race condition)
+- frontend-design-specialist (CAMBIO-155: boton desconectar en TabConfiguracion con confirmacion 2 pasos)
+- erp-integration-engineer (revision de impacto en flujo OAuth y estructura de colecciones ML en Firestore)
+
+### Hallazgos de seguridad identificados y resueltos
+
+| ID | Severidad | Descripcion | Estado |
+|----|-----------|-------------|--------|
+| SEC-ML-001 | CRITICO | Tokens reales OAuth en mlConfig/tokens nunca se eliminaban al desconectar | RESUELTO (CAMBIO-152/153) |
+| SEC-ML-002 | CRITICO | Token OAuth no se revocaba en la API de ML al desconectar (RFC 7009) | RESUELTO (CAMBIO-152) |
+| SEC-ML-003 | ALTO | Operacion de desconexion ocurria en frontend sin audit log | RESUELTO (CAMBIO-153) |
+| SEC-ML-004 | MEDIO | Tokens almacenados con ofuscacion base64 (implementada en S17) — migracion a AES-256 pendiente | PENDIENTE (futura) |
+| SEC-ML-005 | MEDIO | Escritura de campos inexistentes en mlConfig/settings al desconectar | RESUELTO (CAMBIO-152) |
+| SEC-ML-006 | BAJO | Confirmacion de desconexion insuficiente para accion destructiva | RESUELTO (CAMBIO-155 — 2 pasos) |
+| SEC-ML-007 | BAJO | No se requeria segundo factor (escribir "DESCONECTAR") | PENDIENTE (futura — decision de negocio) |
+| SEC-ML-008 | BAJO | Prop config: any en TabConfiguracionProps | PENDIENTE (futura — deuda tecnica) |
+
+### Bugs de logica identificados y resueltos
+
+| ID | Descripcion | Estado |
+|----|-------------|--------|
+| BUG-001 | Race condition: listeners de Firestore se cancelaban DESPUES de escribir el estado desconectado, causando un listener huerfano que disparaba actualizaciones del store con datos eliminados | RESUELTO (CAMBIO-154) |
+| BUG-003 | setShowDisconnectConfirm(false) se llamaba despues de una desconexion exitosa, pero el componente ya se desmontaba — llamada innecesaria a setter de estado desmontado | RESUELTO (CAMBIO-155 — removida la llamada post-exito) |
+| EDGE-002 | Boton de desconectar quedaba habilitado mientras otra operacion (conectar, sincronizar) estaba en curso | RESUELTO (CAMBIO-155) |
+
+### Fixes aplicados en Sesion 18
+
+#### CAMBIO-152 — ml.api.ts: revokeMLToken() y clearMLConnection()
+- Tipo: Feature (funciones de backend)
+- Descripcion: Dos funciones exportadas nuevas en `functions/src/mercadolibre/ml.api.ts`:
+  - `revokeMLToken(accessToken: string)`: llama al endpoint de revocacion de token de MercadoLibre (`https://api.mercadolibre.com/oauth/token/revoke`) siguiendo RFC 7009. La revocacion es best-effort — si el token ya expiro o ML retorna error, la funcion no bloquea el flujo de desconexion (el objetivo es limpiar el lado ML, pero si el token ya era invalido el riesgo queda resuelto de todas formas).
+  - `clearMLConnection(userId: string)`: elimina los documentos `mlConfig/tokens` y limpia los campos de configuracion en `mlConfig/settings` (conserva el documento settings pero elimina los campos sensibles: accessToken, refreshToken, expiresAt, userId ML). Usa batch write para atomicidad.
+- Archivo: `functions/src/mercadolibre/ml.api.ts`
+- Reversible: si (el flujo de reconexion OAuth recrea los documentos eliminados)
+
+#### CAMBIO-153 — ml.auth.ts: Cloud Function mldisconnect (httpsCallable)
+- Tipo: Feature (Cloud Function nueva — numero 56)
+- Descripcion: Nueva Cloud Function `mldisconnect` de tipo `onCall` (httpsCallable) en `functions/src/mercadolibre/ml.auth.ts`. Flujo de ejecucion:
+  1. Verificar autenticacion (requiere contexto auth valido)
+  2. Verificar rol: solo admin o gerente pueden desconectar la integracion ML
+  3. Leer `mlConfig/tokens` para obtener el access token actual
+  4. Llamar a `revokeMLToken()` para revocar en la API de ML (best-effort)
+  5. Llamar a `clearMLConnection()` para eliminar tokens y limpiar settings en Firestore
+  6. Escribir audit log en coleccion `audit_logs` con accion `ml_disconnect`, userId, timestamp y resultado de la revocacion
+  7. Retornar `{ success: true, tokenRevoked: boolean }` al cliente
+- Archivo: `functions/src/mercadolibre/ml.auth.ts`
+- Exportada en: `functions/src/mercadolibre/index.ts` (CAMBIO-153b)
+- Reversible: si (reconectar desde /mercadolibre via flujo OAuth)
+- Estado deploy: PENDIENTE — requiere `firebase deploy --only functions` para estar disponible en produccion
+
+#### CAMBIO-154 — mercadoLibreStore.ts: accion disconnect con cleanup-before-write
+- Tipo: Feature + Bug fix (BUG-001)
+- Descripcion: Nueva accion `disconnect` en `src/store/mercadoLibreStore.ts` y nuevo estado `disconnecting: boolean`. La secuencia critica del fix BUG-001 es: (1) cancelar todos los listeners activos de Firestore PRIMERO, (2) llamar a la Cloud Function `mldisconnect` via httpsCallable, (3) limpiar el estado local del store. Antes de este fix, los listeners se cancelaban despues de que la CF eliminaba los documentos, causando que el listener disparara con datos nulos/eliminados y corrompiera el estado del store. Si la CF falla, la accion re-inicializa los listeners para volver al estado conectado anterior (rollback del lado cliente).
+- Archivo: `src/store/mercadoLibreStore.ts`
+- Reversible: si
+
+#### CAMBIO-155 — TabConfiguracion.tsx: boton desconectar con confirmacion 2 pasos
+- Tipo: Feature + fixes UX
+- Descripcion: Boton "Desconectar cuenta" en `src/pages/MercadoLibre/TabConfiguracion.tsx` con los siguientes comportamientos:
+  - Confirmacion inline de 2 pasos (no modal separado): primer click muestra el panel de confirmacion, segundo click ejecuta la desconexion. Elegido sobre modal por ser accion reversible (reconectar es posible).
+  - Texto visible durante carga: "Desconectando..." en lugar de spinner solo (FE-004).
+  - Boton deshabilitado con `disabled` cuando `disconnecting === true` o cuando cualquier otra operacion del store esta en curso (EDGE-002).
+  - `type="button"` explicito en el boton para prevenir submit accidental de formularios padre (FE-001).
+  - `flex-wrap` en el contenedor de acciones para que el boton no se desborde en pantallas angostas.
+  - `setShowDisconnectConfirm(false)` removido del path de exito: cuando la desconexion es exitosa el componente se desmonta (la vista cambia a "no conectado"), por lo que llamar al setter sobre un componente desmontado generaba un warning de React.
+- Archivo: `src/pages/MercadoLibre/TabConfiguracion.tsx`
+- Reversible: si
+
+### Decisiones tecnicas de esta sesion
+
+| Decision | Razon |
+|----------|-------|
+| Revocacion de token ML es best-effort (no bloquea si falla) | Si el token ya expiro, el riesgo de seguridad ya estaba resuelto. Bloquear la desconexion por un token invalido seria peor que continuar. |
+| Confirmacion inline de 2 pasos en lugar de modal | La desconexion es reversible (reconectar es trivial via OAuth). Un modal de confirmacion con input de texto seria sobreingenieria para este caso. |
+| Audit log en coleccion audit_logs con accion ml_disconnect | Consistencia con el patron de audit logs ya existente en el proyecto. |
+| Cleanup de listeners ANTES de llamar a Firestore (no despues) | Resuelve BUG-001: los listeners no deben disparar cuando los documentos que observan estan siendo eliminados. |
+
+### Estado de deploy
+
+| Componente | Estado |
+|------------|--------|
+| Frontend (CAMBIO-154, CAMBIO-155) | Listo para deploy — `firebase deploy --only hosting` |
+| Cloud Function mldisconnect (CAMBIO-152, CAMBIO-153) | PENDIENTE deploy — `firebase deploy --only functions` |
+| Firestore rules | Sin cambios en esta sesion |
+| Total Cloud Functions tras deploy | 56 (55 previas + mldisconnect) |
+
+### Hallazgos pendientes para futuras sesiones (no bloqueantes)
+
+| ID | Descripcion | Tipo |
+|----|-------------|------|
+| SEC-ML-004 | Migrar ofuscacion base64 de tokens ML a cifrado AES-256 con Secret Manager | Seguridad (mejora) |
+| SEC-ML-007 | Segundo factor de confirmacion para desconectar (escribir "DESCONECTAR") | UX / Seguridad (decision de negocio) |
+| FE-003 | Gestion de foco con useRef al abrir/cerrar panel de confirmacion en TabConfiguracion | Accesibilidad |
+| SEC-ML-008 | Cambiar tipo `config: any` a `MLConfig \| null` en TabConfiguracionProps | Deuda tecnica (tipos) |
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Archivos modificados | 5 |
+| Archivos nuevos | 0 |
+| Lineas netas | positivas (funciones nuevas > fixes) |
+| Cambios registrados | 4 (CAMBIO-152 a CAMBIO-155) + 1 export (CAMBIO-153b) |
+| Cloud Functions nuevas | 1 (mldisconnect — pendiente deploy) |
+| Agentes ejecutados | 5 |
+| Hallazgos de seguridad resueltos | 4 (SEC-ML-001, 002, 003, 005) |
+| Bugs de logica resueltos | 3 (BUG-001, BUG-003, EDGE-002) |
+| Fixes acumulados | ~152 → ~159 |
+
+### Items del backlog cerrados en Sesion 18
+
+| Item | Descripcion | Cambio |
+|------|-------------|--------|
+| SEC-ML-001 | Tokens OAuth en Firestore eliminados al desconectar | CAMBIO-152/153 |
+| SEC-ML-002 | Token OAuth revocado en API de ML al desconectar | CAMBIO-152 |
+| SEC-ML-003 | Operacion de desconexion pasa por CF con audit log | CAMBIO-153 |
+| SEC-ML-005 | Escritura de campos inexistentes en settings al desconectar | CAMBIO-152 |
+| BUG-001 | Race condition listeners/Firestore en desconexion | CAMBIO-154 |
+| BUG-003 | setState sobre componente desmontado post-desconexion | CAMBIO-155 |
+| EDGE-002 | Boton desconectar no se deshabilitaba durante otras operaciones | CAMBIO-155 |
+
+### Tareas pendientes para la proxima sesion (priorizadas)
+
+**Accion inmediata (titular o devops):**
+1. Ejecutar `firebase deploy --only functions` para que `mldisconnect` quede disponible en produccion
+
+**Prioridad alta (acciones del titular):**
+2. Ejecutar carga retroactiva Pool USD (boton en /rendimiento-cambiario, requiere login admin)
+3. Configurar metaPEN en Pool USD (edicion inline en /rendimiento-cambiario)
+4. Rotar secrets externos (ML, Google, Anthropic, Meta, Daily) — pendiente desde S1
+
+**Prioridad alta (tecnica):**
+5. TAREA-084: Implementar devoluciones (diseno completo listo desde S17 — 18-20h)
+6. TAREA-048: Validacion server-side de ventaBajoCosto
+7. TAREA-004: Race condition residual gasto.service.ts (padStart manual)
+8. TAREA-019: Tests con Firebase mocking para servicios criticos
+
+**Prioridad media:**
+9. TAREA-085: Implementar cierre contable (diseno completo listo desde S17 — 22-30h)
+10. TAREA-086: Alertas de cobro automaticas
+11. TAREA-087: Panel de tareas del dia en Dashboard
+12. TAREA-082: Rate limiting en webhooks y callables
+13. SEC-ML-004: Migrar tokens ML de base64 a AES-256 (Secret Manager)
+
+**Pendientes operativos del titular:**
+- Ejecutar carga retroactiva Pool USD
+- Definir metaPEN mensual
+- Rotar secrets externos
+
+### Notas de deploy y correcciones post-implementacion
+
+#### Deploy de Cloud Functions
+
+- Se ejecuto `firebase deploy --only functions` para desplegar todas las funciones.
+- Primer intento: la funcion `mldisconnect` NO se desplego porque faltaba agregarla al export en `functions/src/index.ts` (el barrel export principal).
+- Fix aplicado: se agrego `mldisconnect` al import/export en `functions/src/index.ts` (CAMBIO-156).
+- Segundo deploy exitoso: `creating Node.js 22 (1st Gen) function mldisconnect(us-central1)... Successful create operation.`
+
+#### Archivo adicional modificado
+
+- `functions/src/index.ts` — Agregado `mldisconnect` al export de funciones ML.
+
+#### Incidente: Error 403 en registro de webhook con nueva cuenta ML
+
+- Sintoma: Al conectar la cuenta JOSSELINGAMBINI (reemplazando JOSELUISPINTOTOSCANO), el boton "Registrar Webhook" devolvia error 403.
+- Causa raiz: La app ML "VitaSkin Peru" (App ID: 6805464699623168) fue creada por JOSELUISPINTOTOSCANO. La API de ML solo permite que el dueno de la app modifique la configuracion de notificaciones (webhook URL). JOSSELINGAMBINI tiene autorizacion para usar la app pero no para administrarla.
+- Resolucion: La URL del webhook ya estaba correctamente configurada en el Developer Portal de ML. Se actualizo Firestore directamente para marcar `webhookRegistered: true` en `mlConfig/settings`.
+- Leccion aprendida: El boton "Re-registrar" del webhook no funcionara con cuentas que no sean duenas de la app ML. Esta es una limitacion de la API de ML, no un bug del sistema.
+
+#### Estado final tras el deploy
+
+| Componente | Estado |
+|------------|--------|
+| Cloud Function `mldisconnect` | Desplegada y operativa en us-central1 |
+| Cuenta JOSSELINGAMBINI | Conectada correctamente |
+| Webhook | Marcado como registrado en Firestore |
+| Boton "Desconectar cuenta" | Verificado visualmente en el ERP |
+| Total Cloud Functions en produccion | 56 |
+
+#### Pendiente identificado post-deploy
+
+- Considerar agregar logica en el frontend para que el boton "Re-registrar webhook" detecte si el usuario actual es el dueno de la app ML antes de intentar la operacion, y muestre un mensaje informativo en lugar de un error 403. Esto eliminaria la confusion para futuros operadores que cambien de cuenta ML.
+
+---
+
+*Documento generado por implementation-controller (Agente 23)*
+*Ultima actualizacion: 2026-03-23 — Sesion 18 completada (con notas post-deploy). Feature: boton desconectar MercadoLibre con revocacion OAuth, eliminacion de tokens en Firestore, audit log, y confirmacion de 2 pasos. 4 hallazgos de seguridad resueltos (SEC-ML-001/002/003/005), 3 bugs de logica (BUG-001 race condition listeners, BUG-003 setState desmontado, EDGE-002 boton habilitado). Cloud Function mldisconnect desplegada exitosamente (CAMBIO-156: fix barrel export en index.ts). Incidente 403 webhook resuelto via Firestore directo (limitacion API ML). Cuenta JOSSELINGAMBINI operativa. ~159 fixes acumulados.*

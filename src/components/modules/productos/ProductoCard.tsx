@@ -37,12 +37,14 @@ import { ProductoService } from '../../../services/producto.service';
 import { useUserName } from '../../../hooks/useUserNames';
 import { PuntoEquilibrioCard } from './PuntoEquilibrioCard';
 import type { Producto } from '../../../types/producto.types';
+import { TIPO_PRODUCTO_SKC_LABELS, PASO_RUTINA_LABELS } from '../../../types/producto.types';
 
 interface ProductoCardProps {
   producto: Producto;
   onEdit: () => void;
   onDelete: () => void;
   onInvestigar?: () => void;
+  onReactivar?: () => void;
 }
 
 // Componente para secciones colapsables
@@ -184,7 +186,7 @@ const KPICard: React.FC<{
   </div>
 );
 
-export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, onDelete, onInvestigar }) => {
+export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, onDelete, onInvestigar, onReactivar }) => {
   const [copiedSku, setCopiedSku] = useState(false);
   const stockCritico = producto.stockPeru <= producto.stockMinimo;
 
@@ -255,22 +257,46 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
             >
               <Pencil className="h-4 w-4" />
             </button>
-            <button
-              onClick={onDelete}
-              className="p-2 bg-danger-600 hover:bg-danger-700 text-white rounded-lg transition-colors shadow-sm"
-              title="Eliminar"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            {producto.estado === 'inactivo' && onReactivar ? (
+              <button
+                onClick={onReactivar}
+                className="p-2 bg-success-600 hover:bg-success-700 text-white rounded-lg transition-colors shadow-sm"
+                title="Reactivar producto"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                onClick={onDelete}
+                className="p-2 bg-danger-600 hover:bg-danger-700 text-white rounded-lg transition-colors shadow-sm"
+                title="Eliminar"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
 
         {/* Detalles del producto */}
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-          <span className="bg-gray-600/50 text-gray-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.presentacion}</span>
-          {producto.dosaje && <span className="bg-gray-600/50 text-gray-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.dosaje}</span>}
-          {producto.contenido && <span className="bg-gray-600/50 text-gray-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.contenido}</span>}
-          {producto.sabor && <span className="bg-gray-600/50 text-gray-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.sabor}</span>}
+          {producto.atributosSkincare ? (
+            <>
+              <span className="bg-pink-500/30 text-pink-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">
+                {TIPO_PRODUCTO_SKC_LABELS[producto.atributosSkincare.tipoProductoSKC] || producto.atributosSkincare.tipoProductoSKC}
+              </span>
+              {producto.atributosSkincare.volumen && <span className="bg-gray-600/50 text-gray-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.atributosSkincare.volumen}</span>}
+              {producto.atributosSkincare.ingredienteClave && <span className="bg-green-500/30 text-green-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.atributosSkincare.ingredienteClave}</span>}
+              {producto.atributosSkincare.spf && <span className="bg-amber-500/30 text-amber-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">SPF{producto.atributosSkincare.spf} {producto.atributosSkincare.pa || ''}</span>}
+              {producto.atributosSkincare.pasoRutina && <span className="bg-blue-500/30 text-blue-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{PASO_RUTINA_LABELS[producto.atributosSkincare.pasoRutina]}</span>}
+            </>
+          ) : (
+            <>
+              <span className="bg-gray-600/50 text-gray-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.presentacion}</span>
+              {producto.dosaje && <span className="bg-gray-600/50 text-gray-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.dosaje}</span>}
+              {producto.contenido && <span className="bg-gray-600/50 text-gray-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.contenido}</span>}
+              {producto.sabor && <span className="bg-gray-600/50 text-gray-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.sabor}</span>}
+            </>
+          )}
         </div>
 
         {/* SKU y Ver Proveedor */}

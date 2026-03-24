@@ -5,9 +5,11 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
+  writeBatch,
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -35,11 +37,12 @@ export const paisOrigenService = {
   async getActivos(): Promise<PaisOrigen[]> {
     const q = query(
       collection(db, COLLECTION_NAME),
-      where('activo', '==', true),
-      orderBy('nombre', 'asc')
+      where('activo', '==', true)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as PaisOrigen));
+    return snapshot.docs
+      .map(d => ({ id: d.id, ...d.data() } as PaisOrigen))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
   },
 
   /**
@@ -129,5 +132,39 @@ export const paisOrigenService = {
   async getFleteEstimado(paisCodigo: string): Promise<number> {
     const pais = await this.getByCodigo(paisCodigo);
     return pais?.tarifaFleteEstimadaUSD ?? 0;
+  },
+
+  /**
+   * Cuenta cuántos productos usan un código de país
+   */
+  async countProductosByPais(codigo: string): Promise<number> {
+    const q = query(
+      collection(db, 'productos'),
+      where('paisOrigen', '==', codigo)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.size;
+  },
+
+  /**
+   * Elimina un país de origen y limpia la referencia en productos asociados
+   */
+  async deletePais(id: string, codigo: string): Promise<{ productosLimpiados: number }> {
+    // Buscar productos que usan este país
+    const q = query(
+      collection(db, 'productos'),
+      where('paisOrigen', '==', codigo)
+    );
+    const snapshot = await getDocs(q);
+
+    // Batch: limpiar paisOrigen de productos + eliminar el país
+    const batch = writeBatch(db);
+    snapshot.docs.forEach(d => {
+      batch.update(d.ref, { paisOrigen: null });
+    });
+    batch.delete(doc(db, COLLECTION_NAME, id));
+    await batch.commit();
+
+    return { productosLimpiados: snapshot.size };
   },
 };

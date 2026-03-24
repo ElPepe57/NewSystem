@@ -22,6 +22,7 @@ export {
   mlgetstatus,
   mlregisterwebhook,
   mlgetwebhookstatus,
+  mldisconnect,
 } from "./ml.auth";
 
 export { mlwebhook } from "./ml.webhooks";

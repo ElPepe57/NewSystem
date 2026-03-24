@@ -5,6 +5,8 @@ import {
   getDoc,
   addDoc,
   updateDoc,
+  deleteDoc,
+  deleteField,
   Timestamp,
   serverTimestamp,
   increment,
@@ -59,10 +61,11 @@ export class ProductoService {
         ...doc.data()
       } as Producto));
 
-      // Por defecto, excluir productos inactivos (eliminados con soft delete)
-      const filtrados = incluirInactivos
-        ? productos
-        : productos.filter(p => p.estado !== 'inactivo');
+      // Siempre excluir productos en papelera (estado='eliminado')
+      // Por defecto, también excluir inactivos
+      const filtrados = productos
+        .filter(p => p.estado !== 'eliminado')
+        .filter(p => incluirInactivos ? true : p.estado !== 'inactivo');
 
       // Ordenar por fecha de creación (creadoEn o fechaCreacion para compatibilidad)
       return filtrados.sort((a, b) => {
@@ -241,6 +244,20 @@ export class ProductoService {
           newProducto.lineaNegocioNombre = lineaNegocioNombre;
         }
       }
+      if (data.paisOrigen) {
+        newProducto.paisOrigen = data.paisOrigen;
+      }
+
+      // Atributos Skincare + sync legacy
+      if (data.atributosSkincare) {
+        newProducto.atributosSkincare = data.atributosSkincare;
+        // Sync campos legacy para compatibilidad con módulos existentes
+        const skc = data.atributosSkincare;
+        newProducto.presentacion = skc.tipoProductoSKC || '';
+        newProducto.contenido = skc.volumen || '';
+        newProducto.dosaje = skc.ingredienteClave || '';
+        newProducto.sabor = skc.tipoPiel?.[0] || '';
+      }
 
       // Limpiar cualquier valor undefined restante antes de enviar a Firestore
       const cleanedProducto = this.removeUndefined(newProducto);
@@ -342,6 +359,23 @@ export class ProductoService {
         }
       }
 
+      // Si se actualiza el pais de origen
+      if (data.paisOrigen !== undefined) {
+        updateData.paisOrigen = data.paisOrigen || null;
+      }
+
+      // Si se actualizan atributos skincare + sync legacy
+      if (data.atributosSkincare !== undefined) {
+        updateData.atributosSkincare = data.atributosSkincare;
+        if (data.atributosSkincare) {
+          const skc = data.atributosSkincare;
+          updateData.presentacion = skc.tipoProductoSKC || '';
+          updateData.contenido = skc.volumen || '';
+          updateData.dosaje = skc.ingredienteClave || '';
+          updateData.sabor = skc.tipoPiel?.[0] || '';
+        }
+      }
+
       // Limpiar el objeto final de valores undefined (por si quedaron de los snapshots)
       const finalUpdateData = this.removeUndefined(updateData);
 
@@ -355,7 +389,7 @@ export class ProductoService {
   /**
    * Eliminar producto (soft delete)
    */
-  static async delete(id: string): Promise<void> {
+  static async delete(id: string, userId?: string): Promise<void> {
     try {
       // Obtener el producto para saber su marcaId
       const producto = await this.getById(id);
@@ -363,7 +397,9 @@ export class ProductoService {
       const docRef = doc(db, COLLECTION_NAME, id);
 
       await updateDoc(docRef, {
-        estado: 'inactivo',
+        estado: 'eliminado',
+        fechaEliminacion: serverTimestamp(),
+        eliminadoPor: userId || null,
         ultimaEdicion: serverTimestamp()
       });
 
@@ -378,6 +414,62 @@ export class ProductoService {
     } catch (error: any) {
       logger.error('Error al eliminar producto:', error);
       throw new Error('Error al eliminar producto');
+    }
+  }
+
+  /**
+   * Reactivar producto (revertir soft delete)
+   */
+  static async reactivar(id: string): Promise<void> {
+    try {
+      const producto = await this.getById(id);
+      const docRef = doc(db, COLLECTION_NAME, id);
+
+      await updateDoc(docRef, {
+        estado: 'activo',
+        fechaEliminacion: deleteField(),
+        eliminadoPor: deleteField(),
+        ultimaEdicion: serverTimestamp()
+      });
+
+      // Incrementar contador de productos activos en la marca
+      if (producto?.marcaId) {
+        try {
+          await metricasService.incrementarProductosMarca(producto.marcaId);
+        } catch (metricasError) {
+          logger.warn('Error al actualizar métricas de marca:', metricasError);
+        }
+      }
+    } catch (error: any) {
+      logger.error('Error al reactivar producto:', error);
+      throw new Error('Error al reactivar producto');
+    }
+  }
+
+  /**
+   * Obtener productos archivados (estado='eliminado')
+   */
+  static async getArchivados(): Promise<Producto[]> {
+    try {
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('estado', '==', 'eliminado')
+      );
+      const snapshot = await getDocs(q);
+      const productos = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      } as Producto));
+
+      // Ordenar por fecha de archivo (más reciente primero)
+      return productos.sort((a, b) => {
+        const fechaA = a.fechaEliminacion?.toDate?.() || new Date(0);
+        const fechaB = b.fechaEliminacion?.toDate?.() || new Date(0);
+        return fechaB.getTime() - fechaA.getTime();
+      });
+    } catch (error: any) {
+      logger.error('Error al obtener productos archivados:', error);
+      throw new Error('Error al obtener productos archivados');
     }
   }
 
@@ -433,10 +525,12 @@ export class ProductoService {
 
   /**
    * Obtener el próximo SKU que se generará (para mostrar en UI)
+   * Solo lectura — NO incrementa el contador
    * @param lineaCodigo - Código de la línea de negocio (ej: 'SUP', 'SKC')
    */
   static async getProximoSKU(lineaCodigo?: string): Promise<string> {
-    return this.generateSKU(lineaCodigo || 'BMN');
+    const { peekNextSequenceNumber } = await import('../lib/sequenceGenerator');
+    return peekNextSequenceNumber(lineaCodigo || 'BMN', 4);
   }
 
   /**

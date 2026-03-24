@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Pencil, Trash2, Search, CheckCircle, XCircle, Clock, HelpCircle, DollarSign, Tag, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown, ChevronUp, Columns3 } from 'lucide-react';
+import { Eye, Pencil, Trash2, RefreshCw, Search, CheckCircle, XCircle, Clock, HelpCircle, DollarSign, Tag, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown, ChevronUp, Columns3 } from 'lucide-react';
 import { Badge } from '../../common';
 import { ProductoService } from '../../../services/producto.service';
 import type { Producto } from '../../../types/producto.types';
@@ -20,6 +20,7 @@ interface ProductoTableProps {
   onView: (producto: Producto) => void;
   onEdit: (producto: Producto) => void;
   onDelete: (producto: Producto) => void;
+  onReactivar?: (producto: Producto) => void;
   sortConfigs?: SortConfig[];
   onSort?: (key: string) => void;
   visibleColumns?: ColumnGroup[];
@@ -79,7 +80,8 @@ const ProductoCardResponsive: React.FC<{
   onView: (producto: Producto) => void;
   onEdit: (producto: Producto) => void;
   onDelete: (producto: Producto) => void;
-}> = ({ producto, onView, onEdit, onDelete }) => {
+  onReactivar?: (producto: Producto) => void;
+}> = ({ producto, onView, onEdit, onDelete, onReactivar }) => {
   const [expanded, setExpanded] = useState(false);
   const invResumen = ProductoService.getResumenInvestigacion(producto);
 
@@ -192,9 +194,15 @@ const ProductoCardResponsive: React.FC<{
           <button onClick={() => onEdit(producto)} className="p-1.5 text-warning-600 hover:bg-warning-50 rounded" title="Editar">
             <Pencil className="h-4 w-4" />
           </button>
-          <button onClick={() => onDelete(producto)} className="p-1.5 text-danger-600 hover:bg-danger-50 rounded" title="Eliminar">
-            <Trash2 className="h-4 w-4" />
-          </button>
+          {producto.estado === 'inactivo' && onReactivar ? (
+            <button onClick={() => onReactivar(producto)} className="p-1.5 text-success-600 hover:bg-success-50 rounded" title="Reactivar">
+              <RefreshCw className="h-4 w-4" />
+            </button>
+          ) : (
+            <button onClick={() => onDelete(producto)} className="p-1.5 text-danger-600 hover:bg-danger-50 rounded" title="Eliminar">
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -264,6 +272,7 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
   onView,
   onEdit,
   onDelete,
+  onReactivar,
   sortConfigs = [],
   onSort,
   visibleColumns = ['basico', 'clasificacion', 'precios', 'investigacion', 'metricas'],
@@ -316,6 +325,7 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
             onView={onView}
             onEdit={onEdit}
             onDelete={onDelete}
+            onReactivar={onReactivar}
           />
         ))}
       </div>
@@ -591,9 +601,15 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                         <button onClick={() => onEdit(producto)} className="p-1 text-warning-600 hover:bg-warning-50 rounded" title="Editar">
                           <Pencil className="h-4 w-4" />
                         </button>
-                        <button onClick={() => onDelete(producto)} className="p-1 text-danger-600 hover:bg-danger-50 rounded" title="Eliminar">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {producto.estado === 'inactivo' && onReactivar ? (
+                          <button onClick={() => onReactivar(producto)} className="p-1 text-success-600 hover:bg-success-50 rounded" title="Reactivar">
+                            <RefreshCw className="h-4 w-4" />
+                          </button>
+                        ) : (
+                          <button onClick={() => onDelete(producto)} className="p-1 text-danger-600 hover:bg-danger-50 rounded" title="Eliminar">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

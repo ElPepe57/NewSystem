@@ -7,6 +7,7 @@ import {
   Wifi,
   Loader2,
   RotateCw,
+  LogOut,
 } from 'lucide-react';
 import { useMercadoLibreStore } from '../../store/mercadoLibreStore';
 
@@ -72,8 +73,10 @@ export interface TabConfiguracionProps {
 }
 
 export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onConnect }) => {
-  const { updateConfig } = useMercadoLibreStore();
+  const { updateConfig, disconnect, disconnecting, syncing, procesando, syncingStock, importingOrders } = useMercadoLibreStore();
   const toast = useToastStore();
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+  const isOperationInProgress = syncing || procesando || syncingStock || importingOrders;
   const [webhookStatus, setWebhookStatus] = useState<{
     registered: boolean;
     url: string | null;
@@ -129,6 +132,61 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
                 <div>
                   <span className="text-gray-500">Última sync:</span>
                   <span className="ml-2">{config.lastSync.toDate?.().toLocaleString('es-PE')}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Botón desconectar */}
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              {!showDisconnectConfirm ? (
+                <button
+                  type="button"
+                  onClick={() => setShowDisconnectConfirm(true)}
+                  disabled={isOperationInProgress}
+                  className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Desconectar cuenta
+                </button>
+              ) : (
+                <div className="flex flex-wrap items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-xs text-red-700 flex-1 min-w-[200px]">
+                    Se cerrará la sesión de Mercado Libre. Podrás reconectar en cualquier momento.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowDisconnectConfirm(false)}
+                    disabled={disconnecting}
+                    className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors flex-shrink-0"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await disconnect();
+                        toast.success('Cuenta de Mercado Libre desconectada');
+                      } catch (err: any) {
+                        toast.error(`Error al desconectar: ${err.message}`);
+                        setShowDisconnectConfirm(false);
+                      }
+                    }}
+                    disabled={disconnecting}
+                    className="px-3 py-1.5 text-xs text-white bg-red-500 hover:bg-red-600 rounded-lg flex items-center gap-1.5 disabled:opacity-50 flex-shrink-0"
+                  >
+                    {disconnecting ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Desconectando...
+                      </>
+                    ) : (
+                      <>
+                        <LogOut className="w-3 h-3" />
+                        Confirmar
+                      </>
+                    )}
+                  </button>
                 </div>
               )}
             </div>

@@ -12,6 +12,8 @@ interface PaisOrigenState {
   fetchPaisesActivos: () => Promise<void>;
   createPais: (data: PaisOrigenFormData, userId: string) => Promise<string>;
   updatePais: (id: string, data: Partial<PaisOrigenFormData>, userId: string) => Promise<void>;
+  deletePais: (id: string, codigo: string) => Promise<{ productosLimpiados: number }>;
+  countProductosByPais: (codigo: string) => Promise<number>;
   clearError: () => void;
 
   // Helpers
@@ -71,6 +73,24 @@ export const usePaisOrigenStore = create<PaisOrigenState>((set, get) => ({
       set({ error: (error as Error).message, loading: false });
       throw error;
     }
+  },
+
+  deletePais: async (id: string, codigo: string) => {
+    set({ loading: true, error: null });
+    try {
+      const result = await paisOrigenService.deletePais(id, codigo);
+      await get().fetchPaises();
+      await get().fetchPaisesActivos();
+      set({ loading: false });
+      return result;
+    } catch (error) {
+      set({ error: (error as Error).message, loading: false });
+      throw error;
+    }
+  },
+
+  countProductosByPais: async (codigo: string) => {
+    return paisOrigenService.countProductosByPais(codigo);
   },
 
   clearError: () => set({ error: null }),

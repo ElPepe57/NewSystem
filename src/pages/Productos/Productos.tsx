@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Plus, Search, Filter, X, Copy, Package, RefreshCw } from 'lucide-react';
+import { Plus, Search, Filter, X, Package, RefreshCw, Trash2 } from 'lucide-react';
 import { useToastStore } from '../../store/toastStore';
 import { Button, Card, Modal, GradientHeader } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ProductoTable } from '../../components/modules/productos/ProductoTable';
 import { ProductoCard } from '../../components/modules/productos/ProductoCard';
 import { InvestigacionModal } from '../../components/modules/productos/InvestigacionModal';
-import { DuplicadosModal } from '../../components/modules/productos/DuplicadosModal';
+import { ArchivoModal } from '../../components/modules/productos/PapeleraModal';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
@@ -20,7 +20,7 @@ import type { TipoCambio } from '../../types/tipoCambio.types';
 export const Productos: React.FC = () => {
   const user = useAuthStore(state => state.user);
   const toast = useToastStore();
-  const { productos, loading, fetchProductos, createProducto, updateProducto, deleteProducto, guardarInvestigacion, eliminarInvestigacion } = useProductoStore();
+  const { productos, archivados, loading, loadingArchivados, fetchProductos, fetchArchivados, createProducto, updateProducto, deleteProducto, reactivarProducto, guardarInvestigacion, eliminarInvestigacion } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
   const { tiposActivos, fetchTiposActivos } = useTipoProductoStore();
   const { categoriasActivas, fetchCategoriasActivas } = useCategoriaStore();
@@ -33,7 +33,7 @@ export const Productos: React.FC = () => {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isInvestigacionModalOpen, setIsInvestigacionModalOpen] = useState(false);
-  const [isDuplicadosModalOpen, setIsDuplicadosModalOpen] = useState(false);
+  const [isArchivoModalOpen, setIsArchivoModalOpen] = useState(false);
   const [selectedProducto, setSelectedProducto] = useState<Producto | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -126,6 +126,7 @@ export const Productos: React.FC = () => {
 
   useEffect(() => {
     fetchProductos();
+    fetchArchivados();
     fetchTiposActivos();
     fetchCategoriasActivas();
     fetchEtiquetasActivas();
@@ -152,8 +153,60 @@ export const Productos: React.FC = () => {
     setIsViewModalOpen(true);
   };
 
+  // Detectar productos similares al crear
+  const detectarDuplicados = (data: ProductoFormData): Producto[] => {
+    const normalize = (s?: string) => (s ?? '').toLowerCase().trim();
+    const marca = normalize(data.marca);
+    const nombre = normalize(data.nombreComercial);
+    const dosaje = normalize(data.dosaje);
+    const contenido = normalize(data.contenido);
+    const sabor = normalize(data.sabor);
+    const presentacion = normalize(data.presentacion);
+
+    return productosArray.filter(p => {
+      // No comparar consigo mismo al editar
+      if (isEditing && selectedProducto && p.id === selectedProducto.id) return false;
+
+      const pMarca = normalize(p.marca);
+      const pNombre = normalize(p.nombreComercial);
+
+      // Debe coincidir al menos marca + nombre
+      if (pMarca !== marca || pNombre !== nombre) return false;
+
+      // Si además coincide dosaje, contenido, sabor o presentación → duplicado fuerte
+      const pDosaje = normalize(p.dosaje);
+      const pContenido = normalize(p.contenido);
+      const pSabor = normalize(p.sabor);
+      const pPresentacion = normalize(p.presentacion);
+
+      const coincidencias = [
+        dosaje && pDosaje && dosaje === pDosaje,
+        contenido && pContenido && contenido === pContenido,
+        sabor && pSabor && sabor === pSabor,
+        presentacion && pPresentacion && presentacion === pPresentacion,
+      ].filter(Boolean).length;
+
+      // Marca + nombre iguales ya es sospechoso
+      return true;
+    });
+  };
+
   const handleSubmit = async (data: ProductoFormData) => {
     if (!user) return;
+
+    // Validación de duplicados antes de crear
+    if (!isEditing) {
+      const similares = detectarDuplicados(data);
+      if (similares.length > 0) {
+        const lista = similares.map(p =>
+          `• ${p.sku} — ${p.marca} ${p.nombreComercial}${p.dosaje ? ` ${p.dosaje}` : ''}${p.contenido ? ` ${p.contenido}` : ''}${p.sabor ? ` (${p.sabor})` : ''}`
+        ).join('\n');
+        const confirmar = window.confirm(
+          `⚠️ Se encontraron ${similares.length} producto(s) similar(es):\n\n${lista}\n\n¿Deseas crear el producto de todas formas?`
+        );
+        if (!confirmar) return;
+      }
+    }
 
     setIsSubmitting(true);
     try {
@@ -176,13 +229,14 @@ export const Productos: React.FC = () => {
   };
 
   const handleDelete = async (producto: Producto) => {
-    if (!window.confirm(`¿Eliminar ${producto.marca} ${producto.nombreComercial}?`)) {
+    if (!window.confirm(`¿Enviar "${producto.marca} ${producto.nombreComercial}" a la papelera?`)) {
       return;
     }
-    
+
     try {
-      await deleteProducto(producto.id);
-      toast.success('Producto eliminado');
+      await deleteProducto(producto.id, user?.uid);
+      await fetchArchivados(); // Actualizar badge de papelera
+      toast.success('Producto enviado a la papelera');
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -482,20 +536,6 @@ export const Productos: React.FC = () => {
   const productosStockCritico = productosArray.filter(p => p.stockPeru <= p.stockMinimo).length;
   const productosSinInvestigar = productosArray.filter(p => !p.investigacion).length;
 
-  // Contar duplicados para el badge
-  const duplicadosCount = useMemo(() => {
-    const porClaveExacta = new Map<string, number>();
-    productosArray.forEach(p => {
-      const marca = (p.marca ?? '').toLowerCase().trim();
-      const nombre = (p.nombreComercial ?? '').toLowerCase().trim();
-      const dosaje = (p.dosaje ?? '').toLowerCase().trim();
-      const contenido = (p.contenido ?? '').toLowerCase().trim();
-      const key = `${marca}|${nombre}|${dosaje}|${contenido}`;
-      porClaveExacta.set(key, (porClaveExacta.get(key) || 0) + 1);
-    });
-    return Array.from(porClaveExacta.values()).filter(count => count > 1).length;
-  }, [productosArray]);
-
   const handleClearFilters = () => {
     setFilters({
       estado: '',
@@ -525,32 +565,35 @@ export const Productos: React.FC = () => {
         icon={Package}
         variant="dark"
         actions={
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="ghost"
-              onClick={() => fetchProductos()}
+              onClick={() => {
+                const necesitaInactivos = filters.estado === '' || filters.estado === 'inactivo' || filters.estado === 'descontinuado';
+                fetchProductos(necesitaInactivos);
+              }}
               disabled={loading}
               title="Actualizar datos"
-              className="text-white/70 hover:text-white hover:bg-white/10"
+              className="text-white/70 hover:text-white hover:bg-white/10 !p-2"
             >
               <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
             </Button>
             <Button
-              variant={duplicadosCount > 0 ? 'danger' : 'ghost'}
-              onClick={() => setIsDuplicadosModalOpen(true)}
-              className={`relative ${duplicadosCount > 0 ? '' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
+              variant="ghost"
+              onClick={() => setIsArchivoModalOpen(true)}
+              className="relative text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5"
             >
-              <Copy className="h-5 w-5 mr-2" />
-              Duplicados
-              {duplicadosCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {duplicadosCount}
+              <Trash2 className="h-4 w-4 sm:mr-1.5" />
+              <span className="hidden sm:inline text-sm">Archivo</span>
+              {archivados.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  {archivados.length}
                 </span>
               )}
             </Button>
-            <Button variant="primary" onClick={handleCreate} className="bg-white text-slate-800 hover:bg-gray-100">
-              <Plus className="h-5 w-5 mr-2" />
-              Nuevo Producto
+            <Button variant="ghost" onClick={handleCreate} className="text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5">
+              <Plus className="h-5 w-5 sm:mr-1.5" />
+              <span className="hidden sm:inline text-sm">Nuevo</span>
             </Button>
           </div>
         }
@@ -613,8 +656,12 @@ export const Productos: React.FC = () => {
                   <select
                     value={filters.estado}
                     onChange={(e) => {
-                      setFilters({ ...filters, estado: e.target.value as EstadoProducto | '' });
+                      const nuevoEstado = e.target.value as EstadoProducto | '';
+                      setFilters({ ...filters, estado: nuevoEstado });
                       setCurrentPage(1);
+                      // Recargar incluyendo inactivos si el filtro lo necesita
+                      const necesitaInactivos = nuevoEstado === '' || nuevoEstado === 'inactivo' || nuevoEstado === 'descontinuado';
+                      fetchProductos(necesitaInactivos);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
@@ -805,6 +852,14 @@ export const Productos: React.FC = () => {
               onView={handleView}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onReactivar={async (producto) => {
+                try {
+                  await reactivarProducto(producto.id);
+                  toast.success(`Producto ${producto.sku} reactivado`);
+                } catch (err: any) {
+                  toast.error(err.message || 'Error al reactivar');
+                }
+              }}
               sortConfigs={sortConfigs}
               onSort={handleSort}
             />
@@ -902,6 +957,15 @@ export const Productos: React.FC = () => {
               handleDelete(selectedProducto);
             }}
             onInvestigar={() => handleOpenInvestigacion(selectedProducto)}
+            onReactivar={selectedProducto.estado === 'inactivo' ? async () => {
+              try {
+                await reactivarProducto(selectedProducto.id);
+                toast.success(`Producto ${selectedProducto.sku} reactivado`);
+                setSelectedProducto({ ...selectedProducto, estado: 'activo' });
+              } catch (err: any) {
+                toast.error(err.message || 'Error al reactivar');
+              }
+            } : undefined}
           />
         )}
       </Modal>
@@ -925,16 +989,21 @@ export const Productos: React.FC = () => {
         )}
       </Modal>
 
-      {/* Modal de Duplicados */}
-      <DuplicadosModal
-        isOpen={isDuplicadosModalOpen}
-        onClose={() => setIsDuplicadosModalOpen(false)}
-        productos={productosArray}
-        onVerProducto={(producto) => {
-          setIsDuplicadosModalOpen(false);
-          handleView(producto);
+      {/* Modal de Archivo */}
+      <ArchivoModal
+        isOpen={isArchivoModalOpen}
+        onClose={() => setIsArchivoModalOpen(false)}
+        archivados={archivados}
+        loading={loadingArchivados}
+        onFetch={fetchArchivados}
+        onReactivar={async (id) => {
+          try {
+            await reactivarProducto(id);
+            toast.success('Producto reactivado');
+          } catch (err: any) {
+            toast.error(err.message || 'Error al reactivar');
+          }
         }}
-        onEliminarProducto={handleDelete}
       />
     </div>
   );

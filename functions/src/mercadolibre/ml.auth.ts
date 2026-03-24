@@ -20,6 +20,8 @@ import {
   getValidAccessToken,
   getApplicationConfig,
   registerWebhookUrl,
+  revokeMLToken,
+  clearMLConnection,
 } from "./ml.api";
 import { COLLECTIONS } from "../collections";
 
@@ -276,5 +278,56 @@ export const mlgetwebhookstatus = functions.https.onCall(async (_data, context) 
     };
   } catch (err: any) {
     throw new functions.https.HttpsError("internal", err.message);
+  }
+});
+
+// ============================================================
+// FUNCIÓN: Desconectar cuenta de ML
+// ============================================================
+
+/**
+ * Desconecta la cuenta de Mercado Libre:
+ * 1. Revoca el token en la API de ML (RFC 7009)
+ * 2. Elimina tokens de Firestore (mlConfig/tokens)
+ * 3. Limpia config en Firestore (mlConfig/settings)
+ * 4. Registra audit log
+ */
+export const mldisconnect = functions.https.onCall(async (_data, context) => {
+  await requireAdminRole(context);
+
+  const userId = context.auth!.uid;
+
+  try {
+    // 1. Intentar revocar token en ML API (best-effort)
+    try {
+      const accessToken = await getValidAccessToken();
+      await revokeMLToken(accessToken);
+      functions.logger.info("ML token revocado exitosamente en la API de ML");
+    } catch (tokenErr: any) {
+      // Token may already be expired — continue with cleanup
+      functions.logger.warn("ML token revocation skipped (token may be expired):", tokenErr.message);
+    }
+
+    // 2. Eliminar tokens y limpiar config
+    await clearMLConnection();
+
+    // 3. Audit log
+    await db.collection("audit_logs").add({
+      accion: "ml_disconnect",
+      usuario: userId,
+      modulo: "mercadoLibre",
+      descripcion: "Cuenta de Mercado Libre desconectada",
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    functions.logger.info(`ML desconectado por usuario ${userId}`);
+
+    return { success: true };
+  } catch (err: any) {
+    functions.logger.error("Error desconectando ML:", err);
+    throw new functions.https.HttpsError(
+      "internal",
+      `Error desconectando ML: ${err.message}`
+    );
   }
 });
