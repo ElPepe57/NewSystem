@@ -10,6 +10,8 @@ import { ArchivoModal } from '../../components/modules/productos/PapeleraModal';
 import { VincularVariantesModal } from '../../components/modules/productos/VincularVariantesModal';
 import { DashboardCatalogo } from '../../components/modules/productos/DashboardCatalogo';
 import { ProductoCreacionWizard, type TipoCreacion } from '../../components/modules/productos/ProductoCreacionWizard';
+import { FilterChip } from '../../components/modules/productos/FilterChip';
+import { FiltrosRapidos } from '../../components/modules/productos/FiltrosRapidos';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
@@ -673,16 +675,16 @@ export const Productos: React.FC = () => {
         ]}
       />
 
-      {/* Búsqueda y Filtros */}
+      {/* Búsqueda y Filtros — Rediseñado */}
       <Card padding="md">
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Barra de búsqueda */}
           <div className="flex gap-3">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Buscar por SKU, marca, nombre, grupo..."
+                placeholder="Buscar por SKU, marca, nombre..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -695,10 +697,74 @@ export const Productos: React.FC = () => {
               variant={showFilters ? 'primary' : 'outline'}
               onClick={() => setShowFilters(!showFilters)}
             >
-              <Filter className="h-5 w-5 mr-2" />
-              Filtros
+              <Filter className="h-5 w-5 sm:mr-2" />
+              <span className="hidden sm:inline">Filtros</span>
             </Button>
           </div>
+
+          {/* Pills rápidos — siempre visibles */}
+          <FiltrosRapidos
+            totalProductos={productosArray.length}
+            activos={productosArray.filter(p => p.estado === 'activo').length}
+            stockCritico={productosStockCritico}
+            sinInvestigar={productosSinInvestigar}
+            activeFilter={
+              filters.stock === 'critico' ? 'stock_critico'
+              : filters.investigacion === 'sin_investigacion' ? 'sin_investigar'
+              : filters.estado === 'activo' ? 'activos'
+              : (filters.estado || filters.marca || filters.tipoProducto || filters.categoria || filters.etiqueta || filters.stock || filters.investigacion) ? null
+              : null
+            }
+            onFilter={(filterId) => {
+              handleClearFilters();
+              if (filterId === 'activos') setFilters(prev => ({ ...prev, estado: 'activo' }));
+              else if (filterId === 'stock_critico') setFilters(prev => ({ ...prev, stock: 'critico' }));
+              else if (filterId === 'sin_investigar') setFilters(prev => ({ ...prev, investigacion: 'sin_investigacion' }));
+              setCurrentPage(1);
+            }}
+          />
+
+          {/* Chips de filtros activos — siempre visible cuando hay filtros */}
+          {(filters.estado || filters.marca || filters.tipoProducto || filters.categoria || filters.etiqueta || filters.stock || filters.investigacion || filters.grupo) && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs sm:text-sm text-gray-500 flex-shrink-0">
+                <strong>{sortedProductos.length}</strong> de <strong>{productosArray.length}</strong> productos
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {filters.estado && (
+                  <FilterChip label="Estado" value={filters.estado} onRemove={() => setFilters(prev => ({ ...prev, estado: '' }))} />
+                )}
+                {filters.marca && (
+                  <FilterChip label="Marca" value={filters.marca} onRemove={() => setFilters(prev => ({ ...prev, marca: '' }))} />
+                )}
+                {filters.stock && (
+                  <FilterChip label="Stock" value={filters.stock} onRemove={() => setFilters(prev => ({ ...prev, stock: '' }))} />
+                )}
+                {filters.investigacion && (
+                  <FilterChip label="Investigación" value={filters.investigacion.replace('_', ' ')} onRemove={() => setFilters(prev => ({ ...prev, investigacion: '' }))} />
+                )}
+                {filters.tipoProducto && (
+                  <FilterChip label="Tipo" value={filters.tipoProducto} onRemove={() => setFilters(prev => ({ ...prev, tipoProducto: '' }))} />
+                )}
+                {filters.categoria && (
+                  <FilterChip label="Categoría" value={filters.categoria} onRemove={() => setFilters(prev => ({ ...prev, categoria: '' }))} />
+                )}
+                {filters.etiqueta && (
+                  <FilterChip label="Etiqueta" value={filters.etiqueta} onRemove={() => setFilters(prev => ({ ...prev, etiqueta: '' }))} />
+                )}
+                {filters.grupo && (
+                  <FilterChip label="Grupo" value={filters.grupo} onRemove={() => setFilters(prev => ({ ...prev, grupo: '' }))} />
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className="text-[10px] sm:text-xs text-gray-400 hover:text-red-500 ml-auto flex-shrink-0"
+              >
+                Limpiar todos
+              </button>
+            </div>
+          )}
 
           {/* Panel de filtros */}
           {showFilters && (
