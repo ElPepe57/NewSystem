@@ -93,6 +93,13 @@ export const COLLECTIONS = {
   // === Contabilidad ===
   CIERRES_CONTABLES: 'cierresContables',
 
+  // === WhatsApp ===
+  WHATSAPP_SESSIONS: 'whatsapp_sessions',
+  WHATSAPP_CONFIG: 'whatsapp_config',
+
+  // === ML adicionales ===
+  ML_SHIPMENT_LOG: 'mlShipmentLog',
+
   // === Sistema: Error Log ===
   ERROR_LOG: '_errorLog',
 } as const;

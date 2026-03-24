@@ -129,6 +129,28 @@ export class VentaService {
   }
 
   /**
+   * Obtener ventas confirmadas que requieren stock (para Requerimientos)
+   * Optimización: solo trae lo necesario en vez de todas las ventas
+   */
+  static async getVentasRequierenStock(): Promise<Venta[]> {
+    try {
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('estado', '==', 'confirmada'),
+        where('requiereStock', '==', true)
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Venta));
+    } catch (error: any) {
+      logger.error('Error al obtener ventas que requieren stock:', error);
+      return [];
+    }
+  }
+
+  /**
    * Suscripción en tiempo real a ventas (últimas N ventas, ordenadas por fecha).
    * Usa onSnapshot para recibir actualizaciones automáticas.
    */

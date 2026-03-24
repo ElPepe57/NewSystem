@@ -32,7 +32,9 @@ const db = admin.firestore();
  *   "received": "2024-01-15T10:30:00.000-03:00"
  * }
  */
-export const mlwebhook = functions.https.onRequest(async (req, res) => {
+export const mlwebhook = functions
+  .runWith({ minInstances: 1, memory: '256MB' })
+  .https.onRequest(async (req, res) => {
   // ML solo envía POST
   if (req.method !== "POST") {
     res.status(200).send("OK");

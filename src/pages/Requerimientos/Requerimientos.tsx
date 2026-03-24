@@ -155,7 +155,7 @@ export const Requerimientos: React.FC = () => {
       const [, prods, ventas] = await Promise.all([
         fetchRequerimientos(),
         ProductoService.getAll(),
-        VentaService.getAll()
+        VentaService.getVentasRequierenStock()
       ]);
       setProductos(prods);
 
@@ -169,9 +169,9 @@ export const Requerimientos: React.FC = () => {
             (r as any).ventaId
           ].filter(Boolean))
       );
+      // Las ventas ya vienen filtradas (confirmadas + requiereStock) desde el servicio
       const cotizacionesConFaltante = ventas.filter(
-        v => v.estado === 'confirmada' && v.requiereStock === true &&
-          !reqVentaIds.has(v.id) &&
+        v => !reqVentaIds.has(v.id) &&
           !(v.cotizacionOrigenId && reqVentaIds.has(v.cotizacionOrigenId))
       );
       setCotizacionesConfirmadas(cotizacionesConFaltante);

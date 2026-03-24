@@ -98,6 +98,12 @@ export const COLLECTIONS = {
   WHATSAPP_SESSIONS: "whatsapp_sessions",
   WHATSAPP_CONFIG: "whatsapp_config",
 
+  // === Devoluciones ===
+  DEVOLUCIONES: "devoluciones",
+
+  // === Contabilidad ===
+  CIERRES_CONTABLES: "cierresContables",
+
   // === Contadores (Cloud Functions) ===
   COUNTERS: "counters",
 } as const;
