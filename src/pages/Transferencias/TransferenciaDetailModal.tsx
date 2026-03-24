@@ -75,12 +75,12 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
 
   return (
     <>
-    <Modal
-      isOpen={true}
-      onClose={onClose}
-      title={`Transferencia ${transferencia.numeroTransferencia}`}
-      size="lg"
-    >
+      <Modal
+        isOpen={true}
+        onClose={onClose}
+        title={`Transferencia ${transferencia.numeroTransferencia}`}
+        size="lg"
+      >
       <div className="space-y-6">
         {/* Alerta de unidades dañadas pendientes */}
         {incidenciasDanadasPendientes > 0 && (
@@ -470,7 +470,7 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
           )}
         </div>
       </div>
-    </Modal>
+      </Modal>
 
       {/* Modal de gestión de dañadas */}
       {showGestionDanadas && (
@@ -480,7 +480,7 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
           onClose={() => setShowGestionDanadas(false)}
           onSuccess={() => {
             setShowGestionDanadas(false);
-            onClose(); // Cerrar detalle para refrescar
+            onClose();
           }}
         />
       )}
