@@ -2133,3 +2133,125 @@ export const liberarReservasVencidas = functions.pubsub
       return null;
     }
   });
+
+/**
+ * Diariamente a las 2am Lima, marca unidades con fechaVencimiento pasada como 'vencida'.
+ * Previene que FEFO seleccione productos vencidos para venta.
+ */
+export const marcarUnidadesVencidas = functions.pubsub
+  .schedule("0 2 * * *")
+  .timeZone("America/Lima")
+  .onRun(async () => {
+    const db = admin.firestore();
+    const ahora = admin.firestore.Timestamp.now();
+
+    const estadosActivos = [
+      "disponible_peru",
+      "recibida_origen",
+      "recibida_usa",
+      "en_transito_peru",
+    ];
+
+    try {
+      let totalVencidas = 0;
+      const productosAfectados = new Set<string>();
+
+      for (const estado of estadosActivos) {
+        const snapshot = await db
+          .collection(COLLECTIONS.UNIDADES)
+          .where("estado", "==", estado)
+          .where("fechaVencimiento", "<=", ahora)
+          .get();
+
+        if (snapshot.empty) continue;
+
+        // Process in batches of 400
+        const docs = snapshot.docs;
+        for (let i = 0; i < docs.length; i += 400) {
+          const batch = db.batch();
+          const chunk = docs.slice(i, i + 400);
+
+          for (const doc of chunk) {
+            const data = doc.data();
+            batch.update(doc.ref, {
+              estado: "vencida",
+              movimientos: admin.firestore.FieldValue.arrayUnion({
+                tipo: "vencimiento",
+                fecha: ahora,
+                estadoAnterior: estado,
+                estadoNuevo: "vencida",
+                descripcion: "Marcada como vencida automáticamente por fecha de vencimiento",
+                automatico: true,
+              }),
+              ultimaEdicion: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            if (data.productoId) productosAfectados.add(data.productoId);
+            totalVencidas++;
+          }
+
+          await batch.commit();
+        }
+      }
+
+      // Also handle reserved units that expired
+      const reservadasSnap = await db
+        .collection(COLLECTIONS.UNIDADES)
+        .where("estado", "==", "reservada")
+        .where("fechaVencimiento", "<=", ahora)
+        .get();
+
+      if (!reservadasSnap.empty) {
+        const batch = db.batch();
+        for (const doc of reservadasSnap.docs) {
+          const data = doc.data();
+          batch.update(doc.ref, {
+            estado: "vencida",
+            reserva: admin.firestore.FieldValue.delete(),
+            movimientos: admin.firestore.FieldValue.arrayUnion({
+              tipo: "vencimiento",
+              fecha: ahora,
+              estadoAnterior: "reservada",
+              estadoNuevo: "vencida",
+              descripcion: "Producto vencido — reserva liberada automáticamente",
+              automatico: true,
+            }),
+            ultimaEdicion: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          if (data.productoId) productosAfectados.add(data.productoId);
+          totalVencidas++;
+        }
+        await batch.commit();
+      }
+
+      // Update stock counts for affected products
+      for (const productoId of productosAfectados) {
+        try {
+          const dispSnap = await db
+            .collection(COLLECTIONS.UNIDADES)
+            .where("productoId", "==", productoId)
+            .where("estado", "==", "disponible_peru")
+            .get();
+          await db.collection(COLLECTIONS.PRODUCTOS).doc(productoId).update({
+            stockPeru: dispSnap.size,
+            stockDisponible: dispSnap.size,
+            stockDisponiblePeru: dispSnap.size,
+          });
+        } catch (e) {
+          functions.logger.warn(`[Vencimiento] Error actualizando stock de ${productoId}:`, e);
+        }
+      }
+
+      if (totalVencidas > 0) {
+        functions.logger.info(
+          `[Vencimiento] ${totalVencidas} unidad(es) marcada(s) como vencida(s) de ${productosAfectados.size} producto(s)`
+        );
+      } else {
+        functions.logger.info("[Vencimiento] Sin unidades vencidas");
+      }
+
+      return null;
+    } catch (error) {
+      functions.logger.error("[Vencimiento] Error en marcado automático:", error);
+      return null;
+    }
+  });

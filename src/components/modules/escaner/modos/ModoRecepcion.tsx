@@ -356,13 +356,24 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                         </label>
                         <input
                           type="date"
+                          min={new Date().toISOString().split('T')[0]}
+                          max={new Date(Date.now() + 5 * 365 * 86400000).toISOString().split('T')[0]}
                           value={fechasVencimiento[prod.productoId] || ''}
                           onChange={(e) => setFechasVencimiento(prev => ({
                             ...prev,
                             [prod.productoId]: e.target.value,
                           }))}
-                          className="w-full text-sm border rounded-md px-2 py-1.5 focus:ring-2 focus:ring-amber-400 bg-white"
+                          className="w-full text-sm border rounded-md px-2 py-2.5 min-h-[44px] focus:ring-2 focus:ring-amber-400 bg-white"
                         />
+                        {/* Feedback de fecha ingresada */}
+                        {fechasVencimiento[prod.productoId] && (() => {
+                          const dias = Math.ceil((new Date(fechasVencimiento[prod.productoId]).getTime() - Date.now()) / 86400000);
+                          return dias < 0
+                            ? <p className="text-xs text-red-600 mt-1">Fecha ya vencida — revisa el dato</p>
+                            : dias < 90
+                            ? <p className="text-xs text-amber-600 mt-1">Vence en {dias} días — vida útil corta</p>
+                            : <p className="text-xs text-green-700 mt-1">Vence en {dias} días ({new Date(fechasVencimiento[prod.productoId]).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })})</p>;
+                        })()}
                       </div>
                     </div>
 

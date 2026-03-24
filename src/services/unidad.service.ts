@@ -228,7 +228,15 @@ export const unidadService = {
       });
     }
 
-    // Ordenar por fecha de vencimiento (más próximo primero)
+    // Excluir unidades ya vencidas (fecha de vencimiento pasada)
+    const ahoraSeconds = Math.floor(Date.now() / 1000);
+    unidades = unidades.filter(u => {
+      const fvSeconds = u.fechaVencimiento?.seconds;
+      if (!fvSeconds) return true; // Sin fecha = no perecible, incluir
+      return fvSeconds > ahoraSeconds; // Solo incluir si NO ha vencido
+    });
+
+    // Ordenar por fecha de vencimiento (más próximo primero — FEFO)
     // Unidades sin fechaVencimiento van al final (no perecibles o dato faltante)
     unidades.sort((a, b) => {
       const aSeconds = a.fechaVencimiento?.seconds ?? Number.MAX_SAFE_INTEGER;
