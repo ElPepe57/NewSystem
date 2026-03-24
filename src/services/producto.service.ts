@@ -495,15 +495,25 @@ export class ProductoService {
   /**
    * Obtener variantes de un producto padre
    */
-  static async getVariantes(parentId: string): Promise<Producto[]> {
+  static async getVariantes(grupoId: string): Promise<Producto[]> {
     try {
-      const q = query(
+      // Buscar por grupoVarianteId (nuevo) con fallback a parentId (legacy)
+      let snapshot = await getDocs(query(
         collection(db, COLLECTION_NAME),
-        where('parentId', '==', parentId),
+        where('grupoVarianteId', '==', grupoId),
         where('estado', '==', 'activo')
-      );
-      const snapshot = await getDocs(q);
-      return mapDocs<Producto>(snapshot);
+      ));
+
+      // Fallback: si no hay resultados con grupoVarianteId, buscar con parentId legacy
+      if (snapshot.empty) {
+        snapshot = await getDocs(query(
+          collection(db, COLLECTION_NAME),
+          where('parentId', '==', grupoId),
+          where('estado', '==', 'activo')
+        ));
+      }
+
+      return mapDocs<Producto>(snapshot).map(p => normalizeProductoVariantes(p));
     } catch (error: any) {
       logger.error('Error al obtener variantes:', error);
       return [];
@@ -517,15 +527,24 @@ export class ProductoService {
     try {
       const productoRef = doc(db, COLLECTION_NAME, productoId);
       await updateDoc(productoRef, {
+        // Legacy fields (maintain during transition)
         parentId,
         esVariante: true,
         esPadre: false,
+        // New model fields
+        grupoVarianteId: parentId,
+        esPrincipalGrupo: false,
         varianteLabel,
         ultimaEdicion: serverTimestamp(),
       });
-      // Marcar padre
+      // Marcar padre con ambos modelos
       const padreRef = doc(db, COLLECTION_NAME, parentId);
-      await updateDoc(padreRef, { esPadre: true });
+      await updateDoc(padreRef, {
+        esPadre: true,
+        esAgrupador: true,
+        grupoVarianteId: parentId,
+        esPrincipalGrupo: true,
+      });
     } catch (error: any) {
       logger.error('Error al vincular variante:', error);
       throw new Error('Error al vincular variante');

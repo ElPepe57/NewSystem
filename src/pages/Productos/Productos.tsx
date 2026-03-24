@@ -70,7 +70,10 @@ export const Productos: React.FC = () => {
   const [sortConfigs, setSortConfigs] = useState<Array<{
     key: string;
     direction: 'asc' | 'desc';
-  }>>([]);
+  }>>([
+    { key: 'marca', direction: 'asc' },
+    { key: 'nombreComercial', direction: 'asc' },
+  ]);
 
   // Detectar si Ctrl está presionado para multiorden
   const [ctrlPressed, setCtrlPressed] = useState(false);
