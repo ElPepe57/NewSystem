@@ -15,6 +15,7 @@ import { OCBuilder, PendientesCompraPanel } from '../../components/modules/orden
 import type { ProductoRequerimientoSnapshot } from '../../components/modules/entidades/ProductoSearchRequerimientos';
 import { useProductoStore } from '../../store/productoStore';
 import { useRequerimientoStore } from '../../store/requerimientoStore';
+import { requerimientoService } from '../../services/requerimiento.service';
 import type { ProductoFormData } from '../../types/producto.types';
 import { ProductoService } from '../../services/producto.service';
 import { OrdenCompraService } from '../../services/ordenCompra.service';
@@ -46,6 +47,7 @@ import type { InvestigacionProducto, SugerenciaStock } from './requerimientos.ty
 
 export const Requerimientos: React.FC = () => {
   const user = useAuthStore((state) => state.user);
+  const userProfile = useAuthStore((state) => state.userProfile);
   const toast = useToastStore();
   const { productos: productosStore, createProducto, fetchProductos } = useProductoStore();
   const {
@@ -482,14 +484,20 @@ export const Requerimientos: React.FC = () => {
   // ---- Handlers de estado ----
 
   const handleAprobar = async (req: Requerimiento) => {
-    if (!user) return;
+    if (!user || !userProfile) return;
     try {
-      await storeActualizarEstado(req.id, 'aprobado', user.uid);
-      toast.success('Requerimiento aprobado');
+      const result = await requerimientoService.aprobar(req.id, user.uid, userProfile.role);
+
+      if (result.completa) {
+        toast.success('Requerimiento aprobado');
+      } else {
+        const rolPendiente = result.pendiente === 'admin' ? 'Administrador' : 'Gerente General';
+        toast.warning(`Tu firma fue registrada. Falta la firma del ${rolPendiente} para completar la aprobación.`);
+      }
       loadData();
     } catch (error: any) {
       console.error('Error al aprobar:', error);
-      toast.error('Error al aprobar el requerimiento');
+      toast.error(error.message || 'Error al aprobar el requerimiento');
     }
   };
 

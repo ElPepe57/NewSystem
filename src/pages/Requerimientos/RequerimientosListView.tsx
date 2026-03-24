@@ -8,6 +8,7 @@ import {
   Link2,
   XCircle,
   Users,
+  ShieldAlert,
   Building2,
   Target,
   Lightbulb,
@@ -31,6 +32,7 @@ const getEstadoBadge = (estado: EstadoRequerimiento) => {
   const config: Record<EstadoRequerimiento, { color: string; icon: React.ReactNode }> = {
     borrador: { color: 'bg-gray-100 text-gray-800', icon: <Clock className="h-3 w-3" /> },
     pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
+    pendiente_aprobacion: { color: 'bg-amber-100 text-amber-800 border border-amber-300', icon: <ShieldAlert className="h-3 w-3" /> },
     aprobado: { color: 'bg-blue-100 text-blue-800', icon: <Check className="h-3 w-3" /> },
     parcial: { color: 'bg-indigo-100 text-indigo-800', icon: <Link2 className="h-3 w-3" /> },
     en_proceso: { color: 'bg-purple-100 text-purple-800', icon: <Link2 className="h-3 w-3" /> },
@@ -39,10 +41,14 @@ const getEstadoBadge = (estado: EstadoRequerimiento) => {
   };
 
   const { color, icon } = config[estado];
+  const labels: Partial<Record<EstadoRequerimiento, string>> = {
+    pendiente_aprobacion: 'Firma Pendiente',
+  };
+  const label = labels[estado] || estado.replace(/_/g, ' ');
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}>
       {icon}
-      <span className="ml-1">{estado.replace('_', ' ')}</span>
+      <span className="ml-1 capitalize">{label}</span>
     </span>
   );
 };

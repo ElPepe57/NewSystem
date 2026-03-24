@@ -31,6 +31,8 @@ import { categoriaService } from '../../../services/categoria.service';
 import { etiquetaService } from '../../../services/etiqueta.service';
 import { useAuthStore } from '../../../store/authStore';
 import { useToastStore } from '../../../store/toastStore';
+import { useDetectarVarianteCandidatos } from '../../../hooks/useDetectarVarianteCandidatos';
+import { SugerenciaVarianteBanner } from './SugerenciaVarianteBanner';
 import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
 import { METODO_ENVIO_LABELS } from '../../../types/paisOrigen.types';
@@ -96,6 +98,9 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     fetchLineasActivas();
     fetchPaisesActivos();
   }, [fetchLineasActivas, fetchPaisesActivos]);
+
+  // Detección de variantes candidatas
+  const [bannerVarianteDescartado, setBannerVarianteDescartado] = useState(false);
 
   // Estado para crear/editar país inline
   const [mostrarNuevoPais, setMostrarNuevoPais] = useState(false);
@@ -322,6 +327,30 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
     loadSugerencias();
   }, []);
+
+  // Detectar variantes candidatas (solo en modo creación)
+  const candidatosVariante = useDetectarVarianteCandidatos(
+    !initialData ? productosExistentes : [],
+    formData.marca,
+    formData.nombreComercial,
+    formData.contenido,
+    formData.dosaje,
+    formData.sabor,
+  );
+
+  const handleAgregarComoVariante = (padre: Producto) => {
+    setFormData(prev => ({
+      ...prev,
+      parentId: padre.id,
+      esVariante: true,
+      marca: padre.marca,
+      nombreComercial: padre.nombreComercial,
+      lineaNegocioId: padre.lineaNegocioId || prev.lineaNegocioId,
+      paisOrigen: padre.paisOrigen || prev.paisOrigen,
+      varianteLabel: prev.contenido || '',
+    }));
+    setBannerVarianteDescartado(true);
+  };
 
   // Filtrar productos con investigacion para el selector
   const productosConInvestigacion = useMemo(() => {
@@ -838,6 +867,16 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
           {/* TAB 1: INFORMACION BASICA */}
           <TabPanel tabId="basico" className="mt-6 space-y-4">
+            {/* Sugerencia de variante — solo en modo creación */}
+            {!initialData && !bannerVarianteDescartado && candidatosVariante.length > 0 && !formData.parentId && (
+              <SugerenciaVarianteBanner
+                candidatos={candidatosVariante}
+                onAgregarComoVariante={handleAgregarComoVariante}
+                onCrearIndependiente={() => setBannerVarianteDescartado(true)}
+                onDescartar={() => setBannerVarianteDescartado(true)}
+              />
+            )}
+
             {/* Variante Label — solo si es variante */}
             {formData.parentId && (
               <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">

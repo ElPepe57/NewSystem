@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { ScanLine, ToggleLeft, ToggleRight, Search, ClipboardCheck, Truck, PackageCheck, ArrowRightLeft } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { ScanLine, ToggleLeft, ToggleRight, Search, ClipboardCheck, Truck, PackageCheck, ArrowRightLeft, ArrowLeft } from 'lucide-react';
 import { GradientHeader } from '../../components/common';
 import { BarcodeScanner } from '../../components/common/BarcodeScanner';
 import { Tabs } from '../../components/common/Tabs';
@@ -39,6 +39,7 @@ export const Escaner: React.FC = () => {
   const [searchParams] = useSearchParams();
   const modoParam = searchParams.get('modo') as ScannerModoId | null;
   const transferenciaIdParam = searchParams.get('transferenciaId');
+  const navigate = useNavigate();
 
   const [activeMode, setActiveMode] = useState<ScannerModoId>(
     modoParam && VALID_MODES.includes(modoParam) ? modoParam : 'consulta'
@@ -82,6 +83,23 @@ export const Escaner: React.FC = () => {
       />
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        {/* Banner de contexto cuando viene de Transferencias */}
+        {transferenciaIdParam && (
+          <div className="mb-4 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
+            <div className="flex items-center gap-2 text-sm text-blue-800">
+              <ArrowLeft className="h-4 w-4 flex-shrink-0" />
+              <span className="font-medium">Recepción de transferencia</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate(`/transferencias?transferenciaId=${transferenciaIdParam}`)}
+              className="text-xs font-medium text-blue-700 hover:text-blue-900 underline flex-shrink-0"
+            >
+              Volver a Transferencias
+            </button>
+          </div>
+        )}
+
         {/* Mode tabs */}
         <div className="mb-4">
           <Tabs

@@ -57,6 +57,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
   onCancelar,
   onIniciarRecepcion,
 }) => {
+  const navigate = useNavigate();
   const fechaCreacion = transferencia.fechaCreacion.toDate();
   const fechaSalida = transferencia.fechaSalida?.toDate();
 
@@ -260,7 +261,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
-              window.location.href = `/escaner?modo=recepcion&transferenciaId=${transferencia.id}`;
+              navigate(`/escaner?modo=recepcion&transferenciaId=${transferencia.id}`);
             }}
           >
             <ScanLine className="h-4 w-4 mr-1" />
