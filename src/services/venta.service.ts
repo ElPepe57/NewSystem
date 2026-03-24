@@ -33,6 +33,7 @@ import {
   type Unsubscribe
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { mapDocs } from '../lib/firestoreHelpers';
 import { COLLECTIONS } from '../config/collections';
 import type {
   Venta,
@@ -118,10 +119,7 @@ export class VentaService {
 
       const snapshot = await getDocs(q);
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Venta));
+      return mapDocs<Venta>(snapshot);
     } catch (error: any) {
       logger.error('Error al obtener ventas:', error);
       throw new Error('Error al cargar ventas');
@@ -140,10 +138,7 @@ export class VentaService {
         where('requiereStock', '==', true)
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Venta));
+      return mapDocs<Venta>(snapshot);
     } catch (error: any) {
       logger.error('Error al obtener ventas que requieren stock:', error);
       return [];
@@ -191,10 +186,7 @@ export class VentaService {
 
       const snapshot = await getDocs(q);
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Venta));
+      return mapDocs<Venta>(snapshot);
     } catch (error: any) {
       logger.error('Error al obtener ventas recientes:', error);
       // Fallback: obtener todas y filtrar en memoria
@@ -242,10 +234,7 @@ export class VentaService {
 
       const snapshot = await getDocs(q);
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Venta));
+      return mapDocs<Venta>(snapshot);
     } catch (error: any) {
       logger.error('Error al obtener ventas por estado:', error);
       throw new Error('Error al cargar ventas');

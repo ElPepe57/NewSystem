@@ -15,6 +15,7 @@ import {
   limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { mapDocs } from '../lib/firestoreHelpers';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
@@ -56,10 +57,7 @@ export class ProductoService {
         isFinite(maxResults) ? query(col, limit(maxResults)) : col
       );
 
-      const productos = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Producto));
+      const productos = mapDocs<Producto>(snapshot);
 
       // Siempre excluir productos en papelera (estado='eliminado')
       // Por defecto, también excluir inactivos
@@ -477,7 +475,7 @@ export class ProductoService {
         where('estado', '==', 'activo')
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Producto));
+      return mapDocs<Producto>(snapshot);
     } catch (error: any) {
       logger.error('Error al obtener variantes:', error);
       return [];
@@ -516,10 +514,7 @@ export class ProductoService {
         where('estado', '==', 'eliminado')
       );
       const snapshot = await getDocs(q);
-      const productos = snapshot.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      } as Producto));
+      const productos = mapDocs<Producto>(snapshot);
 
       // Ordenar por fecha de archivo (más reciente primero)
       return productos.sort((a, b) => {

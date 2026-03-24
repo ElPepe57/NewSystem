@@ -124,3 +124,44 @@ export function calcularDiasParaVencer(
     return null;
   }
 }
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+/**
+ * Calcula los días transcurridos desde una fecha hasta hoy.
+ * Reemplaza las ~75 copias de `Math.floor(diff / (1000 * 60 * 60 * 24))`.
+ */
+export function diasDesde(fecha: Timestamp | Date | string | number | null | undefined): number {
+  if (!fecha) return 0;
+  try {
+    let date: Date;
+    if (fecha instanceof Timestamp) date = fecha.toDate();
+    else if (fecha instanceof Date) date = fecha;
+    else if (typeof fecha === 'object' && 'seconds' in fecha) date = new Date((fecha as { seconds: number }).seconds * 1000);
+    else date = new Date(fecha);
+    if (isNaN(date.getTime())) return 0;
+    return Math.floor((Date.now() - date.getTime()) / MS_PER_DAY);
+  } catch { return 0; }
+}
+
+/**
+ * Calcula los días entre dos fechas (absoluto).
+ */
+export function diasEntre(
+  fecha1: Timestamp | Date | string | number | null | undefined,
+  fecha2: Timestamp | Date | string | number | null | undefined
+): number {
+  if (!fecha1 || !fecha2) return 0;
+  try {
+    const toDate = (f: any): Date => {
+      if (f instanceof Timestamp) return f.toDate();
+      if (f instanceof Date) return f;
+      if (typeof f === 'object' && 'seconds' in f) return new Date(f.seconds * 1000);
+      return new Date(f);
+    };
+    const d1 = toDate(fecha1);
+    const d2 = toDate(fecha2);
+    if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return 0;
+    return Math.abs(Math.floor((d2.getTime() - d1.getTime()) / MS_PER_DAY));
+  } catch { return 0; }
+}
