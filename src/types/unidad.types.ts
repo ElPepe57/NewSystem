@@ -31,7 +31,13 @@ export type EstadoUnidad =
   | 'vencida'             // Producto vencido
   | 'danada'              // Producto dañado — pendiente de disposición
   | 'en_reclamo'          // En proceso de reclamo a viajero/proveedor
-  | 'baja';               // Baja definitiva confirmada (destruida/descartada)
+  | 'baja'                // Baja definitiva confirmada (destruida/descartada)
+  | 'donada';             // Donada a terceros (entidad benéfica, empleados)
+
+/**
+ * Disposición para unidades vencidas
+ */
+export type DisposicionVencida = 'baja_definitiva' | 'donacion';
 
 /**
  * Estados que representan "en origen" (genéricos + legacy)

@@ -2,7 +2,7 @@ import { doc, updateDoc, collection, addDoc, query, where, getDocs, Timestamp } 
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import type { DisposicionDanada, ResponsableDano, IncidenciaTransferencia } from '../types/transferencia.types';
-import type { EstadoUnidad } from '../types/unidad.types';
+import type { EstadoUnidad, DisposicionVencida } from '../types/unidad.types';
 import type { TipoGasto } from '../types/gasto.types';
 
 /**
@@ -216,5 +216,125 @@ export const bajaInventarioService = {
       montoUSD,
       porDisposicion,
     };
+  },
+
+  // ===================== VENCIDAS =====================
+
+  /**
+   * Datos para registrar baja por vencimiento
+   */
+
+  /**
+   * Registra la baja de una unidad vencida
+   * - Baja definitiva: estado 'baja', gasto en cuenta 6951 Mermas
+   * - Donación: estado 'donada', sin gasto contable (ya no hay valor)
+   */
+  async registrarBajaPorVencimiento(
+    data: {
+      unidadId: string;
+      productoId: string;
+      productoNombre: string;
+      sku: string;
+      disposicion: DisposicionVencida;
+      motivo: string;
+      costoUnidadPEN: number;
+      costoUnidadUSD?: number;
+      destinatarioDonacion?: string;
+    },
+    userId: string
+  ): Promise<BajaResultado> {
+    const now = Timestamp.now();
+    let nuevoEstado: EstadoUnidad;
+    let gastoId: string | undefined;
+
+    switch (data.disposicion) {
+      case 'baja_definitiva':
+        nuevoEstado = 'baja';
+        break;
+      case 'donacion':
+        nuevoEstado = 'donada';
+        break;
+    }
+
+    // 1. Actualizar unidad
+    const unidadRef = doc(db, COLLECTIONS.UNIDADES, data.unidadId);
+    await updateDoc(unidadRef, {
+      estado: nuevoEstado,
+      disposicionVencimiento: data.disposicion,
+      disposicionMotivo: data.motivo,
+      disposicionPor: userId,
+      disposicionFecha: now,
+      ...(data.destinatarioDonacion ? { destinatarioDonacion: data.destinatarioDonacion } : {}),
+      ultimaEdicion: now,
+    });
+
+    // 2. Generar gasto contable solo para baja definitiva
+    if (data.disposicion === 'baja_definitiva') {
+      const gastoRef = await addDoc(collection(db, COLLECTIONS.GASTOS), {
+        tipo: 'merma_vencimiento' as TipoGasto,
+        categoria: 'operativo',
+        concepto: `Baja por vencimiento: ${data.sku} - ${data.productoNombre}`,
+        descripcion: `Producto vencido. Motivo: ${data.motivo}`,
+        montoOriginal: data.costoUnidadPEN,
+        moneda: 'PEN',
+        montoPEN: data.costoUnidadPEN,
+        montoUSD: data.costoUnidadUSD || 0,
+        fecha: now,
+        estado: 'pendiente', // Requiere confirmación
+        unidadId: data.unidadId,
+        productoId: data.productoId,
+        cuentaContable: '6951', // Mermas
+        cuentaContrapartida: '2011', // Mercaderías importadas
+        creadoPor: userId,
+        fechaCreacion: now,
+        esAutomatico: false,
+        origenGasto: 'baja_vencimiento',
+      });
+      gastoId = gastoRef.id;
+    }
+
+    return {
+      unidadId: data.unidadId,
+      nuevoEstado,
+      gastoGenerado: gastoId,
+      reclamoGenerado: false,
+    };
+  },
+
+  /**
+   * Procesa múltiples bajas por vencimiento en lote
+   */
+  async procesarBajasVencimientoLote(
+    bajas: {
+      unidadId: string;
+      productoId: string;
+      productoNombre: string;
+      sku: string;
+      disposicion: DisposicionVencida;
+      motivo: string;
+      costoUnidadPEN: number;
+      costoUnidadUSD?: number;
+      destinatarioDonacion?: string;
+    }[],
+    userId: string
+  ): Promise<BajaResultado[]> {
+    const resultados: BajaResultado[] = [];
+    for (const baja of bajas) {
+      const resultado = await this.registrarBajaPorVencimiento(baja, userId);
+      resultados.push(resultado);
+    }
+    return resultados;
+  },
+
+  /**
+   * Obtiene unidades vencidas pendientes de gestión
+   */
+  async getUnidadesVencidasPendientes(): Promise<any[]> {
+    const q = query(
+      collection(db, COLLECTIONS.UNIDADES),
+      where('estado', '==', 'vencida')
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   },
 };

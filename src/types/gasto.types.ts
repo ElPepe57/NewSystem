@@ -14,6 +14,7 @@ export type TipoGasto =
   | 'delivery'                  // Delivery local
   | 'comision_ml'               // Comisión Mercado Libre
   | 'merma_transferencia'       // Pérdida por daño en transferencia (cuenta 6952)
+  | 'merma_vencimiento'         // Pérdida por vencimiento de producto (cuenta 6951)
   | 'desmedro'                  // Deterioro físico de producto (cuenta 6952)
   | 'otros';                    // Otros gastos
 
@@ -205,6 +206,7 @@ export const TIPOS_GASTO_LABELS: Record<TipoGasto, string> = {
   delivery: 'Delivery',
   comision_ml: 'Comisión ML',
   merma_transferencia: 'Merma en Transferencia',
+  merma_vencimiento: 'Merma por Vencimiento',
   desmedro: 'Desmedro',
   otros: 'Otros'
 };
