@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import {
   Pencil,
   Trash2,
+  Copy,
+  GitBranch,
   Package,
   DollarSign,
   TrendingUp,
@@ -45,6 +47,9 @@ interface ProductoCardProps {
   onDelete: () => void;
   onInvestigar?: () => void;
   onReactivar?: () => void;
+  onCreateVariante?: () => void;
+  variantes?: Producto[];
+  onViewVariante?: (producto: Producto) => void;
 }
 
 // Componente para secciones colapsables
@@ -186,7 +191,7 @@ const KPICard: React.FC<{
   </div>
 );
 
-export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, onDelete, onInvestigar, onReactivar }) => {
+export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, onDelete, onInvestigar, onReactivar, onCreateVariante, variantes, onViewVariante }) => {
   const [copiedSku, setCopiedSku] = useState(false);
   const stockCritico = producto.stockPeru <= producto.stockMinimo;
 
@@ -248,6 +253,15 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                 title="Investigar"
               >
                 <Search className="h-4 w-4" />
+              </button>
+            )}
+            {onCreateVariante && (
+              <button
+                onClick={onCreateVariante}
+                className="p-2 bg-transparent border border-gray-500 text-gray-200 hover:bg-gray-600/50 rounded-lg transition-colors"
+                title="Crear variante"
+              >
+                <Copy className="h-4 w-4" />
               </button>
             )}
             <button
@@ -938,6 +952,39 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           </div>
         </CollapsibleSection>
       </div>
+
+      {/* ============ VARIANTES ============ */}
+      {producto.esVariante && producto.parentId && (
+        <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs">
+          <GitBranch className="h-3.5 w-3.5 text-blue-500" />
+          <span className="text-blue-700">Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}</span>
+        </div>
+      )}
+
+      {producto.esPadre && variantes && variantes.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <GitBranch className="h-4 w-4 text-purple-500" />
+            Variantes ({variantes.length})
+          </h4>
+          <div className="space-y-1">
+            {variantes.map(v => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => onViewVariante?.(v)}
+                className="w-full flex items-center justify-between p-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">{v.sku}</span>
+                  <span className="text-xs text-gray-700">{v.varianteLabel || v.contenido || v.presentacion}</span>
+                </div>
+                <span className="text-xs text-gray-400">Stock: {v.stockPeru || 0}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ============ FOOTER ============ */}
       <div className="flex justify-between items-center text-xs text-gray-500 pt-3 border-t border-gray-200">

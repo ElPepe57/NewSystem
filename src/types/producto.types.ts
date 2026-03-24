@@ -472,6 +472,9 @@ export interface Producto {
   diasParaQuiebre: number;
 
   esPadre: boolean;
+  parentId?: string;
+  esVariante?: boolean;
+  varianteLabel?: string;
 
   // === SABOR ===
   /**
@@ -547,6 +550,11 @@ export interface ProductoFormData {
    * Se calcula automáticamente: (número en contenido) / servingsPerDay
    */
   cicloRecompraDias?: number;
+
+  // === VARIANTES ===
+  parentId?: string;
+  esVariante?: boolean;
+  varianteLabel?: string;
 }
 
 // Los tipos de Unidad, EstadoUnidad, MovimientoUnidad, UnidadFormData

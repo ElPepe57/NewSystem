@@ -259,10 +259,30 @@ export class ProductoService {
         newProducto.sabor = skc.tipoPiel?.[0] || '';
       }
 
+      // Variantes padre-hijo
+      if (data.parentId) {
+        newProducto.parentId = data.parentId;
+        newProducto.esVariante = true;
+        newProducto.esPadre = false;
+      }
+      if (data.varianteLabel) {
+        newProducto.varianteLabel = data.varianteLabel;
+      }
+
       // Limpiar cualquier valor undefined restante antes de enviar a Firestore
       const cleanedProducto = this.removeUndefined(newProducto);
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), cleanedProducto);
+
+      // Si es variante, marcar el padre como esPadre
+      if (data.parentId) {
+        try {
+          const padreRef = doc(db, COLLECTION_NAME, data.parentId);
+          await updateDoc(padreRef, { esPadre: true });
+        } catch (e) {
+          logger.warn('Error al marcar padre:', e);
+        }
+      }
 
       // Incrementar contador de productos activos en la marca (Gestor Maestro)
       if (data.marcaId) {
@@ -443,6 +463,46 @@ export class ProductoService {
     } catch (error: any) {
       logger.error('Error al reactivar producto:', error);
       throw new Error('Error al reactivar producto');
+    }
+  }
+
+  /**
+   * Obtener variantes de un producto padre
+   */
+  static async getVariantes(parentId: string): Promise<Producto[]> {
+    try {
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('parentId', '==', parentId),
+        where('estado', '==', 'activo')
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Producto));
+    } catch (error: any) {
+      logger.error('Error al obtener variantes:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Vincular un producto existente como variante de un padre
+   */
+  static async vincularComoVariante(productoId: string, parentId: string, varianteLabel: string): Promise<void> {
+    try {
+      const productoRef = doc(db, COLLECTION_NAME, productoId);
+      await updateDoc(productoRef, {
+        parentId,
+        esVariante: true,
+        esPadre: false,
+        varianteLabel,
+        ultimaEdicion: serverTimestamp(),
+      });
+      // Marcar padre
+      const padreRef = doc(db, COLLECTION_NAME, parentId);
+      await updateDoc(padreRef, { esPadre: true });
+    } catch (error: any) {
+      logger.error('Error al vincular variante:', error);
+      throw new Error('Error al vincular variante');
     }
   }
 

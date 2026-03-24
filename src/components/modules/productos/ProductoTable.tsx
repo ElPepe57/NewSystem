@@ -101,6 +101,12 @@ const ProductoCardResponsive: React.FC<{
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs text-primary-600 font-semibold">{producto.sku}</span>
+            {producto.esVariante && producto.varianteLabel && (
+              <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">{producto.varianteLabel}</span>
+            )}
+            {producto.esPadre && (
+              <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">Padre</span>
+            )}
             <Badge variant={producto.estado === 'activo' ? 'success' : 'default'} size="sm">
               {producto.estado === 'activo' ? 'Activo' : 'Inactivo'}
             </Badge>
@@ -453,7 +459,15 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                   <tr key={producto.id} className="hover:bg-gray-50">
                     {/* SKU */}
                     <td className="px-2 py-2 whitespace-nowrap">
-                      <span className="text-xs font-mono font-semibold text-primary-600">{producto.sku}</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-mono font-semibold text-primary-600">{producto.sku}</span>
+                        {producto.esVariante && producto.varianteLabel && (
+                          <span className="text-[9px] bg-blue-100 text-blue-700 px-1 py-0.5 rounded">{producto.varianteLabel}</span>
+                        )}
+                        {producto.esPadre && (
+                          <span className="text-[9px] bg-purple-100 text-purple-700 px-1 py-0.5 rounded">P</span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Producto */}

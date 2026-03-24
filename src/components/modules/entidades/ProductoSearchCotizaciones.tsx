@@ -141,6 +141,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
       const searchLower = inputValue.toLowerCase();
       const productosArr = Array.isArray(productos) ? productos : [];
       const filtered = productosArr.filter(p => {
+        if ((p as any).esPadre) return false;
         const sku = (p.sku ?? '').toLowerCase();
         const marca = (p.marca ?? '').toLowerCase();
         const nombreComercial = (p.nombreComercial ?? '').toLowerCase();

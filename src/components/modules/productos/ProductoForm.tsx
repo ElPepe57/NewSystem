@@ -848,6 +848,20 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
           {/* TAB 1: INFORMACION BASICA */}
           <TabPanel tabId="basico" className="mt-6 space-y-4">
+            {/* Variante Label — solo si es variante */}
+            {formData.parentId && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                <p className="text-xs text-blue-700 font-medium">Creando variante — solo modifica lo que cambia</p>
+                <Input
+                  label="¿Qué diferencia esta variante?"
+                  name="varianteLabel"
+                  value={formData.varianteLabel || ''}
+                  onChange={handleChange}
+                  placeholder="ej: 120 caps, 200ml, Sabor Limón..."
+                  required
+                />
+              </div>
+            )}
             {/* Marca — Compartida entre todas las líneas */}
             <div className="space-y-3">
               <div>

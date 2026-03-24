@@ -17,6 +17,8 @@ interface ProductoState {
   updateProducto: (id: string, data: any) => Promise<void>;
   deleteProducto: (id: string, userId?: string) => Promise<void>;
   reactivarProducto: (id: string) => Promise<void>;
+  getVariantes: (parentId: string) => Promise<Producto[]>;
+  vincularVariante: (productoId: string, parentId: string, varianteLabel: string) => Promise<void>;
   setSelectedProducto: (producto: Producto | null) => void;
 
   // Investigación de Mercado
@@ -111,6 +113,22 @@ export const useProductoStore = create<ProductoState>((set) => ({
       set({ error: error.message });
       throw error;
     }
+  },
+
+  getVariantes: async (parentId) => {
+    return await ProductoService.getVariantes(parentId);
+  },
+
+  vincularVariante: async (productoId, parentId, varianteLabel) => {
+    await ProductoService.vincularComoVariante(productoId, parentId, varianteLabel);
+    // Actualizar estado local
+    set(state => ({
+      productos: state.productos.map(p => {
+        if (p.id === productoId) return { ...p, parentId, esVariante: true, varianteLabel };
+        if (p.id === parentId) return { ...p, esPadre: true };
+        return p;
+      }),
+    }));
   },
 
   setSelectedProducto: (producto) => {

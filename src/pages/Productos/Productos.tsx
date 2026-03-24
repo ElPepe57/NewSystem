@@ -20,7 +20,7 @@ import type { TipoCambio } from '../../types/tipoCambio.types';
 export const Productos: React.FC = () => {
   const user = useAuthStore(state => state.user);
   const toast = useToastStore();
-  const { productos, archivados, loading, loadingArchivados, fetchProductos, fetchArchivados, createProducto, updateProducto, deleteProducto, reactivarProducto, guardarInvestigacion, eliminarInvestigacion } = useProductoStore();
+  const { productos, archivados, loading, loadingArchivados, fetchProductos, fetchArchivados, createProducto, updateProducto, deleteProducto, reactivarProducto, getVariantes, guardarInvestigacion, eliminarInvestigacion } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
   const { tiposActivos, fetchTiposActivos } = useTipoProductoStore();
   const { categoriasActivas, fetchCategoriasActivas } = useCategoriaStore();
@@ -38,6 +38,8 @@ export const Productos: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tipoCambioActual, setTipoCambioActual] = useState<TipoCambio | null>(null);
+  const [variantesDelProducto, setVariantesDelProducto] = useState<Producto[]>([]);
+  const [parentProducto, setParentProducto] = useState<Producto | null>(null);
 
   // Filtros y búsqueda
   const [searchTerm, setSearchTerm] = useState('');
@@ -148,9 +150,39 @@ export const Productos: React.FC = () => {
     setIsFormModalOpen(true);
   };
 
-  const handleView = (producto: Producto) => {
+  const handleView = async (producto: Producto) => {
     setSelectedProducto(producto);
     setIsViewModalOpen(true);
+    // Cargar variantes si es padre
+    if (producto.esPadre) {
+      const vars = await getVariantes(producto.id);
+      setVariantesDelProducto(vars);
+    } else {
+      setVariantesDelProducto([]);
+    }
+  };
+
+  const handleCreateVariante = (padre: Producto) => {
+    // Pre-llenar formulario con datos del padre
+    const varianteData: Partial<ProductoFormData> = {
+      marca: padre.marca,
+      nombreComercial: padre.nombreComercial,
+      grupo: padre.grupo,
+      subgrupo: padre.subgrupo,
+      tipoProductoId: padre.tipoProductoId,
+      categoriaIds: padre.categoriaIds || [],
+      categoriaPrincipalId: padre.categoriaPrincipalId,
+      etiquetaIds: padre.etiquetaIds || [],
+      paisOrigen: padre.paisOrigen,
+      lineaNegocioId: padre.lineaNegocioId,
+      atributosSkincare: padre.atributosSkincare,
+      parentId: padre.id,
+      esVariante: true,
+    };
+    setSelectedProducto(varianteData as any);
+    setIsEditing(false);
+    setIsFormModalOpen(true);
+    setIsViewModalOpen(false);
   };
 
   // Detectar productos similares al crear
@@ -966,6 +998,9 @@ export const Productos: React.FC = () => {
                 toast.error(err.message || 'Error al reactivar');
               }
             } : undefined}
+            onCreateVariante={selectedProducto.estado === 'activo' ? () => handleCreateVariante(selectedProducto) : undefined}
+            variantes={variantesDelProducto}
+            onViewVariante={(v) => { handleCloseViewModal(); handleView(v); }}
           />
         )}
       </Modal>

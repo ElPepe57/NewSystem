@@ -151,10 +151,11 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
       const searchLower = inputValue.toLowerCase();
       const productosArr = Array.isArray(productos) ? productos : [];
       const filtered = productosArr.filter(p => {
+        // Excluir productos padre (solo variantes e independientes son seleccionables)
+        if (p.esPadre) return false;
         const sku = (p.sku ?? '').toLowerCase();
         const marca = (p.marca ?? '').toLowerCase();
         const nombreComercial = (p.nombreComercial ?? '').toLowerCase();
-        // Buscar en todos los campos relevantes
         return sku.includes(searchLower) ||
                marca.includes(searchLower) ||
                nombreComercial.includes(searchLower) ||
@@ -413,6 +414,9 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
                     <div className="flex items-center justify-between gap-1.5">
                       <div className="flex items-center gap-1 sm:gap-2 flex-wrap min-w-0">
                         <span className="font-mono text-xs sm:text-sm text-primary-600 flex-shrink-0">{producto.sku}</span>
+                        {producto.varianteLabel && (
+                          <span className="px-1 py-0.5 text-[10px] rounded bg-blue-100 text-blue-700 flex-shrink-0">{producto.varianteLabel}</span>
+                        )}
                         {tieneInvestigacion && (
                           <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-green-100 text-green-700 flex items-center flex-shrink-0">
                             <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
