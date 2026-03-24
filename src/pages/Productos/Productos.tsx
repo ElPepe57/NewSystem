@@ -12,6 +12,9 @@ import { DashboardCatalogo } from '../../components/modules/productos/DashboardC
 import { ProductoCreacionWizard, type TipoCreacion } from '../../components/modules/productos/ProductoCreacionWizard';
 import { FilterChip } from '../../components/modules/productos/FilterChip';
 import { FiltrosRapidos } from '../../components/modules/productos/FiltrosRapidos';
+import { BuscadorGrupoProducto } from '../../components/modules/productos/BuscadorGrupoProducto';
+import { FormVarianteReducida, type VarianteReducidaData } from '../../components/modules/productos/FormVarianteReducida';
+import { VariantesTable, type VarianteRow } from '../../components/modules/productos/VariantesTable';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
@@ -45,6 +48,9 @@ export const Productos: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isBuscadorVarianteOpen, setIsBuscadorVarianteOpen] = useState(false);
+  const [isFormVarianteReducidaOpen, setIsFormVarianteReducidaOpen] = useState(false);
+  const [grupoSeleccionadoParaVariante, setGrupoSeleccionadoParaVariante] = useState<Producto | null>(null);
+  const [wizardTipo, setWizardTipo] = useState<'simple' | 'con_variantes' | 'variante_existente'>('simple');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tipoCambioActual, setTipoCambioActual] = useState<TipoCambio | null>(null);
   const [variantesDelProducto, setVariantesDelProducto] = useState<Producto[]>([]);
@@ -156,6 +162,7 @@ export const Productos: React.FC = () => {
 
   const handleWizardSelect = (tipo: 'simple' | 'con_variantes' | 'variante_existente') => {
     setIsWizardOpen(false);
+    setWizardTipo(tipo);
     if (tipo === 'simple' || tipo === 'con_variantes') {
       setSelectedProducto(null);
       setIsEditing(false);
@@ -163,6 +170,57 @@ export const Productos: React.FC = () => {
     } else if (tipo === 'variante_existente') {
       setIsBuscadorVarianteOpen(true);
     }
+  };
+
+  // Flujo 3: usuario selecciona grupo en buscador → abrir formulario reducido
+  const handleGrupoSeleccionado = (producto: Producto) => {
+    setGrupoSeleccionadoParaVariante(producto);
+    setIsBuscadorVarianteOpen(false);
+    setIsFormVarianteReducidaOpen(true);
+  };
+
+  // Flujo 3: crear variante desde formulario reducido
+  const handleCrearVarianteReducida = async (data: VarianteReducidaData) => {
+    if (!user || !grupoSeleccionadoParaVariante) return;
+    const grupo = grupoSeleccionadoParaVariante;
+    const grupoVId = grupo.grupoVarianteId || grupo.id;
+
+    // If the group product doesn't have grupoVarianteId yet, update it
+    if (!grupo.grupoVarianteId) {
+      await updateProducto(grupo.id, {
+        grupoVarianteId: grupoVId,
+        esPrincipalGrupo: true,
+        esPadre: true,
+      } as any);
+    }
+
+    await createProducto({
+      marca: grupo.marca,
+      nombreComercial: grupo.nombreComercial,
+      presentacion: grupo.presentacion || '',
+      grupo: grupo.grupo || '',
+      subgrupo: grupo.subgrupo || '',
+      lineaNegocioId: grupo.lineaNegocioId || '',
+      paisOrigen: grupo.paisOrigen || '',
+      tipoProductoId: grupo.tipoProductoId || '',
+      categoriaIds: grupo.categoriaIds || [],
+      categoriaPrincipalId: grupo.categoriaPrincipalId || '',
+      etiquetaIds: grupo.etiquetaIds || [],
+      contenido: data.contenido,
+      sabor: data.sabor,
+      dosaje: data.dosaje,
+      varianteLabel: data.varianteLabel,
+      stockMinimo: data.stockMinimo,
+      grupoVarianteId: grupoVId,
+      esPrincipalGrupo: false,
+      parentId: grupo.id,
+      esVariante: true,
+    } as any);
+
+    toast.success(`Variante "${data.varianteLabel}" creada en el grupo de ${grupo.nombreComercial}`);
+    setIsFormVarianteReducidaOpen(false);
+    setGrupoSeleccionadoParaVariante(null);
+    fetchProductos();
   };
 
   const handleEdit = (producto: Producto) => {
@@ -1069,6 +1127,47 @@ export const Productos: React.FC = () => {
           onSelect={handleWizardSelect}
           onCancel={() => setIsWizardOpen(false)}
         />
+      </Modal>
+
+      {/* Flujo 3 — Paso 1: Buscador de grupo */}
+      <Modal
+        isOpen={isBuscadorVarianteOpen}
+        onClose={() => setIsBuscadorVarianteOpen(false)}
+        title="Agregar Variante"
+        size="md"
+      >
+        <BuscadorGrupoProducto
+          productos={productos}
+          onSelect={handleGrupoSeleccionado}
+          onCancel={() => setIsBuscadorVarianteOpen(false)}
+        />
+      </Modal>
+
+      {/* Flujo 3 — Paso 2: Formulario reducido */}
+      <Modal
+        isOpen={isFormVarianteReducidaOpen}
+        onClose={() => { setIsFormVarianteReducidaOpen(false); setGrupoSeleccionadoParaVariante(null); }}
+        title="Nueva Variante"
+        size="md"
+      >
+        {grupoSeleccionadoParaVariante && (
+          <FormVarianteReducida
+            grupoProducto={grupoSeleccionadoParaVariante}
+            variantesExistentes={
+              productos
+                .filter(p => (p.grupoVarianteId || p.parentId) === (grupoSeleccionadoParaVariante.grupoVarianteId || grupoSeleccionadoParaVariante.id))
+                .map(p => p.varianteLabel || p.contenido || '')
+                .filter(Boolean)
+            }
+            onSubmit={handleCrearVarianteReducida}
+            onBack={() => {
+              setIsFormVarianteReducidaOpen(false);
+              setGrupoSeleccionadoParaVariante(null);
+              setIsBuscadorVarianteOpen(true);
+            }}
+            onCancel={() => { setIsFormVarianteReducidaOpen(false); setGrupoSeleccionadoParaVariante(null); }}
+          />
+        )}
       </Modal>
 
       <Modal

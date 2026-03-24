@@ -7,6 +7,7 @@ import {
   updateDoc,
   deleteDoc,
   deleteField,
+  writeBatch,
   Timestamp,
   serverTimestamp,
   increment,
@@ -549,6 +550,127 @@ export class ProductoService {
       logger.error('Error al vincular variante:', error);
       throw new Error('Error al vincular variante');
     }
+  }
+
+  /**
+   * Crear producto con múltiples variantes en un solo paso atómico.
+   * Genera grupoVarianteId compartido, SKUs secuenciales, batch write.
+   */
+  static async createConVariantes(
+    datosComunes: {
+      marca: string;
+      nombreComercial: string;
+      presentacion?: string;
+      dosaje?: string;
+      grupo?: string;
+      subgrupo?: string;
+      paisOrigen?: string;
+      lineaNegocioId: string;
+      tipoProductoId?: string;
+      categoriaIds?: string[];
+      categoriaPrincipalId?: string;
+      etiquetaIds?: string[];
+      stockMinimo?: number;
+      stockMaximo?: number;
+    },
+    variantes: {
+      contenido: string;
+      sabor?: string;
+      dosaje?: string;
+      volumen?: string;
+      varianteLabel: string;
+    }[],
+    userId: string
+  ): Promise<Producto[]> {
+    if (!variantes || variantes.length < 2) {
+      throw new Error('Se requieren al menos 2 variantes para crear un grupo.');
+    }
+
+    // 1. Resolve line of business prefix
+    let skuPrefix = 'BMN';
+    let lineaNegocioNombre: string | undefined;
+    try {
+      const linea = await lineaNegocioService.getById(datosComunes.lineaNegocioId);
+      if (linea) {
+        skuPrefix = linea.codigo;
+        lineaNegocioNombre = linea.nombre;
+      }
+    } catch (e) {
+      logger.warn('createConVariantes: error getting linea:', e);
+    }
+
+    // 2. Generate SKUs sequentially (guarantees order)
+    const skus: string[] = [];
+    for (let i = 0; i < variantes.length; i++) {
+      const sku = await this.generateSKU(skuPrefix);
+      skus.push(sku);
+    }
+
+    // 3. Generate shared group ID
+    const grupoVarianteId = crypto.randomUUID();
+
+    // 4. Pre-assign document refs for batch
+    const col = collection(db, COLLECTION_NAME);
+    const docRefs = variantes.map(() => doc(col));
+
+    // 5. Build batch
+    const batch = writeBatch(db);
+    const ahora = Timestamp.now();
+    const productosCreados: Producto[] = [];
+
+    for (let i = 0; i < variantes.length; i++) {
+      const v = variantes[i];
+      const esPrincipalGrupo = i === 0;
+
+      const docData: Record<string, any> = {
+        sku: skus[i],
+        marca: datosComunes.marca || '',
+        nombreComercial: datosComunes.nombreComercial || '',
+        presentacion: datosComunes.presentacion || '',
+        grupo: datosComunes.grupo || '',
+        subgrupo: datosComunes.subgrupo || '',
+        contenido: v.contenido || '',
+        dosaje: v.dosaje || datosComunes.dosaje || '',
+        sabor: v.sabor || '',
+        varianteLabel: v.varianteLabel || '',
+        grupoVarianteId,
+        esPrincipalGrupo,
+        // Legacy compat
+        esPadre: esPrincipalGrupo,
+        parentId: esPrincipalGrupo ? undefined : docRefs[0].id,
+        esVariante: true,
+        // Stock
+        stockUSA: 0, stockPeru: 0, stockTransito: 0, stockReservado: 0, stockDisponible: 0,
+        stockMinimo: datosComunes.stockMinimo ?? 10,
+        stockMaximo: datosComunes.stockMaximo ?? 100,
+        ctruPromedio: 0, rotacionPromedio: 0, diasParaQuiebre: 0,
+        // State
+        estado: 'activo',
+        etiquetas: [],
+        creadoPor: userId,
+        fechaCreacion: serverTimestamp(),
+      };
+
+      // Optional fields
+      if (datosComunes.paisOrigen) docData.paisOrigen = datosComunes.paisOrigen;
+      if (datosComunes.lineaNegocioId) {
+        docData.lineaNegocioId = datosComunes.lineaNegocioId;
+        if (lineaNegocioNombre) docData.lineaNegocioNombre = lineaNegocioNombre;
+      }
+      if (datosComunes.tipoProductoId) docData.tipoProductoId = datosComunes.tipoProductoId;
+      if (datosComunes.categoriaIds?.length) docData.categoriaIds = datosComunes.categoriaIds;
+      if (datosComunes.categoriaPrincipalId) docData.categoriaPrincipalId = datosComunes.categoriaPrincipalId;
+      if (datosComunes.etiquetaIds?.length) docData.etiquetaIds = datosComunes.etiquetaIds;
+
+      batch.set(docRefs[i], docData);
+      productosCreados.push({ id: docRefs[i].id, ...docData, fechaCreacion: ahora } as Producto);
+    }
+
+    // 6. Atomic commit
+    await batch.commit();
+
+    logger.info(`createConVariantes: grupo ${grupoVarianteId} con ${variantes.length} variantes. SKUs: ${skus.join(', ')}`);
+    return productosCreados;
   }
 
   /**
