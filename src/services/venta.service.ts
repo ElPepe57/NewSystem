@@ -415,6 +415,26 @@ export class VentaService {
       const incluyeEnvio = data.incluyeEnvio ?? true;
       const totalPEN = subtotalPEN - descuento + (incluyeEnvio ? 0 : costoEnvio);
 
+      // BN-004: Validar venta bajo costo en ventas directas
+      if (esVentaDirecta && !data.ventaBajoCosto) {
+        const productosBajoCosto: string[] = [];
+        for (const prod of data.productos) {
+          const producto = await ProductoService.getById(prod.productoId);
+          if (producto && producto.ctruPromedio > 0 && prod.precioUnitario < producto.ctruPromedio) {
+            productosBajoCosto.push(
+              `${producto.sku} (precio: S/${prod.precioUnitario.toFixed(2)} < CTRU: S/${producto.ctruPromedio.toFixed(2)})`
+            );
+          }
+        }
+        if (productosBajoCosto.length > 0) {
+          throw new Error(
+            `VENTA_BAJO_COSTO: Los siguientes productos tienen precio por debajo del costo:\n` +
+            productosBajoCosto.join('\n') +
+            `\n\nRequiere autorización de admin/gerente para continuar.`
+          );
+        }
+      }
+
       const numeroVenta = await this.generateNumeroVenta();
 
       // Auto-crear o vincular cliente en Maestros si no viene clienteId

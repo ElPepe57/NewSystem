@@ -2049,3 +2049,87 @@ export const poolUSDSnapshotMensual = functions.pubsub
   });
 
 // Auto-purge eliminado: los productos archivados se conservan permanentemente para trazabilidad
+
+// ============================================================
+// BN-006: Liberar reservas de stock vencidas automáticamente
+// ============================================================
+
+/**
+ * Cada hora, busca unidades con estado 'reservada' cuya vigencia de reserva expiró
+ * y las devuelve a estado 'disponible_peru' o su estado previo.
+ */
+export const liberarReservasVencidas = functions.pubsub
+  .schedule("0 * * * *")
+  .timeZone("America/Lima")
+  .onRun(async () => {
+    const db = admin.firestore();
+    const ahora = admin.firestore.Timestamp.now();
+
+    try {
+      // Buscar unidades reservadas con vigencia expirada
+      const snapshot = await db.collection(COLLECTIONS.UNIDADES)
+        .where("estado", "==", "reservada")
+        .where("reserva.vigenciaHasta", "<=", ahora)
+        .get();
+
+      if (snapshot.empty) {
+        functions.logger.info("[Reservas] Sin reservas vencidas");
+        return null;
+      }
+
+      const batch = db.batch();
+      let liberadas = 0;
+
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        const estadoPrevio = data.reserva?.estadoPrevio || "disponible_peru";
+
+        batch.update(doc.ref, {
+          estado: estadoPrevio,
+          reserva: admin.firestore.FieldValue.delete(),
+          ultimaEdicion: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        liberadas++;
+      }
+
+      await batch.commit();
+
+      // Actualizar stock de los productos afectados
+      const productosAfectados = new Set(
+        snapshot.docs.map((d) => d.data().productoId).filter(Boolean)
+      );
+
+      for (const productoId of productosAfectados) {
+        try {
+          const unidadesSnap = await db.collection(COLLECTIONS.UNIDADES)
+            .where("productoId", "==", productoId)
+            .where("estado", "==", "disponible_peru")
+            .get();
+          const stockPeru = unidadesSnap.size;
+
+          const reservadasSnap = await db.collection(COLLECTIONS.UNIDADES)
+            .where("productoId", "==", productoId)
+            .where("estado", "==", "reservada")
+            .get();
+          const stockReservado = reservadasSnap.size;
+
+          await db.collection(COLLECTIONS.PRODUCTOS).doc(productoId).update({
+            stockPeru,
+            stockReservado,
+            stockDisponible: stockPeru,
+            stockDisponiblePeru: stockPeru,
+          });
+        } catch (e) {
+          functions.logger.warn(`[Reservas] Error actualizando stock de ${productoId}:`, e);
+        }
+      }
+
+      functions.logger.info(
+        `[Reservas] ${liberadas} unidad(es) liberada(s) de ${productosAfectados.size} producto(s)`
+      );
+      return null;
+    } catch (error) {
+      functions.logger.error("[Reservas] Error en auto-release:", error);
+      return null;
+    }
+  });

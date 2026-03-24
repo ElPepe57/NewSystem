@@ -250,7 +250,39 @@ export const Ventas: React.FC = () => {
       await fetchProductosDisponibles();
     } catch (error: any) {
       console.error('Error al crear venta:', error);
-      toast.error(error.message, 'Error al crear venta');
+
+      // BN-004: Si es venta bajo costo, pedir autorización
+      if (error.message?.startsWith('VENTA_BAJO_COSTO:') && esVentaDirecta) {
+        const userRole = user?.role || (user as any)?.rol;
+        const esAdminOGerente = userRole === 'admin' || userRole === 'gerente';
+
+        if (esAdminOGerente) {
+          const confirmar = window.confirm(
+            error.message.replace('VENTA_BAJO_COSTO: ', '') +
+            '\n\nComo admin/gerente, ¿autoriza esta venta bajo costo?'
+          );
+          if (confirmar) {
+            try {
+              data.ventaBajoCosto = true;
+              data.aprobadoPor = user.uid;
+              const ventaId = await createVenta(data, user.uid);
+              setIsModalOpen(false);
+              await fetchProductosDisponibles();
+              toast.warning('Venta bajo costo creada con autorización', 'Venta bajo costo');
+              return;
+            } catch (retryError: any) {
+              toast.error(retryError.message, 'Error');
+            }
+          }
+        } else {
+          toast.error(
+            'Precio por debajo del costo. Solicita autorización de un admin o gerente para continuar.',
+            'Venta bajo costo bloqueada'
+          );
+        }
+      } else {
+        toast.error(error.message, 'Error al crear venta');
+      }
     } finally {
       setIsSubmitting(false);
     }
