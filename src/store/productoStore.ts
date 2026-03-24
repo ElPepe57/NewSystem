@@ -121,11 +121,17 @@ export const useProductoStore = create<ProductoState>((set) => ({
 
   vincularVariante: async (productoId, parentId, varianteLabel) => {
     await ProductoService.vincularComoVariante(productoId, parentId, varianteLabel);
-    // Actualizar estado local
+    // Actualizar estado local con modelo grupoVarianteId
     set(state => ({
       productos: state.productos.map(p => {
-        if (p.id === productoId) return { ...p, parentId, esVariante: true, varianteLabel };
-        if (p.id === parentId) return { ...p, esPadre: true };
+        if (p.id === productoId) return {
+          ...p, parentId, grupoId: parentId, grupoVarianteId: parentId,
+          esVariante: true, varianteLabel, esPrincipalGrupo: false,
+        };
+        if (p.id === parentId) return {
+          ...p, esPadre: true, esAgrupador: true, grupoVarianteId: parentId,
+          esPrincipalGrupo: true,
+        };
         return p;
       }),
     }));

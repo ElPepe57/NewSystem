@@ -283,6 +283,11 @@ export class VentaService {
           ...(producto.contenido && { contenido: producto.contenido }),
           ...(producto.dosaje && { dosaje: producto.dosaje }),
           ...(producto.sabor && { sabor: producto.sabor }),
+          // Propagate variant fields for selector filtering
+          ...(producto.esPadre && { esPadre: producto.esPadre }),
+          ...(producto.grupoVarianteId && { grupoVarianteId: producto.grupoVarianteId }),
+          ...(producto.esPrincipalGrupo && { esPrincipalGrupo: producto.esPrincipalGrupo }),
+          ...(producto.varianteLabel && { varianteLabel: producto.varianteLabel }),
           unidadesDisponibles: disponiblesEnPeru,
           unidadesUSA: disponiblesEnUSA,
           unidadesEnTransito: 0,

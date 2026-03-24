@@ -40,6 +40,33 @@ import { categoriaService } from './categoria.service';
 import { etiquetaService } from './etiqueta.service';
 import { logger } from '../lib/logger';
 
+/**
+ * Normaliza campos legacy de variantes al modelo grupoVarianteId.
+ * Llamar al leer cualquier producto de Firestore.
+ */
+function normalizeProductoVariantes(p: Producto): Producto {
+  // grupoVarianteId: usa el nuevo campo, o deriva del legacy
+  const grupoVarianteId = p.grupoVarianteId
+    ?? p.grupoId
+    ?? p.parentId
+    ?? (p.esPadre ? p.id : undefined); // Si es padre, su propio ID es el grupo
+
+  // esPrincipalGrupo: el "representante" del grupo
+  const esPrincipalGrupo = p.esPrincipalGrupo ?? p.esPadre ?? false;
+
+  // Legacy compat
+  const esAgrupador = p.esAgrupador ?? p.esPadre ?? false;
+  const grupoId = p.grupoId ?? p.parentId;
+
+  return {
+    ...p,
+    grupoVarianteId,
+    esPrincipalGrupo,
+    esAgrupador,
+    grupoId,
+  };
+}
+
 const COLLECTION_NAME = COLLECTIONS.PRODUCTOS;
 
 export class ProductoService {
@@ -59,12 +86,8 @@ export class ProductoService {
 
       const productosRaw = mapDocs<Producto>(snapshot);
 
-      // Normalizar campos legacy → nuevos (esPadre→esAgrupador, parentId→grupoId)
-      const productos = productosRaw.map(p => ({
-        ...p,
-        esAgrupador: p.esAgrupador ?? p.esPadre ?? false,
-        grupoId: p.grupoId ?? p.parentId,
-      }));
+      // Normalizar campos legacy → modelo grupoVarianteId
+      const productos = productosRaw.map(p => normalizeProductoVariantes(p));
 
       // Siempre excluir productos en papelera (estado='eliminado')
       // Por defecto, también excluir inactivos
@@ -93,10 +116,8 @@ export class ProductoService {
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        return {
-          id: docSnap.id,
-          ...docSnap.data()
-        } as Producto;
+        const raw = { id: docSnap.id, ...docSnap.data() } as Producto;
+        return normalizeProductoVariantes(raw);
       }
       
       return null;

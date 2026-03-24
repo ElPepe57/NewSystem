@@ -302,8 +302,9 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
   const variantCountMap = useMemo(() => {
     const map = new Map<string, number>();
     productos.forEach(p => {
-      if (p.parentId) {
-        map.set(p.parentId, (map.get(p.parentId) || 0) + 1);
+      const gid = p.grupoVarianteId;
+      if (gid) {
+        map.set(gid, (map.get(gid) || 0) + 1);
       }
     });
     return map;
@@ -315,33 +316,43 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
   // Organizar productos en grupos (agrupadores con variantes) e independientes
   const organizedProducts = useMemo(() => {
     type OrgItem = { type: 'independent'; producto: Producto }
-      | { type: 'group-header'; producto: Producto; variantes: Producto[] }
-      | { type: 'group-variant'; producto: Producto; parentId: string };
+      | { type: 'group-header'; producto: Producto; variantes: Producto[] };
 
     const items: OrgItem[] = [];
-    const variantsByParent = new Map<string, Producto[]>();
-    const parentIds = new Set<string>();
 
-    // Classify products
+    // Agrupar por grupoVarianteId (modelo de hermanos iguales)
+    const grupoMap = new Map<string, Producto[]>();
+    const enGrupo = new Set<string>();
+
     productos.forEach(p => {
-      if (p.esPadre) parentIds.add(p.id);
-      if (p.parentId) {
-        const arr = variantsByParent.get(p.parentId) || [];
+      if (p.grupoVarianteId) {
+        const arr = grupoMap.get(p.grupoVarianteId) || [];
         arr.push(p);
-        variantsByParent.set(p.parentId, arr);
+        grupoMap.set(p.grupoVarianteId, arr);
+        enGrupo.add(p.id);
       }
     });
 
     // Build organized list
+    const gruposVistos = new Set<string>();
     productos.forEach(p => {
-      if (p.esPadre) {
-        const childVariantes = variantsByParent.get(p.id) || [];
-        // Si el padre tiene varianteLabel, incluirlo como primera variante del grupo
-        const variantes = p.varianteLabel ? [p, ...childVariantes] : childVariantes;
-        items.push({ type: 'group-header', producto: p, variantes });
-      } else if (p.parentId && parentIds.has(p.parentId)) {
-        // Skip — rendered under parent
-      } else {
+      if (p.grupoVarianteId && !gruposVistos.has(p.grupoVarianteId)) {
+        gruposVistos.add(p.grupoVarianteId);
+        const miembros = grupoMap.get(p.grupoVarianteId) || [];
+        if (miembros.length > 1) {
+          // Grupo con múltiples variantes — el principal va primero
+          const sorted = [...miembros].sort((a, b) => {
+            if (a.esPrincipalGrupo && !b.esPrincipalGrupo) return -1;
+            if (!a.esPrincipalGrupo && b.esPrincipalGrupo) return 1;
+            return (a.sku || '').localeCompare(b.sku || '');
+          });
+          const principal = sorted[0];
+          items.push({ type: 'group-header', producto: principal, variantes: sorted });
+        } else {
+          // Solo 1 miembro — mostrar como independiente
+          items.push({ type: 'independent', producto: miembros[0] });
+        }
+      } else if (!p.grupoVarianteId) {
         items.push({ type: 'independent', producto: p });
       }
     });
@@ -617,7 +628,7 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                         <span className="text-xs font-mono font-semibold text-primary-600">{producto.sku}</span>
                         {producto.esPadre && (
                           <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
-                            G·{(variantCountMap.get(producto.id) || 0) + (producto.varianteLabel ? 1 : 0)}v
+                            G·{variantCountMap.get(producto.grupoVarianteId || producto.id) || 0}v
                           </span>
                         )}
                       </div>

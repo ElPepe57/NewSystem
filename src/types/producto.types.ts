@@ -471,13 +471,25 @@ export interface Producto {
   rotacionPromedio: number;
   diasParaQuiebre: number;
 
-  // Agrupación de variantes
-  esPadre: boolean;             // Legacy: usar esAgrupador
-  esAgrupador?: boolean;        // true = producto contenedor (no vendible)
-  parentId?: string;            // Legacy: usar grupoId
-  grupoId?: string;             // ID del agrupador al que pertenece
-  esVariante?: boolean;
+  // === VARIANTES (modelo grupoVarianteId — hermanos iguales, sin jerarquía) ===
+  /** ID compartido del grupo de variantes. Todos los hermanos tienen el mismo valor. */
+  grupoVarianteId?: string;
+  /** true = es el representante visual del grupo en listados y reportes */
+  esPrincipalGrupo?: boolean;
+  /** Label descriptivo de esta variante: "90 caps", "120 caps - Fresa" */
   varianteLabel?: string;
+
+  // === LEGACY (mantener para backward compat, deprecar progresivamente) ===
+  /** @deprecated Usar grupoVarianteId + esPrincipalGrupo */
+  esPadre: boolean;
+  /** @deprecated Usar grupoVarianteId + esPrincipalGrupo */
+  esAgrupador?: boolean;
+  /** @deprecated Usar grupoVarianteId */
+  parentId?: string;
+  /** @deprecated Usar grupoVarianteId */
+  grupoId?: string;
+  /** @deprecated Usar !!grupoVarianteId */
+  esVariante?: boolean;
 
   // === SABOR ===
   /**
@@ -554,11 +566,14 @@ export interface ProductoFormData {
    */
   cicloRecompraDias?: number;
 
-  // === VARIANTES / GRUPO ===
-  parentId?: string;       // Legacy
-  grupoId?: string;        // Nuevo: ID del agrupador
+  // === VARIANTES ===
+  grupoVarianteId?: string;     // ID compartido del grupo
+  esPrincipalGrupo?: boolean;   // Representante visual del grupo
+  varianteLabel?: string;       // "90 caps", "200ml"
+  // Legacy compat
+  parentId?: string;
+  grupoId?: string;
   esVariante?: boolean;
-  varianteLabel?: string;
 }
 
 // Los tipos de Unidad, EstadoUnidad, MovimientoUnidad, UnidadFormData
