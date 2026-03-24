@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Eye, Pencil, Trash2, RefreshCw, Search, CheckCircle, XCircle, Clock, HelpCircle, DollarSign, Tag, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown, ChevronUp, Columns3 } from 'lucide-react';
 import { Badge } from '../../common';
 import { ProductoService } from '../../../services/producto.service';
@@ -102,7 +102,9 @@ const ProductoCardResponsive: React.FC<{
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs text-primary-600 font-semibold">{producto.sku}</span>
             {producto.esPadre && (
-              <span className="text-[10px] bg-olive-100 text-olive-700 px-1.5 py-0.5 rounded" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>Grupo</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
+                Grupo · {variantCountMap.get(producto.id) || 0}v
+              </span>
             )}
             <Badge variant={producto.estado === 'activo' ? 'success' : 'default'} size="sm">
               {producto.estado === 'activo' ? 'Activo' : 'Inactivo'}
@@ -296,6 +298,17 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
   visibleColumns = ['basico', 'clasificacion', 'precios', 'investigacion', 'metricas'],
   onToggleColumn
 }) => {
+  // Conteo de variantes por grupo (para badge "G·Nv")
+  const variantCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    productos.forEach(p => {
+      if (p.parentId) {
+        map.set(p.parentId, (map.get(p.parentId) || 0) + 1);
+      }
+    });
+    return map;
+  }, [productos]);
+
   // Estado interno para columnas si no se proporciona externamente
   const [internalVisibleColumns, setInternalVisibleColumns] = useState<ColumnGroup[]>(visibleColumns);
   const activeColumns = onToggleColumn ? visibleColumns : internalVisibleColumns;
@@ -474,7 +487,9 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                       <div className="flex items-center gap-1">
                         <span className="text-xs font-mono font-semibold text-primary-600">{producto.sku}</span>
                         {producto.esPadre && (
-                          <span className="text-[9px] px-1 py-0.5 rounded" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>G</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
+                            G·{variantCountMap.get(producto.id) || 0}v
+                          </span>
                         )}
                       </div>
                     </td>

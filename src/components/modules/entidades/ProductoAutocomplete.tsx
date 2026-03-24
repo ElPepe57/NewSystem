@@ -12,7 +12,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import type { Producto } from '../../../types/producto.types';
-import { useProductoDropdown } from '../../../hooks/useProductoDropdown';
+import { useProductoDropdown, type GroupedDropdownItem } from '../../../hooks/useProductoDropdown';
 
 export interface ProductoSnapshot {
   productoId: string;
@@ -91,6 +91,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
     handleSelect: hookSelect,
     handleClear: hookClear,
     onSelectCallback,
+    groupedItems,
   } = useProductoDropdown<Producto>({
     items: Array.isArray(productos) ? productos : [],
     getSearchableText: (p) => `${p.sku ?? ''} ${p.marca ?? ''} ${p.nombreComercial ?? ''}`,
@@ -99,6 +100,11 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
     maxResults: 20,
     minChars: 1,
     useFixed: true,
+    getGroupId: (p) => p.parentId,
+    getGroupLabel: (p) => {
+      const parent = productos.find(pp => pp.id === p.parentId);
+      return parent ? `${parent.marca} — ${parent.nombreComercial}` : '';
+    },
   });
 
   // Vincular callback de selección al hook
@@ -334,13 +340,24 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
               <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 sticky top-0">
                 {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''} encontrado{filteredProductos.length !== 1 ? 's' : ''}
               </div>
-              {filteredProductos.map((producto, index) => {
+              {groupedItems.map((gi, giIdx) => {
+                if (gi.type === 'group') {
+                  return (
+                    <div key={`group-${gi.groupId}`} className="px-3 py-1.5 text-[10px] font-medium text-gray-400 uppercase tracking-wide border-b border-gray-100" style={{ backgroundColor: '#fafafa' }}>
+                      {gi.groupLabel}
+                    </div>
+                  );
+                }
+
+                const producto = gi.item!;
+                const index = gi.itemIndex;
                 const tieneInvestigacion = producto.investigacion?.estaVigente;
                 const mejorPrecio = tieneInvestigacion ? getMejorProveedor(producto) : null;
                 const historial = getHistorialProducto(producto.id);
                 const diasDesdeCompra = historial ? getDiasDesdeCompra(historial.ultimaCompraFecha) : null;
                 const tendenciaStyle = historial?.tendenciaPrecio ? getTendenciaStyle(historial.tendenciaPrecio) : null;
                 const isHighlighted = index === highlightedIndex;
+                const isGrouped = !!producto.parentId;
 
                 return (
                   <button

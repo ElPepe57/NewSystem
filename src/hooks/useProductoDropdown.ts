@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 /**
  * Hook compartido para los 4 selectores de producto.
@@ -6,6 +6,18 @@ import { useState, useEffect, useRef, useCallback } from 'react';
  *
  * DUP-001 fix: reemplaza ~2500 líneas duplicadas.
  */
+
+/**
+ * Item agrupado para renderizado en dropdown.
+ * type='group' = header no seleccionable, type='item' = producto seleccionable
+ */
+export interface GroupedDropdownItem<T> {
+  type: 'group' | 'item';
+  item?: T;
+  groupLabel?: string;
+  groupId?: string;
+  itemIndex: number; // Índice real en filteredItems (-1 para headers)
+}
 
 interface UseProductoDropdownConfig<T> {
   /** Array de productos/items a filtrar */
@@ -24,6 +36,10 @@ interface UseProductoDropdownConfig<T> {
   minDropdownWidth?: number;
   /** Usar posición fixed (para modales) */
   useFixed?: boolean;
+  /** Función para obtener el grupoId de un item (para agrupar variantes) */
+  getGroupId?: (item: T) => string | undefined;
+  /** Función para obtener el label del grupo */
+  getGroupLabel?: (item: T) => string;
 }
 
 interface UseProductoDropdownReturn<T> {
@@ -39,6 +55,8 @@ interface UseProductoDropdownReturn<T> {
   filteredItems: T[];
   highlightedIndex: number;
   dropdownPosition: { top: number; left: number; width: number; openUp: boolean };
+  /** Items agrupados para renderizado (incluye headers de grupo) */
+  groupedItems: GroupedDropdownItem<T>[];
   // Handlers
   handleInputChange: (value: string) => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
@@ -60,6 +78,8 @@ export function useProductoDropdown<T>(
     minChars = 1,
     minDropdownWidth = 450,
     useFixed = false,
+    getGroupId,
+    getGroupLabel,
   } = config;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -174,6 +194,37 @@ export function useProductoDropdown<T>(
     setHighlightedIndex(-1);
   }, []);
 
+  // Agrupar items para renderizado (headers de grupo + items seleccionables)
+  const groupedItems = useMemo((): GroupedDropdownItem<T>[] => {
+    if (!getGroupId || !getGroupLabel) {
+      // Sin agrupación: todos son items normales
+      return filteredItems.map((item, i) => ({ type: 'item' as const, item, itemIndex: i }));
+    }
+
+    const result: GroupedDropdownItem<T>[] = [];
+    const seenGroups = new Set<string>();
+
+    filteredItems.forEach((item, index) => {
+      const groupId = getGroupId(item);
+      if (groupId && !seenGroups.has(groupId)) {
+        // Contar cuántas variantes del mismo grupo hay en los resultados
+        const siblingsInResults = filteredItems.filter(fi => getGroupId(fi) === groupId).length;
+        if (siblingsInResults > 1) {
+          seenGroups.add(groupId);
+          result.push({
+            type: 'group',
+            groupLabel: getGroupLabel(item),
+            groupId,
+            itemIndex: -1,
+          });
+        }
+      }
+      result.push({ type: 'item', item, itemIndex: index });
+    });
+
+    return result;
+  }, [filteredItems, getGroupId, getGroupLabel]);
+
   return {
     containerRef,
     inputRef,
@@ -185,6 +236,7 @@ export function useProductoDropdown<T>(
     filteredItems,
     highlightedIndex,
     dropdownPosition,
+    groupedItems,
     handleInputChange,
     handleKeyDown,
     handleSelect,
