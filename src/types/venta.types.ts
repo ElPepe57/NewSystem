@@ -495,6 +495,9 @@ export interface ProductoDisponible {
   contenido?: string;
   dosaje?: string;
   sabor?: string;
+  esPadre?: boolean;
+  esVariante?: boolean;
+  varianteLabel?: string;
 
   unidadesDisponibles: number;   // Stock en Perú
   unidadesUSA: number;           // Stock en USA

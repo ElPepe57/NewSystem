@@ -83,8 +83,13 @@ export const mlauthcallback = functions.https.onRequest(async (req, res) => {
     return;
   }
 
-  // SEC-009: Validate state parameter to prevent CSRF
+  // SEC-009: Validate state parameter to prevent CSRF (MANDATORY)
   const incomingState = req.query.state as string | undefined;
+  if (!incomingState) {
+    functions.logger.error("ML OAuth: missing state parameter (CSRF protection)");
+    res.redirect(`${erpBaseUrl}/mercado-libre?ml_status=error&ml_error=missing_state`);
+    return;
+  }
   if (incomingState) {
     const stateDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("oauth_state").get();
     if (!stateDoc.exists || stateDoc.data()?.state !== incomingState) {

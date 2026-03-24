@@ -25,6 +25,7 @@ export const mlsyncitems = functions.https.onCall(async (_data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
   if (!settingsDoc.exists || !settingsDoc.data()?.connected) {
@@ -53,6 +54,7 @@ export const mlvinculateproduct = functions.https.onCall(async (data, context) =
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   const { mlProductMapId, productoId, productoSku, productoNombre } = data;
   if (!mlProductMapId || !productoId) {
@@ -126,6 +128,7 @@ export const mldesvincularproduct = functions.https.onCall(async (data, context)
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   const { mlProductMapId } = data;
   if (!mlProductMapId) {
@@ -200,6 +203,7 @@ export const mlsyncstock = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   const { productoId } = data || {};
 
@@ -287,6 +291,7 @@ export const mlupdateprice = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   const { mlProductMapId, newPrice } = data;
   if (!mlProductMapId || !newPrice || newPrice <= 0) {
@@ -322,6 +327,7 @@ export const mlsyncbuybox = functions.https.onCall(async (_data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   try {
     const { syncBuyBoxStatus } = await import("./ml.sync");

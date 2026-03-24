@@ -8,6 +8,7 @@
 
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { requireAdminRole } from "./ml.auth";
 import { COLLECTIONS } from "../collections";
 
 const db = admin.firestore();
@@ -19,6 +20,7 @@ export const mlgetquestions = functions.https.onCall(async (_data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   const settingsDoc = await db.collection(COLLECTIONS.ML_CONFIG).doc("settings").get();
   if (!settingsDoc.exists || !settingsDoc.data()?.connected) {
@@ -43,6 +45,7 @@ export const mlanswerquestion = functions.https.onCall(async (data, context) => 
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   const { questionId, text } = data;
   if (!questionId || !text) {

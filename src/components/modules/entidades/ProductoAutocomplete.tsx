@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Package,
-  Search,
   Check,
   X,
   Loader2,
   TrendingUp,
-  DollarSign,
   AlertCircle,
   Lightbulb,
   Star,

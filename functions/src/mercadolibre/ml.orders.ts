@@ -66,6 +66,7 @@ export const mlprocesarorden = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   const { orderSyncId } = data;
   if (!orderSyncId) {
@@ -125,6 +126,7 @@ export const mlprocesarpendientes = functions.https.onCall(async (_data, context
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
   }
+  await requireAdminRole(context);
 
   const pendientesQuery = await db.collection(COLLECTIONS.ML_ORDER_SYNC)
     .where("estado", "in", ["pendiente", "error"])

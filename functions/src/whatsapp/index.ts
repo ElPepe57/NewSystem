@@ -16,6 +16,18 @@ import { verificarWebhook, enviarMensajeTexto } from "./whatsapp.meta";
 import { getSecret } from "../secrets";
 import { COLLECTIONS } from "../collections";
 
+// Helper: verificar rol admin/gerente
+async function requireAdminRole(context: functions.https.CallableContext): Promise<void> {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "Debe iniciar sesión");
+  }
+  const userDoc = await admin.firestore().collection(COLLECTIONS.USERS).doc(context.auth.uid).get();
+  const role = userDoc.data()?.role;
+  if (role !== "admin" && role !== "gerente") {
+    throw new functions.https.HttpsError("permission-denied", "Requiere rol admin o gerente");
+  }
+}
+
 const db = admin.firestore();
 
 // ============================================================
@@ -136,10 +148,11 @@ export const wawebhook = functions.https.onRequest(async (req, res) => {
 // ============================================================
 
 export const wasetconfig = functions.https.onCall(async (data, context) => {
-  // Verificar autenticación
+  // Verificar autenticación y rol
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Requiere autenticación");
   }
+  await requireAdminRole(context);
 
   const { action } = data;
 
@@ -205,6 +218,7 @@ export const wasendmessage = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Requiere autenticación");
   }
+  await requireAdminRole(context);
 
   const { phoneNumber, message } = data;
   if (!phoneNumber || !message) {
