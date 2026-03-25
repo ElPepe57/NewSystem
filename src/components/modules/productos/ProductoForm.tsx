@@ -1119,102 +1119,116 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
               </>
             ) : (
               <>
-                {/* SKINCARE — Todos los campos son libres con sugerencias */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <AutocompleteInput
-                    label="Tipo de Producto"
-                    value={formData.atributosSkincare?.tipoProductoSKC || ''}
-                    onChange={(v) => updateSKC({ tipoProductoSKC: v as TipoProductoSKC })}
-                    suggestions={Object.values(TIPO_PRODUCTO_SKC_LABELS)}
-                    placeholder="ej: Serum, Crema, Protector Solar..."
-                    allowCreate
-                    createLabel="Usar"
-                  />
-                  <AutocompleteInput
-                    label="Volumen / Peso"
-                    value={formData.atributosSkincare?.volumen || ''}
-                    onChange={(v) => updateSKC({ volumen: v })}
-                    suggestions={[]}
-                    placeholder="ej: 50ml, 27g, 200ml..."
-                    allowCreate
-                    createLabel="Usar"
-                  />
-                  <AutocompleteInput
-                    label="Ingrediente Clave"
-                    value={formData.atributosSkincare?.ingredienteClave || ''}
-                    onChange={(v) => updateSKC({ ingredienteClave: v })}
-                    suggestions={[]}
-                    placeholder="ej: Centella, Niacinamida..."
-                    allowCreate
-                    createLabel="Usar"
-                  />
-                </div>
+                {/* SKINCARE — en modo variantes todo va en tab Variantes */}
+                {modoVariantes ? (
+                  <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                    <GitBranch className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <span>
+                      <strong>Producto con variantes:</strong> Tipo, Volumen, Ingrediente y demás campos se definen por cada variante en el tab{' '}
+                      <button type="button" className="underline font-medium" onClick={() => setActiveTab('variantes')}>
+                        Variantes
+                      </button>.
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <AutocompleteInput
+                        label="Tipo de Producto"
+                        value={formData.atributosSkincare?.tipoProductoSKC || ''}
+                        onChange={(v) => updateSKC({ tipoProductoSKC: v as TipoProductoSKC })}
+                        suggestions={Object.values(TIPO_PRODUCTO_SKC_LABELS)}
+                        placeholder="ej: Serum, Crema, Protector Solar..."
+                        allowCreate
+                        createLabel="Usar"
+                      />
+                      <AutocompleteInput
+                        label="Volumen / Peso"
+                        value={formData.atributosSkincare?.volumen || ''}
+                        onChange={(v) => updateSKC({ volumen: v })}
+                        suggestions={[]}
+                        placeholder="ej: 50ml, 27g, 200ml..."
+                        allowCreate
+                        createLabel="Usar"
+                      />
+                      <AutocompleteInput
+                        label="Ingrediente Clave"
+                        value={formData.atributosSkincare?.ingredienteClave || ''}
+                        onChange={(v) => updateSKC({ ingredienteClave: v })}
+                        suggestions={[]}
+                        placeholder="ej: Centella, Niacinamida..."
+                        allowCreate
+                        createLabel="Usar"
+                      />
+                    </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <AutocompleteInput
-                    label="Línea del Producto"
-                    value={formData.atributosSkincare?.lineaProducto || ''}
-                    onChange={(v) => updateSKC({ lineaProducto: v })}
-                    suggestions={[]}
-                    placeholder="ej: Madagascar Centella..."
-                    allowCreate
-                    createLabel="Usar"
-                  />
-                  <AutocompleteInput
-                    label="Tipo de Piel"
-                    value={(formData.atributosSkincare?.tipoPiel || []).join(', ')}
-                    onChange={(v) => updateSKC({ tipoPiel: v ? v.split(',').map(s => s.trim()).filter(Boolean) : [] })}
-                    suggestions={TIPO_PIEL_OPTIONS}
-                    placeholder="ej: Grasa, Mixta, Sensible..."
-                    allowCreate
-                    createLabel="Usar"
-                  />
-                  <AutocompleteInput
-                    label="Preocupaciones"
-                    value={(formData.atributosSkincare?.preocupaciones || []).join(', ')}
-                    onChange={(v) => updateSKC({ preocupaciones: v ? v.split(',').map(s => s.trim()).filter(Boolean) : [] })}
-                    suggestions={PREOCUPACIONES_OPTIONS}
-                    placeholder="ej: Acné, Poros, Manchas..."
-                    allowCreate
-                    createLabel="Usar"
-                  />
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <AutocompleteInput
+                        label="Línea del Producto"
+                        value={formData.atributosSkincare?.lineaProducto || ''}
+                        onChange={(v) => updateSKC({ lineaProducto: v })}
+                        suggestions={[]}
+                        placeholder="ej: Madagascar Centella..."
+                        allowCreate
+                        createLabel="Usar"
+                      />
+                      <AutocompleteInput
+                        label="Tipo de Piel"
+                        value={(formData.atributosSkincare?.tipoPiel || []).join(', ')}
+                        onChange={(v) => updateSKC({ tipoPiel: v ? v.split(',').map(s => s.trim()).filter(Boolean) : [] })}
+                        suggestions={TIPO_PIEL_OPTIONS}
+                        placeholder="ej: Grasa, Mixta, Sensible..."
+                        allowCreate
+                        createLabel="Usar"
+                      />
+                      <AutocompleteInput
+                        label="Preocupaciones"
+                        value={(formData.atributosSkincare?.preocupaciones || []).join(', ')}
+                        onChange={(v) => updateSKC({ preocupaciones: v ? v.split(',').map(s => s.trim()).filter(Boolean) : [] })}
+                        suggestions={PREOCUPACIONES_OPTIONS}
+                        placeholder="ej: Acné, Poros, Manchas..."
+                        allowCreate
+                        createLabel="Usar"
+                      />
+                    </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <Input
-                    label="SPF"
-                    name="spf"
-                    type="number"
-                    value={formData.atributosSkincare?.spf || ''}
-                    onChange={(e) => updateSKC({ spf: parseInt(e.target.value) || undefined })}
-                    placeholder="ej: 50 (solo protectores)"
-                  />
-                  <Input
-                    label="PA"
-                    name="pa"
-                    value={formData.atributosSkincare?.pa || ''}
-                    onChange={(e) => updateSKC({ pa: e.target.value || undefined })}
-                    placeholder="ej: PA++++"
-                  />
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <Input
+                        label="SPF"
+                        name="spf"
+                        type="number"
+                        value={formData.atributosSkincare?.spf || ''}
+                        onChange={(e) => updateSKC({ spf: parseInt(e.target.value) || undefined })}
+                        placeholder="ej: 50 (solo protectores)"
+                      />
+                      <Input
+                        label="PA"
+                        name="pa"
+                        value={formData.atributosSkincare?.pa || ''}
+                        onChange={(e) => updateSKC({ pa: e.target.value || undefined })}
+                        placeholder="ej: PA++++"
+                      />
+                    </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Input
-                    label="PAO (meses post-apertura)"
-                    name="pao"
-                    type="number"
-                    value={formData.atributosSkincare?.pao || ''}
-                    onChange={(e) => updateSKC({ pao: parseInt(e.target.value) || undefined })}
-                    placeholder="ej: 12"
-                  />
-                  <Input
-                    label="Código UPC/EAN"
-                    name="codigoUPC"
-                    value={formData.codigoUPC}
-                    onChange={handleChange}
-                    placeholder="ej: 768990014307"
-                  />
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <Input
+                        label="PAO (meses post-apertura)"
+                        name="pao"
+                        type="number"
+                        value={formData.atributosSkincare?.pao || ''}
+                        onChange={(e) => updateSKC({ pao: parseInt(e.target.value) || undefined })}
+                        placeholder="ej: 12"
+                      />
+                      <Input
+                        label="Código UPC/EAN"
+                        name="codigoUPC"
+                        value={formData.codigoUPC}
+                        onChange={handleChange}
+                        placeholder="ej: 768990014307"
+                      />
+                    </div>
+                  </>
+                )}
               </>
             )}
 
