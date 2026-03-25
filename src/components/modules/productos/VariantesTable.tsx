@@ -18,6 +18,7 @@ interface VariantesTableProps {
   variantes: VarianteRow[];
   onChange: (variantes: VarianteRow[]) => void;
   skuPrefix: string;
+  esSkincare?: boolean;
 }
 
 let nextId = 1;
@@ -31,7 +32,12 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
   variantes,
   onChange,
   skuPrefix,
+  esSkincare = false,
 }) => {
+  // Placeholders adaptados por línea
+  const ph = esSkincare
+    ? { presentacion: 'Serum', contenido: '50ml', dosaje: 'Centella 10%', sabor: '', upc: '880...' }
+    : { presentacion: 'Cápsulas', contenido: '90 caps', dosaje: '1000mg', sabor: 'Natural', upc: '768990...' };
   const addVariante = () => {
     onChange([
       ...variantes,
@@ -86,8 +92,8 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
           <div className="text-center">Ppal</div>
           <div>Presentación</div>
           <div>Contenido *</div>
-          <div>Dosaje</div>
-          <div>Sabor</div>
+          <div>{esSkincare ? 'Ingrediente' : 'Dosaje'}</div>
+          <div>{esSkincare ? 'Tipo Piel' : 'Sabor'}</div>
           <div>UPC/EAN</div>
           <div>Porc/día</div>
           <div>Label</div>
@@ -111,7 +117,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 type="text"
                 value={v.presentacion}
                 onChange={(e) => updateVariante(v.id, 'presentacion', e.target.value)}
-                placeholder="Cápsulas"
+                placeholder={ph.presentacion}
                 className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
@@ -120,7 +126,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 type="text"
                 value={v.contenido}
                 onChange={(e) => updateVariante(v.id, 'contenido', e.target.value)}
-                placeholder="90 caps"
+                placeholder={ph.contenido}
                 className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
@@ -129,7 +135,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 type="text"
                 value={v.dosaje}
                 onChange={(e) => updateVariante(v.id, 'dosaje', e.target.value)}
-                placeholder="1000mg"
+                placeholder={ph.dosaje}
                 className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
@@ -138,7 +144,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 type="text"
                 value={v.sabor}
                 onChange={(e) => updateVariante(v.id, 'sabor', e.target.value)}
-                placeholder="Natural"
+                placeholder={ph.sabor || 'Sabor'}
                 className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>
@@ -147,7 +153,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 type="text"
                 value={v.codigoUPC}
                 onChange={(e) => updateVariante(v.id, 'codigoUPC', e.target.value)}
-                placeholder="768990..."
+                placeholder={ph.upc}
                 className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
               />
             </div>

@@ -1485,6 +1485,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                   variantes={variantesRows}
                   onChange={setVariantesRows}
                   skuPrefix={formData.lineaNegocioId ? 'SUP' : 'BMN'}
+                  esSkincare={!esSuplemento}
                 />
               </div>
             </TabPanel>
