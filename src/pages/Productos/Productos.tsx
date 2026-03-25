@@ -12,6 +12,7 @@ import { DashboardCatalogo } from '../../components/modules/productos/DashboardC
 import { ProductoCreacionWizard, type TipoCreacion } from '../../components/modules/productos/ProductoCreacionWizard';
 import { FilterChip } from '../../components/modules/productos/FilterChip';
 import { FiltrosRapidos } from '../../components/modules/productos/FiltrosRapidos';
+import { FiltrosDrawerMobile } from '../../components/modules/productos/FiltrosDrawerMobile';
 import { BuscadorGrupoProducto } from '../../components/modules/productos/BuscadorGrupoProducto';
 import { FormVarianteReducida, type VarianteReducidaData } from '../../components/modules/productos/FormVarianteReducida';
 import { VariantesTable, type VarianteRow } from '../../components/modules/productos/VariantesTable';
@@ -59,6 +60,7 @@ export const Productos: React.FC = () => {
   // Filtros y búsqueda
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [filters, setFilters] = useState({
     estado: '' as EstadoProducto | '',
     grupo: '',
@@ -731,12 +733,22 @@ export const Productos: React.FC = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
+            {/* Desktop: toggle panel */}
             <Button
               variant={showFilters ? 'primary' : 'outline'}
               onClick={() => setShowFilters(!showFilters)}
+              className="hidden sm:flex"
             >
-              <Filter className="h-5 w-5 sm:mr-2" />
-              <span className="hidden sm:inline">Filtros</span>
+              <Filter className="h-5 w-5 mr-2" />
+              Filtros
+            </Button>
+            {/* Mobile: open bottom sheet */}
+            <Button
+              variant="outline"
+              onClick={() => setShowMobileFilters(true)}
+              className="sm:hidden"
+            >
+              <Filter className="h-5 w-5" />
             </Button>
           </div>
 
@@ -1254,6 +1266,26 @@ export const Productos: React.FC = () => {
         isOpen={isDashboardOpen}
         onClose={() => setIsDashboardOpen(false)}
         productos={productosArray}
+      />
+
+      {/* Bottom Sheet de Filtros — Mobile */}
+      <FiltrosDrawerMobile
+        isOpen={showMobileFilters}
+        onClose={() => setShowMobileFilters(false)}
+        filters={filters}
+        onApply={(newFilters) => {
+          setFilters(newFilters);
+          setCurrentPage(1);
+          const necesitaInactivos = newFilters.estado === '' || newFilters.estado === 'inactivo' || newFilters.estado === 'descontinuado';
+          fetchProductos(necesitaInactivos);
+        }}
+        onClear={() => { handleClearFilters(); setShowMobileFilters(false); }}
+        uniqueMarcas={uniqueMarcas}
+        uniqueGrupos={uniqueGrupos}
+        tiposProducto={(tiposActivos || []).map(t => ({ id: t.id, nombre: t.nombre }))}
+        categorias={(categoriasActivas || []).map(c => ({ id: c.id, nombre: c.nombre }))}
+        etiquetas={(etiquetasActivas || []).map(e => ({ id: e.id, nombre: e.nombre }))}
+        resultCount={sortedProductos.length}
       />
 
     </div>
