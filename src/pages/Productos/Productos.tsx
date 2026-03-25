@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Plus, Search, Filter, X, Package, RefreshCw, Trash2, GitBranch, BarChart3 } from 'lucide-react';
+import { Plus, Search, Filter, X, Package, Trash2, BarChart3 } from 'lucide-react';
 import { useToastStore } from '../../store/toastStore';
 import { Button, Card, Modal, GradientHeader } from '../../components/common';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
@@ -7,7 +7,7 @@ import { ProductoTable } from '../../components/modules/productos/ProductoTable'
 import { ProductoCard } from '../../components/modules/productos/ProductoCard';
 import { InvestigacionModal } from '../../components/modules/productos/InvestigacionModal';
 import { ArchivoModal } from '../../components/modules/productos/PapeleraModal';
-import { VincularVariantesModal } from '../../components/modules/productos/VincularVariantesModal';
+// VincularVariantesModal removed — replaced by ProductoCreacionWizard flows
 import { DashboardCatalogo } from '../../components/modules/productos/DashboardCatalogo';
 import { ProductoCreacionWizard, type TipoCreacion } from '../../components/modules/productos/ProductoCreacionWizard';
 import { FilterChip } from '../../components/modules/productos/FilterChip';
@@ -42,7 +42,7 @@ export const Productos: React.FC = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isInvestigacionModalOpen, setIsInvestigacionModalOpen] = useState(false);
   const [isArchivoModalOpen, setIsArchivoModalOpen] = useState(false);
-  const [isVincularModalOpen, setIsVincularModalOpen] = useState(false);
+  // isVincularModalOpen removed — replaced by wizard flows
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   const [selectedProducto, setSelectedProducto] = useState<Producto | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -679,18 +679,6 @@ export const Productos: React.FC = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="ghost"
-              onClick={() => {
-                const necesitaInactivos = filters.estado === '' || filters.estado === 'inactivo' || filters.estado === 'descontinuado';
-                fetchProductos(necesitaInactivos);
-              }}
-              disabled={loading}
-              title="Actualizar datos"
-              className="text-white/70 hover:text-white hover:bg-white/10 !p-2"
-            >
-              <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button
-              variant="ghost"
               onClick={() => setIsArchivoModalOpen(true)}
               className="relative text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5"
             >
@@ -709,14 +697,6 @@ export const Productos: React.FC = () => {
             >
               <BarChart3 className="h-4 w-4 sm:mr-1.5" />
               <span className="hidden sm:inline text-sm">Intel</span>
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setIsVincularModalOpen(true)}
-              className="text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5"
-            >
-              <GitBranch className="h-4 w-4 sm:mr-1.5" />
-              <span className="hidden sm:inline text-sm">Agrupar</span>
             </Button>
             <Button variant="ghost" onClick={handleCreate} className="text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5">
               <Plus className="h-5 w-5 sm:mr-1.5" />
@@ -1276,19 +1256,6 @@ export const Productos: React.FC = () => {
         productos={productosArray}
       />
 
-      {/* Modal de Agrupar Variantes */}
-      <VincularVariantesModal
-        isOpen={isVincularModalOpen}
-        onClose={() => setIsVincularModalOpen(false)}
-        productos={productosArray}
-        onVincular={async (productoId, parentId, varianteLabel) => {
-          try {
-            await vincularVariante(productoId, parentId, varianteLabel);
-          } catch (err: any) {
-            toast.error(err.message || 'Error al vincular');
-          }
-        }}
-      />
     </div>
   );
 };
