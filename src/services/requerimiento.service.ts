@@ -37,6 +37,8 @@ import { ProductoService } from './producto.service';
 import { unidadService } from './unidad.service';
 import { actividadService } from './actividad.service';
 import { ctruService } from './ctru.service';
+import { NotificationService } from './notification.service';
+import { userService } from './user.service';
 
 const COLLECTION_NAME = COLLECTIONS.REQUERIMIENTOS;
 
@@ -473,6 +475,34 @@ export const requerimientoService = {
           ultimaEdicion: serverTimestamp(),
           editadoPor: userId,
         });
+
+        // Notificar al rol pendiente
+        try {
+          const rolPendienteLabel = pendiente === 'admin' ? 'Administrador' : 'Gerente';
+          const rolFirmoLabel = pendiente === 'admin' ? 'Gerente' : 'Administrador';
+          const usuarios = await userService.getByRole(pendiente as any);
+          const activos = usuarios.filter(u => u.activo);
+
+          for (const usuario of activos) {
+            await NotificationService.crear({
+              tipo: 'aprobacion_pendiente',
+              prioridad: 'alta',
+              titulo: `Firma pendiente — ${requerimiento.numeroRequerimiento || id}`,
+              mensaje: `${rolFirmoLabel} ya firmó. Falta tu firma como ${rolPendienteLabel} para aprobar este requerimiento de $${montoUSD.toFixed(0)} USD.`,
+              usuarioId: usuario.uid,
+              requerimientoId: id,
+              entidadTipo: 'usuario',
+              entidadId: id,
+              metadata: {
+                montoUSD,
+                rolPendiente: pendiente,
+                rolFirmo: rolAprobacion,
+              },
+            });
+          }
+        } catch (notifError) {
+          logger.warn('Error al enviar notificación de aprobación dual:', notifError);
+        }
 
         return { completa: false, pendiente };
       }
