@@ -13,3 +13,4 @@ export type { PromocionData } from './PromocionModal';
 export { EditarVencimientoModal } from './EditarVencimientoModal';
 export { RecepcionForm } from './RecepcionForm';
 export { UnidadTable } from './UnidadTable';
+export { IncidenciasTab } from './IncidenciasTab';

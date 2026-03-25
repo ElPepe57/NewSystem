@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useToastStore } from '../../store/toastStore';
 import { calcularDiasParaVencer } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
@@ -46,8 +47,10 @@ import {
   StockProductoCard,
   InventarioAnalytics,
   AlertasInventario,
-  PromocionModal
+  PromocionModal,
+  IncidenciasTab
 } from '../../components/modules/inventario';
+import { GestionVencidasModal } from './GestionVencidasModal';
 import type { PromocionData } from '../../components/modules/inventario';
 import type { ProductoConUnidades, AlertaProducto } from '../../components/modules/inventario';
 import { useUnidadStore } from '../../store/unidadStore';
@@ -62,7 +65,7 @@ import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, getLabelEstadoUnidad, getPaisEmoji } from '../../utils/multiOrigen.helpers';
 
 type VistaInventario = 'cards' | 'tabla';
-type TabInventario = 'lista' | 'analytics' | 'alertas';
+type TabInventario = 'lista' | 'analytics' | 'alertas' | 'incidencias';
 
 export const Inventario: React.FC = () => {
   const toast = useToastStore();
@@ -84,7 +87,11 @@ export const Inventario: React.FC = () => {
     u => u.lineaNegocioId
   );
 
-  const [tabActivo, setTabActivo] = useState<TabInventario>('lista');
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab') as TabInventario | null;
+  const [tabActivo, setTabActivo] = useState<TabInventario>(
+    tabParam && ['lista', 'analytics', 'alertas', 'incidencias'].includes(tabParam) ? tabParam : 'lista'
+  );
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   const [filtroAlmacen, setFiltroAlmacen] = useState<string>('');
   const [filtroPais, setFiltroPais] = useState<string>('');
@@ -93,6 +100,7 @@ export const Inventario: React.FC = () => {
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
   const [sincronizando, setSincronizando] = useState(false);
   const [resultadoSync, setResultadoSync] = useState<any>(null);
+  const [showVencidasModal, setShowVencidasModal] = useState(false);
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [showPromocionModal, setShowPromocionModal] = useState(false);
   const [productoPromocion, setProductoPromocion] = useState<{
@@ -476,6 +484,11 @@ export const Inventario: React.FC = () => {
       label: 'Alertas',
       icon: <Bell className="h-4 w-4" />,
       badge: alertasPrioritarias.length > 0 ? alertasPrioritarias.length : undefined
+    },
+    {
+      id: 'incidencias',
+      label: 'Incidencias',
+      icon: <AlertTriangle className="h-4 w-4" />,
     }
   ], [alertasPrioritarias.length]);
 
@@ -908,6 +921,27 @@ export const Inventario: React.FC = () => {
             // Opcional: Podría filtrar por ese producto
           }}
           onPromocionar={handlePromocionar}
+        />
+      )}
+
+      {/* ==================== TAB: INCIDENCIAS ==================== */}
+      {tabActivo === 'incidencias' && (
+        <IncidenciasTab
+          onOpenVencidasModal={() => setShowVencidasModal(true)}
+          onRefresh={() => { fetchUnidades(); fetchProductos(); }}
+        />
+      )}
+
+      {/* Modal de Gestión de Vencidas */}
+      {showVencidasModal && (
+        <GestionVencidasModal
+          onClose={() => setShowVencidasModal(false)}
+          onSuccess={() => {
+            setShowVencidasModal(false);
+            fetchUnidades();
+            fetchProductos();
+            toast.success('Unidades vencidas procesadas correctamente');
+          }}
         />
       )}
 

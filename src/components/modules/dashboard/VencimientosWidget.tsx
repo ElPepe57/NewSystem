@@ -165,6 +165,20 @@ export const VencimientosWidget: React.FC<VencimientosWidgetProps> = ({
         </div>
       )}
 
+      {/* Banner de acción cuando hay vencidos */}
+      {estadisticas.vencidos > 0 && (
+        <Link
+          to="/inventario?tab=incidencias"
+          className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+        >
+          <AlertTriangle className="h-4 w-4 text-red-600 shrink-0" />
+          <span className="text-sm text-red-800 flex-1">
+            <strong>{estadisticas.vencidos} unidad{estadisticas.vencidos > 1 ? 'es' : ''} vencida{estadisticas.vencidos > 1 ? 's' : ''}</strong> requiere{estadisticas.vencidos > 1 ? 'n' : ''} disposición
+          </span>
+          <span className="text-xs text-red-500 font-medium">Gestionar →</span>
+        </Link>
+      )}
+
       {unidadesPorVencer.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <Package className="h-12 w-12 mx-auto mb-2 text-gray-300" />
