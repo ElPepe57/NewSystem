@@ -144,10 +144,8 @@ export class ProductoService {
       if (snapshot.empty) return null;
 
       const docSnap = snapshot.docs[0];
-      return {
-        id: docSnap.id,
-        ...docSnap.data()
-      } as Producto;
+      const raw = { id: docSnap.id, ...docSnap.data() } as Producto;
+      return normalizeProductoVariantes(raw);
     } catch (error: any) {
       logger.error('Error buscando producto por UPC:', error);
       throw new Error('Error al buscar producto por codigo de barras');
@@ -286,11 +284,21 @@ export class ProductoService {
         newProducto.sabor = skc.tipoPiel?.[0] || '';
       }
 
-      // Variantes padre-hijo
+      // Variantes — modelo grupoVarianteId + legacy compat
+      if (data.grupoVarianteId) {
+        newProducto.grupoVarianteId = data.grupoVarianteId;
+      }
+      if (data.esPrincipalGrupo !== undefined) {
+        newProducto.esPrincipalGrupo = data.esPrincipalGrupo;
+      }
       if (data.parentId) {
         newProducto.parentId = data.parentId;
         newProducto.esVariante = true;
         newProducto.esPadre = false;
+        // Ensure grupoVarianteId is set from parentId if not explicitly provided
+        if (!newProducto.grupoVarianteId) {
+          newProducto.grupoVarianteId = data.parentId;
+        }
       }
       if (data.varianteLabel) {
         newProducto.varianteLabel = data.varianteLabel;
@@ -301,11 +309,16 @@ export class ProductoService {
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), cleanedProducto);
 
-      // Si es variante, marcar el padre como esPadre
+      // Si es variante, marcar el padre con ambos modelos
       if (data.parentId) {
         try {
           const padreRef = doc(db, COLLECTION_NAME, data.parentId);
-          await updateDoc(padreRef, { esPadre: true });
+          await updateDoc(padreRef, {
+            esPadre: true,
+            esAgrupador: true,
+            grupoVarianteId: data.parentId,
+            esPrincipalGrupo: true,
+          });
         } catch (e) {
           logger.warn('Error al marcar padre:', e);
         }
@@ -683,7 +696,7 @@ export class ProductoService {
         where('estado', '==', 'eliminado')
       );
       const snapshot = await getDocs(q);
-      const productos = mapDocs<Producto>(snapshot);
+      const productos = mapDocs<Producto>(snapshot).map(p => normalizeProductoVariantes(p));
 
       // Ordenar por fecha de archivo (más reciente primero)
       return productos.sort((a, b) => {

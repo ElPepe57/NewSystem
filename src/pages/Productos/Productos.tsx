@@ -747,23 +747,23 @@ export const Productos: React.FC = () => {
             stockCritico={productosStockCritico}
             sinInvestigar={productosSinInvestigar}
             activeFilter={
-              filters.stock === 'critico' ? 'stock_critico'
-              : filters.investigacion === 'sin_investigacion' ? 'sin_investigar'
+              filters.stockStatus === 'critico' ? 'stock_critico'
+              : filters.investigacion === 'sin_investigar' ? 'sin_investigar'
               : filters.estado === 'activo' ? 'activos'
-              : (filters.estado || filters.marca || filters.tipoProducto || filters.categoria || filters.etiqueta || filters.stock || filters.investigacion) ? null
+              : (filters.estado || filters.marca || filters.tipoProductoId || filters.categoriaId || filters.etiquetaId || filters.stockStatus || filters.investigacion) ? null
               : null
             }
             onFilter={(filterId) => {
               handleClearFilters();
               if (filterId === 'activos') setFilters(prev => ({ ...prev, estado: 'activo' }));
-              else if (filterId === 'stock_critico') setFilters(prev => ({ ...prev, stock: 'critico' }));
-              else if (filterId === 'sin_investigar') setFilters(prev => ({ ...prev, investigacion: 'sin_investigacion' }));
+              else if (filterId === 'stock_critico') setFilters(prev => ({ ...prev, stockStatus: 'critico' }));
+              else if (filterId === 'sin_investigar') setFilters(prev => ({ ...prev, investigacion: 'sin_investigar' }));
               setCurrentPage(1);
             }}
           />
 
           {/* Chips de filtros activos — siempre visible cuando hay filtros */}
-          {(filters.estado || filters.marca || filters.tipoProducto || filters.categoria || filters.etiqueta || filters.stock || filters.investigacion || filters.grupo) && (
+          {(filters.estado || filters.marca || filters.tipoProductoId || filters.categoriaId || filters.etiquetaId || filters.stockStatus || filters.investigacion || filters.grupo) && (
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs sm:text-sm text-gray-500 flex-shrink-0">
                 <strong>{sortedProductos.length}</strong> de <strong>{productosArray.length}</strong> productos
@@ -775,20 +775,20 @@ export const Productos: React.FC = () => {
                 {filters.marca && (
                   <FilterChip label="Marca" value={filters.marca} onRemove={() => setFilters(prev => ({ ...prev, marca: '' }))} />
                 )}
-                {filters.stock && (
-                  <FilterChip label="Stock" value={filters.stock} onRemove={() => setFilters(prev => ({ ...prev, stock: '' }))} />
+                {filters.stockStatus && (
+                  <FilterChip label="Stock" value={filters.stockStatus} onRemove={() => setFilters(prev => ({ ...prev, stockStatus: '' }))} />
                 )}
                 {filters.investigacion && (
                   <FilterChip label="Investigación" value={filters.investigacion.replace('_', ' ')} onRemove={() => setFilters(prev => ({ ...prev, investigacion: '' }))} />
                 )}
-                {filters.tipoProducto && (
-                  <FilterChip label="Tipo" value={filters.tipoProducto} onRemove={() => setFilters(prev => ({ ...prev, tipoProducto: '' }))} />
+                {filters.tipoProductoId && (
+                  <FilterChip label="Tipo" value={filters.tipoProductoId} onRemove={() => setFilters(prev => ({ ...prev, tipoProductoId: '' }))} />
                 )}
-                {filters.categoria && (
-                  <FilterChip label="Categoría" value={filters.categoria} onRemove={() => setFilters(prev => ({ ...prev, categoria: '' }))} />
+                {filters.categoriaId && (
+                  <FilterChip label="Categoría" value={filters.categoriaId} onRemove={() => setFilters(prev => ({ ...prev, categoriaId: '' }))} />
                 )}
-                {filters.etiqueta && (
-                  <FilterChip label="Etiqueta" value={filters.etiqueta} onRemove={() => setFilters(prev => ({ ...prev, etiqueta: '' }))} />
+                {filters.etiquetaId && (
+                  <FilterChip label="Etiqueta" value={filters.etiquetaId} onRemove={() => setFilters(prev => ({ ...prev, etiquetaId: '' }))} />
                 )}
                 {filters.grupo && (
                   <FilterChip label="Grupo" value={filters.grupo} onRemove={() => setFilters(prev => ({ ...prev, grupo: '' }))} />
