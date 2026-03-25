@@ -194,7 +194,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
     balanceMP: { anterior: number; calculado: number; ajusteReconciliacion: number; final: number; saldoRealMP: number | null };
   } | null>(null);
   const [reingenieriando, setReingenieriando] = useState(false);
-  const [saldoRealMP, setSaldoRealMP] = useState<string>('2677.51');
+  const [saldoRealMP, setSaldoRealMP] = useState<string>('');
 
   const [showInconsistencias, setShowInconsistencias] = useState(false);
   const [inconsistenciasLoading, setInconsistenciasLoading] = useState(false);

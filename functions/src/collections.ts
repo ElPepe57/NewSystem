@@ -104,8 +104,8 @@ export const COLLECTIONS = {
   // === Contabilidad ===
   CIERRES_CONTABLES: "cierresContables",
 
-  // === Contadores (Cloud Functions) ===
-  COUNTERS: "counters",
+  // === Contadores (Cloud Functions) — MUST match frontend 'contadores' ===
+  COUNTERS: "contadores",
 } as const;
 
 export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS];

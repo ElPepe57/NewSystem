@@ -1242,6 +1242,12 @@ export const createDailyRoom = functions.https.onCall(
         "Debes estar autenticado"
       );
     }
+    // Verify active user role
+    const userDoc = await admin.firestore().collection("users").doc(context.auth.uid).get();
+    const userData = userDoc.data();
+    if (!userData?.activo) {
+      throw new functions.https.HttpsError("permission-denied", "Usuario no activo");
+    }
 
     const { roomName } = data;
     if (!roomName) {
@@ -1443,6 +1449,8 @@ export const procesarLlamadaIntel = functions
           "Debes estar autenticado"
         );
       }
+      // Verify admin/gerente role for AI processing (consumes API credits)
+      await verificarAdmin(context);
 
       const { intelId, audioUrl } = data;
       if (!intelId || !audioUrl) {

@@ -91,11 +91,6 @@ export const Ventas: React.FC = () => {
     detenerSuscripcion: detenerSuscripcionEntregas
   } = useEntregaStore();
 
-  // Exponer corrección de canales en consola para admin
-  useEffect(() => {
-    (window as any).corregirCanalesVentas = () => VentaService.corregirCanalesVentas();
-  }, []);
-
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
   const { modalProps: actionModalProps, open: openActionModal } = useActionModal();

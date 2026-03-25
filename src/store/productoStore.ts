@@ -105,7 +105,7 @@ export const useProductoStore = create<ProductoState>((set) => ({
         const producto = state.archivados.find(p => p.id === id) || state.productos.find(p => p.id === id);
         const reactivado = producto ? { ...producto, estado: 'activo' as const, fechaEliminacion: undefined, eliminadoPor: undefined } : null;
         return {
-          eliminados: state.archivados.filter(p => p.id !== id),
+          archivados: state.archivados.filter(p => p.id !== id),
           productos: reactivado ? [reactivado, ...state.productos.filter(p => p.id !== id)] : state.productos,
         };
       });
