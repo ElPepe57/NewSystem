@@ -73,9 +73,9 @@ const RecepcionRow: React.FC<{
 
 // Componente de desglose expandible
 const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
-  const impuesto = orden.impuestoUSD || 0;
-  const envio = orden.gastosEnvioUSD || 0;
-  const otros = orden.otrosGastosUSD || 0;
+  const impuesto = orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0;
+  const envio = orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0;
+  const otros = orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0;
   const envioYOtros = envio + otros;
   const pagoInfo = estadoPagoLabels[orden.estadoPago] || estadoPagoLabels.pendiente;
   const totalRecibido = orden.productos.reduce((sum, p) => sum + (p.cantidadRecibida || 0), 0);

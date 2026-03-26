@@ -857,9 +857,9 @@ export const OrdenesCompra: React.FC = () => {
                       costoUnitario: p.costoUnitario
                     })),
                     subtotalUSD: ordenEditando.subtotalUSD,
-                    impuestoUSD: ordenEditando.impuestoUSD,
-                    gastosEnvioUSD: ordenEditando.gastosEnvioUSD,
-                    otrosGastosUSD: ordenEditando.otrosGastosUSD,
+                    impuestoUSD: ordenEditando.impuestoCompraUSD ?? ordenEditando.impuestoUSD,
+                    costoEnvioProveedorUSD: ordenEditando.costoEnvioProveedorUSD ?? ordenEditando.gastosEnvioUSD,
+                    otrosGastosCompraUSD: ordenEditando.otrosGastosCompraUSD ?? ordenEditando.otrosGastosUSD,
                     descuentoUSD: ordenEditando.descuentoUSD,
                     totalUSD: ordenEditando.totalUSD,
                     tcCompra: ordenEditando.tcCompra || 0,

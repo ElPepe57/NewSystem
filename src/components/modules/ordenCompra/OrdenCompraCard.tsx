@@ -233,22 +233,22 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               <span className="text-gray-600">Subtotal Productos:</span>
               <span className="font-semibold">${orden.subtotalUSD.toFixed(2)}</span>
             </div>
-            {orden.impuestoUSD && orden.impuestoUSD > 0 && (
+            {(orden.impuestoCompraUSD ?? orden.impuestoUSD) && (orden.impuestoCompraUSD ?? orden.impuestoUSD)! > 0 && (
               <div className="flex justify-between text-sm text-amber-700">
-                <span>Tax / Impuesto ({((orden.impuestoUSD / orden.subtotalUSD) * 100).toFixed(2)}%):</span>
-                <span className="font-medium">${orden.impuestoUSD.toFixed(2)}</span>
+                <span>Tax / Impuesto ({(((orden.impuestoCompraUSD ?? orden.impuestoUSD)! / orden.subtotalUSD) * 100).toFixed(2)}%):</span>
+                <span className="font-medium">${(orden.impuestoCompraUSD ?? orden.impuestoUSD)!.toFixed(2)}</span>
               </div>
             )}
-            {orden.gastosEnvioUSD && orden.gastosEnvioUSD > 0 && (
+            {(orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD) && (orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD)! > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Gastos de Envío:</span>
-                <span>${orden.gastosEnvioUSD.toFixed(2)}</span>
+                <span>${(orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD)!.toFixed(2)}</span>
               </div>
             )}
-            {orden.otrosGastosUSD && orden.otrosGastosUSD > 0 && (
+            {(orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD) && (orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD)! > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Otros Gastos:</span>
-                <span>${orden.otrosGastosUSD.toFixed(2)}</span>
+                <span>${(orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD)!.toFixed(2)}</span>
               </div>
             )}
             {orden.descuentoUSD && orden.descuentoUSD > 0 && (
@@ -295,9 +295,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           const costoBaseTotal = orden.productos.reduce((sum, p) => sum + (p.costoUnitario * p.cantidad), 0);
 
           // Componentes de costo
-          const impuestoTotal = orden.impuestoUSD || 0;
-          const envioTotal = orden.gastosEnvioUSD || 0;
-          const otrosTotal = orden.otrosGastosUSD || 0;
+          const impuestoTotal = orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0;
+          const envioTotal = orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0;
+          const otrosTotal = orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0;
           const descuentoTotal = orden.descuentoUSD || 0;
 
           // Impuesto: uniforme por unidad

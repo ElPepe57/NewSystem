@@ -148,7 +148,7 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
 
     // Calcular costo de esta entrega
     const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
-    const costosAdicionales = (orden.impuestoUSD || 0) + (orden.gastosEnvioUSD || 0) + (orden.otrosGastosUSD || 0);
+    const costosAdicionales = (orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0) + (orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0) + (orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0);
     const costoAdicionalPorUnidad = totalUnidadesOrden > 0 ? costosAdicionales / totalUnidadesOrden : 0;
 
     let costoRecepcionUSD = 0;

@@ -145,9 +145,9 @@ export async function create(
       mostFrequent(paisesOrigen) ?? (proveedor.pais as string | undefined);
 
     // Totals
-    const impuesto = data.impuestoUSD || 0;
-    const gastosEnvio = data.gastosEnvioUSD || 0;
-    const otrosGastos = data.otrosGastosUSD || 0;
+    const impuesto = data.impuestoCompraUSD ?? data.impuestoUSD ?? 0;
+    const gastosEnvio = data.costoEnvioProveedorUSD ?? data.gastosEnvioUSD ?? 0;
+    const otrosGastos = data.otrosGastosCompraUSD ?? data.otrosGastosUSD ?? 0;
     const descuento = data.descuentoUSD || 0;
     const totalUSD = subtotalUSD + impuesto + gastosEnvio + otrosGastos - descuento;
 
@@ -167,9 +167,11 @@ export async function create(
       fechaCreacion: serverTimestamp()
     };
 
-    if (impuesto > 0) nuevaOrden.impuestoUSD = impuesto;
-    if (gastosEnvio > 0) nuevaOrden.gastosEnvioUSD = gastosEnvio;
-    if (otrosGastos > 0) nuevaOrden.otrosGastosUSD = otrosGastos;
+    if (impuesto > 0) nuevaOrden.impuestoCompraUSD = impuesto;
+    if (gastosEnvio > 0) nuevaOrden.costoEnvioProveedorUSD = gastosEnvio;
+    if (otrosGastos > 0) nuevaOrden.otrosGastosCompraUSD = otrosGastos;
+    if (data.modoEntrega) nuevaOrden.modoEntrega = data.modoEntrega;
+    if (data.fleteIncluidoEnPrecio) nuevaOrden.fleteIncluidoEnPrecio = data.fleteIncluidoEnPrecio;
     if (descuento > 0) nuevaOrden.descuentoUSD = descuento;
     if (data.tcCompra) nuevaOrden.tcCompra = data.tcCompra;
 
@@ -332,11 +334,11 @@ export async function update(
       updates.subtotalUSD = subtotalUSD;
 
       const impuestoUSD =
-        data.impuestoUSD !== undefined ? data.impuestoUSD : orden.impuestoUSD || 0;
+        data.impuestoCompraUSD ?? data.impuestoUSD ?? orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0;
       const gastosEnvio =
-        data.gastosEnvioUSD !== undefined ? data.gastosEnvioUSD : orden.gastosEnvioUSD || 0;
+        data.costoEnvioProveedorUSD ?? data.gastosEnvioUSD ?? orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0;
       const otrosGastos =
-        data.otrosGastosUSD !== undefined ? data.otrosGastosUSD : orden.otrosGastosUSD || 0;
+        data.otrosGastosCompraUSD ?? data.otrosGastosUSD ?? orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0;
       const descuentoOC =
         data.descuentoUSD !== undefined ? data.descuentoUSD : orden.descuentoUSD || 0;
       updates.totalUSD = subtotalUSD + impuestoUSD + gastosEnvio + otrosGastos - descuentoOC;
@@ -358,9 +360,14 @@ export async function update(
       }
     }
 
-    if (data.impuestoUSD !== undefined) updates.impuestoUSD = data.impuestoUSD;
-    if (data.gastosEnvioUSD !== undefined) updates.gastosEnvioUSD = data.gastosEnvioUSD;
-    if (data.otrosGastosUSD !== undefined) updates.otrosGastosUSD = data.otrosGastosUSD;
+    if (data.impuestoCompraUSD !== undefined) updates.impuestoCompraUSD = data.impuestoCompraUSD;
+    else if (data.impuestoUSD !== undefined) updates.impuestoCompraUSD = data.impuestoUSD;
+    if (data.costoEnvioProveedorUSD !== undefined) updates.costoEnvioProveedorUSD = data.costoEnvioProveedorUSD;
+    else if (data.gastosEnvioUSD !== undefined) updates.costoEnvioProveedorUSD = data.gastosEnvioUSD;
+    if (data.otrosGastosCompraUSD !== undefined) updates.otrosGastosCompraUSD = data.otrosGastosCompraUSD;
+    else if (data.otrosGastosUSD !== undefined) updates.otrosGastosCompraUSD = data.otrosGastosUSD;
+    if (data.modoEntrega !== undefined) updates.modoEntrega = data.modoEntrega;
+    if (data.fleteIncluidoEnPrecio !== undefined) updates.fleteIncluidoEnPrecio = data.fleteIncluidoEnPrecio;
     if (data.tcCompra !== undefined) updates.tcCompra = data.tcCompra;
     if (data.numeroTracking !== undefined) updates.numeroTracking = data.numeroTracking;
     if (data.courier !== undefined) updates.courier = data.courier;

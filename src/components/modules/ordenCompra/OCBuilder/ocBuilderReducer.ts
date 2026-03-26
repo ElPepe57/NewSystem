@@ -52,8 +52,8 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
         productos: [],
         tcCompra: state.tcGlobal,
         porcentajeTax: 0,
-        gastosEnvioUSD: 0,
-        otrosGastosUSD: 0,
+        costoEnvioProveedorUSD: 0,
+        otrosGastosCompraUSD: 0,
         descuentoUSD: 0,
         observaciones: '',
       };
@@ -208,8 +208,8 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
           })),
           tcCompra: state.tcGlobal,
           porcentajeTax: 0,
-          gastosEnvioUSD: 0,
-          otrosGastosUSD: 0,
+          costoEnvioProveedorUSD: 0,
+          otrosGastosCompraUSD: 0,
           descuentoUSD: 0,
           observaciones: '',
         };
@@ -314,7 +314,7 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
       return {
         ...state,
         groups: state.groups.map(g =>
-          g.id === action.payload.groupId ? { ...g, gastosEnvioUSD: action.payload.gastosEnvioUSD } : g
+          g.id === action.payload.groupId ? { ...g, costoEnvioProveedorUSD: action.payload.costoEnvioProveedorUSD } : g
         ),
       };
 
@@ -322,7 +322,7 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
       return {
         ...state,
         groups: state.groups.map(g =>
-          g.id === action.payload.groupId ? { ...g, otrosGastosUSD: action.payload.otrosGastosUSD } : g
+          g.id === action.payload.groupId ? { ...g, otrosGastosCompraUSD: action.payload.otrosGastosCompraUSD } : g
         ),
       };
 

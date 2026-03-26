@@ -30,8 +30,8 @@ export interface OCFormState {
 
   // Step 3 - Costs
   porcentajeTax: number;
-  gastosEnvioUSD: number;
-  otrosGastosUSD: number;
+  costoEnvioProveedorUSD: number;
+  otrosGastosCompraUSD: number;
   descuentoUSD: number;
   numeroTracking: string;
   courier: string;
@@ -82,8 +82,8 @@ export const INITIAL_STATE: OCFormState = {
   intelligenceCache: {},
   intelligenceLoading: {},
   porcentajeTax: 0,
-  gastosEnvioUSD: 0,
-  otrosGastosUSD: 0,
+  costoEnvioProveedorUSD: 0,
+  otrosGastosCompraUSD: 0,
   descuentoUSD: 0,
   numeroTracking: '',
   courier: '',
@@ -104,7 +104,7 @@ export const getImpuestoUSD = (state: OCFormState) => {
 };
 
 export const getTotalUSD = (state: OCFormState) => {
-  return getSubtotalUSD(state) + getImpuestoUSD(state) + state.gastosEnvioUSD + state.otrosGastosUSD - state.descuentoUSD;
+  return getSubtotalUSD(state) + getImpuestoUSD(state) + state.costoEnvioProveedorUSD + state.otrosGastosCompraUSD - state.descuentoUSD;
 };
 
 export const getTotalPEN = (state: OCFormState) => {

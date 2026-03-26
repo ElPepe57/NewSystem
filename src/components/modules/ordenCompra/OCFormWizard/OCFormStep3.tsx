@@ -89,9 +89,9 @@ const OCFormStep3: React.FC<OCFormStep3Props> = ({
         <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200">
           <DollarSign className="h-4 w-4 text-gray-500" />
           <span className="font-medium text-gray-900 text-sm">Costos Adicionales</span>
-          {(state.porcentajeTax > 0 || state.gastosEnvioUSD > 0 || state.otrosGastosUSD > 0 || state.descuentoUSD > 0) && (
+          {(state.porcentajeTax > 0 || state.costoEnvioProveedorUSD > 0 || state.otrosGastosCompraUSD > 0 || state.descuentoUSD > 0) && (
             <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-              +${(impuestoUSD + state.gastosEnvioUSD + state.otrosGastosUSD - state.descuentoUSD).toFixed(2)}
+              +${(impuestoUSD + state.costoEnvioProveedorUSD + state.otrosGastosCompraUSD - state.descuentoUSD).toFixed(2)}
             </span>
           )}
         </div>
@@ -117,7 +117,7 @@ const OCFormStep3: React.FC<OCFormStep3Props> = ({
               type="number"
               min="0"
               step="0.01"
-              value={state.gastosEnvioUSD}
+              value={state.costoEnvioProveedorUSD}
               onChange={(e) => dispatch({ type: 'SET_ENVIO', payload: parseFloat(e.target.value) || 0 })}
               placeholder="0.00"
             />
@@ -127,7 +127,7 @@ const OCFormStep3: React.FC<OCFormStep3Props> = ({
               type="number"
               min="0"
               step="0.01"
-              value={state.otrosGastosUSD}
+              value={state.otrosGastosCompraUSD}
               onChange={(e) => dispatch({ type: 'SET_OTROS', payload: parseFloat(e.target.value) || 0 })}
               placeholder="0.00"
             />
@@ -163,16 +163,16 @@ const OCFormStep3: React.FC<OCFormStep3Props> = ({
                 <span>${impuestoUSD.toFixed(2)}</span>
               </div>
             )}
-            {state.gastosEnvioUSD > 0 && (
+            {state.costoEnvioProveedorUSD > 0 && (
               <div className="flex justify-between text-gray-600">
                 <span>Envio:</span>
-                <span>${state.gastosEnvioUSD.toFixed(2)}</span>
+                <span>${state.costoEnvioProveedorUSD.toFixed(2)}</span>
               </div>
             )}
-            {state.otrosGastosUSD > 0 && (
+            {state.otrosGastosCompraUSD > 0 && (
               <div className="flex justify-between text-gray-600">
                 <span>Otros gastos:</span>
-                <span>${state.otrosGastosUSD.toFixed(2)}</span>
+                <span>${state.otrosGastosCompraUSD.toFixed(2)}</span>
               </div>
             )}
             {fleteEstimadoTotal > 0 && (

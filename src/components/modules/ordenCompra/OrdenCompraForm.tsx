@@ -44,8 +44,8 @@ export interface OrdenCompraFormProps {
     }>;
     subtotalUSD: number;
     impuestoUSD?: number;
-    gastosEnvioUSD?: number;
-    otrosGastosUSD?: number;
+    costoEnvioProveedorUSD?: number;
+    otrosGastosCompraUSD?: number;
     descuentoUSD?: number;
     totalUSD: number;
     tcCompra: number;

@@ -74,8 +74,8 @@ export interface OCFormWizardProps {
     }>;
     subtotalUSD: number;
     impuestoUSD?: number;
-    gastosEnvioUSD?: number;
-    otrosGastosUSD?: number;
+    costoEnvioProveedorUSD?: number;
+    otrosGastosCompraUSD?: number;
     descuentoUSD?: number;
     totalUSD: number;
     tcCompra: number;
@@ -154,8 +154,8 @@ export const OCFormWizard: React.FC<OCFormWizardProps> = ({
       if (ordenEditar.impuestoUSD && ordenEditar.subtotalUSD > 0) {
         init.porcentajeTax = (ordenEditar.impuestoUSD / ordenEditar.subtotalUSD) * 100;
       }
-      init.gastosEnvioUSD = ordenEditar.gastosEnvioUSD || 0;
-      init.otrosGastosUSD = ordenEditar.otrosGastosUSD || 0;
+      init.costoEnvioProveedorUSD = ordenEditar.costoEnvioProveedorUSD || 0;
+      init.otrosGastosCompraUSD = ordenEditar.otrosGastosCompraUSD || 0;
       init.descuentoUSD = ordenEditar.descuentoUSD || 0;
       init.numeroTracking = ordenEditar.numeroTracking || '';
       init.courier = ordenEditar.courier || '';
@@ -353,8 +353,8 @@ export const OCFormWizard: React.FC<OCFormWizardProps> = ({
       productos: productosConInfo,
       subtotalUSD,
       impuestoUSD: impuestoUSD > 0 ? impuestoUSD : undefined,
-      gastosEnvioUSD: state.gastosEnvioUSD > 0 ? state.gastosEnvioUSD : undefined,
-      otrosGastosUSD: state.otrosGastosUSD > 0 ? state.otrosGastosUSD : undefined,
+      costoEnvioProveedorUSD: state.costoEnvioProveedorUSD > 0 ? state.costoEnvioProveedorUSD : undefined,
+      otrosGastosCompraUSD: state.otrosGastosCompraUSD > 0 ? state.otrosGastosCompraUSD : undefined,
       descuentoUSD: state.descuentoUSD > 0 ? state.descuentoUSD : undefined,
       totalUSD,
       tcCompra: state.tcCompra,

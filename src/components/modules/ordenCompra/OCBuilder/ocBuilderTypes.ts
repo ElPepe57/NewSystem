@@ -52,8 +52,8 @@ export interface OCDraftGroup {
   productos: OCBuilderProducto[];
   tcCompra: number;
   porcentajeTax: number;
-  gastosEnvioUSD: number;
-  otrosGastosUSD: number;
+  costoEnvioProveedorUSD: number;
+  otrosGastosCompraUSD: number;
   descuentoUSD: number;
   observaciones: string;
 }
@@ -110,8 +110,8 @@ export type OCBuilderAction =
   | { type: 'SET_GROUP_DESTINO'; payload: { groupId: string; almacen: AlmacenSnapshot | null } }
   | { type: 'SET_GROUP_TC'; payload: { groupId: string; tc: number } }
   | { type: 'SET_GROUP_TAX'; payload: { groupId: string; porcentajeTax: number } }
-  | { type: 'SET_GROUP_ENVIO'; payload: { groupId: string; gastosEnvioUSD: number } }
-  | { type: 'SET_GROUP_OTROS'; payload: { groupId: string; otrosGastosUSD: number } }
+  | { type: 'SET_GROUP_ENVIO'; payload: { groupId: string; costoEnvioProveedorUSD: number } }
+  | { type: 'SET_GROUP_OTROS'; payload: { groupId: string; otrosGastosCompraUSD: number } }
   | { type: 'SET_GROUP_DESCUENTO'; payload: { groupId: string; descuentoUSD: number } }
   | { type: 'SET_GROUP_OBSERVACIONES'; payload: { groupId: string; observaciones: string } }
 
@@ -147,8 +147,8 @@ export interface OCBuilderProps {
 export interface GroupTotals {
   subtotalUSD: number;
   impuestoUSD: number;
-  gastosEnvioUSD: number;
-  otrosGastosUSD: number;
+  costoEnvioProveedorUSD: number;
+  otrosGastosCompraUSD: number;
   descuentoUSD: number;
   totalUSD: number;
   totalPEN: number;

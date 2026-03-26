@@ -408,15 +408,14 @@ function calcularCompras(
     // Costo de productos (subtotal)
     costoProductos += orden.subtotalUSD * tc * fraccion;
 
-    // Impuestos (Sales Tax USA)
-    impuestos += (orden.impuestoUSD || 0) * tc * fraccion;
+    // Impuestos de compra (sales tax, IVA origen, etc.)
+    impuestos += (orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0) * tc * fraccion;
 
-    // Gastos de envío dentro de la OC (no es el flete USA-PERU)
-    // Esto es shipping dentro de USA, va a otros gastos
-    otrosGastosImportacion += (orden.gastosEnvioUSD || 0) * tc * fraccion;
+    // Envío del proveedor al punto de recojo
+    otrosGastosImportacion += (orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0) * tc * fraccion;
 
-    // Otros gastos de importación
-    otrosGastosImportacion += (orden.otrosGastosUSD || 0) * tc * fraccion;
+    // Otros gastos de la compra
+    otrosGastosImportacion += (orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0) * tc * fraccion;
 
     // Contar unidades (solo las recibidas para parciales)
     if (fraccion < 1) {

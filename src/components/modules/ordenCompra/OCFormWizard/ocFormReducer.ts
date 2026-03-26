@@ -76,9 +76,9 @@ export function ocFormReducer(state: OCFormState, action: OCFormAction): OCFormS
     case 'SET_TAX':
       return { ...state, porcentajeTax: action.payload };
     case 'SET_ENVIO':
-      return { ...state, gastosEnvioUSD: action.payload };
+      return { ...state, costoEnvioProveedorUSD: action.payload };
     case 'SET_OTROS':
-      return { ...state, otrosGastosUSD: action.payload };
+      return { ...state, otrosGastosCompraUSD: action.payload };
     case 'SET_DESCUENTO':
       return { ...state, descuentoUSD: action.payload };
     case 'SET_TRACKING':

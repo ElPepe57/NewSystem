@@ -198,7 +198,11 @@
       "Bash(git status:*)",
       "Bash(for id:*)",
       "Bash(do echo:*)",
-      "Read(//c/Users/josel/AppData/Local/Temp/claude/C--Users-josel-businessmn-v2/9dde1bbb-07b7-49aa-bcb9-aa5798b419ae/tasks/**)"
+      "Read(//c/Users/josel/AppData/Local/Temp/claude/C--Users-josel-businessmn-v2/9dde1bbb-07b7-49aa-bcb9-aa5798b419ae/tasks/**)",
+      "Bash(find /c/Users/josel/businessmn-v2/src -type f \\\\\\(-name *mercado* -o -name *marketplace* -o -name *integr* \\\\\\))",
+      "Bash(python3 -c \":*)",
+      "Bash(firebase functions:log --only mldisconnect)",
+      "Bash(firebase functions:log --only mlregisterwebhook)"
     ],
     "deny": [],
     "ask": []

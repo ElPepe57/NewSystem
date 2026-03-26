@@ -202,8 +202,8 @@ const GroupConfigForm: React.FC<{
             <span className="text-xs text-gray-400 flex-shrink-0">$</span>
             <input
               type="number" step="0.01" min={0}
-              value={group.gastosEnvioUSD || ''}
-              onChange={e => dispatch({ type: 'SET_GROUP_ENVIO', payload: { groupId: group.id, gastosEnvioUSD: parseFloat(e.target.value) || 0 } })}
+              value={group.costoEnvioProveedorUSD || ''}
+              onChange={e => dispatch({ type: 'SET_GROUP_ENVIO', payload: { groupId: group.id, costoEnvioProveedorUSD: parseFloat(e.target.value) || 0 } })}
               className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-right focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="0.00"
             />
@@ -220,8 +220,8 @@ const GroupConfigForm: React.FC<{
             <span className="text-xs text-gray-400 flex-shrink-0">$</span>
             <input
               type="number" step="0.01" min={0}
-              value={group.otrosGastosUSD || ''}
-              onChange={e => dispatch({ type: 'SET_GROUP_OTROS', payload: { groupId: group.id, otrosGastosUSD: parseFloat(e.target.value) || 0 } })}
+              value={group.otrosGastosCompraUSD || ''}
+              onChange={e => dispatch({ type: 'SET_GROUP_OTROS', payload: { groupId: group.id, otrosGastosCompraUSD: parseFloat(e.target.value) || 0 } })}
               className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-right focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="0.00"
             />
@@ -284,16 +284,16 @@ const GroupConfigForm: React.FC<{
               <span>+{formatUSD(totals.impuestoUSD)}</span>
             </div>
           )}
-          {totals.gastosEnvioUSD > 0 && (
+          {totals.costoEnvioProveedorUSD > 0 && (
             <div className="flex justify-between text-slate-400">
               <span>Envío</span>
-              <span>+{formatUSD(totals.gastosEnvioUSD)}</span>
+              <span>+{formatUSD(totals.costoEnvioProveedorUSD)}</span>
             </div>
           )}
-          {totals.otrosGastosUSD > 0 && (
+          {totals.otrosGastosCompraUSD > 0 && (
             <div className="flex justify-between text-slate-400">
               <span>Otros</span>
-              <span>+{formatUSD(totals.otrosGastosUSD)}</span>
+              <span>+{formatUSD(totals.otrosGastosCompraUSD)}</span>
             </div>
           )}
           {totals.descuentoUSD > 0 && (

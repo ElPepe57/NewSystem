@@ -71,7 +71,7 @@ export const exportService = {
       'Proveedor': oc.nombreProveedor,
       'Productos': oc.productos.length,
       'Subtotal USD': oc.subtotalUSD,
-      'Gastos Envío USD': oc.gastosEnvioUSD || 0,
+      'Envío Proveedor USD': oc.costoEnvioProveedorUSD ?? oc.gastosEnvioUSD ?? 0,
       'Total USD': oc.totalUSD,
       'TC Compra': oc.tcCompra || 0,
       'TC Pago': oc.tcPago || 0,

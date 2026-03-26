@@ -91,10 +91,10 @@ const SummaryCard: React.FC<{ group: OCDraftGroup; state: OCBuilderState }> = ({
               <span>+{formatUSD(totals.impuestoUSD)}</span>
             </div>
           )}
-          {totals.gastosEnvioUSD > 0 && (
+          {totals.costoEnvioProveedorUSD > 0 && (
             <div className="flex justify-between text-gray-500">
               <span>Envío</span>
-              <span>+{formatUSD(totals.gastosEnvioUSD)}</span>
+              <span>+{formatUSD(totals.costoEnvioProveedorUSD)}</span>
             </div>
           )}
           {totals.descuentoUSD > 0 && (

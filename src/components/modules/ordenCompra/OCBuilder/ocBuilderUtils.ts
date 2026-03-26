@@ -109,7 +109,7 @@ export function calcGroupTotals(group: OCDraftGroup): GroupTotals {
   );
   const impuestoUSD = subtotalUSD * (group.porcentajeTax / 100);
   const descuentoUSD = group.descuentoUSD || 0;
-  const totalUSD = subtotalUSD + impuestoUSD + group.gastosEnvioUSD + group.otrosGastosUSD - descuentoUSD;
+  const totalUSD = subtotalUSD + impuestoUSD + group.costoEnvioProveedorUSD + group.otrosGastosCompraUSD - descuentoUSD;
   const tc = group.tcCompra || 1;
   const totalPEN = totalUSD * tc;
   const cantidadUnidades = group.productos.reduce((sum, p) => sum + p.cantidad, 0);
@@ -117,8 +117,8 @@ export function calcGroupTotals(group: OCDraftGroup): GroupTotals {
   return {
     subtotalUSD,
     impuestoUSD,
-    gastosEnvioUSD: group.gastosEnvioUSD,
-    otrosGastosUSD: group.otrosGastosUSD,
+    costoEnvioProveedorUSD: group.costoEnvioProveedorUSD,
+    otrosGastosCompraUSD: group.otrosGastosCompraUSD,
     descuentoUSD,
     totalUSD,
     totalPEN,
@@ -134,8 +134,8 @@ export function calcGrandTotals(groups: OCDraftGroup[]): GroupTotals {
       return {
         subtotalUSD: acc.subtotalUSD + t.subtotalUSD,
         impuestoUSD: acc.impuestoUSD + t.impuestoUSD,
-        gastosEnvioUSD: acc.gastosEnvioUSD + t.gastosEnvioUSD,
-        otrosGastosUSD: acc.otrosGastosUSD + t.otrosGastosUSD,
+        costoEnvioProveedorUSD: acc.costoEnvioProveedorUSD + t.costoEnvioProveedorUSD,
+        otrosGastosCompraUSD: acc.otrosGastosCompraUSD + t.otrosGastosCompraUSD,
         descuentoUSD: acc.descuentoUSD + t.descuentoUSD,
         totalUSD: acc.totalUSD + t.totalUSD,
         totalPEN: acc.totalPEN + t.totalPEN,
@@ -143,7 +143,7 @@ export function calcGrandTotals(groups: OCDraftGroup[]): GroupTotals {
         cantidadUnidades: acc.cantidadUnidades + t.cantidadUnidades,
       };
     },
-    { subtotalUSD: 0, impuestoUSD: 0, gastosEnvioUSD: 0, otrosGastosUSD: 0, descuentoUSD: 0, totalUSD: 0, totalPEN: 0, cantidadProductos: 0, cantidadUnidades: 0 }
+    { subtotalUSD: 0, impuestoUSD: 0, costoEnvioProveedorUSD: 0, otrosGastosCompraUSD: 0, descuentoUSD: 0, totalUSD: 0, totalPEN: 0, cantidadProductos: 0, cantidadUnidades: 0 }
   );
 }
 
@@ -234,7 +234,7 @@ export function groupToFormData(
   );
   const impuestoUSD = subtotalUSD * (group.porcentajeTax / 100);
   const descuentoUSD = group.descuentoUSD || 0;
-  const totalUSD = subtotalUSD + impuestoUSD + group.gastosEnvioUSD + group.otrosGastosUSD - descuentoUSD;
+  const totalUSD = subtotalUSD + impuestoUSD + group.costoEnvioProveedorUSD + group.otrosGastosCompraUSD - descuentoUSD;
 
   // Derive reqIds from the actual product origenes in this group (not from all reqs)
   const reqIdSet = new Set<string>();
@@ -266,8 +266,8 @@ export function groupToFormData(
     }),
     subtotalUSD,
     impuestoUSD: impuestoUSD > 0 ? impuestoUSD : undefined,
-    gastosEnvioUSD: group.gastosEnvioUSD > 0 ? group.gastosEnvioUSD : undefined,
-    otrosGastosUSD: group.otrosGastosUSD > 0 ? group.otrosGastosUSD : undefined,
+    costoEnvioProveedorUSD: group.costoEnvioProveedorUSD > 0 ? group.costoEnvioProveedorUSD : undefined,
+    otrosGastosCompraUSD: group.otrosGastosCompraUSD > 0 ? group.otrosGastosCompraUSD : undefined,
     descuentoUSD: descuentoUSD > 0 ? descuentoUSD : undefined,
     totalUSD,
     tcCompra: tc,
