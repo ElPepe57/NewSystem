@@ -305,6 +305,10 @@ export interface RecepcionFormData {
   // Si existe fechasVencimiento[unidadId], tiene prioridad sobre este
   fechasVencimientoPorProducto?: Record<string, string>;
 
+  // C3 — Costo de recojo en Perú (por recepción parcial)
+  costoRecojoPEN?: number;              // Monto total del recojo de esta recepción
+  // Se prorratea: costoRecojoPEN / unidades recibidas en esta recepción
+
   observaciones?: string;
   fotoEvidencia?: string;
 }

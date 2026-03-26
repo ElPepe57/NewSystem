@@ -4,18 +4,26 @@ import { Timestamp } from 'firebase/firestore';
  * Tipos de gasto según su naturaleza
  */
 export type TipoGasto =
-  | 'flete_internacional'       // Logística internacional (genérico, reemplaza flete_usa_peru)
-  | 'flete_usa_peru'           // Legacy: equivale a flete_internacional (backward compat)
+  // COSTOS DE IMPORTACIÓN (se pegan al producto vía CTRU)
+  | 'flete_internacional'       // C2: Flete internacional (cualquier país → Perú)
+  | 'flete_usa_peru'            // Legacy: equivale a flete_internacional (backward compat)
+  | 'recojo_local'              // C3: Recojo en Perú (courier/viajero → almacén)
   | 'almacenaje'                // Almacenamiento origen o Perú
-  | 'administrativo'            // Gastos administrativos
-  | 'operativo'                 // Gastos operativos
-  | 'marketing'                 // Marketing y publicidad
-  | 'empaque'                   // Material de empaque
-  | 'delivery'                  // Delivery local
-  | 'comision_ml'               // Comisión Mercado Libre
+  | 'internacion'               // Internación/aduanas (si aplica)
+  // GASTOS DEL NEGOCIO
+  | 'administrativo'            // GA: Gastos administrativos
+  | 'operativo'                 // GO: Gastos operativos (incluye packaging como GO)
+  | 'marketing'                 // GV: Marketing y publicidad
+  | 'empaque'                   // GO: Material de empaque (reclasificado de GD a GO)
+  | 'delivery'                  // GD: Delivery local al cliente
+  | 'comision_ml'               // GV: Comisión Mercado Libre
+  | 'comision_pasarela'         // GV: Comisión pasarela de pago
+  | 'comision_vendedor'         // GV: Comisión vendedor
+  // PÉRDIDAS DE INVENTARIO
   | 'merma_transferencia'       // Pérdida por daño en transferencia (cuenta 6952)
   | 'merma_vencimiento'         // Pérdida por vencimiento de producto (cuenta 6951)
   | 'desmedro'                  // Deterioro físico de producto (cuenta 6952)
+  // OTROS
   | 'otros';                    // Otros gastos
 
 /**

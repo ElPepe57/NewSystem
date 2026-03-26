@@ -212,12 +212,20 @@ export interface OrdenCompra {
   productos: ProductoOrden[];
   
   // Totales
-  subtotalUSD: number;        // Suma de todos los productos (sin impuesto)
-  impuestoUSD?: number;       // Impuesto de origen (Sales Tax USA, etc.)
-  gastosEnvioUSD?: number;    // Gastos de envío/courier
-  otrosGastosUSD?: number;    // Otros gastos adicionales
-  descuentoUSD?: number;      // Descuento general (ej: descuento Amazon)
-  totalUSD: number;           // subtotal + impuesto + gastos - descuento
+  subtotalUSD: number;                  // Suma de todos los productos (sin impuesto)
+  impuestoCompraUSD?: number;           // Impuesto de compra (sales tax, IVA origen, etc.)
+  costoEnvioProveedorUSD?: number;      // Envío del proveedor al punto de recojo/almacén
+  otrosGastosCompraUSD?: number;        // Otros gastos de la compra (handling, seguros, etc.)
+  descuentoUSD?: number;                // Descuento general
+  totalUSD: number;                     // subtotal + impuesto + envío + otros - descuento
+
+  // Modo de entrega
+  modoEntrega?: 'viajero' | 'envio_directo'; // Cómo llega a Perú
+  fleteIncluidoEnPrecio?: boolean;            // true = DDP (flete ya en costoUnitario)
+
+  /** @deprecated Usar impuestoCompraUSD */ impuestoUSD?: number;
+  /** @deprecated Usar costoEnvioProveedorUSD */ gastosEnvioUSD?: number;
+  /** @deprecated Usar otrosGastosCompraUSD */ otrosGastosUSD?: number;
   
   // Origen y línea de negocio
   paisOrigen?: string;             // País de origen del proveedor ('USA', 'China', 'Corea', 'Peru')
@@ -333,12 +341,14 @@ export interface OrdenCompraFormData {
     viajeroNombre?: string;
   }>;
   subtotalUSD: number;
-  impuestoUSD?: number;       // Sales Tax USA
-  gastosEnvioUSD?: number;
-  otrosGastosUSD?: number;
-  descuentoUSD?: number;      // Descuento general
+  impuestoCompraUSD?: number;           // Impuesto de compra (sales tax, IVA origen)
+  costoEnvioProveedorUSD?: number;      // Envío del proveedor al punto de recojo
+  otrosGastosCompraUSD?: number;        // Otros gastos de la compra
+  descuentoUSD?: number;                // Descuento general
   totalUSD: number;
   tcCompra: number;
+  modoEntrega?: 'viajero' | 'envio_directo';
+  fleteIncluidoEnPrecio?: boolean;
   almacenDestino: string;
   // Origen y línea de negocio (auto-heredados de productos)
   paisOrigen?: string;

@@ -123,9 +123,19 @@ export interface Unidad {
   tcCompra?: number;             // TC al momento de registrar la OC
   tcPago?: number;               // TC al momento del pago (más relevante)
 
-  // CTRU (Costo Total Real por Unidad)
-  ctruInicial?: number;          // CTRU base: costoUSD*TC + flete prorrateado
-  ctruDinamico?: number;         // CTRU con gastos prorrateables del mes
+  // CTRU (Costo Total Real por Unidad) — Modelo 4 capas
+  ctruInicial?: number;          // C1+C2: costoAdquisición*TC + flete prorrateado (inmutable post-recepción)
+  ctruDinamico?: number;         // CTRU legacy = ctruContable (backward compat)
+  ctruContable?: number;         // C1+C2+C3 + GA/GO solo entre vendidas (para P&L)
+  ctruGerencial?: number;        // C1+C2+C3 + GA/GO entre todas las unidades (para cotizar)
+
+  // C3 — Costo de recojo en Perú (prorrateado por recepción parcial de transferencia)
+  costoRecojoPEN?: number;       // En soles — monto variable por recepción
+  transferenciaRecojoId?: string; // ID de la transferencia/recepción que generó el C3
+
+  // Desglose GA/GO (C4)
+  costoGAAsignado?: number;      // Gastos Administrativos prorrateados
+  costoGOAsignado?: number;      // Gastos Operativos prorrateados
 
   // Trazabilidad
   ordenCompraId: string;         // OC que generó esta unidad
