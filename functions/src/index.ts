@@ -650,11 +650,13 @@ export const onGastoCreado = functions.firestore
         chunk.forEach((docSnap) => {
           const unidad = docSnap.data();
           const nuevoCtruGastos = (unidad.ctruGastos || 0) + montoPorUnidad;
-          const nuevoCtruDinamico = (unidad.ctruBase || 0) + nuevoCtruGastos;
+          // FIX CRÍTICO: ctruBase NO EXISTE — usar ctruInicial (el campo real)
+          const nuevoCtruDinamico = (unidad.ctruInicial || 0) + nuevoCtruGastos;
 
           batch.update(docSnap.ref, {
             ctruGastos: nuevoCtruGastos,
             ctruDinamico: nuevoCtruDinamico,
+            costoGAGOAsignado: nuevoCtruGastos, // Sincronizar con el campo del frontend
             ultimoRecalculoCTRU: admin.firestore.FieldValue.serverTimestamp(),
           });
 
