@@ -585,6 +585,20 @@ export const obtenerTipoCambioManual = functions.https.onCall(async (data, conte
 // FUNCIÓN 3: Recalcular CTRU al registrar gasto prorrateable
 // ============================================================
 
+/**
+ * onGastoCreado — CTRU v2
+ *
+ * Ya NO hace recálculo incremental de CTRU en unidades.
+ * Solo marca el gasto como pendiente de recálculo.
+ * El recálculo completo (full-recalc con dual-view contable/gerencial)
+ * se ejecuta desde el frontend via ctruService.recalcularCTRUDinamicoSafe().
+ *
+ * Razón del cambio:
+ * - El recálculo incremental de la CF usaba modelo diferente al frontend
+ * - La CF distribuía por partes iguales; el frontend proporcional al costo base
+ * - Ambos escribían ctruDinamico con valores diferentes → datos corruptos
+ * - El modelo CTRU v2 requiere dual-view (contable + gerencial) que solo el frontend calcula
+ */
 export const onGastoCreado = functions.firestore
   .document("gastos/{gastoId}")
   .onCreate(async (snapshot, context) => {
@@ -596,108 +610,40 @@ export const onGastoCreado = functions.firestore
     }
 
     const gastoId = context.params.gastoId;
-    functions.logger.info(`Procesando gasto prorrateable ${gasto.numeroGasto}`, {
+    functions.logger.info(`Gasto prorrateable registrado: ${gasto.numeroGasto || gastoId}`, {
       gastoId,
+      categoria: gasto.categoria,
+      montoPEN: gasto.montoPEN,
     });
 
     try {
-      // Determinar unidades afectadas según tipo de prorrateo
-      let unidadesSnapshot;
-
-      if (gasto.prorrateoTipo === "oc" && gasto.ordenCompraId) {
-        // Prorratear entre unidades de una OC específica
-        unidadesSnapshot = await db
-          .collection(COLLECTIONS.UNIDADES)
-          .where("ordenCompraId", "==", gasto.ordenCompraId)
-          .where("estado", "in", [
-            "disponible_peru",
-            "asignada_pedido",
-          ])
-          .get();
-      } else {
-        // Prorratear entre todas las unidades disponibles del mes
-        const inicioMes = new Date(gasto.anio, gasto.mes - 1, 1);
-        const finMes = new Date(gasto.anio, gasto.mes, 0, 23, 59, 59);
-
-        unidadesSnapshot = await db
-          .collection(COLLECTIONS.UNIDADES)
-          .where("estado", "in", [
-            "disponible_peru",
-            "asignada_pedido",
-          ])
-          .where("fechaLlegadaPeru", ">=", inicioMes)
-          .where("fechaLlegadaPeru", "<=", finMes)
-          .get();
-      }
-
-      if (unidadesSnapshot.empty) {
-        functions.logger.warn("No hay unidades para prorratear el gasto");
-        return null;
-      }
-
-      const totalUnidades = unidadesSnapshot.size;
-      const montoPorUnidad = gasto.montoPEN / totalUnidades;
-
-      // P2-008 FIX: chunking de batch para no exceder límite de 500 ops
-      const BATCH_LIMIT = 450; // margen de seguridad
-      const unidadesIds: string[] = [];
-      const docs = unidadesSnapshot.docs;
-
-      for (let i = 0; i < docs.length; i += BATCH_LIMIT) {
-        const chunk = docs.slice(i, i + BATCH_LIMIT);
-        const batch = db.batch();
-
-        chunk.forEach((docSnap) => {
-          const unidad = docSnap.data();
-          const nuevoCtruGastos = (unidad.ctruGastos || 0) + montoPorUnidad;
-          // FIX CRÍTICO: ctruBase NO EXISTE — usar ctruInicial (el campo real)
-          const nuevoCtruDinamico = (unidad.ctruInicial || 0) + nuevoCtruGastos;
-
-          batch.update(docSnap.ref, {
-            ctruGastos: nuevoCtruGastos,
-            ctruDinamico: nuevoCtruDinamico,
-            costoGAGOAsignado: nuevoCtruGastos, // Sincronizar con el campo del frontend
-            ultimoRecalculoCTRU: admin.firestore.FieldValue.serverTimestamp(),
-          });
-
-          unidadesIds.push(docSnap.id);
-        });
-
-        // Solo agregar el update del gasto en el último chunk
-        if (i + BATCH_LIMIT >= docs.length) {
-          batch.update(snapshot.ref, {
-            ctruRecalculado: true,
-            fechaRecalculoCTRU: admin.firestore.FieldValue.serverTimestamp(),
-            unidadesAfectadas: totalUnidades,
-            montoPorUnidad,
-          });
-        }
-
-        await batch.commit();
-      }
-
-      functions.logger.info(
-        `✅ CTRU actualizado en ${totalUnidades} unidades. Impacto: S/ ${montoPorUnidad.toFixed(4)}/unidad`
-      );
-
-      // Registrar en historial
-      await db.collection(COLLECTIONS.HISTORIAL_CTRU).add({
-        gastoId,
-        numeroGasto: gasto.numeroGasto,
-        montoGasto: gasto.montoPEN,
-        unidadesAfectadas: totalUnidades,
-        impactoPorUnidad: montoPorUnidad,
-        fechaRecalculo: admin.firestore.FieldValue.serverTimestamp(),
-        ejecutadoPor: "system",
+      // Marcar el gasto como pendiente de recálculo (el frontend lo procesará)
+      await snapshot.ref.update({
+        ctruRecalculado: false,
+        ctruPendienteRecalculo: true,
+        fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
       });
 
-      return { success: true, unidadesAfectadas: totalUnidades, montoPorUnidad };
-    } catch (error) {
-      functions.logger.error("Error recalculando CTRU:", error);
-      throw new functions.https.HttpsError(
-        "internal",
-        "Error recalculando CTRU"
+      // Registrar en historial que hay un gasto pendiente
+      await db.collection(COLLECTIONS.HISTORIAL_CTRU).add({
+        gastoId,
+        numeroGasto: gasto.numeroGasto || '',
+        montoGasto: gasto.montoPEN,
+        tipo: 'gasto_pendiente_recalculo',
+        categoria: gasto.categoria,
+        fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
+        ejecutadoPor: "system",
+        nota: "CTRU v2: recálculo delegado al frontend (dual-view contable/gerencial)",
+      });
+
+      functions.logger.info(
+        `✅ Gasto ${gasto.numeroGasto || gastoId} marcado como pendiente de recálculo CTRU`
       );
+
+      return { success: true, pendienteRecalculo: true };
+    } catch (error) {
+      functions.logger.error("Error procesando gasto para CTRU:", error);
+      return null; // No lanzar error — el gasto ya se creó correctamente
     }
   });
 
