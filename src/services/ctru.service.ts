@@ -152,10 +152,24 @@ export const ctruService = {
    * Solo GA (Administrativos) y GO (Operativos) impactan CTRU.
    * GV (Venta) y GD (Distribución) NO impactan CTRU.
    */
+  /**
+   * CTRU v2 — Recálculo con dual-view (contable + gerencial)
+   *
+   * VISTA CONTABLE (ctruContable / ctruDinamico):
+   *   GA/GO distribuido SOLO entre unidades VENDIDAS, proporcional al costo base.
+   *   Para P&L, estados financieros, rentabilidad histórica.
+   *
+   * VISTA GERENCIAL (ctruGerencial):
+   *   GA/GO distribuido entre TODAS las unidades (vendidas + activas), proporcional al costo base.
+   *   Para cotizar, fijar precios, alertas de margen.
+   *
+   * Filtro de gastos respeta los flags impactaCTRU y esProrrateable.
+   */
   async recalcularCTRUDinamico(): Promise<{
     unidadesActualizadas: number;
     gastosAplicados: number;
     impactoPorUnidad: number;
+    modoDual: boolean;
   }> {
     try {
       // 1. Obtener todas las unidades
@@ -164,89 +178,102 @@ export const ctruService = {
       const unidadesActivas = todasUnidades.filter(u =>
         u.estado === 'disponible_peru' ||
         esEstadoEnOrigen(u.estado) ||
-        u.estado === 'reservada'
+        u.estado === 'reservada' ||
+        u.estado === 'en_transito_peru' ||
+        u.estado === 'asignada_pedido'
       );
+      const todasParaGerencial = [...unidadesVendidas, ...unidadesActivas];
 
-      // 2. Obtener TODOS los gastos GA/GO prorrateables (full-recalc, no solo pendientes)
+      // 2. Obtener gastos GA/GO — respetar flags impactaCTRU y esProrrateable
       const todosGastos = await gastoService.getAll();
       const gastosGAGO = todosGastos.filter(
-        g => g.categoria === 'GA' || g.categoria === 'GO'
+        g => (g.categoria === 'GA' || g.categoria === 'GO') &&
+             g.impactaCTRU !== false &&
+             g.esProrrateable !== false
       );
 
       if (gastosGAGO.length === 0) {
-        return { unidadesActualizadas: 0, gastosAplicados: 0, impactoPorUnidad: 0 };
+        return { unidadesActualizadas: 0, gastosAplicados: 0, impactoPorUnidad: 0, modoDual: true };
       }
 
-      // 3. Total de gastos GA/GO a distribuir
-      const totalGAGO = gastosGAGO.reduce((sum, g) => sum + g.montoPEN, 0);
+      // 3. Totales GA/GO (separados para desglose)
+      const totalGA = gastosGAGO.filter(g => g.categoria === 'GA').reduce((sum, g) => sum + g.montoPEN, 0);
+      const totalGO = gastosGAGO.filter(g => g.categoria === 'GO').reduce((sum, g) => sum + g.montoPEN, 0);
+      const totalGAGO = totalGA + totalGO;
+
+      // 4. Calcular costo base total para cada pool
+      let costoBaseTotalVendidas = unidadesVendidas.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
+      if (costoBaseTotalVendidas === 0) costoBaseTotalVendidas = 1;
+
+      let costoBaseTotalGerencial = todasParaGerencial.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
+      if (costoBaseTotalGerencial === 0) costoBaseTotalGerencial = 1;
 
       const allOps: Array<{ ref: any; data: any }> = [];
       let actualizadas = 0;
 
-      // 4. Distribuir GA/GO entre unidades VENDIDAS (proporcional al costo base)
-      if (unidadesVendidas.length > 0) {
-        let costoBaseTotalVendidas = 0;
-        const vendidasConCostoBase = unidadesVendidas.map(unidad => {
-          const costoBase = getCostoBasePEN(unidad);
-          costoBaseTotalVendidas += costoBase;
-          return { unidad, costoBase };
-        });
-
-        if (costoBaseTotalVendidas === 0) costoBaseTotalVendidas = 1;
-
-        for (const { unidad, costoBase } of vendidasConCostoBase) {
-          const proporcion = costoBase / costoBaseTotalVendidas;
-          const costoGAGOUnidad = calcularGAGOProporcional(costoBase, costoBaseTotalVendidas, totalGAGO);
-          const nuevoCtruDinamico = costoBase + costoGAGOUnidad;
-
-          const updateData: Record<string, unknown> = {
-            ctruDinamico: nuevoCtruDinamico,
-            costoGAGOAsignado: costoGAGOUnidad,
-            proporcionGAGO: proporcion
-          };
-
-          // Si ctruInicial no incluye el flete (fue calculado antes de la transferencia),
-          // actualizarlo para mantener consistencia
-          if (unidad.costoFleteUSD && unidad.costoFleteUSD > 0 &&
-              unidad.ctruInicial && unidad.ctruInicial > 0) {
-            const tc = getTC(unidad);
-            const costoConFlete = ((unidad.costoUnitarioUSD || 0) + unidad.costoFleteUSD) * tc;
-            if (costoConFlete > unidad.ctruInicial + 0.01) {
-              updateData.ctruInicial = costoConFlete;
-            }
-          }
-
-          allOps.push({
-            ref: doc(db, COLLECTIONS.UNIDADES, unidad.id),
-            data: updateData
-          });
-          actualizadas++;
+      // Helper para corregir ctruInicial si falta flete o recojo
+      const corregirCtruInicial = (unidad: any): Record<string, unknown> => {
+        const updates: Record<string, unknown> = {};
+        const tc = getTC(unidad);
+        const costoRecojo = (unidad as any).costoRecojoPEN || 0;
+        const costoConFleteYRecojo = ((unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0)) * tc + costoRecojo;
+        if (unidad.ctruInicial && unidad.ctruInicial > 0 && costoConFleteYRecojo > unidad.ctruInicial + 0.01) {
+          updates.ctruInicial = costoConFleteYRecojo;
         }
-      }
+        return updates;
+      };
 
-      // 5. Limpiar GA/GO de unidades activas (resetear a costo base sin GA/GO)
-      for (const unidad of unidadesActivas) {
+      // ====== VENDIDAS: reciben ambas vistas ======
+      for (const unidad of unidadesVendidas) {
         const costoBase = getCostoBasePEN(unidad);
+
+        // Vista contable: GA/GO solo entre vendidas
+        const gagoContable = calcularGAGOProporcional(costoBase, costoBaseTotalVendidas, totalGAGO);
+        const ctruContable = costoBase + gagoContable;
+
+        // Vista gerencial: GA/GO entre todas
+        const gagoGerencial = calcularGAGOProporcional(costoBase, costoBaseTotalGerencial, totalGAGO);
+        const ctruGerencial = costoBase + gagoGerencial;
+
+        // Desglose GA vs GO (proporcional)
+        const costoGAAsignado = calcularGAGOProporcional(costoBase, costoBaseTotalVendidas, totalGA);
+        const costoGOAsignado = calcularGAGOProporcional(costoBase, costoBaseTotalVendidas, totalGO);
+
         const updateData: Record<string, unknown> = {
-          ctruDinamico: costoBase,
-          costoGAGOAsignado: 0,
-          proporcionGAGO: 0
+          ctruDinamico: ctruContable,         // backward compat
+          ctruContable,
+          ctruGerencial,
+          costoGAGOAsignado: gagoContable,    // backward compat
+          costoGAAsignado,
+          costoGOAsignado,
+          proporcionGAGO: costoBase / costoBaseTotalVendidas,
+          ...corregirCtruInicial(unidad)
         };
 
-        // Misma corrección de ctruInicial para activas
-        if (unidad.costoFleteUSD && unidad.costoFleteUSD > 0 &&
-            unidad.ctruInicial && unidad.ctruInicial > 0) {
-          const tc = getTC(unidad);
-          const costoConFlete = ((unidad.costoUnitarioUSD || 0) + unidad.costoFleteUSD) * tc;
-          if (costoConFlete > unidad.ctruInicial + 0.01) {
-            updateData.ctruInicial = costoConFlete;
-          }
-        }
+        allOps.push({ ref: doc(db, COLLECTIONS.UNIDADES, unidad.id), data: updateData });
+        actualizadas++;
+      }
 
-        allOps.push({
-          ref: doc(db, COLLECTIONS.UNIDADES, unidad.id),
-          data: updateData
-        });
+      // ====== ACTIVAS: contable = costo base (sin GA/GO), gerencial = con GA/GO ======
+      for (const unidad of unidadesActivas) {
+        const costoBase = getCostoBasePEN(unidad);
+
+        // Vista gerencial: GA/GO entre todas
+        const gagoGerencial = calcularGAGOProporcional(costoBase, costoBaseTotalGerencial, totalGAGO);
+        const ctruGerencial = costoBase + gagoGerencial;
+
+        const updateData: Record<string, unknown> = {
+          ctruDinamico: costoBase,            // backward compat: activas = sin GA/GO
+          ctruContable: costoBase,
+          ctruGerencial,
+          costoGAGOAsignado: 0,               // backward compat
+          costoGAAsignado: 0,
+          costoGOAsignado: 0,
+          proporcionGAGO: 0,
+          ...corregirCtruInicial(unidad)
+        };
+
+        allOps.push({ ref: doc(db, COLLECTIONS.UNIDADES, unidad.id), data: updateData });
       }
 
       // 6. Marcar gastos como recalculados
@@ -255,6 +282,7 @@ export const ctruService = {
           ref: doc(db, COLLECTIONS.GASTOS, gasto.id),
           data: {
             ctruRecalculado: true,
+            ctruPendienteRecalculo: false,
             fechaRecalculoCTRU: new Date()
           }
         });
@@ -276,10 +304,13 @@ export const ctruService = {
       const impactoPorUnidadPromedio = unidadesVendidas.length > 0
         ? totalGAGO / unidadesVendidas.length : 0;
 
+      logger.info(`CTRU v2 recalculado: ${actualizadas} vendidas + ${unidadesActivas.length} activas. GA: S/${totalGA.toFixed(2)}, GO: S/${totalGO.toFixed(2)}`);
+
       return {
-        unidadesActualizadas: actualizadas,
+        unidadesActualizadas: actualizadas + unidadesActivas.length,
         gastosAplicados: gastosGAGO.length,
-        impactoPorUnidad: impactoPorUnidadPromedio
+        impactoPorUnidad: impactoPorUnidadPromedio,
+        modoDual: true
       };
     } catch (error: any) {
       logger.error('Error al recalcular CTRU dinámico:', error);
