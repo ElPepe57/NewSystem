@@ -620,7 +620,15 @@ export const transferenciaService = {
     const unidadesActualizadas = [...transferencia.unidades];
     const unidadesProcesadas: NonNullable<RecepcionTransferencia['unidadesProcesadas']> = [];
 
-    for (const unidadRecepcion of data.unidadesRecibidas) {
+    // C3: Calcular costo de recojo prorrateado por unidad recibida en esta recepción
+    const unidadesRecibidasCount = data.unidadesRecibidas.filter(u => u.recibida).length;
+    const costoRecojoPorUnidad = (data.costoRecojoPEN && unidadesRecibidasCount > 0)
+      ? data.costoRecojoPEN / unidadesRecibidasCount
+      : 0;
+    // Enrich data with calculated per-unit cost for use in the loop
+    const dataConRecojo = { ...data, costoRecojoPorUnidad };
+
+    for (const unidadRecepcion of dataConRecojo.unidadesRecibidas) {
       const idx = unidadesActualizadas.findIndex(u => u.unidadId === unidadRecepcion.unidadId);
       if (idx === -1) continue;
 
@@ -718,12 +726,23 @@ export const transferenciaService = {
             const costoFleteUSD = unidadTransferencia.costoFleteUSD ?? 0;
             updateData.costoFleteUSD = costoFleteUSD;
 
-            if (costoFleteUSD > 0) {
-              const tc = unidadData.tcPago || unidadData.tcCompra || 0;
-              const costoBasePEN = (unidadData.costoUnitarioUSD || 0) * tc;
-              const costoFletePEN = costoFleteUSD * tc;
-              const nuevoCtruInicial = costoBasePEN + costoFletePEN;
+            // C3: Recojo en Perú — prorrateado por esta recepción parcial
+            const costoRecojoPEN = dataConRecojo.costoRecojoPorUnidad ?? 0;
+            if (costoRecojoPEN > 0) {
+              updateData.costoRecojoPEN = costoRecojoPEN;
+              updateData.transferenciaRecojoId = transferencia.id;
+            }
+
+            // Recalcular ctruInicial incluyendo C3
+            const tc = unidadData.tcPago || unidadData.tcCompra || 0;
+            const costoBasePEN = (unidadData.costoUnitarioUSD || 0) * tc;
+            const costoFletePEN = costoFleteUSD * tc;
+            const nuevoCtruInicial = costoBasePEN + costoFletePEN + costoRecojoPEN;
+
+            if (costoFleteUSD > 0 || costoRecojoPEN > 0) {
               updateData.ctruInicial = nuevoCtruInicial;
+              updateData.ctruContable = nuevoCtruInicial;
+              updateData.ctruGerencial = nuevoCtruInicial;
               if (!(unidadData as any).costoGAGOAsignado || (unidadData as any).costoGAGOAsignado === 0) {
                 updateData.ctruDinamico = nuevoCtruInicial;
               }

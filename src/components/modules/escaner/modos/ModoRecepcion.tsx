@@ -35,6 +35,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
   const [cantidadRecibir, setCantidadRecibir] = useState<Record<string, number>>({});
   const [fechasVencimiento, setFechasVencimiento] = useState<Record<string, string>>({});
   const [observaciones, setObservaciones] = useState('');
+  const [costoRecojoPEN, setCostoRecojoPEN] = useState<string>('');
 
   // Load pending transfers
   useEffect(() => {
@@ -190,6 +191,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
           transferenciaId: selectedTransferencia.id,
           unidadesRecibidas,
           fechasVencimiento: Object.keys(fechasValidas).length > 0 ? fechasValidas : undefined,
+          costoRecojoPEN: costoRecojoPEN ? parseFloat(costoRecojoPEN) : undefined,
           observaciones: observaciones || undefined,
         },
         user.uid

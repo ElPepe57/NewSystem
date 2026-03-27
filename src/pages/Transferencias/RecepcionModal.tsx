@@ -74,6 +74,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
   });
   const [fechasVencimiento, setFechasVencimiento] = useState<Record<string, string>>({});
   const [observaciones, setObservaciones] = useState('');
+  const [costoRecojoPEN, setCostoRecojoPEN] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [showRecepcionScanner, setShowRecepcionScanner] = useState(false);
   const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
@@ -140,6 +141,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
         transferenciaId: transferencia.id,
         unidadesRecibidas,
         fechasVencimiento: Object.keys(fechasValidas).length > 0 ? fechasValidas : undefined,
+        costoRecojoPEN: costoRecojoPEN ? parseFloat(costoRecojoPEN) : undefined,
         observaciones
       });
     } finally {
@@ -418,6 +420,35 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
             );
           })}
         </div>
+
+        {/* C3: Costo de recojo en Perú */}
+        {transferencia.tipo === 'internacional_peru' || transferencia.tipo === 'usa_peru' ? (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <label className="block text-sm font-medium text-amber-800 mb-1">
+              Costo de recojo en Perú (S/) — opcional
+            </label>
+            <p className="text-xs text-amber-600 mb-2">
+              Taxi, mensajero u otro costo para recoger del courier/viajero al almacén.
+              Se prorratea entre las {totalARecibir} unidades de esta recepción.
+            </p>
+            <div className="flex items-center gap-3">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={costoRecojoPEN}
+                onChange={(e) => setCostoRecojoPEN(e.target.value)}
+                className="w-40 px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                placeholder="Ej: 15.00"
+              />
+              {costoRecojoPEN && parseFloat(costoRecojoPEN) > 0 && totalARecibir > 0 && (
+                <span className="text-xs text-amber-700">
+                  = S/ {(parseFloat(costoRecojoPEN) / totalARecibir).toFixed(2)} por unidad
+                </span>
+              )}
+            </div>
+          </div>
+        ) : null}
 
         {/* Observaciones */}
         <div>
