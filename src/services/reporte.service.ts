@@ -15,6 +15,7 @@ import { VentaService } from './venta.service';
 import { OrdenCompraService } from './ordenCompra.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { transferenciaService } from './transferencia.service';
+import { gastoService } from './gasto.service';
 
 export class ReporteService {
   /**
@@ -194,20 +195,80 @@ export class ReporteService {
         }
       }
 
-      // Calcular promedios y utilidad
-      const productos = Array.from(productosMap.values()).map(p => ({
-        ...p,
-        utilidadPEN: p.ventasTotalPEN - p.costoTotalPEN,
-        margenPromedio: p.ventasTotalPEN > 0
-          ? ((p.ventasTotalPEN - p.costoTotalPEN) / p.ventasTotalPEN) * 100
-          : 0,
-        precioPromedioVenta: p.unidadesVendidas > 0
-          ? p.ventasTotalPEN / p.unidadesVendidas
-          : 0,
-        costoPromedioUnidad: p.unidadesVendidas > 0
-          ? p.costoTotalPEN / p.unidadesVendidas
-          : 0
-      }));
+      // Enriquecer con GV/GD por venta (prorrateado por precio entre productos)
+      // y GA/GO prorrateado del periodo
+      try {
+        const todosGastos = await gastoService.getAll();
+        const gastosGVGD = todosGastos.filter(g =>
+          (g.categoria === 'GV' || g.categoria === 'GD') && g.ventaId
+        );
+        const gastosGAGO = todosGastos.filter(g =>
+          (g.categoria === 'GA' || g.categoria === 'GO') &&
+          g.impactaCTRU !== false && g.esProrrateable !== false
+        );
+
+        // GV/GD: agrupar por ventaId
+        const gvgdPorVenta = new Map<string, number>();
+        for (const g of gastosGVGD) {
+          gvgdPorVenta.set(g.ventaId!, (gvgdPorVenta.get(g.ventaId!) || 0) + g.montoPEN);
+        }
+
+        // Distribuir GV/GD por producto prorrateado por precio dentro de cada venta
+        for (const venta of ventasEntregadas) {
+          const gvgdVenta = gvgdPorVenta.get(venta.id) ||
+            ((venta as any).gastosVentaPEN || 0) ||
+            ((venta as any).comisionML || 0) + ((venta as any).costoEnvioNegocio || 0);
+          if (gvgdVenta <= 0) continue;
+
+          const totalVenta = venta.totalPEN || venta.productos.reduce((s, p) => s + p.subtotal, 0);
+          for (const prod of venta.productos) {
+            const item = productosMap.get(prod.productoId);
+            if (!item) continue;
+            const proporcion = totalVenta > 0 ? prod.subtotal / totalVenta : 0;
+            (item as any).gastosGVGD = ((item as any).gastosGVGD || 0) + gvgdVenta * proporcion;
+          }
+        }
+
+        // GA/GO: prorratear proporcionalmente al costo base total entre todos los productos
+        const totalGAGO = gastosGAGO.reduce((s, g) => s + g.montoPEN, 0);
+        const costoBaseTotalTodos = Array.from(productosMap.values()).reduce((s, p) => s + p.costoTotalPEN, 0);
+        if (totalGAGO > 0 && costoBaseTotalTodos > 0) {
+          for (const item of productosMap.values()) {
+            const proporcion = item.costoTotalPEN / costoBaseTotalTodos;
+            (item as any).gastosGAGO = totalGAGO * proporcion;
+          }
+        }
+      } catch (gastoErr) {
+        logger.warn('Reporte: error al cargar gastos para rentabilidad completa:', gastoErr);
+      }
+
+      // Calcular promedios y utilidad (incluyendo GV/GD y GA/GO)
+      const productos = Array.from(productosMap.values()).map(p => {
+        const gvgd = (p as any).gastosGVGD || 0;
+        const gago = (p as any).gastosGAGO || 0;
+        const utilidadBruta = p.ventasTotalPEN - p.costoTotalPEN;
+        const utilidadNeta = utilidadBruta - gvgd - gago;
+        return {
+          ...p,
+          utilidadPEN: utilidadNeta,
+          margenPromedio: p.ventasTotalPEN > 0
+            ? (utilidadNeta / p.ventasTotalPEN) * 100
+            : 0,
+          precioPromedioVenta: p.unidadesVendidas > 0
+            ? p.ventasTotalPEN / p.unidadesVendidas
+            : 0,
+          costoPromedioUnidad: p.unidadesVendidas > 0
+            ? p.costoTotalPEN / p.unidadesVendidas
+            : 0,
+          // Campos adicionales de desglose
+          gastosGVGD: gvgd,
+          gastosGAGO: gago,
+          utilidadBruta,
+          margenBruto: p.ventasTotalPEN > 0
+            ? (utilidadBruta / p.ventasTotalPEN) * 100
+            : 0
+        };
+      });
 
       // Ordenar por ventas totales
       return productos.sort((a, b) => b.ventasTotalPEN - a.ventasTotalPEN);
