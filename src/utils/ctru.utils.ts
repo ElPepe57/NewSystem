@@ -67,7 +67,7 @@ export function getTC(unidad: Pick<Unidad, 'tcPago' | 'tcCompra'>): number {
 export function getCostoBasePEN(unidad: Pick<Unidad, 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra'> & { costoRecojoPEN?: number }): number {
   const tc = getTC(unidad);
   const costoFleteUSD = unidad.costoFleteUSD || 0;
-  const costoRecojo = (unidad as any).costoRecojoPEN || 0;
+  const costoRecojo = unidad.costoRecojoPEN || 0;
   const costoCalculado = ((unidad.costoUnitarioUSD || 0) + costoFleteUSD) * tc + costoRecojo;
 
   // Si la unidad tiene flete o recojo asignado, siempre usar el cálculo completo

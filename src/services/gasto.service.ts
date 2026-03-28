@@ -564,10 +564,16 @@ export const gastoService = {
       // Ejecutar query sin orderBy para evitar índices compuestos
       const snapshot = await getDocs(q);
 
-      const gastos = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Gasto));
+      // Normalizar montoPEN: documentos históricos pueden no tener el campo
+      const gastos = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          montoPEN: typeof data.montoPEN === 'number' ? data.montoPEN : (data.montoOriginal || 0),
+          montoUSD: typeof data.montoUSD === 'number' ? data.montoUSD : 0,
+        } as Gasto;
+      });
 
       // Ordenar en memoria por fecha descendente
       return gastos.sort((a, b) => {
