@@ -37,6 +37,7 @@ export const CTRUDashboard: React.FC = () => {
 
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
   const [productoSeleccionado, setProductoSeleccionado] = useState<CTRUProductoDetalle | null>(null);
+  const [vistaCosto, setVistaCosto] = useState<'contable' | 'gerencial'>('contable');
 
   // Filtrar productos por línea de negocio global
   const productosFiltrados = useLineaFilter(productosDetalle, p => p.lineaNegocioId);
@@ -99,11 +100,42 @@ export const CTRUDashboard: React.FC = () => {
               </button>
             ))}
           </div>
-          {resumen && (
-            <div className="text-xs text-gray-500 hidden sm:block">
-              {resumen.totalProductos} productos · {resumen.totalProductosActivos} en inventario · {resumen.totalUnidadesActivas + resumen.totalUnidadesVendidas} unidades
-            </div>
-          )}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Toggle Contable/Gerencial — solo visible en tab Catálogo */}
+            {tabActiva === 'catalogo' && (
+              <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+                <button
+                  onClick={() => setVistaCosto('contable')}
+                  className={`px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-md transition-colors ${
+                    vistaCosto === 'contable'
+                      ? 'bg-white text-blue-700 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  title="CTRU Contable: GA/GO solo entre unidades vendidas. Para P&L y estados financieros."
+                >
+                  <span className="hidden sm:inline">Contable</span>
+                  <span className="sm:hidden">C</span>
+                </button>
+                <button
+                  onClick={() => setVistaCosto('gerencial')}
+                  className={`px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-md transition-colors ${
+                    vistaCosto === 'gerencial'
+                      ? 'bg-white text-emerald-700 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  title="CTRU Gerencial: GA/GO entre todas las unidades. Para cotizar y fijar precios."
+                >
+                  <span className="hidden sm:inline">Gerencial</span>
+                  <span className="sm:hidden">G</span>
+                </button>
+              </div>
+            )}
+            {resumen && (
+              <div className="text-xs text-gray-500 hidden sm:block">
+                {resumen.totalProductos} productos · {resumen.totalProductosActivos} en inventario · {resumen.totalUnidadesActivas + resumen.totalUnidadesVendidas} unidades
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -160,10 +192,23 @@ export const CTRUDashboard: React.FC = () => {
 
         {/* Tab: Catalogo de Costos */}
         {tabActiva === 'catalogo' && (
-          <ProductoCTRUTable
-            productos={productosFiltrados}
-            onSelectProducto={setProductoSeleccionado}
-          />
+          <>
+            {/* Vista info banner */}
+            <div className={`text-xs px-3 py-2 rounded-lg border ${
+              vistaCosto === 'contable'
+                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+            }`}>
+              {vistaCosto === 'contable'
+                ? '📊 Vista Contable: CTRU histórico por lote. GA/GO solo entre unidades vendidas. Para P&L y estados financieros.'
+                : '💼 Vista Gerencial: CTRU con GA/GO entre todas las unidades. Para cotizar y fijar precios con costo más realista.'}
+            </div>
+            <ProductoCTRUTable
+              productos={productosFiltrados}
+              onSelectProducto={setProductoSeleccionado}
+              vistaCosto={vistaCosto}
+            />
+          </>
         )}
 
         {/* Tab: Por Lote/OC */}

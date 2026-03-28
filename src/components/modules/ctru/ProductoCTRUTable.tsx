@@ -7,6 +7,7 @@ import type { CTRUProductoDetalle } from '../../../store/ctruStore';
 interface ProductoCTRUTableProps {
   productos: CTRUProductoDetalle[];
   onSelectProducto: (producto: CTRUProductoDetalle) => void;
+  vistaCosto?: 'contable' | 'gerencial';
 }
 
 type SortField = 'productoSKU' | 'productoNombre' | 'costoCompraUSDProm' | 'adicOC' |
@@ -156,7 +157,7 @@ const MobileProductCard: React.FC<{
 };
 
 // ─── Main Component ──────────────────────────────────────────────
-export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos, onSelectProducto }) => {
+export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos, onSelectProducto, vistaCosto = 'contable' }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('ctruPromedio');
   const [sortAsc, setSortAsc] = useState(false);
