@@ -740,10 +740,11 @@ export const transferenciaService = {
             const nuevoCtruInicial = costoBasePEN + costoFletePEN + costoRecojoPEN;
 
             if (costoFleteUSD > 0 || costoRecojoPEN > 0) {
+              const costoGAGO = (unidadData as any).costoGAGOAsignado || 0;
               updateData.ctruInicial = nuevoCtruInicial;
-              updateData.ctruContable = nuevoCtruInicial;
-              updateData.ctruGerencial = nuevoCtruInicial;
-              if (!(unidadData as any).costoGAGOAsignado || (unidadData as any).costoGAGOAsignado === 0) {
+              updateData.ctruContable = nuevoCtruInicial + costoGAGO; // preservar GA/GO si ya existía
+              updateData.ctruGerencial = nuevoCtruInicial + costoGAGO;
+              if (costoGAGO === 0) {
                 updateData.ctruDinamico = nuevoCtruInicial;
               }
             }

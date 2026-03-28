@@ -265,7 +265,7 @@ export function groupToFormData(
       return prod;
     }),
     subtotalUSD,
-    impuestoUSD: impuestoUSD > 0 ? impuestoUSD : undefined,
+    impuestoCompraUSD: impuestoUSD > 0 ? impuestoUSD : undefined,
     costoEnvioProveedorUSD: group.costoEnvioProveedorUSD > 0 ? group.costoEnvioProveedorUSD : undefined,
     otrosGastosCompraUSD: group.otrosGastosCompraUSD > 0 ? group.otrosGastosCompraUSD : undefined,
     descuentoUSD: descuentoUSD > 0 ? descuentoUSD : undefined,

@@ -488,7 +488,7 @@ export const requerimientoService = {
               tipo: 'aprobacion_pendiente',
               prioridad: 'alta',
               titulo: `Firma pendiente — ${requerimiento.numeroRequerimiento || id}`,
-              mensaje: `${rolFirmoLabel} ya firmó. Falta tu firma como ${rolPendienteLabel} para aprobar este requerimiento de $${montoUSD.toFixed(0)} USD.`,
+              mensaje: `${rolFirmoLabel} ya firmó. Falta tu firma como ${rolPendienteLabel} para aprobar este requerimiento de $${(montoUSD || 0).toFixed(0)} USD.`,
               usuarioId: usuario.uid,
               requerimientoId: id,
               entidadTipo: 'usuario',

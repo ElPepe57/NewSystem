@@ -20,6 +20,7 @@ import { ProductoService } from './producto.service';
 import { VentaService } from './venta.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { logger } from '../lib/logger';
+import { ctruService } from './ctru.service';
 
 export async function confirmar(
   id: string,
@@ -60,12 +61,12 @@ export async function confirmar(
       observaciones: `Creada desde cotización ${cotizacion.numeroCotizacion}. ${cotizacion.observaciones || ''}`
     };
 
-    // Verificar precios bajo CTRU
+    // Verificar precios bajo CTRU — usar getCTRUProducto() para CTRU real de unidades activas
     try {
       const productosConCtru = await Promise.all(
         cotizacion.productos.map(async (p) => {
-          const producto = await ProductoService.getById(p.productoId);
-          return { precioUnitario: p.precioUnitario, ctruPromedio: producto?.ctruPromedio || 0 };
+          const ctruInfo = await ctruService.getCTRUProducto(p.productoId);
+          return { precioUnitario: p.precioUnitario, ctruPromedio: ctruInfo.ctruPromedio };
         })
       );
       const hayBajoCosto = productosConCtru.some(
@@ -107,8 +108,10 @@ export async function confirmar(
 
     // Transferir adelanto como pago en la venta
     if (cotizacion.adelanto && cotizacion.adelanto.monto > 0) {
-      const montoAdelantoPEN = cotizacion.adelanto.montoEquivalentePEN ||
-        cotizacion.adelanto.monto * (cotizacion.adelanto.tipoCambio || 1);
+      const montoAdelantoPEN = cotizacion.adelanto.moneda === 'PEN'
+        ? cotizacion.adelanto.monto
+        : cotizacion.adelanto.montoEquivalentePEN ||
+          cotizacion.adelanto.monto * (cotizacion.adelanto.tipoCambio || 1);
 
       const pagoAdelanto: any = {
         id: `ADL-COT-${Date.now()}`,
