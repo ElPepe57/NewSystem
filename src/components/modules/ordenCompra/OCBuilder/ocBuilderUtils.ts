@@ -284,6 +284,11 @@ export function groupToFormData(
         clienteNombre: o.clienteNombre,
       }))
     ),
+    // CTRU v2: modo de entrega
+    modoEntrega: group.modoEntrega || 'viajero',
+    fleteIncluidoEnPrecio: group.fleteIncluidoEnPrecio || false,
+    numeroTracking: group.numeroTracking || undefined,
+    courier: group.operadorLogistico || undefined,
   };
 }
 

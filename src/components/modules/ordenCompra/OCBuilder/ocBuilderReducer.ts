@@ -56,6 +56,8 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
         otrosGastosCompraUSD: 0,
         descuentoUSD: 0,
         observaciones: '',
+        modoEntrega: 'viajero',
+        fleteIncluidoEnPrecio: false,
       };
       const groups = [...state.groups, newGroup];
       return {
@@ -212,6 +214,8 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
           otrosGastosCompraUSD: 0,
           descuentoUSD: 0,
           observaciones: '',
+          modoEntrega: 'viajero',
+          fleteIncluidoEnPrecio: false,
         };
         newGroups.push(group);
         colorIdx++;
@@ -339,6 +343,32 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
         ...state,
         groups: state.groups.map(g =>
           g.id === action.payload.groupId ? { ...g, observaciones: action.payload.observaciones } : g
+        ),
+      };
+
+    case 'SET_GROUP_MODO_ENTREGA':
+      return {
+        ...state,
+        groups: state.groups.map(g =>
+          g.id === action.payload.groupId
+            ? { ...g, modoEntrega: action.payload.modoEntrega, fleteIncluidoEnPrecio: action.payload.fleteIncluidoEnPrecio }
+            : g
+        ),
+      };
+
+    case 'SET_GROUP_OPERADOR':
+      return {
+        ...state,
+        groups: state.groups.map(g =>
+          g.id === action.payload.groupId ? { ...g, operadorLogistico: action.payload.operadorLogistico } : g
+        ),
+      };
+
+    case 'SET_GROUP_TRACKING':
+      return {
+        ...state,
+        groups: state.groups.map(g =>
+          g.id === action.payload.groupId ? { ...g, numeroTracking: action.payload.numeroTracking } : g
         ),
       };
 

@@ -169,6 +169,65 @@ const GroupConfigForm: React.FC<{
         </div>
       </div>
 
+      {/* Modo de entrega */}
+      <div className="bg-blue-50 rounded-xl p-3 border border-blue-100 mb-3">
+        <div className="flex items-center gap-1.5 mb-2">
+          <Truck className="h-3.5 w-3.5 text-blue-500" />
+          <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">Forma de llegada a Perú</span>
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => dispatch({ type: 'SET_GROUP_MODO_ENTREGA', payload: { groupId: group.id, modoEntrega: 'viajero', fleteIncluidoEnPrecio: false } })}
+            className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+              group.modoEntrega !== 'envio_directo'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            Compra vía viajero
+          </button>
+          <button
+            type="button"
+            onClick={() => dispatch({ type: 'SET_GROUP_MODO_ENTREGA', payload: { groupId: group.id, modoEntrega: 'envio_directo', fleteIncluidoEnPrecio: true } })}
+            className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+              group.modoEntrega === 'envio_directo'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            Envío directo del proveedor
+          </button>
+        </div>
+        {group.modoEntrega === 'envio_directo' && (
+          <div className="mt-2 space-y-2">
+            <label className="flex items-center gap-2 text-xs text-blue-700">
+              <input
+                type="checkbox"
+                checked={group.fleteIncluidoEnPrecio}
+                onChange={(e) => dispatch({ type: 'SET_GROUP_MODO_ENTREGA', payload: { groupId: group.id, modoEntrega: 'envio_directo', fleteIncluidoEnPrecio: e.target.checked } })}
+                className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+              />
+              El proveedor cubre el envío internacional
+            </label>
+            <input
+              type="text"
+              placeholder="Operador logístico (DHL, FedEx, EMS...)"
+              value={group.operadorLogistico || ''}
+              onChange={(e) => dispatch({ type: 'SET_GROUP_OPERADOR', payload: { groupId: group.id, operadorLogistico: e.target.value } })}
+              className="w-full px-2.5 py-1.5 bg-white border border-blue-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="text"
+              placeholder="Número de tracking"
+              value={group.numeroTracking || ''}
+              onChange={(e) => dispatch({ type: 'SET_GROUP_TRACKING', payload: { groupId: group.id, numeroTracking: e.target.value } })}
+              className="w-full px-2.5 py-1.5 bg-white border border-blue-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        )}
+      </div>
+
       {/* Costos y Descuento — modern card grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Tax */}

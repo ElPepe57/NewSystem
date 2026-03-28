@@ -42,6 +42,9 @@ const GROUP_COLORS = ['blue', 'emerald', 'amber', 'purple', 'rose', 'cyan', 'ora
 export type GroupColor = typeof GROUP_COLORS[number];
 export { GROUP_COLORS };
 
+/** Modo de entrega del proveedor — determina el flujo logístico */
+export type ModoEntregaOC = 'viajero' | 'envio_directo';
+
 /** Un grupo draft = 1 futura OC */
 export interface OCDraftGroup {
   id: string;
@@ -56,6 +59,14 @@ export interface OCDraftGroup {
   otrosGastosCompraUSD: number;
   descuentoUSD: number;
   observaciones: string;
+  /** Modo de entrega: 'viajero' (EXW/FCA) o 'envio_directo' (DDP/courier) */
+  modoEntrega: ModoEntregaOC;
+  /** true si el proveedor incluye el flete internacional en el precio */
+  fleteIncluidoEnPrecio: boolean;
+  /** Operador logístico/courier (solo para envío directo) */
+  operadorLogistico?: string;
+  /** Número de tracking (solo para envío directo) */
+  numeroTracking?: string;
 }
 
 // ============ State ============
@@ -114,6 +125,9 @@ export type OCBuilderAction =
   | { type: 'SET_GROUP_OTROS'; payload: { groupId: string; otrosGastosCompraUSD: number } }
   | { type: 'SET_GROUP_DESCUENTO'; payload: { groupId: string; descuentoUSD: number } }
   | { type: 'SET_GROUP_OBSERVACIONES'; payload: { groupId: string; observaciones: string } }
+  | { type: 'SET_GROUP_MODO_ENTREGA'; payload: { groupId: string; modoEntrega: ModoEntregaOC; fleteIncluidoEnPrecio: boolean } }
+  | { type: 'SET_GROUP_OPERADOR'; payload: { groupId: string; operadorLogistico: string } }
+  | { type: 'SET_GROUP_TRACKING'; payload: { groupId: string; numeroTracking: string } }
 
   // Global
   | { type: 'SET_TC_GLOBAL'; payload: { tc: number } }
