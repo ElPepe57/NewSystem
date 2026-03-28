@@ -32,7 +32,7 @@ import type {
   EditarVentaData,
 } from '../types/venta.types';
 import type { Unidad } from '../types/unidad.types';
-import { tipoCambioService } from './tipoCambio.service';
+import { getCTRU } from '../utils/ctru.utils';
 import { tesoreriaService } from './tesoreria.service';
 import { entregaService } from './entrega.service';
 import { unidadService } from './unidad.service';
@@ -45,19 +45,6 @@ const COLLECTION_NAME = COLLECTIONS.VENTAS;
 // ---------------------------------------------------------------------------
 // Helpers internos
 // ---------------------------------------------------------------------------
-
-/**
- * Calcular el CTRU en PEN para una unidad, usando ctruDinamico si está disponible.
- */
-function calcularCtruPEN(unidad: Unidad, tipoCambioFallback: number): number {
-  if (unidad.ctruDinamico && unidad.ctruDinamico > 0) {
-    return unidad.ctruDinamico;
-  }
-  const costoFleteUSD = unidad.costoFleteUSD || 0;
-  const costoTotalUSD = unidad.costoUnitarioUSD + costoFleteUSD;
-  const tcAplicable = unidad.tcPago || unidad.tcCompra || tipoCambioFallback;
-  return costoTotalUSD * tcAplicable;
-}
 
 /**
  * Recalcular el estado de pago correcto dado el monto pagado y el total.
@@ -794,8 +781,6 @@ export async function corregirAsignacionFEFO(
 
   logger.log(`[CORR-FEFO] Corrigiendo ${venta.numeroVenta} (${venta.estado})...`);
 
-  const tipoCambioVenta = await tipoCambioService.resolverTCVentaEstricto();
-
   const productosActualizados = [...venta.productos];
   let costoTotalPEN = 0;
   let huboCorrecciones = false;
@@ -863,7 +848,7 @@ export async function corregirAsignacionFEFO(
         fechaActualizacion: serverTimestamp()
       });
 
-      const ctruPEN = calcularCtruPEN(unidad, tipoCambioVenta);
+      const ctruPEN = getCTRU(unidad);
 
       nuevasAsignaciones.push({
         unidadId: unidad.id,
@@ -890,7 +875,7 @@ export async function corregirAsignacionFEFO(
     for (const uid of idsMantenidos) {
       const unidad = await unidadService.getById(uid);
       if (unidad) {
-        costoProducto += calcularCtruPEN(unidad, tipoCambioVenta);
+        costoProducto += getCTRU(unidad);
       }
     }
 

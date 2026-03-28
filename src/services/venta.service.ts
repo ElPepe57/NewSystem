@@ -61,6 +61,7 @@ import type {
 import type { Unidad } from '../types/unidad.types';
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
 import { esPaisOrigen } from '../utils/multiOrigen.helpers';
+import { getCTRU } from '../utils/ctru.utils';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { unidadService } from './unidad.service';
@@ -872,20 +873,8 @@ export class VentaService {
     try {
       const seleccionFEFO = await unidadService.seleccionarFEFO(productoId, cantidad);
 
-      const tipoCambioVenta = await tipoCambioService.resolverTCVentaEstricto();
-
       const asignaciones: AsignacionUnidad[] = seleccionFEFO.map(({ unidad }) => {
-        const unidadExtendida = unidad as any;
-
-        let ctruPEN: number;
-        if (unidadExtendida.ctruDinamico && unidadExtendida.ctruDinamico > 0) {
-          ctruPEN = unidadExtendida.ctruDinamico;
-        } else {
-          const costoFleteUSD = unidadExtendida.costoFleteUSD || 0;
-          const costoTotalUSD = unidad.costoUnitarioUSD + costoFleteUSD;
-          const tcAplicable = unidadExtendida.tcPago || unidadExtendida.tcCompra || tipoCambioVenta;
-          ctruPEN = costoTotalUSD * tcAplicable;
-        }
+        const ctruPEN = getCTRU(unidad);
 
         return {
           unidadId: unidad.id,
@@ -920,8 +909,6 @@ export class VentaService {
     unidadesReservadasIds: string[]
   ): Promise<ResultadoAsignacion> {
     try {
-      const tipoCambioVenta = await tipoCambioService.resolverTCVentaEstricto();
-
       const asignaciones: AsignacionUnidad[] = [];
 
       for (const unidadId of unidadesReservadasIds) {
@@ -944,17 +931,7 @@ export class VentaService {
           continue;
         }
 
-        const unidadExtendida = unidad as any;
-        let ctruPEN: number;
-
-        if (unidadExtendida.ctruDinamico && unidadExtendida.ctruDinamico > 0) {
-          ctruPEN = unidadExtendida.ctruDinamico;
-        } else {
-          const costoFleteUSD = unidadExtendida.costoFleteUSD || 0;
-          const costoTotalUSD = unidad.costoUnitarioUSD + costoFleteUSD;
-          const tcAplicable = unidadExtendida.tcPago || unidadExtendida.tcCompra || tipoCambioVenta;
-          ctruPEN = costoTotalUSD * tcAplicable;
-        }
+        const ctruPEN = getCTRU(unidad);
 
         asignaciones.push({
           unidadId: unidad.id,
@@ -973,17 +950,7 @@ export class VentaService {
         const complementoFEFO = await unidadService.seleccionarFEFO(productoId, faltantes);
 
         for (const { unidad } of complementoFEFO) {
-          const unidadExtendida = unidad as any;
-          let ctruPEN: number;
-
-          if (unidadExtendida.ctruDinamico && unidadExtendida.ctruDinamico > 0) {
-            ctruPEN = unidadExtendida.ctruDinamico;
-          } else {
-            const costoFleteUSD = unidadExtendida.costoFleteUSD || 0;
-            const costoTotalUSD = unidad.costoUnitarioUSD + costoFleteUSD;
-            const tcAplicable = unidadExtendida.tcPago || unidadExtendida.tcCompra || tipoCambioVenta;
-            ctruPEN = costoTotalUSD * tcAplicable;
-          }
+          const ctruPEN = getCTRU(unidad);
 
           asignaciones.push({
             unidadId: unidad.id,

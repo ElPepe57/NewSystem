@@ -6,6 +6,14 @@
  * 1. Deploy código con flag en false
  * 2. Verificar cálculos con smoke tests
  * 3. Cambiar a true y redeploy solo hosting
+ *
+ * NOTA (CTRU v2 — 2026-03-28): Estos tres flags son VESTIGIALES.
+ * La funcionalidad de CTRU v2 (vista dual contable/gerencial, costos de recojo
+ * y capas de OC) se activó directamente en el código durante las fases 1-6 sin
+ * leer estos flags en ningún punto de ejecución. Ningún componente ni servicio
+ * hace referencia a FEATURES.CTRU_DUAL_VIEW, FEATURES.CTRU_RECOJO_EN_CALCULO
+ * ni FEATURES.CTRU_CAPAS_OC_EN_INICIAL. Los flags se mantienen por historial
+ * pero NO controlan ningún comportamiento del sistema.
  */
 export const FEATURES = {
   /**

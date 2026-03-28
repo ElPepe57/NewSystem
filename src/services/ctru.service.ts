@@ -438,6 +438,10 @@ export const ctruService = {
   /**
    * Calcular margen de ganancia real de una venta
    * Basado en el CTRU de las unidades asignadas
+   *
+   * @deprecated Sin callers activos. El cálculo de margen por venta vive en
+   * VentaService directamente usando getCTRU() de ctru.utils.ts. Para análisis
+   * histórico mensual usar ctruStore.processHistorialMensual() en su lugar.
    */
   async calcularMargenVenta(
     precioVentaPEN: number,
@@ -471,6 +475,11 @@ export const ctruService = {
 
   /**
    * Obtener historial de evolución del CTRU de un producto
+   *
+   * @deprecated Sin callers activos. El historial mensual de CTRU se procesa
+   * en ctruStore.processHistorialMensual() con acceso directo a Firestore.
+   * Esta función hace N lecturas síncronas al Firestore (una por mes) y no
+   * escala. Usar ctruStore como reemplazo.
    */
   async getHistorialCTRUProducto(
     productoId: string,
