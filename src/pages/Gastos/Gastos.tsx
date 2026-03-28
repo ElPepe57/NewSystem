@@ -40,6 +40,7 @@ export const Gastos: React.FC = () => {
     estado: '' as EstadoGasto | '',
     esProrrateable: '' as 'true' | 'false' | ''
   });
+  const [tabActiva, setTabActiva] = useState<'negocio' | 'importacion' | 'perdidas'>('negocio');
 
   // Vista y navegación temporal
   const [viewMode, setViewMode] = useState<ViewMode>('month');
@@ -129,12 +130,29 @@ export const Gastos: React.FC = () => {
     return resultado;
   }, [gastosPorLinea, filtros, searchTerm]);
 
+  // Aplicar filtro de tab activa sobre los gastos filtrados
+  const TIPOS_IMPORTACION = ['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'];
+  const TIPOS_PERDIDAS = ['merma_transferencia', 'merma_vencimiento', 'desmedro'];
+
+  const gastosVisibles = useMemo(() => {
+    if (tabActiva === 'importacion') {
+      return gastosFiltrados.filter(g => TIPOS_IMPORTACION.includes(g.tipo));
+    }
+    if (tabActiva === 'perdidas') {
+      return gastosFiltrados.filter(g => TIPOS_PERDIDAS.includes(g.tipo));
+    }
+    // negocio: excluir importación y pérdidas
+    return gastosFiltrados.filter(g =>
+      !TIPOS_IMPORTACION.includes(g.tipo) && !TIPOS_PERDIDAS.includes(g.tipo)
+    );
+  }, [gastosFiltrados, tabActiva]);
+
   // Calcular resumen por tipo de gasto
   const resumenPorTipo = useMemo(() => {
     const resumen: Record<string, { tipo: string; cantidad: number; total: number; porcentaje: number }> = {};
-    const totalGeneral = gastosFiltrados.reduce((sum, g) => sum + g.montoPEN, 0);
+    const totalGeneral = gastosVisibles.reduce((sum, g) => sum + g.montoPEN, 0);
 
-    gastosFiltrados.forEach(gasto => {
+    gastosVisibles.forEach(gasto => {
       const tipo = gasto.tipo;
       if (!resumen[tipo]) {
         resumen[tipo] = { tipo, cantidad: 0, total: 0, porcentaje: 0 };
@@ -152,7 +170,7 @@ export const Gastos: React.FC = () => {
       .sort((a, b) => b.total - a.total);
 
     return { items: resultado, totalGeneral };
-  }, [gastosFiltrados]);
+  }, [gastosVisibles]);
 
   // Obtener lista única de tipos para el filtro dinámico
   const tiposUnicos = useMemo(() => {
@@ -289,7 +307,7 @@ export const Gastos: React.FC = () => {
           <Button
             variant="outline"
             onClick={() => exportService.exportGastos(gastosFiltrados)}
-            disabled={gastosFiltrados.length === 0}
+            disabled={gastosVisibles.length === 0}
             className="flex-shrink-0"
           >
             <Download className="h-4 w-4 sm:mr-2" />
@@ -418,7 +436,7 @@ export const Gastos: React.FC = () => {
                 <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
                   {viewMode === 'month' && isCurrentMonth
                     ? `${stats.cantidadGastosMesActual} gastos`
-                    : `${gastosFiltrados.length} gastos`
+                    : `${gastosVisibles.length} gastos`
                   }
                 </div>
               </div>
@@ -488,23 +506,17 @@ export const Gastos: React.FC = () => {
           { id: 'perdidas', label: 'Pérdidas de Inventario', shortLabel: 'Pérdidas', color: 'text-red-700', filter: (g: Gasto) => ['merma_transferencia', 'merma_vencimiento', 'desmedro'].includes(g.tipo) },
         ].map(tab => {
           const count = gastosFiltrados.filter(tab.filter).length;
-          const isActive = filtros.claseGasto === '' && !searchTerm
-            ? tab.id === 'negocio'
-            : count > 0;
+          const isActive = tabActiva === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => {
-                if (tab.id === 'negocio') {
-                  setFiltros(prev => ({ ...prev, claseGasto: '' as ClaseGasto | '' }));
-                } else if (tab.id === 'importacion') {
-                  setFiltros(prev => ({ ...prev, claseGasto: 'GAO' as ClaseGasto }));
-                } else {
-                  setFiltros(prev => ({ ...prev, claseGasto: '' as ClaseGasto | '' }));
-                }
+                setTabActiva(tab.id as 'negocio' | 'importacion' | 'perdidas');
+                // Reset filtros de clase al cambiar tab
+                setFiltros(prev => ({ ...prev, claseGasto: '' as ClaseGasto | '', tipo: '' as TipoGasto | '' }));
               }}
               className={`flex-1 sm:flex-none px-3 py-2 text-xs sm:text-sm rounded-md font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                tab.id === 'negocio' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               <span className="hidden sm:inline">{tab.label}</span>
@@ -718,7 +730,7 @@ export const Gastos: React.FC = () => {
               </table>
             </div>
           </>
-        ) : gastosFiltrados.length === 0 ? (
+        ) : gastosVisibles.length === 0 ? (
           <EmptyStateAction
             title={
               viewMode === 'pending'
@@ -745,7 +757,7 @@ export const Gastos: React.FC = () => {
           <>
             {/* Mobile card layout */}
             <div className="md:hidden space-y-2">
-              {gastosFiltrados.map((gasto) => {
+              {gastosVisibles.map((gasto) => {
                 const estadoBadge = getEstadoBadge(gasto.estado);
                 const claseBadge = getClaseBadge(gasto.claseGasto);
 
@@ -890,7 +902,7 @@ export const Gastos: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {gastosFiltrados.map((gasto) => {
+                  {gastosVisibles.map((gasto) => {
                     const estadoBadge = getEstadoBadge(gasto.estado);
                     const claseBadge = getClaseBadge(gasto.claseGasto);
 
@@ -1027,10 +1039,10 @@ export const Gastos: React.FC = () => {
           </>
         )}
 
-        {!loading && gastosFiltrados.length > 0 && (
+        {!loading && gastosVisibles.length > 0 && (
           <div className="px-4 py-3 border-t border-gray-200">
             <ListSummary
-              filteredCount={gastosFiltrados.length}
+              filteredCount={gastosVisibles.length}
               totalCount={gastos.length}
               itemLabel="gastos"
               summaryItems={[

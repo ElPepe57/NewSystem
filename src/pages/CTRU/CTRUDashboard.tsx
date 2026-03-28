@@ -200,8 +200,8 @@ export const CTRUDashboard: React.FC = () => {
                 : 'bg-emerald-50 border-emerald-200 text-emerald-700'
             }`}>
               {vistaCosto === 'contable'
-                ? '📊 Vista Contable: CTRU histórico por lote. GA/GO solo entre unidades vendidas. Para P&L y estados financieros.'
-                : '💼 Vista Gerencial: CTRU con GA/GO entre todas las unidades. Para cotizar y fijar precios con costo más realista.'}
+                ? '📊 Vista Contable: CTRU histórico por lote. Gastos Administrativos y Operativos solo entre unidades vendidas. Para P&L y estados financieros.'
+                : '💼 Vista Gerencial: CTRU con Gastos Administrativos y Operativos entre todas las unidades. Para cotizar y fijar precios con costo más realista.'}
             </div>
             <ProductoCTRUTable
               productos={productosFiltrados}

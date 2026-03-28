@@ -50,6 +50,8 @@ interface ProductoLinea {
     tiempoEstimadoDias: number;
     razonRecomendacion?: string;
   };
+  /** CTRU real del producto (ctruPromedio). Si 0, usar ctruEstimado de investigación */
+  ctruReal?: number;
 }
 
 interface CotizacionFormProps {
@@ -937,7 +939,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                             </span>
                             {/* Margen — usa CTRU real del producto (preferido) o ctruEstimado de investigación (fallback) */}
                             {(() => {
-                              const ctru = (linea as any).ctruReal > 0 ? (linea as any).ctruReal : (inv?.ctruEstimado || 0);
+                              const ctru = linea.ctruReal > 0 ? linea.ctruReal : (inv?.ctruEstimado || 0);
                               if (ctru <= 0 || linea.precioUnitario <= 0) return null;
                               const margen = ((linea.precioUnitario - ctru) / linea.precioUnitario * 100);
                               return (
@@ -967,7 +969,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                                 <TrendingUp className="h-3 w-3" />
                                 <span>Mercado: S/{inv.precioPERUMin.toFixed(0)} - S/{inv.precioPERUMax.toFixed(0)}</span>
                                 <span>|</span>
-                                <span>CTRU: S/{((linea as any).ctruReal > 0 ? (linea as any).ctruReal : inv.ctruEstimado).toFixed(2)}{(linea as any).ctruReal > 0 ? '' : ' (est.)'}</span>
+                                <span>CTRU: S/{(linea.ctruReal > 0 ? linea.ctruReal : inv.ctruEstimado).toFixed(2)}{linea.ctruReal > 0 ? '' : ' (est.)'}</span>
                                 <span>|</span>
                                 <span>Demanda: {inv.demandaEstimada}</span>
                               </div>
