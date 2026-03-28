@@ -64,18 +64,19 @@ export function getTC(unidad: Pick<Unidad, 'tcPago' | 'tcCompra'>): number {
  * y usamos el mayor entre ese valor y ctruInicial para garantizar que el flete
  * esté incluido.
  */
-export function getCostoBasePEN(unidad: Pick<Unidad, 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra'>): number {
+export function getCostoBasePEN(unidad: Pick<Unidad, 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra'> & { costoRecojoPEN?: number }): number {
   const tc = getTC(unidad);
   const costoFleteUSD = unidad.costoFleteUSD || 0;
-  const costoCalculado = ((unidad.costoUnitarioUSD || 0) + costoFleteUSD) * tc;
+  const costoRecojo = (unidad as any).costoRecojoPEN || 0;
+  const costoCalculado = ((unidad.costoUnitarioUSD || 0) + costoFleteUSD) * tc + costoRecojo;
 
-  // Si la unidad tiene flete asignado, siempre usar el cálculo que lo incluye
+  // Si la unidad tiene flete o recojo asignado, siempre usar el cálculo completo
   // ya que ctruInicial pudo haberse calculado antes de la transferencia
-  if (costoFleteUSD > 0) {
+  if (costoFleteUSD > 0 || costoRecojo > 0) {
     return costoCalculado;
   }
 
-  // Sin flete: preferir ctruInicial si existe (puede incluir otros ajustes)
+  // Sin flete ni recojo: preferir ctruInicial si existe (puede incluir otros ajustes)
   if (unidad.ctruInicial && unidad.ctruInicial > 0) {
     return unidad.ctruInicial;
   }

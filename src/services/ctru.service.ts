@@ -215,7 +215,7 @@ export const ctruService = {
       const corregirCtruInicial = (unidad: any): Record<string, unknown> => {
         const updates: Record<string, unknown> = {};
         const tc = getTC(unidad);
-        const costoRecojo = (unidad as any).costoRecojoPEN || 0;
+        const costoRecojo = unidad.costoRecojoPEN || 0;
         const costoConFleteYRecojo = ((unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0)) * tc + costoRecojo;
         if (unidad.ctruInicial && unidad.ctruInicial > 0 && costoConFleteYRecojo > unidad.ctruInicial + 0.01) {
           updates.ctruInicial = costoConFleteYRecojo;

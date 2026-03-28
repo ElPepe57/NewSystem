@@ -675,11 +675,11 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total GA/GO:</span>
-                    <span className="font-medium">S/ {datosRentabilidad?.totalGastosGAGO.toFixed(2) || '0.00'}</span>
+                    <span className="font-medium">S/ {datosRentabilidad?.totalGastosGAGO?.toFixed(2) ?? '0.00'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Base Costo Total:</span>
-                    <span className="font-medium">S/ {datosRentabilidad?.baseCostoTotal.toFixed(2) || '0.00'}</span>
+                    <span className="font-medium">S/ {datosRentabilidad?.baseCostoTotal?.toFixed(2) ?? '0.00'}</span>
                   </div>
                 </div>
                 <p className="text-xs text-gray-500 mt-2 italic">

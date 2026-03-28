@@ -227,10 +227,16 @@ export const gastoService = {
         limit(1000)
       ));
 
-      const gastos = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Gasto));
+      // Normalizar campos numéricos: documentos históricos o de prueba pueden no tener montoPEN
+      const gastos = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          montoPEN: typeof data.montoPEN === 'number' ? data.montoPEN : (data.montoOriginal || 0),
+          montoUSD: typeof data.montoUSD === 'number' ? data.montoUSD : 0,
+        } as Gasto;
+      });
 
       // Ordenar en memoria por fecha descendente
       return gastos.sort((a, b) => {

@@ -481,9 +481,8 @@ export const Ventas: React.FC = () => {
       await registrarPago(selectedVenta.id, datosPago, user.uid);
       setIsPagoModalOpen(false);
 
-      // Recargar datos primero, luego actualizar seleccionada con datos frescos
-      await fetchVentas();
-      await fetchResumenPagos();
+      // registrarPago ya hace fetchVentas + fetchResumenPagos internamente
+      // Solo refrescar la venta seleccionada con los datos ya actualizados
       refreshSelectedVenta(selectedVenta.id);
       toast.success('Pago registrado correctamente');
     } catch (error: any) {

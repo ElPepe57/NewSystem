@@ -191,9 +191,15 @@ export const onOrdenCompraRecibida = functions.firestore
               tcCompra,
               tcPago,
 
-              // CTRU — nombres según interface Unidad
-              ctruInicial,                             // FIX: era 'ctruBase'
-              ctruDinamico: ctruInicial,               // FIX: inicializar igual a ctruInicial
+              // CTRU v2 — nombres según interface Unidad
+              ctruInicial,
+              ctruDinamico: ctruInicial,
+              ctruContable: ctruInicial,
+              ctruGerencial: ctruInicial,
+              costoGAGOAsignado: 0,
+              costoGAAsignado: 0,
+              costoGOAsignado: 0,
+              costoRecojoPEN: 0,
 
               // Fechas — nombres según interface Unidad
               fechaCreacion: admin.firestore.FieldValue.serverTimestamp(),
