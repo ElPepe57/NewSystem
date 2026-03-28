@@ -280,9 +280,9 @@ export const Gastos: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gastos</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Costos y Gastos</h1>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">
-            Gestión de gastos operativos y cálculo CTRU dinámico
+            Gestión de costos de importación, gastos operativos y pérdidas
           </p>
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
@@ -479,6 +479,47 @@ export const Gastos: React.FC = () => {
           </Card>
         </div>
       )}
+
+      {/* Tabs de Categoría: Gastos del Negocio / Costos de Importación / Pérdidas */}
+      <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 overflow-x-auto scrollbar-hide">
+        {[
+          { id: 'negocio', label: 'Gastos del Negocio', shortLabel: 'Negocio', color: 'text-gray-900', filter: (g: Gasto) => !['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'].includes(g.tipo) && !['merma_transferencia', 'merma_vencimiento', 'desmedro'].includes(g.tipo) },
+          { id: 'importacion', label: 'Costos de Importación', shortLabel: 'Importación', color: 'text-blue-700', filter: (g: Gasto) => ['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'].includes(g.tipo) },
+          { id: 'perdidas', label: 'Pérdidas de Inventario', shortLabel: 'Pérdidas', color: 'text-red-700', filter: (g: Gasto) => ['merma_transferencia', 'merma_vencimiento', 'desmedro'].includes(g.tipo) },
+        ].map(tab => {
+          const count = gastosFiltrados.filter(tab.filter).length;
+          const isActive = filtros.claseGasto === '' && !searchTerm
+            ? tab.id === 'negocio'
+            : count > 0;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                if (tab.id === 'negocio') {
+                  setFiltros(prev => ({ ...prev, claseGasto: '' as ClaseGasto | '' }));
+                } else if (tab.id === 'importacion') {
+                  setFiltros(prev => ({ ...prev, claseGasto: 'GAO' as ClaseGasto }));
+                } else {
+                  setFiltros(prev => ({ ...prev, claseGasto: '' as ClaseGasto | '' }));
+                }
+              }}
+              className={`flex-1 sm:flex-none px-3 py-2 text-xs sm:text-sm rounded-md font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                tab.id === 'negocio' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.shortLabel}</span>
+              {count > 0 && (
+                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                  tab.id === 'perdidas' ? 'bg-red-100 text-red-700' : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
       {/* Resumen por Tipo de Gasto */}
       {resumenPorTipo.items.length > 0 && (
