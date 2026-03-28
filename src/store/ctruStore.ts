@@ -6,6 +6,7 @@ import { ctruService } from '../services/ctru.service';
 import { transferenciaService } from '../services/transferencia.service';
 import { ProductoService } from '../services/producto.service';
 import { getCTRU, getCostoBasePEN, getTC, calcularGAGOProporcional } from '../utils/ctru.utils';
+import { poolUSDService } from '../services/poolUSD.service';
 import { timed } from '../lib/perf';
 import type { Unidad } from '../types/unidad.types';
 import type { Gasto } from '../types/gasto.types';
@@ -233,6 +234,8 @@ interface CTRUState {
   historialMensual: HistorialCostosMes[];
   historialGastos: HistorialGastosEntry[];
   lotesOC: LoteOCDetalle[];
+  /** TCPA del Pool USD — para vista gerencial con costo real del dólar */
+  tcpa: number;
   loading: boolean;
   error: string | null;
 
@@ -1029,6 +1032,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
   historialMensual: [],
   historialGastos: [],
   lotesOC: [],
+  tcpa: 0,
   loading: false,
   error: null,
 
@@ -1045,11 +1049,13 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       // Phase 1: units + transferencias + products — run in parallel.
       // Units use a not-in filter to exclude 'vencida' and 'danada' at the DB level
       // (typical savings: 20-40 % of unit documents on mature datasets).
-      const [todasUnidades, todasTransferencias, todosProductos] = await Promise.all([
+      const [todasUnidades, todasTransferencias, todosProductos, poolResumen] = await Promise.all([
         fetchUnidadesParaCTRU(),
         transferenciaService.getByFiltros({ tipo: 'usa_peru' }),
-        ProductoService.getAll(true, Infinity)
+        ProductoService.getAll(true, Infinity),
+        poolUSDService.getResumen().catch(() => ({ tcpa: 0 }))
       ]);
+      const tcpaActual = poolResumen.tcpa || 0;
 
       // Phase 2: gastos, OCs, and ventas — scoped to what is actually needed.
       // Gastos: only GA/GO/GV/GD categories (other types have no CTRU impact).
@@ -1152,6 +1158,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       _lastFetchAt = Date.now();
       set({
         resumen, productosDetalle, historialMensual, historialGastos, lotesOC,
+        tcpa: tcpaActual,
         loading: false
       });
       }); // fin timed('ctruStore.fetchAll')
