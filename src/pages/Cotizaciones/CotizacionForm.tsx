@@ -396,6 +396,9 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
     // Obtener datos de investigación desde productosDisponibles
     const productoConInvestigacion = productosDisponibles.find(p => p.productoId === producto.id);
 
+    // CTRU real del producto (preferir sobre ctruEstimado de investigación)
+    const ctruReal = producto.ctruPromedio || 0;
+
     const nuevaLinea: ProductoLinea = {
       productoId: producto.id,
       sku: producto.sku,
@@ -409,7 +412,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
       subtotal: 0,
       stockDisponible,
       investigacion: productoConInvestigacion?.investigacion,
-      disponibilidadMultiAlmacen
+      disponibilidadMultiAlmacen,
+      ctruReal,
     };
 
     setLineas([...lineas, nuevaLinea]);
@@ -931,18 +935,19 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                             <span className="text-sm font-medium text-gray-900">
                               {formatCurrency(linea.subtotal)}
                             </span>
-                            {/* Margen estimado */}
-                            {inv && inv.ctruEstimado > 0 && linea.precioUnitario > 0 && (
-                              <div className={`text-xs ${
-                                ((linea.precioUnitario - inv.ctruEstimado) / linea.precioUnitario * 100) >= 20
-                                  ? 'text-green-600'
-                                  : ((linea.precioUnitario - inv.ctruEstimado) / linea.precioUnitario * 100) >= 10
-                                    ? 'text-yellow-600'
-                                    : 'text-red-600'
-                              }`}>
-                                {((linea.precioUnitario - inv.ctruEstimado) / linea.precioUnitario * 100).toFixed(0)}% margen
-                              </div>
-                            )}
+                            {/* Margen — usa CTRU real del producto (preferido) o ctruEstimado de investigación (fallback) */}
+                            {(() => {
+                              const ctru = (linea as any).ctruReal > 0 ? (linea as any).ctruReal : (inv?.ctruEstimado || 0);
+                              if (ctru <= 0 || linea.precioUnitario <= 0) return null;
+                              const margen = ((linea.precioUnitario - ctru) / linea.precioUnitario * 100);
+                              return (
+                                <div className={`text-xs ${
+                                  margen >= 20 ? 'text-green-600' : margen >= 10 ? 'text-yellow-600' : 'text-red-600'
+                                }`}>
+                                  {margen.toFixed(0)}% margen
+                                </div>
+                              );
+                            })()}
                           </td>
                           <td className="px-4 py-2">
                             <button
@@ -962,7 +967,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                                 <TrendingUp className="h-3 w-3" />
                                 <span>Mercado: S/{inv.precioPERUMin.toFixed(0)} - S/{inv.precioPERUMax.toFixed(0)}</span>
                                 <span>|</span>
-                                <span>CTRU: S/{inv.ctruEstimado.toFixed(2)}</span>
+                                <span>CTRU: S/{((linea as any).ctruReal > 0 ? (linea as any).ctruReal : inv.ctruEstimado).toFixed(2)}{(linea as any).ctruReal > 0 ? '' : ' (est.)'}</span>
                                 <span>|</span>
                                 <span>Demanda: {inv.demandaEstimada}</span>
                               </div>
