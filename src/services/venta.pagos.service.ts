@@ -119,11 +119,13 @@ export async function registrarPago(
       moneda: monedaCobro,
       metodoPago: datosPago.metodoPago,
       tipoPago: pagosAnteriores.some(p => p.tipoPago === 'anticipo') ? 'saldo' : 'pago',
-      tipoCambio: tcCobro,
-      montoEquivalentePEN: monedaCobro === 'USD' && tcCobro ? datosPago.monto * tcCobro : undefined,
       fecha: Timestamp.now(),
       registradoPor: userId
     };
+
+    // Solo agregar campos opcionales si tienen valor (Firestore rechaza undefined)
+    if (tcCobro !== undefined) pago.tipoCambio = tcCobro;
+    if (monedaCobro === 'USD' && tcCobro) pago.montoEquivalentePEN = datosPago.monto * tcCobro;
 
     if (datosPago.referencia) pago.referencia = datosPago.referencia;
     if (datosPago.comprobante) pago.comprobante = datosPago.comprobante;
