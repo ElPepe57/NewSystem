@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-25 (Sesion 21 — Auditoria 360 completa: 7 agentes, 111 hallazgos, 16 fixes aplicados CAMBIO-179 a CAMBIO-194. Analisis CTRU con 3 agentes: propuestas documentadas, pendientes de aprobacion titular. 5 decisiones del titular T-011 a T-015. Commits: 64fdd3d, ddcfd90, f1455e3, 55cd9c6, e2703bd. ~200 fixes acumulados.)
+**Ultima actualizacion:** 2026-03-26 (Sesion 22 — Implementacion CTRU Fases 0-2: fix critico ctruBase/ctruInicial, feature flag ctruV2Enabled, tipos nuevos en Unidad y OC, renombramiento D-015 en 21 archivos con backward compatibility, simplificacion onGastoCreado (motor unico canonico delegado al frontend). Commits: 5a9fa8c, 39fbf9e, d698825, 2506856. Fases 3-10 pendientes.)
 **Branch activo:** main
 
 ---
@@ -6792,3 +6792,324 @@ El numero total de fases del roadmap no cambia (sigue siendo 10 fases). Las deci
 
 *Registrado por implementation-controller (Agente 23).*
 *26 de marzo de 2026 — Inicio de implementacion CTRU. Decision D-015 (renombramiento campos OC). Bug critico Deploy A identificado. Fases 0 y 1 iniciadas.*
+
+---
+
+---
+
+## SESION 22 — IMPLEMENTACION CTRU FASES 0-2 — 26 de marzo de 2026
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Implementacion — Fases 0, 1 y 2 del roadmap CTRU v2
+**Estado al cierre:** FASES 0-2 COMPLETADAS. Deploy de funciones + hosting realizado.
+
+---
+
+### Commits de la sesion
+
+| Commit | Descripcion |
+|--------|-------------|
+| 5a9fa8c | fix(critical): ctruBase a ctruInicial en Cloud Function onGastoCreado |
+| 39fbf9e | feat: CTRU v2 Phase 0+1 — feature flags, types, field renames |
+| d698825 | feat: CTRU v2 Phase 1b — propagate field renames to 21 files |
+| 2506856 | fix: CTRU v2 Phase 2 — disable incremental CF recalc, delegate to frontend |
+
+---
+
+### Implementaciones completadas
+
+#### FASE 0 — Backup y feature flag (completada)
+
+**Feature flag ctruV2Enabled**
+- Creado en `src/config/features.ts`
+- Valor inicial: `false` (nuevo modelo inactivo hasta activacion explicita)
+- Permite activar/desactivar el modelo CTRU v2 sin nuevo deploy
+- Validacion pre-migracion documentada
+
+#### FASE 1 — Tipos nuevos y renombramiento de campos (completada)
+
+**Tipos nuevos en Unidad**
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `costoRecojoPEN` | `number` (opcional) | C3: costo de recojo en Peru prorrateado entre unidades recibidas en la recepcion parcial |
+| `ctruGerencial` | `number` (opcional) | Vista gerencial del CTRU: GA/GO distribuido entre todas las unidades activas del periodo |
+| `ctruContable` | `number` (opcional) | Vista contable del CTRU: GA/GO distribuido solo entre unidades vendidas del periodo |
+
+**Tipos nuevos en OrdenCompra**
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `modoEntrega` | `'viajero' | 'envio_directo'` (opcional) | Modo de entrega: EXW/FCA (viajero) o DDP (envio directo del proveedor) |
+| `fleteIncluidoEnPrecio` | `boolean` (opcional) | Indica si el flete esta incluido en el precio de la OC (para modo DDP) |
+| `costoEnvioProveedorUSD` | `number` (opcional) | Renombrado desde `gastosEnvioUSD` — Decision D-015 |
+| `impuestoCompraUSD` | `number` (opcional) | Renombrado desde `impuestoUSD` — Decision D-015 |
+| `otrosGastosCompraUSD` | `number` (opcional) | Renombrado desde `otrosGastosUSD` — Decision D-015 |
+
+**Nuevas funciones en ctru.utils.ts**
+
+| Funcion | Descripcion |
+|---------|-------------|
+| `getCTRUGerencial(unidad)` | Retorna `ctruGerencial` si existe, con fallback a `ctruDinamico` o `ctruInicial` para compatibilidad hacia atras |
+| `getCostoImportacionPEN(unidad)` | Retorna la suma de C1+C2+C3: precio de compra + costos de internacion + costo de recojo en Peru |
+
+**Renombramiento de campos propagado a 21 archivos**
+- Los 3 campos de OC renombrados por Decision D-015 (`gastosEnvioUSD`, `impuestoUSD`, `otrosGastosUSD`) propagados con backward compatibility
+- Patron aplicado: `nuevoNombre ?? campoLegacy` en lecturas — si el campo nuevo no existe, lee el campo antiguo
+- Campos legacy marcados como `@deprecated` en los tipos TypeScript
+- Archivos afectados: tipos, servicios, componentes, stores y Cloud Functions que leen esos campos de OC
+
+#### FASE 2 — Fix critico en Cloud Functions + simplificacion del motor (completada)
+
+**Deploy A — Fix urgente: ctruBase a ctruInicial (commit 5a9fa8c)**
+- Archivo: `functions/src/index.ts` (~linea 653)
+- Bug: `onGastoCreado` usaba `ctruBase` (campo inexistente en el documento de unidad) en lugar de `ctruInicial`
+- Consecuencia del bug: cada gasto GA/GO dejaba `ctruDinamico` igual solo al `gastoProrrateado`, sin incluir el costo base — subestimacion sistematica del CTRU en todas las unidades con gastos
+- Fix: cambio de 1 linea (`ctruBase` por `ctruInicial`)
+- Desplegado de forma urgente antes de continuar con otras fases
+
+**Simplificacion del motor de recalculo (commit 2506856)**
+- Antes: existian dos motores en paralelo:
+  1. Cloud Function `onGastoCreado`: recalculo incremental en cada gasto nuevo
+  2. Frontend `ctru.service.ts`: recalculo completo (full-recalc) invocado manualmente
+- Problema identificado: motor dual causaba divergencia — CF y frontend podian producir valores distintos para la misma unidad
+- Decision de arquitectura: eliminar el motor incremental de CF, delegar el recalculo completo exclusivamente al frontend service
+- Implementacion:
+  - `onGastoCreado` Cloud Function simplificada: ya no hace recalculo incremental del CTRU
+  - Solo marca el gasto con `ctruPendienteRecalculo: true` en Firestore
+  - El frontend detecta el flag y dispara el recalculo completo cuando el usuario navega al modulo CTRU
+  - Se elimino la divergencia entre los dos motores — ahora existe un unico motor canonico (frontend)
+
+**Script de migracion preparado**
+- Script listo para limpiar campos fantasma de documentos de unidades en Firestore: `ctruBase`, `ctruGastos`, `costoTotalUSD`
+- Estos campos quedaron en documentos historicos de versiones anteriores del modelo
+- El script aun no se ha ejecutado — pendiente de aprobacion del titular para la ventana de ejecucion
+
+---
+
+### Estado del plan de implementacion CTRU v2
+
+| Fase | Descripcion | Estado |
+|------|-------------|--------|
+| FASE 0 | Backup + feature flag `ctruV2Enabled` | Completada |
+| FASE 1 | Tipos nuevos + renombramiento campos OC (21 archivos) | Completada |
+| FASE 2 | Fix bug CF (ctruBase/ctruInicial) + simplificar onGastoCreado | Completada |
+| FASE 3 | C3 Recojo en Peru: prorrateo por recepcion parcial en transferencias | Pendiente |
+| FASE 4 | Dual-view GA/GO (contable + gerencial) en ctru.service.ts | Pendiente |
+| FASE 5 | UI en 3 secciones + dual-view toggle | Pendiente |
+| FASE 6 | Reportes con GV/GD/GA/GO en desglose de margen | Pendiente |
+| FASE 7 | Campo modo de entrega en OC + logica transferencia automatica DDP | Pendiente |
+| FASE 8 | Conexion getCTRU_Real(TCPA) al ctruStore | Pendiente |
+| FASE 9 | Cotizaciones: reemplazar ctruEstimado por ctruPromedio real | Pendiente |
+| FASE 10 | Limpieza dual-write + migracion final + activacion feature flag | Pendiente |
+
+---
+
+### Deploy realizado
+
+| Componente | Estado |
+|------------|--------|
+| Cloud Functions | Desplegadas — fix ctruBase/ctruInicial + CF simplificada |
+| Hosting (frontend) | Desplegado — tipos nuevos + renombramiento 21 archivos |
+| Script migracion Firestore | Preparado — pendiente de ejecucion |
+
+---
+
+### Metricas de la sesion de implementacion
+
+| Metrica | Valor |
+|---------|-------|
+| Commits | 4 (5a9fa8c, 39fbf9e, d698825, 2506856) |
+| Archivos modificados | ~25 (21 por renombramiento + tipos + CF + config) |
+| Fases completadas | 3 (Fases 0, 1 y 2) |
+| Bug critico resuelto | 1 (ctruBase/ctruInicial — subestimacion sistematica del CTRU) |
+| Motores de recalculo eliminados | 1 (CF incremental — eliminado, delegado al frontend) |
+| Campos nuevos en tipos | 8 (3 en Unidad + 5 en OrdenCompra) |
+| Funciones utilitarias nuevas | 2 (getCTRUGerencial, getCostoImportacionPEN) |
+| Archivos con backward compatibility | 21 |
+
+---
+
+### Tareas completadas en esta sesion
+
+| ID | Descripcion | Commit |
+|----|-------------|--------|
+| CTRU-IMPL-008 | Fix ctruBase a ctruInicial en Cloud Function onGastoCreado | 5a9fa8c |
+| FASE 0 | Feature flag ctruV2Enabled + backup selectivo | 39fbf9e |
+| FASE 1 | Tipos nuevos + renombramiento 21 archivos | 39fbf9e, d698825 |
+| FASE 2 | Simplificacion onGastoCreado + motor unico canonico | 2506856 |
+
+---
+
+### Proximos pasos
+
+1. Ejecutar script de migracion Firestore para limpiar campos fantasma (ctruBase, ctruGastos, costoTotalUSD) — requiere ventana de mantenimiento
+2. Iniciar FASE 3: implementar campo costoRecojoPEN en el flujo de recepcion parcial de transferencias
+3. Iniciar FASE 4: dual-view GA/GO (contable vs gerencial) en ctru.service.ts — la fase de mayor riesgo del roadmap
+
+---
+
+*Registrado por implementation-controller (Agente 23).*
+*26 de marzo de 2026 — Implementacion CTRU Fases 0-2 completada. Bug critico ctruBase/ctruInicial corregido. Motor incremental CF eliminado — recalculo delegado al frontend como motor unico. Renombramiento D-015 propagado a 21 archivos con backward compatibility. 4 commits. Fases 3-10 pendientes.*
+
+---
+
+---
+
+## SESION 22 — IMPLEMENTACION CTRU FASES 3-5a — 26 de marzo de 2026 (continuacion)
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Implementacion — Fases 3, 4 y 5a del roadmap CTRU v2
+**Estado al cierre:** FASES 3, 4 Y 5a COMPLETADAS. Fases 5b en adelante pendientes.
+
+---
+
+### Commits de esta continuacion
+
+| Commit | Descripcion |
+|--------|-------------|
+| ca36670 | feat: CTRU v2 Phase 3 — C3 pickup cost in Peru per partial reception |
+| 6d756d3 | feat: CTRU v2 Phase 4 — dual-view recalculation (contable + gerencial) |
+| c92221e | feat: CTRU v2 Phase 5a — rename Gastos to Costos y Gastos with 3 category tabs |
+
+---
+
+### Implementaciones completadas
+
+#### FASE 3 — C3 Recojo en Peru (commit ca36670)
+
+**Objetivo:** Implementar el prorrateo del costo de recojo en Peru por recepcion parcial de transferencia, no por transferencia completa.
+
+**Cambios realizados:**
+
+- Campo `costoRecojoPEN` agregado a `RecepcionFormData` (ya existia en el tipo `Unidad` desde Fase 1)
+- Logica de prorrateo implementada en el servicio de transferencias: el costo de recojo se divide entre las unidades efectivamente recibidas en esa recepcion parcial
+- `ctruInicial` de cada unidad incluye C3 cuando hay costo de recojo registrado en la recepcion
+- UI: campo `costoRecojoPEN` colapsable en el modal de recepcion — solo visible cuando el usuario indica que hay recojo
+
+**Logica de prorrateo:**
+
+```
+costoRecojoPorUnidad = costoRecojoPEN / cantidadUnidadesRecibidas
+ctruInicial = ctruBase + costoRecojoPorUnidad
+```
+
+La distribucion es proporcional al numero de unidades recibidas en esa recepcion especifica, no al total de la OC ni al total de la transferencia.
+
+---
+
+#### FASE 4 — Dual-view GA/GO: ctruContable y ctruGerencial (commit 6d756d3)
+
+**Objetivo:** Implementar el motor de recalculo que produce dos vistas del CTRU segun el denominador de distribucion de GA/GO.
+
+**Cambios realizados:**
+
+`recalcularCTRUDinamico` ahora genera dos resultados distintos en lugar de uno:
+
+| Campo | Formula | Uso |
+|-------|---------|-----|
+| `ctruContable` | C1+C2+C3 + (GA/GO distribuido solo entre unidades vendidas) | P&L oficial, rentabilidad de ventas, precio minimo a socios |
+| `ctruGerencial` | C1+C2+C3 + (GA/GO estimado distribuido entre todas las unidades activas) | Cotizaciones, fijacion de precios, toma de decisiones comerciales |
+
+**Logica por estado de la unidad:**
+
+- Unidades vendidas: tanto `ctruContable` como `ctruGerencial` se calculan con los GA/GO del periodo aplicando el denominador correspondiente a cada vista.
+- Unidades activas (no vendidas): `ctruContable` = `costoBase` (sin prorratear GA/GO, que solo se asigna al cerrar la venta); `ctruGerencial` = `costoBase` + estimacion de GA/GO del periodo aplicado a las unidades activas.
+
+**Backward compatibility:**
+
+- `ctruDinamico` = `ctruContable` — el campo existente mantiene el valor contable para no romper el codigo que ya lo consume.
+- El nuevo campo `ctruGerencial` es adicional, no reemplaza.
+
+**Bugs resueltos en esta fase:**
+
+| ID | Descripcion | Fix aplicado |
+|----|-------------|-------------|
+| BUG-005 | Filtro de gastos no respetaba los flags `impactaCTRU` y `esProrrateable` — incluia gastos que no debian distribuirse | Filtro corregido: solo se distribuyen gastos con `impactaCTRU = true` y `esProrrateable = true` |
+| BUG-001 | Estados activos incompletos: el calculo gerencial ignoraba unidades en estados `en_transito_peru` y `asignada_pedido` | Estados activos ampliados — se incluyen todos los estados que representan unidades activas en el ciclo |
+
+**Desglose separado:**
+
+Se agregan dos campos de trazabilidad al resultado del recalculo:
+
+- `costoGAAsignado`: porcion de Gastos Administrativos distribuida a la unidad
+- `costoGOAsignado`: porcion de Gastos Operativos distribuida a la unidad
+
+Estos campos permiten auditar el calculo y verificar que la distribucion es correcta.
+
+---
+
+#### FASE 5a — UI: Costos y Gastos con 3 tabs de categoria (commit c92221e)
+
+**Objetivo:** Separar la vista de gastos en la UI del modulo en 3 categorias claras segun la taxonomia aprobada en ADR-CTRU-001.
+
+**Cambios realizados:**
+
+- Modulo renombrado de "Gastos" a "Costos y Gastos" en la navegacion y encabezados
+- Tres tabs de categoria implementados en la vista principal:
+
+| Tab | Contenido | Indicador visual |
+|-----|-----------|-----------------|
+| Gastos del Negocio | GV, GD, GA, GO — gastos del periodo no inventariables | Color estandar |
+| Costos de Importacion | C1 precio de compra, C2 internacion, C3 recojo Peru | Color estandar |
+| Perdidas | Merma, danadas, vencidas, diferencial cambiario negativo | Texto y badge en rojo |
+
+- Badge con conteo de registros por tab: permite ver cuantos items hay en cada categoria sin cambiar de tab
+- Tab "Perdidas" destacado en rojo para visibilidad inmediata de eventos adversos
+- Diseño mobile responsive con labels cortos para pantallas angostas
+
+---
+
+### Estado del plan de implementacion CTRU v2 actualizado
+
+| Fase | Descripcion | Estado |
+|------|-------------|--------|
+| FASE 0 | Backup + feature flag `ctruV2Enabled` | Completada |
+| FASE 1 | Tipos nuevos + renombramiento campos OC (21 archivos) | Completada |
+| FASE 2 | Fix bug CF (ctruBase/ctruInicial) + simplificar onGastoCreado | Completada |
+| FASE 3 | C3 Recojo en Peru: campo `costoRecojoPEN` + prorrateo por recepcion parcial | Completada |
+| FASE 4 | Dual-view GA/GO: `ctruContable` + `ctruGerencial` con motor unificado | Completada |
+| FASE 5a | UI: rename a "Costos y Gastos" + 3 tabs de categoria (negocio, importacion, perdidas) | Completada |
+| FASE 5b | Toggle dual contable/gerencial en el CTRU Dashboard | Pendiente |
+| FASE 6 | Reportes con GV/GD/GA/GO en desglose de margen | Pendiente |
+| FASE 7 | Campo modo de entrega en OC + logica transferencia automatica DDP | Pendiente |
+| FASE 8 | Conexion getCTRU_Real(TCPA) al ctruStore | Pendiente |
+| FASE 9 | Cotizaciones: reemplazar ctruEstimado por ctruPromedio real | Pendiente |
+| FASE 10 | Limpieza dual-write + migracion final + activacion feature flag | Pendiente |
+
+---
+
+### Metricas de esta continuacion
+
+| Metrica | Valor |
+|---------|-------|
+| Commits | 3 (ca36670, 6d756d3, c92221e) |
+| Fases completadas | 3 (Fases 3, 4 y 5a) |
+| Campos nuevos en tipos | `costoRecojoPEN` en RecepcionFormData (activo en flujo de recepcion) |
+| Campos nuevos en resultado de recalculo | `ctruContable`, `ctruGerencial`, `costoGAAsignado`, `costoGOAsignado` |
+| Bugs resueltos | 2 (BUG-005: filtro impactaCTRU/esProrrateable; BUG-001: estados activos ampliados) |
+| Fases pendientes | 5b, 6, 7, 8, 9, 10 |
+
+---
+
+### Tareas completadas en esta continuacion
+
+| ID | Descripcion | Commit |
+|----|-------------|--------|
+| CTRU-IMPL-001 | C3 (costoRecojoPEN) prorrateo por recepcion parcial en transferencias | ca36670 |
+| CTRU-IMPL-012 | Validacion que C3 se prorratea por recepcion parcial, no por transferencia completa | ca36670 |
+| CTRU-IMPL-003 | Dual-view GA/GO (ctruContable + ctruGerencial) en ctru.service.ts | 6d756d3 |
+| CTRU-IMPL-004 (parcial) | UI: rename + 3 tabs de categoria en modulo Costos y Gastos | c92221e |
+
+---
+
+### Proximos pasos
+
+1. FASE 5b: implementar el toggle dual contable/gerencial en el header del CTRU Dashboard para que el usuario pueda alternar entre las dos vistas en tiempo real
+2. FASE 6: actualizar el reporte exportable para incluir GV/GD/GA/GO en el desglose de margen por venta
+3. Ejecutar el script de migracion Firestore pendiente (limpiar campos fantasma: ctruBase, ctruGastos, costoTotalUSD)
+
+---
+
+*Registrado por implementation-controller (Agente 23).*
+*26 de marzo de 2026 — Implementacion CTRU Fases 3-5a completada. C3 recojo en Peru prorrateo por recepcion parcial. Motor dual-view ctruContable + ctruGerencial implementado con backward compatibility. UI de Costos y Gastos con 3 tabs de categoria. 3 commits. BUG-001 y BUG-005 resueltos. Fases 5b-10 pendientes.*
