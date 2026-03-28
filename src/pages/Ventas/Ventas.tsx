@@ -900,7 +900,7 @@ export const Ventas: React.FC = () => {
                   <p className={`text-lg font-bold ${
                     resumenSocios.porcentajeInventarioUnidades > 15 ? 'text-red-600' : 'text-gray-700'
                   }`}>
-                    {resumenSocios.porcentajeInventarioUnidades.toFixed(1)}%
+                    {(resumenSocios.porcentajeInventarioUnidades || 0).toFixed(1)}%
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {resumenSocios.unidadesConsumidas} uds. a socios
@@ -1043,11 +1043,11 @@ export const Ventas: React.FC = () => {
                   <PieChart className="h-4 w-4 text-orange-500 mr-1" />
                   <span className="text-xs">GA/GO:</span>
                   <span className="font-semibold text-orange-600 ml-1">
-                    S/ {rentabilidad.totalGastosGAGO.toFixed(0)}
+                    S/ {(rentabilidad.totalGastosGAGO || 0).toFixed(0)}
                   </span>
                   <span className="text-xs text-gray-500 ml-1">
-                    ({rentabilidad.totalCostoBase > 0
-                      ? ((rentabilidad.totalCostoGAGO / rentabilidad.totalCostoBase) * 100).toFixed(1)
+                    ({(rentabilidad.totalCostoBase || 0) > 0
+                      ? (((rentabilidad.totalCostoGAGO || 0) / (rentabilidad.totalCostoBase || 1)) * 100).toFixed(1)
                       : 0}%)
                   </span>
                 </div>
@@ -1057,7 +1057,7 @@ export const Ventas: React.FC = () => {
                   <Calculator className="h-4 w-4 text-blue-500 mr-1" />
                   <span className="text-xs">GV/GD:</span>
                   <span className="font-semibold text-blue-600 ml-1">
-                    S/ {rentabilidad.totalGastosGVGD.toFixed(0)}
+                    S/ {(rentabilidad.totalGastosGVGD || 0).toFixed(0)}
                   </span>
                 </div>
               )}
@@ -1065,8 +1065,8 @@ export const Ventas: React.FC = () => {
                 <div className="flex items-center text-sm bg-green-50 px-2 py-1 rounded-lg" title="Margen Neto promedio después de GA/GO y GV/GD">
                   <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
                   <span className="text-xs">Margen Neto:</span>
-                  <span className={`font-semibold ml-1 ${rentabilidad.margenNetoPromedio >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {rentabilidad.margenNetoPromedio.toFixed(1)}%
+                  <span className={`font-semibold ml-1 ${(rentabilidad.margenNetoPromedio || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(rentabilidad.margenNetoPromedio || 0).toFixed(1)}%
                   </span>
                 </div>
               )}
