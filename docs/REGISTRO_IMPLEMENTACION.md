@@ -8469,3 +8469,110 @@ Impacto al eliminar: la interfaz ProductoCTRUTableProps pierde el prop proyeccio
 
 *Registrado por implementation-controller (Agente 23).*
 *30 de marzo de 2026 — S25 cambios adicionales. Deploy 36-37. CAMBIO-130: Proyeccion 360 del Negocio reescritura completa. Motor encadenado con 6 calculadoras. 6 tabs. 5 KPIs ejecutivos. 3 escenarios. 10 interfaces. Commit 5ec5b43. CTRU limpieza de proyecciones pendiente para proxima sesion.*
+
+---
+
+---
+
+## TAREA-100 — Rediseno Financiero 360: Pagos Unificados + Cobranzas + Liquidez
+
+**ID:** TAREA-100
+**Prioridad:** CRITICA — proxima sesion completa dedicada
+**Estimacion:** 20-30 horas (2-3 sesiones)
+**Solicitado por:** Titular, sesion 25 (2026-03-30)
+**Estado:** Pendiente — proxima sesion
+**Tipo:** Feature / Refactoring de arquitectura financiera
+
+---
+
+### Contexto
+
+El titular identifico tres problemas estructurales en la capa financiera del ERP:
+
+1. La data financiera esta dispersa en 8 paginas con 4 motores de calculo independientes que producen numeros distintos para los mismos conceptos.
+2. Los formularios de pago son inconsistentes entre modulos: ventas, ordenes de compra, gastos y viajeros usan patrones distintos sin un componente unificado.
+3. No existe gestion de lineas de credito bancario, que es el mecanismo real que usa el negocio para pagar facturas de proveedores.
+
+---
+
+### Alcance: 3 pilares
+
+#### PILAR 1 — Modelo unificado de pagos
+
+- Auditar TODOS los formularios de pago del sistema: VentaForm (paso de pago), OC pagos, GastoPago, PagoViajero, movimientos de caja en Tesoreria.
+- Disenar una interfaz `PagoUnificado` que cubra los casos: pago directo, pago con linea de credito, pago parcial, pago en cuotas.
+- Todos los modulos usaran el mismo componente de pago con los mismos campos: monto, moneda, metodo (efectivo / transferencia / tarjeta / credito), banco, referencia, fecha, numero de cuota.
+- El componente resultante elimina la deuda de inconsistencia acumulada entre modulos.
+
+#### PILAR 2 — Seccion de Analisis Financiero (CxC + CxP + Liquidez)
+
+- Tab "Cobranzas" en /reportes: CxC por cliente, aging de cuentas por cobrar, DSO (dias promedio de cobro), eficiencia de cobro, top deudores.
+- Tab "Pagos Pendientes" en /reportes: CxP por proveedor, aging de cuentas por pagar, DPO (dias promedio de pago), impacto del tipo de cambio en deuda pendiente, resumen de lineas de credito.
+- Card "Liquidez" en Dashboard o seccion dedicada: semaforo de salud financiera (verde / amarillo / rojo), ratio de cobertura, punto de equilibrio operativo.
+- Fuente unica de datos para estas vistas: extender `cuentasPendientes.service.ts`, que ya consolida CxC y CxP y es el punto de origen correcto.
+
+#### PILAR 3 — Gestion de lineas de credito
+
+- Coleccion nueva o campos adicionales en proveedores: limite de credito, monto utilizado, monto disponible, fecha de vencimiento de la linea.
+- Al registrar el pago de una OC o un gasto: opcion "Pagar con linea de credito" + selector de banco / linea especifica.
+- Tracking de deuda por linea: cuanto fue utilizado, cuanto se debe hoy, cuando vence cada cuota pendiente.
+- Alertas operativas: linea al 80% de uso, cuotas con vencimiento en los proximos 7 dias.
+
+---
+
+### Datos dispersos a unificar (origen unico objetivo)
+
+| Concepto | Paginas que lo muestran hoy | Fuente objetivo |
+|----------|-----------------------------|-----------------|
+| CxC (cuentas por cobrar) | Dashboard + Tesoreria + Contabilidad | cuentasPendientes.service |
+| CxP (cuentas por pagar) | Dashboard + Tesoreria + Contabilidad | cuentasPendientes.service |
+| Flujo de caja | Tesoreria + Proyeccion | Motor unico (definir en esta tarea) |
+| "Utilidad" | 4 definiciones distintas segun la pagina | Reducir a 2 definiciones claras: operativa (CTRU) + contable (7 capas), con etiqueta explicita en cada uso |
+
+---
+
+### Formularios de pago a auditar
+
+| Archivo | Modulo |
+|---------|--------|
+| `src/components/modules/venta/VentaForm.tsx` | Paso de pago en ventas |
+| `src/pages/OrdenesCompra/` | Pagos de ordenes de compra |
+| `src/pages/Gastos/` | PagoGastoForm |
+| `src/pages/Transferencias/PagoViajeroModal.tsx` | Pagos a viajeros |
+| `src/pages/Tesoreria/` | Movimientos de caja |
+
+---
+
+### Decisiones del titular que motivan esta tarea
+
+- El negocio paga facturas de proveedores con lineas de credito bancario — el sistema no registra ni trackea esa deuda.
+- No quiere data financiera dispersa en multiples paginas con calculos inconsistentes.
+- Los formularios de pago deben ser consistentes y predecibles en todo el sistema.
+- Todo debe partir de un mismo origen de datos para que los numeros cuadren entre paginas.
+
+---
+
+### Dependencias
+
+| Tarea | Relacion |
+|-------|----------|
+| TAREA-098 (Reportes Unificado) | Los tabs de Cobranzas y Pagos Pendientes van dentro de /reportes — coordinacion de estructura requerida |
+| TAREA-097 (Proyeccion de Costos) | El flujo de caja proyectado en /proyeccion debe unificarse con el motor de flujo de caja real que se defina en esta tarea |
+
+---
+
+### Orden de ejecucion recomendado
+
+1. Auditar los 5 formularios de pago existentes — documentar diferencias y gaps.
+2. Disenar la interfaz `PagoUnificado` y el componente compartido.
+3. Migrar los formularios al componente unificado modulo por modulo.
+4. Disenar el modelo de datos para lineas de credito.
+5. Implementar el Pilar 3 (lineas de credito): coleccion, formulario de pago con linea de credito, alertas.
+6. Implementar los tabs de Cobranzas y Pagos Pendientes en /reportes (coordinar con TAREA-098).
+7. Implementar el card de Liquidez en Dashboard.
+8. Unificar los motores de calculo de flujo de caja.
+
+---
+
+*Registrado por implementation-controller (Agente 23).*
+*2026-03-30 — TAREA-100 registrada como prioridad maxima para la proxima sesion. Rediseno financiero 360: pagos unificados + cobranzas + liquidez + lineas de credito. Solicitado por el titular en sesion 25. Estimacion: 20-30 horas.*
