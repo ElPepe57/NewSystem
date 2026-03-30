@@ -51,35 +51,54 @@ export const Proyeccion: React.FC = () => {
     const generar = async () => {
       setLoading(true);
       try {
-        const [dash, proysMap, alertasArr] = await Promise.all([
-          costoProyeccionService.dashboardProyeccion(productosLN),
-          costoProyeccionService.proyectarTodos(productosLN, horizonte),
-          costoProyeccionService.alertasErosionMargen(productosLN),
-        ]);
-        const proysArr = Array.from(proysMap.values());
+        // Cargar cada servicio individualmente para no bloquear todo si uno falla
+        let dash: DashboardProyeccion | null = null;
+        let proysArr: ProyeccionCTRU[] = [];
+        let alertasArr: AlertaErosionMargen[] = [];
+
+        try {
+          const proysResult = await costoProyeccionService.proyectarTodos(productosLN, horizonte);
+          proysArr = proysResult instanceof Map ? Array.from(proysResult.values()) : Array.isArray(proysResult) ? proysResult : [];
+        } catch (e) { logger_warn('Error en proyectarTodos:', e); }
+
+        try {
+          dash = await costoProyeccionService.dashboardProyeccion(productosLN);
+        } catch (e) { logger_warn('Error en dashboardProyeccion:', e); }
+
+        try {
+          alertasArr = await costoProyeccionService.alertasErosionMargen(productosLN);
+          if (!Array.isArray(alertasArr)) alertasArr = [];
+        } catch (e) { logger_warn('Error en alertasErosionMargen:', e); }
 
         // Escenarios solo para top 5 productos con más unidades
-        const top5 = [...productosLN]
-          .sort((a, b) => b.totalUnidades - a.totalUnidades)
-          .slice(0, 5);
-        const escArr = await Promise.all(
-          top5.map(p => costoProyeccionService.proyectarEscenarios(p))
-        );
+        let escArr: EscenariosProducto[] = [];
+        try {
+          const top5 = [...productosLN]
+            .sort((a, b) => b.totalUnidades - a.totalUnidades)
+            .slice(0, 5);
+          escArr = await Promise.all(
+            top5.map(p => costoProyeccionService.proyectarEscenarios(p))
+          );
+        } catch (e) { logger_warn('Error en escenarios:', e); }
 
-        // Reabastecimiento para todos
-        const reabArr = await Promise.all(
-          productosLN.map(p => costoProyeccionService.proyectarReabastecimiento(p))
-        );
+        // Reabastecimiento
+        let reabArr: ProyeccionReabastecimiento[] = [];
+        try {
+          const results = await Promise.all(
+            productosLN.map(p => costoProyeccionService.proyectarReabastecimiento(p).catch(() => null))
+          );
+          reabArr = results.filter((r): r is ProyeccionReabastecimiento => r !== null && r.urgencia !== 'sin_urgencia');
+        } catch (e) { logger_warn('Error en reabastecimiento:', e); }
 
         if (!cancelled) {
           setDashboard(dash);
           setProyecciones(proysArr);
           setEscenarios(escArr);
           setAlertas(alertasArr);
-          setReabastecimiento(reabArr.filter(r => r.urgencia !== 'sin_urgencia'));
+          setReabastecimiento(reabArr);
         }
       } catch (err) {
-        logger_warn('Error generando proyecciones:', err);
+        logger_warn('Error general en proyecciones:', err);
       } finally {
         if (!cancelled) setLoading(false);
       }
