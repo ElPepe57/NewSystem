@@ -116,7 +116,9 @@ export interface CTRUProductoDetalle {
 
   // Totales
   costoInventarioProm: number;  // capas 1-5
-  ctruPromedio: number;         // capas 1-6
+  ctruPromedio: number;         // capas 1-6 (alias de ctruContableProm para backward compat)
+  ctruContableProm: number;     // GA/GO solo entre vendidas
+  ctruGerencialProm: number;    // GA/GO entre todas las unidades
   costoTotalRealProm: number;   // capas 1-7
 
   // Venta y margen
@@ -448,7 +450,7 @@ function processProductosDetalle(
     envioUSD: number[]; envioPEN: number[];
     otrosUSD: number[]; otrosPEN: number[];
     fleteIntlUSD: number[]; fleteIntlPEN: number[];
-    gagoPEN: number[]; gagoPENVendidas: number[]; ctrus: number[];
+    gagoPEN: number[]; gagoPENVendidas: number[]; gagoPENTodas: number[]; ctrus: number[];
     activas: number; vendidas: number;
     // Para lotes por producto
     unidadesPorOC: Map<string, Unidad[]>;
@@ -464,7 +466,7 @@ function processProductosDetalle(
         envioUSD: [], envioPEN: [],
         otrosUSD: [], otrosPEN: [],
         fleteIntlUSD: [], fleteIntlPEN: [],
-        gagoPEN: [], gagoPENVendidas: [], ctrus: [],
+        gagoPEN: [], gagoPENVendidas: [], gagoPENTodas: [], ctrus: [],
         activas: 0, vendidas: 0,
         unidadesPorOC: new Map()
       });
@@ -483,6 +485,13 @@ function processProductosDetalle(
     p.gagoPEN.push(layers.gagoPEN);
     if (u.estado === 'vendida') {
       p.gagoPENVendidas.push(layers.gagoPEN);
+    }
+    // GA/GO gerencial: prorrateo entre TODAS las unidades relevantes
+    if (costoBaseTotalTodas > 0 && totalGAGOPEN > 0) {
+      const costoBase = getCostoBasePEN(u);
+      p.gagoPENTodas.push(calcularGAGOProporcional(costoBase, costoBaseTotalTodas, totalGAGOPEN));
+    } else {
+      p.gagoPENTodas.push(0);
     }
     p.ctrus.push(layers.ctru);
 
@@ -517,8 +526,11 @@ function processProductosDetalle(
 
     // Costo inventario = capas 1-5
     const costoInventario = compraPENProm + impuestoPENProm + envioPENProm + otrosPENProm + fleteIntlPENProm;
-    // CTRU = capas 1-6
+    // CTRU Contable = capas 1-6 (GA/GO solo vendidas)
     const ctruCalc = costoInventario + gagoProm;
+    // CTRU Gerencial = capas 1-6 (GA/GO todas las unidades)
+    const gagoGerencialProm = data.gagoPENTodas.length > 0 ? avg(data.gagoPENTodas) : 0;
+    const ctruGerencialCalc = costoInventario + gagoGerencialProm;
 
     // GV/GD y ventas
     const ventaInfo = getGVGDAndVentasForProduct(data.id, ventas, gastosByVentaId);
@@ -620,6 +632,8 @@ function processProductosDetalle(
       gastoGVGDProm: gvgdProm,
       costoInventarioProm: costoInventario,
       ctruPromedio: ctruCalc,
+      ctruContableProm: ctruCalc,
+      ctruGerencialProm: ctruGerencialCalc,
       costoTotalRealProm: costoTotalReal,
       precioVentaProm: precioVenta,
       margenBrutoProm: margenBruto,
@@ -1128,6 +1142,9 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       const unidadesVendidasAll = todasUnidades.filter(u => u.estado === 'vendida');
       // Costo base total de TODAS las unidades vendidas (para prorrateo proporcional)
       const costoBaseTotalVendidas = unidadesVendidasAll.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
+      // Costo base total de TODAS las unidades relevantes (para vista gerencial)
+      const unidadesRelevantesAll = todasUnidades.filter(u => RELEVANT_STATES.includes(u.estado));
+      const costoBaseTotalTodas = unidadesRelevantesAll.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
       // Estimado proyectado para productos sin ventas (uniforme como referencia)
       const relevantesCount = todasUnidades.filter(u => RELEVANT_STATES.includes(u.estado)).length;
       const gagoEstimadoProyectado = unidadesVendidasAll.length > 0

@@ -425,7 +425,9 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
 
                   {/* RESULTADO */}
                   <td className="py-2.5 px-2 text-right border-l border-gray-50">
-                    <span className="font-bold text-gray-900 text-sm">{formatCurrency(p.ctruPromedio)}</span>
+                    <span className="font-bold text-gray-900 text-sm">
+                      {formatCurrency(vistaCosto === 'gerencial' && p.ctruGerencialProm ? p.ctruGerencialProm : p.ctruPromedio)}
+                    </span>
                   </td>
                   <td className="py-2.5 px-2 text-right">
                     {p.ventasCount > 0 ? (
