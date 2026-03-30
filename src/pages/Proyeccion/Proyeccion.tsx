@@ -44,8 +44,10 @@ export const Proyeccion: React.FC = () => {
   }, [productos, ctruLoading, fetchAll]);
 
   // Generar proyecciones cuando hay productos
+  // Use productos.length + horizonte as stable deps to avoid infinite loops
+  const productosCount = productosLN.length;
   useEffect(() => {
-    if (!productosLN.length) return;
+    if (!productosCount) return;
     let cancelled = false;
 
     const generar = async () => {
@@ -105,7 +107,8 @@ export const Proyeccion: React.FC = () => {
     };
     generar();
     return () => { cancelled = true; };
-  }, [productosLN, horizonte]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productosCount, horizonte]);
 
   // Helper para evitar importar logger
   function logger_warn(...args: unknown[]) { console.warn('[Proyeccion]', ...args); }
