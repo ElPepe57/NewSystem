@@ -44,10 +44,12 @@ export const Proyeccion: React.FC = () => {
   }, [productos, ctruLoading, fetchAll]);
 
   // Generar proyecciones cuando hay productos
-  // Use productos.length + horizonte as stable deps to avoid infinite loops
   const productosCount = productosLN.length;
   useEffect(() => {
-    if (!productosCount) return;
+    if (!productosCount) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
 
     const generar = async () => {
