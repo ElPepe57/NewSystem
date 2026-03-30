@@ -439,6 +439,8 @@ function processProductosDetalle(
 ): CTRUProductoDetalle[] {
   // Incluir activas + vendidas (excluir vencida/danada)
   const unidadesRelevantes = todasUnidades.filter(u => RELEVANT_STATES.includes(u.estado));
+  // Costo base total de TODAS las unidades relevantes (para vista gerencial)
+  const costoBaseTotalTodas = unidadesRelevantes.reduce((sum, u) => sum + getCostoBasePEN(u), 0);
 
   const ocById = new Map(todasOCs.map(oc => [oc.id, oc]));
 
