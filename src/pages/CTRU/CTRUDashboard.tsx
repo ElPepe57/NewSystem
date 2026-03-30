@@ -20,6 +20,8 @@ import {
 import { useCTRUStore } from '../../store/ctruStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import type { CTRUProductoDetalle } from '../../store/ctruStore';
+import { costoProyeccionService, type ProyeccionCTRU } from '../../services/costoProyeccion.service';
+import { logger } from '../../lib/logger';
 
 type TabActiva = 'resumen' | 'catalogo' | 'lote';
 
@@ -38,6 +40,8 @@ export const CTRUDashboard: React.FC = () => {
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
   const [productoSeleccionado, setProductoSeleccionado] = useState<CTRUProductoDetalle | null>(null);
   const [vistaCosto, setVistaCosto] = useState<'contable' | 'gerencial'>('contable');
+  const [proyecciones, setProyecciones] = useState<Map<string, ProyeccionCTRU>>(new Map());
+  const [proyeccionesLoading, setProyeccionesLoading] = useState(false);
 
   // Filtrar productos por línea de negocio global
   const productosFiltrados = useLineaFilter(productosDetalle, p => p.lineaNegocioId);
@@ -45,6 +49,23 @@ export const CTRUDashboard: React.FC = () => {
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
+
+  // Calcular proyecciones cuando cambian los productos
+  useEffect(() => {
+    if (productosFiltrados.length === 0) return;
+
+    let cancelled = false;
+    setProyeccionesLoading(true);
+
+    costoProyeccionService.proyectarTodos(productosFiltrados)
+      .then(result => {
+        if (!cancelled) setProyecciones(result);
+      })
+      .catch(err => logger.error('Error calculando proyecciones CTRU:', err))
+      .finally(() => { if (!cancelled) setProyeccionesLoading(false); });
+
+    return () => { cancelled = true; };
+  }, [productosFiltrados]);
 
   if (loading && !resumen) {
     return (
@@ -203,10 +224,31 @@ export const CTRUDashboard: React.FC = () => {
                 ? '📊 Vista Contable: CTRU histórico por lote. Gastos Administrativos y Operativos solo entre unidades vendidas. Para P&L y estados financieros.'
                 : '💼 Vista Gerencial: CTRU con Gastos Administrativos y Operativos entre todas las unidades. Para cotizar y fijar precios con costo más realista.'}
             </div>
+            {/* Alertas de proyección */}
+            {(() => {
+              const alertas = Array.from(proyecciones.values())
+                .flatMap(p => p.alertas.map(a => ({ ...a, producto: p.productoNombre })));
+              const danger = alertas.filter(a => a.severidad === 'danger');
+              if (danger.length === 0) return null;
+              return (
+                <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-700">
+                  <div className="font-semibold flex items-center gap-1 mb-1">
+                    <AlertTriangle className="w-3.5 h-3.5" /> Alertas de Proyección ({danger.length})
+                  </div>
+                  <ul className="space-y-0.5">
+                    {danger.slice(0, 5).map((a, i) => (
+                      <li key={i}>• <span className="font-medium">{a.producto}:</span> {a.mensaje}</li>
+                    ))}
+                    {danger.length > 5 && <li className="text-red-500">...y {danger.length - 5} alertas más</li>}
+                  </ul>
+                </div>
+              );
+            })()}
             <ProductoCTRUTable
               productos={productosFiltrados}
               onSelectProducto={setProductoSeleccionado}
               vistaCosto={vistaCosto}
+              proyecciones={proyecciones}
             />
           </>
         )}
