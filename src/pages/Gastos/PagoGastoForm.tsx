@@ -27,8 +27,8 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
 
   // Calcular monto pendiente (compat con gastos sin pagos[])
   const pendientePEN = gasto.montoPendiente !== undefined ? gasto.montoPendiente : gasto.montoPEN;
-  const pendienteOriginal = gasto.moneda === 'USD'
-    ? pendientePEN / (gasto.tipoCambio || 3.70)
+  const pendienteOriginal = gasto.moneda === 'USD' && gasto.tipoCambio
+    ? pendientePEN / gasto.tipoCambio
     : pendientePEN;
 
   // Estado del formulario
@@ -39,7 +39,7 @@ export const PagoGastoForm: React.FC<PagoGastoFormProps> = ({
   const [montoPago, setMontoPago] = useState<number>(
     gasto.moneda === 'PEN' ? pendientePEN : pendienteOriginal
   );
-  const [tipoCambio, setTipoCambio] = useState<number>(gasto.tipoCambio || 3.70);
+  const [tipoCambio, setTipoCambio] = useState<number>(gasto.tipoCambio || 0);
   const [metodoPago, setMetodoPago] = useState<MetodoTesoreria>('efectivo');
   const [cuentaOrigenId, setCuentaOrigenId] = useState<string>('');
   const [referenciaPago, setReferenciaPago] = useState<string>('');

@@ -113,6 +113,10 @@ export const PagoViajeroModal: React.FC<PagoViajeroModalProps> = ({
       toast.warning('El tipo de cambio debe ser mayor a 0');
       return;
     }
+    if (!formData.cuentaOrigenId) {
+      toast.warning('Selecciona una cuenta de origen para el pago');
+      return;
+    }
     if (montoPagaMasFlete) {
       const confirmar = await confirmPago({
         title: 'Pago Mayor al Pendiente',
