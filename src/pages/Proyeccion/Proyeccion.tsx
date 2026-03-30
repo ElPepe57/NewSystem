@@ -51,11 +51,12 @@ export const Proyeccion: React.FC = () => {
     const generar = async () => {
       setLoading(true);
       try {
-        const [dash, proysArr, alertasArr] = await Promise.all([
+        const [dash, proysMap, alertasArr] = await Promise.all([
           costoProyeccionService.dashboardProyeccion(productosLN),
           costoProyeccionService.proyectarTodos(productosLN, horizonte),
           costoProyeccionService.alertasErosionMargen(productosLN),
         ]);
+        const proysArr = Array.from(proysMap.values());
 
         // Escenarios solo para top 5 productos con más unidades
         const top5 = [...productosLN]
