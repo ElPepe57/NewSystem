@@ -551,8 +551,8 @@ export class ReporteService {
    */
   private static async getVentasPorRango(rango: RangoFechas): Promise<{ cantidad: number; totalPEN: number; utilidadPEN: number }> {
     const ventas = await VentaService.getAll();
-    // Incluir todas las ventas válidas (no cotizaciones ni canceladas ni ventas a socios)
-    const estadosValidos = ['confirmada', 'parcial', 'asignada', 'en_entrega', 'entrega_parcial', 'entregada', 'reservada'];
+    // Incluir todas las ventas válidas — constante compartida con Dashboard y Stats
+    const { ESTADOS_VENTA_VALIDOS: estadosValidos } = await import('../constants/venta.constants');
 
     const ventasRango = ventas.filter(v => {
       if (!estadosValidos.includes(v.estado)) return false;

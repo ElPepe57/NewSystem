@@ -28,6 +28,10 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
   const [historial, setHistorial] = useState<AuditoriaSession[]>([]);
   const [loadingHistorial, setLoadingHistorial] = useState(false);
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
+  const [filtroAlmacenHistorial, setFiltroAlmacenHistorial] = useState('');
+  const historialFiltrado = filtroAlmacenHistorial
+    ? historial.filter(h => h.almacenNombre === filtroAlmacenHistorial)
+    : historial;
 
   // Stock cache per almacén per producto
   const [stockCache, setStockCache] = useState<Map<string, number>>(new Map());
@@ -357,6 +361,22 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
           )}
         </h3>
 
+        {/* Filtro por almacén */}
+        {historial.length > 0 && (
+          <div className="mb-3">
+            <select
+              value={filtroAlmacenHistorial}
+              onChange={(e) => setFiltroAlmacenHistorial(e.target.value)}
+              className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-primary-500"
+            >
+              <option value="">Todos los almacenes</option>
+              {[...new Set(historial.map(h => h.almacenNombre))].map(nombre => (
+                <option key={nombre} value={nombre}>{nombre}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {loadingHistorial ? (
           <div className="flex items-center gap-2 py-4 justify-center text-sm text-gray-500">
             <Loader2 className="h-4 w-4 animate-spin" /> Cargando historial...
@@ -365,7 +385,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
           <p className="text-sm text-gray-400 text-center py-4">No hay auditorias guardadas</p>
         ) : (
           <div className="space-y-2">
-            {historial.map(session => {
+            {historialFiltrado.map(session => {
               const isExpanded = expandedSessionId === session.id;
               const fecha = session.fecha && 'toDate' in session.fecha
                 ? (session.fecha as any).toDate()
@@ -386,6 +406,21 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                     onClick={() => setExpandedSessionId(isExpanded ? null : session.id!)}
                     className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 transition-colors"
                   >
+                    {/* Indicador de estado */}
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
+                      r.faltantes === 0 && r.sobrantes === 0
+                        ? 'bg-green-100'
+                        : r.faltantes > 0
+                          ? 'bg-red-100'
+                          : 'bg-amber-100'
+                    }`}>
+                      {r.faltantes === 0 && r.sobrantes === 0
+                        ? <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        : r.faltantes > 0
+                          ? <XCircle className="h-4 w-4 text-red-600" />
+                          : <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      }
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-medium text-gray-900">{session.almacenNombre}</span>

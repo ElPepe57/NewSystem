@@ -55,22 +55,8 @@ interface MenuGroup {
   defaultOpen?: boolean;
 }
 
-// Grupos de menú organizados por función
+// Grupos de menú reorganizados — Comercial primero, Análisis como grupo propio
 const menuGroups: MenuGroup[] = [
-  {
-    id: 'inventario',
-    label: 'Inventario',
-    icon: Boxes,
-    defaultOpen: true,
-    items: [
-      { icon: Package, label: 'Productos', path: '/productos', permiso: PERMISOS.VER_INVENTARIO },
-      { icon: Zap, label: 'Inteligencia', path: '/productos-intel', permiso: PERMISOS.VER_INVENTARIO },
-      { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
-      { icon: Box, label: 'Unidades', path: '/unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
-      { icon: ArrowRightLeft, label: 'Transferencias', path: '/transferencias', permiso: PERMISOS.TRANSFERIR_UNIDADES },
-      { icon: ScanLine, label: 'Escaner', path: '/escaner', permiso: PERMISOS.VER_INVENTARIO },
-    ]
-  },
   {
     id: 'comercial',
     label: 'Comercial',
@@ -85,18 +71,40 @@ const menuGroups: MenuGroup[] = [
     ]
   },
   {
+    id: 'inventario',
+    label: 'Inventario',
+    icon: Boxes,
+    defaultOpen: true,
+    items: [
+      { icon: Package, label: 'Productos', path: '/productos', permiso: PERMISOS.VER_INVENTARIO },
+      { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
+      { icon: Box, label: 'Unidades', path: '/unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
+      { icon: ArrowRightLeft, label: 'Transferencias', path: '/transferencias', permiso: PERMISOS.TRANSFERIR_UNIDADES },
+      { icon: ScanLine, label: 'Escaner', path: '/escaner', permiso: PERMISOS.VER_INVENTARIO },
+    ]
+  },
+  {
     id: 'finanzas',
     label: 'Finanzas',
-    icon: BarChart3,
+    icon: Wallet,
     defaultOpen: false,
     items: [
       { icon: Receipt, label: 'Gastos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
       { icon: Wallet, label: 'Tesorería', path: '/tesoreria', permiso: PERMISOS.VER_TESORERIA },
       { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
       { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
-      { icon: Calculator, label: 'CTRU', path: '/ctru', permiso: PERMISOS.VER_CTRU },
-      { icon: Activity, label: 'Rendimiento FX', path: '/rendimiento-cambiario', permiso: PERMISOS.VER_TESORERIA },
+    ]
+  },
+  {
+    id: 'analisis',
+    label: 'Análisis',
+    icon: BarChart3,
+    defaultOpen: true,
+    items: [
       { icon: TrendingUp, label: 'Reportes', path: '/reportes', permiso: PERMISOS.VER_REPORTES },
+      { icon: Calculator, label: 'Costos CTRU', path: '/ctru', permiso: PERMISOS.VER_CTRU },
+      { icon: Zap, label: 'Intel. Productos', path: '/productos-intel', permiso: PERMISOS.VER_INVENTARIO },
+      { icon: Activity, label: 'Rendimiento FX', path: '/rendimiento-cambiario', permiso: PERMISOS.VER_TESORERIA },
     ]
   },
   {

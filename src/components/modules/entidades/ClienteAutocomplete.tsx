@@ -1,24 +1,36 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Search,
   User,
   Phone,
   Mail,
-  MapPin,
   Plus,
   AlertCircle,
   Check,
   X,
-  Loader2
+  Loader2,
+  Building2
 } from 'lucide-react';
 import { useClienteStore } from '../../../store/clienteStore';
 import { CanalAutocomplete } from '../canalVenta/CanalAutocomplete';
+import { userService } from '../../../services/user.service';
 import type { Cliente, ClienteFormData, ClienteSnapshot } from '../../../types/entidadesMaestras.types';
+import type { UserProfile } from '../../../types/auth.types';
+
+/** Datos del empleado detectado — se emiten al padre */
+export interface EmpleadoDetectado {
+  uid: string;
+  displayName: string;
+  cargo?: string;
+  email: string;
+  role: string;
+}
 
 interface ClienteAutocompleteProps {
   value?: ClienteSnapshot | null;
   onChange: (cliente: ClienteSnapshot | null) => void;
   onCreateNew?: (data: Partial<ClienteFormData>) => void;
+  onEmpleadoDetected?: (empleado: EmpleadoDetectado | null) => void;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
@@ -28,13 +40,35 @@ interface ClienteAutocompleteProps {
 
 // Configuración de búsqueda inteligente
 const MIN_CHARS_BUSQUEDA = 2;
-const DEBOUNCE_MS = 150; // Reducido porque ahora es búsqueda local
+const DEBOUNCE_MS = 150;
+
+// Cache de usuarios activos (se carga una vez)
+let usuariosCache: UserProfile[] | null = null;
+let usuariosCachePromise: Promise<UserProfile[]> | null = null;
+
+async function getUsuariosActivos(): Promise<UserProfile[]> {
+  if (usuariosCache) return usuariosCache;
+  if (usuariosCachePromise) return usuariosCachePromise;
+  usuariosCachePromise = userService.getActivos().then(users => {
+    usuariosCache = users;
+    return users;
+  });
+  return usuariosCachePromise;
+}
+
+/** Búsqueda fuzzy simple: todas las palabras del query deben aparecer en el texto */
+function fuzzyMatch(text: string, query: string): boolean {
+  const normalizedText = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const words = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/\s+/);
+  return words.every(w => normalizedText.includes(w));
+}
 
 export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
   value,
   onChange,
   onCreateNew,
-  placeholder = 'Buscar cliente por nombre, teléfono o DNI...',
+  onEmpleadoDetected,
+  placeholder = 'Buscar por nombre, teléfono o DNI...',
   required = false,
   disabled = false,
   allowCreate = true,
@@ -46,7 +80,6 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
     buscando,
     cacheActualizado,
     buscar,
-    buscarLocal,
     cargarCacheInicial,
     detectarDuplicados,
     limpiarBusqueda,
@@ -56,6 +89,7 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
   // Pre-cargar caché al montar el componente
   useEffect(() => {
     cargarCacheInicial();
+    getUsuariosActivos(); // Pre-cargar usuarios también
   }, [cargarCacheInicial]);
 
   const [inputValue, setInputValue] = useState('');
@@ -66,6 +100,7 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
     tipoCliente: 'persona'
   });
   const [creando, setCreando] = useState(false);
+  const [empleadosMatch, setEmpleadosMatch] = useState<UserProfile[]>([]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -91,6 +126,20 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Búsqueda dual: clientes + usuarios
+  const buscarEmpleados = useCallback(async (query: string) => {
+    if (query.length < MIN_CHARS_BUSQUEDA) {
+      setEmpleadosMatch([]);
+      return;
+    }
+    const usuarios = await getUsuariosActivos();
+    const matches = usuarios.filter(u =>
+      fuzzyMatch(u.displayName || '', query) ||
+      fuzzyMatch(u.email || '', query)
+    );
+    setEmpleadosMatch(matches);
+  }, []);
+
   // Búsqueda inteligente con debounce optimizado
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
@@ -100,6 +149,7 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
     // Limpiar selección si el usuario está editando
     if (value && valor !== value.nombre) {
       onChange(null);
+      onEmpleadoDetected?.(null);
     }
 
     // Debounce para búsqueda
@@ -109,21 +159,16 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
 
     // Solo buscar si hay mínimo de caracteres
     if (valor.length >= MIN_CHARS_BUSQUEDA) {
-      // Si hay caché, búsqueda inmediata (es local y rápida)
-      if (cacheActualizado) {
-        debounceRef.current = setTimeout(() => {
-          buscar(valor);
-        }, DEBOUNCE_MS);
-      } else {
-        // Sin caché, usar debounce más largo
-        debounceRef.current = setTimeout(() => {
-          buscar(valor);
-        }, 300);
-      }
+      const delay = cacheActualizado ? DEBOUNCE_MS : 300;
+      debounceRef.current = setTimeout(() => {
+        buscar(valor);
+        buscarEmpleados(valor);
+      }, delay);
     } else {
       limpiarBusqueda();
+      setEmpleadosMatch([]);
     }
-  }, [value, onChange, buscar, limpiarBusqueda, cacheActualizado]);
+  }, [value, onChange, onEmpleadoDetected, buscar, buscarEmpleados, limpiarBusqueda, cacheActualizado]);
 
   // Seleccionar cliente existente
   const handleSelectCliente = (cliente: Cliente) => {
@@ -138,6 +183,49 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
     setInputValue(cliente.nombre);
     setIsOpen(false);
     limpiarBusqueda();
+    setEmpleadosMatch([]);
+
+    // Verificar si este cliente coincide con un empleado (por email o nombre exacto)
+    getUsuariosActivos().then(usuarios => {
+      const match = usuarios.find(u =>
+        (cliente.email && u.email && cliente.email.toLowerCase() === u.email.toLowerCase()) ||
+        (u.displayName && cliente.nombre && u.displayName.toLowerCase() === cliente.nombre.toLowerCase())
+      );
+      if (match) {
+        onEmpleadoDetected?.({
+          uid: match.uid,
+          displayName: match.displayName,
+          cargo: match.cargo,
+          email: match.email,
+          role: match.role
+        });
+      } else {
+        onEmpleadoDetected?.(null);
+      }
+    });
+  };
+
+  // Seleccionar empleado directamente
+  const handleSelectEmpleado = (usuario: UserProfile) => {
+    // Crear un snapshot de cliente con los datos del usuario
+    const snapshot: ClienteSnapshot = {
+      nombre: usuario.displayName,
+      email: usuario.email,
+    };
+    onChange(snapshot);
+    setInputValue(usuario.displayName);
+    setIsOpen(false);
+    limpiarBusqueda();
+    setEmpleadosMatch([]);
+
+    // Notificar al padre
+    onEmpleadoDetected?.({
+      uid: usuario.uid,
+      displayName: usuario.displayName,
+      cargo: usuario.cargo,
+      email: usuario.email,
+      role: usuario.role
+    });
   };
 
   // Abrir formulario de creación
@@ -176,9 +264,13 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
   const handleClear = () => {
     setInputValue('');
     onChange(null);
+    onEmpleadoDetected?.(null);
     limpiarBusqueda();
+    setEmpleadosMatch([]);
     inputRef.current?.focus();
   };
+
+  const hayResultados = resultadosBusqueda.length > 0 || empleadosMatch.length > 0;
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -262,7 +354,7 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
 
       {/* Dropdown de resultados */}
       {isOpen && !showCreateForm && inputValue.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 max-h-60 overflow-auto">
+        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 max-h-72 overflow-auto">
           {/* Mensaje si faltan caracteres */}
           {inputValue.length < MIN_CHARS_BUSQUEDA ? (
             <div className="px-4 py-3 text-sm text-gray-400 text-center">
@@ -273,48 +365,95 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
               Buscando...
             </div>
-          ) : resultadosBusqueda.length > 0 ? (
+          ) : hayResultados ? (
             <>
-              {resultadosBusqueda.map((cliente) => (
-                <button
-                  key={cliente.id}
-                  type="button"
-                  onClick={() => handleSelectCliente(cliente)}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="font-medium text-gray-900">{cliente.nombre}</div>
-                      <div className="flex items-center space-x-3 mt-1 text-xs text-gray-500">
-                        {cliente.telefono && (
-                          <span className="flex items-center">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {cliente.telefono}
-                          </span>
-                        )}
-                        {cliente.dniRuc && (
-                          <span className="flex items-center">
-                            <User className="h-3 w-3 mr-1" />
-                            {cliente.dniRuc}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {cliente.metricas.totalCompras > 0 && (
-                        <span>{cliente.metricas.totalCompras} compras</span>
-                      )}
-                    </div>
+              {/* Empleados del sistema (aparecen primero) */}
+              {empleadosMatch.length > 0 && (
+                <div>
+                  <div className="px-4 py-1.5 bg-purple-50 text-xs font-semibold text-purple-700 uppercase tracking-wide border-b border-purple-100">
+                    Empleados del sistema
                   </div>
-                </button>
-              ))}
+                  {empleadosMatch.map((usuario) => (
+                    <button
+                      key={`emp-${usuario.uid}`}
+                      type="button"
+                      onClick={() => handleSelectEmpleado(usuario)}
+                      className="w-full px-4 py-3 text-left hover:bg-purple-50 border-b border-gray-100 last:border-0"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3">
+                          <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Building2 className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">{usuario.displayName}</div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {usuario.cargo && (
+                                <span className="text-xs text-purple-600 font-medium">{usuario.cargo}</span>
+                              )}
+                              <span className="text-xs text-gray-400">{usuario.email}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium flex-shrink-0">
+                          EMPLEADO
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Clientes regulares */}
+              {resultadosBusqueda.length > 0 && (
+                <div>
+                  {empleadosMatch.length > 0 && (
+                    <div className="px-4 py-1.5 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                      Clientes
+                    </div>
+                  )}
+                  {resultadosBusqueda.map((cliente) => (
+                    <button
+                      key={cliente.id}
+                      type="button"
+                      onClick={() => handleSelectCliente(cliente)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="font-medium text-gray-900">{cliente.nombre}</div>
+                          <div className="flex items-center space-x-3 mt-1 text-xs text-gray-500">
+                            {cliente.telefono && (
+                              <span className="flex items-center">
+                                <Phone className="h-3 w-3 mr-1" />
+                                {cliente.telefono}
+                              </span>
+                            )}
+                            {cliente.dniRuc && (
+                              <span className="flex items-center">
+                                <User className="h-3 w-3 mr-1" />
+                                {cliente.dniRuc}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {cliente.metricas.totalCompras > 0 && (
+                            <span>{cliente.metricas.totalCompras} compras</span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Opción de crear nuevo */}
               {allowCreate && (
                 <button
                   type="button"
                   onClick={handleShowCreate}
-                  className="w-full px-4 py-3 text-left hover:bg-blue-50 text-primary-600 flex items-center"
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 text-primary-600 flex items-center border-t border-gray-100"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Crear nuevo cliente "{inputValue}"

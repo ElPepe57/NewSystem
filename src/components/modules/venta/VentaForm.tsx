@@ -4,7 +4,7 @@ import { Button, Input, Select, Modal, Stepper, useStepper, StepContent, GoogleM
 import type { AddressData } from '../../common';
 import type { Step } from '../../common/Stepper';
 import { ProductoForm } from '../productos/ProductoForm';
-import { ClienteAutocomplete } from '../entidades/ClienteAutocomplete';
+import { ClienteAutocomplete, type EmpleadoDetectado } from '../entidades/ClienteAutocomplete';
 import { CanalAutocomplete } from '../canalVenta/CanalAutocomplete';
 import { ProductoSearchVentas, type ProductoVentaSnapshot } from '../entidades/ProductoSearchVentas';
 import { tesoreriaService } from '../../../services/tesoreria.service';
@@ -304,7 +304,30 @@ export const VentaForm: React.FC<VentaFormProps> = ({
   // Venta a socio
   const [esVentaSocio, setEsVentaSocio] = useState(false);
   const [socioNombre, setSocioNombre] = useState('');
+  const [socioUid, setSocioUid] = useState('');
+  const [socioCargo, setSocioCargo] = useState('');
   const [motivoVentaSocio, setMotivoVentaSocio] = useState('');
+  const [empleadoDetectado, setEmpleadoDetectado] = useState<EmpleadoDetectado | null>(null);
+
+  // Auto-detección de empleado
+  const handleEmpleadoDetected = (empleado: EmpleadoDetectado | null) => {
+    setEmpleadoDetectado(empleado);
+    if (empleado) {
+      setEsVentaSocio(true);
+      setSocioNombre(empleado.displayName);
+      setSocioUid(empleado.uid);
+      setSocioCargo(empleado.cargo || '');
+    } else {
+      // Solo limpiar si no fue activado manualmente
+      if (socioUid) {
+        setEsVentaSocio(false);
+        setSocioNombre('');
+        setSocioUid('');
+        setSocioCargo('');
+        setMotivoVentaSocio('');
+      }
+    }
+  };
 
   // Alerta de precio de reposición (TCPA del pool)
   const [tcpaPool, setTcpaPool] = useState<number>(0);
@@ -521,6 +544,8 @@ export const VentaForm: React.FC<VentaFormProps> = ({
     if (esVentaSocio) {
       data.esVentaSocio = true;
       if (socioNombre.trim()) data.socioNombre = socioNombre.trim();
+      if (socioUid) data.socioUid = socioUid;
+      if (socioCargo.trim()) data.socioCargo = socioCargo.trim();
       if (motivoVentaSocio.trim()) data.motivoVentaSocio = motivoVentaSocio.trim();
     }
 
@@ -886,6 +911,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
               value={clienteSeleccionado}
               onChange={handleClienteChange}
               onCreateNew={handleCreateClienteInline}
+              onEmpleadoDetected={handleEmpleadoDetected}
               placeholder="Buscar por nombre, teléfono o DNI..."
               allowCreate={true}
             />
@@ -942,6 +968,87 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Banner de Venta a Empleado (auto-detectado o manual) */}
+          {esVentaSocio && (
+            <div className="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <Building2 className="h-5 w-5 text-purple-600 mt-0.5" />
+                  <div>
+                    <span className="font-medium text-purple-800">Venta a Empleado</span>
+                    {socioNombre && (
+                      <p className="text-sm text-purple-700 mt-0.5">
+                        {socioNombre}{socioCargo ? ` \u00B7 ${socioCargo}` : ''}
+                      </p>
+                    )}
+                    <p className="text-xs text-purple-500 mt-1">Se excluye de reportes de rentabilidad</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEsVentaSocio(false);
+                    setSocioNombre('');
+                    setSocioUid('');
+                    setSocioCargo('');
+                    setMotivoVentaSocio('');
+                    setEmpleadoDetectado(null);
+                  }}
+                  className="text-purple-400 hover:text-purple-600 text-xs"
+                >
+                  Cancelar
+                </button>
+              </div>
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-purple-700 mb-1">
+                  Motivo <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={motivoVentaSocio}
+                  onChange={(e) => setMotivoVentaSocio(e.target.value)}
+                  className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-purple-500 focus:border-purple-500 bg-white"
+                >
+                  <option value="">Seleccionar motivo...</option>
+                  <option value="consumo_personal">Consumo personal</option>
+                  <option value="regalo_cliente_socio">Regalo a cliente del socio</option>
+                  <option value="producto_por_vencer">Producto por vencer</option>
+                  <option value="muestra">Muestra / demostraci\u00F3n</option>
+                  <option value="otro">Otro</option>
+                </select>
+                {!motivoVentaSocio && (
+                  <p className="text-xs text-red-500 mt-1">El motivo es obligatorio para ventas a empleados</p>
+                )}
+              </div>
+              {!socioUid && esAdminOGerente && (
+                <div className="mt-3">
+                  <label className="block text-sm font-medium text-purple-700 mb-1">Nombre del socio</label>
+                  <input
+                    type="text"
+                    value={socioNombre}
+                    onChange={(e) => setSocioNombre(e.target.value)}
+                    placeholder="Ej: Carlos - Socio fundador"
+                    className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Toggle manual para admin/gerente cuando no hay auto-detección */}
+          {esAdminOGerente && !esVentaSocio && !empleadoDetectado && (
+            <div className="mb-4">
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-500 hover:text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={false}
+                  onChange={() => setEsVentaSocio(true)}
+                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                />
+                Marcar como venta a socio/empleado
+              </label>
             </div>
           )}
 
@@ -1293,57 +1400,26 @@ export const VentaForm: React.FC<VentaFormProps> = ({
             </div>
           )}
 
-          {/* Toggle Venta a Socio — solo admin/gerente */}
-          {esAdminOGerente && (
-            <div className={`border rounded-lg p-4 space-y-3 ${esVentaSocio ? 'bg-purple-50 border-purple-300' : 'bg-gray-50 border-gray-200'}`}>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={esVentaSocio}
-                  onChange={(e) => {
-                    setEsVentaSocio(e.target.checked);
-                    if (!e.target.checked) setSocioNombre('');
-                  }}
-                  className="w-4 h-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500"
-                />
-                <div>
-                  <span className="text-sm font-medium text-gray-900">Venta a Socio</span>
-                  <p className="text-xs text-gray-500">Precio especial. Se excluye de reportes de rentabilidad.</p>
-                </div>
-              </label>
-              {esVentaSocio && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del socio</label>
-                    <input
-                      type="text"
-                      value={socioNombre}
-                      onChange={(e) => setSocioNombre(e.target.value)}
-                      placeholder="Ej: Carlos - Socio fundador"
-                      className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-purple-500 focus:border-purple-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Motivo <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={motivoVentaSocio}
-                      onChange={(e) => setMotivoVentaSocio(e.target.value)}
-                      className="w-full px-3 py-2 border border-purple-300 rounded-lg text-sm focus:ring-purple-500 focus:border-purple-500"
-                    >
-                      <option value="">Seleccionar motivo...</option>
-                      <option value="consumo_personal">Consumo personal</option>
-                      <option value="regalo_cliente_socio">Regalo a cliente del socio</option>
-                      <option value="producto_por_vencer">Producto por vencer</option>
-                      <option value="muestra">Muestra / demostración</option>
-                      <option value="otro">Otro</option>
-                    </select>
-                    {esVentaSocio && !motivoVentaSocio && (
-                      <p className="text-xs text-red-500 mt-1">El motivo es obligatorio para ventas a socios</p>
-                    )}
-                  </div>
-                </div>
+          {/* Resumen Venta a Socio (read-only en paso Confirmar) */}
+          {esVentaSocio && (
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-purple-600" />
+                <span className="font-medium text-purple-800">Venta a Empleado</span>
+              </div>
+              <p className="text-sm text-purple-700 mt-1">
+                {socioNombre}{socioCargo ? ` \u00B7 ${socioCargo}` : ''}
+              </p>
+              {motivoVentaSocio && (
+                <p className="text-xs text-purple-500 mt-1">
+                  Motivo: {motivoVentaSocio === 'consumo_personal' ? 'Consumo personal' :
+                    motivoVentaSocio === 'regalo_cliente_socio' ? 'Regalo a cliente del socio' :
+                    motivoVentaSocio === 'producto_por_vencer' ? 'Producto por vencer' :
+                    motivoVentaSocio === 'muestra' ? 'Muestra / demostraci\u00F3n' : motivoVentaSocio}
+                </p>
+              )}
+              {!motivoVentaSocio && (
+                <p className="text-xs text-red-500 mt-1">Falta seleccionar el motivo en el paso Cliente</p>
               )}
             </div>
           )}

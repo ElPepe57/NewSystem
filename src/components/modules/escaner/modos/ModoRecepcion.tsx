@@ -6,6 +6,7 @@ import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
 import type { Transferencia, RecepcionFormData } from '../../../../types/transferencia.types';
 import { getLabelTipoTransferencia } from '../../../../utils/multiOrigen.helpers';
+import { VincularUPCModal } from '../VincularUPCModal';
 
 export interface ModoRecepcionHandle {
   handleScan: (barcode: string, format?: string) => void;
@@ -36,6 +37,8 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
   const [fechasVencimiento, setFechasVencimiento] = useState<Record<string, string>>({});
   const [observaciones, setObservaciones] = useState('');
   const [costoRecojoPEN, setCostoRecojoPEN] = useState<string>('');
+  const [showVincularModal, setShowVincularModal] = useState(false);
+  const [notFoundBarcode, setNotFoundBarcode] = useState('');
 
   // Load pending transfers
   useEffect(() => {
@@ -130,7 +133,9 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
     }
 
     if (!prod) {
-      toast.warning(`Codigo ${barcode} no encontrado en esta transferencia`);
+      setNotFoundBarcode(barcode);
+      setShowVincularModal(true);
+      toast.warning(`Codigo ${barcode} no encontrado — puedes vincularlo a un producto`);
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
       return;
     }
@@ -341,42 +346,74 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                         {prod.sku} {prod.lote && `· Lote: ${prod.lote}`}
                       </p>
 
-                      {/* Fecha vencimiento input — prominente */}
-                      <div className={`ml-0 mt-2 p-2 rounded-lg border ${
-                        fechasVencimiento[prod.productoId]
-                          ? 'bg-green-50 border-green-200'
-                          : 'bg-amber-50 border-amber-200'
-                      }`}>
-                        <label className="flex items-center gap-1.5 text-xs font-medium mb-1" style={{
-                          color: fechasVencimiento[prod.productoId] ? '#166534' : '#92400E'
-                        }}>
-                          <Calendar className="h-3.5 w-3.5" />
-                          Fecha de vencimiento
-                          {!fechasVencimiento[prod.productoId] && (
-                            <span className="text-red-500 text-[10px]">* obligatorio</span>
-                          )}
-                        </label>
-                        <input
-                          type="date"
-                          min={new Date().toISOString().split('T')[0]}
-                          max={new Date(Date.now() + 5 * 365 * 86400000).toISOString().split('T')[0]}
-                          value={fechasVencimiento[prod.productoId] || ''}
-                          onChange={(e) => setFechasVencimiento(prev => ({
-                            ...prev,
-                            [prod.productoId]: e.target.value,
-                          }))}
-                          className="w-full text-sm border rounded-md px-2 py-2.5 min-h-[44px] focus:ring-2 focus:ring-amber-400 bg-white"
-                        />
-                        {/* Feedback de fecha ingresada */}
-                        {fechasVencimiento[prod.productoId] && (() => {
-                          const dias = Math.ceil((new Date(fechasVencimiento[prod.productoId]).getTime() - Date.now()) / 86400000);
-                          return dias < 0
-                            ? <p className="text-xs text-red-600 mt-1">Fecha ya vencida — revisa el dato</p>
-                            : dias < 90
-                            ? <p className="text-xs text-amber-600 mt-1">Vence en {dias} días — vida útil corta</p>
-                            : <p className="text-xs text-green-700 mt-1">Vence en {dias} días ({new Date(fechasVencimiento[prod.productoId]).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })})</p>;
-                        })()}
-                      </div>
+                      {/* Vencimiento mes/año — ágil para móvil */}
+                      {(() => {
+                        const fv = fechasVencimiento[prod.productoId];
+                        const hasFecha = !!fv;
+                        // Parse existing value if set (YYYY-MM-DD)
+                        const mesActual = fv ? parseInt(fv.split('-')[1]) : (new Date().getMonth() + 1);
+                        const anioActual = fv ? parseInt(fv.split('-')[0]) : (new Date().getFullYear() + 1);
+                        const MESES_LABEL = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                        const ANIOS_LIST = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() + i);
+
+                        const updateFechaFromMesAnio = (mes: number, anio: number) => {
+                          // Último día del mes
+                          const ultimoDia = new Date(anio, mes, 0).getDate();
+                          const fechaStr = `${anio}-${String(mes).padStart(2,'0')}-${String(ultimoDia).padStart(2,'0')}`;
+                          setFechasVencimiento(prev => ({ ...prev, [prod.productoId]: fechaStr }));
+                        };
+
+                        return (
+                          <div className={`ml-0 mt-2 p-2 rounded-lg border ${
+                            hasFecha ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
+                          }`}>
+                            <label className="flex items-center gap-1.5 text-xs font-medium mb-1" style={{
+                              color: hasFecha ? '#166534' : '#92400E'
+                            }}>
+                              <Calendar className="h-3.5 w-3.5" />
+                              Vencimiento
+                              {!hasFecha && <span className="text-red-500 text-[10px]">* obligatorio</span>}
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <select
+                                value={hasFecha ? mesActual : ''}
+                                onChange={(e) => {
+                                  const m = parseInt(e.target.value);
+                                  if (m) updateFechaFromMesAnio(m, anioActual);
+                                }}
+                                className="text-sm border rounded px-2 py-2 min-h-[44px] bg-white focus:ring-2 focus:ring-amber-400 flex-1"
+                              >
+                                {!hasFecha && <option value="">Mes</option>}
+                                {MESES_LABEL.map((m, i) => (
+                                  <option key={i} value={i + 1}>{m}</option>
+                                ))}
+                              </select>
+                              <select
+                                value={hasFecha ? anioActual : ''}
+                                onChange={(e) => {
+                                  const a = parseInt(e.target.value);
+                                  if (a) updateFechaFromMesAnio(mesActual || (new Date().getMonth() + 1), a);
+                                }}
+                                className="text-sm border rounded px-2 py-2 min-h-[44px] bg-white focus:ring-2 focus:ring-amber-400 flex-1"
+                              >
+                                {!hasFecha && <option value="">Año</option>}
+                                {ANIOS_LIST.map(a => (
+                                  <option key={a} value={a}>{a}</option>
+                                ))}
+                              </select>
+                            </div>
+                            {hasFecha && (() => {
+                              const fecha = new Date(fv + 'T00:00:00');
+                              const dias = Math.ceil((fecha.getTime() - Date.now()) / 86400000);
+                              return dias < 0
+                                ? <p className="text-xs text-red-600 mt-1">Vencido</p>
+                                : dias < 90
+                                ? <p className="text-xs text-amber-600 mt-1">Vence en {dias} dias</p>
+                                : <p className="text-xs text-green-700 mt-1">Vence en {dias} dias</p>;
+                            })()}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Quantity controls */}
@@ -456,6 +493,15 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
           <p className="text-sm text-gray-500">Todas las unidades ya fueron recibidas</p>
         </div>
       )}
+      <VincularUPCModal
+        isOpen={showVincularModal}
+        onClose={() => setShowVincularModal(false)}
+        barcode={notFoundBarcode}
+        onLinked={(producto) => {
+          setShowVincularModal(false);
+          toast.success(`${producto.nombreComercial} vinculado al codigo ${notFoundBarcode}`);
+        }}
+      />
     </div>
   );
 });

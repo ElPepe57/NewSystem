@@ -18,6 +18,7 @@ export interface UserProfile {
   email: string;
   displayName: string;
   photoURL?: string; // Opcional, pero útil para el avatar
+  cargo?: string; // Puesto/posición: "Socio fundador", "Gerente comercial", etc.
 
   role: UserRole;
   permisos: string[]; // Lista de capacidades específicas

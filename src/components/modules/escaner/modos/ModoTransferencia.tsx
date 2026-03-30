@@ -10,6 +10,7 @@ import type { Almacen } from '../../../../types/almacen.types';
 import type { Unidad } from '../../../../types/unidad.types';
 import type { TipoTransferencia } from '../../../../types/transferencia.types';
 import { esTipoTransferenciaInternacional, esTipoTransferenciaInterna, getLabelTipoTransferencia } from '../../../../utils/multiOrigen.helpers';
+import { VincularUPCModal } from '../VincularUPCModal';
 
 export interface ModoTransferenciaHandle {
   handleScan: (barcode: string, format?: string) => void;
@@ -38,6 +39,8 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
   const [productos, setProductos] = useState<ProductoTransferencia[]>([]);
   const [notas, setNotas] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showVincularModal, setShowVincularModal] = useState(false);
+  const [notFoundBarcode, setNotFoundBarcode] = useState('');
   const [viajeroId, setViajeroId] = useState('');
   const [viajeros, setViajeros] = useState<Almacen[]>([]);
   const [numeroTracking, setNumeroTracking] = useState('');
@@ -51,7 +54,8 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
           almacenService.getAll(),
           almacenService.getViajeros().catch(() => [] as Almacen[]),
         ]);
-        setAlmacenes(all.filter(a => a.estadoAlmacen !== 'inactivo'));
+        // Solo almacenes locales en Perú (el escáner no se usa en USA)
+        setAlmacenes(all.filter(a => a.estadoAlmacen !== 'inactivo' && (a.pais === 'Peru' || a.pais === 'Peru_local')));
         setViajeros(viajerosData);
       } catch {
         toast.error('Error al cargar almacenes');
@@ -160,7 +164,9 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
     }
 
     if (!productoId) {
-      toast.warning(`Codigo ${barcode} no encontrado o sin stock en este almacen`);
+      setNotFoundBarcode(barcode);
+      setShowVincularModal(true);
+      toast.warning(`Codigo ${barcode} no encontrado — puedes vincularlo a un producto`);
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
       return;
     }
@@ -513,6 +519,15 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
           </div>
         </>
       )}
+      <VincularUPCModal
+        isOpen={showVincularModal}
+        onClose={() => setShowVincularModal(false)}
+        barcode={notFoundBarcode}
+        onLinked={(producto) => {
+          setShowVincularModal(false);
+          toast.success(`${producto.nombreComercial} vinculado al codigo ${notFoundBarcode}`);
+        }}
+      />
     </div>
   );
 });

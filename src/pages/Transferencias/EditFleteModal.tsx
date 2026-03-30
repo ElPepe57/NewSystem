@@ -23,17 +23,26 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
   }, [productos]);
 
   const [submitting, setSubmitting] = useState(false);
-  const [fletesPorProducto, setFletesPorProducto] = useState<Record<string, number>>(() => {
+  // Input: flete POR UNIDAD — el total se calcula automáticamente
+  const [fletePorUnidadMap, setFletePorUnidadMap] = useState<Record<string, number>>(() => {
     const initial: Record<string, number> = {};
     for (const producto of transferencia.productosSummary) {
       const unidadesProducto = transferencia.unidades.filter(u => u.productoId === producto.productoId);
       const fleteTotal = unidadesProducto.reduce((sum, u) => sum + (u.costoFleteUSD || 0), 0);
+      const cantidad = producto.cantidad || 1;
       if (fleteTotal > 0) {
-        initial[producto.productoId] = fleteTotal;
+        initial[producto.productoId] = fleteTotal / cantidad;
       }
     }
     return initial;
   });
+
+  // Calcular totales por producto para pasar al onConfirm
+  const fletesPorProducto: Record<string, number> = {};
+  for (const producto of transferencia.productosSummary) {
+    const porUnidad = fletePorUnidadMap[producto.productoId] || 0;
+    fletesPorProducto[producto.productoId] = porUnidad * (producto.cantidad || 1);
+  }
 
   const totalFlete = Object.values(fletesPorProducto).reduce((sum, v) => sum + (v || 0), 0);
 
@@ -83,8 +92,8 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {transferencia.productosSummary.map((producto) => {
               const unidadesCount = producto.cantidad;
-              const fleteTotalProducto = fletesPorProducto[producto.productoId] || 0;
-              const fletePorUnidad = unidadesCount > 0 ? fleteTotalProducto / unidadesCount : 0;
+              const fletePorUnidad = fletePorUnidadMap[producto.productoId] || 0;
+              const fleteTotalProducto = fletePorUnidad * unidadesCount;
               const productoFull = productosMap.get(producto.productoId);
 
               return (
@@ -114,15 +123,15 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
                       <p className="text-xs text-gray-500 mt-1">{producto.sku} &middot; {producto.cantidad} unidades</p>
                     </div>
                     <div className="flex-shrink-0 w-40">
-                      <label className="block text-xs text-gray-500 mb-1">Flete total producto (USD)</label>
+                      <label className="block text-xs text-gray-500 mb-1">Flete por unidad (USD)</label>
                       <div className="relative">
                         <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
                         <input
                           type="number"
-                          value={fletesPorProducto[producto.productoId] || ''}
+                          value={fletePorUnidadMap[producto.productoId] || ''}
                           onChange={(e) => {
                             const valor = parseFloat(e.target.value) || 0;
-                            setFletesPorProducto(prev => ({
+                            setFletePorUnidadMap(prev => ({
                               ...prev,
                               [producto.productoId]: valor
                             }));
@@ -133,9 +142,9 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
                           min="0"
                         />
                       </div>
-                      {fletePorUnidad > 0 && (
+                      {fleteTotalProducto > 0 && (
                         <div className="text-xs text-blue-600 mt-1 text-right">
-                          ${fletePorUnidad.toFixed(2)} / unidad
+                          Total: ${fleteTotalProducto.toFixed(2)}
                         </div>
                       )}
                     </div>

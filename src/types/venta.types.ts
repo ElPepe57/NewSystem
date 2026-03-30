@@ -374,7 +374,9 @@ export interface Venta {
 
   // Venta a socio (precio especial, excluida de reportes de rentabilidad)
   esVentaSocio?: boolean;         // true si es venta a socio del negocio
-  socioNombre?: string;           // Nombre del socio (ej: "Carlos - Socio")
+  socioNombre?: string;           // Nombre del socio (desnormalizado para display)
+  socioUid?: string;              // UID del usuario del ERP (vinculación directa)
+  socioCargo?: string;            // Cargo del socio (desnormalizado: "Socio fundador", etc.)
   motivoVentaSocio?: string;      // Motivo obligatorio (ej: "consumo personal")
 
   // Auditoría
@@ -426,7 +428,9 @@ export interface VentaFormData {
 
   // Venta a socio (precio especial, excluida de reportes de rentabilidad)
   esVentaSocio?: boolean;         // true si es venta a socio del negocio
-  socioNombre?: string;           // Nombre del socio
+  socioNombre?: string;           // Nombre del socio (desnormalizado)
+  socioUid?: string;              // UID del usuario del ERP
+  socioCargo?: string;            // Cargo del socio (desnormalizado)
   motivoVentaSocio?: string;      // Motivo obligatorio (ej: "consumo_personal")
 }
 

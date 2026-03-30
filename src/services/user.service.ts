@@ -363,7 +363,7 @@ export const userService = {
   /**
    * Actualizar perfil de usuario (nombre, foto)
    */
-  async updateProfile(uid: string, data: { displayName?: string; photoURL?: string }): Promise<void> {
+  async updateProfile(uid: string, data: { displayName?: string; photoURL?: string; cargo?: string }): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION_NAME, uid);
       await updateDoc(docRef, data);

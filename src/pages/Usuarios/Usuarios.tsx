@@ -23,6 +23,7 @@ export const Usuarios: React.FC = () => {
     email: '',
     password: '',
     displayName: '',
+    cargo: '',
     role: 'vendedor' as UserRole
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -104,16 +105,21 @@ export const Usuarios: React.FC = () => {
     setError(null);
 
     try {
-      await userService.createUser(
+      const createdUser = await userService.createUser(
         newUser.email,
         newUser.password,
         newUser.displayName,
         newUser.role
       );
 
+      // Guardar cargo si se proporcionó
+      if (newUser.cargo.trim() && createdUser.uid) {
+        await userService.updateProfile(createdUser.uid, { cargo: newUser.cargo.trim() });
+      }
+
       setSuccess('Usuario creado correctamente');
       setModalType('none');
-      setNewUser({ email: '', password: '', displayName: '', role: 'vendedor' });
+      setNewUser({ email: '', password: '', displayName: '', cargo: '', role: 'vendedor' });
       await fetchUsuarios();
     } catch (err: any) {
       setError(err.message);
@@ -624,6 +630,9 @@ export const Usuarios: React.FC = () => {
                           <span className="ml-2 text-xs text-primary-600">(Tú)</span>
                         )}
                       </div>
+                      {usuario.cargo && (
+                        <div className="text-xs text-gray-500">{usuario.cargo}</div>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -738,6 +747,20 @@ export const Usuarios: React.FC = () => {
                     onChange={(e) => setNewUser({ ...newUser, displayName: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="usuario-cargo" className="block text-sm font-medium text-gray-700 mb-1">
+                    Cargo / Puesto
+                  </label>
+                  <input
+                    id="usuario-cargo"
+                    type="text"
+                    value={newUser.cargo}
+                    onChange={(e) => setNewUser({ ...newUser, cargo: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Ej: Socio fundador, Gerente comercial, Asistente"
                   />
                 </div>
 

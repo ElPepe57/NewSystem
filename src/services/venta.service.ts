@@ -547,6 +547,10 @@ export class VentaService {
           withRetry(() => clienteService.actualizarMetricasPorVenta(clienteIdFinal!, {
             montoVenta: totalPEN,
             productoIds,
+            telefono: data.telefonoCliente,
+            email: data.emailCliente,
+            dniRuc: data.dniRuc,
+            direccion: data.direccionEntrega,
           })).catch((err: any) => {
             logger.warn('[crear] Error actualizando métricas cliente:', err);
             logBackgroundError('clienteMetricas.crear', err, 'high', { clienteId: clienteIdFinal, montoVenta: totalPEN });
@@ -667,6 +671,10 @@ export class VentaService {
           withRetry(() => clienteService.actualizarMetricasPorVenta(clienteId, {
             montoVenta: venta.totalPEN || 0,
             productoIds,
+            telefono: venta.telefonoCliente,
+            email: venta.emailCliente,
+            dniRuc: venta.dniRuc,
+            direccion: venta.direccionEntrega,
           })).catch((err: any) => {
             logger.warn('[confirmarVenta] Error actualizando métricas cliente tras 3 intentos:', err);
             logBackgroundError('clienteMetricas.confirmarVenta', err, 'high', { clienteId, ventaId: id, montoVenta: venta.totalPEN });

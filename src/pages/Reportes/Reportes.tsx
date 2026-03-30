@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, lazy, Suspense } from 'react';
 import {
   DollarSign,
   TrendingUp,
@@ -12,8 +12,26 @@ import {
   Download,
   FileSpreadsheet,
   Calculator,
-  RefreshCw
+  RefreshCw,
+  Users,
+  ClipboardCheck
 } from 'lucide-react';
+
+// Tabs lazy-loaded
+const TabLogistica = lazy(() => import('./TabLogistica').then(m => ({ default: m.TabLogistica })));
+const TabClientes = lazy(() => import('./TabClientes').then(m => ({ default: m.TabClientes })));
+const TabAuditorias = lazy(() => import('./TabAuditorias').then(m => ({ default: m.TabAuditorias })));
+const TabCompras = lazy(() => import('./TabCompras').then(m => ({ default: m.TabCompras })));
+
+type ReporteTab = 'rentabilidad' | 'logistica' | 'clientes' | 'auditorias' | 'compras';
+
+const TABS: { id: ReporteTab; label: string; icon: React.ReactNode }[] = [
+  { id: 'rentabilidad', label: 'Rentabilidad', icon: <TrendingUp className="h-4 w-4" /> },
+  { id: 'logistica', label: 'Logistica', icon: <Truck className="h-4 w-4" /> },
+  { id: 'clientes', label: 'Clientes', icon: <Users className="h-4 w-4" /> },
+  { id: 'auditorias', label: 'Auditorias', icon: <ClipboardCheck className="h-4 w-4" /> },
+  { id: 'compras', label: 'Compras', icon: <ShoppingCart className="h-4 w-4" /> },
+];
 import { Card, Button, Badge } from '../../components/common';
 import { TendenciaChart } from '../../components/modules/reporte/TendenciaChart';
 import { ProductosRentabilidadTable } from '../../components/modules/reporte/ProductosRentabilidadTable';
@@ -58,6 +76,7 @@ export const Reportes: React.FC = () => {
   const [rentabilidadNeta, setRentabilidadNeta] = useState<RentabilidadNetaPeriodo | null>(null);
   const [tipoGrafico, setTipoGrafico] = useState<'utilidad' | 'margen' | 'ventas'>('utilidad');
   const [periodoActivo, setPeriodoActivo] = useState<PeriodoPreset>('mes');
+  const [activeTab, setActiveTab] = useState<ReporteTab>('rentabilidad');
   const [fechasFiltro, setFechasFiltro] = useState<{ inicio: Date; fin: Date }>({
     inicio: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     fin: new Date()
@@ -341,26 +360,62 @@ export const Reportes: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl sm:text-3xl font-bold text-gray-900">Reportes</h1>
-        <div className="flex gap-1.5 sm:gap-2">
-          <button
-            onClick={() => fetchAll()}
-            disabled={loading}
-            className="p-2 sm:px-3 sm:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            onClick={exportarTodo}
-            disabled={loading}
-            className="p-2 sm:px-3 sm:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 flex items-center gap-1.5"
-          >
-            <FileSpreadsheet className="h-4 w-4" />
-            <span className="hidden sm:inline text-sm">Exportar</span>
-          </button>
-        </div>
+        {activeTab === 'rentabilidad' && (
+          <div className="flex gap-1.5 sm:gap-2">
+            <button
+              onClick={() => fetchAll()}
+              disabled={loading}
+              className="p-2 sm:px-3 sm:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={exportarTodo}
+              disabled={loading}
+              className="p-2 sm:px-3 sm:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 flex items-center gap-1.5"
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">Exportar</span>
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Filtro de Fechas */}
+      {/* Tabs de navegación */}
+      <div className="border-b border-gray-200 overflow-x-auto">
+        <nav className="flex gap-0 -mb-px min-w-max">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'border-primary-600 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Contenido del tab activo */}
+      {activeTab !== 'rentabilidad' ? (
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+          </div>
+        }>
+          {activeTab === 'logistica' && <TabLogistica />}
+          {activeTab === 'clientes' && <TabClientes />}
+          {activeTab === 'auditorias' && <TabAuditorias />}
+          {activeTab === 'compras' && <TabCompras />}
+        </Suspense>
+      ) : (
+      <>
+      {/* Filtro de Fechas — solo para tab Rentabilidad */}
       <FiltroFechas
         onFiltroChange={handleFiltroFechas}
         periodoInicial="mes"
@@ -815,6 +870,8 @@ export const Reportes: React.FC = () => {
           </div>
           <InventarioValorizadoTable inventario={inventarioValorizado} />
         </div>
+      )}
+      </>
       )}
     </div>
   );

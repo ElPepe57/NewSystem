@@ -44,6 +44,7 @@ import type { DashboardCuentasPendientes } from '../types/tesoreria.types';
 import { Link } from 'react-router-dom';
 import { useLineaNegocioStore } from '../store/lineaNegocioStore';
 import { useLineaFilter } from '../hooks/useLineaFilter';
+import { filtrarVentasMes, calcularKPIVentas } from '../utils/kpi.calculators';
 import type { Producto } from '../types/producto.types';
 import {
   LineChart,
@@ -191,25 +192,19 @@ export const Dashboard: React.FC = () => {
   }).length || 0;
 
   // Valor total usando resumen (object)
-  const valorInventarioPEN = resumenInventario?.total?.valorUSD
-    ? resumenInventario.total.valorUSD * (tipoCambioDelDia?.compra || 3.8)
+  // INC-003 fix: usar TC venta (consistente con Reportes), sin fallback hardcodeado
+  const tcParaInventario = tipoCambioDelDia?.venta || tipoCambioDelDia?.compra || 0;
+  const valorInventarioPEN = resumenInventario?.total?.valorUSD && tcParaInventario > 0
+    ? resumenInventario.total.valorUSD * tcParaInventario
     : 0;
 
-  // Ventas del mes
+  // Ventas del mes — usa filtrado canónico compartido con Reportes
   const ahora = new Date();
-  const ventasMesActual = ventasLN.filter(v => {
-    if (!v.fechaCreacion || !v.fechaCreacion.toDate) return false;
-    const fecha = v.fechaCreacion.toDate();
-    return fecha.getMonth() === ahora.getMonth() &&
-           fecha.getFullYear() === ahora.getFullYear() &&
-           v.estado !== 'cancelada';
-  });
-
-  const totalVentasMes = ventasMesActual.reduce((sum, v) => sum + v.totalPEN, 0);
-  const utilidadMes = ventasMesActual.reduce((sum, v) => sum + (v.utilidadBrutaPEN || 0), 0);
-  const margenPromedioMes = ventasMesActual.length > 0
-    ? ventasMesActual.reduce((sum, v) => sum + (v.margenPromedio || 0), 0) / ventasMesActual.length
-    : 0;
+  const ventasMesActual = filtrarVentasMes(ventasLN, ahora);
+  const kpiMes = calcularKPIVentas(ventasMesActual);
+  const totalVentasMes = kpiMes.totalPEN;
+  const utilidadMes = kpiMes.utilidadPEN;
+  const margenPromedioMes = kpiMes.margenPonderado;
 
   // Anticipos pendientes (pasivo): ventas reservadas con dinero adelantado
   const anticiposPendientes = useMemo(() => {

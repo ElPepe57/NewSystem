@@ -840,6 +840,10 @@ export const clienteService = {
     datosVenta: {
       montoVenta: number;
       productoIds?: string[];
+      telefono?: string;
+      email?: string;
+      dniRuc?: string;
+      direccion?: string;
     }
   ): Promise<void> {
     try {
@@ -906,6 +910,20 @@ export const clienteService = {
 
         const historialActual = cliente.historialClasificacion || [];
         updates.historialClasificacion = [...historialActual.slice(-9), historial];
+      }
+
+      // Actualizar datos de contacto si el cliente no los tenía y la venta los trae
+      if (datosVenta.telefono && !cliente.telefono) {
+        updates.telefono = datosVenta.telefono;
+      }
+      if (datosVenta.email && !cliente.email) {
+        updates.email = datosVenta.email;
+      }
+      if (datosVenta.dniRuc && !cliente.dniRuc) {
+        updates.dniRuc = datosVenta.dniRuc;
+      }
+      if (datosVenta.direccion && !cliente.direccionPrincipal) {
+        updates.direccionPrincipal = datosVenta.direccion;
       }
 
       await updateDoc(doc(db, COLLECTION_NAME, clienteId), updates);

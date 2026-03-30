@@ -19,6 +19,8 @@ export const MOTIVOS_VENTA_SOCIO: Record<string, string> = {
 // ---- Tipos ----
 export interface ResumenPorSocio {
   nombre: string;
+  uid?: string;
+  cargo?: string;
   ventas: number;
   cobradoPEN: number;
   costoRealPEN: number;
@@ -68,11 +70,13 @@ function calcularResumenSocios(
     totalCobradoPEN += v.totalPEN || 0;
     totalCostoRealPEN += v.costoTotalPEN || 0;
 
+    // Agrupar por UID si existe, fallback a nombre
+    const socioKey = v.socioUid || v.socioNombre || v.nombreCliente || 'Sin nombre';
     const nombreSocio = v.socioNombre || v.nombreCliente || 'Sin nombre';
-    let socio = porSocioMap.get(nombreSocio);
+    let socio = porSocioMap.get(socioKey);
     if (!socio) {
-      socio = { nombre: nombreSocio, ventas: 0, cobradoPEN: 0, costoRealPEN: 0, subsidioPEN: 0, costoOportunidadPEN: 0, motivos: [] };
-      porSocioMap.set(nombreSocio, socio);
+      socio = { nombre: nombreSocio, uid: v.socioUid, cargo: v.socioCargo, ventas: 0, cobradoPEN: 0, costoRealPEN: 0, subsidioPEN: 0, costoOportunidadPEN: 0, motivos: [] };
+      porSocioMap.set(socioKey, socio);
     }
     socio.ventas += 1;
     socio.cobradoPEN += v.totalPEN || 0;

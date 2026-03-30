@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ScanLine, ToggleLeft, ToggleRight, Search, ClipboardCheck, Truck, PackageCheck, ArrowRightLeft, ArrowLeft } from 'lucide-react';
+import { ScanLine, Search, ClipboardCheck, Truck, PackageCheck, ArrowRightLeft, ArrowLeft } from 'lucide-react';
 import { GradientHeader } from '../../components/common';
 import { BarcodeScanner } from '../../components/common/BarcodeScanner';
 import { Tabs } from '../../components/common/Tabs';
@@ -44,7 +44,7 @@ export const Escaner: React.FC = () => {
   const [activeMode, setActiveMode] = useState<ScannerModoId>(
     modoParam && VALID_MODES.includes(modoParam) ? modoParam : 'consulta'
   );
-  const [continuousMode, setContinuousMode] = useState(false);
+  // continuousMode eliminado — era UI muerta sin efecto funcional
 
   // Refs for each mode's scan handler
   const consultaRef = useRef<ModoConsultaHandle>(null);
@@ -119,19 +119,7 @@ export const Escaner: React.FC = () => {
               <ScanLine className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
               Escanear
             </h2>
-            <button
-              type="button"
-              onClick={() => setContinuousMode(!continuousMode)}
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900 py-1"
-            >
-              {continuousMode ? (
-                <ToggleRight className="h-5 w-5 text-primary-600" />
-              ) : (
-                <ToggleLeft className="h-5 w-5 text-gray-400" />
-              )}
-              <span className="hidden sm:inline">Modo continuo</span>
-              <span className="sm:hidden">Continuo</span>
-            </button>
+            {/* Toggle modo continuo eliminado — era UI sin efecto funcional */}
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">

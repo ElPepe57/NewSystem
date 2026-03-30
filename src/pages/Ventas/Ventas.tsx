@@ -949,8 +949,11 @@ export const Ventas: React.FC = () => {
                       </thead>
                       <tbody>
                         {resumenSocios.porSocio.map(s => (
-                          <tr key={s.nombre} className="border-b border-purple-50 hover:bg-purple-50/40 transition-colors">
-                            <td className="py-2 pr-3 font-medium text-gray-900">{s.nombre}</td>
+                          <tr key={s.uid || s.nombre} className="border-b border-purple-50 hover:bg-purple-50/40 transition-colors">
+                            <td className="py-2 pr-3">
+                              <span className="font-medium text-gray-900">{s.nombre}</span>
+                              {s.cargo && <span className="block text-xs text-purple-500">{s.cargo}</span>}
+                            </td>
                             <td className="py-2 px-3 text-center text-gray-600">{s.ventas}</td>
                             <td className="py-2 px-3 text-right text-gray-700">{formatCurrencyPEN(s.cobradoPEN)}</td>
                             <td className={`py-2 px-3 text-right font-medium ${
