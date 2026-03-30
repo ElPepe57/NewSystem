@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   TrendingUp, TrendingDown, AlertTriangle, BarChart3, DollarSign,
   Package, RefreshCw, ChevronDown, ChevronUp, ShoppingCart,
@@ -25,8 +25,6 @@ import type { CTRUProductoDetalle } from '../../store/ctruStore';
 
 export const Proyeccion: React.FC = () => {
   const { productos, loading: ctruLoading, fetchAll } = useCTRUStore();
-  const { filterByLinea } = useLineaFilter();
-
   const [dashboard, setDashboard] = useState<DashboardProyeccion | null>(null);
   const [proyecciones, setProyecciones] = useState<ProyeccionCTRU[]>([]);
   const [escenarios, setEscenarios] = useState<EscenariosProducto[]>([]);
@@ -37,10 +35,7 @@ export const Proyeccion: React.FC = () => {
   const [tcSlider, setTcSlider] = useState(0); // -10 a +10 %
   const [seccionExpandida, setSeccionExpandida] = useState<string | null>('resumen');
 
-  const productosLN = useMemo(() => {
-    if (!productos.length) return [];
-    return filterByLinea(productos, (p: CTRUProductoDetalle) => p.lineaNegocioId);
-  }, [productos, filterByLinea]);
+  const productosLN = useLineaFilter(productos, (p: CTRUProductoDetalle) => p.lineaNegocioId);
 
   // Cargar datos CTRU si no están
   useEffect(() => {
