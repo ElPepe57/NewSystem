@@ -57,7 +57,8 @@
  *   - tipoCambio.service.ts           -> TC actual y tendencia
  */
 
-import type { Horizonte } from '../services/costoProyeccion.service';
+// Horizonte de proyección (antes importado de costoProyeccion.service, ahora definido aquí)
+export type Horizonte = 30 | 90;
 
 // ============================================
 // 0. SUPUESTOS — La base de todo el modelo

@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-26 (Sesion 22 — Implementacion CTRU Fases 0-2: fix critico ctruBase/ctruInicial, feature flag ctruV2Enabled, tipos nuevos en Unidad y OC, renombramiento D-015 en 21 archivos con backward compatibility, simplificacion onGastoCreado (motor unico canonico delegado al frontend). Commits: 5a9fa8c, 39fbf9e, d698825, 2506856. Fases 3-10 pendientes.)
+**Ultima actualizacion:** 2026-03-30 (Sesion 25 — 10 deploys (Deploy 28-37): sidebar reorganizado con grupo Analisis, Proyeccion 360 del Negocio operativa en /proyeccion (reescritura completa Deploy 36-37), estructura de tabs en /reportes, CAMBIO-122 a CAMBIO-130. Commits incluye 5ec5b43 (Proyeccion 360). Limpieza CTRU pendiente proxima sesion.)
 **Branch activo:** main
 
 ---
@@ -12,12 +12,12 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 21 |
+| Sesiones de trabajo registradas | 25 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | ~200 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19 + 13 S20 + 16 S21) |
-| Tareas criticas pendientes | 0 (todos los bloqueantes UAT resueltos) |
-| Deploys realizados | 29 (ultimo: 2026-03-25 post-Sesion 21, commits 64fdd3d + ddcfd90 + f1455e3 + 55cd9c6 + e2703bd, hosting vitaskinperu.web.app) |
+| Fixes aplicados | ~219 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19 + 13 S20 + 16 S21 + 11 S24 + 8 S25) |
+| Tareas criticas pendientes | 3 (TAREA-097: mejoras proyeccion, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
+| Deploys realizados | 37 (ultimo: 2026-03-30 post-S25 adicional, commit 5ec5b43, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -41,7 +41,9 @@ MODULOS ACTIVOS EN PRODUCCION:
   Cotizaciones              — ESTABLE — desde: pre-2026
   Entregas                  — ESTABLE — desde: pre-2026
   Gastos/Tesoreria          — ESTABLE — desde: pre-2026
-  CTRU Dashboard v3         — ESTABLE — desde: 2026-02-18
+  CTRU Dashboard v3         — ESTABLE — desde: 2026-02-18 (dual-view contable/gerencial completo S24: todos los campos responden al toggle; sin proyecciones por decision S25)
+  Proyeccion de Costos      — ACTIVO — desde: 2026-03-30 (/proyeccion, version base; mejoras en TAREA-097)
+  Reportes Unificado        — PARCIAL — desde: 2026-03-30 (estructura tabs lista S25; contenido completo pendiente TAREA-098)
   MercadoLibre              — ESTABLE — desde: 2026-03-08 (con pack orders, boton desconectar OAuth S18-S19, cuenta JOSSELINGAMBINI activa)
   Escaner                   — ESTABLE — desde: reciente (UPC linking + historial)
   Transferencias            — ESTABLE — con rollback
@@ -98,6 +100,21 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - limit()/where() aplicados en 8 servicios: almacen, cliente, gasto y otros (S17)
   - Pool USD carga retroactiva: filtra OCs por fecha en lugar de descarga total (S17)
   - unidadStore: TTL cache de 5 min (S17)
+  - CSP firebase.json: maps.googleapis.com y maps.gstatic.com incluidos en connect-src, script-src, img-src, frame-src (S24)
+  - CTRU: eliminado TC hardcodeado 3.75 — usa ultimo TC disponible del sistema via tipoCambio.service.ts (S24)
+  - CTRU dual-view: campo gastoGAGOGerencialProm en CTRUProductoDetalle — todos los campos de la tabla (GA/GO, barra composicion, Margen, Utilidad) responden al toggle contable/gerencial (S24)
+  - venta.constants.ts: constantes compartidas de estados validos para reportes (S24)
+  - kpi.calculators.ts: funciones puras de calculo de KPIs reutilizables entre modulos (S24)
+  - Deteccion inteligente empleados: VentaForm cruza coleccion users por nombre/email/telefono/DNI — auto-activa esVentaSocio y pre-llena socioNombre + cargo (S24)
+  - cliente.service.ts actualizarDatosContacto(): actualiza telefono/email/direccion en Firestore al confirmar venta si el cliente ya existe (S24)
+  - CTRU INC-001 corregido: margen ponderado por monto en lugar de promedio simple (S24)
+  - CTRU INC-003 corregido: eliminado TC hardcodeado 3.75 en calculo CTRU (S24)
+  - Sidebar grupo Analisis: Reportes + CTRU + Intel. Productos + Rendimiento FX + Proyeccion (defaultOpen para admin/gerente) (S25)
+  - Finanzas reducido a 4 items: Gastos, Tesoreria, Contabilidad, Tipo de Cambio (S25)
+  - Proyeccion de costos: motor 100% en memoria (useMemo + ctruStore), sin llamadas Firestore adicionales (S25)
+  - CTRU: no presenta proyecciones — solo costos actuales. Proyecciones en /proyeccion por decision del titular (S25)
+  - /reportes: layout con tabs — Rentabilidad, Logistica, Clientes, Auditorias, Compras (S25)
+  - logistica.reporte.service.ts: servicio base para metricas de viajeros/couriers (S25)
   - Dashboard: carga progresiva en 2 fases (S17)
   - Zustand selectores individuales en Dashboard e Inventario (S17)
   - cliente.analytics: limit(500) aplicado (S17)
@@ -7679,7 +7696,7 @@ Esta mega-sesion abarca el trabajo de las sesiones S20, S21 y S22 en un periodo 
 | MercadoLibre | Activo — JOSSELINGAMBINI, mldisconnect disponible |
 | Escaner | Activo — conexion directa con Transferencias |
 | Contabilidad | Activo — cuenta 6951 (mermas), 6952 (desmedros), reportes con GV/GD/GA/GO |
-| Google Maps | NO DISPONIBLE — API Key sin configurar en GCP (ISSUE-001) |
+| Google Maps | OPERATIVO — CSP corregido + APIs habilitadas en GCP (resuelto S24) |
 | SUNAT | Inexistente — gap regulatorio critico abierto |
 | WhatsApp | En desarrollo — sin uso en produccion |
 
@@ -7687,6 +7704,192 @@ Esta mega-sesion abarca el trabajo de las sesiones S20, S21 y S22 en un periodo 
 
 *Cierre absoluto final registrado por implementation-controller (Agente 23).*
 *29 de marzo de 2026 — Mega-sesion S20/S21/S22 cerrada. Ultimo commit: c061e64 (fix undefined field en venta.pagos.service.ts). 2 issues nuevos reportados por el titular (Google Maps API + Venta a Socio vinculada a usuarios). Backlog priorizado para proxima sesion. Sistema estable en produccion.*
+
+---
+
+---
+
+## SESION 24 — 29 de marzo de 2026
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Sesion de correcciones CTRU, deteccion de empleados, mejoras de datos y CTRU dual-view completo
+**Deploys realizados en la sesion:** 5 (Deploy 23 a Deploy 27)
+**Commits:** f1a6b4f, ccbfc4b, 14c4a18, 8be5f19
+
+---
+
+### Resumen de la sesion
+
+Sesion centrada en cerrar deuda tecnica del CTRU y mejorar la calidad de los datos operativos. Se resolvieron dos inconsistencias de datos (INC-001 y INC-003), se elimino el unico TC hardcodeado que quedaba en el sistema, se crearon archivos de constantes y calculadoras de KPIs para consolidar logica reutilizable, y se completo el CTRU dual-view de modo que todos los campos de la tabla (GA/GO, barra de composicion, Margen, Utilidad) respondan correctamente al toggle Contable/Gerencial. Adicionalmente se implemento la deteccion inteligente de empleados en el formulario de ventas y la auto-actualizacion de datos de contacto del cliente.
+
+---
+
+### Cambios implementados
+
+#### Deploy 23 — CAMBIO-111: Fix CSP Google Maps
+
+**Archivo:** `firebase.json`
+**Descripcion:** Content-Security-Policy bloqueaba las URLs de Google Maps. El hardening de S9 (SEC-010) endurecia el CSP sin incluir excepciones para la integracion de mapas.
+**Dominios agregados:** `maps.googleapis.com`, `maps.gstatic.com` a las directivas `connect-src`, `script-src`, `img-src` y `frame-src`.
+**Resultado:** Google Maps operativo en produccion. ISSUE-001 cerrado.
+
+---
+
+#### Deploy 24 — CAMBIO-112: Deteccion inteligente de empleados en ventas
+
+**Archivos modificados:** 8 (VentaForm.tsx + tipos User + cliente-related services)
+**Descripcion:** Al seleccionar un cliente en VentaForm, el sistema cruza la busqueda con la coleccion `users` usando nombre, email, telefono y DNI. Si hay coincidencia, activa automaticamente el checkbox `esVentaSocio = true` y pre-llena `socioNombre` y `cargo`.
+**Campo nuevo:** `cargo` agregado a la interfaz `UserProfile`.
+**Proposito:** Prevenir que ventas a empleados queden sin el flag de socio por error del operador.
+
+---
+
+#### Deploy 25 — CAMBIO-113: Auto-actualizacion datos de contacto del cliente
+
+**Archivo:** `cliente.service.ts` — nuevo metodo `actualizarDatosContacto()`
+**Descripcion:** Al confirmar una venta, si el cliente ya existe en Firestore y el operador modifico telefono, email o direccion en el formulario, el sistema actualiza automaticamente el documento del cliente.
+**Campos actualizados:** telefono, email, direccion.
+**Proposito:** Mantener el maestro de clientes actualizado sin requerir accion manual del operador.
+
+---
+
+#### Deploy 26 — Correcciones CTRU y constantes compartidas
+
+**CAMBIO-114:** INC-001 corregido — el margen del CTRU ahora se pondera por monto en lugar de calcularse como promedio simple. Afecta `ctru.service.ts`.
+
+**CAMBIO-115:** INC-003 corregido — eliminado el ultimo TC hardcodeado (3.75) del sistema. El calculo CTRU ahora usa el ultimo TC disponible via `tipoCambio.service.ts`.
+
+**CAMBIO-116:** Creado `src/constants/venta.constants.ts` — constantes compartidas de estados validos para reportes. Unifica las definiciones dispersas que causaban INC-002.
+
+**CAMBIO-117:** Creado `src/utils/kpi.calculators.ts` — funciones puras de calculo de KPIs reutilizables entre modulos. Base para resolver INC-004 e INC-005 en la TAREA-098.
+
+---
+
+#### Deploy 27 — CTRU dual-view completo — CAMBIO-118 a CAMBIO-121
+
+**Commit:** 8be5f19
+**Descripcion:** Completar el toggle Contable/Gerencial de modo que todos los campos de la tabla CTRU respondan a la vista activa, no solo los campos originalmente implementados.
+
+| Cambio | Campo corregido | Descripcion |
+|--------|----------------|-------------|
+| CAMBIO-118 (BUG-001) | GA/GO | Ahora muestra valores distintos por vista: contable usa gastoGAGOProm, gerencial usa gastoGAGOGerencialProm |
+| CAMBIO-119 (BUG-002) | Barra composicion % | Se actualiza con la vista activa — antes mostraba siempre los valores contables |
+| CAMBIO-120 (BUG-003) | Columna Margen | Recalculada segun la vista activa |
+| CAMBIO-121 (BUG-004) | Columna Utilidad | Recalculada segun la vista activa |
+
+**Nuevo campo:** `gastoGAGOGerencialProm` en `CTRUProductoDetalle` — costo GA/GO en vista gerencial (incluye costo de oportunidad o reposicion segun el modelo).
+**Fix adicional:** `costoBaseTotalTodas` — corregido error de scope en `buildProductosDetalle` (commit 14c4a18).
+
+---
+
+### Tareas completadas en esta sesion
+
+| ID / Accion | Descripcion | Estado |
+|-------------|-------------|--------|
+| CAMBIO-111 | Fix CSP Google Maps | Completado — ISSUE-001 cerrado |
+| CAMBIO-112 | Deteccion inteligente empleados en ventas | Completado |
+| CAMBIO-113 | Auto-actualizacion datos contacto cliente | Completado |
+| CAMBIO-114 | INC-001: margen ponderado por monto | Completado |
+| CAMBIO-115 | INC-003: eliminar TC hardcodeado 3.75 | Completado |
+| CAMBIO-116 | venta.constants.ts creado | Completado |
+| CAMBIO-117 | kpi.calculators.ts creado | Completado |
+| CAMBIO-118 | BUG-001: GA/GO dual-view | Completado |
+| CAMBIO-119 | BUG-002: Barra composicion dual-view | Completado |
+| CAMBIO-120 | BUG-003: Margen dual-view | Completado |
+| CAMBIO-121 | BUG-004: Utilidad dual-view | Completado |
+
+---
+
+### Tareas nuevas identificadas en esta sesion
+
+#### TAREA-097 — Proyeccion de costos CTRU
+
+**ID:** TAREA-097
+**Titulo:** Proyeccion de costos CTRU con sensibilidad al tipo de cambio
+**Prioridad:** Alta — proxima sesion
+**Tipo:** Feature / Analitica predictiva
+**Modulo:** CTRU Dashboard
+**Agente sugerido:** code-logic-analyst + frontend-design-specialist
+**Estimacion:** 9-13 horas
+
+**Componentes a implementar:**
+- Servicio `costoProyeccion.service.ts` con funciones: `proyectarCTRU()`, `proyectarGAGOMensual()`, `calcularImpactoTC()`
+- Columna "Proyectado" en la tabla CTRU (al lado de las columnas actuales)
+- Card de sensibilidad TC con slider de -10% a +10%
+- Alertas automaticas de erosion de margen cuando la proyeccion cae por debajo del umbral
+
+**Contexto:** El titular solicito inferencia de costos basada en data historica del sistema. Los datos de entrada ya existen en Firestore (historial de TCs, costos por periodo, CTRU historico por producto).
+
+**Estado:** Pendiente
+
+---
+
+#### TAREA-098 — Modulo Reportes Unificado (renombrada desde TAREA-096)
+
+**ID:** TAREA-098
+**Titulo:** Modulo de Reportes Unificado + Reorganizacion de Navegacion (continuacion de TAREA-096)
+**Prioridad:** Alta
+**Tipo:** Feature / Refactoring de navegacion / Correccion de inconsistencias de datos
+**Modulo:** Reportes, Sidebar, Dashboard, Ventas, Inventario
+**Estimacion:** 20-30 horas (2-3 sesiones)
+**Estado:** Pendiente — diseno aprobado en S23, pendiente implementacion completa
+
+**Pendientes del diseno aprobado:**
+- Sidebar reorganizado: grupo ANALISIS con Reportes y Costos CTRU
+- Tabs: Resumen Ejecutivo, Ventas, Inventario, Logistica, Clientes, Auditoria Escaner
+- Reportes de metricas de viajeros/couriers, tiempos de entrega, tarifas
+- Filtro por linea de negocio en todas las tabs
+- Fixes de redundancia en Dashboard (Fase 4)
+- INC-002, INC-004, INC-005 pendientes de correccion (INC-001 e INC-003 ya corregidos en S24)
+
+---
+
+#### TAREA-099 — Trazabilidad de ubicacion de productos (fusion con TAREA-095)
+
+**ID:** TAREA-099
+**Titulo:** Trazabilidad de ubicacion de productos — donde esta cada producto y con quien
+**Prioridad:** Alta
+**Tipo:** Feature / Vista operativa
+**Modulo:** Inventario / Escaner / Transferencias
+**Estimacion:** 8-12 horas
+**Estado:** Pendiente
+
+**Nota:** Consolida TAREA-095 (registrada en S23) con el nuevo requisito refinado del titular en S24. Los datos ya estan en Firestore (almacenId, pais, movimientos[] en cada unidad). Falta la capa de presentacion unificada.
+
+---
+
+### Decisiones del titular registradas en S24
+
+| Decision | Detalle | Impacto |
+|----------|---------|---------|
+| Google Maps — causa de bloqueo | APIs se deshabilitaron probablemente por inactividad o porque el CSP bloqueaba los requests antes de que llegaran a GCP | ISSUE-001 cerrado — Google Maps operativo |
+| Venta a socio — vinculo con usuario | Debe vincularse al perfil de usuario del sistema (persona + cargo), no solo al rol generico | CAMBIO-112 implementado — campo cargo en UserProfile |
+| Flete en transferencias | Mostrar precio por unidad como input principal; total como campo de referencia (lectura). Actualmente esta invertido | CAMBIO-113 implementado en Deploy 25 — pendiente extension a Transferencias |
+| Recepcion multi-lote | Permitir multiples fechas de vencimiento por producto en una misma recepcion | Pendiente — identificado como mejora futura |
+| Fecha vencimiento | Formato mes/ano. Producto vence desde el 1ro del mes | Implementado en S23. Confirmado en S24 como Decision T-012 |
+| Escaner ModoRecepcion y ModoTransferencia | Mantener ambos modos para almacenes locales en Peru | Confirmado — sin cambio requerido |
+| Auditoria escaner | Necesita reportes consultables accesibles desde Reportes, no solo desde el hub del escaner | Incluido en alcance de TAREA-098 |
+| Reportes — filtro linea de negocio | El filtro de linea debe estar en todas las vistas del modulo de reportes | Incluido en alcance de TAREA-098 |
+| CTRU TC hardcodeado | No deben existir valores hardcodeados de TC en ningun calculo. Usar siempre el ultimo TC disponible del sistema | CAMBIO-115 implementado |
+| CTRU proyectado | Implementar inferencia de costos basada en data historica — no estimacion manual | TAREA-097 registrada |
+
+---
+
+### Estado del sistema al cierre de la sesion
+
+| Modulo | Estado |
+|--------|--------|
+| Ventas / CxC | Activo — deteccion automatica de empleados, auto-actualizacion contacto cliente |
+| CTRU v2 | Activo — dual-view completamente funcional, INC-001 + INC-003 corregidos, sin TC hardcodeado |
+| Google Maps | OPERATIVO — CSP corregido, APIs habilitadas en GCP |
+| Reportes | Diseno aprobado — implementacion pendiente (TAREA-098) |
+| Proyeccion CTRU | Pendiente — TAREA-097 proxima sesion |
+| Trazabilidad ubicacion | Pendiente — TAREA-099 |
+
+---
+
+*Registrado por implementation-controller (Agente 23).*
+*29 de marzo de 2026 — Sesion 24. 5 deploys (Deploy 23-27). Fix CSP Maps, deteccion empleados en ventas, auto-actualizacion cliente, INC-001/INC-003 corregidos, eliminado TC hardcodeado 3.75, venta.constants.ts + kpi.calculators.ts creados, CTRU dual-view completo (BUG-001 a BUG-004). TAREA-097 registrada (proyeccion CTRU). TAREA-098 y TAREA-099 registradas.*
 
 ---
 
@@ -7864,3 +8067,405 @@ La pagina `/reportes` se convierte en un layout con tabs. Los tabs se dividen en
 
 *Registrado por implementation-controller (Agente 23).*
 *29 de marzo de 2026 — TAREA-096 registrada como prioridad maxima para la proxima sesion. Modulo de Reportes Unificado + Reorganizacion de Navegacion. Estimacion: 20-30 horas. 5 inconsistencias de datos identificadas como prerequisito.*
+
+---
+
+---
+
+## SESION 25 — 30 de marzo de 2026
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Implementacion — Sidebar Analisis + Proyeccion de Costos + Estructura Reportes
+**Deploys realizados:** 8 (Deploy 28 a Deploy 35)
+**Commits:** f1a6b4f, 8be5f19, 14c4a18, ccbfc4b, 09fd0ed, f49262f, db028ca, 969f8d5, e51776c, aea1970, f319435, b3fa5f7, c98e6d9, 7d6cfd3
+**Ultima actualizacion:** 2026-03-30
+
+---
+
+### Resumen de la sesion
+
+Sesion centrada en construir la capa de analisis del ERP: reorganizacion del sidebar con un grupo "Analisis" dedicado, implementacion del modulo de Proyeccion de Costos como pagina independiente (/proyeccion), y creacion de la estructura de tabs en /reportes. La sesion confirmo y consolido los cambios de S24 (CAMBIO-122 a CAMBIO-121) que ya estaban en el repositorio desde commits anteriores, y agrego tres bloques nuevos (CAMBIO-127 a CAMBIO-129).
+
+---
+
+### Cambios implementados
+
+#### CAMBIO-122: Fix CSP Google Maps (confirmado de S24)
+
+- Tipo: Fix de seguridad / Configuracion
+- Descripcion: Dominios maps.googleapis.com y maps.gstatic.com anadidos al CSP en firebase.json. El titular habilito las APIs en Google Cloud Console. Google Maps operativo. ISSUE-001 cerrado.
+- Archivo: `firebase.json`
+- Reversible: si
+
+#### CAMBIO-123: Deteccion inteligente de empleados — vinculacion a perfil de usuario (confirmado de S24)
+
+- Tipo: Feature
+- Descripcion: VentaForm cruza la seleccion de cliente con la coleccion `users` por nombre, email, telefono y DNI. Si hay coincidencia, activa esVentaSocio = true y pre-llena socioNombre y cargo automaticamente. Campo cargo anadido a UserProfile.
+- Archivos: VentaForm.tsx, tipos User, servicios relacionados (8 archivos)
+- Decision del titular: vincular al perfil de usuario (persona + cargo), no solo al rol generico
+- Reversible: si
+
+#### CAMBIO-124: Auto-actualizacion datos de contacto del cliente (confirmado de S24)
+
+- Tipo: Feature
+- Descripcion: `cliente.service.ts` — nuevo metodo `actualizarDatosContacto()`. Al confirmar una venta, actualiza telefono, email y direccion del cliente en Firestore si el operador los modifico en el formulario.
+- Archivo: `src/services/cliente.service.ts`
+- Reversible: si
+
+#### CAMBIO-125: Correccion INC-001 + INC-003 + archivos de constantes (confirmado de S24)
+
+- Tipo: Bug fix + Calidad de codigo
+- Descripcion:
+  - INC-001: margen del CTRU ahora se pondera por monto, no como promedio simple — `ctru.service.ts`
+  - INC-003: eliminado TC hardcodeado 3.75. Todos los calculos CTRU usan `tipoCambio.service.ts` como fuente unica
+  - `src/constants/venta.constants.ts` creado con constantes compartidas de estados validos para reportes
+  - `src/utils/kpi.calculators.ts` creado con funciones puras de calculo de KPIs reutilizables
+- Archivos: ctru.service.ts, venta.constants.ts (nuevo), kpi.calculators.ts (nuevo)
+- Reversible: si
+
+#### CAMBIO-126: CTRU dual-view completo — BUG-001 a BUG-004 (confirmado de S24)
+
+- Tipo: Bug fix
+- Descripcion: Cuatro bugs del toggle Contable/Gerencial en la tabla CTRU corregidos:
+  - BUG-001: GA/GO ahora muestra valores distintos por vista (contable usa gastoGAGOProm, gerencial usa gastoGAGOGerencialProm)
+  - BUG-002: Barra de composicion % se actualiza con la vista activa
+  - BUG-003: Columna Margen recalculada segun la vista activa
+  - BUG-004: Columna Utilidad recalculada segun la vista activa
+  - Fix adicional: costoBaseTotalTodas — error de scope en buildProductosDetalle (commit 14c4a18)
+  - Nuevo campo: gastoGAGOGerencialProm en CTRUProductoDetalle
+- Archivos: ctru.service.ts, CTRUDashboard components, ctruStore.ts
+- Reversible: si
+
+#### CAMBIO-127: Reorganizacion sidebar — grupo Analisis
+
+- Tipo: Feature / UX
+- Descripcion: Restructuracion de la navegacion lateral del ERP. Cambios realizados:
+  - Nuevo grupo "Analisis" con defaultOpen para roles admin y gerente: contiene Reportes (/reportes), Costos CTRU (/ctru), Intel. Productos (/productos-intel), Rendimiento FX (/rendimiento-cambiario), Proyeccion (/proyeccion)
+  - Grupo "Finanzas" reducido a 4 items: Gastos, Tesoreria, Contabilidad, Tipo de Cambio
+  - Grupo "Comercial" posicionado como primer grupo del sidebar
+  - Decision del titular: todos los reportes deben canalizarse en la seccion Analisis
+- Archivo: `src/components/layout/Sidebar.tsx`
+- Reversible: si
+
+#### CAMBIO-128: Estructura de tabs en /reportes
+
+- Tipo: Feature / Refactoring
+- Descripcion: `Reportes.tsx` convertido de pagina plana a layout con tabs. Estructura implementada:
+  - Tab "Rentabilidad": contenido existente refactorizado como primer tab
+  - Tab "Logistica": componente independiente creado (contenido completo pendiente en TAREA-098)
+  - Tab "Clientes": componente independiente creado (contenido completo pendiente en TAREA-098)
+  - Tab "Auditorias": componente independiente creado (contenido completo pendiente en TAREA-098)
+  - Tab "Compras": componente independiente creado (contenido completo pendiente en TAREA-098)
+  - `logistica.reporte.service.ts` creado como base para metricas de viajeros y couriers
+- Archivos: Reportes.tsx, 4 componentes de tab nuevos, logistica.reporte.service.ts (nuevo)
+- Reversible: si
+
+#### CAMBIO-129: Modulo Proyeccion de Costos (/proyeccion)
+
+- Tipo: Feature nuevo
+- Descripcion: Pagina independiente `src/pages/Proyeccion.tsx` en el grupo Analisis del sidebar. Motor de calculo 100% en memoria usando useMemo con datos del ctruStore — sin llamadas adicionales a Firestore. Servicio `costoProyeccion.service.ts` con la logica de inferencia.
+  Componentes implementados:
+  - 4 KPIs: CTRU promedio proyectado, TC proyectado, GA/GO mensual, conteo de alertas
+  - Slider de sensibilidad TC con rango -10% a +10% y calculo de impacto por producto
+  - Grafica CTRU actual vs proyectado usando Recharts BarChart
+  - Escenarios por producto: Optimista / Base / Pesimista
+  - Alertas de erosion de margen con prioridad (alta / media / baja)
+  - Tabla detallada por producto con nivel de confianza
+  - Toggle 30d/90d con calculos diferenciados
+  Decision del titular: proyeccion como pagina independiente, no dentro de CTRU ni como tab de Reportes. CTRU muestra solo costos actuales.
+  Mejoras planificadas en TAREA-097: grafica timeline con linea solida (real) + punteada (proyectado), proyeccion de ventas, escenarios como cards con medidor visual, sparklines.
+- Archivos: `src/pages/Proyeccion.tsx` (nuevo), `src/services/costoProyeccion.service.ts` (nuevo), App.tsx (ruta nueva)
+- Reversible: si
+
+---
+
+### Decisiones del titular registradas en S25
+
+| Decision | Detalle | Impacto |
+|----------|---------|---------|
+| Proyeccion como pagina independiente | /proyeccion en grupo Analisis — no dentro de CTRU ni como tab de Reportes | CAMBIO-129 implementado |
+| CTRU sin proyecciones | CTRU muestra solo costos actuales. Proyecciones viven en /proyeccion | Separacion de responsabilidades entre modulos |
+| Cobertura de proyeccion | Debe cubrir costos, ventas, margen Y utilidad (no solo CTRU) | TAREA-097 (mejoras pendientes) |
+| Sidebar grupo Analisis | Estructura Analisis confirmada: Reportes + CTRU + Intel + FX + Proyeccion | CAMBIO-127 implementado |
+| No TC hardcodeado | Confirmacion de la decision de S24: ningun calculo del sistema usa TC fijo | Sin cambio adicional — ya implementado |
+| Filtro por linea de negocio | Debe funcionar en todas las vistas del sistema | Pendiente validacion completa en TAREA-098 |
+
+---
+
+### Estado del plan de implementacion por tarea
+
+| Tarea | Descripcion | Estado | Avance |
+|-------|-------------|--------|--------|
+| TAREA-097 | Mejoras a Proyeccion de Costos | PENDIENTE — proxima sesion | Version base operativa. Mejoras: timeline, ventas, sparklines, escenarios visuales |
+| TAREA-098 | Modulo Reportes Unificado | EN PROCESO — estructura base implementada | Estructura tabs lista. Contenido de 4 tabs pendiente |
+| TAREA-099 | Trazabilidad ubicacion productos | PENDIENTE | Sin avance en S25 |
+| INC-002, INC-004, INC-005 | Inconsistencias de datos | PENDIENTE | Prereq de TAREA-098 |
+
+---
+
+### Tareas generadas en S25
+
+#### TAREA-097 — Mejorar Proyeccion de Costos (actualizacion)
+
+**ID:** TAREA-097
+**Titulo:** Mejoras al modulo Proyeccion de Costos (/proyeccion)
+**Prioridad:** Alta — proxima sesion
+**Tipo:** Feature / Mejora
+**Modulo:** Proyeccion (/proyeccion)
+**Estimacion:** 8-12 horas
+**Estado:** Pendiente
+
+**Mejoras a implementar:**
+- Grafica timeline: linea solida (real) + linea punteada (proyectado) + banda de incertidumbre
+- Proyeccion de VENTAS: grafica de barras reales vs proyectadas
+- Escenarios como 3 cards lado a lado con medidor visual de margen
+- KPIs con sparklines usando tendencias del store
+- Toggle 30d/90d que genere diferencia visual real (1 punto vs 3 puntos de proyeccion)
+- Tabla con sparkline inline por producto y columna "Accion sugerida"
+- Cobertura de costos, ventas, margen Y utilidad
+
+**Contexto:** La version base implementada en S25 es funcional y esta en produccion. Esta tarea cubre las mejoras visuales y de cobertura solicitadas por el titular.
+
+---
+
+### Commits de la sesion
+
+| Commit | Descripcion |
+|--------|-------------|
+| f1a6b4f | feat: S23 — Google Maps fix, employee detection, multi-lot reception, unified reports module |
+| 8be5f19 | fix: CTRU dual-view — all columns now respond to Contable/Gerencial toggle |
+| 14c4a18 | fix: costoBaseTotalTodas scope error in buildProductosDetalle |
+| ccbfc4b | fix: CTRU dual-view — Contable vs Gerencial now show different values |
+| 09fd0ed | feat: CTRU cost projection engine — infer future costs from historical data |
+| f49262f | feat: Proyeccion page |
+| db028ca | fix: Proyeccion — primer fix post-deploy |
+| 969f8d5 | fix: Proyeccion — segundo fix |
+| e51776c | fix: Proyeccion — tercer fix |
+| aea1970 | fix: Proyeccion — cuarto fix |
+| f319435 | fix: Proyeccion — quinto fix |
+| b3fa5f7 | fix: Proyeccion — sexto fix |
+| c98e6d9 | fix: Proyeccion — septimo fix |
+| 7d6cfd3 | feat: rewrite Proyeccion page — 100% in-memory calculations |
+
+---
+
+### Deploy 35 — 2026-03-30
+
+- **Commit final:** 7d6cfd3
+- **Comando:** firebase deploy (hosting)
+- **Resultado:** exitoso — hosting vitaskinperu.web.app
+- **Cloud Functions:** sin cambios en esta sesion — no requirio redespliegue
+- **URL de produccion:** https://vitaskinperu.web.app
+
+---
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys realizados | 8 (Deploy 28 a Deploy 35) |
+| Commits | 14 (incluyendo commits de S24 ya presentes en el repo) |
+| Archivos nuevos | 3 (Proyeccion.tsx, costoProyeccion.service.ts, logistica.reporte.service.ts) + 4 tab components |
+| Cambios registrados | 8 (CAMBIO-122 a CAMBIO-129) |
+| Agentes involucrados | code-logic-analyst, frontend-design-specialist, implementation-controller |
+| Decisiones del titular | 6 |
+| Tareas completadas (version base) | TAREA-097 version base operativa |
+| Tareas con avance | TAREA-098 estructura base implementada |
+
+---
+
+### Tareas pendientes para la proxima sesion (priorizadas)
+
+| Prioridad | ID | Descripcion | Estimacion | Notas |
+|-----------|-----|-------------|------------|-------|
+| Alta | TAREA-097 | Mejoras a Proyeccion de Costos: timeline, ventas, sparklines, escenarios visuales | 8-12h | Version base operativa — proxima sesion cubre mejoras |
+| Alta | TAREA-098 | Contenido completo de tabs Logistica, Clientes, Auditorias, Compras en /reportes | 15-20h | Estructura base lista en S25 |
+| Alta | TAREA-099 | Trazabilidad de ubicacion de productos | 8-12h | Sin avance, requiere diseno |
+| Alta | INC-002 | Estados validos de ventas en reportes | — | Prereq de TAREA-098 |
+| Alta | INC-004 | Calculo de margen ponderado uniforme | — | Prereq de TAREA-098 |
+| Alta | INC-005 | Exclusion de ventas a socios en todos los reportes | — | Prereq de TAREA-098 |
+| Media | Pendientes menores | Card sensibilidad TC mejorada, alertas al crear OC, flete por unidad en transferencias | — | Gradual |
+| Baja | SEC-C01 | Rotar API keys expuestas en historial Git | — | Requiere accion manual del titular |
+
+---
+
+### Estado del sistema al cierre de la sesion
+
+| Modulo | Estado |
+|--------|--------|
+| Ventas / CxC | Activo — deteccion automatica empleados, auto-actualizacion contacto cliente |
+| CTRU v2 | Activo — dual-view 100% funcional, sin TC hardcodeado, INC-001 + INC-003 corregidos |
+| Proyeccion de Costos | ACTIVO — version base en /proyeccion, grupo Analisis del sidebar |
+| Reportes | ACTIVO — estructura tabs implementada. Contenido completo pendiente TAREA-098 |
+| Sidebar | ACTIVO — grupo Analisis con 5 items, Finanzas reducido, Comercial primero |
+| Google Maps | OPERATIVO — CSP corregido + APIs habilitadas en GCP |
+| MercadoLibre | Activo — JOSSELINGAMBINI, mldisconnect disponible |
+| Inventario | Activo — FEFO, vencidas, danadas, fechas vencimiento obligatorias |
+| SUNAT | Inexistente — gap regulatorio critico abierto |
+| WhatsApp | En desarrollo — sin uso en produccion |
+
+---
+
+*Registrado por implementation-controller (Agente 23).*
+*30 de marzo de 2026 — Sesion 25. 8 deploys (Deploy 28-35), 14 commits. Sidebar reorganizado con grupo Analisis (CAMBIO-127). Estructura de tabs en /reportes (CAMBIO-128). Modulo Proyeccion de Costos operativo en /proyeccion (CAMBIO-129). Confirmados CAMBIO-122 a CAMBIO-126 de S24. 6 decisiones del titular: proyeccion como pagina independiente, CTRU sin proyecciones, cobertura costos+ventas+margen+utilidad, sidebar Analisis confirmado. TAREA-097 version base completa — mejoras visuales pendientes. TAREA-098 estructura base lista — contenido completo pendiente.*
+
+---
+
+---
+
+## SESION 25 — CAMBIOS ADICIONALES — Deploy 36-37 (30 de marzo de 2026)
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Reescritura completa del modulo Proyeccion — version 360 del Negocio
+**Deploys adicionales:** 2 (Deploy 36 y Deploy 37)
+**Commit principal:** 5ec5b43
+**Fecha:** 2026-03-30 (continuacion de la misma sesion)
+
+---
+
+### Contexto del cambio
+
+La version base de Proyeccion implementada en Deploy 28-35 (CAMBIO-129) mostraba solo proyeccion de costos CTRU. El titular solicito que la proyeccion cubra el negocio completo: ventas, inventario, costos, margen, utilidad y flujo de caja. Adicionalmente se confirmo que el modulo CTRU NO debe mostrar proyecciones — esa responsabilidad pertenece exclusivamente a /proyeccion.
+
+La pagina fue reescrita por completo. El servicio `costoProyeccion.service.ts` de la version base queda supersedido por el nuevo `proyeccion360.service.ts`.
+
+---
+
+### CAMBIO-130: Proyeccion 360 del Negocio — reescritura completa
+
+- Tipo: Feature — reescritura completa de /proyeccion
+- Commit: 5ec5b43
+- Archivos principales:
+  - `src/pages/Proyeccion.tsx` — pagina reescrita
+  - `src/services/proyeccion360.service.ts` — motor nuevo con 6 calculadoras encadenadas
+  - `src/types/proyeccion360.types.ts` — 10 interfaces nuevas
+
+**Motor: proyeccion360.service.ts**
+
+Seis calculadoras encadenadas en secuencia causal:
+1. Inventario disponible — cuantas unidades hay por producto
+2. Ventas proyectadas — limitadas por el stock disponible
+3. Costos proyectados — CTRU x volumen de ventas proyectadas
+4. Margen proyectado — derivado de ventas menos costos
+5. Flujo de caja — cobros proyectados menos egresos proyectados
+6. Escenarios — Optimista, Base y Pesimista aplicados transversalmente
+
+La cadena es causa-efecto: el output de cada calculadora alimenta el input de la siguiente. Si el inventario baja, las ventas proyectadas bajan; si las ventas bajan, el margen baja; si el margen baja, el flujo de caja baja.
+
+**Tipos: proyeccion360.types.ts**
+
+| Interface | Descripcion |
+|-----------|-------------|
+| ProyeccionVentas | Volumen y monto proyectado por periodo |
+| ProyeccionInventario | Stock proyectado con punto de reorden |
+| ProyeccionCostos | CTRU proyectado y distribucion de componentes |
+| ProyeccionMargen | Margen bruto y neto proyectados |
+| ProyeccionFlujoCaja | Cobros proyectados vs egresos proyectados |
+| EscenariosProyeccion | Tres escenarios (optimista, base, pesimista) |
+| ProyeccionResumen | KPIs ejecutivos consolidados |
+| AlertaProyeccion | Alertas con severidad y dimension afectada |
+| ConfiguracionProyeccion | Parametros del periodo y modo |
+| ProyeccionCompleta | Objeto raiz que contiene todo lo anterior |
+
+**UI: 6 tabs + 5 KPIs ejecutivos persistentes**
+
+| Tab | Contenido |
+|-----|-----------|
+| Vista Ejecutiva | 5 KPIs + alertas consolidadas + resumen de los 3 escenarios |
+| Ventas | Grafica Timeline barras reales + linea proyectada |
+| Inventario | Tabla de stock proyectado por producto con punto de reorden |
+| Costos | Grafica Pie de distribucion de componentes de costo |
+| Margen | Grafica Waterfall de construccion del margen |
+| Flujo de Caja | ComposedChart de cobros proyectados vs egresos |
+
+Los 5 KPIs ejecutivos son permanentes en el header — visibles desde cualquier tab:
+1. Ventas proyectadas (monto PEN)
+2. Costo total proyectado (monto PEN)
+3. Margen proyectado (%)
+4. Utilidad proyectada (monto PEN)
+5. Flujo de caja neto (monto PEN)
+
+**Toggle 30d/90d**
+
+El toggle genera una diferencia real en los calculos: modo 30d proyecta 1 periodo hacia adelante, modo 90d proyecta 3 periodos encadenados con acumulacion de incertidumbre.
+
+**3 escenarios integrados**
+
+Los escenarios Optimista, Base y Pesimista se calculan para todas las dimensiones y se presentan de forma coherente: el escenario seleccionado por el usuario se aplica al grafico principal de cada tab.
+
+**Alertas de 5 dimensiones**
+
+Las alertas se generan desde 5 fuentes independientes y se consolidan en la Vista Ejecutiva:
+1. Erosion de margen (proyeccion cae bajo umbral minimo)
+2. Riesgo de quiebre de stock (inventario proyectado baja a cero)
+3. Baja cobertura de inventario (dias de cobertura menores al umbral)
+4. Flujo de caja negativo (egresos proyectados superan cobros)
+5. Alta volatilidad de TC (impacto en costo de importacion supera umbral)
+
+**Rendimiento**
+
+100% en memoria con `useMemo` sobre datos del `ctruStore` y `ventaStore`. No genera llamadas adicionales a Firestore. El recalculo se dispara solo cuando cambian los datos del store o el usuario modifica el toggle de periodo.
+
+- Reversible: si
+- Decision del titular confirmada: CTRU NO muestra proyecciones. Proyeccion vive exclusivamente en /proyeccion.
+
+---
+
+### Decisiones del titular — adicionales S25 (Deploy 36-37)
+
+| Decision | Detalle |
+|----------|---------|
+| Proyeccion 360 cubre negocio completo | No solo costos CTRU — incluye ventas, costos, margen, utilidad, inventario y flujo de caja |
+| CTRU muestra solo costos actuales | La columna Proy. y las alertas de proyeccion en la tabla CTRU deben eliminarse — son responsabilidad de /proyeccion |
+| Cadena de variables conectada | El output de cada calculadora alimenta el input de la siguiente — no son proyecciones independientes |
+| Proyeccion como pagina independiente | Confirmado: /proyeccion en grupo Analisis del sidebar. Sin tabs dentro de otras paginas. |
+
+---
+
+### Pendiente urgente identificado — LIMPIEZA CTRU
+
+Durante la implementacion de CAMBIO-130 se confirmo que el modulo CTRU aun contiene elementos de proyeccion que deben eliminarse. Estos elementos existen porque fueron implementados en la version base (CAMBIO-129) antes de que se tomara la decision de mover toda proyeccion a /proyeccion.
+
+Ver auditoria detallada de elementos a eliminar en la seccion de analisis adjunta a este registro.
+
+**Elementos identificados para eliminar del modulo CTRU:**
+1. `CTRUDashboard.tsx` — importacion de costoProyeccion.service, estado proyecciones, estado proyeccionesLoading, useEffect que llama proyectarTodos()
+2. `CTRUDashboard.tsx` — bloque de "Alertas de Proyeccion" en el tab Catalogo (lineas 227-246)
+3. `CTRUDashboard.tsx` — prop proyecciones pasada a ProductoCTRUTable
+4. `ProductoCTRUTable.tsx` — columna "Proy." en el header de la tabla desktop (linea 320-322)
+5. `ProductoCTRUTable.tsx` — celda CTRU PROYECTADO en el body de la tabla (lineas 444-465)
+6. `ProductoCTRUTable.tsx` — importacion de ProyeccionCTRU y prop proyecciones en la interfaz
+
+Impacto al eliminar: la interfaz ProductoCTRUTableProps pierde el prop proyecciones, que es opcional. CTRUDashboard ya no necesita importar costoProyeccion.service. La tabla CTRU queda con una columna menos pero sin perdida de informacion relevante — la informacion de proyeccion estara disponible en /proyeccion.
+
+---
+
+### Estado actualizado del sistema al cierre definitivo de S25
+
+| Modulo | Estado |
+|--------|--------|
+| CTRU v2 | Activo — dual-view 100% funcional. Proyecciones en CTRU: pendiente de limpieza |
+| Proyeccion 360 | ACTIVO — version completa en /proyeccion (Deploy 37). Motor encadenado 6 calculadoras. |
+| Reportes | ACTIVO — estructura tabs. Contenido completo pendiente TAREA-098 |
+| Sidebar | ACTIVO — grupo Analisis con 5 items |
+| Ventas | Activo — deteccion empleados, auto-actualizacion cliente |
+| SUNAT | Inexistente — gap regulatorio critico |
+
+---
+
+### Metricas adicionales (Deploy 36-37)
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys adicionales | 2 (Deploy 36 y 37) |
+| Commits adicionales | ~4 (estimado — incluye 5ec5b43 y fixes post-deploy) |
+| Archivos nuevos | 2 (proyeccion360.service.ts, proyeccion360.types.ts) |
+| Archivos reescritos | 1 (Proyeccion.tsx — reescritura completa) |
+| Cambios registrados | 1 (CAMBIO-130) |
+| Interfaces nuevas | 10 (en proyeccion360.types.ts) |
+| Calculadoras encadenadas | 6 (motor proyeccion360.service.ts) |
+
+---
+
+*Registrado por implementation-controller (Agente 23).*
+*30 de marzo de 2026 — S25 cambios adicionales. Deploy 36-37. CAMBIO-130: Proyeccion 360 del Negocio reescritura completa. Motor encadenado con 6 calculadoras. 6 tabs. 5 KPIs ejecutivos. 3 escenarios. 10 interfaces. Commit 5ec5b43. CTRU limpieza de proyecciones pendiente para proxima sesion.*

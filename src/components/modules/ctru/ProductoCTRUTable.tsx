@@ -1,15 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Search, ChevronUp, ChevronDown, Eye, ChevronRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Search, ChevronUp, ChevronDown, Eye, ChevronRight } from 'lucide-react';
 import { Card } from '../../common';
 import { formatCurrency } from '../../common/Charts';
 import type { CTRUProductoDetalle } from '../../../store/ctruStore';
-import type { ProyeccionCTRU } from '../../../services/costoProyeccion.service';
-
 interface ProductoCTRUTableProps {
   productos: CTRUProductoDetalle[];
   onSelectProducto: (producto: CTRUProductoDetalle) => void;
   vistaCosto?: 'contable' | 'gerencial';
-  proyecciones?: Map<string, ProyeccionCTRU>;
 }
 
 type SortField = 'productoSKU' | 'productoNombre' | 'costoCompraUSDProm' | 'adicOC' |
@@ -159,7 +156,7 @@ const MobileProductCard: React.FC<{
 };
 
 // ─── Main Component ──────────────────────────────────────────────
-export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos, onSelectProducto, vistaCosto = 'contable', proyecciones }) => {
+export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos, onSelectProducto, vistaCosto = 'contable' }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('ctruPromedio');
   const [sortAsc, setSortAsc] = useState(false);
@@ -317,9 +314,6 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
               <SortHeader field="gastoGVGDProm" label="GV/GD" />
               {/* Resultado */}
               <SortHeader field="ctruPromedio" label="CTRU" className="border-l border-gray-100" />
-              <th className="py-2 px-2 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider" title="CTRU Proyectado para próxima compra">
-                Proy.
-              </th>
               <SortHeader field="precioVentaProm" label="Venta" />
               <SortHeader field="margenNetoProm" label="Margen" />
               <SortHeader field="utilidadProm" label="Utilidad" />
@@ -440,28 +434,6 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                     <span className="font-bold text-gray-900 text-sm">
                       {formatCurrency(ctruActivo)}
                     </span>
-                  </td>
-                  {/* CTRU PROYECTADO */}
-                  <td className="py-2.5 px-2 text-right">
-                    {(() => {
-                      const proy = proyecciones?.get(p.productoId);
-                      if (!proy) return <span className="text-gray-300 text-xs">-</span>;
-                      const diff = proy.variacionPct;
-                      const Icon = diff > 2 ? TrendingUp : diff < -2 ? TrendingDown : Minus;
-                      const color = diff > 5 ? 'text-red-600' : diff > 2 ? 'text-amber-600' : diff < -2 ? 'text-green-600' : 'text-gray-500';
-                      const bgColor = diff > 5 ? 'bg-red-50' : diff > 2 ? 'bg-amber-50' : diff < -2 ? 'bg-green-50' : 'bg-gray-50';
-                      return (
-                        <div className="flex flex-col items-end" title={`Proyección: ${formatCurrency(proy.ctruProyectado)} (${diff > 0 ? '+' : ''}${diff.toFixed(1)}% vs actual)\nTC: ${proy.tcEstimado.toFixed(3)} (${proy.tcFuente === 'tcpa' ? 'TCPA' : 'TC Venta'})\nFuente precio: ${proy.costoCompraFuente}`}>
-                          <span className={`text-xs font-semibold ${color}`}>
-                            {formatCurrency(proy.ctruProyectado)}
-                          </span>
-                          <span className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-bold ${bgColor} ${color}`}>
-                            <Icon className="w-2.5 h-2.5" />
-                            {diff > 0 ? '+' : ''}{diff.toFixed(1)}%
-                          </span>
-                        </div>
-                      );
-                    })()}
                   </td>
                   <td className="py-2.5 px-2 text-right">
                     {p.ventasCount > 0 ? (
