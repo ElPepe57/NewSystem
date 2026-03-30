@@ -1,96 +1,62 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   TrendingUp, TrendingDown, AlertTriangle, BarChart3, DollarSign,
-  Package, RefreshCw, ChevronDown, ChevronUp, ShoppingCart,
-  Target, Zap, ArrowRight, Minus
+  Package, RefreshCw, ChevronDown, ChevronUp, ShoppingCart, Check,
+  Target, Zap, ArrowRight, ArrowUp, Minus, Eye
 } from 'lucide-react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer
+  ComposedChart, BarChart, Bar, LineChart, Line, Area, XAxis, YAxis,
+  CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, Cell
 } from 'recharts';
 import { Card } from '../../components/common';
 import { useCTRUStore } from '../../store/ctruStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { formatCurrency } from '../../utils/format';
-import type { CTRUProductoDetalle, LoteProducto } from '../../store/ctruStore';
+import type {
+  CTRUProductoDetalle, LoteProducto, HistorialCostosMes,
+  HistorialGastosEntry, VentaProductoDetalle
+} from '../../store/ctruStore';
 
 // ============================================
-// Tipos locales — proyecciones calculadas en memoria
+// Helpers puros
 // ============================================
 
-interface ProyeccionLocal {
-  productoId: string;
-  nombre: string;
-  sku: string;
-  ctruActual: number;
-  ctruProyectado: number;
-  variacionPct: number;
-  margenActual: number;
-  margenProyectado: number;
-  precioVenta: number;
-  precioMin20: number;
-  tendenciaCompra: number;   // % cambio en precio compra
-  tendenciaTC: number;       // % cambio en TC
-  confianza: 'alta' | 'media' | 'baja';
-  unidades: number;
-}
-
-interface EscenarioLocal {
-  nombre: string;
-  tcVar: number;
-  precioVar: number;
-  gagoVar: number;
-  ctru: number;
-  margen: number;
-  prob: number;
-}
-
-interface DashLocal {
-  ctruPromActual: number;
-  ctruPromProyectado: number;
-  variacion: number;
-  tcActual: number;
-  tcProyectado: number;
-  gagoActual: number;
-  gagoProyectado: number;
-  alertasCriticas: number;
-  alertasTotal: number;
-}
-
-// ============================================
-// Helpers de cálculo puro (sin I/O)
-// ============================================
-
-function tendenciaDesdeCompras(lotes: LoteProducto[]): number {
-  if (lotes.length < 2) return 0;
-  const sorted = [...lotes].filter(l => l.costoUnitarioUSD > 0).sort((a, b) => {
-    const fa = a.fecha?.getTime?.() ?? 0;
-    const fb = b.fecha?.getTime?.() ?? 0;
-    return fa - fb; // más antiguo primero
-  });
-  if (sorted.length < 2) return 0;
-  const primero = sorted[0].costoUnitarioUSD;
-  const ultimo = sorted[sorted.length - 1].costoUnitarioUSD;
-  if (primero === 0) return 0;
-  return ((ultimo - primero) / primero) / sorted.length; // % por compra
-}
-
-function tendenciaDesdeTC(lotes: LoteProducto[]): number {
-  if (lotes.length < 2) return 0;
-  const sorted = [...lotes].filter(l => l.tc > 0).sort((a, b) => {
-    const fa = a.fecha?.getTime?.() ?? 0;
-    const fb = b.fecha?.getTime?.() ?? 0;
-    return fa - fb;
-  });
-  if (sorted.length < 2) return 0;
-  const primero = sorted[0].tc;
-  const ultimo = sorted[sorted.length - 1].tc;
-  if (primero === 0) return 0;
-  return ((ultimo - primero) / primero) / sorted.length;
-}
-
-function clamp(val: number, min: number, max: number): number {
+function clamp(val: number, min: number, max: number) {
   return Math.max(min, Math.min(max, val));
+}
+
+function tendencia(valores: number[]): number {
+  const valid = valores.filter(v => v > 0);
+  if (valid.length < 2) return 0;
+  return ((valid[valid.length - 1] - valid[0]) / valid[0]) / (valid.length - 1);
+}
+
+function promedioMovil(valores: number[], n = 3): number {
+  const valid = valores.filter(v => v > 0);
+  if (!valid.length) return 0;
+  const slice = valid.slice(-n);
+  return slice.reduce((s, v) => s + v, 0) / slice.length;
+}
+
+function mesLabel(offset: number): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() + offset);
+  return d.toLocaleDateString('es-PE', { month: 'short', year: '2-digit' });
+}
+
+// ============================================
+// Tipos de proyección calculada
+// ============================================
+
+interface ProyProducto {
+  id: string; nombre: string; sku: string;
+  ctruActual: number; ctruProy: number; varPct: number;
+  margenActual: number; margenProy: number;
+  precioVenta: number; precioMin20: number;
+  tendCompra: number; unidades: number;
+  confianza: 'alta' | 'media' | 'baja';
+  accion: 'comprar' | 'subir_precio' | 'revisar' | 'mantener';
+  sparkline: number[];
 }
 
 // ============================================
@@ -98,209 +64,445 @@ function clamp(val: number, min: number, max: number): number {
 // ============================================
 
 export const Proyeccion: React.FC = () => {
-  const { productosDetalle, historialMensual, historialGastos, loading: ctruLoading, fetchAll } = useCTRUStore();
+  const { productosDetalle, historialMensual, historialGastos, resumen, loading: ctruLoading, fetchAll } = useCTRUStore();
   const productos = productosDetalle || [];
-
   const productosLN = useLineaFilter(productos, (p: CTRUProductoDetalle) => p.lineaNegocioId);
 
   const [horizonte, setHorizonte] = useState<30 | 90>(30);
   const [tcSlider, setTcSlider] = useState(0);
-  const [seccionExpandida, setSeccionExpandida] = useState<string | null>('comparacion');
+  const [expandido, setExpandido] = useState<string | null>('timeline');
 
   useEffect(() => {
     if (!productos.length && !ctruLoading) fetchAll();
   }, [productos.length, ctruLoading, fetchAll]);
 
-  // Calcular todo en memoria — sin queries a Firestore
-  const { proyecciones, dashboard, escenariosPorProducto, alertas } = useMemo(() => {
-    if (!productosLN.length) {
-      return { proyecciones: [], dashboard: null, escenariosPorProducto: [], alertas: [] };
+  const periodos = horizonte === 30 ? 1 : 3;
+
+  // ============================================
+  // CÁLCULOS EN MEMORIA
+  // ============================================
+
+  // 1. Timeline data (histórico + proyectado)
+  const timelineData = useMemo(() => {
+    const hist = (historialMensual || []).slice(-6);
+    if (!hist.length) return [];
+
+    const ctruValues = hist.map(h => h.ctruPromedio);
+    const precioValues = hist.map(h => h.precioVentaProm);
+    const margenValues = hist.map(h => h.margenProm);
+    const ventasValues = hist.map(h => h.ventasCount);
+
+    const trendCTRU = tendencia(ctruValues);
+    const trendPrecio = tendencia(precioValues.filter(v => v > 0));
+
+    const lastCTRU = promedioMovil(ctruValues);
+    const lastPrecio = promedioMovil(precioValues);
+    const lastMargen = promedioMovil(margenValues);
+    const lastVentas = promedioMovil(ventasValues);
+
+    // Meses reales
+    const data = hist.map(h => ({
+      label: h.label,
+      ctru: Math.round(h.ctruPromedio * 100) / 100,
+      precio: h.precioVentaProm > 0 ? Math.round(h.precioVentaProm * 100) / 100 : null,
+      margen: h.margenProm > 0 ? Math.round(h.margenProm * 10) / 10 : null,
+      ventas: h.ventasCount,
+      montoPEN: h.ventasCount * (h.precioVentaProm || 0),
+      tipo: 'real' as const,
+      bandaSup: null as number | null,
+      bandaInf: null as number | null,
+      ctruProy: null as number | null,
+      precioProy: null as number | null,
+      ventasProy: null as number | null,
+      montoProy: null as number | null,
+    }));
+
+    // Meses proyectados
+    for (let i = 1; i <= periodos; i++) {
+      const factor = 1 + clamp(trendCTRU * i, -0.15, 0.15);
+      const factorPrecio = 1 + clamp(trendPrecio * i, -0.10, 0.10);
+      const incertidumbre = 0.03 * i; // ±3% por periodo
+
+      const ctruProy = lastCTRU * factor;
+      const precioProy = lastPrecio * factorPrecio;
+      const ventasProy = Math.round(lastVentas * (1 + 0.02 * i));
+
+      data.push({
+        label: mesLabel(i),
+        ctru: null as any,
+        precio: null,
+        margen: null,
+        ventas: null as any,
+        montoPEN: null as any,
+        tipo: 'proyectado',
+        bandaSup: Math.round(ctruProy * (1 + incertidumbre) * 100) / 100,
+        bandaInf: Math.round(ctruProy * (1 - incertidumbre) * 100) / 100,
+        ctruProy: Math.round(ctruProy * 100) / 100,
+        precioProy: Math.round(precioProy * 100) / 100,
+        ventasProy,
+        montoProy: Math.round(ventasProy * precioProy * 100) / 100,
+      });
     }
 
-    const periodos = horizonte === 30 ? 1 : 3;
+    // Punto de conexión (último real = inicio proyección)
+    if (data.length > hist.length) {
+      const lastReal = data[hist.length - 1];
+      data[hist.length].ctruProy = lastReal.ctru;
+      data[hist.length].precioProy = lastReal.precio;
+      // Insertar referencia
+      data[hist.length - 1] = {
+        ...lastReal,
+        ctruProy: lastReal.ctru,
+        precioProy: lastReal.precio,
+        bandaSup: lastReal.ctru,
+        bandaInf: lastReal.ctru,
+      };
+    }
 
-    // TC actual: promedio de los últimos lotes
-    const todosLotes = productosLN.flatMap(p => p.lotes || []).filter(l => l.tc > 0);
-    const tcActual = todosLotes.length > 0
-      ? todosLotes.reduce((s, l) => s + l.tc, 0) / todosLotes.length
-      : 3.75;
+    return data;
+  }, [historialMensual, periodos]);
 
-    // GA/GO actual mensual: del historial de gastos
-    const gastosRecientes = (historialGastos || []).slice(-3);
-    const gagoActual = gastosRecientes.length > 0
-      ? gastosRecientes.reduce((s, g) => s + (g.GA || 0) + (g.GO || 0), 0) / gastosRecientes.length
-      : 0;
+  // 2. Proyección por producto
+  const proyProductos = useMemo((): ProyProducto[] => {
+    if (!productosLN.length) return [];
 
-    // Proyecciones por producto
-    const proys: ProyeccionLocal[] = productosLN.map(p => {
-      const lotes = p.lotes || [];
-      const tendCompra = tendenciaDesdeCompras(lotes);
-      const tendTC = tendenciaDesdeTC(lotes);
+    return productosLN.map(p => {
+      const lotes = (p.lotes || []).filter(l => l.costoUnitarioUSD > 0);
+      const precios = lotes.map(l => l.costoUnitarioPEN);
+      const trendCompra = tendencia(precios);
+      const factor = 1 + clamp(trendCompra * periodos, -0.15, 0.15);
 
-      // Limitar tendencias a ±15% por periodo
-      const factorCompra = 1 + clamp(tendCompra * periodos, -0.15, 0.15);
-      const factorTC = 1 + clamp(tendTC * periodos, -0.15, 0.15);
+      const ctruProy = p.ctruPromedio * factor;
+      const pv = p.precioVentaProm || p.pricing?.precioActual || 0;
+      const margenProy = pv > 0 ? ((pv - ctruProy - (p.gastoGVGDProm || 0)) / pv) * 100 : 0;
 
-      // CTRU proyectado: escalar las capas que dependen de compra y TC
-      const costoCompraProy = p.costoCompraUSDProm * factorCompra * tcActual * factorTC;
-      const costoCompraActual = p.costoCompraUSDProm * tcActual;
-      const otrasCapas = p.ctruPromedio - (p.costoCompraUSDProm * (lotes.length > 0 ? lotes[0].tc : tcActual));
-      const ctruProy = Math.max(costoCompraProy + Math.max(otrasCapas, 0), p.ctruPromedio * 0.7);
-
-      const precioVenta = p.precioVentaProm || p.pricing?.precioActual || 0;
-      const margenProy = precioVenta > 0 ? ((precioVenta - ctruProy) / precioVenta) * 100 : 0;
-      const margenActual = p.margenNetoProm;
+      let accion: ProyProducto['accion'] = 'mantener';
+      if (margenProy < 10 && pv > 0) accion = 'subir_precio';
+      else if (p.totalUnidades < 5 && p.ventasCount > 0) accion = 'comprar';
+      else if (margenProy < 20 || trendCompra > 0.05) accion = 'revisar';
 
       return {
-        productoId: p.productoId,
+        id: p.productoId,
         nombre: p.productoNombre,
         sku: p.productoSKU,
         ctruActual: p.ctruPromedio,
-        ctruProyectado: ctruProy,
-        variacionPct: p.ctruPromedio > 0 ? ((ctruProy - p.ctruPromedio) / p.ctruPromedio) * 100 : 0,
-        margenActual,
-        margenProyectado: margenProy,
-        precioVenta,
-        precioMin20: ctruProy / 0.8,
-        tendenciaCompra: tendCompra * 100,
-        tendenciaTC: tendTC * 100,
-        confianza: lotes.length >= 3 ? 'alta' : lotes.length >= 2 ? 'media' : 'baja',
+        ctruProy,
+        varPct: p.ctruPromedio > 0 ? ((ctruProy - p.ctruPromedio) / p.ctruPromedio) * 100 : 0,
+        margenActual: p.margenNetoProm,
+        margenProy,
+        precioVenta: pv,
+        precioMin20: (ctruProy + (p.gastoGVGDProm || 0)) / 0.8,
+        tendCompra: trendCompra * 100,
         unidades: p.totalUnidades,
+        confianza: lotes.length >= 3 ? 'alta' : lotes.length >= 2 ? 'media' : 'baja',
+        accion,
+        sparkline: precios.slice(-6),
+      };
+    });
+  }, [productosLN, periodos]);
+
+  // 3. Ventas proyectadas por mes
+  const ventasData = useMemo(() => {
+    const allVentas = productosLN.flatMap(p => (p.ventasDetalle || []).filter(v => v.fecha));
+    if (!allVentas.length) return [];
+
+    // Agrupar por mes
+    const porMes = new Map<string, { unidades: number; monto: number }>();
+    allVentas.forEach(v => {
+      const f = v.fecha instanceof Date ? v.fecha : (v.fecha as any)?.toDate?.();
+      if (!f) return;
+      const key = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}`;
+      const label = f.toLocaleDateString('es-PE', { month: 'short', year: '2-digit' });
+      const existing = porMes.get(key) || { unidades: 0, monto: 0 };
+      existing.unidades += v.cantidad || 1;
+      existing.monto += (v.cantidad || 1) * (v.precioUnitario || 0);
+      porMes.set(key, existing);
+    });
+
+    const entries = [...porMes.entries()].sort().slice(-4);
+    const data = entries.map(([key, val]) => {
+      const [y, m] = key.split('-');
+      const d = new Date(+y, +m - 1);
+      return {
+        label: d.toLocaleDateString('es-PE', { month: 'short', year: '2-digit' }),
+        unidades: val.unidades,
+        monto: Math.round(val.monto),
+        tipo: 'real' as const,
       };
     });
 
-    // Dashboard resumen
-    const totalUnidades = proys.reduce((s, p) => s + p.unidades, 0);
-    const ctruPromActual = totalUnidades > 0
-      ? proys.reduce((s, p) => s + p.ctruActual * p.unidades, 0) / totalUnidades : 0;
-    const ctruPromProy = totalUnidades > 0
-      ? proys.reduce((s, p) => s + p.ctruProyectado * p.unidades, 0) / totalUnidades : 0;
+    // Proyectar
+    const avgUnidades = promedioMovil(data.map(d => d.unidades), 3);
+    const avgMonto = promedioMovil(data.map(d => d.monto), 3);
+    const trendVentas = tendencia(data.map(d => d.monto));
 
-    const alertasList = proys.filter(p =>
-      p.margenProyectado < 15 || p.variacionPct > 5 || p.margenProyectado < 0
-    );
+    for (let i = 1; i <= periodos; i++) {
+      const factor = 1 + clamp(trendVentas * i, -0.2, 0.2);
+      data.push({
+        label: mesLabel(i),
+        unidades: Math.round(avgUnidades * factor),
+        monto: Math.round(avgMonto * factor),
+        tipo: 'proyectado',
+      });
+    }
 
-    const dash: DashLocal = {
-      ctruPromActual,
-      ctruPromProyectado: ctruPromProy,
-      variacion: ctruPromActual > 0 ? ((ctruPromProy - ctruPromActual) / ctruPromActual) * 100 : 0,
-      tcActual,
-      tcProyectado: tcActual * (1 + clamp(tendenciaDesdeTC(todosLotes) * periodos, -0.1, 0.1)),
-      gagoActual,
-      gagoProyectado: gagoActual * (1 + 0.02 * periodos),
-      alertasCriticas: proys.filter(p => p.margenProyectado < 0).length,
-      alertasTotal: alertasList.length,
+    return data;
+  }, [productosLN, periodos]);
+
+  // 4. Dashboard KPIs
+  const dash = useMemo(() => {
+    if (!proyProductos.length) return null;
+    const totalUd = proyProductos.reduce((s, p) => s + p.unidades, 0);
+    const ctruAct = totalUd > 0 ? proyProductos.reduce((s, p) => s + p.ctruActual * p.unidades, 0) / totalUd : 0;
+    const ctruProy = totalUd > 0 ? proyProductos.reduce((s, p) => s + p.ctruProy * p.unidades, 0) / totalUd : 0;
+    const margenAct = totalUd > 0 ? proyProductos.reduce((s, p) => s + p.margenActual * p.unidades, 0) / totalUd : 0;
+    const margenProy = totalUd > 0 ? proyProductos.reduce((s, p) => s + p.margenProy * p.unidades, 0) / totalUd : 0;
+
+    const ventasMes = ventasData.filter(v => v.tipo === 'real');
+    const ventasProy = ventasData.filter(v => v.tipo === 'proyectado');
+    const montoActual = ventasMes.length > 0 ? ventasMes[ventasMes.length - 1].monto : 0;
+    const montoProy = ventasProy.length > 0 ? ventasProy[ventasProy.length - 1].monto : 0;
+
+    const alertas = proyProductos.filter(p => p.margenProy < 15 || p.varPct > 5);
+
+    return {
+      ctruAct, ctruProy,
+      ctruVar: ctruAct > 0 ? ((ctruProy - ctruAct) / ctruAct) * 100 : 0,
+      margenAct, margenProy,
+      ventasActual: montoActual, ventasProy: montoProy,
+      ventasVar: montoActual > 0 ? ((montoProy - montoActual) / montoActual) * 100 : 0,
+      alertas: alertas.length,
+      criticas: proyProductos.filter(p => p.margenProy < 0).length,
     };
+  }, [proyProductos, ventasData]);
 
-    // Escenarios para top 5
-    const top5 = [...proys].sort((a, b) => b.unidades - a.unidades).slice(0, 5);
-    const escPorProd = top5.map(p => {
-      const base = p.ctruProyectado;
-      const pv = p.precioVenta;
-      const scenarios: EscenarioLocal[] = [
-        { nombre: 'Optimista', tcVar: -5, precioVar: -3, gagoVar: 0, prob: 0.2,
-          ctru: base * 0.95 * 0.97, margen: pv > 0 ? ((pv - base * 0.95 * 0.97) / pv) * 100 : 0 },
-        { nombre: 'Base', tcVar: 0, precioVar: 0, gagoVar: 0, prob: 0.6,
-          ctru: base, margen: pv > 0 ? ((pv - base) / pv) * 100 : 0 },
-        { nombre: 'Pesimista', tcVar: 10, precioVar: 5, gagoVar: 10, prob: 0.2,
-          ctru: base * 1.10 * 1.05 * 1.02, margen: pv > 0 ? ((pv - base * 1.10 * 1.05 * 1.02) / pv) * 100 : 0 },
-      ];
-      return { productoId: p.productoId, nombre: p.nombre, ctruActual: p.ctruActual, escenarios: scenarios };
+  // 5. Escenarios agregados
+  const escenarios = useMemo(() => {
+    if (!dash) return [];
+    const configs = [
+      { nombre: 'Optimista', tcVar: -5, precioVar: -3, gagoVar: 0, prob: 20, color: 'green' },
+      { nombre: 'Base', tcVar: 0, precioVar: 0, gagoVar: 0, prob: 60, color: 'blue' },
+      { nombre: 'Pesimista', tcVar: 10, precioVar: 5, gagoVar: 10, prob: 20, color: 'red' },
+    ];
+    return configs.map(c => {
+      const factorCosto = (1 + c.tcVar / 100) * (1 + c.precioVar / 100);
+      const ctru = dash.ctruProy * factorCosto;
+      const ventasProm = dash.ventasProy || dash.ventasActual;
+      // Asumimos ~25% del precio es margen base
+      const precioBase = dash.ctruAct * 1.35;
+      const margen = precioBase > 0 ? ((precioBase - ctru) / precioBase) * 100 : 0;
+      const impacto = (ctru - dash.ctruProy) * (ventasProm / (precioBase || 1));
+      return { ...c, ctru, margen, impactoMensual: impacto };
     });
+  }, [dash]);
 
-    return { proyecciones: proys, dashboard: dash, escenariosPorProducto: escPorProd, alertas: alertasList };
-  }, [productosLN, horizonte, historialGastos]);
+  const toggle = (id: string) => setExpandido(prev => prev === id ? null : id);
 
-  const toggleSeccion = (id: string) => {
-    setSeccionExpandida(prev => prev === id ? null : id);
-  };
+  // ============================================
+  // RENDER
+  // ============================================
 
   if (ctruLoading) {
     return (
       <div className="p-4 md:p-6 max-w-7xl mx-auto">
-        <Header horizonte={horizonte} setHorizonte={setHorizonte} />
+        <HeroHeader horizonte={horizonte} setHorizonte={setHorizonte} />
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="w-8 h-8 text-primary-500 animate-spin" />
-          <span className="ml-3 text-gray-500">Cargando datos del sistema...</span>
+          <span className="ml-3 text-gray-500">Cargando datos...</span>
         </div>
       </div>
     );
   }
 
-  if (!dashboard || !productosLN.length) {
+  if (!dash || !productosLN.length) {
     return (
       <div className="p-4 md:p-6 max-w-7xl mx-auto">
-        <Header horizonte={horizonte} setHorizonte={setHorizonte} />
+        <HeroHeader horizonte={horizonte} setHorizonte={setHorizonte} />
         <Card className="p-8 text-center text-gray-500">
-          No hay datos suficientes para generar proyecciones. Necesitas al menos 1 producto con historial de compras.
+          No hay datos suficientes para generar proyecciones.
         </Card>
       </div>
     );
   }
 
-  // Datos para gráfica comparación
-  const comparacionData = proyecciones
-    .filter(p => p.ctruActual > 0)
-    .map(p => ({
-      nombre: p.nombre.length > 18 ? p.nombre.slice(0, 18) + '...' : p.nombre,
-      actual: Math.round(p.ctruActual * 100) / 100,
-      proyectado: Math.round(p.ctruProyectado * 100) / 100,
-    }))
-    .sort((a, b) => b.proyectado - a.proyectado);
-
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4">
-      <Header horizonte={horizonte} setHorizonte={setHorizonte} />
+      <HeroHeader horizonte={horizonte} setHorizonte={setHorizonte} />
 
-      {/* KPI CARDS */}
+      {/* ─── KPI CARDS ─── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KPICard icon={<DollarSign className="w-5 h-5" />} label="CTRU Promedio"
-          valor={formatCurrency(dashboard.ctruPromActual)}
-          subvalor={`→ ${formatCurrency(dashboard.ctruPromProyectado)} (${horizonte}d)`}
-          tendencia={dashboard.variacion} />
-        <KPICard icon={<TrendingUp className="w-5 h-5" />} label="TC Promedio"
-          valor={dashboard.tcActual.toFixed(2)}
-          subvalor={`→ ${dashboard.tcProyectado.toFixed(2)} (${horizonte}d)`}
-          tendencia={((dashboard.tcProyectado - dashboard.tcActual) / dashboard.tcActual) * 100} />
-        <KPICard icon={<BarChart3 className="w-5 h-5" />} label="GA/GO Mensual"
-          valor={formatCurrency(dashboard.gagoActual)}
-          subvalor={`→ ${formatCurrency(dashboard.gagoProyectado)}`}
-          tendencia={dashboard.gagoActual > 0 ? ((dashboard.gagoProyectado - dashboard.gagoActual) / dashboard.gagoActual) * 100 : 0} />
-        <KPICard icon={<AlertTriangle className="w-5 h-5" />} label="Alertas"
-          valor={`${dashboard.alertasTotal}`}
-          subvalor={`${dashboard.alertasCriticas} criticas`}
-          color={dashboard.alertasCriticas > 0 ? 'red' : dashboard.alertasTotal > 0 ? 'amber' : 'green'} />
+        <KPICard icon={<DollarSign className="w-4 h-4" />} label="CTRU Promedio"
+          valor={formatCurrency(dash.ctruAct)} sub={`→ ${formatCurrency(dash.ctruProy)}`}
+          trend={dash.ctruVar} invertColor sparkData={resumen?.tendenciaCTRU} />
+        <KPICard icon={<TrendingUp className="w-4 h-4" />} label={`Margen ${horizonte}d`}
+          valor={`${dash.margenAct.toFixed(1)}%`} sub={`→ ${dash.margenProy.toFixed(1)}%`}
+          trend={dash.margenProy - dash.margenAct} sparkData={resumen?.tendenciaMargen} />
+        <KPICard icon={<ShoppingCart className="w-4 h-4" />} label="Ventas Proy."
+          valor={formatCurrency(dash.ventasProy || dash.ventasActual)}
+          sub={dash.ventasActual > 0 ? `actual: ${formatCurrency(dash.ventasActual)}` : 'sin historial'}
+          trend={dash.ventasVar} />
+        <KPICard icon={<AlertTriangle className="w-4 h-4" />} label="Alertas"
+          valor={`${dash.alertas}`} sub={`${dash.criticas} críticas`}
+          color={dash.criticas > 0 ? 'red' : dash.alertas > 0 ? 'amber' : 'green'} />
       </div>
 
-      {/* SLIDER TC */}
+      {/* ─── GRÁFICA TIMELINE: CTRU + PRECIO + BANDA ─── */}
+      {timelineData.length > 0 && (
+        <Seccion id="timeline" titulo={`Evolución y Proyección CTRU (${horizonte}d)`}
+          icono={<BarChart3 className="w-4 h-4" />} abierta={expandido === 'timeline'} onToggle={toggle}>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={timelineData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="bandaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0.03} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="label" fontSize={11} />
+                <YAxis fontSize={11} tickFormatter={v => `S/${v}`} />
+                <Tooltip formatter={(v: number) => v ? formatCurrency(v) : '-'} />
+                {/* Banda de incertidumbre */}
+                <Area dataKey="bandaSup" stroke="none" fill="url(#bandaGrad)" connectNulls={false} />
+                <Area dataKey="bandaInf" stroke="none" fill="white" connectNulls={false} />
+                {/* CTRU real */}
+                <Line dataKey="ctru" name="CTRU Real" stroke="#6366f1" strokeWidth={2.5}
+                  dot={{ r: 3, fill: '#6366f1' }} connectNulls={false} />
+                {/* CTRU proyectado */}
+                <Line dataKey="ctruProy" name={`CTRU Proy. ${horizonte}d`} stroke="#6366f1"
+                  strokeWidth={2} strokeDasharray="6 3" dot={{ r: 4, fill: '#6366f1', stroke: 'white', strokeWidth: 2 }}
+                  connectNulls={false} />
+                {/* Precio venta real */}
+                <Line dataKey="precio" name="Precio Venta" stroke="#10b981" strokeWidth={2}
+                  dot={false} connectNulls={false} />
+                {/* Precio venta proyectado */}
+                <Line dataKey="precioProy" name="Precio Proy." stroke="#10b981" strokeWidth={1.5}
+                  strokeDasharray="4 3" dot={false} connectNulls={false} />
+                <Legend />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex items-center gap-4 mt-2 text-[10px] text-gray-400 justify-center">
+            <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-indigo-500 inline-block" /> CTRU real</span>
+            <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-indigo-500 inline-block border-dashed border-b" /> CTRU proyectado</span>
+            <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-emerald-500 inline-block" /> Precio venta</span>
+            <span className="flex items-center gap-1"><span className="w-4 h-2 bg-indigo-100 inline-block rounded" /> Incertidumbre</span>
+          </div>
+        </Seccion>
+      )}
+
+      {/* ─── GRÁFICA VENTAS PROYECTADAS ─── */}
+      {ventasData.length > 0 && (
+        <Seccion id="ventas" titulo={`Proyección de Ventas (${horizonte}d)`}
+          icono={<ShoppingCart className="w-4 h-4" />} abierta={expandido === 'ventas'} onToggle={toggle}>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={ventasData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="label" fontSize={11} />
+                <YAxis yAxisId="left" fontSize={11} />
+                <YAxis yAxisId="right" orientation="right" fontSize={11} tickFormatter={v => `S/${v}`} />
+                <Tooltip formatter={(v: number, name: string) => [name === 'monto' || name === 'montoProy' ? formatCurrency(v) : v, name]} />
+                <Bar yAxisId="left" dataKey="unidades" name="Unidades" radius={[4, 4, 0, 0]} barSize={24}>
+                  {ventasData.map((d, i) => (
+                    <Cell key={i} fill={d.tipo === 'real' ? '#3b82f6' : '#93c5fd'} fillOpacity={d.tipo === 'real' ? 0.85 : 0.5}
+                      stroke={d.tipo === 'proyectado' ? '#3b82f6' : 'none'} strokeWidth={d.tipo === 'proyectado' ? 1.5 : 0}
+                      strokeDasharray={d.tipo === 'proyectado' ? '4 2' : ''} />
+                  ))}
+                </Bar>
+                <Line yAxisId="right" dataKey="monto" name="Monto (S/)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} connectNulls={false} />
+                <Legend />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Seccion>
+      )}
+
+      {/* ─── ESCENARIOS ─── */}
+      <Seccion id="escenarios" titulo="Escenarios de Costos" icono={<Target className="w-4 h-4" />}
+        abierta={expandido === 'escenarios'} onToggle={toggle}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {escenarios.map(e => (
+            <div key={e.nombre} className={`rounded-xl p-4 border-l-4 ${
+              e.color === 'green' ? 'border-green-500 bg-green-50/50' :
+              e.color === 'red' ? 'border-red-500 bg-red-50/50' :
+              'border-blue-500 bg-blue-50/50'
+            }`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  {e.color === 'green' ? <TrendingDown className="w-4 h-4 text-green-600" /> :
+                   e.color === 'red' ? <TrendingUp className="w-4 h-4 text-red-600" /> :
+                   <Minus className="w-4 h-4 text-blue-600" />}
+                  <span className="font-bold text-sm">{e.nombre}</span>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  e.color === 'green' ? 'bg-green-100 text-green-700' :
+                  e.color === 'red' ? 'bg-red-100 text-red-700' :
+                  'bg-blue-100 text-blue-700'
+                }`}>{e.prob}%</span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">CTRU</span>
+                  <span className="font-mono font-bold">{formatCurrency(e.ctru)}</span>
+                </div>
+                {/* Medidor visual de margen */}
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-400">Margen</span>
+                    <span className={`font-bold ${e.margen >= 20 ? 'text-green-600' : e.margen >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
+                      {e.margen.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${
+                      e.margen >= 25 ? 'bg-green-500' : e.margen >= 15 ? 'bg-emerald-400' :
+                      e.margen >= 5 ? 'bg-amber-400' : 'bg-red-500'
+                    }`} style={{ width: `${clamp(e.margen * 2.5, 0, 100)}%` }} />
+                  </div>
+                  <div className="flex justify-between text-[9px] text-gray-300 mt-0.5">
+                    <span>0%</span><span>20%</span><span>40%</span>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-400 pt-1 border-t">
+                  TC: {e.tcVar >= 0 ? '+' : ''}{e.tcVar}% | Proveedor: {e.precioVar >= 0 ? '+' : ''}{e.precioVar}%
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Seccion>
+
+      {/* ─── SLIDER SENSIBILIDAD TC ─── */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+          <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-sm">
             <Zap className="w-4 h-4 text-amber-500" /> Sensibilidad al Tipo de Cambio
           </h3>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-xs text-gray-500 w-12">-10%</span>
-          <input type="range" min={-10} max={10} step={1} value={tcSlider}
-            onChange={(e) => setTcSlider(Number(e.target.value))}
-            className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600" />
-          <span className="text-xs text-gray-500 w-12 text-right">+10%</span>
-        </div>
-        <div className="text-center mt-2">
-          <span className={`text-lg font-bold ${tcSlider > 0 ? 'text-red-600' : tcSlider < 0 ? 'text-green-600' : 'text-gray-700'}`}>
-            TC {tcSlider >= 0 ? '+' : ''}{tcSlider}% = {(dashboard.tcActual * (1 + tcSlider / 100)).toFixed(2)}
+          <span className={`text-lg font-bold ${tcSlider > 0 ? 'text-red-600' : tcSlider < 0 ? 'text-green-600' : 'text-gray-600'}`}>
+            TC {tcSlider >= 0 ? '+' : ''}{tcSlider}%
           </span>
-          <span className="text-gray-500 text-sm ml-2">(actual: {dashboard.tcActual.toFixed(2)})</span>
         </div>
+        <input type="range" min={-10} max={10} step={1} value={tcSlider}
+          onChange={e => setTcSlider(+e.target.value)}
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600" />
+        <div className="flex justify-between text-[10px] text-gray-400 mt-1"><span>-10%</span><span>0%</span><span>+10%</span></div>
         {tcSlider !== 0 && (
           <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-            {proyecciones.slice(0, 4).map(p => {
-              const impacto = p.ctruActual * (tcSlider / 100) * 0.6; // ~60% del CTRU depende del TC
+            {proyProductos.slice(0, 8).map(p => {
+              const impacto = p.ctruActual * (tcSlider / 100) * 0.6;
+              const margenNuevo = p.precioVenta > 0 ? ((p.precioVenta - p.ctruActual - impacto) / p.precioVenta) * 100 : 0;
               return (
-                <div key={p.productoId} className="bg-gray-50 rounded p-2">
-                  <div className="font-medium truncate">{p.nombre}</div>
-                  <div className={impacto > 0 ? 'text-red-600' : 'text-green-600'}>
-                    {impacto > 0 ? '+' : ''}{formatCurrency(impacto)}/ud
+                <div key={p.id} className="bg-gray-50 rounded-lg p-2">
+                  <div className="font-medium truncate text-gray-700">{p.nombre}</div>
+                  <div className="flex justify-between mt-1">
+                    <span className={impacto > 0 ? 'text-red-600' : 'text-green-600'}>
+                      {impacto > 0 ? '+' : ''}{formatCurrency(impacto)}/ud
+                    </span>
+                    <span className={`font-bold ${margenNuevo >= 20 ? 'text-green-600' : margenNuevo >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
+                      {margenNuevo.toFixed(0)}%
+                    </span>
                   </div>
                 </div>
               );
@@ -309,84 +511,25 @@ export const Proyeccion: React.FC = () => {
         )}
       </Card>
 
-      {/* GRÁFICA CTRU ACTUAL vs PROYECTADO */}
-      {comparacionData.length > 0 && (
-        <Seccion id="comparacion" titulo={`CTRU Actual vs Proyectado (${horizonte}d)`}
-          icono={<BarChart3 className="w-4 h-4" />} expandida={seccionExpandida === 'comparacion'}
-          onToggle={toggleSeccion} badge={`${comparacionData.length} productos`}>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={comparacionData} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis type="number" tickFormatter={(v) => `S/${v}`} fontSize={11} />
-                <YAxis type="category" dataKey="nombre" width={130} fontSize={11} />
-                <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                <Legend />
-                <Bar dataKey="actual" name="CTRU Actual" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={14} />
-                <Bar dataKey="proyectado" name={`Proyectado ${horizonte}d`} fill="#f59e0b" radius={[0, 4, 4, 0]} barSize={14} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Seccion>
-      )}
-
-      {/* ESCENARIOS */}
-      {escenariosPorProducto.length > 0 && (
-        <Seccion id="escenarios" titulo="Escenarios por Producto" icono={<Target className="w-4 h-4" />}
-          expandida={seccionExpandida === 'escenarios'} onToggle={toggleSeccion}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {escenariosPorProducto.map(ep => (
-              <Card key={ep.productoId} className="p-3 bg-gray-50">
-                <h4 className="font-medium text-sm text-gray-900 mb-2 truncate">{ep.nombre}</h4>
-                <div className="space-y-1.5">
-                  {ep.escenarios.map(e => (
-                    <div key={e.nombre} className={`flex items-center justify-between text-xs px-2 py-1.5 rounded ${
-                      e.nombre === 'Optimista' ? 'bg-green-50' : e.nombre === 'Pesimista' ? 'bg-red-50' : 'bg-blue-50'
-                    }`}>
-                      <div className="flex items-center gap-2">
-                        {e.nombre === 'Optimista' ? <TrendingDown className="w-3 h-3 text-green-600" /> :
-                         e.nombre === 'Pesimista' ? <TrendingUp className="w-3 h-3 text-red-600" /> :
-                         <Minus className="w-3 h-3 text-blue-600" />}
-                        <span className="font-medium">{e.nombre}</span>
-                        <span className="text-gray-400">({(e.prob * 100).toFixed(0)}%)</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono">{formatCurrency(e.ctru)}</span>
-                        <span className={`font-bold ${e.margen >= 20 ? 'text-green-600' : e.margen >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
-                          {e.margen.toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-2 text-[10px] text-gray-400">CTRU actual: {formatCurrency(ep.ctruActual)}</div>
-              </Card>
-            ))}
-          </div>
-        </Seccion>
-      )}
-
-      {/* ALERTAS */}
-      {alertas.length > 0 && (
-        <Seccion id="alertas" titulo={`Alertas de Margen (${alertas.length})`}
-          icono={<AlertTriangle className="w-4 h-4" />} expandida={seccionExpandida === 'alertas'}
-          onToggle={toggleSeccion} badgeColor="red" badge={`${dashboard.alertasCriticas} criticas`}>
+      {/* ─── ALERTAS ─── */}
+      {dash.alertas > 0 && (
+        <Seccion id="alertas" titulo={`Alertas de Margen (${dash.alertas})`}
+          icono={<AlertTriangle className="w-4 h-4" />} abierta={expandido === 'alertas'} onToggle={toggle}
+          badge={dash.criticas > 0 ? `${dash.criticas} criticas` : undefined} badgeColor="red">
           <div className="space-y-2">
-            {alertas.map(a => (
-              <div key={a.productoId} className={`flex items-center justify-between p-3 rounded-lg border ${
-                a.margenProyectado < 0 ? 'bg-red-50 border-red-200' :
-                a.margenProyectado < 15 ? 'bg-amber-50 border-amber-200' :
-                'bg-yellow-50 border-yellow-200'
+            {proyProductos.filter(p => p.margenProy < 15 || p.varPct > 5).sort((a, b) => a.margenProy - b.margenProy).map(p => (
+              <div key={p.id} className={`flex items-center justify-between p-3 rounded-lg border ${
+                p.margenProy < 0 ? 'bg-red-50 border-red-200' : p.margenProy < 15 ? 'bg-amber-50 border-amber-200' : 'bg-yellow-50 border-yellow-200'
               }`}>
                 <div>
-                  <div className="font-medium text-sm">{a.nombre}</div>
-                  <div className="text-xs text-gray-500">SKU: {a.sku} | CTRU {a.variacionPct > 0 ? '+' : ''}{a.variacionPct.toFixed(1)}%</div>
+                  <span className="font-medium text-sm">{p.nombre}</span>
+                  <span className="text-xs text-gray-400 ml-2">{p.sku}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
-                  <span>Hoy: <strong>{a.margenActual.toFixed(1)}%</strong></span>
-                  <ArrowRight className="w-3 h-3 text-gray-400" />
-                  <span className={a.margenProyectado < 10 ? 'text-red-600 font-bold' : 'text-amber-600 font-bold'}>
-                    {horizonte}d: {a.margenProyectado.toFixed(1)}%
+                  <span>Hoy: <strong>{p.margenActual.toFixed(1)}%</strong></span>
+                  <ArrowRight className="w-3 h-3 text-gray-300" />
+                  <span className={`font-bold ${p.margenProy < 10 ? 'text-red-600' : 'text-amber-600'}`}>
+                    {horizonte}d: {p.margenProy.toFixed(1)}%
                   </span>
                 </div>
               </div>
@@ -395,49 +538,75 @@ export const Proyeccion: React.FC = () => {
         </Seccion>
       )}
 
-      {/* TABLA DETALLADA */}
+      {/* ─── TABLA DETALLADA ─── */}
       <Seccion id="detalle" titulo="Detalle por Producto" icono={<Package className="w-4 h-4" />}
-        expandida={seccionExpandida === 'detalle'} onToggle={toggleSeccion}
-        badge={`${proyecciones.length} productos`}>
+        abierta={expandido === 'detalle'} onToggle={toggle} badge={`${proyProductos.length} productos`}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-xs text-gray-500">
+              <tr className="border-b text-xs text-gray-500">
                 <th className="text-left py-2 px-2">Producto</th>
+                <th className="text-center py-2 px-2 w-20">Tendencia</th>
                 <th className="text-right py-2 px-2">CTRU Actual</th>
                 <th className="text-right py-2 px-2">CTRU {horizonte}d</th>
-                <th className="text-right py-2 px-2">Var %</th>
+                <th className="text-right py-2 px-2">Var</th>
                 <th className="text-right py-2 px-2">Margen Proy.</th>
-                <th className="text-right py-2 px-2">Precio Min (20%)</th>
+                <th className="text-right py-2 px-2">Precio Min</th>
                 <th className="text-center py-2 px-2">Confianza</th>
+                <th className="text-center py-2 px-2">Acción</th>
               </tr>
             </thead>
             <tbody>
-              {proyecciones.sort((a, b) => b.variacionPct - a.variacionPct).map(p => (
-                <tr key={p.productoId} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-2 px-2 font-medium">{p.nombre}</td>
+              {proyProductos.sort((a, b) => a.margenProy - b.margenProy).map(p => (
+                <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50">
+                  <td className="py-2 px-2">
+                    <div className="font-medium text-gray-900">{p.nombre}</div>
+                    <div className="text-[10px] text-gray-400">{p.sku} · {p.unidades} uds</div>
+                  </td>
+                  <td className="py-2 px-2">
+                    {p.sparkline.length >= 2 ? (
+                      <ResponsiveContainer width={70} height={24}>
+                        <LineChart data={p.sparkline.map((v, i) => ({ v, i }))}>
+                          <Line dataKey="v" stroke={p.varPct > 3 ? '#ef4444' : p.varPct > 0 ? '#f59e0b' : '#22c55e'}
+                            strokeWidth={1.5} dot={false} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : <span className="text-gray-300 text-xs">—</span>}
+                  </td>
                   <td className="py-2 px-2 text-right font-mono">{formatCurrency(p.ctruActual)}</td>
-                  <td className="py-2 px-2 text-right font-mono font-bold">{formatCurrency(p.ctruProyectado)}</td>
+                  <td className="py-2 px-2 text-right font-mono font-bold">{formatCurrency(p.ctruProy)}</td>
                   <td className="py-2 px-2 text-right">
-                    <span className={`inline-flex items-center gap-0.5 font-bold ${
-                      p.variacionPct > 3 ? 'text-red-600' : p.variacionPct > 0 ? 'text-amber-600' : 'text-green-600'
+                    <span className={`inline-flex items-center gap-0.5 font-bold text-xs ${
+                      p.varPct > 3 ? 'text-red-600' : p.varPct > 0 ? 'text-amber-600' : 'text-green-600'
                     }`}>
-                      {p.variacionPct > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                      {p.variacionPct > 0 ? '+' : ''}{p.variacionPct.toFixed(1)}%
+                      {p.varPct > 0.5 ? <TrendingUp className="w-3 h-3" /> : p.varPct < -0.5 ? <TrendingDown className="w-3 h-3" /> : null}
+                      {p.varPct > 0 ? '+' : ''}{p.varPct.toFixed(1)}%
                     </span>
                   </td>
                   <td className="py-2 px-2 text-right">
-                    <span className={`font-bold ${p.margenProyectado >= 20 ? 'text-green-600' : p.margenProyectado >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
-                      {p.margenProyectado.toFixed(1)}%
+                    <span className={`font-bold ${p.margenProy >= 20 ? 'text-green-600' : p.margenProy >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
+                      {p.margenProy.toFixed(1)}%
                     </span>
                   </td>
-                  <td className="py-2 px-2 text-right">{formatCurrency(p.precioMin20)}</td>
+                  <td className="py-2 px-2 text-right text-xs">{formatCurrency(p.precioMin20)}</td>
                   <td className="py-2 px-2 text-center">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${
                       p.confianza === 'alta' ? 'bg-green-100 text-green-700' :
-                      p.confianza === 'media' ? 'bg-amber-100 text-amber-700' :
-                      'bg-gray-100 text-gray-600'
+                      p.confianza === 'media' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'
                     }`}>{p.confianza}</span>
+                  </td>
+                  <td className="py-2 px-2 text-center">
+                    <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                      p.accion === 'subir_precio' ? 'bg-red-100 text-red-700' :
+                      p.accion === 'comprar' ? 'bg-blue-100 text-blue-700' :
+                      p.accion === 'revisar' ? 'bg-amber-100 text-amber-700' :
+                      'bg-green-100 text-green-700'
+                    }`}>
+                      {p.accion === 'subir_precio' ? <><ArrowUp className="w-3 h-3" />Subir precio</> :
+                       p.accion === 'comprar' ? <><ShoppingCart className="w-3 h-3" />Comprar</> :
+                       p.accion === 'revisar' ? <><Eye className="w-3 h-3" />Revisar</> :
+                       <><Check className="w-3 h-3" />OK</>}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -453,57 +622,74 @@ export const Proyeccion: React.FC = () => {
 // Sub-componentes
 // ============================================
 
-const Header: React.FC<{ horizonte: 30 | 90; setHorizonte: (h: 30 | 90) => void }> = ({ horizonte, setHorizonte }) => (
+const HeroHeader: React.FC<{ horizonte: 30 | 90; setHorizonte: (h: 30 | 90) => void }> = ({ horizonte, setHorizonte }) => (
   <div className="bg-gradient-to-r from-violet-600 to-indigo-700 rounded-xl p-6 text-white mb-2">
     <div className="flex items-center justify-between">
       <div>
         <div className="flex items-center gap-3 mb-1">
           <TrendingUp className="w-8 h-8 opacity-80" />
-          <h1 className="text-xl md:text-2xl font-bold">Proyeccion de Costos</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Proyeccion de Costos y Ventas</h1>
         </div>
-        <p className="text-violet-200 text-sm">Estimaciones basadas en tendencias historicas del sistema</p>
+        <p className="text-violet-200 text-sm">Estimaciones a {horizonte} dias basadas en tendencias del sistema</p>
       </div>
-      <div className="flex items-center gap-2 bg-white/15 rounded-lg p-1">
-        <button onClick={() => setHorizonte(30)}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${horizonte === 30 ? 'bg-white text-violet-700 shadow' : 'text-white/80 hover:text-white'}`}>
-          30 dias
-        </button>
-        <button onClick={() => setHorizonte(90)}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${horizonte === 90 ? 'bg-white text-violet-700 shadow' : 'text-white/80 hover:text-white'}`}>
-          90 dias
-        </button>
+      <div className="flex items-center gap-1 bg-white/15 rounded-lg p-1">
+        {([30, 90] as const).map(h => (
+          <button key={h} onClick={() => setHorizonte(h)}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              horizonte === h ? 'bg-white text-violet-700 shadow' : 'text-white/70 hover:text-white'
+            }`}>
+            {h} dias
+          </button>
+        ))}
       </div>
     </div>
   </div>
 );
 
 const KPICard: React.FC<{
-  icon: React.ReactNode; label: string; valor: string; subvalor: string;
-  tendencia?: number; color?: 'red' | 'green' | 'amber';
-}> = ({ icon, label, valor, subvalor, tendencia, color }) => (
-  <Card className="p-3">
-    <div className="flex items-center gap-2 mb-1">
-      <span className="text-gray-400">{icon}</span>
-      <span className="text-xs text-gray-500">{label}</span>
-    </div>
-    <div className="text-lg font-bold text-gray-900">{valor}</div>
-    <div className="flex items-center justify-between mt-0.5">
-      <span className="text-xs text-gray-500">{subvalor}</span>
-      {tendencia !== undefined && (
-        <span className={`text-xs font-bold ${
-          color === 'red' ? 'text-red-600' : color === 'green' ? 'text-green-600' : color === 'amber' ? 'text-amber-600' :
-          tendencia > 0 ? 'text-red-500' : tendencia < 0 ? 'text-green-500' : 'text-gray-400'
-        }`}>{tendencia > 0 ? '+' : ''}{tendencia.toFixed(1)}%</span>
+  icon: React.ReactNode; label: string; valor: string; sub: string;
+  trend?: number; color?: 'red' | 'green' | 'amber'; invertColor?: boolean;
+  sparkData?: number[];
+}> = ({ icon, label, valor, sub, trend, color, invertColor, sparkData }) => {
+  const trendColor = color ? `text-${color}-600` :
+    trend === undefined || Math.abs(trend) < 0.5 ? 'text-gray-400' :
+    (invertColor ? trend < 0 : trend > 0) ? 'text-green-500' : 'text-red-500';
+
+  return (
+    <Card className="p-3 flex items-start justify-between">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className="text-gray-400">{icon}</span>
+          <span className="text-[11px] text-gray-500 font-medium">{label}</span>
+        </div>
+        <div className="text-lg font-bold text-gray-900">{valor}</div>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-[11px] text-gray-400 truncate">{sub}</span>
+          {trend !== undefined && (
+            <span className={`text-[11px] font-bold whitespace-nowrap ${trendColor}`}>
+              {trend > 0 ? '+' : ''}{trend.toFixed(1)}%
+            </span>
+          )}
+        </div>
+      </div>
+      {sparkData && sparkData.length >= 2 && (
+        <div className="w-16 h-8 ml-2 flex-shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={sparkData.map((v, i) => ({ v, i }))}>
+              <Line dataKey="v" stroke="#6366f1" strokeWidth={1.5} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       )}
-    </div>
-  </Card>
-);
+    </Card>
+  );
+};
 
 const Seccion: React.FC<{
-  id: string; titulo: string; icono: React.ReactNode; expandida: boolean;
-  onToggle: (id: string) => void; badge?: string; badgeColor?: 'red' | 'amber' | 'blue';
+  id: string; titulo: string; icono: React.ReactNode; abierta: boolean;
+  onToggle: (id: string) => void; badge?: string; badgeColor?: 'red' | 'amber';
   children: React.ReactNode;
-}> = ({ id, titulo, icono, expandida, onToggle, badge, badgeColor = 'blue', children }) => (
+}> = ({ id, titulo, icono, abierta, onToggle, badge, badgeColor, children }) => (
   <Card className="overflow-hidden">
     <button onClick={() => onToggle(id)}
       className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
@@ -512,12 +698,14 @@ const Seccion: React.FC<{
         <h3 className="font-semibold text-gray-900 text-sm">{titulo}</h3>
         {badge && (
           <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-            badgeColor === 'red' ? 'bg-red-100 text-red-700' : badgeColor === 'amber' ? 'bg-amber-100 text-amber-700' : 'bg-primary-100 text-primary-700'
+            badgeColor === 'red' ? 'bg-red-100 text-red-700' :
+            badgeColor === 'amber' ? 'bg-amber-100 text-amber-700' :
+            'bg-primary-100 text-primary-700'
           }`}>{badge}</span>
         )}
       </div>
-      {expandida ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+      {abierta ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
     </button>
-    {expandida && <div className="px-4 pb-4">{children}</div>}
+    {abierta && <div className="px-4 pb-4">{children}</div>}
   </Card>
 );
