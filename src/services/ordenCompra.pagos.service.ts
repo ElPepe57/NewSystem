@@ -16,7 +16,7 @@ import { logger } from '../lib/logger';
 import type { PagoOrdenCompra } from '../types/ordenCompra.types';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 import { tesoreriaService } from './tesoreria.service';
-import { poolUSDService } from './poolUSD.service';
+// poolUSDService: eliminado — tesorería registra automáticamente en Pool USD
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import { getById } from './ordenCompra.crud.service';
 
@@ -140,6 +140,11 @@ export async function registrarPago(
 
       const movimientoId = await tesoreriaService.registrarMovimiento(movimientoData, userId);
       nuevoPago.movimientoTesoreriaId = movimientoId;
+
+      // Persistir el movimientoTesoreriaId en Firestore (segunda escritura)
+      const pagosActualizados = [...historialPagos, nuevoPago];
+      await updateDoc(doc(db, ORDENES_COLLECTION, id), { historialPagos: pagosActualizados });
+
       logger.success(
         `Pago OC registrado en tesorería: ${monedaPago} ${montoOriginal} para ${orden.numeroOrden}`
       );
@@ -147,29 +152,9 @@ export async function registrarPago(
       logger.error('Error registrando pago OC en tesorería:', tesoreriaError);
     }
 
-    // Register in Pool USD (non-blocking, USD only)
-    if (monedaPago === 'USD') {
-      try {
-        await poolUSDService.registrarMovimiento(
-          {
-            tipo: 'PAGO_OC',
-            montoUSD: montoOriginal,
-            tcOperacion: tipoCambio,
-            fecha: fechaPago,
-            documentoOrigenTipo: 'orden_compra',
-            documentoOrigenId: id,
-            documentoOrigenNumero: orden.numeroOrden,
-            notas: `Pago OC ${orden.numeroOrden} - ${orden.nombreProveedor}`
-          },
-          userId
-        );
-        logger.success(
-          `Pago OC registrado en Pool USD: $${montoOriginal} para ${orden.numeroOrden}`
-        );
-      } catch (poolError) {
-        logger.error('Error registrando pago OC en Pool USD:', poolError);
-      }
-    }
+    // Pool USD: NO registrar aquí — tesorería.movimientos.service lo hace automáticamente
+    // al recibir un movimiento tipo 'pago_orden_compra' en USD.
+    // Registrarlo aquí causaba DOBLE REGISTRO en Pool USD.
 
     return nuevoPago;
   } catch (error: any) {

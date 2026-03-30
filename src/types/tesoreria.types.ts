@@ -247,13 +247,31 @@ export interface CuentaCaja {
   saldoMinimoPEN?: number;      // Alerta PEN (bi-moneda)
 
   // Datos bancarios (si aplica)
-  banco?: string;
+  banco?: string;                // "BCP", "Interbank", etc.
   numeroCuenta?: string;
   cci?: string;
 
-  // Asociación con método de pago (para selección automática)
+  // Producto financiero
+  productoFinanciero?: 'cuenta_ahorros' | 'cuenta_corriente' | 'tarjeta_debito' | 'tarjeta_credito' | 'caja' | 'billetera_digital';
+  titularidad?: 'empresa' | 'personal';  // Si es cuenta del negocio o personal usada para el negocio
+  cuentaVinculadaId?: string;    // Para tarjeta débito: la cuenta de ahorros de donde sale el dinero
+
+  // Métodos de pago disponibles en esta cuenta
+  metodosDisponibles?: string[];  // ej: ['transferencia', 'yape'] para BCP PEN
+
+  // Asociación con método de pago (para selección automática - legacy)
   metodoPagoAsociado?: MetodoTesoreria;
-  esCuentaPorDefecto?: boolean; // Si es la cuenta por defecto para ese método
+  esCuentaPorDefecto?: boolean;
+
+  // Línea de crédito (solo para tarjeta_credito)
+  lineaCredito?: {
+    limiteTotal: number;
+    utilizado: number;
+    disponible: number;         // limiteTotal - utilizado
+    tasaInteres?: number;       // % anual
+    fechaCorte?: number;        // día del mes (1-28)
+    fechaPago?: number;         // día del mes para pagar estado de cuenta
+  };
 
   // Estado
   activa: boolean;
@@ -370,6 +388,20 @@ export interface CuentaCajaFormData {
   banco?: string;
   numeroCuenta?: string;
   cci?: string;
+
+  // Producto financiero
+  productoFinanciero?: 'cuenta_ahorros' | 'cuenta_corriente' | 'tarjeta_debito' | 'tarjeta_credito' | 'caja' | 'billetera_digital';
+  titularidad?: 'empresa' | 'personal';
+  cuentaVinculadaId?: string;    // Para tarjeta débito → cuenta de ahorros
+  metodosDisponibles?: string[];  // Métodos de pago que acepta esta cuenta
+
+  // Línea de crédito (solo tarjeta_credito)
+  lineaCreditoLimite?: number;
+  lineaCreditoTasa?: number;     // % anual
+  lineaCreditoFechaCorte?: number;  // día del mes
+  lineaCreditoFechaPago?: number;   // día del mes
+
+  // Legacy (mantener por compatibilidad)
   metodoPagoAsociado?: MetodoTesoreria;
   esCuentaPorDefecto?: boolean;
 }

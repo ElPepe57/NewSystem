@@ -8,42 +8,63 @@
  */
 
 // ============================================
-// MÉTODOS DE PAGO (catálogo único)
+// MÉTODOS DE PAGO
 // ============================================
+// Los métodos disponibles se derivan de las CUENTAS configuradas en Tesorería.
+// Cada cuenta define qué métodos acepta según su tipo y banco.
+//
+// Ejemplo real del negocio:
+//   BCP  → transferencia, yape
+//   IBK  → transferencia, plin
+//   Caja → efectivo
+//   Tarjeta BCP → tarjeta_debito, tarjeta_credito (con línea de crédito)
+//   MercadoPago → mercado_pago
+//   PayPal → paypal
+//   Zelle → zelle (via cuenta USD)
 
 export type MetodoPagoUnificado =
   | 'efectivo'
-  | 'transferencia_bancaria'
+  | 'transferencia'
   | 'yape'
   | 'plin'
   | 'tarjeta_debito'
   | 'tarjeta_credito'
-  | 'linea_credito'        // NUEVO: pago con línea de crédito bancaria
   | 'mercado_pago'
   | 'paypal'
   | 'zelle'
   | 'otro';
 
-export const METODOS_PAGO_CATALOGO: Array<{
-  id: MetodoPagoUnificado;
+/** Métodos que cada tipo de cuenta puede ofrecer */
+export const METODOS_POR_TIPO_CUENTA: Record<string, MetodoPagoUnificado[]> = {
+  efectivo: ['efectivo'],
+  banco:    ['transferencia', 'yape', 'plin'],          // el banco define cuáles aplican
+  digital:  ['mercado_pago', 'paypal', 'zelle', 'otro'],
+  credito:  ['tarjeta_debito', 'tarjeta_credito'],
+};
+
+/** Metadata de cada método */
+export const METODOS_PAGO_INFO: Record<MetodoPagoUnificado, {
   label: string;
-  monedas: ('PEN' | 'USD')[];
-  requiereCuenta: boolean;
   requiereReferencia: boolean;
-  icon?: string;
-}> = [
-  { id: 'efectivo', label: 'Efectivo', monedas: ['PEN', 'USD'], requiereCuenta: false, requiereReferencia: false },
-  { id: 'transferencia_bancaria', label: 'Transferencia', monedas: ['PEN', 'USD'], requiereCuenta: true, requiereReferencia: true },
-  { id: 'yape', label: 'Yape', monedas: ['PEN'], requiereCuenta: true, requiereReferencia: false },
-  { id: 'plin', label: 'Plin', monedas: ['PEN'], requiereCuenta: true, requiereReferencia: false },
-  { id: 'tarjeta_debito', label: 'Tarjeta Débito', monedas: ['PEN', 'USD'], requiereCuenta: true, requiereReferencia: true },
-  { id: 'tarjeta_credito', label: 'Tarjeta Crédito', monedas: ['PEN', 'USD'], requiereCuenta: false, requiereReferencia: true },
-  { id: 'linea_credito', label: 'Línea de Crédito', monedas: ['PEN', 'USD'], requiereCuenta: false, requiereReferencia: true },
-  { id: 'mercado_pago', label: 'Mercado Pago', monedas: ['PEN'], requiereCuenta: true, requiereReferencia: false },
-  { id: 'paypal', label: 'PayPal', monedas: ['USD'], requiereCuenta: true, requiereReferencia: true },
-  { id: 'zelle', label: 'Zelle', monedas: ['USD'], requiereCuenta: true, requiereReferencia: true },
-  { id: 'otro', label: 'Otro', monedas: ['PEN', 'USD'], requiereCuenta: false, requiereReferencia: false },
-];
+}> = {
+  efectivo:         { label: 'Efectivo',         requiereReferencia: false },
+  transferencia:    { label: 'Transferencia',    requiereReferencia: true },
+  yape:             { label: 'Yape',             requiereReferencia: false },
+  plin:             { label: 'Plin',             requiereReferencia: false },
+  tarjeta_debito:   { label: 'Tarjeta Débito',  requiereReferencia: true },
+  tarjeta_credito:  { label: 'Tarjeta Crédito', requiereReferencia: true },
+  mercado_pago:     { label: 'Mercado Pago',     requiereReferencia: false },
+  paypal:           { label: 'PayPal',           requiereReferencia: true },
+  zelle:            { label: 'Zelle',            requiereReferencia: true },
+  otro:             { label: 'Otro',             requiereReferencia: false },
+};
+
+/** Métodos específicos por banco (configurables) */
+export const METODOS_POR_BANCO: Record<string, MetodoPagoUnificado[]> = {
+  BCP:       ['transferencia', 'yape'],
+  Interbank: ['transferencia', 'plin'],
+  // Otros bancos se agregan aquí
+};
 
 // ============================================
 // PAGO UNIFICADO (estructura base para todo el sistema)

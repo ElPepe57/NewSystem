@@ -26,8 +26,7 @@ import type {
 import { getClaseGasto } from '../types/gasto.types';
 import { ctruService } from './ctru.service';
 import { tesoreriaService } from './tesoreria.service';
-import { poolUSDService } from './poolUSD.service';
-import type { TipoMovimientoPool } from '../types/rendimientoCambiario.types';
+// poolUSDService + TipoMovimientoPool: eliminados — tesorería registra automáticamente en Pool USD
 import type { MetodoTesoreria, MonedaTesoreria } from '../types/tesoreria.types';
 import { actividadService } from './actividad.service';
 import { COLLECTIONS } from '../config/collections';
@@ -150,28 +149,9 @@ export const gastoService = {
           // No bloquear la creación del gasto, pero logear el error
         }
 
-        // Registrar en Pool USD si el pago fue en USD
-        if (data.moneda === 'USD') {
-          try {
-            const tipoPool: TipoMovimientoPool = ['GI', 'flete', 'aduana'].includes(data.categoria)
-              ? 'GASTO_IMPORTACION_USD' : 'GASTO_SERVICIO_USD';
-            await poolUSDService.registrarMovimiento(
-              {
-                tipo: tipoPool,
-                montoUSD: data.montoOriginal,
-                tcOperacion: data.tipoCambio || 1,
-                fecha: data.fecha,
-                documentoOrigenTipo: 'gasto',
-                documentoOrigenId: docRef.id,
-                documentoOrigenNumero: numeroGasto,
-                notas: `Gasto ${numeroGasto}: ${data.descripcion}`,
-              },
-              userId
-            );
-          } catch (poolError) {
-            logger.error('Error registrando gasto USD en Pool USD:', poolError);
-          }
-        }
+        // Pool USD: NO registrar aquí — tesorería.movimientos.service lo hace automáticamente
+        // al recibir un movimiento tipo 'gasto_operativo' en USD.
+        // Registrarlo aquí causaba DOBLE REGISTRO en Pool USD.
       }
 
       // Auto-recálculo de CTRU cuando se crea un gasto GA/GO prorrateable
@@ -981,28 +961,9 @@ export const gastoService = {
         throw tesoreriaError;
       }
 
-      // Registrar en Pool USD si el pago fue en USD
-      if (data.monedaPago === 'USD') {
-        try {
-          const tipoPool: TipoMovimientoPool = ['GI', 'flete', 'aduana'].includes(gasto.categoria)
-            ? 'GASTO_IMPORTACION_USD' : 'GASTO_SERVICIO_USD';
-          await poolUSDService.registrarMovimiento(
-            {
-              tipo: tipoPool,
-              montoUSD: data.montoPago,
-              tcOperacion: data.tipoCambio,
-              fecha: data.fechaPago,
-              documentoOrigenTipo: 'gasto',
-              documentoOrigenId: gastoId,
-              documentoOrigenNumero: gasto.numeroGasto,
-              notas: `Pago gasto ${gasto.numeroGasto}: ${gasto.descripcion}`,
-            },
-            userId
-          );
-        } catch (poolError) {
-          logger.error('Error registrando pago gasto USD en Pool USD:', poolError);
-        }
-      }
+      // Pool USD: NO registrar aquí — tesorería.movimientos.service lo hace automáticamente
+      // al recibir un movimiento tipo 'gasto_operativo' en USD.
+      // Registrarlo aquí causaba DOBLE REGISTRO en Pool USD.
 
       // Actualizar el gasto en Firestore
       const docRef = doc(db, GASTOS_COLLECTION, gastoId);
