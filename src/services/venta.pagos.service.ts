@@ -227,6 +227,21 @@ export async function registrarPago(
       }
     } catch (tesoreriaError: any) {
       logger.error('Error registrando en tesorería (el pago fue registrado):', tesoreriaError);
+      // Marcar el pago con error de tesorería para reconciliación posterior
+      try {
+        const ventaActualSnap = await import('firebase/firestore').then(({ getDoc }) =>
+          getDoc(doc(db, COLLECTION_NAME, ventaId))
+        );
+        if (ventaActualSnap.exists()) {
+          const ventaActual = { id: ventaActualSnap.id, ...ventaActualSnap.data() } as Venta;
+          const pagosConError = (ventaActual.pagos || []).map((p: PagoVenta) =>
+            p.id === nuevoPago.id ? { ...p, errorTesoreria: true, errorTesoreriaMsg: tesoreriaError?.message || 'Error desconocido' } : p
+          );
+          await updateDoc(ventaRef, { pagos: pagosConError });
+        }
+      } catch (updateErr) {
+        logger.error('Error marcando pago con errorTesoreria:', updateErr);
+      }
     }
   }
 

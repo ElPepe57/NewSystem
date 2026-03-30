@@ -958,7 +958,9 @@ export const gastoService = {
         }
       } catch (tesoreriaError) {
         logger.error('Error registrando movimiento en tesorería:', tesoreriaError);
-        throw tesoreriaError;
+        // No bloquear el pago — marcar para reconciliación posterior
+        nuevoPago.errorTesoreria = true;
+        nuevoPago.errorTesoreriaMsg = tesoreriaError instanceof Error ? tesoreriaError.message : 'Error desconocido';
       }
 
       // Pool USD: NO registrar aquí — tesorería.movimientos.service lo hace automáticamente

@@ -166,6 +166,8 @@ export interface PagoOrdenCompra {
 
   // Tesorería
   movimientoTesoreriaId?: string;   // ID del movimiento en tesorería
+  errorTesoreria?: boolean;          // true si falló el registro en tesorería
+  errorTesoreriaMsg?: string;        // Mensaje de error para reconciliación
 
   // Auditoría
   registradoPor: string;

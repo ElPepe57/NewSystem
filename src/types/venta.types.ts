@@ -172,6 +172,8 @@ export interface PagoVenta {
   // Vinculación con Tesorería
   tesoreriaMovimientoId?: string; // ID del movimiento de tesorería asociado
   cuentaDestinoId?: string;       // ID de la cuenta de caja donde se registró
+  errorTesoreria?: boolean;        // true si falló el registro en tesorería
+  errorTesoreriaMsg?: string;      // Mensaje de error para reconciliación
 }
 
 export interface ProductoVenta {

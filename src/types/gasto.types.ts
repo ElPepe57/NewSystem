@@ -269,6 +269,9 @@ export interface PagoGasto {
 
   // Tesorería
   movimientoTesoreriaId?: string;   // ID del movimiento en tesorería
+  errorTesoreria?: boolean;          // true si falló el registro en tesorería
+  errorTesoreriaMsg?: string;        // Mensaje de error para reconciliación
+  cuentaOrigenNombre?: string;       // Desnormalizado para reportes (DATA-001 fix)
 
   // Auditoría
   registradoPor: string;

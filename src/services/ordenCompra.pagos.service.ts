@@ -148,8 +148,17 @@ export async function registrarPago(
       logger.success(
         `Pago OC registrado en tesorería: ${monedaPago} ${montoOriginal} para ${orden.numeroOrden}`
       );
-    } catch (tesoreriaError) {
+    } catch (tesoreriaError: any) {
       logger.error('Error registrando pago OC en tesorería:', tesoreriaError);
+      // Marcar el pago con error de tesorería para reconciliación posterior
+      nuevoPago.errorTesoreria = true;
+      nuevoPago.errorTesoreriaMsg = tesoreriaError?.message || 'Error desconocido';
+      try {
+        const pagosConError = [...historialPagos, nuevoPago];
+        await updateDoc(doc(db, ORDENES_COLLECTION, id), { historialPagos: pagosConError });
+      } catch (updateErr) {
+        logger.error('Error marcando pago OC con errorTesoreria:', updateErr);
+      }
     }
 
     // Pool USD: NO registrar aquí — tesorería.movimientos.service lo hace automáticamente
