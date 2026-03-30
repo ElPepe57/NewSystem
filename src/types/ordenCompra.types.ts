@@ -12,8 +12,16 @@ export type EstadoOrden =
 // Estado de pago (independiente del estado logístico)
 export type EstadoPagoOC =
   | 'pendiente'     // No pagada
-  | 'pagada'        // Pago completado
-  | 'pago_parcial'; // Pagada parcialmente
+  | 'parcial'       // Pagada parcialmente (normalizado: antes 'pago_parcial')
+  | 'pagado';       // Pago completado (normalizado: antes 'pagada')
+
+/** Normaliza estados legacy de Firestore al formato canónico */
+export function normalizarEstadoPagoOC(estado: string): EstadoPagoOC {
+  if (estado === 'pagada') return 'pagado';
+  if (estado === 'pago_parcial') return 'parcial';
+  if (estado === 'pendiente_pago') return 'pendiente';
+  return estado as EstadoPagoOC;
+}
 
 export type TipoProveedor =
   | 'fabricante'

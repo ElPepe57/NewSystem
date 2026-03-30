@@ -494,8 +494,8 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                               </Badge>
                               <Badge
                                 variant={
-                                  orden.estadoPago === 'pagada' ? 'success' :
-                                  orden.estadoPago === 'pago_parcial' ? 'warning' : 'default'
+                                  (orden.estadoPago === 'pagado' || orden.estadoPago === 'pagada') ? 'success' :
+                                  (orden.estadoPago === 'parcial' || orden.estadoPago === 'pago_parcial') ? 'warning' : 'default'
                                 }
                               >
                                 {orden.estadoPago}

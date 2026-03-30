@@ -1247,7 +1247,7 @@ async function getCuentasPorPagarProveedores(tc: number): Promise<CuentasPorPaga
     const orden = doc.data() as OrdenCompra;
 
     // Solo OCs con pago pendiente
-    if (orden.estadoPago === 'pendiente' || orden.estadoPago === 'pago_parcial') {
+    if (orden.estadoPago === 'pendiente' || orden.estadoPago === 'parcial' || orden.estadoPago === 'pago_parcial') {
       const pendienteUSD = orden.montoPendiente || orden.totalUSD - (orden.montosPagados?.reduce((s, m) => s + m, 0) || 0);
 
       if (pendienteUSD > 0) {

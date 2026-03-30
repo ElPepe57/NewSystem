@@ -142,7 +142,7 @@ export interface CuotaLineaCredito {
   montoOriginal: number;
   moneda: 'PEN' | 'USD';
   fechaVencimiento: Date;
-  estado: 'pendiente' | 'pagada' | 'vencida';
+  estado: 'pendiente' | 'pagado' | 'vencida';
   fechaPago?: Date;
   pagoId?: string;                     // PagoUnificado del pago de la cuota
 }

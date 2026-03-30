@@ -991,7 +991,7 @@ export const productoIntelService = {
     // Egresos comprometidos (OC pendientes)
     const ordenesCompra = await this.getOrdenesCompra();
     const ocPendientes = ordenesCompra.filter(oc =>
-      oc.estadoPago !== 'pagada' &&
+      oc.estadoPago !== 'pagado' && oc.estadoPago !== 'pagada' &&
       oc.estado !== 'cancelada'
     );
 

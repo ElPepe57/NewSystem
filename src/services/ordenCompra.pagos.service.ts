@@ -94,7 +94,7 @@ export async function registrarPago(
     const historialPagos = orden.historialPagos || [];
     const totalPagadoUSD = historialPagos.reduce((sum, p) => sum + p.montoUSD, 0) + montoUSD;
     const pendienteUSD = orden.totalUSD - totalPagadoUSD;
-    const estadoPago = pendienteUSD <= 0.01 ? 'pagada' : 'pago_parcial';
+    const estadoPago = pendienteUSD <= 0.01 ? 'pagado' : 'parcial';
 
     const updates: any = {
       historialPagos: [...historialPagos, nuevoPago],
@@ -105,7 +105,7 @@ export async function registrarPago(
       editadoPor: userId
     };
 
-    if (estadoPago === 'pagada') {
+    if (estadoPago === 'pagado') {
       updates.fechaPago = Timestamp.fromDate(fechaPago);
       updates.totalPEN = orden.totalUSD * tipoCambio;
 
@@ -120,7 +120,7 @@ export async function registrarPago(
 
     // Register in Tesorería (non-blocking)
     try {
-      const esPagoCompleto = estadoPago === 'pagada';
+      const esPagoCompleto = estadoPago === 'pagado';
       const movimientoData: any = {
         tipo: 'pago_orden_compra',
         moneda: monedaPago,

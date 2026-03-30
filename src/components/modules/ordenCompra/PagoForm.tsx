@@ -223,10 +223,10 @@ export const PagoForm: React.FC<PagoFormProps> = ({
               <div>
                 <span className="text-gray-600">Estado:</span>
                 <Badge
-                  variant={orden.estadoPago === 'pagada' ? 'success' : orden.estadoPago === 'pago_parcial' ? 'warning' : 'danger'}
+                  variant={orden.estadoPago === 'pagado' ? 'success' : orden.estadoPago === 'parcial' ? 'warning' : 'danger'}
                   className="ml-2"
                 >
-                  {orden.estadoPago === 'pagada' ? 'Pagada' : orden.estadoPago === 'pago_parcial' ? 'Parcial' : 'Pendiente'}
+                  {orden.estadoPago === 'pagado' ? 'Pagada' : orden.estadoPago === 'parcial' ? 'Parcial' : 'Pendiente'}
                 </Badge>
               </div>
             </div>

@@ -126,7 +126,7 @@ export const cuentasPendientesService = {
 
       for (const oc of ordenes) {
         // Solo OC con pago pendiente o parcial
-        if (oc.estadoPago === 'pagada' || oc.estado === 'cancelada') {
+        if (oc.estadoPago === 'pagado' || oc.estadoPago === 'pagada' || oc.estado === 'cancelada') {
           continue;
         }
 
@@ -153,7 +153,7 @@ export const cuentasPendientesService = {
           diasPendiente,
           estadoDocumento: oc.estado,
           esVencido: diasPendiente > 30,
-          esParcial: oc.estadoPago === 'pago_parcial',
+          esParcial: oc.estadoPago === 'parcial' || oc.estadoPago === 'pago_parcial',
           notas: oc.observaciones
         });
       }

@@ -36,7 +36,7 @@ export async function getStats(): Promise<OrdenCompraStats> {
       else if (orden.estado === 'recibida') stats.recibidas++;
       else if (orden.estado === 'cancelada') stats.canceladas++;
 
-      if (orden.estadoPago === 'pagada') stats.pagadas++;
+      if (orden.estadoPago === 'pagado' || orden.estadoPago === 'pagada') stats.pagadas++;
 
       if (orden.estado !== 'cancelada') {
         stats.valorTotalUSD += orden.totalUSD;

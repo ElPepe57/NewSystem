@@ -583,13 +583,13 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         ))}
 
         {/* Botón de pago */}
-        {orden.estado !== 'cancelada' && orden.estadoPago !== 'pagada' && onRegistrarPago && (
+        {orden.estado !== 'cancelada' && orden.estadoPago !== 'pagado' && onRegistrarPago && (
           <Button
             variant="secondary"
             onClick={onRegistrarPago}
           >
             <CreditCard className="h-4 w-4 mr-2" />
-            {orden.estadoPago === 'pago_parcial' ? 'Registrar Pago Adicional' : 'Registrar Pago'}
+            {orden.estadoPago === 'parcial' ? 'Registrar Pago Adicional' : 'Registrar Pago'}
           </Button>
         )}
 
