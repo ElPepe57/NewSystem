@@ -35,6 +35,7 @@ const Escaner = React.lazy(() => import('./pages/Escaner/Escaner').then(m => ({ 
 const MercadoLibre = React.lazy(() => import('./pages/MercadoLibre/MercadoLibre').then(m => ({ default: m.MercadoLibre })));
 const NotasIA = React.lazy(() => import('./pages/NotasIA/NotasIA').then(m => ({ default: m.NotasIA })));
 const LineaNegocio = React.lazy(() => import('./pages/LineaNegocio/LineaNegocio').then(m => ({ default: m.LineaNegocio })));
+const Proyeccion = React.lazy(() => import('./pages/Proyeccion/Proyeccion').then(m => ({ default: m.Proyeccion })));
 // MigracionProductos removed — one-time migration tool no longer needed
 
 // Stores y servicios
@@ -154,6 +155,7 @@ function App() {
               <Route path="ctru" element={<CTRUDashboard />} />
               <Route path="rendimiento-cambiario" element={<RendimientoCambiario />} />
               <Route path="reportes" element={<Reportes />} />
+              <Route path="proyeccion" element={<Proyeccion />} />
 
               {/* Administración */}
               <Route path="lineas-negocio" element={<LineaNegocio />} />

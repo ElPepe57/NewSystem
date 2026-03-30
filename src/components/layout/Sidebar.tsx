@@ -31,7 +31,8 @@ import {
   Droplets,
   ScanLine,
   BrainCircuit,
-  Palette
+  Palette,
+  Target
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
@@ -105,6 +106,7 @@ const menuGroups: MenuGroup[] = [
       { icon: Calculator, label: 'Costos CTRU', path: '/ctru', permiso: PERMISOS.VER_CTRU },
       { icon: Zap, label: 'Intel. Productos', path: '/productos-intel', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Activity, label: 'Rendimiento FX', path: '/rendimiento-cambiario', permiso: PERMISOS.VER_TESORERIA },
+      { icon: Target, label: 'Proyeccion', path: '/proyeccion', permiso: PERMISOS.VER_CTRU },
     ]
   },
   {
