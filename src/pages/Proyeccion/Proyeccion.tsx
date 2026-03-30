@@ -24,7 +24,7 @@ import type { CTRUProductoDetalle } from '../../store/ctruStore';
 // ============================================
 
 export const Proyeccion: React.FC = () => {
-  const { productos, loading: ctruLoading, fetchAll } = useCTRUStore();
+  const { productosDetalle: productos, loading: ctruLoading, fetchAll } = useCTRUStore();
   const [dashboard, setDashboard] = useState<DashboardProyeccion | null>(null);
   const [proyecciones, setProyecciones] = useState<ProyeccionCTRU[]>([]);
   const [escenarios, setEscenarios] = useState<EscenariosProducto[]>([]);
@@ -35,12 +35,13 @@ export const Proyeccion: React.FC = () => {
   const [tcSlider, setTcSlider] = useState(0); // -10 a +10 %
   const [seccionExpandida, setSeccionExpandida] = useState<string | null>('resumen');
 
-  const productosLN = useLineaFilter(productos, (p: CTRUProductoDetalle) => p.lineaNegocioId);
+  const productosLNRaw = useLineaFilter(productos || [], (p: CTRUProductoDetalle) => p.lineaNegocioId);
+  const productosLN = productosLNRaw || [];
 
   // Cargar datos CTRU si no están
   useEffect(() => {
-    if (!productos.length && !ctruLoading) fetchAll();
-  }, [productos.length, ctruLoading, fetchAll]);
+    if (!(productos || []).length && !ctruLoading) fetchAll();
+  }, [productos, ctruLoading, fetchAll]);
 
   // Generar proyecciones cuando hay productos
   useEffect(() => {
