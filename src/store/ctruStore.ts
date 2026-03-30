@@ -107,9 +107,10 @@ export interface CTRUProductoDetalle {
   costoFleteIntlUSDProm: number;
   costoFleteIntlPENProm: number;
 
-  // Capa 6: GA/GO (solo entre vendidas)
-  gastoGAGOProm: number;
-  gastoGAGOEstimado: number;  // Estimado proyectado para productos sin ventas
+  // Capa 6: GA/GO
+  gastoGAGOProm: number;              // Contable: GA/GO solo entre vendidas
+  gastoGAGOGerencialProm: number;     // Gerencial: GA/GO entre todas las unidades
+  gastoGAGOEstimado: number;          // Estimado proyectado para productos sin ventas
 
   // Capa 7: GV/GD
   gastoGVGDProm: number;
@@ -630,6 +631,7 @@ function processProductosDetalle(
       costoFleteIntlUSDProm: fleteIntlUSDProm,
       costoFleteIntlPENProm: fleteIntlPENProm,
       gastoGAGOProm: gagoProm,
+      gastoGAGOGerencialProm: gagoGerencialProm,
       gastoGAGOEstimado: data.vendidas === 0 ? gagoEstimadoProyectado : 0,
       gastoGVGDProm: gvgdProm,
       costoInventarioProm: costoInventario,

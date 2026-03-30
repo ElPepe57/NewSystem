@@ -327,7 +327,14 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
             {filtered.map((p, idx) => {
               const adicOC = p.costoImpuestoPENProm + p.costoEnvioPENProm + p.costoOtrosPENProm;
               const pctAdicOC = p.pctImpuesto + p.pctEnvio + p.pctOtros;
-              const utilidad = p.precioVentaProm - p.costoTotalRealProm;
+
+              // Vista-aware: usar campos gerenciales cuando corresponde
+              const ctruActivo = vistaCosto === 'gerencial' ? (p.ctruGerencialProm || p.ctruPromedio) : p.ctruPromedio;
+              const gagoActivo = vistaCosto === 'gerencial' ? (p.gastoGAGOGerencialProm || p.gastoGAGOProm) : p.gastoGAGOProm;
+              const costoTotalActivo = ctruActivo + p.gastoGVGDProm;
+              const utilidad = p.precioVentaProm - costoTotalActivo;
+              const margenActivo = p.precioVentaProm > 0 ? ((p.precioVentaProm - costoTotalActivo) / p.precioVentaProm) * 100 : 0;
+              const pctGAGOActivo = ctruActivo > 0 ? (gagoActivo / ctruActivo) * 100 : 0;
               const isEven = idx % 2 === 0;
 
               return (
@@ -361,14 +368,14 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                         )}
                         <div
                           className="flex w-full h-1 mt-1 rounded-full overflow-hidden bg-gray-100"
-                          title={`Compra ${p.pctCompra.toFixed(0)}% | Imp ${p.pctImpuesto.toFixed(0)}% | Env ${p.pctEnvio.toFixed(0)}% | Flete ${p.pctFleteIntl.toFixed(0)}% | GA/GO ${p.pctGAGO.toFixed(0)}% | GV/GD ${p.pctGVGD.toFixed(0)}%`}
+                          title={`Compra ${p.pctCompra.toFixed(0)}% | Imp ${p.pctImpuesto.toFixed(0)}% | Env ${p.pctEnvio.toFixed(0)}% | Flete ${p.pctFleteIntl.toFixed(0)}% | GA/GO ${pctGAGOActivo.toFixed(0)}% | GV/GD ${p.pctGVGD.toFixed(0)}%`}
                         >
                           {p.pctCompra > 0 && <div className="bg-blue-500" style={{ width: `${p.pctCompra}%` }} />}
                           {p.pctImpuesto > 0 && <div className="bg-red-400" style={{ width: `${p.pctImpuesto}%` }} />}
                           {p.pctEnvio > 0 && <div className="bg-amber-500" style={{ width: `${p.pctEnvio}%` }} />}
                           {p.pctOtros > 0 && <div className="bg-gray-400" style={{ width: `${p.pctOtros}%` }} />}
                           {p.pctFleteIntl > 0 && <div className="bg-orange-500" style={{ width: `${p.pctFleteIntl}%` }} />}
-                          {p.pctGAGO > 0 && <div className="bg-purple-500" style={{ width: `${p.pctGAGO}%` }} />}
+                          {pctGAGOActivo > 0 && <div className="bg-purple-500" style={{ width: `${pctGAGOActivo}%` }} />}
                           {p.pctGVGD > 0 && <div className="bg-cyan-400" style={{ width: `${p.pctGVGD}%` }} />}
                         </div>
                       </div>
@@ -401,10 +408,10 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
 
                   {/* GASTOS */}
                   <td className="py-2.5 px-2 text-right border-l border-gray-50" title={p.gastoGAGOEstimado > 0 ? `Estimado: ${formatCurrency(p.gastoGAGOEstimado)}` : undefined}>
-                    {p.gastoGAGOProm > 0.01 ? (
+                    {gagoActivo > 0.01 ? (
                       <>
-                        <div className="text-xs text-gray-600">{formatCurrency(p.gastoGAGOProm)}</div>
-                        <div className="text-[10px] text-gray-400">({p.pctGAGO.toFixed(0)}%)</div>
+                        <div className="text-xs text-gray-600">{formatCurrency(gagoActivo)}</div>
+                        <div className="text-[10px] text-gray-400">({pctGAGOActivo.toFixed(0)}%)</div>
                       </>
                     ) : p.gastoGAGOEstimado > 0 ? (
                       <span className="text-gray-400 italic text-[11px]">~{formatCurrency(p.gastoGAGOEstimado)}</span>
@@ -426,7 +433,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                   {/* RESULTADO */}
                   <td className="py-2.5 px-2 text-right border-l border-gray-50">
                     <span className="font-bold text-gray-900 text-sm">
-                      {formatCurrency(vistaCosto === 'gerencial' && p.ctruGerencialProm ? p.ctruGerencialProm : p.ctruPromedio)}
+                      {formatCurrency(ctruActivo)}
                     </span>
                   </td>
                   <td className="py-2.5 px-2 text-right">
@@ -439,12 +446,12 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                   <td className="py-2.5 px-2 text-right">
                     {p.ventasCount > 0 ? (
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold ${
-                        p.margenNetoProm >= 30 ? 'bg-green-100 text-green-700'
-                        : p.margenNetoProm >= 20 ? 'bg-emerald-50 text-emerald-600'
-                        : p.margenNetoProm >= 10 ? 'bg-amber-50 text-amber-600'
+                        margenActivo >= 30 ? 'bg-green-100 text-green-700'
+                        : margenActivo >= 20 ? 'bg-emerald-50 text-emerald-600'
+                        : margenActivo >= 10 ? 'bg-amber-50 text-amber-600'
                         : 'bg-red-50 text-red-600'
                       }`}>
-                        {p.margenNetoProm.toFixed(1)}%
+                        {margenActivo.toFixed(1)}%
                       </span>
                     ) : (
                       <span className="text-gray-300 text-xs">-</span>
