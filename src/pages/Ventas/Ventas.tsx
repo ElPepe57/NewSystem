@@ -11,7 +11,8 @@ import { VentaForm } from '../../components/modules/venta/VentaForm';
 import { VentaTable } from '../../components/modules/venta/VentaTable';
 import { VentasDashboard } from '../../components/modules/venta/VentasDashboard';
 import { VentaCard } from '../../components/modules/venta/VentaCard';
-import { PagoVentaForm } from '../../components/modules/venta/PagoVentaForm';
+import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
+import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { GastosVentaForm } from '../../components/modules/venta/GastosVentaForm';
 import { ProgramarEntregaModal } from '../../components/modules/venta/ProgramarEntregaModal';
 import { EditarVentaModal } from '../../components/modules/venta/EditarVentaModal';
@@ -468,17 +469,18 @@ export const Ventas: React.FC = () => {
   };
 
   // Registrar pago
-  const handleRegistrarPago = async (datosPago: {
-    monto: number;
-    metodoPago: MetodoPago;
-    referencia?: string;
-    notas?: string;
-  }) => {
+  const handleRegistrarPago = async (datos: PagoUnificadoResult) => {
     if (!user || !selectedVenta) return;
 
     setIsSubmitting(true);
     try {
-      await registrarPago(selectedVenta.id, datosPago, user.uid);
+      await registrarPago(selectedVenta.id, {
+        monto: datos.montoOriginal,
+        metodoPago: datos.metodoPago as MetodoPago,
+        referencia: datos.referencia,
+        notas: datos.notas,
+        cuentaDestinoId: datos.cuentaOrigenId,
+      }, user.uid);
       setIsPagoModalOpen(false);
 
       // registrarPago ya hace fetchVentas + fetchResumenPagos internamente
@@ -1177,14 +1179,31 @@ export const Ventas: React.FC = () => {
         )}
       </Modal>
 
-      {/* Modal Registrar Pago */}
+      {/* Modal Registrar Pago (Unificado) */}
       {selectedVenta && isPagoModalOpen && (
-        <PagoVentaForm
-          venta={selectedVenta}
-          onSubmit={handleRegistrarPago}
-          onCancel={() => setIsPagoModalOpen(false)}
-          loading={isSubmitting}
-        />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+            <PagoUnificadoForm
+              origen="venta"
+              titulo={`Cobro ${selectedVenta.numeroVenta} — ${selectedVenta.nombreCliente}`}
+              esIngreso={true}
+              montoTotal={selectedVenta.totalPEN}
+              montoPendiente={selectedVenta.montoPendiente ?? selectedVenta.totalPEN - (selectedVenta.montoPagado || 0)}
+              monedaOriginal="PEN"
+              pagosAnteriores={(selectedVenta.pagos || []).map(p => ({
+                id: p.id,
+                fecha: p.fecha?.toDate?.() || new Date(),
+                monto: p.monto,
+                moneda: p.moneda || 'PEN',
+                metodo: p.metodoPago,
+                referencia: p.referencia,
+              }))}
+              onSubmit={handleRegistrarPago}
+              onCancel={() => setIsPagoModalOpen(false)}
+              loading={isSubmitting}
+            />
+          </div>
+        </div>
       )}
 
       {/* Modal Registrar Gastos de Venta */}
