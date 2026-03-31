@@ -145,24 +145,39 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
     cuentas.filter(c => c.esBiMoneda || c.moneda === monedaPago),
   [cuentas, monedaPago]);
 
-  // ─── Métodos disponibles (derivados de las cuentas) ───
-  const metodosDisponibles = useMemo(() => {
-    const metodos = new Set<string>();
-    cuentasFiltradas.forEach(c => {
-      if (c.metodosDisponibles?.length) {
-        c.metodosDisponibles.forEach(m => metodos.add(m));
-      } else {
-        // Fallback por tipo de cuenta
-        if (c.tipo === 'efectivo') metodos.add('efectivo');
-        else if (c.tipo === 'banco') { metodos.add('transferencia'); metodos.add('yape'); metodos.add('plin'); }
-        else if (c.tipo === 'digital') metodos.add('mercado_pago');
-        else if (c.tipo === 'credito') { metodos.add('tarjeta_debito'); metodos.add('tarjeta_credito'); }
-      }
-    });
-    return [...metodos];
-  }, [cuentasFiltradas]);
+  // ─── Cuenta seleccionada (necesario antes de metodosDisponibles) ───
+  const cuentaSeleccionada = cuentas.find(c => c.id === cuentaOrigenId);
 
-  // ─── Auto-seleccionar cuenta y método ───
+  // ─── Métodos disponibles (derivados de la cuenta SELECCIONADA) ───
+  const metodosDisponibles = useMemo(() => {
+    if (!cuentaSeleccionada) return [];
+    if (cuentaSeleccionada.metodosDisponibles?.length) {
+      return cuentaSeleccionada.metodosDisponibles;
+    }
+    // Fallback por tipo de cuenta + banco
+    const metodos: string[] = [];
+    if (cuentaSeleccionada.tipo === 'efectivo') metodos.push('efectivo');
+    else if (cuentaSeleccionada.tipo === 'banco') {
+      metodos.push('transferencia');
+      const banco = (cuentaSeleccionada.banco || '').toUpperCase();
+      if (banco.includes('BCP')) metodos.push('yape');
+      if (banco.includes('INTERBANK') || banco.includes('IBK')) metodos.push('plin');
+    }
+    else if (cuentaSeleccionada.tipo === 'digital') {
+      const nombre = (cuentaSeleccionada.nombre || '').toLowerCase();
+      if (nombre.includes('mercado')) metodos.push('mercado_pago');
+      else if (nombre.includes('paypal')) metodos.push('paypal');
+      else if (nombre.includes('zelle')) metodos.push('zelle');
+      else metodos.push('otro');
+    }
+    else if (cuentaSeleccionada.tipo === 'credito') {
+      metodos.push('tarjeta_credito');
+      metodos.push('tarjeta_debito');
+    }
+    return metodos;
+  }, [cuentaSeleccionada]);
+
+  // ─── Auto-seleccionar cuenta ───
   useEffect(() => {
     const defecto = cuentasFiltradas.find(c => c.esCuentaPorDefecto);
     if (defecto) setCuentaOrigenId(defecto.id);
@@ -170,11 +185,17 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
     else setCuentaOrigenId('');
   }, [cuentasFiltradas]);
 
+  // ─── Auto-seleccionar método cuando cambia la cuenta ───
   useEffect(() => {
-    if (metodosDisponibles.length > 0 && !metodosDisponibles.includes(metodoPago)) {
-      setMetodoPago(metodosDisponibles[0]);
+    if (metodosDisponibles.length > 0) {
+      if (!metodosDisponibles.includes(metodoPago)) {
+        setMetodoPago(metodosDisponibles[0]);
+      }
+    } else {
+      setMetodoPago('');
     }
-  }, [metodosDisponibles, metodoPago]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [metodosDisponibles]);
 
   // ─── Monto por defecto ───
   useEffect(() => {
@@ -192,7 +213,6 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
   // ─── Cálculos ───
   const montoUSD = monedaPago === 'USD' ? montoOriginal : (tipoCambio > 0 ? montoOriginal / tipoCambio : 0);
   const montoPEN = monedaPago === 'PEN' ? montoOriginal : montoOriginal * tipoCambio;
-  const cuentaSeleccionada = cuentas.find(c => c.id === cuentaOrigenId);
   const saldoCuenta = cuentaSeleccionada
     ? (monedaPago === 'USD'
       ? (cuentaSeleccionada.esBiMoneda ? cuentaSeleccionada.saldoUSD || 0 : cuentaSeleccionada.saldoActual)
@@ -332,25 +352,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         </div>
       )}
 
-      {/* MÉTODO DE PAGO */}
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Método de pago</label>
-        <div className="grid grid-cols-3 gap-1.5">
-          {metodosDisponibles.map(m => {
-            const info = METODOS_PAGO_INFO[m as MetodoPagoUnificado];
-            return (
-              <button key={m} type="button" onClick={() => setMetodoPago(m)}
-                className={`py-2 px-2 rounded-lg text-xs font-medium border transition-all ${
-                  metodoPago === m ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'
-                }`}>
-                {info?.label || m}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* CUENTA */}
+      {/* CUENTA (primero — define qué métodos están disponibles) */}
       <div>
         <label className="block text-xs font-medium text-gray-600 mb-1">
           {esIngreso ? 'Cuenta destino' : 'Cuenta origen'}
@@ -365,7 +367,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
             <option value="">Seleccionar...</option>
             {cuentasFiltradas.map(c => (
               <option key={c.id} value={c.id}>
-                {c.nombre} — {monedaPago === 'USD' ? `$${(c.esBiMoneda ? c.saldoUSD || 0 : c.saldoActual).toFixed(2)}` : `S/${(c.esBiMoneda ? c.saldoPEN || 0 : c.saldoActual).toFixed(2)}`}
+                {c.nombre}{c.banco ? ` (${c.banco})` : ''} — {monedaPago === 'USD' ? `$${(c.esBiMoneda ? c.saldoUSD || 0 : c.saldoActual).toFixed(2)}` : `S/${(c.esBiMoneda ? c.saldoPEN || 0 : c.saldoActual).toFixed(2)}`}
               </option>
             ))}
           </select>
@@ -396,6 +398,32 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
           </div>
         )}
       </div>
+
+      {/* MÉTODO DE PAGO (filtrado por la cuenta seleccionada) */}
+      {metodosDisponibles.length > 0 && (
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Método de pago</label>
+          {metodosDisponibles.length === 1 ? (
+            <div className="py-2 px-3 rounded-lg text-xs font-medium bg-primary-50 border border-primary-300 text-primary-700">
+              {METODOS_PAGO_INFO[metodosDisponibles[0] as MetodoPagoUnificado]?.label || metodosDisponibles[0]}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-1.5">
+              {metodosDisponibles.map(m => {
+                const info = METODOS_PAGO_INFO[m as MetodoPagoUnificado];
+                return (
+                  <button key={m} type="button" onClick={() => setMetodoPago(m)}
+                    className={`py-2 px-2 rounded-lg text-xs font-medium border transition-all ${
+                      metodoPago === m ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'
+                    }`}>
+                    {info?.label || m}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* REFERENCIA + FECHA */}
       <div className="grid grid-cols-2 gap-3">
