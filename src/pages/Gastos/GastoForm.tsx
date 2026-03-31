@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote, AlertCircle } from 'lucide-react';
+import { Wallet, Info, Search, Link, Calendar, DollarSign, CreditCard, Banknote, AlertCircle, CheckCircle } from 'lucide-react';
+import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
+import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { Button, Input, Select, AutocompleteInput } from '../../components/common';
 import { Modal } from '../../components/common/Modal';
 import { useGastoStore } from '../../store/gastoStore';
@@ -97,6 +99,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   const [loadingCuentas, setLoadingCuentas] = useState(true);
   const [metodoPago, setMetodoPago] = useState<MetodoTesoreria>('efectivo');
   const [referenciaPago, setReferenciaPago] = useState<string>('');
+  const [pagoConfirmado, setPagoConfirmado] = useState(false);
 
   // Estado para ventas (para asociar gastos GV/GD)
   const [ventas, setVentas] = useState<Venta[]>([]);
@@ -773,126 +776,41 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
           {/* Sección 6: Información de Pago - Solo si está pagado */}
           {formData.estado === 'pagado' && (
-            <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
-              <h3 className="text-base sm:text-lg font-semibold text-green-800 flex items-center gap-2">
-                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
-                Información del Pago
-              </h3>
-
-              {/* Método de Pago */}
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Método de Pago *</label>
-                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-                  {[
-                    { value: 'efectivo', label: 'Efectivo', icon: '💵' },
-                    { value: 'transferencia_bancaria', label: 'Transfer.', icon: '🏦' },
-                    { value: 'yape', label: 'Yape', icon: '📱' },
-                    { value: 'plin', label: 'Plin', icon: '📲' },
-                    { value: 'tarjeta_credito', label: 'T. Crédito', icon: '💳' },
-                    { value: 'otro', label: 'Otro', icon: '📋' }
-                  ].map((metodo) => (
-                    <button
-                      key={metodo.value}
-                      type="button"
-                      onClick={() => setMetodoPago(metodo.value as MetodoTesoreria)}
-                      className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all ${
-                        metodoPago === metodo.value
-                          ? 'border-green-500 bg-white text-green-700'
-                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-                      }`}
-                    >
-                      <span className="mr-0.5 sm:mr-1">{metodo.icon}</span>
-                      {metodo.label}
-                    </button>
-                  ))}
+            <div className="bg-green-50 rounded-lg border border-green-200 overflow-hidden">
+              {pagoConfirmado ? (
+                <div className="p-4 flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <div>
+                    <div className="font-medium text-green-800">Pago configurado</div>
+                    <div className="text-sm text-green-600">
+                      {metodoPago} — {formData.moneda === 'USD' ? '$' : 'S/'} {formData.montoOriginal.toFixed(2)}
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => setPagoConfirmado(false)}
+                    className="ml-auto text-xs text-green-600 underline">Modificar</button>
                 </div>
-              </div>
-
-              {/* Cuenta de Origen */}
-              <div>
-                <label htmlFor="gasto-cuenta-origen" className="block text-sm font-medium text-gray-700 mb-1">
-                  <div className="flex items-center gap-2">
-                    <Wallet className="h-4 w-4" />
-                    Cuenta de Origen *
-                  </div>
-                </label>
-                {loadingCuentas ? (
-                  <div className="text-sm text-gray-500 py-2">Cargando cuentas...</div>
-                ) : cuentas.length === 0 ? (
-                  <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
-                    No hay cuentas configuradas. Configure cuentas en Tesorería.
-                  </div>
-                ) : (
-                  <>
-                    <select
-                      id="gasto-cuenta-origen"
-                      value={cuentaOrigenId}
-                      onChange={(e) => setCuentaOrigenId(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
-                    >
-                      <option value="">Seleccionar cuenta...</option>
-                      {cuentas
-                        .filter(c => c.esBiMoneda || c.moneda === formData.moneda)
-                        .map((cuenta) => {
-                          const saldoMostrar = cuenta.esBiMoneda
-                            ? (formData.moneda === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0))
-                            : cuenta.saldoActual;
-                          const simbolo = formData.moneda === 'USD' ? '$' : 'S/';
-                          const etiquetaBiMoneda = cuenta.esBiMoneda ? ' [BI-MONEDA]' : '';
-                          return (
-                            <option key={cuenta.id} value={cuenta.id}>
-                              {cuenta.nombre}{etiquetaBiMoneda} - Saldo: {simbolo} {saldoMostrar.toFixed(2)}
-                            </option>
-                          );
-                        })}
-                    </select>
-                    {cuentaSeleccionada && formData.montoOriginal > 0 && (
-                      <div className="mt-2 p-2 bg-white rounded border border-green-200">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Saldo actual:</span>
-                          <span className="font-medium">
-                            {formData.moneda === 'USD' ? '$' : 'S/'} {(cuentaSeleccionada.esBiMoneda
-                              ? (formData.moneda === 'USD' ? cuentaSeleccionada.saldoUSD : cuentaSeleccionada.saldoPEN) || 0
-                              : cuentaSeleccionada.saldoActual
-                            ).toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm text-red-600">
-                          <span>Egreso:</span>
-                          <span className="font-medium">
-                            - {formData.moneda === 'USD' ? '$' : 'S/'} {formData.montoOriginal.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm font-bold mt-1 pt-1 border-t border-green-200">
-                          <span>Nuevo saldo:</span>
-                          <span className={(((cuentaSeleccionada.esBiMoneda
-                              ? (formData.moneda === 'USD' ? cuentaSeleccionada.saldoUSD : cuentaSeleccionada.saldoPEN) || 0
-                              : cuentaSeleccionada.saldoActual) - formData.montoOriginal) < 0) ? 'text-red-600' : 'text-green-600'}>
-                            {formData.moneda === 'USD' ? '$' : 'S/'} {((cuentaSeleccionada.esBiMoneda
-                              ? (formData.moneda === 'USD' ? cuentaSeleccionada.saldoUSD : cuentaSeleccionada.saldoPEN) || 0
-                              : cuentaSeleccionada.saldoActual) - formData.montoOriginal).toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-
-              {/* Referencia de Pago */}
-              <div>
-                <label htmlFor="gasto-referencia" className="block text-sm font-medium text-gray-700 mb-1">
-                  Referencia / Nº Operación (Opcional)
-                </label>
-                <input
-                  id="gasto-referencia"
-                  type="text"
-                  value={referenciaPago}
-                  onChange={(e) => setReferenciaPago(e.target.value)}
-                  placeholder="Ej: OP-123456, Voucher, etc."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
+              ) : (
+                <div className="p-4">
+                  <PagoUnificadoForm
+                    origen="gasto"
+                    titulo="Pago del gasto"
+                    montoTotal={formData.montoOriginal || formData.montoPEN}
+                    montoPendiente={formData.montoOriginal || formData.montoPEN}
+                    monedaOriginal={formData.moneda as 'PEN' | 'USD'}
+                    tcDocumento={formData.tipoCambio}
+                    onSubmit={(datos: PagoUnificadoResult) => {
+                      setMetodoPago(datos.metodoPago as MetodoTesoreria);
+                      setCuentaOrigenId(datos.cuentaOrigenId);
+                      setReferenciaPago(datos.referencia || '');
+                      setPagoConfirmado(true);
+                    }}
+                    onCancel={() => {
+                      // Cambiar estado a pendiente si cancela el pago
+                      setFormData(prev => ({ ...prev, estado: 'pendiente' }));
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
 
