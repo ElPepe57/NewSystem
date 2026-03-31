@@ -15,6 +15,8 @@ import { useClienteStore } from '../../../store/clienteStore';
 import { useToastStore } from '../../../store/toastStore';
 import { useCanalVentaStore } from '../../../store/canalVentaStore';
 import type { VentaFormData, CanalVenta, MetodoPago, AdelantoData } from '../../../types/venta.types';
+import { PagoUnificadoForm } from '../pagos/PagoUnificadoForm';
+import type { PagoUnificadoResult } from '../pagos/PagoUnificadoForm';
 import type { ProductoDisponible } from '../../../types/venta.types';
 import type { CuentaCaja, MetodoTesoreria } from '../../../types/tesoreria.types';
 import type { ProductoFormData } from '../../../types/producto.types';
@@ -1126,11 +1128,11 @@ export const VentaForm: React.FC<VentaFormProps> = ({
           </div>
         </div>
 
-        {/* PASO 3: PAGO */}
+        {/* PASO 3: PAGO (Unificado) */}
         <div className="space-y-6">
           <h4 className="text-lg font-semibold text-gray-900">Método de Pago</h4>
 
-          {/* Sección de Adelanto */}
+          {/* Toggle de Adelanto */}
           <div className="border border-gray-200 rounded-lg overflow-hidden">
             <div
               className={`p-4 cursor-pointer transition-colors ${
@@ -1163,109 +1165,24 @@ export const VentaForm: React.FC<VentaFormProps> = ({
             </div>
 
             {registrarAdelanto && (
-              <div className="p-4 space-y-4 bg-white">
-                {/* Monto del adelanto */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Input
-                      label="Monto del Adelanto (PEN)"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max={totalPEN}
-                      value={montoAdelanto}
-                      onChange={(e) => setMontoAdelanto(parseFloat(e.target.value) || 0)}
-                      helperText={`Máximo: S/ ${totalPEN.toFixed(2)}`}
-                    />
-                    {/* Botones de porcentaje rápido */}
-                    <div className="flex gap-2 mt-2">
-                      {[25, 50, 75, 100].map((pct) => (
-                        <button
-                          key={pct}
-                          type="button"
-                          onClick={() => setMontoAdelanto(Math.round((totalPEN * pct / 100) * 100) / 100)}
-                          className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                            Math.abs(montoAdelanto - (totalPEN * pct / 100)) < 0.01
-                              ? 'bg-primary-500 text-white'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                          }`}
-                        >
-                          {pct}%
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Input
-                    label="Referencia / N° Operación"
-                    type="text"
-                    value={referenciaAdelanto}
-                    onChange={(e) => setReferenciaAdelanto(e.target.value)}
-                    placeholder="Ej: Transferencia #123"
-                  />
-                </div>
-
-                {/* Método de pago */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Método de Pago
-                  </label>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {METODOS_PAGO.map((metodo) => (
-                      <button
-                        key={metodo.value}
-                        type="button"
-                        onClick={() => setMetodoPagoAdelanto(metodo.value)}
-                        className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-colors ${
-                          metodoPagoAdelanto === metodo.value
-                            ? 'border-primary-500 bg-primary-50 text-primary-700 ring-2 ring-primary-200'
-                            : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                        }`}
-                      >
-                        {metodo.icon}
-                        <span className="text-xs font-medium mt-1">{metodo.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Cuenta destino */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    <div className="flex items-center gap-2">
-                      <Wallet className="h-4 w-4" />
-                      Cuenta Destino
-                    </div>
-                  </label>
-                  {loadingCuentas ? (
-                    <div className="text-sm text-gray-500">Cargando cuentas...</div>
-                  ) : cuentas.length === 0 ? (
-                    <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-                      No hay cuentas configuradas. El adelanto se registrará sin asociar a una cuenta.
-                    </div>
-                  ) : (
-                    <select
-                      value={cuentaDestinoId}
-                      onChange={(e) => setCuentaDestinoId(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-sm"
-                    >
-                      <option value="">Sin cuenta específica</option>
-                      {cuentas.map((cuenta) => {
-                        const saldoPEN = cuenta.esBiMoneda ? (cuenta.saldoPEN || 0) : cuenta.saldoActual;
-                        return (
-                          <option key={cuenta.id} value={cuenta.id}>
-                            {cuenta.nombre} {cuenta.banco ? `(${cuenta.banco})` : ''} - Saldo: S/ {saldoPEN.toFixed(2)}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  )}
-                  {cuentaSeleccionada && (
-                    <div className="text-xs text-success-600">
-                      El adelanto se sumará al saldo de "{cuentaSeleccionada.nombre}"
-                    </div>
-                  )}
-                </div>
+              <div className="p-4 bg-white">
+                <PagoUnificadoForm
+                  origen="venta"
+                  titulo="Adelanto del cliente"
+                  esIngreso={true}
+                  montoTotal={totalPEN}
+                  montoPendiente={totalPEN}
+                  monedaOriginal="PEN"
+                  onSubmit={(datos: PagoUnificadoResult) => {
+                    setMontoAdelanto(datos.montoPEN || datos.montoOriginal);
+                    setMetodoPagoAdelanto(datos.metodoPago as MetodoPago);
+                    setReferenciaAdelanto(datos.referencia || '');
+                    setCuentaDestinoId(datos.cuentaOrigenId);
+                    // Avanzar al paso de confirmación
+                    nextStep();
+                  }}
+                  onCancel={() => setRegistrarAdelanto(false)}
+                />
               </div>
             )}
           </div>
