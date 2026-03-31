@@ -10,6 +10,8 @@ import { KanbanView } from './KanbanView';
 import { ListaView } from './ListaView';
 import { CotizacionDetailModal } from './CotizacionDetailModal';
 import { AdelantoModal } from './AdelantoModal';
+import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
+import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { RechazoModal } from './RechazoModal';
 import { useCotizacionStore } from '../../store/cotizacionStore';
 import { useConfiguracionStore } from '../../store/configuracionStore';
@@ -608,30 +610,60 @@ export const Cotizaciones: React.FC = () => {
 
       {/* Modal Adelanto */}
       {showAdelantoModal && cotizacionParaAdelanto && (
-        <AdelantoModal
-          isOpen={showAdelantoModal}
-          cotizacion={cotizacionParaAdelanto}
-          tipoModal={tipoModalAdelanto}
-          monto={montoAdelanto}
-          metodoPago={metodoPagoAdelanto}
-          referencia={referenciaAdelanto}
-          cuentaDestinoId={cuentaDestinoId}
-          cuentasDisponibles={cuentasDisponibles}
-          moneda={monedaAdelanto}
-          tipoCambio={tipoCambioAdelanto}
-          procesando={procesandoAdelanto}
-          onMonto={setMontoAdelanto}
-          onMetodoPago={setMetodoPagoAdelanto}
-          onReferencia={setReferenciaAdelanto}
-          onCuentaDestino={setCuentaDestinoId}
-          onMonedaChange={handleMonedaAdelantoChange}
-          onTipoCambio={setTipoCambioAdelanto}
-          onConfirmar={handleConfirmarAdelanto}
-          onClose={() => {
-            setShowAdelantoModal(false);
-            setCotizacionParaAdelanto(null);
-          }}
-        />
+        tipoModalAdelanto === 'pago' ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+              <PagoUnificadoForm
+                origen="venta"
+                titulo={`Pago Adelanto — ${cotizacionParaAdelanto.numeroCotizacion}`}
+                esIngreso={true}
+                montoTotal={cotizacionParaAdelanto.totalPEN}
+                montoPendiente={cotizacionParaAdelanto.adelantoComprometido?.monto || Math.round(cotizacionParaAdelanto.totalPEN * 0.5 * 100) / 100}
+                monedaOriginal="PEN"
+                onSubmit={async (datos: PagoUnificadoResult) => {
+                  await handleConfirmarAdelanto({
+                    monto: datos.montoPEN || datos.montoOriginal,
+                    metodoPago: datos.metodoPago as MetodoPago,
+                    referencia: datos.referencia,
+                    cuentaDestinoId: datos.cuentaOrigenId,
+                    moneda: datos.monedaPago,
+                    tipoCambio: datos.tipoCambio,
+                  });
+                }}
+                onCancel={() => {
+                  setShowAdelantoModal(false);
+                  setCotizacionParaAdelanto(null);
+                }}
+                loading={procesandoAdelanto}
+              />
+            </div>
+          </div>
+        ) : (
+          <AdelantoModal
+            isOpen={showAdelantoModal}
+            cotizacion={cotizacionParaAdelanto}
+            tipoModal={tipoModalAdelanto}
+            monto={montoAdelanto}
+            metodoPago={metodoPagoAdelanto}
+            referencia={referenciaAdelanto}
+            cuentaDestinoId={cuentaDestinoId}
+            cuentasDisponibles={cuentasDisponibles}
+            moneda={monedaAdelanto}
+            tipoCambio={tipoCambioAdelanto}
+            procesando={procesandoAdelanto}
+            onMonto={setMontoAdelanto}
+            onMetodoPago={setMetodoPagoAdelanto}
+            onReferencia={setReferenciaAdelanto}
+            onCuentaDestino={setCuentaDestinoId}
+            onMonedaChange={handleMonedaAdelantoChange}
+            onTipoCambio={setTipoCambioAdelanto}
+            onConfirmar={handleConfirmarAdelanto}
+            onClose={() => {
+              setShowAdelantoModal(false);
+              setCotizacionParaAdelanto(null);
+            }}
+          />
+        )
       )}
 
       {/* Modal Rechazar */}
