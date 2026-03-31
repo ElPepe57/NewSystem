@@ -8,7 +8,8 @@ import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
 import { ctruService } from '../../services/ctru.service';
 import { GastoForm } from './GastoForm';
-import { PagoGastoForm } from './PagoGastoForm';
+import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
+import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { exportService } from '../../services/export.service';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type EstadoGasto, type ClaseGasto } from '../../types/gasto.types';
@@ -1075,21 +1076,50 @@ export const Gastos: React.FC = () => {
         />
       )}
 
-      {/* Modal Formulario Pago de Gasto */}
+      {/* Modal Formulario Pago de Gasto (Unificado) */}
       {showPagoModal && gastoParaPago && (
-        <PagoGastoForm
-          gasto={gastoParaPago}
-          onClose={() => {
-            setShowPagoModal(false);
-            setGastoParaPago(null);
-          }}
-          onSuccess={() => {
-            setShowPagoModal(false);
-            setGastoParaPago(null);
-            reloadCurrentView();
-            fetchStats();
-          }}
-        />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+            <PagoUnificadoForm
+              origen="gasto"
+              titulo={`Pago ${gastoParaPago.numeroGasto}: ${gastoParaPago.descripcion}`}
+              montoTotal={gastoParaPago.montoPEN}
+              montoPendiente={gastoParaPago.montoPendiente ?? gastoParaPago.montoPEN}
+              monedaOriginal={gastoParaPago.moneda as 'PEN' | 'USD'}
+              tcDocumento={gastoParaPago.tipoCambio}
+              pagosAnteriores={(gastoParaPago.pagos || []).map(p => ({
+                id: p.id,
+                fecha: p.fecha?.toDate?.() || new Date(),
+                monto: p.montoPEN,
+                moneda: 'PEN',
+                metodo: p.metodoPago,
+                referencia: p.referencia,
+              }))}
+              onSubmit={async (datos: PagoUnificadoResult) => {
+                if (!user) return;
+                await registrarPagoGasto(gastoParaPago.id, {
+                  fechaPago: datos.fechaPago,
+                  monedaPago: datos.monedaPago,
+                  montoPago: datos.montoOriginal,
+                  tipoCambio: datos.tipoCambio,
+                  metodoPago: datos.metodoPago,
+                  cuentaOrigenId: datos.cuentaOrigenId,
+                  referenciaPago: datos.referencia,
+                  notas: datos.notas,
+                }, user.uid);
+                toast.success('Pago registrado exitosamente');
+                setShowPagoModal(false);
+                setGastoParaPago(null);
+                reloadCurrentView();
+                fetchStats();
+              }}
+              onCancel={() => {
+                setShowPagoModal(false);
+                setGastoParaPago(null);
+              }}
+            />
+          </div>
+        </div>
       )}
 
       {/* Dialogo de Confirmacion */}

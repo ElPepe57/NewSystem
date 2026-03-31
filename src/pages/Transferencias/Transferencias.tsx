@@ -45,7 +45,8 @@ import { useToastStore } from "../../store/toastStore";
 import { TransferenciaCard } from "./TransferenciaCard";
 import { CreateTransferenciaModal } from "./CreateTransferenciaModal";
 import { RecepcionModal } from "./RecepcionModal";
-import { PagoViajeroModal } from "./PagoViajeroModal";
+import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
+import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { EditFleteModal } from "./EditFleteModal";
 import { TransferenciaDetailModal } from "./TransferenciaDetailModal";
 import { TransferenciaFilters } from "./TransferenciaFilters";
@@ -582,19 +583,52 @@ export const Transferencias: React.FC = () => {
         />
       )}
 
-      {/* Modal: Pago al Viajero */}
-      {showPagoModal && transferenciaParaPago && (
-        <PagoViajeroModal
-          transferencia={transferenciaParaPago}
-          tipoCambioActual={tipoCambioActual}
-          cuentasTesoreria={cuentasTesoreria}
-          onClose={() => {
-            setShowPagoModal(false);
-            setTransferenciaParaPago(null);
-          }}
-          onConfirm={handleRegistrarPagoViajero}
-        />
-      )}
+      {/* Modal: Pago al Viajero (Unificado) */}
+      {showPagoModal && transferenciaParaPago && (() => {
+        const pagosAnteriores = transferenciaParaPago.pagosViajero?.length
+          ? transferenciaParaPago.pagosViajero
+          : transferenciaParaPago.pagoViajero ? [transferenciaParaPago.pagoViajero] : [];
+        const pagadoUSD = pagosAnteriores.reduce((s, p) => s + (p.montoUSD || 0), 0);
+        const pendienteUSD = (transferenciaParaPago.costoFleteTotal || 0) - pagadoUSD;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+              <PagoUnificadoForm
+                origen="viajero"
+                titulo={`Pago Viajero — ${transferenciaParaPago.viajeroNombre || transferenciaParaPago.numeroEnvio}`}
+                montoTotal={transferenciaParaPago.costoFleteTotal || 0}
+                montoPendiente={Math.max(0, pendienteUSD)}
+                monedaOriginal="USD"
+                tcDocumento={tipoCambioActual}
+                pagosAnteriores={pagosAnteriores.map(p => ({
+                  id: p.id,
+                  fecha: p.fecha?.toDate?.() || new Date(),
+                  monto: p.montoUSD || p.montoOriginal || 0,
+                  moneda: p.monedaPago || 'USD',
+                  metodo: p.metodoPago || '',
+                  referencia: p.referencia,
+                }))}
+                onSubmit={async (datos: PagoUnificadoResult) => {
+                  await handleRegistrarPagoViajero({
+                    fechaPago: datos.fechaPago,
+                    monedaPago: datos.monedaPago,
+                    montoOriginal: datos.montoOriginal,
+                    tipoCambio: datos.tipoCambio,
+                    metodoPago: datos.metodoPago as any,
+                    cuentaOrigenId: datos.cuentaOrigenId,
+                    referencia: datos.referencia,
+                    notas: datos.notas,
+                  });
+                }}
+                onCancel={() => {
+                  setShowPagoModal(false);
+                  setTransferenciaParaPago(null);
+                }}
+              />
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Modal: Editar Flete */}
       {showEditFleteModal && transferenciaParaFlete && (

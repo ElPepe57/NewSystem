@@ -7,7 +7,8 @@ import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
 import { OrdenCompraTable } from '../../components/modules/ordenCompra/OrdenCompraTable';
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
-import { PagoForm } from '../../components/modules/ordenCompra/PagoForm';
+import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
+import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { RecepcionParcialModal } from '../../components/modules/ordenCompra/RecepcionParcialModal';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
 import { useProveedorStore } from '../../store/proveedorStore';
@@ -516,16 +517,7 @@ export const OrdenesCompra: React.FC = () => {
     setIsPagoModalOpen(true);
   };
 
-  const handleSubmitPago = async (datos: {
-    fechaPago: Date;
-    monedaPago: 'USD' | 'PEN';
-    montoOriginal: number;
-    tipoCambio: number;
-    metodoPago: any;
-    cuentaOrigenId?: string;
-    referencia?: string;
-    notas?: string;
-  }) => {
+  const handleSubmitPago = async (datos: PagoUnificadoResult) => {
     if (!user || !selectedOrden) return;
 
     try {
@@ -894,12 +886,29 @@ export const OrdenesCompra: React.FC = () => {
 
       {/* Modal Registrar Pago */}
       {isPagoModalOpen && selectedOrden && (
-        <PagoForm
-          orden={selectedOrden}
-          onSubmit={handleSubmitPago}
-          onCancel={() => setIsPagoModalOpen(false)}
-          loading={isSubmitting}
-        />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
+            <PagoUnificadoForm
+              origen="orden_compra"
+              titulo={`Pago ${selectedOrden.numeroOrden} — ${selectedOrden.nombreProveedor}`}
+              montoTotal={selectedOrden.totalUSD}
+              montoPendiente={selectedOrden.montoPendiente || selectedOrden.totalUSD - (selectedOrden.historialPagos?.reduce((s, p) => s + p.montoUSD, 0) || 0)}
+              monedaOriginal="USD"
+              tcDocumento={selectedOrden.tcPago || selectedOrden.tcCompra}
+              pagosAnteriores={(selectedOrden.historialPagos || []).map(p => ({
+                id: p.id,
+                fecha: p.fecha?.toDate?.() || new Date(),
+                monto: p.montoUSD,
+                moneda: 'USD',
+                metodo: p.metodoPago,
+                referencia: p.referencia,
+              }))}
+              onSubmit={handleSubmitPago}
+              onCancel={() => setIsPagoModalOpen(false)}
+              loading={isSubmitting}
+            />
+          </div>
+        </div>
       )}
 
       {/* Modal Recepción Parcial */}
