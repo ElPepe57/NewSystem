@@ -94,86 +94,131 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           <div className="text-center text-gray-500 py-8 px-6">No hay cuentas registradas</div>
         ) : (
           <>
-            {/* Cuentas de Caja (Activos) */}
-            <div className="p-4 sm:p-6">
-              <h4 className="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Wallet className="h-4 w-4" />
-                Cuentas de Caja
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {cuentas.filter(c => c.tipo !== 'credito').map((cuenta) => (
-                  <Card
-                    key={cuenta.id}
-                    padding="md"
-                    className={`border relative group cursor-pointer transition-all hover:shadow-md ${
-                      cuentaDetalle?.id === cuenta.id
-                        ? 'border-primary-400 ring-2 ring-primary-100 shadow-md'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => { setCuentaDetalle(cuentaDetalle?.id === cuenta.id ? null : cuenta); setMovsLimit(50); }}
-                  >
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleEditarCuenta(cuenta); }}
-                      className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                      title="Editar cuenta"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        {cuenta.tipo === 'efectivo' && <Banknote className="h-6 w-6 text-green-500 mr-2" />}
-                        {cuenta.tipo === 'banco' && <Building2 className="h-6 w-6 text-blue-500 mr-2" />}
-                        {cuenta.tipo === 'digital' && <Wallet className="h-6 w-6 text-purple-500 mr-2" />}
-                        <div>
-                          <h4 className="font-medium text-gray-900">{cuenta.nombre}</h4>
-                          <p className="text-xs text-gray-500">{cuenta.tipo}</p>
+            {/* Cuentas agrupadas por banco/tipo */}
+            <div className="p-4 sm:p-6 space-y-4">
+              {(() => {
+                // Agrupar cuentas: bancos por nombre, efectivo, digital, crédito
+                const grupos = new Map<string, CuentaCaja[]>();
+                cuentas.forEach(c => {
+                  let grupo = '';
+                  if (c.tipo === 'banco' && c.banco) grupo = c.banco;
+                  else if (c.tipo === 'credito' && c.banco) grupo = c.banco;
+                  else if (c.tipo === 'efectivo') grupo = '💵 Efectivo';
+                  else if (c.tipo === 'digital') grupo = '📱 Digital';
+                  else if (c.tipo === 'credito') grupo = '💳 Crédito';
+                  else grupo = c.tipo || 'Otros';
+                  const arr = grupos.get(grupo) || [];
+                  arr.push(c);
+                  grupos.set(grupo, arr);
+                });
+
+                return [...grupos.entries()].map(([grupo, cuentasGrupo]) => {
+                  const esBanco = cuentasGrupo.some(c => c.tipo === 'banco' || (c.tipo === 'credito' && c.banco));
+                  const iconoGrupo = grupo.startsWith('💵') ? <Banknote className="h-5 w-5 text-green-600" />
+                    : grupo.startsWith('📱') ? <Wallet className="h-5 w-5 text-purple-600" />
+                    : grupo.startsWith('💳') ? <CreditCard className="h-5 w-5 text-amber-600" />
+                    : <Building2 className="h-5 w-5 text-blue-600" />;
+
+                  return (
+                    <div key={grupo} className={`rounded-xl border overflow-hidden ${
+                      esBanco ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200 bg-gray-50/30'
+                    }`}>
+                      {/* Header del grupo */}
+                      <div className={`px-4 py-3 flex items-center justify-between ${
+                        esBanco ? 'bg-blue-50' : 'bg-gray-50'
+                      }`}>
+                        <div className="flex items-center gap-2">
+                          {iconoGrupo}
+                          <h4 className="font-semibold text-gray-900">{grupo}</h4>
+                          <span className="text-xs text-gray-400">{cuentasGrupo.length} cuenta{cuentasGrupo.length > 1 ? 's' : ''}</span>
                         </div>
                       </div>
-                      {cuenta.esBiMoneda ? (
-                        <span className="px-2 py-1 rounded text-xs font-medium bg-gradient-to-r from-green-100 to-blue-100 text-gray-800 border border-gray-200">
-                          BI-MONEDA
-                        </span>
-                      ) : (
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          cuenta.moneda === 'PEN' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {cuenta.moneda}
-                        </span>
-                      )}
+
+                      {/* Cuentas del grupo */}
+                      <div className="divide-y divide-gray-100">
+                        {cuentasGrupo.map(cuenta => (
+                          <div
+                            key={cuenta.id}
+                            className={`px-4 py-3 flex items-center justify-between group cursor-pointer transition-all hover:bg-white ${
+                              cuentaDetalle?.id === cuenta.id ? 'bg-white ring-1 ring-primary-200' : ''
+                            }`}
+                            onClick={() => { setCuentaDetalle(cuentaDetalle?.id === cuenta.id ? null : cuenta); setMovsLimit(50); }}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className={`w-2 h-8 rounded-full flex-shrink-0 ${
+                                cuenta.tipo === 'credito' ? 'bg-amber-400' :
+                                cuenta.moneda === 'USD' ? 'bg-blue-400' : 'bg-green-400'
+                              }`} />
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-gray-900 truncate">{cuenta.nombre}</span>
+                                  {cuenta.productoFinanciero && (
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 flex-shrink-0">
+                                      {cuenta.productoFinanciero === 'cuenta_ahorros' ? 'Ahorros' :
+                                       cuenta.productoFinanciero === 'cuenta_corriente' ? 'Corriente' :
+                                       cuenta.productoFinanciero === 'tarjeta_credito' ? 'TC' :
+                                       cuenta.productoFinanciero === 'tarjeta_debito' ? 'TD' :
+                                       cuenta.productoFinanciero === 'billetera_digital' ? 'Digital' :
+                                       cuenta.productoFinanciero === 'caja' ? 'Caja' : cuenta.productoFinanciero}
+                                    </span>
+                                  )}
+                                  {cuenta.titularidad === 'personal' && (
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-600 flex-shrink-0">Personal</span>
+                                  )}
+                                  {cuenta.esBiMoneda && (
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-gradient-to-r from-green-100 to-blue-100 text-gray-600 flex-shrink-0">Bi-Moneda</span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                                  {cuenta.numeroCuenta && <span>#{cuenta.numeroCuenta}</span>}
+                                  {cuenta.titular && <span>· {cuenta.titular}</span>}
+                                  {cuenta.metodosDisponibles?.length ? (
+                                    <span>· {cuenta.metodosDisponibles.join(', ')}</span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              {/* Saldos */}
+                              <div className="text-right">
+                                {cuenta.esBiMoneda ? (
+                                  <div className="space-y-0.5">
+                                    <div className="text-sm font-bold text-green-600">S/ {(cuenta.saldoPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</div>
+                                    <div className="text-sm font-bold text-blue-600">$ {(cuenta.saldoUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                                  </div>
+                                ) : cuenta.lineaCredito ? (
+                                  <div>
+                                    <div className="text-sm font-bold text-amber-700">
+                                      Disp: {cuenta.moneda === 'USD' ? '$' : 'S/'} {(cuenta.lineaCredito.disponible || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                    </div>
+                                    <div className="text-[10px] text-gray-400">
+                                      Línea: {cuenta.moneda === 'USD' ? '$' : 'S/'} {(cuenta.lineaCredito.limiteTotal || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="text-lg font-bold text-gray-900">
+                                    {cuenta.moneda === 'PEN' ? 'S/' : '$'} {cuenta.saldoActual.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Botón editar */}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleEditarCuenta(cuenta); }}
+                                className="p-1.5 text-gray-300 hover:text-primary-600 hover:bg-primary-50 rounded-full opacity-0 group-hover:opacity-100 transition-all"
+                                title="Editar cuenta"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    {cuenta.esBiMoneda ? (
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500">Saldo PEN:</span>
-                          <span className="text-lg font-bold text-green-600">
-                            S/ {(cuenta.saldoPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500">Saldo USD:</span>
-                          <span className="text-lg font-bold text-blue-600">
-                            $ {(cuenta.saldoUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-2xl font-bold text-gray-900">
-                        {cuenta.moneda === 'PEN' ? 'S/ ' : '$ '}
-                        {cuenta.saldoActual.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                      </div>
-                    )}
-                    {cuenta.titular && (
-                      <div className="flex items-center text-sm text-gray-600 mt-2">
-                        <User className="h-4 w-4 mr-1 text-gray-400" />
-                        <span>{cuenta.titular}</span>
-                      </div>
-                    )}
-                    {cuenta.banco && (
-                      <p className="text-sm text-gray-500 mt-1">{cuenta.banco}</p>
-                    )}
-                  </Card>
-                ))}
-              </div>
+                  );
+                });
+              })()}
             </div>
 
             {/* Detalle de movimientos de cuenta seleccionada */}
