@@ -97,16 +97,23 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             {/* Cuentas agrupadas por banco/tipo */}
             <div className="p-4 sm:p-6 space-y-4">
               {(() => {
-                // Agrupar cuentas: bancos por nombre, efectivo, digital, crédito
+                // Agrupar: si tiene banco → por banco. Digitales juntas. Efectivo junto.
                 const grupos = new Map<string, CuentaCaja[]>();
                 cuentas.forEach(c => {
                   let grupo = '';
-                  if (c.tipo === 'banco' && c.banco) grupo = c.banco;
-                  else if (c.tipo === 'credito' && c.banco) grupo = c.banco;
-                  else if (c.tipo === 'efectivo') grupo = '💵 Efectivo';
-                  else if (c.tipo === 'digital') grupo = '📱 Digital';
-                  else if (c.tipo === 'credito') grupo = '💳 Crédito';
-                  else grupo = c.tipo || 'Otros';
+                  const banco = (c.banco || '').trim();
+                  const nombre = (c.nombre || '').toLowerCase();
+                  if (banco && !nombre.includes('mercado') && !nombre.includes('paypal') && !nombre.includes('zelle')) {
+                    grupo = banco;
+                  } else if (nombre.includes('mercado') || nombre.includes('paypal') || nombre.includes('zelle') || c.tipo === 'digital') {
+                    grupo = '📱 Digital';
+                  } else if (c.tipo === 'efectivo') {
+                    grupo = '💵 Efectivo';
+                  } else if (c.tipo === 'credito') {
+                    grupo = '💳 Crédito';
+                  } else {
+                    grupo = c.tipo || 'Otros';
+                  }
                   const arr = grupos.get(grupo) || [];
                   arr.push(c);
                   grupos.set(grupo, arr);
