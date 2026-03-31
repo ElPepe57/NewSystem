@@ -464,7 +464,14 @@ export const Tesoreria: React.FC = () => {
       numeroCuenta: cuenta.numeroCuenta,
       cci: cuenta.cci,
       metodoPagoAsociado: cuenta.metodoPagoAsociado,
-      esCuentaPorDefecto: cuenta.esCuentaPorDefecto
+      esCuentaPorDefecto: cuenta.esCuentaPorDefecto,
+      productoFinanciero: cuenta.productoFinanciero,
+      titularidad: cuenta.titularidad,
+      metodosDisponibles: cuenta.metodosDisponibles || [],
+      lineaCreditoLimite: cuenta.lineaCredito?.limiteTotal,
+      lineaCreditoTasa: cuenta.lineaCredito?.tasaInteres,
+      lineaCreditoFechaCorte: cuenta.lineaCredito?.fechaCorte,
+      lineaCreditoFechaPago: cuenta.lineaCredito?.fechaPago,
     });
     setIsCuentaModalOpen(true);
   };
@@ -492,7 +499,18 @@ export const Tesoreria: React.FC = () => {
             numeroCuenta: cuentaForm.numeroCuenta,
             cci: cuentaForm.cci,
             metodoPagoAsociado: cuentaForm.metodoPagoAsociado,
-            esCuentaPorDefecto: cuentaForm.esCuentaPorDefecto
+            esCuentaPorDefecto: cuentaForm.esCuentaPorDefecto,
+            productoFinanciero: cuentaForm.productoFinanciero,
+            titularidad: cuentaForm.titularidad,
+            metodosDisponibles: cuentaForm.metodosDisponibles,
+            lineaCredito: cuentaForm.lineaCreditoLimite ? {
+              limiteTotal: cuentaForm.lineaCreditoLimite,
+              utilizado: cuentaEditando?.lineaCredito?.utilizado || 0,
+              disponible: (cuentaForm.lineaCreditoLimite || 0) - (cuentaEditando?.lineaCredito?.utilizado || 0),
+              tasaInteres: cuentaForm.lineaCreditoTasa,
+              fechaCorte: cuentaForm.lineaCreditoFechaCorte,
+              fechaPago: cuentaForm.lineaCreditoFechaPago,
+            } : undefined
           },
           user.uid
         );

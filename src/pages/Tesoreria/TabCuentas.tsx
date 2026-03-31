@@ -586,6 +586,130 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             </div>
           )}
 
+          {/* Producto Financiero y Titularidad */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Producto Financiero</label>
+              <select
+                value={cuentaForm.productoFinanciero || ''}
+                onChange={(e) => setCuentaForm({ ...cuentaForm, productoFinanciero: e.target.value as any })}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              >
+                <option value="">Seleccionar...</option>
+                {cuentaForm.tipo === 'efectivo' && <option value="caja">Caja</option>}
+                {cuentaForm.tipo === 'banco' && (
+                  <>
+                    <option value="cuenta_ahorros">Cuenta de Ahorros</option>
+                    <option value="cuenta_corriente">Cuenta Corriente</option>
+                  </>
+                )}
+                {cuentaForm.tipo === 'credito' && (
+                  <>
+                    <option value="tarjeta_credito">Tarjeta de Crédito</option>
+                    <option value="tarjeta_debito">Tarjeta de Débito</option>
+                  </>
+                )}
+                {cuentaForm.tipo === 'digital' && <option value="billetera_digital">Billetera Digital</option>}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Titularidad</label>
+              <select
+                value={cuentaForm.titularidad || ''}
+                onChange={(e) => setCuentaForm({ ...cuentaForm, titularidad: e.target.value as any })}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              >
+                <option value="">Seleccionar...</option>
+                <option value="empresa">Empresa</option>
+                <option value="personal">Personal</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Métodos de pago disponibles */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Métodos de Pago Disponibles</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {(() => {
+                const opciones: { id: string; label: string }[] = [];
+                if (cuentaForm.tipo === 'efectivo') opciones.push({ id: 'efectivo', label: 'Efectivo' });
+                if (cuentaForm.tipo === 'banco') {
+                  opciones.push({ id: 'transferencia', label: 'Transferencia' });
+                  const banco = (cuentaForm.banco || '').toUpperCase();
+                  if (banco.includes('BCP')) opciones.push({ id: 'yape', label: 'Yape' });
+                  if (banco.includes('INTERBANK') || banco.includes('IBK')) opciones.push({ id: 'plin', label: 'Plin' });
+                }
+                if (cuentaForm.tipo === 'digital') {
+                  const nombre = (cuentaForm.nombre || '').toLowerCase();
+                  if (nombre.includes('mercado')) opciones.push({ id: 'mercado_pago', label: 'Mercado Pago' });
+                  else if (nombre.includes('paypal')) opciones.push({ id: 'paypal', label: 'PayPal' });
+                  else if (nombre.includes('zelle')) opciones.push({ id: 'zelle', label: 'Zelle' });
+                  else opciones.push({ id: 'otro', label: 'Otro' });
+                }
+                if (cuentaForm.tipo === 'credito') {
+                  opciones.push({ id: 'tarjeta_credito', label: 'Tarjeta Crédito' });
+                  opciones.push({ id: 'tarjeta_debito', label: 'Tarjeta Débito' });
+                }
+                const seleccionados = cuentaForm.metodosDisponibles || [];
+                return opciones.map(op => (
+                  <label key={op.id} className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
+                    seleccionados.includes(op.id) ? 'bg-primary-50 border-primary-300' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                  }`}>
+                    <input type="checkbox" checked={seleccionados.includes(op.id)}
+                      onChange={(e) => {
+                        const nuevos = e.target.checked
+                          ? [...seleccionados, op.id]
+                          : seleccionados.filter(m => m !== op.id);
+                        setCuentaForm({ ...cuentaForm, metodosDisponibles: nuevos });
+                      }}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                    <span className="text-sm">{op.label}</span>
+                  </label>
+                ));
+              })()}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Estos métodos aparecerán al registrar pagos desde esta cuenta</p>
+          </div>
+
+          {/* Línea de crédito (solo tarjeta_credito) */}
+          {(cuentaForm.productoFinanciero === 'tarjeta_credito' || cuentaForm.tipo === 'credito') && (
+            <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
+              <h4 className="text-sm font-medium text-amber-800">Línea de Crédito</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Límite</label>
+                  <input type="number" step="0.01" placeholder="0.00"
+                    value={cuentaForm.lineaCreditoLimite || ''}
+                    onChange={(e) => setCuentaForm({ ...cuentaForm, lineaCreditoLimite: +e.target.value })}
+                    className="w-full px-3 py-2 rounded-md border-gray-300 shadow-sm text-sm focus:border-primary-500 focus:ring-primary-500" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Tasa anual (%)</label>
+                  <input type="number" step="0.1" placeholder="0.0"
+                    value={cuentaForm.lineaCreditoTasa || ''}
+                    onChange={(e) => setCuentaForm({ ...cuentaForm, lineaCreditoTasa: +e.target.value })}
+                    className="w-full px-3 py-2 rounded-md border-gray-300 shadow-sm text-sm focus:border-primary-500 focus:ring-primary-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Día de corte</label>
+                  <input type="number" min="1" max="28" placeholder="15"
+                    value={cuentaForm.lineaCreditoFechaCorte || ''}
+                    onChange={(e) => setCuentaForm({ ...cuentaForm, lineaCreditoFechaCorte: +e.target.value })}
+                    className="w-full px-3 py-2 rounded-md border-gray-300 shadow-sm text-sm focus:border-primary-500 focus:ring-primary-500" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Día de pago</label>
+                  <input type="number" min="1" max="28" placeholder="5"
+                    value={cuentaForm.lineaCreditoFechaPago || ''}
+                    onChange={(e) => setCuentaForm({ ...cuentaForm, lineaCreditoFechaPago: +e.target.value })}
+                    className="w-full px-3 py-2 rounded-md border-gray-300 shadow-sm text-sm focus:border-primary-500 focus:ring-primary-500" />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Saldos Iniciales - Solo para creacion */}
           {!cuentaEditando && (
             cuentaForm.esBiMoneda ? (
