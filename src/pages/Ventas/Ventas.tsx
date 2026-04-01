@@ -477,6 +477,7 @@ export const Ventas: React.FC = () => {
       await registrarPago(selectedVenta.id, {
         monto: datos.montoOriginal,
         metodoPago: datos.metodoPago as MetodoPago,
+        tipoCambio: datos.tipoCambio,
         referencia: datos.referencia,
         notas: datos.notas,
         cuentaDestinoId: datos.cuentaOrigenId,

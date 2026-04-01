@@ -599,7 +599,7 @@ export const Transferencias: React.FC = () => {
                 montoTotal={transferenciaParaPago.costoFleteTotal || 0}
                 montoPendiente={Math.max(0, pendienteUSD)}
                 monedaOriginal="USD"
-                tcDocumento={tipoCambioActual}
+                tcDocumento={tipoCambioActual?.tasaVenta}
                 pagosAnteriores={pagosAnteriores.map(p => ({
                   id: p.id,
                   fecha: p.fecha?.toDate?.() || new Date(),

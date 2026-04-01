@@ -45,6 +45,7 @@ export async function registrarPago(
   datosPago: {
     monto: number;
     metodoPago: MetodoPago;
+    tipoCambio?: number;
     referencia?: string;
     comprobante?: string;
     notas?: string;
@@ -53,11 +54,15 @@ export async function registrarPago(
   userId: string,
   registrarEnTesoreria: boolean = true
 ): Promise<PagoVenta> {
-  // Obtener TC ANTES de la transacción (llamada de red, no puede ir dentro)
+  // TC: usar el del formulario si se provee, sino resolver del servicio
   let tcCobro: number | undefined;
-  try {
-    tcCobro = await tipoCambioService.resolverTCVentaEstricto();
-  } catch { /* fallback: undefined */ }
+  if (datosPago.tipoCambio && datosPago.tipoCambio > 0) {
+    tcCobro = datosPago.tipoCambio;
+  } else {
+    try {
+      tcCobro = await tipoCambioService.resolverTCVentaEstricto();
+    } catch { /* fallback: undefined */ }
+  }
 
   // Determinar moneda del pago según método (Zelle/PayPal = USD)
   const metodosEnUSD: string[] = ['paypal', 'zelle'];
@@ -194,7 +199,8 @@ export async function registrarPago(
         cuentaDestinoId = cuentaPorDefecto?.id;
       }
 
-      const tipoCambio = await tipoCambioService.resolverTCVentaEstricto();
+      // Usar tcCobro ya resuelto (del formulario o del servicio) — NO resolver otra vez
+      const tipoCambio = tcCobro || 1;
 
       const movimientoId = await tesoreriaService.registrarMovimiento(
         {

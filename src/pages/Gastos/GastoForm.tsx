@@ -802,6 +802,10 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                       setMetodoPago(datos.metodoPago as MetodoTesoreria);
                       setCuentaOrigenId(datos.cuentaOrigenId);
                       setReferenciaPago(datos.referencia || '');
+                      if (datos.tipoCambio > 0) {
+                        setTipoCambio(datos.tipoCambio);
+                        setFormData(prev => ({ ...prev, tipoCambio: datos.tipoCambio }));
+                      }
                       setPagoConfirmado(true);
                     }}
                     onCancel={() => {

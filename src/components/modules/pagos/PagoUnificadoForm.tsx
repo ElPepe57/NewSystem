@@ -135,7 +135,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
   // Cargar TC
   useEffect(() => {
     if (!tcDocumento) {
-      getTCDelDia().then(tc => { if (tc) setTipoCambio(tc.compra); });
+      getTCDelDia().then(tc => { if (tc) setTipoCambio(tc.venta); });
     }
   }, [getTCDelDia, tcDocumento]);
 
