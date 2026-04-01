@@ -5,6 +5,7 @@
 import {
   collection,
   doc,
+  getDoc,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -406,6 +407,14 @@ export async function deleteCotizacion(
     if (cotizacion.estado !== 'nueva' && cotizacion.estado !== 'rechazada') {
       throw new Error('Solo se pueden eliminar cotizaciones nuevas o rechazadas');
     }
+    // Archivar antes de eliminar
+    const cotSnap = await getDoc(doc(db, COLLECTION_NAME, id));
+    if (cotSnap.exists()) {
+      await addDoc(collection(db, 'cotizacionesArchivo'), {
+        ...cotSnap.data(), cotizacionOriginalId: id, fechaArchivo: Timestamp.now(), motivoArchivo: 'eliminada'
+      });
+    }
+
     await deleteDoc(doc(db, COLLECTION_NAME, id));
   } catch (error: any) {
     logger.error('Error al eliminar cotización:', error);

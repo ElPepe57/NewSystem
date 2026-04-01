@@ -484,6 +484,14 @@ export async function deleteOrden(id: string): Promise<void> {
       logger.warn('Error al desvincular OC de requerimientos (no-blocking):', e);
     }
 
+    // Archivar antes de eliminar
+    const ocSnap = await getDoc(doc(db, ORDENES_COLLECTION, id));
+    if (ocSnap.exists()) {
+      await addDoc(collection(db, 'ordenesCompraArchivo'), {
+        ...ocSnap.data(), ordenOriginalId: id, fechaArchivo: Timestamp.now(), motivoArchivo: 'eliminada'
+      });
+    }
+
     await deleteDoc(doc(db, ORDENES_COLLECTION, id));
   } catch (error: any) {
     logger.error('Error al eliminar orden:', error);
