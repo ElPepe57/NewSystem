@@ -14,6 +14,7 @@ export const MOVIMIENTOS_COLLECTION = COLLECTIONS.MOVIMIENTOS_TESORERIA;
 export const CONVERSIONES_COLLECTION = COLLECTIONS.CONVERSIONES_CAMBIARIAS;
 export const CUENTAS_COLLECTION = COLLECTIONS.CUENTAS_CAJA;
 export const REGISTROS_TC_COLLECTION = COLLECTIONS.REGISTROS_TC_TRANSACCION;
+export const MOVIMIENTOS_ANULADOS_COLLECTION = 'movimientosAnulados';
 export const ESTADISTICAS_DOC = 'estadisticas/tesoreria';
 
 // ─── Movement type classification ────────────────────────────────────────────

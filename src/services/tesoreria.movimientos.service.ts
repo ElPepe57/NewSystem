@@ -23,6 +23,7 @@ import { COLLECTIONS } from '../config/collections';
 import { logger, logBackgroundError } from '../lib/logger';
 import {
   MOVIMIENTOS_COLLECTION,
+  MOVIMIENTOS_ANULADOS_COLLECTION,
   esMovimientoIngreso,
   esMovimientoEgreso
 } from './tesoreria.shared';
@@ -371,12 +372,18 @@ export async function eliminarMovimiento(
     );
   }
 
-  // En lugar de eliminar, marcamos como anulado para mantener historial
-  await updateDoc(doc(db, MOVIMIENTOS_COLLECTION, id), {
-    estado: 'anulado',
-    anuladoPor: userId,
-    fechaAnulacion: Timestamp.now()
-  });
+  // Copiar a colección de archivo antes de eliminar (trazabilidad)
+  const archivoData: Record<string, any> = { ...movimiento };
+  delete archivoData.id; // No duplicar el id como campo
+  archivoData.estado = 'anulado';
+  archivoData.anuladoPor = userId;
+  archivoData.fechaAnulacion = Timestamp.now();
+  archivoData.movimientoOriginalId = id;
+  await addDoc(collection(db, MOVIMIENTOS_ANULADOS_COLLECTION), archivoData);
+
+  // Eliminar de la colección activa (datos limpios para cálculos)
+  const { deleteDoc: _deleteDoc } = await import('firebase/firestore');
+  await _deleteDoc(doc(db, MOVIMIENTOS_COLLECTION, id));
 
   // Actualizar estadísticas agregadas (revertir el movimiento)
   await actualizarEstadisticasPorMovimiento({
@@ -652,13 +659,22 @@ export async function reconciliarPagosHuerfanos(): Promise<{
   let ocCorregidas = 0;
   let gastosCorregidos = 0;
 
-  // Obtener todos los movimientos anulados
-  const movAnuladosSnap = await getDocs(query(
-    collection(db, MOVIMIENTOS_COLLECTION),
-    where('estado', '==', 'anulado')
-  ));
-  const idsAnulados = new Set(movAnuladosSnap.docs.map(d => d.id));
-  logger.info(`[Reconciliación] ${idsAnulados.size} movimientos anulados encontrados`);
+  // Obtener IDs de movimientos anulados (de archivo + legacy en colección activa)
+  const [archivoSnap, legacySnap] = await Promise.all([
+    getDocs(collection(db, MOVIMIENTOS_ANULADOS_COLLECTION)),
+    getDocs(query(collection(db, MOVIMIENTOS_COLLECTION), where('estado', '==', 'anulado'))),
+  ]);
+  const idsAnulados = new Set<string>();
+  // Del archivo: el campo movimientoOriginalId es el ID original
+  for (const d of archivoSnap.docs) {
+    const origId = d.data().movimientoOriginalId;
+    if (origId) idsAnulados.add(origId);
+  }
+  // Legacy: movimientos que se marcaron como anulados antes del patrón de archivo
+  for (const d of legacySnap.docs) {
+    idsAnulados.add(d.id);
+  }
+  logger.info(`[Reconciliación] ${idsAnulados.size} movimientos anulados encontrados (${archivoSnap.size} archivo + ${legacySnap.size} legacy)`);
 
   // 1. Ventas
   try {
