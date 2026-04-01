@@ -41,7 +41,7 @@ interface TabCuentasProps {
   handleRecalcularSaldos: () => void;
   handleGuardarCuentaNueva: (data: CuentaCajaFormData) => void;
   handleGuardarEdicion: (cuenta: CuentaCaja, data: CuentaCajaFormData) => void;
-  handleGuardarMetodosBanco: (bancoNombre: string, metodos: string[], detalle?: Record<string, { identificador?: string; cuentaVinculadaId?: string }>) => void;
+  handleGuardarMetodosBanco: (bancoNombre: string, metodos: string[]) => void;
   handleEliminarCuenta: (cuenta: CuentaCaja) => void;
   getTipoLabel: (tipo: TipoMovimientoTesoreria) => string;
   esIngresoMovimiento: (mov: MovimientoTesoreria) => boolean;
@@ -72,8 +72,6 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   const [showMetodos, setShowMetodos] = useState(false);
   const [bancoParaMetodos, setBancoParaMetodos] = useState('');
   const [metodosActuales, setMetodosActuales] = useState<string[]>([]);
-  const [metodosDetalleActuales, setMetodosDetalleActuales] = useState<Record<string, { identificador?: string; cuentaVinculadaId?: string }>>({});
-  const [cuentasBancoParaMetodos, setCuentasBancoParaMetodos] = useState<CuentaCaja[]>([]);
 
   // Agrupar cuentas
   const { bancos, digitales, efectivo } = useMemo(() => {
@@ -115,13 +113,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   const abrirMetodos = (banco: string, cuentasBancoArr: CuentaCaja[]) => {
     setBancoParaMetodos(banco);
     setMetodosActuales(cuentasBancoArr[0]?.metodosDisponibles || []);
-    setMetodosDetalleActuales(cuentasBancoArr[0]?.metodosDetalle || {});
-    setCuentasBancoParaMetodos(cuentasBancoArr);
     setShowMetodos(true);
   };
 
-  const guardarMetodos = (metodos: string[], detalle: Record<string, { identificador?: string; cuentaVinculadaId?: string }>) => {
-    handleGuardarMetodosBanco(bancoParaMetodos, metodos, detalle);
+  const guardarMetodos = (metodos: string[]) => {
+    handleGuardarMetodosBanco(bancoParaMetodos, metodos);
     setShowMetodos(false);
   };
 
@@ -196,6 +192,15 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               <span className="text-[9px] px-1 py-0.5 rounded bg-gray-100 text-gray-500">+{(cuenta.numerosCuenta!.length - 1)} más</span>
             )}
             {cuenta.titular && <span>· {cuenta.titular}</span>}
+            {/* Canales vinculados (Yape/Plin) */}
+            {cuenta.metodosDetalle && Object.entries(cuenta.metodosDetalle)
+              .filter(([_, v]) => v.identificador)
+              .map(([tipo, v]) => (
+                <span key={tipo} className="inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">
+                  {tipo} · {v.identificador}
+                </span>
+              ))
+            }
           </div>
         </div>
       </div>
@@ -602,8 +607,6 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
 
       <EditarMetodosBancoModal isOpen={showMetodos} onClose={() => setShowMetodos(false)}
         bancoNombre={bancoParaMetodos} metodosActuales={metodosActuales}
-        metodosDetalleActuales={metodosDetalleActuales}
-        cuentasBanco={cuentasBancoParaMetodos}
         onGuardar={guardarMetodos} isSubmitting={isSubmitting} />
 
       <DigitalForm isOpen={showDigital} onClose={() => setShowDigital(false)}

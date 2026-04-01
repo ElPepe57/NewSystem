@@ -475,6 +475,7 @@ export const Tesoreria: React.FC = () => {
           titularidad: data.titularidad,
           cuentaVinculadaId: data.cuentaVinculadaId,
           metodosDisponibles: data.metodosDisponibles,
+          metodosDetalle: data.metodosDetalle,
           numerosCuenta: data.numerosCuenta,
           lineaCreditoLimite: data.lineaCreditoLimite,
           lineaCreditoTasa: data.lineaCreditoTasa,
@@ -493,14 +494,11 @@ export const Tesoreria: React.FC = () => {
   };
 
   // Sincronizar métodos de pago para todas las cuentas de un banco
-  const handleGuardarMetodosBanco = async (
-    bancoNombre: string, metodos: string[],
-    detalle?: Record<string, { identificador?: string; cuentaVinculadaId?: string }>
-  ) => {
+  const handleGuardarMetodosBanco = async (bancoNombre: string, metodos: string[]) => {
     if (!user) return;
     setIsSubmitting(true);
     try {
-      const count = await TesoreriaService.syncMetodosBanco(bancoNombre, metodos, user.uid, detalle);
+      const count = await TesoreriaService.syncMetodosBanco(bancoNombre, metodos, user.uid);
       toast.success(`Métodos actualizados en ${count} cuenta${count !== 1 ? 's' : ''} de ${bancoNombre}`);
       loadData();
     } catch (error: any) {

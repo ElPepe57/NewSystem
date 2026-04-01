@@ -44,13 +44,41 @@ export async function crearCuenta(data: CuentaCajaFormData, userId: string): Pro
     throw new Error('El titular de la cuenta es obligatorio');
   }
 
+  // Validar duplicados
+  const existentes = await getCuentas();
+  // Duplicado por nombre exacto (mismo banco si aplica)
+  const nombreDuplicado = existentes.find(c =>
+    c.activa &&
+    c.nombre.toLowerCase().trim() === data.nombre.toLowerCase().trim() &&
+    (c.banco || '') === (data.banco || '')
+  );
+  if (nombreDuplicado) {
+    throw new Error(`Ya existe una cuenta "${data.nombre}"${data.banco ? ` en ${data.banco}` : ''}. Usa un nombre diferente.`);
+  }
+  // Duplicado por número de cuenta (si se proporcionó)
+  if (data.numeroCuenta?.trim()) {
+    const numeroDuplicado = existentes.find(c =>
+      c.activa &&
+      c.numeroCuenta?.trim() === data.numeroCuenta!.trim()
+    );
+    if (numeroDuplicado) {
+      throw new Error(`El número de cuenta "${data.numeroCuenta}" ya está registrado en "${numeroDuplicado.nombre}".`);
+    }
+  }
+
   const esBiMoneda = data.esBiMoneda || false;
+
+  // Derivar tipo correcto desde productoFinanciero si hay inconsistencia
+  let tipo = data.tipo;
+  if (data.productoFinanciero === 'caja') tipo = 'efectivo';
+  if (data.productoFinanciero === 'billetera_digital') tipo = 'digital';
+  if (data.productoFinanciero === 'tarjeta_credito') tipo = 'credito';
 
   // Filtrar campos undefined para evitar errores de Firebase
   const cuenta: Record<string, any> = {
     nombre: data.nombre,
     titular: data.titular.trim(),
-    tipo: data.tipo,
+    tipo,
     esBiMoneda,
     moneda: data.moneda,
     activa: true,

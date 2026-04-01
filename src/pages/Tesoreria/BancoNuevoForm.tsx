@@ -5,11 +5,10 @@ import type { CuentaCajaFormData, MonedaTesoreria } from '../../types/tesoreria.
 
 const METODOS_BANCO = [
   { id: 'transferencia', label: 'Transferencia' },
-  { id: 'yape', label: 'Yape' },
-  { id: 'plin', label: 'Plin' },
   { id: 'tarjeta_debito', label: 'Tarjeta Débito' },
   { id: 'tarjeta_credito', label: 'Tarjeta Crédito' },
 ];
+// Yape/Plin se configuran por cuenta individual, no a nivel de banco
 
 const PRODUCTOS_BANCO = [
   { value: 'cuenta_ahorros', label: 'Cuenta de Ahorros' },

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import {
   ArrowUpCircle,
@@ -13,7 +13,9 @@ import {
   FileText,
   Trash2,
   ExternalLink,
-  RefreshCw
+  RefreshCw,
+  User,
+  X,
 } from 'lucide-react';
 import { Button, Card, Modal } from '../../components/common';
 import type {
@@ -80,19 +82,143 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
   handleGuardarMovimiento,
   handleCerrarModalMovimiento,
 }) => {
+  const [filtroTitular, setFiltroTitular] = useState<string>('');
+
+  // Titulares únicos con sus cuentas
+  const titularesConCuentas = useMemo(() => {
+    const map = new Map<string, string[]>();
+    cuentas.forEach(c => {
+      if (!c.titular) return;
+      const ids = map.get(c.titular) || [];
+      ids.push(c.id);
+      map.set(c.titular, ids);
+    });
+    return map;
+  }, [cuentas]);
+
+  const titulares = useMemo(() => [...titularesConCuentas.keys()].sort(), [titularesConCuentas]);
+
+  // Movimientos filtrados por titular
+  const movsFiltradosPorTitular = useMemo(() => {
+    if (!filtroTitular) return movimientosFiltrados;
+    const cuentaIds = titularesConCuentas.get(filtroTitular) || [];
+    const idSet = new Set(cuentaIds);
+    return movimientosFiltrados.filter(m =>
+      (m.cuentaOrigen && idSet.has(m.cuentaOrigen)) ||
+      (m.cuentaDestino && idSet.has(m.cuentaDestino))
+    );
+  }, [movimientosFiltrados, filtroTitular, titularesConCuentas]);
+
+  // Totales recalculados con el filtro de titular
+  const totalesFiltrados = useMemo(() => {
+    if (!filtroTitular) return totalesMovimientos;
+    const activos = movsFiltradosPorTitular.filter(m => m.estado !== 'anulado');
+    let entradasPEN = 0, salidasPEN = 0, entradasUSD = 0, salidasUSD = 0;
+    for (const m of activos) {
+      const esIng = esIngresoMovimiento(m);
+      if (m.moneda === 'PEN') { if (esIng) entradasPEN += m.monto; else salidasPEN += m.monto; }
+      else { if (esIng) entradasUSD += m.monto; else salidasUSD += m.monto; }
+    }
+    return { entradasPEN, salidasPEN, entradasUSD, salidasUSD, total: activos.length };
+  }, [movsFiltradosPorTitular, filtroTitular, totalesMovimientos, esIngresoMovimiento]);
+
+  // Resumen de cuentas del titular seleccionado
+  const cuentasTitular = useMemo(() => {
+    if (!filtroTitular) return [];
+    return cuentas.filter(c => c.titular === filtroTitular);
+  }, [cuentas, filtroTitular]);
+
+  // Usar los movimientos filtrados para el render
+  const movsRender = movsFiltradosPorTitular;
+  const totalesRender = totalesFiltrados;
+
   return (
     <>
       <Card padding="none">
         <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-            Movimientos ({movimientosFiltrados.length})
-          </h3>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+              Movimientos ({movsRender.length})
+            </h3>
+            {/* Filtro por titular */}
+            {titulares.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5 text-gray-400" />
+                <select
+                  value={filtroTitular}
+                  onChange={e => setFiltroTitular(e.target.value)}
+                  className={`rounded-md border-gray-300 text-xs py-1 pl-2 pr-6 focus:border-primary-500 focus:ring-primary-500 ${
+                    filtroTitular ? 'bg-primary-50 border-primary-300 text-primary-700 font-medium' : ''
+                  }`}
+                >
+                  <option value="">Todos los titulares</option>
+                  {titulares.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+                {filtroTitular && (
+                  <button onClick={() => setFiltroTitular('')}
+                    className="p-0.5 text-gray-400 hover:text-gray-600 rounded-full">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <Button variant="primary" onClick={() => setIsMovimientoModalOpen(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
             <span className="sm:hidden">Nuevo</span>
             <span className="hidden sm:inline">Nuevo Movimiento</span>
           </Button>
         </div>
+
+        {/* Resumen del titular seleccionado */}
+        {filtroTitular && cuentasTitular.length > 0 && (
+          <div className="px-4 sm:px-6 py-3 bg-primary-50/50 border-b border-primary-100">
+            <div className="flex items-center gap-2 mb-2">
+              <User className="h-4 w-4 text-primary-600" />
+              <span className="text-sm font-semibold text-primary-800">{filtroTitular}</span>
+              <span className="text-xs text-primary-500">{cuentasTitular.length} cuenta{cuentasTitular.length > 1 ? 's' : ''}</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {cuentasTitular.map(c => {
+                const saldo = c.esBiMoneda
+                  ? `S/${(c.saldoPEN || 0).toFixed(2)} / $${(c.saldoUSD || 0).toFixed(2)}`
+                  : `${c.moneda === 'USD' ? '$' : 'S/'}${(c.saldoActual || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`;
+                const prodLabel = c.productoFinanciero === 'cuenta_ahorros' ? 'Ahorros' :
+                  c.productoFinanciero === 'cuenta_corriente' ? 'Corriente' :
+                  c.productoFinanciero === 'tarjeta_credito' ? 'TC' :
+                  c.productoFinanciero === 'tarjeta_debito' ? 'TD' :
+                  c.productoFinanciero === 'billetera_digital' ? 'Digital' :
+                  c.productoFinanciero === 'caja' ? 'Caja' : '';
+                return (
+                  <div key={c.id} className="text-xs px-3 py-2 rounded-lg bg-white border border-primary-200 space-y-0.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${c.moneda === 'USD' ? 'bg-blue-400' : 'bg-green-400'}`} />
+                      <span className="font-medium text-gray-800">{c.nombre}</span>
+                      {prodLabel && <span className="text-[9px] px-1 py-0.5 rounded bg-gray-100 text-gray-500">{prodLabel}</span>}
+                      <span className="text-[9px] px-1 py-0.5 rounded bg-gray-100 text-gray-500">{c.moneda}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-gray-500">
+                      <span>
+                        {(() => {
+                          const esCaja = c.productoFinanciero === 'caja' || c.tipo === 'efectivo';
+                          const esDigital = c.productoFinanciero === 'billetera_digital' || c.tipo === 'digital';
+                          const label = esCaja ? 'Efectivo' : esDigital ? 'Digital' : c.tipo === 'credito' ? 'Crédito' : 'Banca';
+                          const color = esCaja ? 'bg-green-50 text-green-600' : esDigital ? 'bg-purple-50 text-purple-600' : c.tipo === 'credito' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600';
+                          return <span className={`text-[9px] px-1 py-0.5 rounded mr-1 ${color}`}>{label}</span>;
+                        })()}
+                        {c.banco && <span>{c.banco}</span>}
+                        {c.numeroCuenta && <span> · #{c.numeroCuenta}</span>}
+                      </span>
+                      <span className="font-semibold text-gray-800">{saldo}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Graficas Evolución de Saldo */}
         {(chartEvolucionSaldo.length > 1 || chartEvolucionSaldoUSD.length > 1) && (
@@ -153,39 +279,39 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
         )}
 
         {/* Totales de movimientos */}
-        {movimientosFiltrados.length > 0 && (
+        {movsRender.length > 0 && (
           <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
             <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
               <div>
                 <span className="text-gray-500">Entradas:</span>
-                {totalesMovimientos.entradasPEN > 0 && (
-                  <span className="ml-2 font-semibold text-green-600">+S/ {totalesMovimientos.entradasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
+                {totalesRender.entradasPEN > 0 && (
+                  <span className="ml-2 font-semibold text-green-600">+S/ {totalesRender.entradasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
                 )}
-                {totalesMovimientos.entradasUSD > 0 && (
-                  <span className="ml-2 font-semibold text-green-600">+$ {totalesMovimientos.entradasUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                {totalesRender.entradasUSD > 0 && (
+                  <span className="ml-2 font-semibold text-green-600">+$ {totalesRender.entradasUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 )}
               </div>
               <div className="text-right">
                 <span className="text-gray-500">Salidas:</span>
-                {totalesMovimientos.salidasPEN > 0 && (
-                  <span className="ml-2 font-semibold text-red-600">-S/ {totalesMovimientos.salidasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
+                {totalesRender.salidasPEN > 0 && (
+                  <span className="ml-2 font-semibold text-red-600">-S/ {totalesRender.salidasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
                 )}
-                {totalesMovimientos.salidasUSD > 0 && (
-                  <span className="ml-2 font-semibold text-red-600">-$ {totalesMovimientos.salidasUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                {totalesRender.salidasUSD > 0 && (
+                  <span className="ml-2 font-semibold text-red-600">-$ {totalesRender.salidasUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 )}
               </div>
             </div>
             <div className="mt-1 pt-1 border-t border-gray-200 flex justify-between text-xs sm:text-sm">
               <span className="text-gray-500">Balance neto:</span>
               <div className="flex gap-3">
-                {(totalesMovimientos.entradasPEN > 0 || totalesMovimientos.salidasPEN > 0) && (
-                  <span className={`font-bold ${(totalesMovimientos.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {(totalesMovimientos.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? '+' : ''}S/ {(totalesMovimientos.entradasPEN - totalesMovimientos.salidasPEN).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                {(totalesRender.entradasPEN > 0 || totalesMovimientos.salidasPEN > 0) && (
+                  <span className={`font-bold ${(totalesRender.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(totalesRender.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? '+' : ''}S/ {(totalesRender.entradasPEN - totalesMovimientos.salidasPEN).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                   </span>
                 )}
-                {(totalesMovimientos.entradasUSD > 0 || totalesMovimientos.salidasUSD > 0) && (
-                  <span className={`font-bold ${(totalesMovimientos.entradasUSD - totalesMovimientos.salidasUSD) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {(totalesMovimientos.entradasUSD - totalesMovimientos.salidasUSD) >= 0 ? '+' : ''}$ {(totalesMovimientos.entradasUSD - totalesMovimientos.salidasUSD).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                {(totalesRender.entradasUSD > 0 || totalesMovimientos.salidasUSD > 0) && (
+                  <span className={`font-bold ${(totalesRender.entradasUSD - totalesMovimientos.salidasUSD) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(totalesRender.entradasUSD - totalesMovimientos.salidasUSD) >= 0 ? '+' : ''}$ {(totalesRender.entradasUSD - totalesMovimientos.salidasUSD).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </span>
                 )}
               </div>
@@ -195,12 +321,12 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
 
         {/* Mobile card layout */}
         <div className="md:hidden divide-y divide-gray-200">
-          {movimientosFiltrados.length === 0 ? (
+          {movsRender.length === 0 ? (
             <div className="px-4 py-8 text-center text-gray-500">
-              No hay movimientos registrados
+              {filtroTitular ? `No hay movimientos para ${filtroTitular}` : 'No hay movimientos registrados'}
             </div>
           ) : (
-            movimientosFiltrados.map((mov) => {
+            movsRender.map((mov) => {
               const esIng = esIngresoMovimiento(mov);
               return (
                 <div
@@ -280,14 +406,14 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {movimientosFiltrados.length === 0 ? (
+              {movsRender.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
-                    No hay movimientos registrados
+                    {filtroTitular ? `No hay movimientos para ${filtroTitular}` : 'No hay movimientos registrados'}
                   </td>
                 </tr>
               ) : (
-                movimientosFiltrados.map((mov) => {
+                movsRender.map((mov) => {
                   const esIngresoPEN = mov.moneda === 'PEN' && esIngresoMovimiento(mov);
                   const esIngresoUSD = mov.moneda === 'USD' && esIngresoMovimiento(mov);
 

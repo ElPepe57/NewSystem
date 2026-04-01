@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { Plus, Trash2, Phone } from 'lucide-react';
 import { Button, Modal, AutocompleteInput } from '../../components/common';
 import type {
   CuentaCaja,
   CuentaCajaFormData,
   MonedaTesoreria,
 } from '../../types/tesoreria.types';
+
+const CANALES_DISPONIBLES = [
+  { id: 'yape', label: 'Yape' },
+  { id: 'plin', label: 'Plin' },
+];
+
+interface CanalVinculado {
+  tipo: string;
+  identificador: string;
+}
 
 const PRODUCTOS = [
   { value: 'cuenta_ahorros', label: 'Cuenta de Ahorros' },
@@ -39,6 +50,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
   const [lineaTasa, setLineaTasa] = useState(0);
   const [lineaCorte, setLineaCorte] = useState(0);
   const [lineaPago, setLineaPago] = useState(0);
+  const [canales, setCanales] = useState<CanalVinculado[]>([]);
 
   const esEdicion = !!cuentaEditando;
   const esCredito = producto === 'tarjeta_credito';
@@ -58,6 +70,11 @@ export const CuentaBancoForm: React.FC<Props> = ({
       setLineaTasa(cuentaEditando.lineaCredito?.tasaInteres || 0);
       setLineaCorte(cuentaEditando.lineaCredito?.fechaCorte || 0);
       setLineaPago(cuentaEditando.lineaCredito?.fechaPago || 0);
+      // Cargar canales vinculados desde metodosDetalle
+      const det = cuentaEditando.metodosDetalle || {};
+      setCanales(Object.entries(det)
+        .filter(([_, v]) => v.identificador)
+        .map(([tipo, v]) => ({ tipo, identificador: v.identificador || '' })));
     } else {
       reset();
     }
@@ -66,6 +83,17 @@ export const CuentaBancoForm: React.FC<Props> = ({
   const handleGuardar = () => {
     if (!nombre || !titular.trim()) return;
     const tipo = esCredito ? 'credito' as const : 'banco' as const;
+
+    // Construir metodosDetalle desde canales vinculados
+    const metodosDetalle: Record<string, { identificador?: string; cuentaVinculadaId?: string }> = {};
+    const metodosExtra: string[] = [];
+    for (const canal of canales) {
+      if (canal.tipo && canal.identificador) {
+        metodosDetalle[canal.tipo] = { identificador: canal.identificador };
+        metodosExtra.push(canal.tipo);
+      }
+    }
+
     onGuardar({
       nombre,
       titular: titular.trim(),
@@ -80,6 +108,8 @@ export const CuentaBancoForm: React.FC<Props> = ({
       cci: cci || undefined,
       productoFinanciero: producto as any,
       titularidad,
+      metodosDetalle: metodosDetalle,
+      metodosDisponibles: metodosExtra,
       lineaCreditoLimite: esCredito ? lineaLimite : undefined,
       lineaCreditoTasa: esCredito ? lineaTasa : undefined,
       lineaCreditoFechaCorte: esCredito ? lineaCorte : undefined,
@@ -91,6 +121,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
     setNombre(''); setTitular(''); setTitularidad('empresa'); setProducto('cuenta_ahorros');
     setMoneda('PEN'); setNumeroCuenta(''); setCci(''); setSaldoInicial(0);
     setSaldoMinimo(undefined); setLineaLimite(0); setLineaTasa(0); setLineaCorte(0); setLineaPago(0);
+    setCanales([]);
   };
 
   const ic = 'w-full rounded-md border-gray-300 text-sm focus:border-primary-500 focus:ring-primary-500';
@@ -161,6 +192,48 @@ export const CuentaBancoForm: React.FC<Props> = ({
               onChange={e => setCci(e.target.value)}
               className={ic} placeholder="Código interbancario" />
           </div>
+        </div>
+
+        {/* Canales vinculados (Yape/Plin) */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-gray-700">Canales vinculados</label>
+            {canales.length < CANALES_DISPONIBLES.length && (
+              <button type="button"
+                onClick={() => {
+                  const usados = canales.map(c => c.tipo);
+                  const siguiente = CANALES_DISPONIBLES.find(c => !usados.includes(c.id));
+                  if (siguiente) setCanales([...canales, { tipo: siguiente.id, identificador: '' }]);
+                }}
+                className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 font-medium">
+                <Plus className="h-3.5 w-3.5" /> Agregar canal
+              </button>
+            )}
+          </div>
+          {canales.length === 0 ? (
+            <p className="text-xs text-gray-400">Sin canales digitales (Yape, Plin)</p>
+          ) : (
+            <div className="space-y-2">
+              {canales.map((canal, idx) => (
+                <div key={idx} className="flex items-center gap-2 p-2 rounded-lg bg-purple-50/50 border border-purple-100">
+                  <Phone className="h-3.5 w-3.5 text-purple-500 flex-shrink-0" />
+                  <select value={canal.tipo}
+                    onChange={e => setCanales(canales.map((c, i) => i === idx ? { ...c, tipo: e.target.value } : c))}
+                    className="rounded-md border-gray-300 text-xs py-1.5 px-2 w-20 flex-shrink-0">
+                    {CANALES_DISPONIBLES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+                  </select>
+                  <input type="text" value={canal.identificador}
+                    onChange={e => setCanales(canales.map((c, i) => i === idx ? { ...c, identificador: e.target.value } : c))}
+                    className="flex-1 rounded-md border-gray-300 text-sm py-1.5 px-2"
+                    placeholder="N° teléfono" />
+                  <button type="button" onClick={() => setCanales(canales.filter((_, i) => i !== idx))}
+                    className="p-1.5 text-gray-300 hover:text-red-500 rounded-full">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Saldos */}
