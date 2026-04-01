@@ -318,88 +318,121 @@ interface TCDual {
 }
 
 /**
+ * Extrae buy.cost y sale.cost de un bloque de texto (JSON normal o escapado).
+ * Funciona con ambos formatos:
+ *   Normal:  "buy":{"cost":3.455},"sale":{"cost":3.49}
+ *   Escapado: \"buy\":{\"cost\":3.455},\"sale\":{\"cost\":3.49}
+ *
+ * Estrategia: localizar "buy" y "sale" por índice, luego buscar "cost":NUMERO
+ * en el segmento entre buy→sale y sale→fin respectivamente.
+ */
+function extraerBuySale(bloque: string): { compra: number; venta: number } | null {
+  const buyIdx = bloque.indexOf("buy");
+  const saleIdx = bloque.indexOf("sale");
+
+  if (buyIdx === -1 || saleIdx === -1 || buyIdx >= saleIdx) return null;
+
+  // Segmentar: buy...sale (compra), sale...+150 (venta)
+  const segBuy = bloque.substring(buyIdx, saleIdx);
+  const segSale = bloque.substring(saleIdx, saleIdx + 150);
+
+  // Buscar "cost" seguido de : y un número decimal
+  const costPattern = /cost[^:]*?:(\d+\.\d+)/;
+  const buyMatch = segBuy.match(costPattern);
+  const saleMatch = segSale.match(costPattern);
+
+  if (!buyMatch || !saleMatch) return null;
+
+  const compra = parseFloat(buyMatch[1]);
+  const venta = parseFloat(saleMatch[1]);
+
+  if (compra < TC_MIN || compra > TC_MAX || venta < TC_MIN || venta > TC_MAX) return null;
+
+  const spread = (Math.max(compra, venta) - Math.min(compra, venta)) / Math.min(compra, venta);
+  if (spread > MAX_SPREAD) return null;
+
+  return { compra: Math.min(compra, venta), venta: Math.max(compra, venta) };
+}
+
+/**
  * Extrae TC Paralelo y SUNAT del HTML de cuantoestaeldolar.pe.
- * Estrategia 1: Parsear JSON embebido en __NEXT_DATA__
- * Estrategia 2: Regex acotado (150 chars max desde etiqueta)
+ *
+ * La página usa Next.js App Router (RSC). Los datos vienen en chunks
+ * JSON escapados (con \") dentro del HTML:
+ *   \"calle\":{\"buy\":{\"cost\":3.455,...},\"sale\":{\"cost\":3.49,...}}
+ *   \"quotacionValueSunat\":{\"data\":{\"buy\":{\"cost\":3.48,...},...}}
+ *
+ * Estrategia 1: Buscar "calle" y "quotacionValueSunat" en el HTML
+ *               (maneja tanto JSON normal como escapado con \")
+ * Estrategia 2: Regex por números en rango TC cerca de etiquetas conocidas
  */
 function extraerTCDesdeHTML(html: string): TCDual {
   const result: TCDual = { paralelo: null, sunat: null };
 
-  // Estrategia 1: Buscar datos JSON embebidos (más confiable)
-  // La página tiene JSON con "cost":"3.455" y structure de rates
+  // Estrategia 1: Buscar datos estructurados (JSON normal o escapado)
   try {
-    const nextDataMatch = html.match(/<script[^>]*id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-    if (nextDataMatch) {
-      const jsonStr = nextDataMatch[1];
-      const data = JSON.parse(jsonStr);
+    // Buscar "calle" (con o sin escape) y extraer bloque hasta encontrar buy+sale
+    // Formato real: \"calle\":{\"img\":\"...\",\"buy\":{\"currency\":\"PEN\",\"cost\":3.455,...},\"sale\":{...}}
+    const calleIdx = html.indexOf("calle");
+    if (calleIdx !== -1) {
+      const calleBloque = html.substring(calleIdx, calleIdx + 500);
+      const parsed = extraerBuySale(calleBloque);
+      if (parsed) {
+        result.paralelo = parsed;
+        functions.logger.info(`[TC-Scraper] calle encontrado: compra=${parsed.compra}, venta=${parsed.venta}`);
+      }
+    }
 
-      // Navegar el JSON buscando las tasas principales
-      const props = data?.props?.pageProps;
-      if (props) {
-        // Buscar en diferentes posibles ubicaciones del JSON
-        const extractFromProps = (obj: any): void => {
-          const str = JSON.stringify(obj);
-
-          // Buscar patrón "Paralelo" cerca de valores de compra/venta
-          const paraleloMatch = str.match(/"Paralelo"[\s\S]{0,300}?"compra"\s*:\s*"?(\d+\.?\d*)"?[\s\S]{0,100}?"venta"\s*:\s*"?(\d+\.?\d*)"?/i)
-            || str.match(/"Paralelo"[\s\S]{0,300}?"buy"[\s\S]{0,100}?"cost"\s*:\s*"?(\d+\.?\d*)"?[\s\S]{0,200}?"sale"[\s\S]{0,100}?"cost"\s*:\s*"?(\d+\.?\d*)"?/i);
-
-          if (paraleloMatch) {
-            const c = parseFloat(paraleloMatch[1]);
-            const v = parseFloat(paraleloMatch[2]);
-            if (c >= TC_MIN && c <= TC_MAX && v >= TC_MIN && v <= TC_MAX) {
-              result.paralelo = { compra: Math.min(c, v), venta: Math.max(c, v) };
-            }
-          }
-
-          const sunatMatch = str.match(/"Sunat"[\s\S]{0,300}?"compra"\s*:\s*"?(\d+\.?\d*)"?[\s\S]{0,100}?"venta"\s*:\s*"?(\d+\.?\d*)"?/i)
-            || str.match(/"Sunat"[\s\S]{0,300}?"buy"[\s\S]{0,100}?"cost"\s*:\s*"?(\d+\.?\d*)"?[\s\S]{0,200}?"sale"[\s\S]{0,100}?"cost"\s*:\s*"?(\d+\.?\d*)"?/i);
-
-          if (sunatMatch) {
-            const c = parseFloat(sunatMatch[1]);
-            const v = parseFloat(sunatMatch[2]);
-            if (c >= TC_MIN && c <= TC_MAX && v >= TC_MIN && v <= TC_MAX) {
-              result.sunat = { compra: Math.min(c, v), venta: Math.max(c, v) };
-            }
-          }
-        };
-
-        extractFromProps(props);
+    // Buscar "quotacionValueSunat" para TC SUNAT
+    const sunatIdx = html.indexOf("quotacionValueSunat");
+    if (sunatIdx !== -1) {
+      const sunatBloque = html.substring(sunatIdx, sunatIdx + 500);
+      const parsed = extraerBuySale(sunatBloque);
+      if (parsed) {
+        result.sunat = parsed;
+        functions.logger.info(`[TC-Scraper] sunat encontrado: compra=${parsed.compra}, venta=${parsed.venta}`);
       }
     }
   } catch (e) {
-    functions.logger.debug("[TC-Scraper] JSON parse failed, trying regex:", e);
+    functions.logger.debug("[TC-Scraper] Estrategia 1 falló:", e);
   }
 
-  // Estrategia 2: Regex acotado sobre HTML (fallback)
+  // Estrategia 2: Regex por números cerca de etiquetas (fallback)
   if (!result.paralelo || !result.sunat) {
-    const extractRegex = (etiqueta: string): { compra: number; venta: number } | null => {
-      // Rango reducido: 150 chars max para evitar capturar valores de otra sección
-      const pattern = new RegExp(
-        `${etiqueta}[\\s\\S]{0,150}?(\\d+\\.\\d{2,3})[\\s\\S]{0,50}?(\\d+\\.\\d{2,3})`,
-        "i"
-      );
-      const match = html.match(pattern);
-      if (!match) return null;
+    const htmlLen = html.length;
+    functions.logger.info(`[TC-Scraper] Fallback regex: ${htmlLen} chars, hasCalle=${html.includes("calle")}, hasParalelo=${html.includes("Paralelo")}`);
 
-      const val1 = parseFloat(match[1]);
-      const val2 = parseFloat(match[2]);
+    const extractRegex = (etiquetas: string[]): { compra: number; venta: number } | null => {
+      for (const etiqueta of etiquetas) {
+        const idx = html.search(new RegExp(etiqueta, "i"));
+        if (idx === -1) continue;
 
-      if (val1 < TC_MIN || val1 > TC_MAX || val2 < TC_MIN || val2 > TC_MAX) return null;
+        // Tomar 600 chars después de la etiqueta y extraer TODOS los números
+        const bloque = html.substring(idx, idx + 600);
+        const numeros = [...bloque.matchAll(/(\d+\.\d{2,3})/g)].map(m => parseFloat(m[1]));
 
-      const compra = Math.min(val1, val2);
-      const venta = Math.max(val1, val2);
+        // Filtrar solo los que están en rango de TC válido (2.50 - 5.50)
+        const tcValidos = numeros.filter(n => n >= TC_MIN && n <= TC_MAX);
+        functions.logger.info(`[TC-Scraper] ${etiqueta}: números=${numeros.slice(0, 8).join(',')}, válidos TC=${tcValidos.join(',')}`);
 
-      const spread = (venta - compra) / compra;
-      if (spread > MAX_SPREAD) {
-        functions.logger.warn(`[TC-Scraper] ${etiqueta}: spread ${(spread * 100).toFixed(2)}%`);
-        return null;
+        if (tcValidos.length < 2) continue;
+
+        const compra = Math.min(tcValidos[0], tcValidos[1]);
+        const venta = Math.max(tcValidos[0], tcValidos[1]);
+
+        const spread = (venta - compra) / compra;
+        if (spread > MAX_SPREAD) {
+          functions.logger.warn(`[TC-Scraper] ${etiqueta}: spread ${(spread * 100).toFixed(2)}%`);
+          continue;
+        }
+        return { compra, venta };
       }
-      return { compra, venta };
+      return null;
     };
 
-    if (!result.paralelo) result.paralelo = extractRegex("Paralelo");
-    if (!result.sunat) result.sunat = extractRegex("Sunat");
+    // Buscar paralelo con múltiples nombres posibles
+    if (!result.paralelo) result.paralelo = extractRegex(['"calle"', "Paralelo", "paralelo"]);
+    if (!result.sunat) result.sunat = extractRegex(["quotacionValueSunat", "Sunat", "sunat"]);
   }
 
   // Validar spread en resultados finales
@@ -496,6 +529,7 @@ async function obtenerYGuardarTC(esAutomatico: boolean): Promise<{
   success: boolean;
   paralelo?: { compra: number; venta: number };
   sunat?: { compra: number; venta: number };
+  alertaValidacion?: string;
   error?: string;
 }> {
   const hoy = new Date();
@@ -506,15 +540,51 @@ async function obtenerYGuardarTC(esAutomatico: boolean): Promise<{
 
   // [2] Si no tenemos paralelo, intentar backup
   let paraleloFinal = tcDual.paralelo;
+  let fuenteFinal: "paralelo" | "exchangerate-api" = "paralelo";
   if (!paraleloFinal) {
-    functions.logger.info("[TC] Paralelo no disponible, intentando backup...");
+    functions.logger.warn("[TC] Paralelo no disponible vía scraping, intentando backup...");
     paraleloFinal = await obtenerTCBackup();
+    fuenteFinal = "exchangerate-api";
   }
 
   // [3] Si no tenemos nada, fallar
   if (!paraleloFinal) {
     functions.logger.error("[TC] Ninguna fuente de TC disponible");
     return { success: false, error: "Ninguna fuente de TC disponible" };
+  }
+
+  // [4] Validación cruzada: comparar scraping vs API backup
+  // Si el scraping funcionó, verificar contra ExchangeRate-API como sanity check
+  let alertaValidacion: string | undefined;
+  const UMBRAL_DIVERGENCIA = 0.01; // 1%
+  if (tcDual.paralelo) {
+    try {
+      const tcBackup = await obtenerTCBackup();
+      if (tcBackup) {
+        const divCompra = Math.abs(tcDual.paralelo.compra - tcBackup.compra) / tcBackup.compra;
+        const divVenta = Math.abs(tcDual.paralelo.venta - tcBackup.venta) / tcBackup.venta;
+        const maxDiv = Math.max(divCompra, divVenta);
+
+        if (maxDiv > UMBRAL_DIVERGENCIA) {
+          alertaValidacion =
+            `Divergencia ${(maxDiv * 100).toFixed(2)}% entre scraping ` +
+            `(${tcDual.paralelo.compra}/${tcDual.paralelo.venta}) y API backup ` +
+            `(${tcBackup.compra}/${tcBackup.venta}). Verificar manualmente.`;
+          functions.logger.warn(`[TC-VALIDACION] ${alertaValidacion}`);
+        } else {
+          functions.logger.info(
+            `[TC-VALIDACION] OK — divergencia ${(maxDiv * 100).toFixed(2)}% ` +
+            `(scraping: ${tcDual.paralelo.compra}/${tcDual.paralelo.venta}, ` +
+            `API: ${tcBackup.compra}/${tcBackup.venta})`
+          );
+        }
+      }
+    } catch (e) {
+      functions.logger.debug("[TC-VALIDACION] No se pudo obtener backup para validación:", e);
+    }
+  } else {
+    alertaValidacion = "Scraping falló — se usó ExchangeRate-API como fuente principal. Verificar scraper.";
+    functions.logger.warn(`[TC-VALIDACION] ${alertaValidacion}`);
   }
 
   // [4] Verificar si existe un TC manual que no debemos sobreescribir
@@ -543,17 +613,18 @@ async function obtenerYGuardarTC(esAutomatico: boolean): Promise<{
     };
   }
 
-  // [5] Guardar en Firestore con estructura dual
+  // [6] Guardar en Firestore con estructura dual
   // compra/venta raíz = paralelo (fuente principal para operaciones)
   const tcData: Record<string, unknown> = {
     fecha: admin.firestore.Timestamp.fromDate(hoy),
     compra: paraleloFinal.compra,
     venta: paraleloFinal.venta,
     promedio: (paraleloFinal.compra + paraleloFinal.venta) / 2,
-    fuente: tcDual.paralelo ? "paralelo" : "exchangerate-api",
+    fuente: fuenteFinal,
     paralelo: paraleloFinal,
     fechaObtencion: admin.firestore.FieldValue.serverTimestamp(),
     esAutomatico,
+    ...(alertaValidacion ? { alertaValidacion } : {}),
   };
 
   if (tcDual.sunat) {
@@ -580,6 +651,7 @@ async function obtenerYGuardarTC(esAutomatico: boolean): Promise<{
     success: true,
     paralelo: paraleloFinal,
     sunat: tcDual.sunat ?? undefined,
+    ...(alertaValidacion ? { alertaValidacion } : {}),
   };
 }
 

@@ -21,8 +21,14 @@ export const TipoCambioTable: React.FC<TipoCambioTableProps> = ({ tiposCambio })
         return <Badge variant="success">SUNAT</Badge>;
       case 'bcrp':
         return <Badge variant="info">BCRP</Badge>;
-      default:
+      case 'paralelo':
+        return <Badge variant="info">Paralelo</Badge>;
+      case 'exchangerate-api':
+        return <Badge variant="warning">API Backup</Badge>;
+      case 'manual':
         return <Badge variant="default">Manual</Badge>;
+      default:
+        return <Badge variant="default">{fuente}</Badge>;
     }
   };
 
