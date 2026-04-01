@@ -116,20 +116,25 @@ export async function actualizarConfiguracionContable(
 }
 
 /**
- * Obtener tipo de cambio actual (real o por defecto)
+ * Obtener tipo de cambio actual para contabilidad.
+ * Usa resolverTC() que respeta prioridad: paralelo > raíz, campo venta.
+ * Consistente con el resto del sistema (ventas, gastos, tesorería).
  */
 async function obtenerTipoCambio(): Promise<number> {
   try {
-    const tcDelDia = await tipoCambioService.getTCDelDia();
-    if (tcDelDia && tcDelDia.promedio > 0) {
-      return tcDelDia.promedio;
+    const tc = await tipoCambioService.resolverTC();
+    if (tc && tc.venta > 0) {
+      return tc.venta;
     }
-    // Fallback a configuración
-    const config = await getConfiguracionContable();
-    return config.tcPorDefecto;
+    // Fallback: intentar getTCDelDia directo
+    const tcDelDia = await tipoCambioService.getTCDelDia();
+    if (tcDelDia && tcDelDia.venta > 0) return tcDelDia.venta;
+    if (tcDelDia && tcDelDia.promedio > 0) return tcDelDia.promedio;
+    logger.warn('No hay TC disponible para contabilidad');
+    return 3.50; // Fallback de emergencia (nunca 0)
   } catch (error) {
-    logger.warn('Error obteniendo TC, usando valor por defecto:', error);
-    return DEFAULT_CONFIG.tcPorDefecto;
+    logger.warn('Error obteniendo TC para contabilidad:', error);
+    return 3.50; // Fallback de emergencia (nunca 0)
   }
 }
 

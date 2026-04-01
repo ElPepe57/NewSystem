@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { Card } from '../../components/common';
 import { useCTRUStore } from '../../store/ctruStore';
+import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { formatCurrency } from '../../utils/format';
 import { calcularProyeccion360 } from '../../services/proyeccion360.service';
@@ -24,21 +25,27 @@ import type { Proyeccion360, Horizonte360 } from '../../types/proyeccion360.type
 
 export const Proyeccion: React.FC = () => {
   const { productosDetalle, historialMensual, historialGastos, resumen, loading: ctruLoading, fetchAll } = useCTRUStore();
+  const { getTCDelDia } = useTipoCambioStore();
   const productos = productosDetalle || [];
   const productosLN = useLineaFilter(productos, (p: CTRUProductoDetalle) => p.lineaNegocioId);
 
   const [horizonte, setHorizonte] = useState<Horizonte360>(30);
   const [tabActiva, setTabActiva] = useState<string>('ejecutiva');
+  const [tcActual, setTcActual] = useState(3.50);
 
   useEffect(() => {
     if (!productos.length && !ctruLoading) fetchAll();
   }, [productos.length, ctruLoading, fetchAll]);
 
+  useEffect(() => {
+    getTCDelDia().then(tc => { if (tc?.venta) setTcActual(tc.venta); });
+  }, [getTCDelDia]);
+
   // Cálculo 360 en memoria
   const proy = useMemo((): Proyeccion360 | null => {
     if (!productosLN.length) return null;
-    return calcularProyeccion360(productosLN, historialMensual || [], historialGastos || [], horizonte);
-  }, [productosLN, historialMensual, historialGastos, horizonte]);
+    return calcularProyeccion360(productosLN, historialMensual || [], historialGastos || [], horizonte, tcActual);
+  }, [productosLN, historialMensual, historialGastos, horizonte, tcActual]);
 
   if (ctruLoading) {
     return (

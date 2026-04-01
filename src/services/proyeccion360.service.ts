@@ -47,7 +47,8 @@ export function calcularProyeccion360(
   productos: CTRUProductoDetalle[],
   historialMensual: HistorialCostosMes[],
   historialGastos: HistorialGastosEntry[],
-  horizonte: Horizonte360
+  horizonte: Horizonte360,
+  tcActual: number = 3.50
 ): Proyeccion360 {
 
   const periodos = horizonte === 30 ? 1 : 3;
@@ -193,7 +194,7 @@ function calcularInventario(
     const necesitaRecompra = diasStock < (periodos * 30 + leadTime);
     const cantidadSugerida = necesitaRecompra ? Math.ceil(ventasDiarias * 60) : 0;
     const costoRecompra = cantidadSugerida * (p.costoCompraUSDProm || 0) *
-      ((p.lotes || []).find(l => l.tc > 0)?.tc || 3.75);
+      ((p.lotes || []).find(l => l.tc > 0)?.tc || tcActual);
 
     // Riesgo vencimiento: simplificado
     const unidadesEnRiesgo = 0; // requiere fecha vencimiento por unidad
@@ -267,7 +268,7 @@ function calcularCostos(
 
   // Impacto TC +5%
   const costoUSD = productos.reduce((s, p) => s + p.costoCompraUSDProm * p.totalUnidades, 0);
-  const impactoTC5 = costoUSD * 0.05 * (productos[0]?.lotes?.[0]?.tc || 3.75);
+  const impactoTC5 = costoUSD * 0.05 * tcActual;
 
   return {
     costoVentasTotal: costoVentas,
