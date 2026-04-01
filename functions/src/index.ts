@@ -318,43 +318,102 @@ interface TCDual {
 }
 
 /**
- * Extrae un par compra/venta de TC del HTML scrapeado.
- * Busca la etiqueta seguida de dos números decimales, con límite de distancia
- * para no cruzar secciones del HTML y capturar valores de otra fuente.
+ * Extrae TC Paralelo y SUNAT del HTML de cuantoestaeldolar.pe.
+ * Estrategia 1: Parsear JSON embebido en __NEXT_DATA__
+ * Estrategia 2: Regex acotado (150 chars max desde etiqueta)
  */
-function extraerParTC(
-  html: string,
-  etiqueta: string
-): { compra: number; venta: number } | null {
-  const pattern = new RegExp(
-    `${etiqueta}[\\s\\S]{0,500}?(\\d+\\.\\d{2,3})[\\s\\S]{0,100}?(\\d+\\.\\d{2,3})`,
-    "i" // case-insensitive: match tanto "Sunat" como "SUNAT"
-  );
-  const match = html.match(pattern);
-  if (!match) return null;
+function extraerTCDesdeHTML(html: string): TCDual {
+  const result: TCDual = { paralelo: null, sunat: null };
 
-  const val1 = parseFloat(match[1]);
-  const val2 = parseFloat(match[2]);
+  // Estrategia 1: Buscar datos JSON embebidos (más confiable)
+  // La página tiene JSON con "cost":"3.455" y structure de rates
+  try {
+    const nextDataMatch = html.match(/<script[^>]*id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (nextDataMatch) {
+      const jsonStr = nextDataMatch[1];
+      const data = JSON.parse(jsonStr);
 
-  // Validar rango realista USD/PEN
-  if (val1 < TC_MIN || val1 > TC_MAX || val2 < TC_MIN || val2 > TC_MAX) {
-    functions.logger.warn(`[TC-Scraper] ${etiqueta}: valores fuera de rango (${val1}, ${val2})`);
-    return null;
+      // Navegar el JSON buscando las tasas principales
+      const props = data?.props?.pageProps;
+      if (props) {
+        // Buscar en diferentes posibles ubicaciones del JSON
+        const extractFromProps = (obj: any): void => {
+          const str = JSON.stringify(obj);
+
+          // Buscar patrón "Paralelo" cerca de valores de compra/venta
+          const paraleloMatch = str.match(/"Paralelo"[\s\S]{0,300}?"compra"\s*:\s*"?(\d+\.?\d*)"?[\s\S]{0,100}?"venta"\s*:\s*"?(\d+\.?\d*)"?/i)
+            || str.match(/"Paralelo"[\s\S]{0,300}?"buy"[\s\S]{0,100}?"cost"\s*:\s*"?(\d+\.?\d*)"?[\s\S]{0,200}?"sale"[\s\S]{0,100}?"cost"\s*:\s*"?(\d+\.?\d*)"?/i);
+
+          if (paraleloMatch) {
+            const c = parseFloat(paraleloMatch[1]);
+            const v = parseFloat(paraleloMatch[2]);
+            if (c >= TC_MIN && c <= TC_MAX && v >= TC_MIN && v <= TC_MAX) {
+              result.paralelo = { compra: Math.min(c, v), venta: Math.max(c, v) };
+            }
+          }
+
+          const sunatMatch = str.match(/"Sunat"[\s\S]{0,300}?"compra"\s*:\s*"?(\d+\.?\d*)"?[\s\S]{0,100}?"venta"\s*:\s*"?(\d+\.?\d*)"?/i)
+            || str.match(/"Sunat"[\s\S]{0,300}?"buy"[\s\S]{0,100}?"cost"\s*:\s*"?(\d+\.?\d*)"?[\s\S]{0,200}?"sale"[\s\S]{0,100}?"cost"\s*:\s*"?(\d+\.?\d*)"?/i);
+
+          if (sunatMatch) {
+            const c = parseFloat(sunatMatch[1]);
+            const v = parseFloat(sunatMatch[2]);
+            if (c >= TC_MIN && c <= TC_MAX && v >= TC_MIN && v <= TC_MAX) {
+              result.sunat = { compra: Math.min(c, v), venta: Math.max(c, v) };
+            }
+          }
+        };
+
+        extractFromProps(props);
+      }
+    }
+  } catch (e) {
+    functions.logger.debug("[TC-Scraper] JSON parse failed, trying regex:", e);
   }
 
-  const compra = Math.min(val1, val2);
-  const venta = Math.max(val1, val2);
+  // Estrategia 2: Regex acotado sobre HTML (fallback)
+  if (!result.paralelo || !result.sunat) {
+    const extractRegex = (etiqueta: string): { compra: number; venta: number } | null => {
+      // Rango reducido: 150 chars max para evitar capturar valores de otra sección
+      const pattern = new RegExp(
+        `${etiqueta}[\\s\\S]{0,150}?(\\d+\\.\\d{2,3})[\\s\\S]{0,50}?(\\d+\\.\\d{2,3})`,
+        "i"
+      );
+      const match = html.match(pattern);
+      if (!match) return null;
 
-  // Validar spread razonable
-  const spread = (venta - compra) / compra;
-  if (spread > MAX_SPREAD) {
-    functions.logger.warn(
-      `[TC-Scraper] ${etiqueta}: spread inusual ${(spread * 100).toFixed(2)}% — posible captura cruzada`
-    );
-    return null;
+      const val1 = parseFloat(match[1]);
+      const val2 = parseFloat(match[2]);
+
+      if (val1 < TC_MIN || val1 > TC_MAX || val2 < TC_MIN || val2 > TC_MAX) return null;
+
+      const compra = Math.min(val1, val2);
+      const venta = Math.max(val1, val2);
+
+      const spread = (venta - compra) / compra;
+      if (spread > MAX_SPREAD) {
+        functions.logger.warn(`[TC-Scraper] ${etiqueta}: spread ${(spread * 100).toFixed(2)}%`);
+        return null;
+      }
+      return { compra, venta };
+    };
+
+    if (!result.paralelo) result.paralelo = extractRegex("Paralelo");
+    if (!result.sunat) result.sunat = extractRegex("Sunat");
   }
 
-  return { compra, venta };
+  // Validar spread en resultados finales
+  for (const [key, val] of Object.entries(result) as [string, { compra: number; venta: number } | null][]) {
+    if (val) {
+      const spread = (val.venta - val.compra) / val.compra;
+      if (spread > MAX_SPREAD) {
+        functions.logger.warn(`[TC-Scraper] ${key}: spread final ${(spread * 100).toFixed(2)}% excede máximo`);
+        (result as any)[key] = null;
+      }
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -362,27 +421,25 @@ function extraerParTC(
  * La página es Next.js SSR — los datos vienen embebidos en el HTML.
  */
 async function scrapearCuantoEstaElDolar(): Promise<TCDual> {
-  const result: TCDual = { paralelo: null, sunat: null };
-
   try {
     const response = await axios.get("https://cuantoestaeldolar.pe/", {
       timeout: SCRAPER_TIMEOUT_MS,
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept": "text/html",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml",
+        "Accept-Language": "es-PE,es;q=0.9",
       },
     });
 
     const html: string = response.data;
-    result.paralelo = extraerParTC(html, "Paralelo");
-    result.sunat = extraerParTC(html, "Sunat");
+    const result = extraerTCDesdeHTML(html);
 
-    functions.logger.debug("[TC-Scraper] Resultado:", JSON.stringify(result));
+    functions.logger.info("[TC-Scraper] Resultado:", JSON.stringify(result));
+    return result;
   } catch (error) {
     functions.logger.warn("[TC-Scraper] Error scrapeando cuantoestaeldolar.pe:", error);
+    return { paralelo: null, sunat: null };
   }
-
-  return result;
 }
 
 /**

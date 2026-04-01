@@ -1,6 +1,7 @@
 import {
   collection,
   addDoc,
+  setDoc,
   getDocs,
   getDoc,
   doc,
@@ -65,9 +66,21 @@ export const tipoCambioService = {
    * Obtener tipo de cambio por fecha específica
    */
   async getByFecha(fecha: Date): Promise<TipoCambio | null> {
+    // Buscar primero por ID directo (formato unificado con Cloud Function)
+    const fechaId = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+    const directDoc = await getDoc(doc(db, COLLECTION_NAME, fechaId));
+    if (directDoc.exists()) {
+      const data = directDoc.data();
+      return {
+        id: directDoc.id,
+        ...data,
+        promedio: data.promedio ?? (data.compra + data.venta) / 2
+      } as TipoCambio;
+    }
+
+    // Fallback: buscar por rango de fecha (para datos legacy con ID autogenerado)
     const inicioDia = new Date(fecha);
     inicioDia.setHours(0, 0, 0, 0);
-    
     const finDia = new Date(fecha);
     finDia.setHours(23, 59, 59, 999);
 
@@ -79,10 +92,7 @@ export const tipoCambioService = {
     );
 
     const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      return null;
-    }
+    if (snapshot.empty) return null;
 
     const docSnap = snapshot.docs[0];
     const data = docSnap.data();
@@ -177,10 +187,13 @@ export const tipoCambioService = {
    * Crear un nuevo tipo de cambio
    */
   async create(data: TipoCambioFormData, userId: string): Promise<string> {
-    // Verificar que no exista ya un TC para esta fecha
-    const existente = await this.getByFecha(data.fecha);
-    if (existente) {
-      throw new Error('Ya existe un tipo de cambio registrado para esta fecha');
+    // Generar ID por fecha (mismo formato que la Cloud Function)
+    const fechaId = `${data.fecha.getFullYear()}-${String(data.fecha.getMonth() + 1).padStart(2, '0')}-${String(data.fecha.getDate()).padStart(2, '0')}`;
+
+    // Verificar si ya existe (por ID directo)
+    const existingDoc = await getDoc(doc(db, COLLECTION_NAME, fechaId));
+    if (existingDoc.exists()) {
+      throw new Error('Ya existe un tipo de cambio registrado para esta fecha. Edítalo en lugar de crear uno nuevo.');
     }
 
     const now = Timestamp.now();
@@ -194,8 +207,9 @@ export const tipoCambioService = {
       fechaCreacion: now
     };
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), newTC);
-    return docRef.id;
+    // Usar setDoc con ID por fecha (unificado con Cloud Function)
+    await setDoc(doc(db, COLLECTION_NAME, fechaId), newTC);
+    return fechaId;
   },
 
   /**
