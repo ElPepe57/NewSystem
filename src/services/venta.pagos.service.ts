@@ -163,7 +163,7 @@ export async function registrarPago(
 
     transaction.update(ventaRef, updates);
 
-    return pago;
+    return { pago, numeroVenta: venta.numeroVenta || ventaId };
   });
 
   // POST-TRANSACCIÓN: Registrar en Tesorería (no crítico)
@@ -203,7 +203,7 @@ export async function registrarPago(
           monto: datosPago.monto,
           tipoCambio,
           metodo: metodoTesoreria as any,
-          concepto: `Pago de venta ${nuevoPago.id.replace('PAG-', 'VT-')}`,
+          concepto: `Cobro venta ${nuevoPago.numeroVenta}`,
           fecha: new Date(),
           referencia: datosPago.referencia,
           notas: datosPago.notas || `Pago registrado desde venta`,
@@ -214,14 +214,14 @@ export async function registrarPago(
       );
 
       // Persistir tesoreriaMovimientoId en Firestore
-      nuevoPago.tesoreriaMovimientoId = movimientoId;
+      nuevoPago.pago.tesoreriaMovimientoId = movimientoId;
       const ventaActualSnap = await import('firebase/firestore').then(({ getDoc }) =>
         getDoc(doc(db, COLLECTION_NAME, ventaId))
       );
       if (ventaActualSnap.exists()) {
         const ventaActual = { id: ventaActualSnap.id, ...ventaActualSnap.data() } as Venta;
         const pagosActualizados = (ventaActual.pagos || []).map((p: PagoVenta) =>
-          p.id === nuevoPago.id ? { ...p, tesoreriaMovimientoId: movimientoId } : p
+          p.id === nuevoPago.pago.id ? { ...p, tesoreriaMovimientoId: movimientoId } : p
         );
         await updateDoc(ventaRef, { pagos: pagosActualizados });
       }
@@ -235,7 +235,7 @@ export async function registrarPago(
         if (ventaActualSnap.exists()) {
           const ventaActual = { id: ventaActualSnap.id, ...ventaActualSnap.data() } as Venta;
           const pagosConError = (ventaActual.pagos || []).map((p: PagoVenta) =>
-            p.id === nuevoPago.id ? { ...p, errorTesoreria: true, errorTesoreriaMsg: tesoreriaError?.message || 'Error desconocido' } : p
+            p.id === nuevoPago.pago.id ? { ...p, errorTesoreria: true, errorTesoreriaMsg: tesoreriaError?.message || 'Error desconocido' } : p
           );
           await updateDoc(ventaRef, { pagos: pagosConError });
         }
@@ -245,7 +245,7 @@ export async function registrarPago(
     }
   }
 
-  return nuevoPago;
+  return nuevoPago.pago;
 }
 
 /**
