@@ -697,6 +697,18 @@ export async function reconciliarPagosHuerfanos(): Promise<{
         logger.info(`[Reconciliación] Venta ${ventaDoc.id}: eliminados ${pagosHuerfanos.length} pagos huérfanos`);
       }
     }
+
+    // Pasada extra: limpiar fechaPagoCompleto en ventas que no están pagadas
+    for (const ventaDoc of ventasSnap.docs) {
+      const data = ventaDoc.data();
+      if (data.fechaPagoCompleto && data.estadoPago !== 'pagado') {
+        await updateDoc(doc(db, 'ventas', ventaDoc.id), {
+          fechaPagoCompleto: deleteField(),
+        });
+        ventasCorregidas++;
+        logger.info(`[Reconciliación] Venta ${ventaDoc.id}: limpiado fechaPagoCompleto huérfano`);
+      }
+    }
   } catch (err) {
     errores.push(`Ventas: ${err instanceof Error ? err.message : 'Error desconocido'}`);
   }
