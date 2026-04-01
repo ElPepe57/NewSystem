@@ -14,7 +14,8 @@ import {
   query,
   where,
   orderBy,
-  Timestamp
+  Timestamp,
+  deleteField
 } from 'firebase/firestore';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { db } from '../lib/firebase';
@@ -403,10 +404,12 @@ export async function eliminarMovimiento(
             const totalPEN = ventaSnap.data().totalPEN || 0;
             const nuevoMontoPagado = Math.max(0, (ventaSnap.data().montoPagado || 0) - montoRestarPEN);
             const estadoPago = nuevoMontoPagado <= 0.01 ? 'pendiente' : nuevoMontoPagado >= totalPEN - 0.01 ? 'pagado' : 'parcial';
-            await updateDoc(doc(db, 'ventas', movimiento.ventaId), {
+            const ventaUpdate: Record<string, any> = {
               pagos: nuevosPagos, montoPagado: nuevoMontoPagado,
               montoPendiente: Math.max(0, totalPEN - nuevoMontoPagado), estadoPago,
-            });
+            };
+            if (estadoPago !== 'pagado') ventaUpdate.fechaPagoCompleto = deleteField();
+            await updateDoc(doc(db, 'ventas', movimiento.ventaId), ventaUpdate);
             logger.info(`[Anulación] Pago eliminado de venta ${movimiento.ventaId}`);
           }
         }
@@ -682,12 +685,14 @@ export async function reconciliarPagosHuerfanos(): Promise<{
         const estadoPago = nuevoMontoPagado <= 0.01 ? 'pendiente'
           : nuevoMontoPagado >= totalPEN - 0.01 ? 'pagado' : 'parcial';
 
-        await updateDoc(doc(db, 'ventas', ventaDoc.id), {
+        const ventaUpdate: Record<string, any> = {
           pagos: nuevosPagos,
           montoPagado: Math.max(0, nuevoMontoPagado),
           montoPendiente: Math.max(0, totalPEN - nuevoMontoPagado),
           estadoPago,
-        });
+        };
+        if (estadoPago !== 'pagado') ventaUpdate.fechaPagoCompleto = deleteField();
+        await updateDoc(doc(db, 'ventas', ventaDoc.id), ventaUpdate);
         ventasCorregidas++;
         logger.info(`[Reconciliación] Venta ${ventaDoc.id}: eliminados ${pagosHuerfanos.length} pagos huérfanos`);
       }
