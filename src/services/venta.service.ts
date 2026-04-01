@@ -1363,6 +1363,19 @@ export class VentaService {
       } catch (entregaError) {
         logger.warn(`[Venta ${venta.numeroVenta}] Error al cancelar entregas pendientes (no bloquea):`, entregaError);
       }
+
+      // Archivar y eliminar de colección activa
+      try {
+        const ventaSnap = await getDoc(doc(db, COLLECTION_NAME, id));
+        if (ventaSnap.exists()) {
+          const archivoData = { ...ventaSnap.data(), ventaOriginalId: id, fechaArchivo: Timestamp.now() };
+          await addDoc(collection(db, 'ventasCanceladas'), archivoData);
+          await deleteDoc(doc(db, COLLECTION_NAME, id));
+          logger.info(`[Archivo] Venta ${venta.numeroVenta} archivada y eliminada de colección activa`);
+        }
+      } catch (archivoError) {
+        logger.error(`[Archivo] Error archivando venta ${id} (venta queda como cancelada en colección activa):`, archivoError);
+      }
     } catch (error: any) {
       logger.error('Error al cancelar venta:', error);
       throw new Error(error.message || 'Error al cancelar venta');
@@ -1383,6 +1396,13 @@ export class VentaService {
         throw new Error('Solo se pueden eliminar cotizaciones');
       }
 
+      // Archivar antes de eliminar
+      const ventaSnap = await getDoc(doc(db, COLLECTION_NAME, id));
+      if (ventaSnap.exists()) {
+        await addDoc(collection(db, 'ventasCanceladas'), {
+          ...ventaSnap.data(), ventaOriginalId: id, fechaArchivo: Timestamp.now(), motivoArchivo: 'cotizacion_eliminada'
+        });
+      }
       await deleteDoc(doc(db, COLLECTION_NAME, id));
     } catch (error: any) {
       logger.error('Error al eliminar venta:', error);

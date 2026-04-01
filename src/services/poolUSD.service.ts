@@ -697,6 +697,13 @@ export const poolUSDService = {
    * último movimiento restante. Si no quedan movimientos, elimina _estado.
    */
   async eliminarMovimiento(movimientoId: string): Promise<void> {
+    // Archivar antes de eliminar
+    const movSnap = await getDoc(doc(db, MOV_COLLECTION, movimientoId));
+    if (movSnap.exists()) {
+      await addDoc(collection(db, 'poolUSD_movimientosArchivo'), {
+        ...movSnap.data(), movimientoOriginalId: movimientoId, fechaArchivo: Timestamp.now()
+      });
+    }
     await deleteDoc(doc(db, MOV_COLLECTION, movimientoId));
 
     // Recalcular _estado desde el nuevo último movimiento

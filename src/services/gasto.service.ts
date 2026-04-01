@@ -494,6 +494,14 @@ export const gastoService = {
         throw new Error('No se puede eliminar un gasto que tiene pagos registrados');
       }
 
+      // Archivar antes de eliminar
+      const gastoSnap = await getDoc(doc(db, GASTOS_COLLECTION, id));
+      if (gastoSnap.exists()) {
+        await addDoc(collection(db, 'gastosArchivo'), {
+          ...gastoSnap.data(), gastoOriginalId: id, fechaArchivo: Timestamp.now(), motivoArchivo: 'eliminado'
+        });
+      }
+
       const docRef = doc(db, GASTOS_COLLECTION, id);
       await deleteDoc(docRef);
     } catch (error: any) {
