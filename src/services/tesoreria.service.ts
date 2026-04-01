@@ -42,6 +42,7 @@ import {
   actualizarMovimiento as _actualizarMovimiento,
   getMovimientoById,
   eliminarMovimiento as _eliminarMovimiento,
+  reconciliarPagosHuerfanos,
   reclasificarAnticipos as _reclasificarAnticipos,
   migrarAnticiposHistoricos as _migrarAnticiposHistoricos,
   getMovimientos
@@ -144,15 +145,18 @@ export const tesoreriaService = {
     return getMovimientoById(id);
   },
 
-  async eliminarMovimiento(id: string, userId: string): Promise<void> {
+  async eliminarMovimiento(id: string, userId: string, skipPropagacion = false): Promise<void> {
     return _eliminarMovimiento(
       id,
       userId,
       (movId) => this.getMovimientoById(movId),
       (cuentaId, diff, mon) => this.actualizarSaldoCuenta(cuentaId, diff, mon),
-      (mov, esAnulacion) => this.actualizarEstadisticasPorMovimiento(mov, esAnulacion)
+      (mov, esAnulacion) => this.actualizarEstadisticasPorMovimiento(mov, esAnulacion),
+      skipPropagacion
     );
   },
+
+  reconciliarPagosHuerfanos,
 
   async reclasificarAnticipos(
     ventaId: string,

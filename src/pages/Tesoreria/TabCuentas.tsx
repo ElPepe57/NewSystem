@@ -15,6 +15,7 @@ import {
   Smartphone,
   Settings2,
   Trash2,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button, Card, FormSection } from '../../components/common';
 import { BancoNuevoForm } from './BancoNuevoForm';
@@ -39,6 +40,7 @@ interface TabCuentasProps {
   setMovsLimit: React.Dispatch<React.SetStateAction<number>>;
   isSubmitting: boolean;
   handleRecalcularSaldos: () => void;
+  handleReconciliarPagos: () => void;
   handleGuardarCuentaNueva: (data: CuentaCajaFormData) => void;
   handleGuardarEdicion: (cuenta: CuentaCaja, data: CuentaCajaFormData) => void;
   handleGuardarMetodosBanco: (bancoNombre: string, metodos: string[]) => void;
@@ -56,6 +58,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   setMovsLimit,
   isSubmitting,
   handleRecalcularSaldos,
+  handleReconciliarPagos,
   handleGuardarCuentaNueva,
   handleGuardarEdicion,
   handleGuardarMetodosBanco,
@@ -267,6 +270,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           <h3 className="text-base sm:text-lg font-semibold text-gray-900">
             Cuentas de Caja ({cuentas.length})
           </h3>
+          <Button variant="outline" onClick={handleReconciliarPagos}
+            disabled={isSubmitting} title="Reconciliar pagos huérfanos">
+            <ShieldCheck className={`h-4 w-4 mr-1`} />
+            <span className="hidden sm:inline">Reconciliar</span>
+          </Button>
           <Button variant="outline" onClick={handleRecalcularSaldos}
             disabled={isSubmitting || cuentas.length === 0} title="Recalcular saldos">
             <RefreshCw className={`h-4 w-4 mr-1 ${isSubmitting ? 'animate-spin' : ''}`} />

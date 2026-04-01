@@ -1257,7 +1257,7 @@ export class VentaService {
         for (const pago of venta.pagos) {
           try {
             if (pago.tesoreriaMovimientoId && pago.tesoreriaMovimientoId !== 'registrado') {
-              await tesoreriaService.eliminarMovimiento(pago.tesoreriaMovimientoId, userId);
+              await tesoreriaService.eliminarMovimiento(pago.tesoreriaMovimientoId, userId, true);
             } else if (pago.tesoreriaMovimientoId === 'registrado') {
               const snap = await getDocs(query(
                 collection(db, COLLECTIONS.MOVIMIENTOS_TESORERIA),
@@ -1269,7 +1269,7 @@ export class VentaService {
                 return data.estado !== 'anulado' && Math.abs(data.monto - pago.monto) < 0.01;
               });
               if (match) {
-                await tesoreriaService.eliminarMovimiento(match.id, userId);
+                await tesoreriaService.eliminarMovimiento(match.id, userId, true);
               }
             }
           } catch (tesoreriaError) {

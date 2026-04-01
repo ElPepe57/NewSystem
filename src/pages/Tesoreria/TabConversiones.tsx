@@ -238,11 +238,13 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                     .filter(c => c.activa && (c.esBiMoneda || c.moneda === conversionForm.monedaOrigen))
                     .map(cuenta => {
                       const saldoActual = cuenta.esBiMoneda
-                        ? (conversionForm.monedaOrigen === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
-                        : cuenta.saldoActual;
+                        ? (conversionForm.monedaOrigen === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0))
+                        : (cuenta.saldoActual || 0);
+                      const sim = conversionForm.monedaOrigen === 'USD' ? '$' : 'S/';
+                      const label = [cuenta.banco, cuenta.nombre, cuenta.titular ? `(${cuenta.titular})` : ''].filter(Boolean).join(' · ');
                       return (
                         <option key={cuenta.id} value={cuenta.id}>
-                          {cuenta.nombre} - Saldo: {conversionForm.monedaOrigen === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
+                          {label} — {sim}{saldoActual.toFixed(2)}
                         </option>
                       );
                     })}
@@ -264,11 +266,13 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                     .map(cuenta => {
                       const monedaDestino = conversionForm.monedaOrigen === 'USD' ? 'PEN' : 'USD';
                       const saldoActual = cuenta.esBiMoneda
-                        ? (monedaDestino === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
-                        : cuenta.saldoActual;
+                        ? (monedaDestino === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0))
+                        : (cuenta.saldoActual || 0);
+                      const sim = monedaDestino === 'USD' ? '$' : 'S/';
+                      const label = [cuenta.banco, cuenta.nombre, cuenta.titular ? `(${cuenta.titular})` : ''].filter(Boolean).join(' · ');
                       return (
                         <option key={cuenta.id} value={cuenta.id}>
-                          {cuenta.nombre} - Saldo: {monedaDestino === 'USD' ? '$' : 'S/'}{saldoActual?.toFixed(2) || '0.00'}
+                          {label} — {sim}{saldoActual.toFixed(2)}
                         </option>
                       );
                     })}
@@ -348,12 +352,37 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
             />
           </div>
 
+          {/* Validación de saldo insuficiente */}
+          {conversionForm.cuentaOrigenId && conversionForm.montoOrigen && (() => {
+            const ctaOrigen = cuentas.find(c => c.id === conversionForm.cuentaOrigenId);
+            if (!ctaOrigen) return null;
+            const saldo = ctaOrigen.esBiMoneda
+              ? (conversionForm.monedaOrigen === 'USD' ? (ctaOrigen.saldoUSD || 0) : (ctaOrigen.saldoPEN || 0))
+              : (ctaOrigen.saldoActual || 0);
+            if (saldo < conversionForm.montoOrigen) {
+              return (
+                <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+                  Saldo insuficiente en {ctaOrigen.nombre}. Disponible: {conversionForm.monedaOrigen === 'USD' ? '$' : 'S/'}{saldo.toFixed(2)}
+                </div>
+              );
+            }
+            return null;
+          })()}
+
           <div className="flex justify-end space-x-3 pt-4">
             <Button variant="ghost" onClick={() => setIsConversionModalOpen(false)}>Cancelar</Button>
             <Button
               variant="primary"
               onClick={handleCrearConversion}
-              disabled={isSubmitting || !conversionForm.montoOrigen || !conversionForm.tipoCambio}
+              disabled={isSubmitting || !conversionForm.montoOrigen || !conversionForm.tipoCambio || (() => {
+                if (!conversionForm.cuentaOrigenId || !conversionForm.montoOrigen) return false;
+                const ctaOrigen = cuentas.find(c => c.id === conversionForm.cuentaOrigenId);
+                if (!ctaOrigen) return false;
+                const saldo = ctaOrigen.esBiMoneda
+                  ? (conversionForm.monedaOrigen === 'USD' ? (ctaOrigen.saldoUSD || 0) : (ctaOrigen.saldoPEN || 0))
+                  : (ctaOrigen.saldoActual || 0);
+                return saldo < conversionForm.montoOrigen;
+              })()}
             >
               {isSubmitting ? 'Guardando...' : 'Guardar'}
             </Button>

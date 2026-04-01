@@ -66,13 +66,26 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
     return cuenta.saldoActual || 0;
   };
 
-  const getTipoIcon = (tipo: string) => {
-    if (tipo === 'banco') return <Building2 className="w-3.5 h-3.5" />;
-    if (tipo === 'digital') return <CreditCard className="w-3.5 h-3.5" />;
-    return <Banknote className="w-3.5 h-3.5" />;
+  const getTipoIcon = (tipo: string, productoFinanciero?: string) => {
+    if (productoFinanciero === 'caja' || tipo === 'efectivo') return <Banknote className="w-3.5 h-3.5 text-green-500" />;
+    if (productoFinanciero === 'billetera_digital' || tipo === 'digital') return <CreditCard className="w-3.5 h-3.5 text-purple-500" />;
+    if (tipo === 'credito') return <CreditCard className="w-3.5 h-3.5 text-amber-500" />;
+    return <Building2 className="w-3.5 h-3.5 text-blue-500" />;
   };
 
-  const cuentasCompatibles = cuentas.filter(c => c.activa && (c.esBiMoneda || c.moneda === moneda));
+  const getCuentaLabel = (c: CuentaCaja) => {
+    const parts: string[] = [];
+    if (c.banco) parts.push(c.banco);
+    parts.push(c.nombre);
+    if (c.titular) parts.push(`(${c.titular})`);
+    return parts.join(' · ');
+  };
+
+  const cuentasCompatibles = cuentas.filter(c => {
+    if (!c.activa) return false;
+    if (!(c.esBiMoneda || c.moneda === moneda)) return false;
+    return true;
+  });
 
   const cuentaOrigen = cuentas.find(c => c.id === transferenciaForm.cuentaOrigenId);
   const cuentaDestino = cuentas.find(c => c.id === transferenciaForm.cuentaDestinoId);
@@ -244,9 +257,12 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-1 text-gray-400 mb-0.5">
-                      {getTipoIcon(c.tipo)}
-                      <span className="truncate font-medium text-gray-600">{c.nombre}</span>
+                      {getTipoIcon(c.tipo, c.productoFinanciero)}
+                      <span className="truncate font-medium text-gray-600">
+                        {c.banco ? `${c.banco} · ` : ''}{c.nombre}
+                      </span>
                     </div>
+                    {c.titular && <div className="text-[9px] text-gray-400 truncate -mt-0.5">{c.titular}</div>}
                     <div className={`text-sm font-bold ${
                       saldo < 0 ? 'text-red-600' : isOrigen ? 'text-red-700' : isDestino ? 'text-green-700' : 'text-gray-900'
                     }`}>
@@ -293,7 +309,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                   .filter(c => c.id !== transferenciaForm.cuentaDestinoId)
                   .map(cuenta => (
                     <option key={cuenta.id} value={cuenta.id}>
-                      {cuenta.nombre} — {simbolo} {getSaldo(cuenta).toFixed(2)}
+                      {getCuentaLabel(cuenta)} — {simbolo} {getSaldo(cuenta).toFixed(2)}
                     </option>
                   ))}
               </select>
@@ -330,7 +346,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                   .filter(c => c.id !== transferenciaForm.cuentaOrigenId)
                   .map(cuenta => (
                     <option key={cuenta.id} value={cuenta.id}>
-                      {cuenta.nombre} — {simbolo} {getSaldo(cuenta).toFixed(2)}
+                      {getCuentaLabel(cuenta)} — {simbolo} {getSaldo(cuenta).toFixed(2)}
                     </option>
                   ))}
               </select>

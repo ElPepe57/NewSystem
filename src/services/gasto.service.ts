@@ -351,7 +351,7 @@ export const gastoService = {
           for (const pago of gastoActual.pagos) {
             if (pago.movimientoTesoreriaId) {
               try {
-                await tesoreriaService.eliminarMovimiento(pago.movimientoTesoreriaId, userId);
+                await tesoreriaService.eliminarMovimiento(pago.movimientoTesoreriaId, userId, true);
               } catch (err) {
                 logger.warn(`Error anulando movimiento ${pago.movimientoTesoreriaId}:`, err);
               }
@@ -378,7 +378,7 @@ export const gastoService = {
           // Anular movimiento viejo
           if (pagoExistente?.movimientoTesoreriaId) {
             try {
-              await tesoreriaService.eliminarMovimiento(pagoExistente.movimientoTesoreriaId, userId);
+              await tesoreriaService.eliminarMovimiento(pagoExistente.movimientoTesoreriaId, userId, true);
             } catch (err) {
               logger.warn('Error anulando movimiento viejo:', err);
             }

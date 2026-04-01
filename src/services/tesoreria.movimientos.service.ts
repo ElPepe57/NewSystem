@@ -342,7 +342,8 @@ export async function eliminarMovimiento(
   userId: string,
   getMovimientoByIdFn: (id: string) => Promise<MovimientoTesoreria | null>,
   actualizarSaldoCuenta: (cuentaId: string, diferencia: number, moneda?: any) => Promise<void>,
-  actualizarEstadisticasPorMovimiento: (mov: any, esAnulacion?: boolean) => Promise<void>
+  actualizarEstadisticasPorMovimiento: (mov: any, esAnulacion?: boolean) => Promise<void>,
+  skipPropagacion = false
 ): Promise<void> {
   const movimiento = await getMovimientoByIdFn(id);
   if (!movimiento) {
@@ -385,6 +386,71 @@ export async function eliminarMovimiento(
     cuentaOrigen: movimiento.cuentaOrigen,
     cuentaDestino: movimiento.cuentaDestino
   }, true).catch(err => logger.warn('Error actualizando estadísticas:', err));
+
+  // Propagar anulación al documento origen (venta, OC, gasto)
+  // skipPropagacion evita recursión cuando se llama desde venta.eliminarPago
+  if (!skipPropagacion) {
+    try {
+      if (movimiento.ventaId) {
+        const ventaSnap = await getDoc(doc(db, 'ventas', movimiento.ventaId));
+        if (ventaSnap.exists()) {
+          const pagos: any[] = ventaSnap.data().pagos || [];
+          const pagoVinculado = pagos.find((p: any) => p.tesoreriaMovimientoId === id);
+          if (pagoVinculado) {
+            const nuevosPagos = pagos.filter((p: any) => p.id !== pagoVinculado.id);
+            const montoRestarPEN = pagoVinculado.moneda === 'USD' && pagoVinculado.montoEquivalentePEN
+              ? pagoVinculado.montoEquivalentePEN : pagoVinculado.monto;
+            const totalPEN = ventaSnap.data().totalPEN || 0;
+            const nuevoMontoPagado = Math.max(0, (ventaSnap.data().montoPagado || 0) - montoRestarPEN);
+            const estadoPago = nuevoMontoPagado <= 0.01 ? 'pendiente' : nuevoMontoPagado >= totalPEN - 0.01 ? 'pagado' : 'parcial';
+            await updateDoc(doc(db, 'ventas', movimiento.ventaId), {
+              pagos: nuevosPagos, montoPagado: nuevoMontoPagado,
+              montoPendiente: Math.max(0, totalPEN - nuevoMontoPagado), estadoPago,
+            });
+            logger.info(`[Anulación] Pago eliminado de venta ${movimiento.ventaId}`);
+          }
+        }
+      }
+      if (movimiento.ordenCompraId) {
+        const ocSnap = await getDoc(doc(db, 'ordenesCompra', movimiento.ordenCompraId));
+        if (ocSnap.exists()) {
+          const historial: any[] = ocSnap.data().historialPagos || [];
+          const pagoVinculado = historial.find((p: any) => p.movimientoTesoreriaId === id);
+          if (pagoVinculado) {
+            const nuevoHistorial = historial.filter((p: any) => p.id !== pagoVinculado.id);
+            const totalPagadoUSD = nuevoHistorial.reduce((s: number, p: any) => s + (p.montoUSD || 0), 0);
+            const totalUSD = ocSnap.data().totalUSD || 0;
+            const estadoPago = totalPagadoUSD <= 0.01 ? 'pendiente' : totalPagadoUSD >= totalUSD - 0.01 ? 'pagado' : 'parcial';
+            await updateDoc(doc(db, 'ordenesCompra', movimiento.ordenCompraId), {
+              historialPagos: nuevoHistorial, estadoPago,
+              montoPendiente: Math.max(0, totalUSD - totalPagadoUSD),
+            });
+            logger.info(`[Anulación] Pago eliminado de OC ${movimiento.ordenCompraId}`);
+          }
+        }
+      }
+      if (movimiento.gastoId) {
+        const gastoSnap = await getDoc(doc(db, 'gastos', movimiento.gastoId));
+        if (gastoSnap.exists()) {
+          const pagos: any[] = gastoSnap.data().pagos || [];
+          const pagoVinculado = pagos.find((p: any) => p.movimientoTesoreriaId === id || p.tesoreriaMovimientoId === id);
+          if (pagoVinculado) {
+            const nuevosPagos = pagos.filter((p: any) => p.id !== pagoVinculado.id);
+            const totalPagado = nuevosPagos.reduce((s: number, p: any) => s + (p.monto || 0), 0);
+            const montoTotal = gastoSnap.data().montoTotal || gastoSnap.data().monto || 0;
+            const estadoPago = totalPagado <= 0.01 ? 'pendiente' : totalPagado >= montoTotal - 0.01 ? 'pagado' : 'parcial';
+            await updateDoc(doc(db, 'gastos', movimiento.gastoId), {
+              pagos: nuevosPagos, estadoPago,
+            });
+            logger.info(`[Anulación] Pago eliminado de gasto ${movimiento.gastoId}`);
+          }
+        }
+      }
+    } catch (propError) {
+      logger.error('[Anulación] Error propagando al documento origen:', propError);
+      // No lanzar — el movimiento ya fue anulado, la propagación es best-effort
+    }
+  }
 }
 
 /**
@@ -565,4 +631,140 @@ export async function getMovimientos(filtros?: MovimientoTesoreriaFiltros): Prom
   }
 
   return movimientos;
+}
+
+/**
+ * Reconciliar pagos huérfanos: busca pagos en ventas/OC/gastos cuyo
+ * movimiento de tesorería fue anulado, y los limpia del documento origen.
+ * Ejecutar una vez para corregir datos históricos previos al fix de propagación.
+ */
+export async function reconciliarPagosHuerfanos(): Promise<{
+  ventasCorregidas: number;
+  ocCorregidas: number;
+  gastosCorregidos: number;
+  errores: string[];
+}> {
+  const errores: string[] = [];
+  let ventasCorregidas = 0;
+  let ocCorregidas = 0;
+  let gastosCorregidos = 0;
+
+  // Obtener todos los movimientos anulados
+  const movAnuladosSnap = await getDocs(query(
+    collection(db, MOVIMIENTOS_COLLECTION),
+    where('estado', '==', 'anulado')
+  ));
+  const idsAnulados = new Set(movAnuladosSnap.docs.map(d => d.id));
+  logger.info(`[Reconciliación] ${idsAnulados.size} movimientos anulados encontrados`);
+
+  // 1. Ventas
+  try {
+    const ventasSnap = await getDocs(collection(db, 'ventas'));
+    for (const ventaDoc of ventasSnap.docs) {
+      const data = ventaDoc.data();
+      const pagos: any[] = data.pagos || [];
+      if (pagos.length === 0) continue;
+
+      const pagosHuerfanos = pagos.filter((p: any) =>
+        p.tesoreriaMovimientoId && idsAnulados.has(p.tesoreriaMovimientoId)
+      );
+
+      if (pagosHuerfanos.length > 0) {
+        const nuevosPagos = pagos.filter((p: any) =>
+          !p.tesoreriaMovimientoId || !idsAnulados.has(p.tesoreriaMovimientoId)
+        );
+        const totalPEN = data.totalPEN || 0;
+        let nuevoMontoPagado = 0;
+        for (const p of nuevosPagos) {
+          nuevoMontoPagado += p.moneda === 'USD' && p.montoEquivalentePEN
+            ? p.montoEquivalentePEN : p.monto;
+        }
+        const estadoPago = nuevoMontoPagado <= 0.01 ? 'pendiente'
+          : nuevoMontoPagado >= totalPEN - 0.01 ? 'pagado' : 'parcial';
+
+        await updateDoc(doc(db, 'ventas', ventaDoc.id), {
+          pagos: nuevosPagos,
+          montoPagado: Math.max(0, nuevoMontoPagado),
+          montoPendiente: Math.max(0, totalPEN - nuevoMontoPagado),
+          estadoPago,
+        });
+        ventasCorregidas++;
+        logger.info(`[Reconciliación] Venta ${ventaDoc.id}: eliminados ${pagosHuerfanos.length} pagos huérfanos`);
+      }
+    }
+  } catch (err) {
+    errores.push(`Ventas: ${err instanceof Error ? err.message : 'Error desconocido'}`);
+  }
+
+  // 2. Órdenes de Compra
+  try {
+    const ocSnap = await getDocs(collection(db, 'ordenesCompra'));
+    for (const ocDoc of ocSnap.docs) {
+      const data = ocDoc.data();
+      const historial: any[] = data.historialPagos || [];
+      if (historial.length === 0) continue;
+
+      const pagosHuerfanos = historial.filter((p: any) =>
+        p.movimientoTesoreriaId && idsAnulados.has(p.movimientoTesoreriaId)
+      );
+
+      if (pagosHuerfanos.length > 0) {
+        const nuevoHistorial = historial.filter((p: any) =>
+          !p.movimientoTesoreriaId || !idsAnulados.has(p.movimientoTesoreriaId)
+        );
+        const totalUSD = data.totalUSD || 0;
+        const totalPagadoUSD = nuevoHistorial.reduce((s: number, p: any) => s + (p.montoUSD || 0), 0);
+        const estadoPago = totalPagadoUSD <= 0.01 ? 'pendiente'
+          : totalPagadoUSD >= totalUSD - 0.01 ? 'pagado' : 'parcial';
+
+        await updateDoc(doc(db, 'ordenesCompra', ocDoc.id), {
+          historialPagos: nuevoHistorial,
+          estadoPago,
+          montoPendiente: Math.max(0, totalUSD - totalPagadoUSD),
+        });
+        ocCorregidas++;
+        logger.info(`[Reconciliación] OC ${ocDoc.id}: eliminados ${pagosHuerfanos.length} pagos huérfanos`);
+      }
+    }
+  } catch (err) {
+    errores.push(`OC: ${err instanceof Error ? err.message : 'Error desconocido'}`);
+  }
+
+  // 3. Gastos
+  try {
+    const gastosSnap = await getDocs(collection(db, 'gastos'));
+    for (const gastoDoc of gastosSnap.docs) {
+      const data = gastoDoc.data();
+      const pagos: any[] = data.pagos || [];
+      if (pagos.length === 0) continue;
+
+      const pagosHuerfanos = pagos.filter((p: any) =>
+        (p.movimientoTesoreriaId && idsAnulados.has(p.movimientoTesoreriaId)) ||
+        (p.tesoreriaMovimientoId && idsAnulados.has(p.tesoreriaMovimientoId))
+      );
+
+      if (pagosHuerfanos.length > 0) {
+        const nuevosPagos = pagos.filter((p: any) =>
+          (!p.movimientoTesoreriaId || !idsAnulados.has(p.movimientoTesoreriaId)) &&
+          (!p.tesoreriaMovimientoId || !idsAnulados.has(p.tesoreriaMovimientoId))
+        );
+        const totalPagado = nuevosPagos.reduce((s: number, p: any) => s + (p.monto || 0), 0);
+        const montoTotal = data.montoTotal || data.monto || 0;
+        const estadoPago = totalPagado <= 0.01 ? 'pendiente'
+          : totalPagado >= montoTotal - 0.01 ? 'pagado' : 'parcial';
+
+        await updateDoc(doc(db, 'gastos', gastoDoc.id), {
+          pagos: nuevosPagos,
+          estadoPago,
+        });
+        gastosCorregidos++;
+        logger.info(`[Reconciliación] Gasto ${gastoDoc.id}: eliminados ${pagosHuerfanos.length} pagos huérfanos`);
+      }
+    }
+  } catch (err) {
+    errores.push(`Gastos: ${err instanceof Error ? err.message : 'Error desconocido'}`);
+  }
+
+  logger.success(`[Reconciliación] Completada: ${ventasCorregidas} ventas, ${ocCorregidas} OC, ${gastosCorregidos} gastos corregidos`);
+  return { ventasCorregidas, ocCorregidas, gastosCorregidos, errores };
 }

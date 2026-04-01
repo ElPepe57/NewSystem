@@ -60,6 +60,17 @@ export async function transferirEntreCuentas(
     throw new Error(`Saldo insuficiente. Disponible: ${saldoDisponible.toFixed(2)} ${data.moneda}`);
   }
 
+  // Verificar saldo mínimo post-transferencia
+  const saldoPost = saldoDisponible - data.monto;
+  if (cuentaOrigen.esBiMoneda) {
+    const min = data.moneda === 'USD' ? cuentaOrigen.saldoMinimoUSD : cuentaOrigen.saldoMinimoPEN;
+    if (min !== undefined && saldoPost < min) {
+      throw new Error(`La transferencia dejaría el saldo (${saldoPost.toFixed(2)}) por debajo del mínimo (${min.toFixed(2)} ${data.moneda})`);
+    }
+  } else if (cuentaOrigen.saldoMinimo !== undefined && saldoPost < cuentaOrigen.saldoMinimo) {
+    throw new Error(`La transferencia dejaría el saldo (${saldoPost.toFixed(2)}) por debajo del mínimo (${cuentaOrigen.saldoMinimo.toFixed(2)} ${data.moneda})`);
+  }
+
   const concepto = data.concepto || `Transferencia de ${cuentaOrigen.nombre} a ${cuentaDestino.nombre}`;
   const numeroSalida = await generateNumeroMovimientoFn();
   const numeroEntrada = await generateNumeroMovimientoFn();
@@ -78,7 +89,7 @@ export async function transferirEntreCuentas(
     tipoCambio: data.tipoCambio,
     montoEquivalentePEN,
     montoEquivalenteUSD,
-    metodo: 'otro',
+    metodo: 'transferencia_interna',
     concepto: `[SALIDA] ${concepto}`,
     cuentaOrigen: data.cuentaOrigenId,
     fecha: Timestamp.fromDate(data.fecha),
@@ -97,7 +108,7 @@ export async function transferirEntreCuentas(
     tipoCambio: data.tipoCambio,
     montoEquivalentePEN,
     montoEquivalenteUSD,
-    metodo: 'otro',
+    metodo: 'transferencia_interna',
     concepto: `[ENTRADA] ${concepto}`,
     cuentaDestino: data.cuentaDestinoId,
     fecha: Timestamp.fromDate(data.fecha),

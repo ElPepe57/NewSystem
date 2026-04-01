@@ -287,7 +287,7 @@ export async function eliminarPago(
   // Revertir movimiento en Tesorería si existe
   if (pagoEliminado.tesoreriaMovimientoId && pagoEliminado.tesoreriaMovimientoId !== 'registrado') {
     try {
-      await tesoreriaService.eliminarMovimiento(pagoEliminado.tesoreriaMovimientoId, userId);
+      await tesoreriaService.eliminarMovimiento(pagoEliminado.tesoreriaMovimientoId, userId, true);
     } catch (tesoreriaError) {
       logger.error(`[eliminarPago] Error revirtiendo tesorería (movId: ${pagoEliminado.tesoreriaMovimientoId}):`, tesoreriaError);
     }
@@ -304,7 +304,7 @@ export async function eliminarPago(
         return data.estado !== 'anulado' && Math.abs(data.monto - pagoEliminado.monto) < 0.01;
       });
       if (movimientoCorrespondiente) {
-        await tesoreriaService.eliminarMovimiento(movimientoCorrespondiente.id, userId);
+        await tesoreriaService.eliminarMovimiento(movimientoCorrespondiente.id, userId, true);
       }
     } catch (tesoreriaError) {
       logger.error(`[eliminarPago] Error revirtiendo tesorería (legacy):`, tesoreriaError);

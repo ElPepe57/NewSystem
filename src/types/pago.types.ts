@@ -59,13 +59,6 @@ export const METODOS_PAGO_INFO: Record<MetodoPagoUnificado, {
   otro:             { label: 'Otro',             requiereReferencia: false },
 };
 
-/** Métodos específicos por banco (configurables) */
-export const METODOS_POR_BANCO: Record<string, MetodoPagoUnificado[]> = {
-  BCP:       ['transferencia', 'yape'],
-  Interbank: ['transferencia', 'plin'],
-  // Otros bancos se agregan aquí
-};
-
 // ============================================
 // PAGO UNIFICADO (estructura base para todo el sistema)
 // ============================================

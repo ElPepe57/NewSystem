@@ -102,6 +102,26 @@ export async function registrarConversion(
   if (data.cuentaOrigenId) conversion.cuentaOrigenId = data.cuentaOrigenId;
   if (data.cuentaDestinoId) conversion.cuentaDestinoId = data.cuentaDestinoId;
 
+  // Validar cuentas ANTES de escribir en Firestore (previene docs huérfanos)
+  if (data.cuentaOrigenId) {
+    const { getCuentaById } = await import('./tesoreria.cuentas.service');
+    const ctaOrigen = await getCuentaById(data.cuentaOrigenId);
+    if (!ctaOrigen) throw new Error('Cuenta de origen no encontrada');
+    if (!ctaOrigen.activa) throw new Error('La cuenta de origen está inactiva');
+    const saldoDisponible = ctaOrigen.esBiMoneda
+      ? (data.monedaOrigen === 'USD' ? (ctaOrigen.saldoUSD || 0) : (ctaOrigen.saldoPEN || 0))
+      : (ctaOrigen.saldoActual || 0);
+    if (saldoDisponible < data.montoOrigen) {
+      throw new Error(`Saldo insuficiente en ${ctaOrigen.nombre}. Disponible: ${saldoDisponible.toFixed(2)} ${data.monedaOrigen}`);
+    }
+  }
+  if (data.cuentaDestinoId) {
+    const { getCuentaById } = await import('./tesoreria.cuentas.service');
+    const ctaDestino = await getCuentaById(data.cuentaDestinoId);
+    if (!ctaDestino) throw new Error('Cuenta de destino no encontrada');
+    if (!ctaDestino.activa) throw new Error('La cuenta de destino está inactiva');
+  }
+
   const docRef = await addDoc(collection(db, CONVERSIONES_COLLECTION), conversion);
   const conversionId = docRef.id;
 
@@ -124,7 +144,7 @@ export async function registrarConversion(
         tipoCambio: data.tipoCambio,
         montoEquivalentePEN: data.monedaOrigen === 'PEN' ? data.montoOrigen : data.montoOrigen * data.tipoCambio,
         montoEquivalenteUSD: data.monedaOrigen === 'USD' ? data.montoOrigen : data.montoOrigen / data.tipoCambio,
-        metodo: 'otro',
+        metodo: 'conversion',
         concepto: conceptoConversion,
         cuentaOrigen: data.cuentaOrigenId,
         fecha: Timestamp.fromDate(data.fecha),
@@ -150,7 +170,7 @@ export async function registrarConversion(
         tipoCambio: data.tipoCambio,
         montoEquivalentePEN: monedaDestino === 'PEN' ? montoDestino : montoDestino * data.tipoCambio,
         montoEquivalenteUSD: monedaDestino === 'USD' ? montoDestino : montoDestino / data.tipoCambio,
-        metodo: 'otro',
+        metodo: 'conversion',
         concepto: conceptoConversion,
         cuentaDestino: data.cuentaDestinoId,
         fecha: Timestamp.fromDate(data.fecha),

@@ -544,6 +544,37 @@ export const Tesoreria: React.FC = () => {
     }
   };
 
+  const handleReconciliarPagos = async () => {
+    const confirmed = await confirm({
+      title: 'Reconciliar Pagos',
+      message: 'Esto buscará pagos en ventas, OC y gastos cuyo movimiento de tesorería fue anulado, y los limpiará automáticamente. Los montos pendientes se recalcularán.',
+      confirmText: 'Reconciliar',
+      variant: 'warning'
+    });
+    if (!confirmed) return;
+    setIsSubmitting(true);
+    try {
+      const r = await TesoreriaService.reconciliarPagosHuerfanos();
+      const total = r.ventasCorregidas + r.ocCorregidas + r.gastosCorregidos;
+      if (total === 0) {
+        toast.success('No se encontraron pagos huérfanos. Todo está sincronizado.');
+      } else {
+        toast.success(
+          `Corregidos: ${r.ventasCorregidas} ventas, ${r.ocCorregidas} OC, ${r.gastosCorregidos} gastos`,
+          'Reconciliación completada'
+        );
+      }
+      if (r.errores.length > 0) {
+        toast.warning(r.errores.join('; '), 'Errores en reconciliación');
+      }
+      await loadData();
+    } catch (error: any) {
+      toast.error(error.message, 'Error en reconciliación');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleRecalcularSaldos = async () => {
     const confirmed = await confirm({
       title: 'Recalcular Saldos',
@@ -966,6 +997,7 @@ export const Tesoreria: React.FC = () => {
           setMovsLimit={setMovsLimit}
           isSubmitting={isSubmitting}
           handleRecalcularSaldos={handleRecalcularSaldos}
+          handleReconciliarPagos={handleReconciliarPagos}
           handleGuardarCuentaNueva={handleGuardarCuentaNueva}
           handleGuardarEdicion={handleGuardarEdicion}
           handleGuardarMetodosBanco={handleGuardarMetodosBanco}
