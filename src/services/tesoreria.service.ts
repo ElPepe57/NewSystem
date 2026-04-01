@@ -58,7 +58,11 @@ import {
   getCuentaById,
   actualizarSaldoCuenta,
   recalcularSaldoCuenta,
-  recalcularTodosLosSaldos
+  recalcularTodosLosSaldos,
+  syncMetodosBanco,
+  eliminarCuenta,
+  cuentaTieneSaldo,
+  cuentaTieneMovimientos
 } from './tesoreria.cuentas.service';
 
 import {
@@ -220,6 +224,20 @@ export const tesoreriaService = {
   async toggleActivaCuenta(id: string, activa: boolean, userId: string): Promise<void> {
     return toggleActivaCuenta(id, activa, userId);
   },
+
+  async syncMetodosBanco(
+    bancoNombre: string, metodos: string[], userId: string,
+    metodosDetalle?: Record<string, { identificador?: string; cuentaVinculadaId?: string }>
+  ): Promise<number> {
+    return syncMetodosBanco(bancoNombre, metodos, userId, metodosDetalle);
+  },
+
+  async eliminarCuenta(id: string): Promise<void> {
+    return eliminarCuenta(id);
+  },
+
+  cuentaTieneSaldo,
+  cuentaTieneMovimientos,
 
   async crearCuentasPorDefecto(userId: string): Promise<void> {
     return _crearCuentasPorDefecto(

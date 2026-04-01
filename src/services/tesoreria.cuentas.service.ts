@@ -9,11 +9,13 @@ import {
   getDoc,
   doc,
   updateDoc,
+  deleteDoc,
   query,
   where,
   Timestamp,
   serverTimestamp,
-  increment
+  increment,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
@@ -28,7 +30,8 @@ import type {
   CuentaCajaFormData,
   MovimientoTesoreria,
   MonedaTesoreria,
-  MetodoTesoreria
+  MetodoTesoreria,
+  NumeroCuentaBancaria
 } from '../types/tesoreria.types';
 
 /**
@@ -78,20 +81,41 @@ export async function crearCuenta(data: CuentaCajaFormData, userId: string): Pro
   }
 
   // Campos opcionales
-  if (data.banco) {
-    cuenta.banco = data.banco;
+  if (data.banco) cuenta.banco = data.banco;
+  if (data.bancoNombreCompleto) cuenta.bancoNombreCompleto = data.bancoNombreCompleto;
+  if (data.numeroCuenta) cuenta.numeroCuenta = data.numeroCuenta;
+  if (data.cci) cuenta.cci = data.cci;
+  if (data.metodoPagoAsociado) cuenta.metodoPagoAsociado = data.metodoPagoAsociado;
+  if (data.esCuentaPorDefecto !== undefined) cuenta.esCuentaPorDefecto = data.esCuentaPorDefecto;
+
+  // Producto financiero y métodos
+  if (data.productoFinanciero) cuenta.productoFinanciero = data.productoFinanciero;
+  if (data.titularidad) cuenta.titularidad = data.titularidad;
+  if (data.metodosDisponibles?.length) cuenta.metodosDisponibles = data.metodosDisponibles;
+  if (data.metodosDetalle) cuenta.metodosDetalle = data.metodosDetalle;
+  if (data.cuentaVinculadaId) cuenta.cuentaVinculadaId = data.cuentaVinculadaId;
+
+  // Línea de crédito
+  if (data.lineaCreditoLimite) {
+    cuenta.lineaCredito = {
+      limiteTotal: data.lineaCreditoLimite,
+      utilizado: 0,
+      disponible: data.lineaCreditoLimite,
+      tasaInteres: data.lineaCreditoTasa || 0,
+      fechaCorte: data.lineaCreditoFechaCorte || 0,
+      fechaPago: data.lineaCreditoFechaPago || 0,
+    };
   }
-  if (data.numeroCuenta) {
-    cuenta.numeroCuenta = data.numeroCuenta;
-  }
-  if (data.cci) {
-    cuenta.cci = data.cci;
-  }
-  if (data.metodoPagoAsociado) {
-    cuenta.metodoPagoAsociado = data.metodoPagoAsociado;
-  }
-  if (data.esCuentaPorDefecto !== undefined) {
-    cuenta.esCuentaPorDefecto = data.esCuentaPorDefecto;
+
+  // Números de cuenta (array múltiple)
+  if (data.numerosCuenta?.length) {
+    cuenta.numerosCuenta = data.numerosCuenta;
+    // Sync campos legacy desde el array
+    const principal = data.numerosCuenta.find(n => n.esPrincipal);
+    const primerNumero = principal || data.numerosCuenta[0];
+    if (primerNumero) cuenta.numeroCuenta = primerNumero.numero;
+    const cciEntry = data.numerosCuenta.find(n => n.tipo === 'cci');
+    if (cciEntry) cuenta.cci = cciEntry.numero;
   }
 
   const docRef = await addDoc(collection(db, CUENTAS_COLLECTION), cuenta);
@@ -133,10 +157,51 @@ export async function actualizarCuenta(
 
   // Datos bancarios
   if (data.banco !== undefined) updates.banco = data.banco;
+  if (data.bancoNombreCompleto !== undefined) updates.bancoNombreCompleto = data.bancoNombreCompleto;
   if (data.numeroCuenta !== undefined) updates.numeroCuenta = data.numeroCuenta;
   if (data.cci !== undefined) updates.cci = data.cci;
   if (data.metodoPagoAsociado !== undefined) updates.metodoPagoAsociado = data.metodoPagoAsociado;
   if (data.esCuentaPorDefecto !== undefined) updates.esCuentaPorDefecto = data.esCuentaPorDefecto;
+
+  // Producto financiero y métodos (fix: antes no se persistían)
+  if (data.productoFinanciero !== undefined) updates.productoFinanciero = data.productoFinanciero;
+  if (data.titularidad !== undefined) updates.titularidad = data.titularidad;
+  if (data.metodosDisponibles !== undefined) updates.metodosDisponibles = data.metodosDisponibles;
+  if (data.metodosDetalle !== undefined) updates.metodosDetalle = data.metodosDetalle;
+  if (data.cuentaVinculadaId !== undefined) updates.cuentaVinculadaId = data.cuentaVinculadaId;
+
+  // Línea de crédito
+  if (data.lineaCreditoLimite !== undefined) {
+    updates.lineaCredito = {
+      limiteTotal: data.lineaCreditoLimite || 0,
+      utilizado: 0, // Se preserva el existente abajo
+      disponible: data.lineaCreditoLimite || 0,
+      tasaInteres: data.lineaCreditoTasa || 0,
+      fechaCorte: data.lineaCreditoFechaCorte || 0,
+      fechaPago: data.lineaCreditoFechaPago || 0,
+    };
+    // Preservar utilizado existente si hay
+    const existing = await getCuentaById(id);
+    if (existing?.lineaCredito?.utilizado) {
+      updates.lineaCredito.utilizado = existing.lineaCredito.utilizado;
+      updates.lineaCredito.disponible = (data.lineaCreditoLimite || 0) - existing.lineaCredito.utilizado;
+    }
+  }
+
+  // Números de cuenta (array múltiple)
+  if (data.numerosCuenta !== undefined) {
+    updates.numerosCuenta = data.numerosCuenta;
+    // Sync campos legacy desde el array
+    const principal = data.numerosCuenta.find(n => n.esPrincipal);
+    const primerNumero = principal || data.numerosCuenta[0];
+    if (primerNumero) {
+      updates.numeroCuenta = primerNumero.numero;
+    }
+    const cciEntry = data.numerosCuenta.find(n => n.tipo === 'cci');
+    if (cciEntry) {
+      updates.cci = cciEntry.numero;
+    }
+  }
 
   await updateDoc(doc(db, CUENTAS_COLLECTION, id), updates);
 }
@@ -150,6 +215,99 @@ export async function toggleActivaCuenta(id: string, activa: boolean, userId: st
     actualizadoPor: userId,
     fechaActualizacion: Timestamp.now()
   });
+}
+
+/**
+ * Verificar si una cuenta tiene saldo pendiente
+ */
+export function cuentaTieneSaldo(cuenta: CuentaCaja): { tieneSaldo: boolean; detalle: string } {
+  if (cuenta.esBiMoneda) {
+    const pen = cuenta.saldoPEN || 0;
+    const usd = cuenta.saldoUSD || 0;
+    if (Math.abs(pen) > 0.01 || Math.abs(usd) > 0.01) {
+      return {
+        tieneSaldo: true,
+        detalle: `S/ ${pen.toFixed(2)} / $ ${usd.toFixed(2)}`
+      };
+    }
+  } else {
+    const saldo = cuenta.saldoActual || 0;
+    if (Math.abs(saldo) > 0.01) {
+      const simbolo = cuenta.moneda === 'USD' ? '$' : 'S/';
+      return { tieneSaldo: true, detalle: `${simbolo} ${saldo.toFixed(2)}` };
+    }
+  }
+  return { tieneSaldo: false, detalle: '' };
+}
+
+/**
+ * Verificar si una cuenta tiene movimientos asociados
+ */
+export async function cuentaTieneMovimientos(cuentaId: string): Promise<number> {
+  const qOrigen = query(
+    collection(db, MOVIMIENTOS_COLLECTION),
+    where('cuentaOrigen', '==', cuentaId)
+  );
+  const qDestino = query(
+    collection(db, MOVIMIENTOS_COLLECTION),
+    where('cuentaDestino', '==', cuentaId)
+  );
+  const [snapO, snapD] = await Promise.all([getDocs(qOrigen), getDocs(qDestino)]);
+  const ids = new Set([...snapO.docs.map(d => d.id), ...snapD.docs.map(d => d.id)]);
+  return ids.size;
+}
+
+/**
+ * Eliminar cuenta permanentemente
+ * Requiere saldo en cero. Si tiene movimientos, se advierte pero se permite.
+ */
+export async function eliminarCuenta(id: string): Promise<void> {
+  const cuenta = await getCuentaById(id);
+  if (!cuenta) throw new Error('Cuenta no encontrada');
+
+  const { tieneSaldo, detalle } = cuentaTieneSaldo(cuenta);
+  if (tieneSaldo) {
+    throw new Error(`No se puede eliminar: la cuenta tiene saldo pendiente (${detalle}). Transfiera los fondos primero.`);
+  }
+
+  await deleteDoc(doc(db, CUENTAS_COLLECTION, id));
+  logger.info(`Cuenta eliminada: ${cuenta.nombre} (${id})`);
+}
+
+/**
+ * Sincronizar métodos de pago para todas las cuentas de un banco
+ * Propaga metodosDisponibles a todas las CuentaCaja que comparten el mismo banco
+ */
+export async function syncMetodosBanco(
+  bancoNombre: string,
+  metodos: string[],
+  userId: string,
+  metodosDetalle?: Record<string, { identificador?: string; cuentaVinculadaId?: string }>
+): Promise<number> {
+  const q = query(
+    collection(db, CUENTAS_COLLECTION),
+    where('banco', '==', bancoNombre)
+  );
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) return 0;
+
+  const batch = writeBatch(db);
+  const now = Timestamp.now();
+
+  for (const d of snapshot.docs) {
+    const updates: Record<string, any> = {
+      metodosDisponibles: metodos,
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    };
+    if (metodosDetalle) updates.metodosDetalle = metodosDetalle;
+    batch.update(d.ref, updates);
+  }
+
+  await batch.commit();
+  logger.info(`Métodos sincronizados para ${snapshot.size} cuentas de ${bancoNombre}`);
+  return snapshot.size;
 }
 
 /**
@@ -329,11 +487,41 @@ export async function getCuentasActivas(
 }
 
 /**
+ * Normalizar cuenta legacy: construir numerosCuenta[] desde campos string
+ */
+function normalizarCuenta(cuenta: CuentaCaja): CuentaCaja {
+  if (cuenta.numerosCuenta?.length) return cuenta;
+
+  const numeros: NumeroCuentaBancaria[] = [];
+  if (cuenta.numeroCuenta) {
+    const tipo = cuenta.productoFinanciero === 'cuenta_corriente' ? 'corriente' : 'ahorros';
+    numeros.push({
+      id: 'legacy-principal',
+      tipo: tipo as NumeroCuentaBancaria['tipo'],
+      numero: cuenta.numeroCuenta,
+      esPrincipal: true,
+    });
+  }
+  if (cuenta.cci) {
+    numeros.push({
+      id: 'legacy-cci',
+      tipo: 'cci',
+      numero: cuenta.cci,
+      esPrincipal: false,
+    });
+  }
+  if (numeros.length) {
+    cuenta.numerosCuenta = numeros;
+  }
+  return cuenta;
+}
+
+/**
  * Obtener todas las cuentas
  */
 export async function getCuentas(): Promise<CuentaCaja[]> {
   const snapshot = await getDocs(collection(db, CUENTAS_COLLECTION));
-  return snapshot.docs.map(d => ({
+  return snapshot.docs.map(d => normalizarCuenta({
     id: d.id,
     ...d.data()
   } as CuentaCaja));
@@ -350,10 +538,10 @@ export async function getCuentaById(id: string): Promise<CuentaCaja | null> {
     return null;
   }
 
-  return {
+  return normalizarCuenta({
     id: docSnap.id,
     ...docSnap.data()
-  } as CuentaCaja;
+  } as CuentaCaja);
 }
 
 /**

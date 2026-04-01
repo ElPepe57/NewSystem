@@ -57,13 +57,18 @@ export const useTesoreriaStore = create<TesoreriaState>()(
       fetchAll: async () => {
         set({ loading: true, error: null });
         try {
-          const [movimientos, conversiones, cuentas, stats] = await Promise.all([
+          // Datos críticos: cuentas, movimientos, conversiones — deben cargar siempre
+          const [movimientos, conversiones, cuentas] = await Promise.all([
             tesoreriaService.getMovimientos(),
             tesoreriaService.getConversiones(),
             tesoreriaService.getCuentas(),
-            tesoreriaService.getStats()
           ]);
-          set({ movimientos, conversiones, cuentas, stats, loading: false });
+          set({ movimientos, conversiones, cuentas, loading: false });
+
+          // Stats es secundario — no bloquea la UI si falla
+          tesoreriaService.getStats()
+            .then(stats => set({ stats }))
+            .catch(() => { /* stats no crítico */ });
         } catch (error: unknown) {
           const message = error instanceof Error ? error.message : 'Error desconocido';
           set({ error: message, loading: false });

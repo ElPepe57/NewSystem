@@ -221,6 +221,18 @@ export interface RegistroTCTransaccion {
 // ===============================================
 
 /**
+ * Número de cuenta bancaria individual
+ * Una CuentaCaja puede tener múltiples números (ahorros, corriente, CCI, etc.)
+ */
+export interface NumeroCuentaBancaria {
+  id: string;
+  tipo: 'ahorros' | 'corriente' | 'cci' | 'swift' | 'iban' | 'otro';
+  numero: string;
+  etiqueta?: string;             // Nombre descriptivo opcional
+  esPrincipal: boolean;
+}
+
+/**
  * Cuenta de caja (física o bancaria)
  * Soporta cuentas mono-moneda y bi-moneda (USD + PEN en una sola cuenta)
  */
@@ -247,9 +259,11 @@ export interface CuentaCaja {
   saldoMinimoPEN?: number;      // Alerta PEN (bi-moneda)
 
   // Datos bancarios (si aplica)
-  banco?: string;                // "BCP", "Interbank", etc.
+  banco?: string;                // Alias corto: "BCP", "IBK"
+  bancoNombreCompleto?: string;  // Nombre completo: "Banco de Crédito del Perú"
   numeroCuenta?: string;
   cci?: string;
+  numerosCuenta?: NumeroCuentaBancaria[];  // Para cuentas con múltiples números (legacy)
 
   // Producto financiero
   productoFinanciero?: 'cuenta_ahorros' | 'cuenta_corriente' | 'tarjeta_debito' | 'tarjeta_credito' | 'caja' | 'billetera_digital';
@@ -258,6 +272,13 @@ export interface CuentaCaja {
 
   // Métodos de pago disponibles en esta cuenta
   metodosDisponibles?: string[];  // ej: ['transferencia', 'yape'] para BCP PEN
+
+  // Detalle de canales digitales vinculados (Yape, Plin, etc.)
+  // Clave = nombre del método, valor = info del canal
+  metodosDetalle?: Record<string, {
+    identificador?: string;        // Ej: teléfono para Yape/Plin
+    cuentaVinculadaId?: string;    // ID de la CuentaCaja donde entra el dinero
+  }>;
 
   // Asociación con método de pago (para selección automática - legacy)
   metodoPagoAsociado?: MetodoTesoreria;
@@ -385,15 +406,18 @@ export interface CuentaCajaFormData {
   saldoMinimoPEN?: number;      // Alerta PEN (bi-moneda)
 
   // Datos bancarios
-  banco?: string;
+  banco?: string;                // Alias corto
+  bancoNombreCompleto?: string;  // Nombre completo
   numeroCuenta?: string;
   cci?: string;
+  numerosCuenta?: NumeroCuentaBancaria[];  // Legacy
 
   // Producto financiero
   productoFinanciero?: 'cuenta_ahorros' | 'cuenta_corriente' | 'tarjeta_debito' | 'tarjeta_credito' | 'caja' | 'billetera_digital';
   titularidad?: 'empresa' | 'personal';
   cuentaVinculadaId?: string;    // Para tarjeta débito → cuenta de ahorros
   metodosDisponibles?: string[];  // Métodos de pago que acepta esta cuenta
+  metodosDetalle?: Record<string, { identificador?: string; cuentaVinculadaId?: string }>;
 
   // Línea de crédito (solo tarjeta_credito)
   lineaCreditoLimite?: number;
@@ -541,6 +565,27 @@ export interface FlujoCajaDiario {
 
   // TC del día
   tcDelDia: number;
+}
+
+// ===============================================
+// HELPERS DE CUENTA
+// ===============================================
+
+/** Obtiene el número de cuenta principal (del array o campo legacy) */
+export function getNumeroPrincipal(cuenta: CuentaCaja): string | undefined {
+  if (cuenta.numerosCuenta?.length) {
+    const principal = cuenta.numerosCuenta.find(n => n.esPrincipal);
+    return (principal || cuenta.numerosCuenta[0])?.numero;
+  }
+  return cuenta.numeroCuenta;
+}
+
+/** Obtiene el CCI (del array o campo legacy) */
+export function getCCI(cuenta: CuentaCaja): string | undefined {
+  if (cuenta.numerosCuenta?.length) {
+    return cuenta.numerosCuenta.find(n => n.tipo === 'cci')?.numero;
+  }
+  return cuenta.cci;
 }
 
 export interface FlujoCajaMensual {

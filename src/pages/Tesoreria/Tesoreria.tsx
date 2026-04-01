@@ -86,11 +86,9 @@ export const Tesoreria: React.FC = () => {
   const [isMovimientoModalOpen, setIsMovimientoModalOpen] = useState(false);
   const [isConversionModalOpen, setIsConversionModalOpen] = useState(false);
   const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] = useState(false);
-  const [isCuentaModalOpen, setIsCuentaModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estado edicion
-  const [cuentaEditando, setCuentaEditando] = useState<CuentaCaja | null>(null);
   const [cuentaDetalle, setCuentaDetalle] = useState<CuentaCaja | null>(null);
   const [movsLimit, setMovsLimit] = useState(50);
   const [movimientoEditando, setMovimientoEditando] = useState<MovimientoTesoreria | null>(null);
@@ -107,15 +105,6 @@ export const Tesoreria: React.FC = () => {
     monedaOrigen: 'USD',
     fecha: new Date(),
     tipoCambio: tcDefault
-  });
-  const [cuentaForm, setCuentaForm] = useState<Partial<CuentaCajaFormData>>({
-    moneda: 'PEN',
-    tipo: 'efectivo',
-    saldoInicial: 0,
-    titular: '',
-    esBiMoneda: false,
-    saldoInicialUSD: 0,
-    saldoInicialPEN: 0
   });
   const [transferenciaForm, setTransferenciaForm] = useState<Partial<TransferenciaEntreCuentasFormData>>({
     moneda: 'PEN',
@@ -446,86 +435,55 @@ export const Tesoreria: React.FC = () => {
   };
 
   // ============ Handlers Cuenta ============
-  const handleEditarCuenta = (cuenta: CuentaCaja) => {
-    setCuentaEditando(cuenta);
-    setCuentaForm({
-      nombre: cuenta.nombre,
-      titular: cuenta.titular || '',
-      tipo: cuenta.tipo,
-      moneda: cuenta.moneda,
-      esBiMoneda: cuenta.esBiMoneda || false,
-      saldoInicial: cuenta.saldoActual,
-      saldoInicialUSD: cuenta.saldoUSD || 0,
-      saldoInicialPEN: cuenta.saldoPEN || 0,
-      saldoMinimo: cuenta.saldoMinimo,
-      saldoMinimoUSD: cuenta.saldoMinimoUSD,
-      saldoMinimoPEN: cuenta.saldoMinimoPEN,
-      banco: cuenta.banco,
-      numeroCuenta: cuenta.numeroCuenta,
-      cci: cuenta.cci,
-      metodoPagoAsociado: cuenta.metodoPagoAsociado,
-      esCuentaPorDefecto: cuenta.esCuentaPorDefecto,
-      productoFinanciero: cuenta.productoFinanciero,
-      titularidad: cuenta.titularidad,
-      metodosDisponibles: cuenta.metodosDisponibles || [],
-      lineaCreditoLimite: cuenta.lineaCredito?.limiteTotal,
-      lineaCreditoTasa: cuenta.lineaCredito?.tasaInteres,
-      lineaCreditoFechaCorte: cuenta.lineaCredito?.fechaCorte,
-      lineaCreditoFechaPago: cuenta.lineaCredito?.fechaPago,
-    });
-    setIsCuentaModalOpen(true);
-  };
 
-  const handleGuardarCuenta = async () => {
-    if (!user || !cuentaForm.nombre || !cuentaForm.titular?.trim()) {
-      toast.warning('El nombre y el titular de la cuenta son obligatorios');
-      return;
-    }
+  // Crear cuenta nueva (desde cualquier formulario: banco, digital, efectivo)
+  const handleGuardarCuentaNueva = async (data: CuentaCajaFormData) => {
+    if (!user) return;
     setIsSubmitting(true);
     try {
-      if (cuentaEditando) {
-        await TesoreriaService.actualizarCuenta(
-          cuentaEditando.id,
-          {
-            nombre: cuentaForm.nombre,
-            titular: cuentaForm.titular,
-            tipo: cuentaForm.tipo,
-            moneda: cuentaForm.moneda,
-            esBiMoneda: cuentaForm.esBiMoneda,
-            saldoMinimo: cuentaForm.saldoMinimo,
-            saldoMinimoUSD: cuentaForm.saldoMinimoUSD,
-            saldoMinimoPEN: cuentaForm.saldoMinimoPEN,
-            banco: cuentaForm.banco,
-            numeroCuenta: cuentaForm.numeroCuenta,
-            cci: cuentaForm.cci,
-            metodoPagoAsociado: cuentaForm.metodoPagoAsociado,
-            esCuentaPorDefecto: cuentaForm.esCuentaPorDefecto,
-            productoFinanciero: cuentaForm.productoFinanciero,
-            titularidad: cuentaForm.titularidad,
-            metodosDisponibles: cuentaForm.metodosDisponibles,
-            lineaCredito: cuentaForm.lineaCreditoLimite ? {
-              limiteTotal: cuentaForm.lineaCreditoLimite,
-              utilizado: cuentaEditando?.lineaCredito?.utilizado || 0,
-              disponible: (cuentaForm.lineaCreditoLimite || 0) - (cuentaEditando?.lineaCredito?.utilizado || 0),
-              tasaInteres: cuentaForm.lineaCreditoTasa,
-              fechaCorte: cuentaForm.lineaCreditoFechaCorte,
-              fechaPago: cuentaForm.lineaCreditoFechaPago,
-            } : undefined
-          },
-          user.uid
-        );
-      } else {
-        const formData: CuentaCajaFormData = {
-          ...cuentaForm,
-          esBiMoneda: cuentaForm.esBiMoneda || false,
-          saldoInicial: cuentaForm.saldoInicial || 0,
-          saldoInicialUSD: cuentaForm.saldoInicialUSD || 0,
-          saldoInicialPEN: cuentaForm.saldoInicialPEN || 0
-        } as CuentaCajaFormData;
-        await TesoreriaService.crearCuenta(formData, user.uid);
-      }
-      handleCerrarModalCuenta();
-      toast.success('Cuenta guardada');
+      await TesoreriaService.crearCuenta(data, user.uid);
+      toast.success('Cuenta creada');
+      loadData();
+    } catch (error: any) {
+      toast.error(error.message, 'Error al crear cuenta');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Guardar cambios de edición
+  const handleGuardarEdicion = async (cuenta: CuentaCaja, data: CuentaCajaFormData) => {
+    if (!user) return;
+    setIsSubmitting(true);
+    try {
+      await TesoreriaService.actualizarCuenta(
+        cuenta.id,
+        {
+          nombre: data.nombre,
+          titular: data.titular,
+          tipo: data.tipo,
+          moneda: data.moneda,
+          esBiMoneda: data.esBiMoneda,
+          saldoMinimo: data.saldoMinimo,
+          saldoMinimoUSD: data.saldoMinimoUSD,
+          saldoMinimoPEN: data.saldoMinimoPEN,
+          banco: data.banco,
+          bancoNombreCompleto: data.bancoNombreCompleto,
+          numeroCuenta: data.numeroCuenta,
+          cci: data.cci,
+          productoFinanciero: data.productoFinanciero,
+          titularidad: data.titularidad,
+          cuentaVinculadaId: data.cuentaVinculadaId,
+          metodosDisponibles: data.metodosDisponibles,
+          numerosCuenta: data.numerosCuenta,
+          lineaCreditoLimite: data.lineaCreditoLimite,
+          lineaCreditoTasa: data.lineaCreditoTasa,
+          lineaCreditoFechaCorte: data.lineaCreditoFechaCorte,
+          lineaCreditoFechaPago: data.lineaCreditoFechaPago,
+        },
+        user.uid
+      );
+      toast.success('Cuenta actualizada');
       loadData();
     } catch (error: any) {
       toast.error(error.message, 'Error al guardar cuenta');
@@ -534,10 +492,58 @@ export const Tesoreria: React.FC = () => {
     }
   };
 
-  const handleCerrarModalCuenta = () => {
-    setIsCuentaModalOpen(false);
-    setCuentaEditando(null);
-    setCuentaForm({ moneda: 'PEN', tipo: 'efectivo', saldoInicial: 0, titular: '', esBiMoneda: false, saldoInicialUSD: 0, saldoInicialPEN: 0 });
+  // Sincronizar métodos de pago para todas las cuentas de un banco
+  const handleGuardarMetodosBanco = async (
+    bancoNombre: string, metodos: string[],
+    detalle?: Record<string, { identificador?: string; cuentaVinculadaId?: string }>
+  ) => {
+    if (!user) return;
+    setIsSubmitting(true);
+    try {
+      const count = await TesoreriaService.syncMetodosBanco(bancoNombre, metodos, user.uid, detalle);
+      toast.success(`Métodos actualizados en ${count} cuenta${count !== 1 ? 's' : ''} de ${bancoNombre}`);
+      loadData();
+    } catch (error: any) {
+      toast.error(error.message, 'Error al sincronizar métodos');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Eliminar cuenta permanentemente (con validaciones)
+  const handleEliminarCuenta = async (cuenta: CuentaCaja) => {
+    // 1. Verificar saldo
+    const { tieneSaldo, detalle } = TesoreriaService.cuentaTieneSaldo(cuenta);
+    if (tieneSaldo) {
+      toast.error(`No se puede eliminar: tiene saldo pendiente (${detalle}). Transfiera los fondos primero.`, 'Cuenta con saldo');
+      return;
+    }
+
+    // 2. Verificar movimientos
+    const numMovimientos = await TesoreriaService.cuentaTieneMovimientos(cuenta.id);
+    const mensaje = numMovimientos > 0
+      ? `¿Eliminar "${cuenta.nombre}" permanentemente? Esta cuenta tiene ${numMovimientos} movimiento${numMovimientos > 1 ? 's' : ''} asociado${numMovimientos > 1 ? 's' : ''}. Los movimientos se conservarán pero la referencia a esta cuenta se perderá.`
+      : `¿Eliminar "${cuenta.nombre}" permanentemente? Esta acción no se puede deshacer.`;
+
+    const confirmed = await confirm({
+      title: 'Eliminar Cuenta',
+      message: mensaje,
+      confirmText: 'Eliminar permanentemente',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
+
+    setIsSubmitting(true);
+    try {
+      await TesoreriaService.eliminarCuenta(cuenta.id);
+      if (cuentaDetalle?.id === cuenta.id) setCuentaDetalle(null);
+      toast.success(`Cuenta "${cuenta.nombre}" eliminada`);
+      loadData();
+    } catch (error: any) {
+      toast.error(error.message, 'Error al eliminar');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleRecalcularSaldos = async () => {
@@ -960,16 +966,12 @@ export const Tesoreria: React.FC = () => {
           setCuentaDetalle={setCuentaDetalle}
           movsLimit={movsLimit}
           setMovsLimit={setMovsLimit}
-          isCuentaModalOpen={isCuentaModalOpen}
-          setIsCuentaModalOpen={setIsCuentaModalOpen}
-          cuentaEditando={cuentaEditando}
-          cuentaForm={cuentaForm}
-          setCuentaForm={setCuentaForm}
           isSubmitting={isSubmitting}
-          handleEditarCuenta={handleEditarCuenta}
-          handleGuardarCuenta={handleGuardarCuenta}
-          handleCerrarModalCuenta={handleCerrarModalCuenta}
           handleRecalcularSaldos={handleRecalcularSaldos}
+          handleGuardarCuentaNueva={handleGuardarCuentaNueva}
+          handleGuardarEdicion={handleGuardarEdicion}
+          handleGuardarMetodosBanco={handleGuardarMetodosBanco}
+          handleEliminarCuenta={handleEliminarCuenta}
           getTipoLabel={getTipoLabel}
           esIngresoMovimiento={esIngresoMovimiento}
         />
