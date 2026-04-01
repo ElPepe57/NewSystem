@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, RefreshCw } from 'lucide-react';
 import { Button, Input } from '../../common';
 import type { TipoCambioFormData } from '../../../types/tipoCambio.types';
 
@@ -7,6 +7,7 @@ interface TipoCambioFormProps {
   onSubmit: (data: TipoCambioFormData) => void;
   onCancel: () => void;
   onObtenerSunat?: (fecha: Date) => void;
+  onObtenerParalelo?: () => void;
   loading?: boolean;
 }
 
@@ -14,6 +15,7 @@ export const TipoCambioForm: React.FC<TipoCambioFormProps> = ({
   onSubmit,
   onCancel,
   onObtenerSunat,
+  onObtenerParalelo,
   loading = false
 }) => {
   const [formData, setFormData] = useState<TipoCambioFormData>({
@@ -60,23 +62,42 @@ export const TipoCambioForm: React.FC<TipoCambioFormProps> = ({
           required
         />
 
-        {onObtenerSunat && (
-          <div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleObtenerSunat}
-              disabled={loading}
-              className="w-full"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Obtener TC de SUNAT
-            </Button>
-            <p className="text-xs text-gray-500 mt-1">
-              Obtiene automáticamente el tipo de cambio oficial de SUNAT para la fecha seleccionada
-            </p>
-          </div>
-        )}
+        <div className="space-y-2">
+          {onObtenerParalelo && (
+            <div>
+              <Button
+                type="button"
+                variant="primary"
+                onClick={onObtenerParalelo}
+                disabled={loading}
+                className="w-full"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Obtener TC Paralelo (cuantoestaeldolar.pe)
+              </Button>
+              <p className="text-xs text-gray-500 mt-1">
+                Obtiene el tipo de cambio del mercado paralelo + SUNAT automáticamente
+              </p>
+            </div>
+          )}
+          {onObtenerSunat && (
+            <div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleObtenerSunat}
+                disabled={loading}
+                className="w-full"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Obtener TC de SUNAT
+              </Button>
+              <p className="text-xs text-gray-500 mt-1">
+                Obtiene el tipo de cambio oficial de SUNAT para la fecha seleccionada
+              </p>
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input

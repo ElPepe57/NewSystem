@@ -82,6 +82,35 @@ export const TipoCambio: React.FC = () => {
     }
   };
 
+  const handleObtenerParalelo = async () => {
+    setIsSubmitting(true);
+    try {
+      const { getFunctions, httpsCallable } = await import('firebase/functions');
+      const functions = getFunctions();
+      const fn = httpsCallable<void, { success: boolean; paralelo?: { compra: number; venta: number }; sunat?: { compra: number; venta: number }; error?: string }>(functions, 'obtenerTipoCambioManual');
+      const result = await fn();
+      if (result.data.success) {
+        const p = result.data.paralelo;
+        const s = result.data.sunat;
+        toast.success(
+          `TC Paralelo: ${p ? `${p.compra}/${p.venta}` : 'no disponible'}` +
+          (s ? ` | SUNAT: ${s.compra}/${s.venta}` : ''),
+          'TC actualizado desde cuantoestaeldolar.pe'
+        );
+        setIsFormModalOpen(false);
+        loadChartData();
+        loadTCDelDia();
+        fetchTiposCambio();
+      } else {
+        toast.error(result.data.error || 'No se pudo obtener TC', 'Error');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Error al obtener TC paralelo', 'Error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleCloseModal = () => {
     setIsFormModalOpen(false);
   };
@@ -166,6 +195,7 @@ export const TipoCambio: React.FC = () => {
           onSubmit={handleSubmit}
           onCancel={handleCloseModal}
           onObtenerSunat={handleObtenerSunat}
+          onObtenerParalelo={handleObtenerParalelo}
           loading={isSubmitting}
         />
       </Modal>
