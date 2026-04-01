@@ -430,9 +430,35 @@ function extraerTCDesdeHTML(html: string): TCDual {
       return null;
     };
 
-    // Buscar paralelo con múltiples nombres posibles
-    if (!result.paralelo) result.paralelo = extractRegex(['"calle"', "Paralelo", "paralelo"]);
+    // Buscar SUNAT primero
     if (!result.sunat) result.sunat = extractRegex(["quotacionValueSunat", "Sunat", "sunat"]);
+
+    // Buscar paralelo: intentar etiquetas directas
+    if (!result.paralelo) result.paralelo = extractRegex(['"calle"', "Paralelo", "paralelo"]);
+
+    // Si tenemos SUNAT pero no paralelo, extraer del bloque quotacionValueSunat
+    // Los valores del paralelo están mezclados ahí (después de los de SUNAT)
+    if (!result.paralelo && result.sunat) {
+      const idx = html.search(/quotacionValueSunat/i);
+      if (idx !== -1) {
+        const bloque = html.substring(idx, idx + 800);
+        const numeros = [...bloque.matchAll(/(\d+\.\d{2,3})/g)].map(m => parseFloat(m[1]));
+        const tcValidos = numeros.filter(n => n >= TC_MIN && n <= TC_MAX);
+        // Quitar los valores que ya son SUNAT
+        const noSunat = tcValidos.filter(n =>
+          Math.abs(n - result.sunat!.compra) > 0.001 && Math.abs(n - result.sunat!.venta) > 0.001
+        );
+        functions.logger.info(`[TC-Scraper] Paralelo desde quotacion: tcValidos=${tcValidos.join(',')}, noSunat=${noSunat.join(',')}`);
+        if (noSunat.length >= 2) {
+          const compra = Math.min(noSunat[0], noSunat[1]);
+          const venta = Math.max(noSunat[0], noSunat[1]);
+          const spread = (venta - compra) / compra;
+          if (spread <= MAX_SPREAD) {
+            result.paralelo = { compra, venta };
+          }
+        }
+      }
+    }
   }
 
   // Validar spread en resultados finales
