@@ -16,6 +16,7 @@ import { FiltrosDrawerMobile } from '../../components/modules/productos/FiltrosD
 import { BuscadorGrupoProducto } from '../../components/modules/productos/BuscadorGrupoProducto';
 import { FormVarianteReducida, type VarianteReducidaData } from '../../components/modules/productos/FormVarianteReducida';
 import { VariantesTable, type VarianteRow } from '../../components/modules/productos/VariantesTable';
+import { ProductoService } from '../../services/producto.service';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
