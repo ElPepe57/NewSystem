@@ -358,6 +358,10 @@ export const Productos: React.FC = () => {
   };
 
   const handleCloseFormModal = () => {
+    if (!isEditing && isFormModalOpen) {
+      const confirmar = window.confirm('¿Seguro que quieres salir? Se perderán los datos ingresados.');
+      if (!confirmar) return;
+    }
     setIsFormModalOpen(false);
     setSelectedProducto(null);
     setIsEditing(false);
@@ -382,6 +386,8 @@ export const Productos: React.FC = () => {
   };
 
   const handleCloseInvestigacionModal = () => {
+    const confirmar = window.confirm('¿Seguro que quieres salir? Se perderán los cambios no guardados.');
+    if (!confirmar) return;
     setIsInvestigacionModalOpen(false);
     // No resetear selectedProducto si el view modal sigue abierto
     if (!isViewModalOpen) {
@@ -1169,6 +1175,8 @@ export const Productos: React.FC = () => {
         onClose={handleCloseFormModal}
         title={isEditing ? 'Editar Producto' : wizardTipo === 'con_variantes' ? 'Nuevo Producto con Variantes' : 'Nuevo Producto'}
         size="xl"
+        disableBackdropClick
+        disableEscapeKey
       >
         <ProductoForm
           initialData={selectedProducto || undefined}
@@ -1233,6 +1241,8 @@ export const Productos: React.FC = () => {
         onClose={handleCloseInvestigacionModal}
         title={`Investigación de Mercado`}
         size="xl"
+        disableBackdropClick
+        disableEscapeKey
       >
         {selectedProducto && (
           <InvestigacionModal
