@@ -704,11 +704,8 @@ export class ProductoService {
         if (etiquetasSnapshots.length) docData.etiquetasData = etiquetasSnapshots;
       }
 
-      // Clean undefined values — Firestore batch rejects undefined
-      const cleanData = Object.fromEntries(
-        Object.entries(docData).filter(([_, v]) => v !== undefined)
-      );
-      batch.set(docRefs[i], cleanData);
+      // Deep clean undefined values — Firestore batch rejects undefined at any depth
+      batch.set(docRefs[i], this.removeUndefined(docData));
       productosCreados.push({ id: docRefs[i].id, ...docData, fechaCreacion: ahora } as Producto);
     }
 
