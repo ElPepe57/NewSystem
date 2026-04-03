@@ -572,6 +572,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    if (!formData.lineaNegocioId) return; // Línea de negocio obligatoria
     e.preventDefault();
     onSubmit(formData);
   };
@@ -1531,6 +1532,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
               type="button"
               variant="primary"
               onClick={goToNextTab}
+              disabled={activeTab === 'origen' && !formData.lineaNegocioId}
             >
               Siguiente
             </Button>
