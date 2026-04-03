@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-03-30 (Sesion 25 — 10 deploys (Deploy 28-37): sidebar reorganizado con grupo Analisis, Proyeccion 360 del Negocio operativa en /proyeccion (reescritura completa Deploy 36-37), estructura de tabs en /reportes, CAMBIO-122 a CAMBIO-130. Commits incluye 5ec5b43 (Proyeccion 360). Limpieza CTRU pendiente proxima sesion.)
+**Ultima actualizacion:** 2026-04-02 (Sesion 26 — Deploy 38-50: Rediseno cuentas Tesoreria, PagoUnificadoForm v2, propagacion bidireccional anulaciones, patron de archivo 6 colecciones, TC 360. CAMBIO-137 a CAMBIO-183.)
 **Branch activo:** main
 
 ---
@@ -12,12 +12,12 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 25 |
+| Sesiones de trabajo registradas | 26 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | ~219 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19 + 13 S20 + 16 S21 + 11 S24 + 8 S25) |
-| Tareas criticas pendientes | 3 (TAREA-097: mejoras proyeccion, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 37 (ultimo: 2026-03-30 post-S25 adicional, commit 5ec5b43, hosting vitaskinperu.web.app) |
+| Fixes aplicados | ~281 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19 + 13 S20 + 16 S21 + 11 S24 + 15 S25 FINAL + 47 S26) |
+| Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
+| Deploys realizados | 50 (ultimo: 2026-04-02 Deploy 50, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -8576,3 +8576,768 @@ El titular identifico tres problemas estructurales en la capa financiera del ERP
 
 *Registrado por implementation-controller (Agente 23).*
 *2026-03-30 — TAREA-100 registrada como prioridad maxima para la proxima sesion. Rediseno financiero 360: pagos unificados + cobranzas + liquidez + lineas de credito. Solicitado por el titular en sesion 25. Estimacion: 20-30 horas.*
+
+---
+
+---
+
+## SESION 25 — CIERRE DEFINITIVO — 30 de marzo de 2026
+
+**Registrado por:** implementation-controller (Agente 23)
+**Fecha:** 2026-03-30
+**Tipo:** Cierre definitivo de la sesion mas larga del proyecto
+**Deploys realizados:** 10 (Deploy 28 a Deploy 37)
+**Commits totales:** ~45
+**Sesion:** 25 — la de mayor volumen y alcance hasta la fecha
+
+---
+
+### Resumen ejecutivo de la sesion
+
+Sesion de trabajo de maxima intensidad que produjo seis bloques de implementacion independientes en un unico dia. El alcance cubre desde fixes de infraestructura hasta la arquitectura financiera del sistema. Los hitos principales son: (1) CTRU dual-view completamente funcional con todos los campos respondiendo al toggle, (2) Proyeccion 360 del Negocio como modulo propio con motor encadenado de 6 calculadoras, (3) modelo unificado de pagos migrando 7 modulos a un componente unico, y (4) cuatro bugs criticos de integridad financiera corregidos.
+
+---
+
+### Bloques implementados y cambios registrados
+
+#### BLOQUE 1 — Fixes operativos (Deploy 28-30)
+
+**CAMBIO-122 — Fix CSP Google Maps**
+- Tipo: Fix de seguridad / Configuracion
+- Descripcion: Dominios `maps.googleapis.com` y `maps.gstatic.com` anadidos a las directivas `connect-src`, `script-src`, `img-src` y `frame-src` del CSP en `firebase.json`. El titular habilito las APIs correspondientes en Google Cloud Console (Maps JavaScript API, Geocoding API, Places API). ISSUE-001 cerrado.
+- Archivo: `firebase.json`
+- Reversible: si
+
+**CAMBIO-123 — Deteccion inteligente de empleados en VentaForm**
+- Tipo: Feature
+- Descripcion: VentaForm cruza la seleccion de cliente con la coleccion `users` por nombre, email, telefono y DNI. Si hay coincidencia activa automaticamente `esVentaSocio = true` y pre-llena `socioNombre` y `cargo`. Campo `cargo` anadido a `UserProfile`. Previene que ventas a empleados queden sin el flag por descuido del operador.
+- Decision del titular: vincular al perfil de usuario del sistema (persona + cargo), no solo al rol generico.
+- Archivos: `VentaForm.tsx`, `user.types.ts`, servicios relacionados (8 archivos)
+- Reversible: si
+
+**CAMBIO-124 — Auto-actualizacion de datos de contacto del cliente**
+- Tipo: Feature
+- Descripcion: Nuevo metodo `actualizarDatosContacto()` en `cliente.service.ts`. Al confirmar una venta, si el cliente ya existe en Firestore y el operador modifico telefono, email o direccion, el sistema actualiza automaticamente el documento del cliente. Mantiene el maestro de clientes actualizado sin requerir accion manual.
+- Archivos: `src/services/cliente.service.ts`
+- Reversible: si
+
+---
+
+#### BLOQUE 2 — CTRU dual-view completo (Deploy 31-32)
+
+**CAMBIO-125 — INC-001 + INC-003 + archivos de constantes y calculadoras**
+- Tipo: Bug fix + Calidad de codigo
+- Descripcion:
+  - INC-001: Margen del CTRU ahora se pondera por monto en lugar de calcularse como promedio simple. Archivo `ctru.service.ts`.
+  - INC-003: Eliminado el ultimo TC hardcodeado (3.75) del sistema. Todos los calculos CTRU usan `tipoCambio.service.ts` como fuente unica.
+  - Creado `src/constants/venta.constants.ts` — constantes compartidas de estados validos para reportes. Unifica las definiciones dispersas que causaban INC-002.
+  - Creado `src/utils/kpi.calculators.ts` — funciones puras de calculo de KPIs reutilizables entre modulos. Base para resolver INC-004 e INC-005 en la TAREA-098.
+- Archivos: `ctru.service.ts`, `src/constants/venta.constants.ts` (nuevo), `src/utils/kpi.calculators.ts` (nuevo)
+- Reversible: si
+
+**CAMBIO-126 — CTRU dual-view BUG-001 a BUG-004**
+- Tipo: Bug fix (4 bugs en el toggle Contable/Gerencial de la tabla CTRU)
+- Descripcion:
+  - BUG-001: GA/GO ahora muestra valores distintos por vista — contable usa `gastoGAGOProm`, gerencial usa `gastoGAGOGerencialProm`.
+  - BUG-002: Barra de composicion (%) se actualiza con la vista activa — antes mostraba siempre los valores contables.
+  - BUG-003: Columna Margen recalculada segun la vista activa.
+  - BUG-004: Columna Utilidad recalculada segun la vista activa.
+  - Fix adicional: `costoBaseTotalTodas` — corregido error de scope en `buildProductosDetalle` (commit 14c4a18).
+  - Nuevo campo: `gastoGAGOGerencialProm` en `CTRUProductoDetalle`.
+- Archivos: `ctru.service.ts`, componentes de CTRUDashboard, `ctruStore.ts`
+- Reversible: si
+
+---
+
+#### BLOQUE 3 — Sidebar reorganizado + estructura Reportes (Deploy 33)
+
+**CAMBIO-127 — Reorganizacion sidebar — grupo Analisis**
+- Tipo: Feature / UX
+- Descripcion: Nuevo grupo "Analisis" con defaultOpen para roles admin y gerente. Contiene: Reportes (/reportes), Costos CTRU (/ctru), Intel. Productos (/productos-intel), Rendimiento FX (/rendimiento-cambiario), Proyeccion (/proyeccion). Grupo "Finanzas" reducido a 4 items: Gastos, Tesoreria, Contabilidad, Tipo de Cambio. Grupo "Comercial" posicionado como primer grupo.
+- Decision del titular: todos los modulos de analisis deben estar agrupados en la seccion Analisis del sidebar.
+- Archivo: `src/components/layout/Sidebar.tsx`
+- Reversible: si
+
+**CAMBIO-128 — Estructura de tabs en /reportes**
+- Tipo: Feature / Refactoring
+- Descripcion: `Reportes.tsx` convertido de pagina plana a layout con 5 tabs. Tab "Rentabilidad": contenido existente refactorizado como primer tab. Tabs nuevos: "Logistica", "Clientes", "Auditorias", "Compras" — componentes independientes creados con estructura base. Contenido completo de los 4 tabs nuevos pendiente en TAREA-098. `logistica.reporte.service.ts` creado como servicio base para metricas de viajeros y couriers.
+- Archivos: `Reportes.tsx`, 4 componentes de tab nuevos, `logistica.reporte.service.ts` (nuevo)
+- Reversible: si
+
+---
+
+#### BLOQUE 4 — Proyeccion 360 del Negocio (Deploy 34-37)
+
+**CAMBIO-129 — Version base proyeccion de costos (superada)**
+- Tipo: Feature (version inicial, reemplazada por CAMBIO-130)
+- Descripcion: Pagina inicial `src/pages/Proyeccion.tsx` con motor `costoProyeccion.service.ts`. Version base con proyeccion de costos CTRU, slider de sensibilidad TC y alertas de erosion de margen. Superada en el mismo ciclo de la sesion por la version 360 (CAMBIO-130).
+- Estado: Reemplazada. `costoProyeccion.service.ts` eliminado del codebase.
+
+**CAMBIO-130 — Proyeccion 360 del Negocio — reescritura completa**
+- Tipo: Feature — reescritura completa de /proyeccion
+- Commit: 5ec5b43
+- Descripcion: Reescritura total motivada por la decision del titular de que la proyeccion cubra el negocio completo (ventas, costos, margen, utilidad, inventario, flujo de caja) — no solo CTRU.
+  - Motor `proyeccion360.service.ts`: 6 calculadoras encadenadas en secuencia causal: (1) Inventario disponible → (2) Ventas proyectadas → (3) Costos proyectados → (4) Margen proyectado → (5) Flujo de caja → (6) Escenarios. El output de cada calculadora alimenta el input de la siguiente.
+  - Tipos `proyeccion360.types.ts`: 10 interfaces nuevas (ProyeccionVentas, ProyeccionInventario, ProyeccionCostos, ProyeccionMargen, ProyeccionFlujoCaja, EscenariosProyeccion, ProyeccionResumen, AlertaProyeccion, ConfiguracionProyeccion, ProyeccionCompleta).
+  - UI: 6 tabs (Vista Ejecutiva, Ventas, Inventario, Costos, Margen, Flujo de Caja). 5 KPIs ejecutivos persistentes en el header de cualquier tab (ventas proyectadas, costo total, margen %, utilidad, flujo neto). Toggle 30d/90d con diferencia real en los calculos (1 periodo vs 3 periodos encadenados). 3 escenarios integrados (Optimista, Base, Pesimista) aplicados transversalmente. Alertas consolidadas de 5 dimensiones (erosion margen, quiebre stock, cobertura baja, flujo negativo, volatilidad TC). Graficas Recharts: Timeline barras+linea (Ventas), Pie distribucion costos, Waterfall margen, ComposedChart flujo de caja. 100% en memoria con useMemo sobre datos de ctruStore y ventaStore — sin queries adicionales a Firestore.
+  - Limpieza CTRU: columna "Proy." y alertas de proyeccion eliminadas del modulo CTRUDashboard y ProductoCTRUTable. costoProyeccion.service.ts eliminado.
+- Archivos: `src/pages/Proyeccion.tsx` (reescritura), `src/services/proyeccion360.service.ts` (nuevo), `src/types/proyeccion360.types.ts` (nuevo)
+- Reversible: si
+- Decision del titular: CTRU no muestra proyecciones — solo costos actuales. Proyecciones viven exclusivamente en /proyeccion.
+
+---
+
+#### BLOQUE 5 — Integridad financiera — 4 bugs criticos (Deploy incluido en bloque)
+
+**CAMBIO-131 — BUG-OC: movimientoTesoreriaId persiste en Firestore**
+- Tipo: Bug fix critico (integridad de datos)
+- Descripcion: Al completar el pago de una OC, el campo `movimientoTesoreriaId` no se escribia a Firestore — quedaba undefined. Esto impedia reconciliar el pago de la OC con el movimiento de tesoreria correspondiente. Corregido para incluir el campo en el payload de escritura cuando tiene valor real.
+- Archivos: `src/services/ordenCompra.pagos.service.ts`
+- Reversible: si
+
+**CAMBIO-132 — BUG-POOL: Eliminado doble registro en Pool USD**
+- Tipo: Bug fix critico (integridad de datos)
+- Descripcion: Al registrar un pago en USD desde OC o Gastos, se generaban dos movimientos identicos en el Pool USD — uno desde el servicio de la OC y otro desde poolUSD.service. El saldo y el TCPA quedaban distorsionados. Corregido eliminando el registro duplicado: un solo movimiento por pago, generado una unica vez desde el punto de origen correcto.
+- Archivos: `src/services/poolUSD.service.ts`, `src/services/ordenCompra.pagos.service.ts`, `src/services/gasto.service.ts`
+- Reversible: si
+
+**CAMBIO-133 — CONT-002: Patron unificado errorTesoreria en 4 modulos**
+- Tipo: Mejora de resiliencia y observabilidad
+- Descripcion: Implementado el patron `errorTesoreria` en 4 modulos que gestionan pagos: OC, Gastos, Ventas, Viajeros. El patron captura errores de tesoreria de forma no bloqueante: el error se persiste en la coleccion `_errorLog` con severidad critica via `logBackgroundError`, la transaccion principal no falla, y el administrador puede consultar y corregir los errores desde el log. La UI del Dashboard para mostrar el banner de `errorTesoreria` permanece pendiente (CONT-002 requiere trabajo adicional de UI).
+- Archivos: 4 servicios de pago (OC, Gastos, Ventas, Viajeros)
+- Reversible: si
+
+**CAMBIO-134 — INC-estados: Normalizacion de estados de pago + migracion Firestore**
+- Tipo: Correccion de datos + Normalizacion
+- Descripcion: Los estados de pago `pagada` y `pago_parcial` coexistian con `pagado` y `parcial` en distintos documentos de Firestore, causando que los filtros y las vistas mostraran datos incompletos. Normalizados a los valores canonicos: `pagada` → `pagado`, `pago_parcial` → `parcial`. Migracion ejecutada directamente sobre la coleccion de Firestore (sin script separado — aplicado via batch en la sesion).
+- Archivos: Constantes en `venta.constants.ts`, servicios de venta y cotizacion, migracion Firestore ejecutada
+- Reversible: si (la migracion es atomica; los valores anteriores pueden restaurarse si fuera necesario)
+
+---
+
+#### BLOQUE 6 — Modelo unificado de pagos (Deploy incluido en bloque)
+
+**CAMBIO-135 — pago.types.ts + tesoreria.types.ts actualizados**
+- Tipo: Arquitectura de tipos
+- Descripcion: Creacion de la interfaz `PagoUnificado` con todos los campos requeridos por los distintos modulos: monto, moneda, metodo, banco, referencia, fecha, cuota. Tipos `LineaCredito` para el futuro modulo de credito bancario. Actualizacion de `tesoreria.types.ts` para compatibilidad con el modelo unificado. Enum de metodos de pago por tipo de cuenta (cuenta_ahorros, corriente, tarjeta_debito, tarjeta_credito, caja, billetera_digital).
+- Archivos: `src/types/pago.types.ts` (nuevo o actualizado), `src/types/tesoreria.types.ts`
+- Reversible: si
+
+**CAMBIO-136 — PagoUnificadoForm + migracion de 7 modulos**
+- Tipo: Refactoring / Feature
+- Descripcion: Componente `PagoUnificadoForm` creado como formulario unico de pago para todo el sistema. Lógica inteligente: la cuenta seleccionada determina automaticamente los metodos de pago disponibles (no al reves). Formulario de cuentas mejorado: producto financiero, titularidad (empresa vs personal — campo obligatorio), metodos disponibles (checkboxes), linea de credito configurable. Vista de cuentas en Tesoreria agrupada por banco con badges de producto financiero.
+  Modulos migrados (7 en total):
+  1. Ordenes de Compra (OC) — pago de facturas de proveedores
+  2. Gastos — modal de pago
+  3. Gastos — formulario de creacion
+  4. Viajeros / Transferencias — pago a viajeros
+  5. Ventas — formulario de nueva venta (paso de pago)
+  6. Ventas — modal de pago en venta existente
+  7. Cotizaciones — registro de adelanto
+  Archivos legacy a eliminar (pendiente limpieza): `PagoForm.tsx`, `PagoGastoForm.tsx`, `PagoViajeroModal.tsx`, `PagoVentaForm.tsx`, `RegistrarAdelantoModal.tsx`.
+- Archivos: `src/components/PagoUnificadoForm.tsx` (nuevo) + 7 modulos modificados + formulario de cuentas de Tesoreria
+- Reversible: si
+
+---
+
+### Decisiones del titular — Sesion 25 completa (20 decisiones)
+
+| # | Decision | Estado |
+|---|----------|--------|
+| 1 | Google Maps APIs deshabilitadas por inactividad — rehabilitadas | Implementado CAMBIO-122 |
+| 2 | Venta a socio: vincular al perfil de usuario (persona + cargo) | Implementado CAMBIO-123 |
+| 3 | Flete transferencias: precio por unidad como input, total como referencia | Implementado S24 |
+| 4 | Recepcion multi-lote: multiples fechas de vencimiento por producto | Pendiente mejora futura |
+| 5 | Fecha vencimiento: formato mes/ano, vence desde el 1ro del mes | Implementado S23 (Decision T-012) |
+| 6 | Escaner: mantener ModoTransferencia para almacenes locales Peru | Sin cambio — confirmado |
+| 7 | Auditoria escaner: necesita reportes consultables propios | Incluido en TAREA-098 |
+| 8 | Reportes: filtro por linea de negocio en todas las vistas | Incluido en TAREA-098 |
+| 9 | CTRU TC hardcodeado: usar siempre el ultimo TC disponible | Implementado CAMBIO-125 |
+| 10 | CTRU proyectado: implementar inferencia de costos historicos | TAREA-097 Fase 1 completada |
+| 11 | Proyeccion como pagina independiente en grupo Analisis | Implementado CAMBIO-127 + CAMBIO-129/130 |
+| 12 | CTRU no muestra proyecciones — solo costos actuales | Implementado CAMBIO-130 (limpieza CTRU) |
+| 13 | Proyeccion 360 cubre ventas, costos, margen, utilidad, inventario, flujo de caja | Implementado CAMBIO-130 |
+| 14 | Sidebar grupo Analisis: Reportes + CTRU + Intel + FX + Proyeccion | Implementado CAMBIO-127 |
+| 15 | Modelo unificado de pagos para todo el sistema | Implementado CAMBIO-136 |
+| 16 | Estados de pago normalizados: pagada→pagado, pago_parcial→parcial | Implementado CAMBIO-134 + migracion Firestore |
+| 17 | Filtro por linea de negocio en todas las vistas del sistema | Pendiente validacion completa TAREA-098 |
+| 18 | Cuenta define metodos de pago (no al reves) | Implementado CAMBIO-136 |
+| 19 | Productos financieros: cuenta_ahorros, corriente, tarjeta_debito, tarjeta_credito, caja, billetera_digital | Implementado CAMBIO-135 + CAMBIO-136 |
+| 20 | Titularidad de cuenta: empresa vs personal — campo obligatorio | Implementado CAMBIO-136 |
+
+---
+
+### Inconsistencias de datos — estado al cierre S25
+
+| ID | Descripcion | Estado |
+|----|-------------|--------|
+| INC-001 | Margen ponderado vs promedio simple en CTRU | RESUELTO — CAMBIO-125 |
+| INC-002 | Estados validos de ventas inconsistentes entre modulos | Parcialmente resuelto — venta.constants.ts creado. Pendiente aplicar en todos los reportes (TAREA-098) |
+| INC-003 | TC hardcodeado 3.75 en calculos CTRU | RESUELTO — CAMBIO-125 |
+| INC-004 | Calculo de margen ponderado no uniforme | Parcialmente resuelto — kpi.calculators.ts creado. Pendiente adopcion completa (TAREA-098) |
+| INC-005 | Exclusion de ventas a socios no consistente en todos los reportes | Pendiente — TAREA-098 |
+| INC-estados | Estados pagada/pago_parcial vs pagado/parcial | RESUELTO — CAMBIO-134 + migracion Firestore |
+
+---
+
+### Bugs criticos corregidos en S25
+
+| Bug | Descripcion | Cambio |
+|-----|-------------|--------|
+| BUG-OC | movimientoTesoreriaId no persiste en OC al completar pago | CAMBIO-131 |
+| BUG-POOL | Doble registro en Pool USD en pagos de OC y Gastos | CAMBIO-132 |
+| CONT-002 | Errores de tesoreria silenciosos sin log ni patron de recuperacion | CAMBIO-133 |
+| INC-estados | Estados de pago inconsistentes entre modulos | CAMBIO-134 |
+| BUG-001 | GA/GO no diferenciaba contable vs gerencial en CTRU | CAMBIO-126 |
+| BUG-002 | Barra composicion % mostraba siempre valores contables | CAMBIO-126 |
+| BUG-003 | Columna Margen no respondia al toggle Contable/Gerencial | CAMBIO-126 |
+| BUG-004 | Columna Utilidad no respondia al toggle Contable/Gerencial | CAMBIO-126 |
+
+---
+
+### Archivos legacy pendientes de eliminacion
+
+Estos archivos fueron reemplazados por `PagoUnificadoForm` pero no se han eliminado aun. Deben eliminarse en la proxima sesion:
+
+| Archivo | Reemplazado por |
+|---------|----------------|
+| `src/components/modules/ordenCompra/PagoForm.tsx` | PagoUnificadoForm |
+| `src/pages/Gastos/PagoGastoForm.tsx` | PagoUnificadoForm |
+| `src/pages/Transferencias/PagoViajeroModal.tsx` | PagoUnificadoForm |
+| `src/components/modules/venta/PagoVentaForm.tsx` | PagoUnificadoForm |
+| `src/components/modules/venta/RegistrarAdelantoModal.tsx` | PagoUnificadoForm (codigo muerto) |
+
+---
+
+### Backlog priorizado al cierre de S25
+
+| Prioridad | ID | Descripcion | Estimacion | Notas |
+|-----------|-----|-------------|------------|-------|
+| URGENTE | TAREA-100 | Rediseno formulario de cuentas Tesoreria (UI moderna, tipos dinamicos, titularidad obligatoria, linea de credito) | 8-12h | Prereq para que PagoUnificadoForm funcione correctamente en produccion |
+| Alta | TAREA-098 | Contenido tabs Logistica, Clientes, Auditorias, Compras en /reportes + tabs CxC + CxP | 15-20h | Estructura base lista S25 |
+| Alta | TAREA-099 | Trazabilidad de ubicacion de productos | 8-12h | Pendiente diseno |
+| Alta | TAREA-097 Fase 2 | Calibracion automatica de proyecciones, persistencia en Firestore, bandas de incertidumbre calibradas | 10-15h | Fase 1 completa — Fase 2 amplian significativamente la utilidad del modulo |
+| Media | Limpieza legacy | Eliminar 5 archivos de formularios de pago reemplazados por PagoUnificadoForm | 1-2h | Limpieza directa |
+| Media | Banner errorTesoreria | UI del banner en Dashboard para CONT-002 | 2-3h | Patron ya implementado — falta UI |
+| Media | INC-002, INC-004, INC-005 | Inconsistencias de datos en reportes | — | Prereq de TAREA-098 |
+| Baja | SEC-C01 | Rotar API keys expuestas en historial Git | — | Accion manual del titular — bloqueado |
+
+---
+
+### Estado del sistema al cierre definitivo de S25
+
+| Modulo | Estado |
+|--------|--------|
+| Ventas / CxC | Activo — deteccion empleados, auto-actualizacion cliente, modelo unificado de pagos |
+| Compras / CxP | Activo — modelo unificado de pagos, integridad movimientoTesoreriaId |
+| CTRU v2 | Activo — dual-view 100% funcional (todos los campos), sin TC hardcodeado, sin proyecciones |
+| Proyeccion 360 | Activo — /proyeccion, 6 calculadoras encadenadas, 6 tabs, 3 escenarios, 100% en memoria |
+| Reportes | Activo — estructura 5 tabs lista. Contenido 4 tabs nuevos pendiente TAREA-098 |
+| Sidebar | Activo — grupo Analisis con 5 items, Finanzas 4 items, Comercial primero |
+| Tesoreria | Activo — vista agrupada por banco, formulario de cuentas mejorado |
+| Pool USD | Activo — doble registro eliminado, un unico movimiento por pago |
+| Google Maps | Operativo — CSP corregido, APIs habilitadas en GCP |
+| MercadoLibre | Activo — JOSSELINGAMBINI, mldisconnect disponible |
+| Inventario | Activo — FEFO, vencidas, danadas, fechas vencimiento obligatorias |
+| SUNAT | Inexistente — gap regulatorio critico abierto |
+| WhatsApp | En desarrollo — sin uso en produccion |
+
+---
+
+### Metricas finales de la Sesion 25
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys realizados | 10 (Deploy 28 a Deploy 37) |
+| Commits totales | ~45 |
+| Bloques de trabajo | 6 |
+| Cambios registrados | 15 (CAMBIO-122 a CAMBIO-136) |
+| Bugs criticos corregidos | 8 (BUG-001 a BUG-004, BUG-OC, BUG-POOL, CONT-002, INC-estados) |
+| Inconsistencias de datos resueltas | 3 de 6 (INC-001, INC-003, INC-estados) |
+| Modulos migrados al modelo unificado de pagos | 7 |
+| Decisiones del titular documentadas | 20 |
+| Archivos nuevos creados | 6+ (Proyeccion.tsx, proyeccion360.service.ts, proyeccion360.types.ts, PagoUnificadoForm.tsx, pago.types.ts, logistica.reporte.service.ts) |
+| Interfaces nuevas en tipos | 10 (proyeccion360.types.ts) |
+| Calculadoras encadenadas | 6 (motor proyeccion360) |
+| Archivos legacy pendientes de eliminacion | 5 |
+
+---
+
+*Cierre definitivo registrado por implementation-controller (Agente 23).*
+*30 de marzo de 2026 — Sesion 25 CERRADA DEFINITIVAMENTE. La sesion mas larga del proyecto: 10 deploys, ~45 commits, 6 bloques de trabajo, 15 cambios registrados, 20 decisiones del titular. Hitos: CTRU dual-view 100% funcional, Proyeccion 360 del Negocio con motor encadenado, modelo unificado de pagos en 7 modulos, 4 bugs de integridad financiera corregidos. Estado del sistema: estable. Proxima sesion: TAREA-100 (formulario cuentas Tesoreria, URGENTE) → TAREA-098 (contenido Reportes) → TAREA-097 Fase 2 (calibracion proyecciones).*
+
+---
+
+## SESION 26 — 2026-04-01/02 — Tesoreria, Cuentas Bancarias, Pagos y Tipo de Cambio
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Sesion masiva — 6 bloques de implementacion
+**Deploys realizados:** 13 (Deploy 38 a Deploy 50)
+**Commits totales:** ~20
+**Fecha:** 2026-04-01 / 2026-04-02
+
+---
+
+### Resumen ejecutivo de la sesion
+
+Sesion centrada en la capa financiera del sistema. El hito principal es la completacion de TAREA-100 (rediseno completo de cuentas Tesoreria) con un nuevo modelo banco→cuentas que reemplaza el modelo anterior. Complementariamente: PagoUnificadoForm v2 con selector custom y canales vinculados, propagacion bidireccional de anulaciones, patron de archivo para eliminaciones con trazabilidad en 6 colecciones, y cierre de todos los TC hardcodeados residuales en el sistema (TC 360).
+
+---
+
+### Hallazgos identificados
+
+| ID | Severidad | Descripcion | Estado |
+|----|-----------|-------------|--------|
+| BUG-TC-001 | ALTO | Scraper leia `__NEXT_DATA__` JSON (Pages Router) — ya no existe en el sitio tras migracion a App Router | RESUELTO (CAMBIO-177) |
+| BUG-TC-002 | MEDIO | Badge de fuente no diferenciaba "Paralelo" de "API Backup" ni de "Manual" | RESUELTO (CAMBIO-177) |
+| BUG-TC-003 | BAJO | Sin alerta visible al usuario cuando se usa backup en lugar del scraping real | RESUELTO (CAMBIO-177) |
+| BUG-PERSIST-001 | ALTO | actualizarCuenta no guardaba productoFinanciero, titularidad, metodosDisponibles, lineaCredito, cuentaVinculadaId | RESUELTO (CAMBIO-139) |
+| BUG-CONV-001 | ALTO | Conversiones no validaban saldo insuficiente antes de escribir a Firestore — posibles docs huerfanos en Pool USD | RESUELTO (CAMBIO-154) |
+| BUG-PROP-001 | ALTO | eliminarMovimiento en tesoreria no propagaba al documento origen — pagos quedaban como pagados aunque el movimiento se anulara | RESUELTO (CAMBIO-162) |
+| BUG-TC-VTA-001 | MEDIO | VentaForm tenia doble resolucion de TC — el formulario calculaba uno y el servicio calculaba otro | RESUELTO (CAMBIO-172) |
+| BUG-TC-VIA-001 | MEDIO | Viajeros: tcDocumento se guardaba como objeto en lugar de number | RESUELTO (CAMBIO-174) |
+
+---
+
+### BLOQUE 1 — Rediseno completo de cuentas Tesoreria (TAREA-100)
+
+#### CAMBIO-137 — NumeroCuentaBancaria + helpers
+- Fecha: 2026-04-01
+- Tipo: Arquitectura de tipos
+- Descripcion: Nueva interfaz `NumeroCuentaBancaria` con campos numero, tipo (ahorros/corriente/tarjeta), moneda, esPrincipal y alias. Campo `numerosCuenta[]` (array) anadido a `CuentaCaja` para soportar multiples numeros por cuenta. Helpers: `getNumeroPrincipal(cuenta)` retorna el numero marcado como principal, `getCCI(cuenta)` retorna el numero de tipo CCI si existe.
+- Archivos: `src/types/tesoreria.types.ts`
+- Reversible: si
+
+#### CAMBIO-138 — FormSection componente colapsable reutilizable
+- Fecha: 2026-04-01
+- Tipo: Componente UI
+- Descripcion: Componente `FormSection` que agrupa campos de un formulario con header colapsable. Props: titulo, descripcion opcional, defaultOpen, children. Resuelve la necesidad de formularios largos que necesitan organizarse en secciones con estado expandido/colapsado sin repetir logica de toggle en cada formulario.
+- Archivos: `src/components/ui/FormSection.tsx` (nuevo)
+- Reversible: si
+
+#### CAMBIO-139 — Fix bug persistencia actualizarCuenta
+- Fecha: 2026-04-01
+- Tipo: Bug fix critico (datos perdidos)
+- Descripcion: El metodo `actualizarCuenta()` en el servicio de tesoreria construia el payload de Firestore con solo un subconjunto de campos. Los campos `productoFinanciero`, `titularidad`, `metodosDisponibles`, `lineaCredito` y `cuentaVinculadaId` no se incluian en el update — se perdian silenciosamente al editar una cuenta. Todos los campos ahora se incluyen en el payload condicionalmente con `if (field !== undefined)`.
+- Archivos: `src/services/tesoreria.service.ts` (o modulo correspondiente)
+- Reversible: si
+
+#### CAMBIO-140 — Modelo banco→cuentas: 3 secciones + 6 formularios
+- Fecha: 2026-04-01
+- Tipo: Feature mayor (rediseno de arquitectura de cuentas)
+- Descripcion: El modelo anterior trataba cada cuenta como una entidad plana. El nuevo modelo organiza en 3 secciones:
+  - Bancos: cuentas de ahorro, corriente, tarjeta vinculadas a una entidad bancaria
+  - Digital: MercadoPago, PayPal, Zelle — saldo propio, sin entidad bancaria madre
+  - Efectivo: cajas fisicas en moneda unica (la bi-moneda queda reservada solo para cajas de efectivo)
+  Seis formularios creados: `BancoNuevoForm` (crear banco con primera cuenta), `CuentaBancoForm` (agregar cuenta a banco existente), `EditarMetodosBancoModal` (editar metodos de un banco), `DigitalForm` (crear cuenta digital), `EfectivoForm` (crear caja de efectivo), `CuentaCajaForm` (deprecated — existia antes, queda para compatibilidad temporal).
+- Archivos: 6 componentes de formulario nuevos + refactoring de TabCuentas en Tesoreria
+- Reversible: si
+
+#### CAMBIO-141 — Alias de banco + AutocompleteInput titular
+- Fecha: 2026-04-01
+- Tipo: Feature
+- Descripcion: Campo `bancoNombreCompleto` (alias del banco) para mostrar el nombre tal como lo reconoce el negocio (ej: "BCP", "Interbank Peru", "BBVA Personal"). Componente `AutocompleteInput` reutilizable para el campo `titular` — muestra sugerencias de los titulares ya registrados en otras cuentas del sistema para evitar tipeos inconsistentes del mismo nombre.
+- Archivos: `src/components/ui/AutocompleteInput.tsx` (nuevo), formularios de cuenta
+- Reversible: si
+
+#### CAMBIO-142 — Eliminacion real de cuentas con validacion de saldo
+- Fecha: 2026-04-01
+- Tipo: Feature
+- Descripcion: Las cuentas se eliminan fisicamente de Firestore (no soft delete). Antes de eliminar, el sistema valida: (1) `cuentaTieneSaldo(cuentaId)` — retorna true si el saldo es diferente de cero; (2) `cuentaTieneMovimientos(cuentaId)` — retorna true si existen movimientos asociados en el historial. Si alguna de las dos condiciones es verdadera, el sistema bloquea la eliminacion y muestra el motivo. Solo se puede eliminar una cuenta con saldo en cero y sin movimientos activos.
+- Archivos: `src/services/tesoreria.service.ts`, UI de eliminacion en TabCuentas
+- Reversible: no aplica (la eliminacion es real — requiere restaurar desde coleccion de archivo si fue un error)
+
+#### CAMBIO-143 — Yape/Plin como canales vinculados a cuenta individual
+- Fecha: 2026-04-01
+- Tipo: Feature + Decision de diseno
+- Descripcion: Yape y Plin se tratan como canales de pago vinculados a una cuenta bancaria especifica, no como metodos del banco en general. Cada cuenta puede tener un canal vinculado con su identificador (numero de telefono). Al seleccionar Yape o Plin en PagoUnificadoForm, el sistema muestra el telefono vinculado con boton de copiar. El identificador se almacena en `cuentas[].canalVinculado` con tipo (yape|plin) y telefono.
+- Archivos: `src/types/tesoreria.types.ts`, formularios de cuenta, PagoUnificadoForm
+- Reversible: si
+
+#### CAMBIO-144 — Validacion de duplicados (nombre + numero de cuenta)
+- Fecha: 2026-04-01
+- Tipo: Feature
+- Descripcion: Al crear o editar una cuenta, el sistema verifica que no exista otra cuenta con el mismo nombre (alias de banco + nombre de cuenta) o el mismo numero de cuenta. La validacion ocurre antes de escribir a Firestore y muestra un error inline si hay duplicado. Previene errores de cuentas creadas por doble-clic o por nombre casi identico.
+- Archivos: `src/services/tesoreria.service.ts`, formularios de cuenta
+- Reversible: si
+
+#### CAMBIO-145 — Filtro por titular en Tab Movimientos
+- Fecha: 2026-04-01
+- Tipo: Feature
+- Descripcion: Tab Movimientos de Tesoreria agrega un selector de titular para filtrar movimientos por la persona o empresa titular de la cuenta origen/destino. Cada movimiento en la lista muestra el badge del tipo de cuenta (ahorros, corriente, digital, efectivo) junto al nombre del banco y el titular. Mejora la trazabilidad en negocios con multiples titulares de cuenta.
+- Archivos: `src/pages/Tesoreria/TabMovimientos.tsx` (o equivalente)
+- Reversible: si
+
+#### CAMBIO-146 — syncMetodosBanco() propaga metodos a todas las cuentas del banco
+- Fecha: 2026-04-01
+- Tipo: Feature
+- Descripcion: Nueva funcion `syncMetodosBanco(bancoId, metodosDisponibles[])` en el servicio de tesoreria. Cuando el usuario edita los metodos de pago de un banco (ej: agrega transferencia interbancaria), la funcion propaga esos metodos a todas las cuentas hijo del mismo banco via batch update de Firestore. Evita tener que editar cada cuenta individualmente cuando se habilita un nuevo canal a nivel del banco.
+- Archivos: `src/services/tesoreria.service.ts`
+- Reversible: si
+
+#### CAMBIO-147 — Simplificacion formularios: sin bi-moneda en bancos, numero directo
+- Fecha: 2026-04-01
+- Tipo: Refactoring
+- Descripcion: Simplificacion del formulario de cuentas bancarias. (1) La bi-moneda (USD/PEN simultaneo) queda disponible solo para cajas de efectivo; las cuentas bancarias solo tienen una moneda. (2) El numero de cuenta se ingresa como campo de texto directo (no como array de objetos con tipo/moneda/principal) para reducir la friccion del formulario en el caso mas comun.
+- Archivos: formularios de cuenta bancaria, `CuentaBancoForm.tsx`
+- Reversible: si
+
+#### CAMBIO-148 — Tipo derivado de productoFinanciero
+- Fecha: 2026-04-01
+- Tipo: Simplificacion de modelo
+- Descripcion: El campo `tipo` de una cuenta ya no se ingresa explicitamente — se deriva automaticamente del campo `productoFinanciero`. Mapeo: `productoFinanciero === 'caja'` → `tipo = 'efectivo'`; `productoFinanciero === 'billetera_digital'` → `tipo = 'digital'`; cualquier otro (cuenta_ahorros, corriente, tarjeta_debito, tarjeta_credito) → `tipo = 'banco'`. Elimina un campo redundante del formulario.
+- Archivos: `src/services/tesoreria.service.ts`, tipos
+- Reversible: si
+
+---
+
+### BLOQUE 2 — Transferencias y Conversiones mejoradas
+
+#### CAMBIO-149 — Selectores de cuenta enriquecidos en TabTransferencias
+- Fecha: 2026-04-01
+- Tipo: Feature UX
+- Descripcion: Los selectores de cuenta origen y destino en TabTransferencias muestran informacion enriquecida: nombre del banco, titular, tipo de cuenta (badge) y saldo actual. El selector nativo `<select>` fue reemplazado por un selector custom con busqueda. El usuario puede identificar rapidamente la cuenta correcta sin tener que recordar nombres de codigo.
+- Archivos: `src/pages/Tesoreria/TabTransferencias.tsx`
+- Reversible: si
+
+#### CAMBIO-150 — Selectores enriquecidos en TabConversiones + validacion saldo insuficiente
+- Fecha: 2026-04-01
+- Tipo: Feature UX
+- Descripcion: Misma mejora de selectores que CAMBIO-149 aplicada a TabConversiones. Adicionalmente, el formulario de conversion ahora valida en tiempo real si el saldo de la cuenta origen es suficiente para el monto ingresado. Si el saldo es insuficiente, el boton de confirmar queda deshabilitado y se muestra el mensaje "Saldo insuficiente: disponible S/ X.XX".
+- Archivos: `src/pages/Tesoreria/TabConversiones.tsx`
+- Reversible: si
+
+#### CAMBIO-151 — Validacion de saldo en servicio de conversiones
+- Fecha: 2026-04-01
+- Tipo: Bug fix / Validacion
+- Descripcion: El servicio de conversiones no validaba el saldo disponible antes de escribir a Firestore. Era posible crear una conversion con monto mayor al saldo disponible, generando saldos negativos en la cuenta origen. Agregada validacion en el metodo `crearConversion()`: si el saldo disponible es menor al monto origen, la funcion lanza un error antes de cualquier escritura.
+- Archivos: `src/services/tesoreria.conversiones.service.ts` (o equivalente)
+- Reversible: si
+
+#### CAMBIO-152 — Validacion de saldo minimo bloqueante en transferencias
+- Fecha: 2026-04-01
+- Tipo: Bug fix / Validacion
+- Descripcion: Misma problematica que CAMBIO-151 pero en transferencias entre cuentas. El servicio `crearTransferencia()` ahora valida que el saldo de la cuenta origen sea suficiente antes de iniciar el batch de Firestore. Error lanzado: "Saldo insuficiente en cuenta origen: disponible S/ X, solicitado S/ Y".
+- Archivos: `src/services/tesoreria.transferencias.service.ts` (o equivalente)
+- Reversible: si
+
+#### CAMBIO-153 — Metodo hardcodeado 'otro' reemplazado por tipos semanticos
+- Fecha: 2026-04-01
+- Tipo: Normalizacion de datos
+- Descripcion: Los movimientos de tesoreria generados por conversiones y transferencias internas se registraban con `metodo = 'otro'` (valor ambiguo). Reemplazado por: `metodo = 'conversion'` para movimientos de conversion cambiaria y `metodo = 'transferencia_interna'` para transferencias entre cuentas del sistema. Mejora la legibilidad de los extractos y permite filtrar por tipo de operacion.
+- Archivos: servicios de conversiones y transferencias
+- Reversible: si (los docs historicos con 'otro' se mantienen sin migracion; los nuevos usan los tipos semanticos)
+
+#### CAMBIO-154 — Validaciones de conversion ANTES de escribir en Firestore
+- Fecha: 2026-04-01
+- Tipo: Bug fix critico (datos huerfanos)
+- Descripcion: El flujo de conversion podia crear un documento en la coleccion principal (conversiones) y luego fallar al actualizar el Pool USD, dejando un movimiento de conversion huerfano sin el registro correspondiente en poolUSD. Refactorizado para que TODAS las validaciones (saldo suficiente, TC valido, cuentas activas) ocurran antes de la primera escritura a Firestore. El batch se ejecuta solo cuando todas las precondiciones son verdaderas.
+- Archivos: `src/services/tesoreria.conversiones.service.ts`
+- Reversible: si
+
+---
+
+### BLOQUE 3 — PagoUnificadoForm v2
+
+#### CAMBIO-155 — Selector de cuenta custom agrupado
+- Fecha: 2026-04-01
+- Tipo: Feature UX
+- Descripcion: El `<select>` nativo de cuenta en PagoUnificadoForm fue reemplazado por un selector custom con tres secciones agrupadas: "Bancos" (cuentas bancarias), "Digital" (billeteras digitales) y "Efectivo" (cajas). Cada opcion muestra: nombre del banco/wallet, titular, saldo actual y badge del tipo. El selector incluye busqueda por texto para filtrar rapidamente cuando hay muchas cuentas.
+- Archivos: `src/components/PagoUnificadoForm.tsx`
+- Reversible: si
+
+#### CAMBIO-156 — Canales vinculados (Yape/Plin) con boton copiar
+- Fecha: 2026-04-01
+- Tipo: Feature UX
+- Descripcion: Cuando el usuario selecciona un metodo Yape o Plin en PagoUnificadoForm, el formulario muestra automaticamente el numero de telefono vinculado a ese canal (configurado en la cuenta en CAMBIO-143) con un boton de copiar. El receptor puede copiar el numero sin salir del formulario de pago.
+- Archivos: `src/components/PagoUnificadoForm.tsx`
+- Reversible: si
+
+#### CAMBIO-157 — Derivacion de metodos unificada (sin fallback hardcodeado)
+- Fecha: 2026-04-01
+- Tipo: Refactoring
+- Descripcion: Los metodos de pago disponibles se derivan exclusivamente de `cuenta.metodosDisponibles` y `cuenta.metodosDetalle`. El array hardcodeado `METODOS_POR_BANCO` que existia en `pago.types.ts` (mapeaba tipos de banco a metodos disponibles por defecto) fue eliminado. Si una cuenta no tiene `metodosDisponibles` configurados, se muestra un estado vacio con instruccion de completar la configuracion. Elimina la posibilidad de que metodos fantasma aparezcan por el fallback.
+- Archivos: `src/components/PagoUnificadoForm.tsx`, `src/types/pago.types.ts`
+- Reversible: si
+
+#### CAMBIO-158 — Linea de credito con impacto del pago actual
+- Fecha: 2026-04-01
+- Tipo: Feature UX
+- Descripcion: Cuando la cuenta seleccionada tiene una linea de credito configurada, PagoUnificadoForm muestra en tiempo real: limite total de la linea, monto actualmente utilizado, monto disponible ANTES del pago y monto disponible DESPUES de aplicar el pago actual ("Este pago → Quedara disponible: S/ X"). Permite al operador evaluar el impacto de cada pago en la disponibilidad de la linea.
+- Archivos: `src/components/PagoUnificadoForm.tsx`
+- Reversible: si
+
+#### CAMBIO-159 — Mobile optimizado
+- Fecha: 2026-04-01
+- Tipo: Feature UX
+- Descripcion: Mejoras especificas para uso movil en PagoUnificadoForm: `inputMode="decimal"` en campos de monto (abre teclado numerico en iOS/Android), boton de confirmacion con altura minima de 48px (target tacil), `flex-wrap` en el grupo de badges de metodos de pago para que se ajusten en pantallas angostas sin desbordarse, campo de TC colapsable (visible solo cuando la moneda es USD) para reducir el scroll en pantallas pequenas.
+- Archivos: `src/components/PagoUnificadoForm.tsx`
+- Reversible: si
+
+#### CAMBIO-160 — 5 formularios legacy eliminados
+- Fecha: 2026-04-01
+- Tipo: Limpieza de codigo
+- Descripcion: Eliminados definitivamente los 5 formularios de pago que fueron reemplazados por PagoUnificadoForm en la Sesion 25:
+  - `src/components/modules/ordenCompra/PagoForm.tsx`
+  - `src/pages/Gastos/PagoGastoForm.tsx`
+  - `src/pages/Transferencias/PagoViajeroModal.tsx`
+  - `src/components/modules/venta/PagoVentaForm.tsx`
+  - `src/components/modules/venta/RegistrarAdelantoModal.tsx`
+  Limpiadas todas las importaciones huerfanas en los modulos que los referenciaban.
+- Archivos eliminados: 5
+- Reversible: si (estan en el historial de Git)
+
+#### CAMBIO-161 — METODOS_POR_BANCO hardcodeado eliminado de pago.types.ts
+- Fecha: 2026-04-01
+- Tipo: Limpieza de codigo
+- Descripcion: El objeto `METODOS_POR_BANCO` en `src/types/pago.types.ts` mapeaba tipos de cuenta a arrays de metodos por defecto. Su existencia causaba que cuentas sin `metodosDisponibles` configurados heredaran metodos implicitos que podian no ser correctos. Eliminado el objeto completo. La derivacion de metodos es ahora responsabilidad exclusiva de la configuracion de cada cuenta (CAMBIO-157).
+- Archivos: `src/types/pago.types.ts`
+- Reversible: si
+
+---
+
+### BLOQUE 4 — Propagacion bidireccional de anulaciones
+
+#### CAMBIO-162 — eliminarMovimiento propaga al documento origen
+- Fecha: 2026-04-02
+- Tipo: Bug fix critico (integridad financiera)
+- Descripcion: `eliminarMovimiento()` en tesoreria.service eliminaba el movimiento de la coleccion de tesoreria pero no actualizaba el documento origen (la venta, OC o gasto que origino el pago). El resultado era que el documento origen seguia marcado como pagado aunque el movimiento de tesoreria hubiera sido anulado. Ahora la funcion: (1) lee el tipo y ID del origen desde el movimiento, (2) actualiza el array de pagos del origen eliminando la referencia al movimiento anulado, (3) recalcula `montoPagado` y `estadoPago` del documento origen.
+- Archivos: `src/services/tesoreria.service.ts`
+- Reversible: si
+
+#### CAMBIO-163 — skipPropagacion flag para evitar recursion
+- Fecha: 2026-04-02
+- Tipo: Arquitectura
+- Descripcion: Para evitar un bucle infinito (la actualizacion del documento origen podria disparar a su vez una actualizacion de tesoreria, que volveria a disparar la actualizacion del origen...), se agrego el flag `skipPropagacion: boolean` a los metodos que actualizan pagos desde el lado del documento origen. Cuando `skipPropagacion = true`, el servicio actualiza el documento sin disparar la cadena de propagacion inversa.
+- Archivos: `src/services/tesoreria.service.ts`, `src/services/venta.pagos.service.ts`, `src/services/ordenCompra.pagos.service.ts`
+- Reversible: si
+
+#### CAMBIO-164 — Reconciliacion de pagos huerfanos
+- Fecha: 2026-04-02
+- Tipo: Feature (herramienta de mantenimiento)
+- Descripcion: Funcion `reconciliarPagosHuerfanos()` que identifica y repara la inconsistencia generada por los bugs anteriores (pagos anulados cuyo documento origen todavia los marca como pagados). La funcion: (1) obtiene todos los movimientos con estado 'anulado', (2) busca el documento origen de cada uno, (3) si el origen aun referencia al movimiento anulado como pago valido, lo elimina del array y recalcula el estado. Boton "Reconciliar pagos" disponible en la seccion Cuentas de Tesoreria para que el admin lo ejecute manualmente.
+- Archivos: `src/services/tesoreria.service.ts`, UI en TabCuentas de Tesoreria
+- Reversible: si (la reconciliacion es idempotente)
+
+#### CAMBIO-165 — Limpieza fechaPagoCompleto en ventas no pagadas
+- Fecha: 2026-04-02
+- Tipo: Bug fix (datos incorrectos)
+- Descripcion: Algunos documentos de venta tenian el campo `fechaPagoCompleto` con valor aunque el estado de pago no fuera 'pagado'. Esto ocurria cuando un pago completo se anulaba pero `fechaPagoCompleto` no se limpiaba. Como parte de la reconciliacion (CAMBIO-164), se agrego la limpieza de `fechaPagoCompleto` cuando la reconciliacion detecta que una venta no tiene estado 'pagado'.
+- Archivos: `src/services/venta.pagos.service.ts`, logica de reconciliacion
+- Reversible: si
+
+---
+
+### BLOQUE 5 — Patron de archivo (eliminacion real + trazabilidad)
+
+#### CAMBIO-166 — movimientosAnulados
+- Fecha: 2026-04-02
+- Tipo: Feature (coleccion de trazabilidad)
+- Descripcion: Nueva coleccion `movimientosAnulados` en Firestore. Cuando un movimiento de tesoreria se anula, antes de eliminarlo del doc activo se copia a esta coleccion con los campos originales mas: `fechaAnulacion`, `anuladoPor`, `motivoAnulacion`. Implementa el principio de eliminacion real con trazabilidad auditada.
+- Reversible: si (la coleccion de archivo no afecta al flujo operativo)
+
+#### CAMBIO-167 — ventasCanceladas
+- Fecha: 2026-04-02
+- Tipo: Feature (coleccion de trazabilidad)
+- Descripcion: Nueva coleccion `ventasCanceladas`. Cuando una venta se cancela, el documento se copia a esta coleccion antes de actualizar su estado. Incluye el historial completo de pagos y la razon de cancelacion. Las cotizaciones eliminadas tambien se archivan aqui.
+- Reversible: si
+
+#### CAMBIO-168 — gastosArchivo
+- Fecha: 2026-04-02
+- Tipo: Feature (coleccion de trazabilidad)
+- Descripcion: Nueva coleccion `gastosArchivo`. Los gastos eliminados se copian aqui antes de la eliminacion fisica, con `fechaArchivo`, `archivadoPor` y notas opcionales.
+- Reversible: si
+
+#### CAMBIO-169 — poolUSD_movimientosArchivo
+- Fecha: 2026-04-02
+- Tipo: Feature (coleccion de trazabilidad)
+- Descripcion: Nueva coleccion `poolUSD_movimientosArchivo`. Los movimientos del pool USD eliminados o revertidos se archivan aqui para mantener la trazabilidad del historial cambiario. Preserva la integridad del TCPA historico aunque se elimine el movimiento activo.
+- Reversible: si
+
+#### CAMBIO-170 — ordenesCompraArchivo
+- Fecha: 2026-04-02
+- Tipo: Feature (coleccion de trazabilidad)
+- Descripcion: Nueva coleccion `ordenesCompraArchivo`. Las OC canceladas o eliminadas se copian aqui antes de su eliminacion del documento activo. Incluye el historial de recepciones parciales y pagos asociados.
+- Reversible: si
+
+#### CAMBIO-171 — cotizacionesArchivo
+- Fecha: 2026-04-02
+- Tipo: Feature (coleccion de trazabilidad)
+- Descripcion: Nueva coleccion `cotizacionesArchivo`. Las cotizaciones eliminadas se archivan aqui. Las cotizaciones convertidas a venta no se archivan — permanecen en la coleccion principal con estado 'convertida'.
+- Reversible: si
+
+---
+
+### BLOQUE 6 — Tipo de Cambio 360
+
+#### CAMBIO-172 — Fix TC en Ventas: doble resolucion eliminada
+- Fecha: 2026-04-02
+- Tipo: Bug fix
+- Descripcion: En el flujo de nueva venta, el formulario `VentaForm` calculaba un `tipoCambio` desde el store y lo pasaba como prop al servicio, pero el servicio ignoraba ese valor y resolvía el TC nuevamente desde `tipoCambio.service.ts`. El TC usado al guardar la venta podia diferir del TC que el operador vio en pantalla. Corregido: el formulario pasa el `tipoCambio` al servicio y el servicio lo usa directamente sin segunda resolucion.
+- Archivos: `src/components/modules/ventas/VentaForm.tsx`, `src/services/venta.service.ts`
+- Reversible: si
+
+#### CAMBIO-173 — PagoUnificadoForm usa tc.venta (no tc.compra)
+- Fecha: 2026-04-02
+- Tipo: Bug fix / Normalizacion
+- Descripcion: PagoUnificadoForm usaba `tc.compra` (el TC al que el negocio compra dolares) para convertir pagos en USD a PEN. El TC correcto para pagos a proveedores y cobros de clientes es `tc.venta` (el TC al que el negocio vende/cobra). Corregido a `tc.venta` en todos los calculos de conversion de PagoUnificadoForm.
+- Archivos: `src/components/PagoUnificadoForm.tsx`
+- Reversible: si
+
+#### CAMBIO-174 — Fix Viajeros: tcDocumento objeto a number
+- Fecha: 2026-04-02
+- Tipo: Bug fix
+- Descripcion: El campo `tcDocumento` en el formulario de pago a viajeros se guardaba como objeto `{ venta: 3.49, compra: 3.45 }` en lugar del numero simple `3.49`. Esto causaba que los calculos de conversion en los reportes de viajeros produjeran `NaN`. Corregido para guardar `tcDocumento` como `number` (el TC de venta del dia del pago).
+- Archivos: formulario de pago de viajeros, `src/types/transferencia.types.ts`
+- Reversible: si
+
+#### CAMBIO-175 — GastoForm sincroniza TC del pago con formulario padre
+- Fecha: 2026-04-02
+- Tipo: Bug fix
+- Descripcion: En el formulario de creacion de gasto, el TC ingresado en el paso de pago no se propagaba al campo `tipoCambio` del formulario padre. El documento de gasto se guardaba con `tipoCambio: undefined` aunque el usuario habia ingresado el TC. Corregido con un callback `onTCChange` del componente de pago al formulario padre.
+- Archivos: `src/pages/Gastos/GastoForm.tsx` (o equivalente)
+- Reversible: si
+
+#### CAMBIO-176 — Concepto de movimiento usa numeroVenta legible
+- Fecha: 2026-04-02
+- Tipo: Mejora de trazabilidad
+- Descripcion: Los movimientos de tesoreria generados por ventas usaban el ID interno de Firestore (ej: `abc123def456`) como parte del concepto. Reemplazado por el `numeroVenta` legible (ej: `VT-2026-042`). El campo `concepto` del movimiento ahora dice "Pago venta VT-2026-042 — Juan Perez" en lugar de "Pago venta abc123def456 — Juan Perez".
+- Archivos: `src/services/venta.pagos.service.ts`, `src/services/tesoreria.service.ts`
+- Reversible: si
+
+#### CAMBIO-177 — Scraper TC reescrito: cuantoestaeldolar.pe Next.js App Router
+- Fecha: 2026-04-01
+- Tipo: Bug fix critico / Robustez
+- Commit: 3ca0fcb
+- Descripcion: El sitio cuantoestaeldolar.pe migro de Next.js Pages Router a App Router. El scraper anterior buscaba `__NEXT_DATA__` JSON embebido (formato Pages Router) que ya no existe. El HTML ahora tiene un RSC payload con datos JSON escapado.
+  Estrategia nueva: (1) `extraerBuySale()` localiza "buy" y "sale" por indice y busca `cost:NUMERO` en el segmento — funciona con JSON normal y escapado (`\"cost\":3.455`). (2) `extraerTCDesdeHTML()` usa dos estrategias: primero busca las keys `\"calle\"` y `\"quotacionValueSunat\"` por indexOf; si falla, regex por etiquetas semanticas (Paralelo, calle) con numeros en rango valido 3.0-4.5.
+  Validacion cruzada: despues de scrapear, consulta ExchangeRate-API como sanity check. Si divergencia supera 1%, guarda `alertaValidacion` en Firestore y emite warning en logs. Frontend muestra toast warning naranja cuando hay alerta.
+  Badges diferenciados en TipoCambioTable: "Paralelo" (azul), "API Backup" (naranja), "SUNAT" (verde), "Manual" (gris).
+- Archivos: `functions/src/index.ts` (3 funciones TC), `src/pages/TipoCambio/TipoCambio.tsx`, `src/components/modules/tipoCambio/TipoCambioTable.tsx`
+- Reversible: si
+
+#### CAMBIO-178 — Frontend usa setDoc con ID YYYY-MM-DD (no addDoc)
+- Fecha: 2026-04-01
+- Tipo: Normalizacion
+- Descripcion: El servicio de tipo de cambio en el frontend usaba `addDoc` para guardar registros de TC, generando IDs aleatorios de Firestore. Cambiado a `setDoc` con el ID `YYYY-MM-DD` (ej: `2026-04-01`). Permite leer un TC por fecha mediante un `getDoc` directo sin necesidad de query, reduciendo latencia y costo de lectura.
+- Archivos: `src/services/tipoCambio.service.ts`
+- Reversible: si (los docs con ID aleatorio no se eliminan; los nuevos usaran el patron de fecha)
+
+#### CAMBIO-179 — getByFecha busca por doc ID directo con fallback a query
+- Fecha: 2026-04-01
+- Tipo: Optimizacion
+- Descripcion: El metodo `getByFecha(fecha)` del servicio de TC ahora intenta primero un `getDoc(db, 'tiposCambio', 'YYYY-MM-DD')` (O(1), sin query). Si no encuentra el documento con ese ID (docs historicos con ID aleatorio), cae al fallback con `query + where('fecha', '>=', startOfDay) + where('fecha', '<=', endOfDay)`. Los docs mas recientes (con ID de fecha) se leen sin costo de indice; los historicos siguen funcionando con la query.
+- Archivos: `src/services/tipoCambio.service.ts`
+- Reversible: si
+
+#### CAMBIO-180 — Boton "Obtener TC Paralelo" llama a Cloud Function manual
+- Fecha: 2026-04-01
+- Tipo: Feature
+- Descripcion: En la pagina de Tipo de Cambio, el boton "Obtener TC Paralelo" llama a la Cloud Function `obtenerTipoCambioManual` via httpsCallable. Antes esta operacion era automatica en el cron. El boton permite al usuario forzar una obtencion inmediata del TC cuando necesita el valor mas reciente sin esperar el cron. El boton muestra estado de carga y el resultado (TC obtenido o error) al terminar.
+- Archivos: `src/pages/TipoCambio/TipoCambio.tsx`
+- Reversible: si
+
+#### CAMBIO-181 — Contabilidad usa resolverTC().venta con fallback 3.50
+- Fecha: 2026-04-02
+- Tipo: Bug fix
+- Descripcion: El modulo de Contabilidad usaba `tc.promedio` (un campo que no siempre existe) para convertir montos USD a PEN. Si `tc.promedio` era undefined, el resultado era `NaN` en los estados financieros. Corregido a `resolverTC().venta` (el TC de venta del dia del documento) con fallback `3.50` (no 0) cuando no hay TC disponible para esa fecha. El fallback 3.50 representa un valor conservador para no distorsionar los estados financieros cuando el TC es desconocido.
+- Archivos: `src/services/contabilidad.service.ts` (o equivalente)
+- Reversible: si
+
+#### CAMBIO-182 — Proyeccion 360 usa tcActual del store (no hardcodeado)
+- Fecha: 2026-04-02
+- Tipo: Bug fix
+- Descripcion: El motor `proyeccion360.service.ts` usaba un TC hardcodeado (3.75) para proyectar costos de importacion en USD. Reemplazado por `tcActual` leido desde el `tipoCambioStore` — el TC mas reciente disponible en el sistema. Si el store no tiene datos, el fallback es el ultimo TC registrado en Firestore.
+- Archivos: `src/services/proyeccion360.service.ts`, `src/pages/Proyeccion.tsx`
+- Reversible: si
+
+#### CAMBIO-183 — fetchAll en tesoreriaStore no bloquea carga de cuentas
+- Fecha: 2026-04-02
+- Tipo: Optimizacion / Bug fix UX
+- Descripcion: La accion `fetchAll` del `tesoreriaStore` llamaba a `getStats()` (que incluye calculos de CxC/CxP) antes de retornar las cuentas. `getStats()` podia tardar varios segundos si habia muchas ventas/gastos, lo que bloqueaba la visualizacion de la lista de cuentas en la UI. Refactorizado para que las cuentas se carguen y rendericen primero; `getStats()` se ejecuta en background sin bloquear el render inicial.
+- Archivos: `src/store/tesoreriaStore.ts`
+- Reversible: si
+
+---
+
+### Decisiones del titular — Sesion 26
+
+| # | Decision | Estado |
+|---|----------|--------|
+| 25 | Banco→cuentas: cada cuenta bancaria es independiente (moneda, titular, numero propios). Bi-moneda solo para cajas. | IMPLEMENTADO (CAMBIO-140/147) |
+| 26 | Yape/Plin son canales vinculados a cuenta individual con identificador (telefono), no metodos del banco. | IMPLEMENTADO (CAMBIO-143/156) |
+| 27 | MercadoPago/PayPal/Zelle son cuentas digitales independientes con saldo propio. | IMPLEMENTADO (CAMBIO-140) |
+| 28 | Eliminacion real de cuentas (no soft delete). Validar saldo en cero. Con trazabilidad en coleccion de archivo. | IMPLEMENTADO (CAMBIO-142/166) |
+| 29 | TC paralelo de cuantoestaeldolar.pe es la fuente principal. Validacion cruzada vs ExchangeRate-API. | IMPLEMENTADO (CAMBIO-177) |
+| 30 | Patron de archivo: eliminacion real + coleccion de trazabilidad para todas las entidades del sistema. | IMPLEMENTADO (CAMBIO-166 a CAMBIO-171) |
+
+---
+
+### Tareas completadas en esta sesion
+
+| ID | Descripcion | Estado |
+|----|-------------|--------|
+| TAREA-100 | Rediseno formulario de cuentas Tesoreria | COMPLETADA (CAMBIO-137 a CAMBIO-148) |
+| Limpieza legacy | Eliminar 5 formularios de pago legacy | COMPLETADA (CAMBIO-160) |
+
+### Tareas nuevas identificadas
+
+| ID | Descripcion | Prioridad |
+|----|-------------|-----------|
+| ARCHIVO-FASE3 | clientesArchivo + logs sincronizacion unidades | Media |
+| UI-BANNER-ERR | Banner errorTesoreria en Dashboard (CONT-002) | Media |
+| CLEANUP-CUENTACAJA | Eliminar CuentaCajaForm.tsx deprecated | Baja |
+
+---
+
+### Estado del sistema al cierre de S26
+
+| Modulo | Estado |
+|--------|--------|
+| Tesoreria / Cuentas | RENOVADO — modelo banco→cuentas, 3 secciones, eliminacion real con trazabilidad |
+| Pagos (PagoUnificadoForm v2) | ACTIVO — selector custom agrupado, canales vinculados Yape/Plin, sin hardcoding |
+| Transferencias / Conversiones | ACTIVO — validacion de saldo bloqueante antes de escribir a Firestore |
+| Anulaciones | ACTIVO — propagacion bidireccional a doc origen con flag anti-recursion |
+| Patron de archivo | ACTIVO — 6 colecciones de trazabilidad para eliminaciones |
+| Tipo de Cambio | ACTIVO — scraper reescrito, validacion cruzada, getByFecha O(1), badges diferenciados |
+| Proyeccion 360 | ACTIVO — sin TC hardcodeado, usa tcActual del store |
+| Contabilidad | ACTIVO — usa tc.venta con fallback 3.50 (no 0, no promedio) |
+| Ventas / CxC | ACTIVO — fix doble resolucion TC, modelo unificado de pagos |
+| Pool USD | ACTIVO — sin doble registro, movimientosArchivo activo |
+| SUNAT | Inexistente — gap regulatorio critico abierto |
+| WhatsApp | En desarrollo — sin uso en produccion |
+
+---
+
+### Pendientes para la proxima sesion
+
+| Prioridad | ID | Descripcion | Estimacion | Notas |
+|-----------|-----|-------------|------------|-------|
+| Alta | TAREA-098 | Contenido tabs Reportes (Logistica, Clientes, Auditorias, Compras) + CxC + CxP | 15-20h | Estructura base lista S25 |
+| Alta | TAREA-099 | Trazabilidad de ubicacion de productos | 8-12h | Pendiente diseno |
+| Alta | TAREA-097 Fase 2 | Calibracion automatica de proyecciones, persistencia en Firestore | 10-15h | Fase 1 completa |
+| Media | ARCHIVO-FASE3 | clientesArchivo + logs sincronizacion unidades | 3-4h | Complemento del patron de archivo S26 |
+| Media | UI-BANNER-ERR | Banner errorTesoreria en Dashboard (CONT-002) | 2-3h | Patron listo — falta UI |
+| Baja | CLEANUP-CUENTACAJA | Eliminar CuentaCajaForm.tsx deprecated | 1h | Limpieza directa |
+| Baja | SEC-C01 | Rotar API keys expuestas en historial Git | — | Accion manual del titular |
+
+---
+
+### Metricas finales de la Sesion 26
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys realizados | 13 (Deploy 38 a Deploy 50) |
+| Commits totales | ~20 |
+| Bloques de trabajo | 6 |
+| Cambios registrados | 47 (CAMBIO-137 a CAMBIO-183) |
+| Bugs corregidos | 8 (BUG-PERSIST-001, BUG-CONV-001, BUG-PROP-001, BUG-TC-VTA-001, BUG-TC-VIA-001, BUG-TC-001, BUG-TC-002, BUG-TC-003) |
+| Colecciones de archivo creadas | 6 |
+| Formularios legacy eliminados | 5 |
+| Decisiones del titular | 6 (Decision 25 a 30) |
+| Tareas completadas | 2 (TAREA-100, limpieza legacy) |
+
+---
+
+*Cierre registrado por implementation-controller (Agente 23).*
+*2026-04-01/02 — Sesion 26 CERRADA. 13 deploys (Deploy 38-50), ~20 commits. 6 bloques: cuentas Tesoreria (TAREA-100 completada), transferencias+conversiones, PagoUnificadoForm v2, propagacion bidireccional anulaciones, patron de archivo (6 colecciones), TC 360. 47 cambios (CAMBIO-137 a CAMBIO-183). 6 decisiones del titular (D-25 a D-30). Formularios legacy eliminados. Sistema estable en produccion. Proxima sesion: TAREA-098 (contenido Reportes) → TAREA-099 (trazabilidad ubicacion) → TAREA-097 Fase 2.*

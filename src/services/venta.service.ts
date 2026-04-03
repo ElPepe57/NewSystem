@@ -1364,6 +1364,38 @@ export class VentaService {
         logger.warn(`[Venta ${venta.numeroVenta}] Error al cancelar entregas pendientes (no bloquea):`, entregaError);
       }
 
+      // Revertir métricas del cliente
+      if (venta.clienteId && venta.totalPEN) {
+        try {
+          await metricasService.revertirMetricasClientePorVenta(venta.clienteId, { totalPEN: venta.totalPEN });
+        } catch (metricasError) {
+          logger.warn(`[Venta ${venta.numeroVenta}] Error revirtiendo métricas del cliente (no bloquea):`, metricasError);
+        }
+      }
+
+      // Revertir métricas de marcas
+      if (venta.productos?.length) {
+        const marcaMap = new Map<string, { unidades: number; monto: number }>();
+        for (const prod of venta.productos) {
+          if (prod.marcaId) {
+            const prev = marcaMap.get(prod.marcaId) || { unidades: 0, monto: 0 };
+            prev.unidades += prod.cantidad || 1;
+            prev.monto += prod.subtotalPEN || 0;
+            marcaMap.set(prod.marcaId, prev);
+          }
+        }
+        for (const [marcaId, datos] of marcaMap) {
+          try {
+            await metricasService.revertirMetricasMarcaPorVenta(marcaId, {
+              unidadesVendidas: datos.unidades,
+              ventaTotalPEN: datos.monto
+            });
+          } catch (metricasError) {
+            logger.warn(`[Venta ${venta.numeroVenta}] Error revirtiendo métricas marca ${marcaId} (no bloquea):`, metricasError);
+          }
+        }
+      }
+
       // Archivar y eliminar de colección activa
       try {
         const ventaSnap = await getDoc(doc(db, COLLECTION_NAME, id));

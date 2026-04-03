@@ -142,6 +142,72 @@ export const metricasService = {
   },
 
   /**
+   * Revertir métricas del cliente cuando se cancela una venta
+   */
+  async revertirMetricasClientePorVenta(
+    clienteId: string,
+    datosVenta: { totalPEN: number }
+  ): Promise<void> {
+    if (!clienteId) return;
+
+    try {
+      const clienteRef = doc(db, CLIENTES_COLLECTION, clienteId);
+      await updateDoc(clienteRef, {
+        'metricas.totalCompras': increment(-1),
+        'metricas.montoTotalPEN': increment(-datosVenta.totalPEN),
+        fechaActualizacion: serverTimestamp()
+      });
+      logger.success(`Métricas revertidas para cliente ${clienteId} (venta cancelada)`);
+    } catch (error: any) {
+      logger.error('Error revirtiendo métricas del cliente:', error);
+    }
+  },
+
+  /**
+   * Revertir métricas de la marca cuando se cancela una venta
+   */
+  async revertirMetricasMarcaPorVenta(
+    marcaId: string,
+    datosVenta: { unidadesVendidas: number; ventaTotalPEN: number }
+  ): Promise<void> {
+    if (!marcaId) return;
+
+    try {
+      const marcaRef = doc(db, MARCAS_COLLECTION, marcaId);
+      await updateDoc(marcaRef, {
+        'metricas.unidadesVendidas': increment(-datosVenta.unidadesVendidas),
+        'metricas.ventasTotalPEN': increment(-datosVenta.ventaTotalPEN),
+        fechaActualizacion: serverTimestamp()
+      });
+      logger.success(`Métricas revertidas para marca ${marcaId} (venta cancelada)`);
+    } catch (error: any) {
+      logger.error('Error revirtiendo métricas de marca:', error);
+    }
+  },
+
+  /**
+   * Revertir métricas del proveedor cuando se elimina una OC
+   */
+  async revertirMetricasProveedorPorOC(
+    proveedorId: string,
+    datosOC: { totalUSD: number }
+  ): Promise<void> {
+    if (!proveedorId) return;
+
+    try {
+      const provRef = doc(db, PROVEEDORES_COLLECTION, proveedorId);
+      await updateDoc(provRef, {
+        'metricas.ordenesCompra': increment(-1),
+        'metricas.montoTotalUSD': increment(-datosOC.totalUSD),
+        fechaActualizacion: serverTimestamp()
+      });
+      logger.success(`Métricas revertidas para proveedor ${proveedorId} (OC eliminada)`);
+    } catch (error: any) {
+      logger.error('Error revirtiendo métricas del proveedor:', error);
+    }
+  },
+
+  /**
    * Actualizar ticket promedio del cliente
    *
    * Se debe llamar después de actualizar el total de compras y monto

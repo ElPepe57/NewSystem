@@ -202,7 +202,16 @@
       "Bash(find /c/Users/josel/businessmn-v2/src -type f \\\\\\(-name *mercado* -o -name *marketplace* -o -name *integr* \\\\\\))",
       "Bash(python3 -c \":*)",
       "Bash(firebase functions:log --only mldisconnect)",
-      "Bash(firebase functions:log --only mlregisterwebhook)"
+      "Bash(firebase functions:log --only mlregisterwebhook)",
+      "Bash(cp \"C:\\\\Users\\\\josel\\\\Downloads\\\\businessmn-269c9-firebase-adminsdk-fbsvc-7eecb4c39a.json\" serviceAccountKey.json)",
+      "Bash(rm serviceAccountKey.json)",
+      "Bash(git reset:*)",
+      "Bash(1:*)",
+      "Bash(dd if=/tmp/tc_page.html bs=1 skip=340750 count=500)",
+      "Bash(dd if=/tmp/tc_page.html bs=1 skip=40020 count=200)",
+      "Bash(tasklist /FI 'PID eq 11936')",
+      "Bash(wmic process:*)",
+      "Bash(taskkill //PID 11936 //F)"
     ],
     "deny": [],
     "ask": []

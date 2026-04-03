@@ -33,6 +33,7 @@ import { ProductoService } from './producto.service';
 import { almacenService } from './almacen.service';
 import { requerimientoService } from './requerimiento.service';
 import { actividadService } from './actividad.service';
+import { metricasService } from './metricas.service';
 import { ORDENES_COLLECTION, PROVEEDORES_COLLECTION, generateNumeroOrden } from './ordenCompra.shared';
 import { getProveedorById } from './ordenCompra.proveedores.service';
 
@@ -490,6 +491,15 @@ export async function deleteOrden(id: string): Promise<void> {
       await addDoc(collection(db, 'ordenesCompraArchivo'), {
         ...ocSnap.data(), ordenOriginalId: id, fechaArchivo: Timestamp.now(), motivoArchivo: 'eliminada'
       });
+    }
+
+    // Revertir métricas del proveedor
+    if (orden.proveedorId && orden.totalUSD) {
+      try {
+        await metricasService.revertirMetricasProveedorPorOC(orden.proveedorId, { totalUSD: orden.totalUSD });
+      } catch (metricasError) {
+        logger.warn(`Error revirtiendo métricas proveedor ${orden.proveedorId} (no bloquea):`, metricasError);
+      }
     }
 
     await deleteDoc(doc(db, ORDENES_COLLECTION, id));
