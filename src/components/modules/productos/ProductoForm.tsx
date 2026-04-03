@@ -611,7 +611,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   const isLastTab = activeTab === activeTabs[activeTabs.length - 1].id;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} onKeyDown={(e) => { if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'TEXTAREA') e.preventDefault(); }} className="space-y-6">
       {/* === TABS DE NAVEGACION === */}
       <div className="border-t pt-6">
         <Tabs
