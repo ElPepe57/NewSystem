@@ -245,6 +245,9 @@ export const Productos: React.FC = () => {
   };
 
   const handleCreateVariante = (padre: Producto) => {
+    // Cerrar modal de vista primero
+    setIsViewModalOpen(false);
+
     // Pre-llenar formulario con datos del padre
     const varianteData: Partial<ProductoFormData> = {
       marca: padre.marca,
@@ -262,9 +265,12 @@ export const Productos: React.FC = () => {
       parentId: padre.id,
       esVariante: true,
     };
-    setSelectedProducto(varianteData as any);
-    setIsEditing(false);
-    setIsFormModalOpen(true);
+    // Usar setTimeout para que el modal de vista se cierre antes de abrir el formulario
+    setTimeout(() => {
+      setSelectedProducto(varianteData as any);
+      setIsEditing(false);
+      setIsFormModalOpen(true);
+    }, 250);
     setIsViewModalOpen(false);
   };
 
