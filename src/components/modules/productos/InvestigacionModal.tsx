@@ -23,7 +23,6 @@ import { ProveedorUSAList } from './ProveedorUSAList';
 import { CompetidorPeruList } from './CompetidorPeruList';
 import { HistorialPreciosChart } from './HistorialPreciosChart';
 import { AlertasInvestigacion } from './AlertasInvestigacion';
-import { PuntoEquilibrioCard } from './PuntoEquilibrioCard';
 import { ProductoService } from '../../../services/producto.service';
 import type {
   Producto,
@@ -533,6 +532,36 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
         {/* Tab 3: Decisión */}
         <TabPanel tabId="decision">
           <div className="space-y-4">
+            {/* Evaluación de oportunidad */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Demanda estimada</label>
+                <select
+                  value={formData.demandaEstimada}
+                  onChange={(e) => handleChange('demandaEstimada', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                  disabled={loading}
+                >
+                  <option value="baja">Baja</option>
+                  <option value="media">Media</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Tendencia</label>
+                <select
+                  value={formData.tendencia}
+                  onChange={(e) => handleChange('tendencia', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                  disabled={loading}
+                >
+                  <option value="subiendo">Subiendo</option>
+                  <option value="estable">Estable</option>
+                  <option value="bajando">Bajando</option>
+                </select>
+              </div>
+            </div>
+
             {/* Recomendación */}
             <div className="bg-gray-100 p-4 rounded-lg">
               <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
