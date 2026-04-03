@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-02 (Sesion 26 — Deploy 38-50: Rediseno cuentas Tesoreria, PagoUnificadoForm v2, propagacion bidireccional anulaciones, patron de archivo 6 colecciones, TC 360. CAMBIO-137 a CAMBIO-183.)
+**Ultima actualizacion:** 2026-04-03 (Sesion 27 — Deploy 51-68: Integridad datos post fresh-start, 78 competidores restaurados, lineaNegocioIds en Maestros, createConVariantes corregido, investigacion simplificada, 30 etiquetas SUP. CAMBIO-184 a CAMBIO-243.)
 **Branch activo:** main
 
 ---
@@ -12,12 +12,12 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 26 |
+| Sesiones de trabajo registradas | 27 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 220+ |
-| Fixes aplicados | ~281 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19 + 13 S20 + 16 S21 + 11 S24 + 15 S25 FINAL + 47 S26) |
+| Fixes aplicados | ~341 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19 + 13 S20 + 16 S21 + 11 S24 + 15 S25 FINAL + 47 S26 + 60 S27) |
 | Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 50 (ultimo: 2026-04-02 Deploy 50, hosting vitaskinperu.web.app) |
+| Deploys realizados | 68 (ultimo: 2026-04-03 Deploy 68, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -9341,3 +9341,509 @@ Sesion centrada en la capa financiera del sistema. El hito principal es la compl
 
 *Cierre registrado por implementation-controller (Agente 23).*
 *2026-04-01/02 — Sesion 26 CERRADA. 13 deploys (Deploy 38-50), ~20 commits. 6 bloques: cuentas Tesoreria (TAREA-100 completada), transferencias+conversiones, PagoUnificadoForm v2, propagacion bidireccional anulaciones, patron de archivo (6 colecciones), TC 360. 47 cambios (CAMBIO-137 a CAMBIO-183). 6 decisiones del titular (D-25 a D-30). Formularios legacy eliminados. Sistema estable en produccion. Proxima sesion: TAREA-098 (contenido Reportes) → TAREA-099 (trazabilidad ubicacion) → TAREA-097 Fase 2.*
+
+---
+
+## SESION 27 — 2026-04-03 — Integridad de datos, Maestros, Productos y Etiquetas
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Sesion de integridad de datos + reconexion de maestros + mejoras en productos/variantes
+**Deploys realizados:** 18 (Deploy 51 a Deploy 68)
+**Commits totales:** ~20
+**Fecha:** 2026-04-03
+
+---
+
+### Resumen ejecutivo de la sesion
+
+Sesion enfocada en restaurar la integridad de los datos maestros post fresh-start y consolidar el modulo de productos. Los hitos principales: (1) restauracion de 78 competidores del backup y reconexion de 306 referencias en 116 productos; (2) correccion de 7 contadores desfasados y eliminacion de todos los datos seed/test (ventas, OC, unidades, gastos, clientes, mlOrderSync); (3) implementacion de `lineaNegocioIds[]` en Marca, Competidor, Proveedor y Cliente con filtro funcional en las 4 vistas de Maestros; (4) correcciones en `createConVariantes` para que guarde marcaId, snapshots de clasificacion y actualice metricas; (5) simplificacion de la investigacion de productos (sin demanda/tendencia/punto de equilibrio); y (6) expansion del catalogo de etiquetas de 3 a 10 tipos con 30 etiquetas nuevas para suplementos.
+
+---
+
+### Hallazgos identificados
+
+| ID | Severidad | Descripcion | Estado |
+|----|-----------|-------------|--------|
+| BUG-001 | ALTO | createConVariantes no guardaba marcaId en las variantes creadas | RESUELTO (CAMBIO-211) |
+| BUG-004 | ALTO | PROVEEDORES_COLLECTION no declarado en metricas.service.ts — error en runtime | RESUELTO (CAMBIO-197) |
+| BUG-005 | ALTO | createConVariantes no obtenia snapshots de marca/tipo/categoria — campos desnormalizados vacios | RESUELTO (CAMBIO-212) |
+| BUG-006 | ALTO | createConVariantes no actualizaba metricas de marca/tipo/categoria al crear | RESUELTO (CAMBIO-213) |
+| DATA-001 | MEDIO | FormVarianteReducida no propagaba marcaId del grupo padre — variantes sin marca | RESUELTO (CAMBIO-214) |
+| DATA-002 | MEDIO | Preview de SKU usaba prefijo hardcodeado en lugar del prefijo real de la linea de negocio | RESUELTO (CAMBIO-215) |
+
+---
+
+### BLOQUE 1 — Competidores: restauracion y reconexion
+
+#### CAMBIO-184 — Migrar 78 competidores del backup a coleccion maestra
+- Fecha: 2026-04-03
+- Tipo: Migracion de datos
+- Descripcion: Script `migrar-competidores-backup.mjs` lee el backup Firestore de la coleccion `competidores` y escribe los 78 documentos a la coleccion maestra activa en la BD de produccion. Los nuevos documentos reciben IDs frescos generados por Firestore.
+- Script: `scripts/migrar-competidores-backup.mjs` (nuevo)
+
+#### CAMBIO-185 — Reconectar 306 competidorId en 116 productos con nuevos IDs
+- Fecha: 2026-04-03
+- Tipo: Migracion de datos
+- Descripcion: Script `reconectar-competidores-productos.mjs` construye un mapa nombre→nuevoId a partir de los competidores restaurados y actualiza el campo `competidorId` en los 116 productos que tenian referencias rotas. 306 referencias reconectadas en total via batch updates.
+- Script: `scripts/reconectar-competidores-productos.mjs` (nuevo)
+
+#### CAMBIO-186 — Fix analytics: buscar por competidorId (no c.id) — BUG-001
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: `competidor.analytics.service.ts` buscaba el competidor usando `c.id` en lugar de `c.competidorId`. Despues de la restauracion del backup los IDs cambiaron, por lo que la busqueda nunca encontraba el competidor correcto y los analytics aparecian vacios.
+- Archivo: `src/services/competidor.analytics.service.ts`
+
+#### CAMBIO-187 — Guardia anti-eliminacion: verifica refs reales en productos
+- Fecha: 2026-04-03
+- Tipo: Feature
+- Descripcion: `competidor.service.ts` ahora consulta cuantos productos tienen una referencia activa al `competidorId` antes de permitir la eliminacion. Si existen referencias, muestra el conteo y bloquea la operacion. Previene datos huerfanos en el catalogo.
+- Archivo: `src/services/competidor.service.ts`
+
+#### CAMBIO-188 — Actualizar metricas productosAnalizados de los 78 competidores
+- Fecha: 2026-04-03
+- Tipo: Datos
+- Descripcion: Script recalcula y actualiza el campo `productosAnalizados` en los 78 competidores restaurados contando las referencias activas en el catalogo de productos.
+- Script: integrado en `sync-maestros-completo.mjs`
+
+---
+
+### BLOQUE 2 — Integridad post fresh-start: contadores, codigos y seed
+
+#### CAMBIO-189 — Corregir 7 contadores desfasados
+- Fecha: 2026-04-03
+- Tipo: Correccion de datos
+- Descripcion: Script `audit-integridad.mjs` detecto 7 contadores en la coleccion `contadores` con valores superiores al numero real de documentos activos: MRC (marcas), TIP (tipos de producto), ETQ (etiquetas), PRV (proveedores), CMP (competidores), ALM (almacenes). Contadores corregidos al valor real del COUNT de cada coleccion.
+- Script: `scripts/audit-integridad.mjs` (nuevo)
+
+#### CAMBIO-190 — Corregir 3 codigos de marca duplicados (MRC-001/002/003)
+- Fecha: 2026-04-03
+- Tipo: Correccion de datos
+- Descripcion: Tres marcas tenian codigos duplicados (MRC-001, MRC-002, MRC-003 asignados a documentos distintos). Renumerados los duplicados con codigos en el rango correcto segun el secuenciador.
+
+#### CAMBIO-191 — Sync maestros: nombres y snapshots desnormalizados
+- Fecha: 2026-04-03
+- Tipo: Correccion de datos
+- Descripcion: Script `sync-maestros-completo.mjs` corrige: (a) 37 marcas con campo `nombre` desactualizado vs el nombre en Firestore; (b) 137 documentos con campo `tipoProducto` almacenado como `[object Object]` en lugar de string — normalizado al nombre correcto; (c) 22 proveedores del sector investigacion con campos incompletos identificados para revision manual.
+- Script: `scripts/sync-maestros-completo.mjs` (nuevo)
+
+#### CAMBIO-192 — Eliminar datos seed/test
+- Fecha: 2026-04-03
+- Tipo: Limpieza de datos
+- Descripcion: Eliminados todos los datos que no son reales del negocio: 3 ventas de prueba, 3 OC de prueba, 63 unidades asociadas a esas OC, 18 gastos de prueba, 2 movimientos de tesoreria, 1 transferencia de prueba, 88 clientes importados de muestra, 128 documentos de mlOrderSync legacy. La BD queda solo con datos reales.
+- Decision del titular: Decision 31
+
+#### CAMBIO-193 — Resetear contadores operativos a 0
+- Fecha: 2026-04-03
+- Tipo: Correccion de datos
+- Descripcion: Tras eliminar las ventas, OC, gastos y transferencias de prueba, los contadores operativos (VT, OC, GS, TR) se resetean a 0 para que la numeracion real comience desde VT-2026-001, OC-2026-001, etc.
+
+---
+
+### BLOQUE 3 — Metricas y triggers
+
+#### CAMBIO-194 — Resetear metricas cacheadas en maestros
+- Fecha: 2026-04-03
+- Tipo: Correccion de datos
+- Descripcion: Las metricas desnormalizadas en marcas (totalVentas, totalProductos), almacenes (totalUnidades) y proveedores (totalOC, montoTotalUSD) reflejaban datos de prueba eliminados. Reseteados a 0 o recalculados desde la BD limpia.
+
+#### CAMBIO-195 — Triggers de reversion de metricas
+- Fecha: 2026-04-03
+- Tipo: Feature
+- Descripcion: Tres nuevos metodos en `metricas.service.ts`:
+  - `revertirMetricasClientePorVenta()` — revierte totalCompras, totalGastado, RFM al cancelar una venta
+  - `revertirMetricasMarcaPorVenta()` — revierte ventas de la marca al cancelar una venta
+  - `revertirMetricasProveedorPorOC()` — revierte totalOC, montoTotalUSD al eliminar una OC
+  Todos operan sobre Firestore con `increment(-valor)` para garantizar atomicidad.
+- Archivo: `src/services/metricas.service.ts`
+- Decision del titular: Decision 32
+
+#### CAMBIO-196 — Trigger de incremento de metricas proveedor al crear OC
+- Fecha: 2026-04-03
+- Tipo: Feature
+- Descripcion: `ordenCompra.crud.service.ts` llama a `incrementarMetricasProveedor()` al crear una nueva OC, complementando el trigger de reversion (CAMBIO-195). El proveedor ahora ve sus metricas actualizadas en tiempo real al crear y eliminar OCs.
+- Archivo: `src/services/ordenCompra.crud.service.ts`
+
+#### CAMBIO-197 — Declarar PROVEEDORES_COLLECTION en metricas.service.ts (BUG-004)
+- Fecha: 2026-04-03
+- Tipo: Bug fix critico
+- Descripcion: El servicio de metricas referenciaba la constante `PROVEEDORES_COLLECTION` sin importarla ni declararla localmente, causando un ReferenceError en runtime al intentar actualizar metricas de proveedor. Declarado el valor correcto de la constante al inicio del archivo.
+- Archivo: `src/services/metricas.service.ts`
+
+---
+
+### BLOQUE 4 — Linea de negocio en Maestros
+
+#### CAMBIO-198 — lineaNegocioIds[] en Marca, Competidor, Proveedor y Cliente
+- Fecha: 2026-04-03
+- Tipo: Cambio de modelo de datos
+- Descripcion: Campo `lineaNegocioIds: string[]` agregado a las interfaces `Marca`, `Competidor`, `Proveedor` y `Cliente` en `entidadesMaestras.types.ts`. Tambien agregado a los tipos `FormData` correspondientes para que persista en creacion y edicion.
+- Archivos: `src/types/entidadesMaestras.types.ts`, FormData de cada entidad
+
+#### CAMBIO-199 — Hook useLineaFilterMulti para entidades con multiples lineas
+- Fecha: 2026-04-03
+- Tipo: Feature
+- Descripcion: Nuevo overload/variante `useLineaFilterMulti` en `src/hooks/useLineaFilter.ts`. A diferencia del hook existente (que filtra entidades con un campo `lineaNegocioId` escalar), este filtra entidades cuyo campo `lineaNegocioIds[]` contiene al menos una de las lineas activas del filtro global.
+- Archivo: `src/hooks/useLineaFilter.ts`
+
+#### CAMBIO-200 — Filtro aplicado en las 4 vistas de Maestros
+- Fecha: 2026-04-03
+- Tipo: Feature
+- Descripcion: `useLineaFilterMulti` aplicado en: MarcasAnalytics, CompetidoresIntel, ProveedoresSRM y ClientesCRM. Cuando el usuario selecciona una linea de negocio en el filtro global, cada vista muestra solo las entidades asignadas a esa linea.
+- Archivos: componentes Maestros correspondientes
+
+#### CAMBIO-201 — Componentes reutilizables de linea de negocio
+- Fecha: 2026-04-03
+- Tipo: Componentes UI
+- Descripcion: Tres componentes nuevos:
+  - `LineaNegocioBadges` — muestra una lista de badges de colores por cada linea asignada
+  - `LineaNegocioSelect` — selector simple (radio) para elegir una linea
+  - `LineaNegocioCheckboxes` — selector multiple (checkboxes) para asignar multiples lineas
+- Archivos: `src/components/ui/LineaNegocioBadges.tsx`, `LineaNegocioSelect.tsx`, `LineaNegocioCheckboxes.tsx` (nuevos)
+
+#### CAMBIO-202 — Columna/badge Linea visible en tablas de Maestros
+- Fecha: 2026-04-03
+- Tipo: Feature UX
+- Descripcion: Las tablas de Marcas, Competidores, Proveedores y Clientes muestran una columna (o badge inline) con las lineas de negocio asignadas usando el componente `LineaNegocioBadges`. El usuario puede ver la asignacion sin abrir el detalle.
+
+#### CAMBIO-203 — Filtro local select por linea en tabs de Maestros
+- Fecha: 2026-04-03
+- Tipo: Feature UX
+- Descripcion: Selector de linea de negocio local (complementario al filtro global) en cada tab de Maestros. Permite filtrar dentro de la vista activa sin cambiar el contexto global de la aplicacion.
+
+#### CAMBIO-204 — Inferir lineas desde productos: asignacion masiva a 136 maestros
+- Fecha: 2026-04-03
+- Tipo: Datos
+- Descripcion: Script `inferir-lineas-maestros.mjs` recorre el catalogo de productos y deduce las lineas de negocio de cada marca, proveedor y competidor a partir de los productos que tienen asignados. Resultado: 32 marcas, 25 proveedores y 79 competidores asignados automaticamente a la linea Suplementos.
+- Script: `scripts/inferir-lineas-maestros.mjs` (nuevo)
+
+#### CAMBIO-205 — LineaNegocioCheckboxes en formularios de creacion/edicion
+- Fecha: 2026-04-03
+- Tipo: Feature
+- Descripcion: El componente `LineaNegocioCheckboxes` integrado en los formularios de creacion y edicion de Marca, Competidor, Proveedor y Cliente en `MaestrosModals.tsx`. El campo es opcional al crear.
+- Archivo: `src/pages/Maestros/MaestrosModals.tsx`
+
+#### CAMBIO-206 — Servicios update persisten lineaNegocioIds al editar
+- Fecha: 2026-04-03
+- Tipo: Fix
+- Descripcion: Los metodos `update` de los servicios de Marca, Competidor, Proveedor y Cliente ahora incluyen `lineaNegocioIds` en el payload del batch update. Antes se perdia al editar cualquier campo de la entidad.
+
+---
+
+### BLOQUE 5 — Producto y variantes: correcciones estructurales
+
+#### CAMBIO-207 — Eliminar campo "Marca manual" redundante
+- Fecha: 2026-04-03
+- Tipo: Limpieza UX
+- Descripcion: `ProductoForm.tsx` tenia dos campos para marca: un texto libre ("Marca manual") y el `MarcaAutocomplete` que vincula al maestro. El campo de texto libre se elimina. Solo queda `MarcaAutocomplete` como fuente unica de la marca del producto.
+- Archivo: `src/components/modules/productos/ProductoForm.tsx`
+
+#### CAMBIO-208 — ProductoForm propaga marcaId al formData al seleccionar marca
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: Al seleccionar una marca en `MarcaAutocomplete`, el callback ahora escribe tanto `marcaNombre` como `marcaId` al `formData`. Anteriormente solo se escribia el nombre y `marcaId` quedaba undefined en el payload de creacion.
+- Archivo: `src/components/modules/productos/ProductoForm.tsx`
+
+#### CAMBIO-209 — Inicializacion prioriza marcaId sobre nombre al editar
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: Al abrir `ProductoForm` en modo edicion, el campo `MarcaAutocomplete` ahora se inicializa con el `marcaId` del producto existente (que busca el objeto completo en el store) en lugar de usar solo el nombre string. Previene que editar un producto resulte en `marcaId = undefined`.
+- Archivo: `src/components/modules/productos/ProductoForm.tsx`
+
+#### CAMBIO-210 — Variantes heredan marcaId del producto padre
+- Fecha: 2026-04-03
+- Tipo: Feature
+- Descripcion: Al crear variantes desde un producto padre, el `marcaId` del padre se propaga automaticamente a cada variante hija. El usuario no necesita seleccionar la marca nuevamente para cada variante.
+- Archivos: `ProductoForm.tsx`, `createConVariantes` en `producto.service.ts`
+
+#### CAMBIO-211 — createConVariantes guarda marcaId (BUG-001)
+- Fecha: 2026-04-03
+- Tipo: Bug fix critico
+- Descripcion: La funcion `createConVariantes` en `producto.service.ts` construia el payload de cada variante sin incluir `marcaId`. Todas las variantes creadas por este flujo llegaban a Firestore sin marca vinculada. Corregido incluyendo `marcaId` desde el `grupoData` padre.
+- Archivo: `src/services/producto.service.ts`
+
+#### CAMBIO-212 — createConVariantes obtiene snapshots de clasificacion (BUG-005)
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: Los campos desnormalizados `marcaNombre`, `tipoProductoNombre` y `categoriaNombre` en las variantes llegaban vacios porque `createConVariantes` no consultaba los documentos de maestros. Corregido: se obtienen snapshots de marca, tipoProducto y categoria antes de escribir el batch.
+- Archivo: `src/services/producto.service.ts`
+
+#### CAMBIO-213 — createConVariantes actualiza metricas marca/tipo/categoria (BUG-006)
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: Al crear un grupo de variantes con `createConVariantes`, los contadores de productos en Marca, TipoProducto y Categoria no se incrementaban. Corregido: se llama a `incrementarMetricasMarca()`, `incrementarMetricasTipoProducto()` y `incrementarMetricasCategoria()` despues del batch.commit().
+- Archivo: `src/services/producto.service.ts`
+
+#### CAMBIO-214 — FormVarianteReducida propaga marcaId del grupo padre (DATA-001)
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: El componente `FormVarianteReducida` en la tabla de variantes no recibia ni usaba el `marcaId` del grupo padre. Al crear una variante individual desde la tabla, el campo `marcaId` quedaba undefined. Corregido pasando `grupoMarcaId` como prop y usandolo en el payload de creacion.
+- Archivo: `src/components/modules/productos/VariantesTable.tsx`
+
+#### CAMBIO-215 — Preview SKU usa prefijo real de linea de negocio (DATA-002)
+- Fecha: 2026-04-03
+- Tipo: Bug fix / UX
+- Descripcion: La preview del SKU en el formulario de productos mostraba un prefijo hardcodeado ("PROD-") en lugar del prefijo real de la linea de negocio seleccionada (SUP-, SKC-, etc.). Corregido consultando el prefijo desde el store de lineas de negocio usando el `lineaNegocioId` del formulario.
+- Archivos: `ProductoForm.tsx`
+
+#### CAMBIO-216 — Fix parentId y marcaId undefined en batch write
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: En el batch de creacion de variantes, `parentId` podia llegar como undefined cuando el producto padre todavia no habia completado su escritura (race condition). Corregido: el `parentId` se asigna desde el ID del documento creado en el paso anterior, garantizando que siempre tiene valor antes del batch.
+- Archivo: `src/services/producto.service.ts`
+
+#### CAMBIO-217 — removeUndefined recursivo en createConVariantes
+- Fecha: 2026-04-03
+- Tipo: Fix
+- Descripcion: Aplicado `removeUndefined()` recursivo al payload de cada variante antes de `batch.set()`. Prev viene campos opcionales con valor `undefined` que Firestore rechaza con error de campo invalido.
+- Archivo: `src/services/producto.service.ts`
+
+#### CAMBIO-218 — Import faltante de ProductoService en Productos.tsx
+- Fecha: 2026-04-03
+- Tipo: Bug fix de compilacion
+- Descripcion: `Productos.tsx` llamaba a `ProductoService.createConVariantes` pero no tenia el import correspondiente, causando un error de build. Corregido agregando el import.
+- Archivo: `src/pages/Productos/Productos.tsx`
+
+#### CAMBIO-219 — tipoProducto display soporta string y objeto snapshot
+- Fecha: 2026-04-03
+- Tipo: Bug fix / Compatibilidad
+- Descripcion: Despues de CAMBIO-191 (sync maestros), el campo `tipoProducto` en algunos documentos es un string y en otros un objeto snapshot `{ id, nombre }`. Los componentes que lo mostraban no manejaban ambos casos y mostraban `[object Object]`. Corregido con un helper que detecta el tipo y extrae el nombre en ambos casos.
+- Archivos: `ProductoCard.tsx`, `ProductoForm.tsx`
+
+---
+
+### BLOQUE 6 — Estabilidad e investigacion simplificada
+
+#### CAMBIO-220 — Fix categoriaPrincipal busca por categoriaId (no c.id)
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: En `InvestigacionModal.tsx`, la busqueda de la categoria principal del producto usaba `c.id` (ID del documento Firestore) en lugar de `c.categoriaId` (el campo de referencia). Despues del fresh-start los IDs cambiaron y la categoria aparecia siempre vacia.
+- Archivo: `src/components/modules/productos/InvestigacionModal.tsx`
+
+#### CAMBIO-221 — Fix ciclo de recompra: stale closure
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: El calculo del ciclo de recompra en `InvestigacionModal` capturaba el valor de `ventas` del momento del render inicial (stale closure en useCallback/useMemo sin la dependencia correcta). Corregido agregando `ventas` como dependencia del efecto.
+- Archivo: `src/components/modules/productos/InvestigacionModal.tsx`
+
+#### CAMBIO-222 — Proteger acceso a marcaCompleta.metricas en 3 puntos
+- Fecha: 2026-04-03
+- Tipo: Bug fix / Robustez
+- Descripcion: El objeto `marcaCompleta` puede no tener el campo `metricas` en los documentos restaurados del backup (campo que se agrego en una version posterior). Agregado optional chaining en 3 puntos del codigo que accedian a `marcaCompleta.metricas.X` sin guardia.
+- Archivo: `src/components/modules/productos/InvestigacionModal.tsx`
+
+#### CAMBIO-223 — Guard Math.min(margenObjetivo, 99) evita division por cero
+- Fecha: 2026-04-03
+- Tipo: Bug fix
+- Descripcion: Si `margenObjetivo` era 100, la formula del punto de equilibrio calculaba `1 / (1 - 1.0) = Infinity`. Agregado `Math.min(margenObjetivo, 99)` como guardia para evitar division por cero o resultado Infinity en el calculo.
+- Archivo: `src/components/modules/productos/InvestigacionModal.tsx`
+
+#### CAMBIO-224 — Eliminar envio estimado y metricas no reales de competidores
+- Fecha: 2026-04-03
+- Tipo: Simplificacion (Decision 35)
+- Descripcion: Eliminados los campos `envioEstimado` de proveedores y `ventas`, `reputacion` y `esLider` de competidores en el modal de investigacion. Estos campos eran especulativos y no se basaban en datos reales del sistema.
+- Archivos: `CompetidorPeruList.tsx`, `InvestigacionModal.tsx`
+
+#### CAMBIO-225 — Eliminar seccion Demanda y Tendencia de investigacion
+- Fecha: 2026-04-03
+- Tipo: Simplificacion (Decision 35)
+- Descripcion: La seccion "Demanda y Tendencia" del modal de investigacion mostraba datos extrapolados sin base estadistica solida. Eliminada por decision del titular para simplificar el flujo de investigacion.
+- Archivo: `src/components/modules/productos/InvestigacionModal.tsx`
+
+#### CAMBIO-226 — Eliminar Punto de Equilibrio de investigacion
+- Fecha: 2026-04-03
+- Tipo: Simplificacion (Decision 35)
+- Descripcion: La seccion "Punto de Equilibrio" eliminada del modal de investigacion. El calculo requeria inputs que el flujo de investigacion de nuevos productos no tiene disponibles (costos fijos operativos) y producia resultados engañosos.
+- Archivo: `src/components/modules/productos/InvestigacionModal.tsx`
+
+#### CAMBIO-227 — Eliminar tab Mercado y badges Competencia/Demanda de ProductoCard
+- Fecha: 2026-04-03
+- Tipo: Simplificacion (Decision 35)
+- Descripcion: El tab "Mercado" en el modal de detalle del producto y los badges "Competencia" y "Demanda" en `ProductoCard` removidos. Reducen el ruido visual en el catalogo sin perder informacion operativa relevante.
+- Archivos: `src/components/modules/productos/ProductoCard.tsx`, `InvestigacionModal.tsx`
+
+#### CAMBIO-228 — Nueva formula de puntuacion de viabilidad
+- Fecha: 2026-04-03
+- Tipo: Feature (Decision 34)
+- Descripcion: La puntuacion de viabilidad del producto se redistribuye en 3 componentes: Margen (40 puntos), Competencia (30 puntos) y Multiplicador de oportunidad (30 puntos). Anterior formula incluia Demanda (25 pts) que se elimina. Nueva formula mas directa y basada en datos reales disponibles.
+- Archivo: `src/components/modules/productos/InvestigacionModal.tsx`
+
+---
+
+### BLOQUE 7 — Datos y etiquetas: normalizacion y expansion
+
+#### CAMBIO-229 — Resetear ctruPromedio a 0 en 43 productos
+- Fecha: 2026-04-03
+- Tipo: Correccion de datos
+- Descripcion: 43 productos tenian `ctruPromedio` con valores residuales de transacciones de prueba eliminadas. Reseteados a 0 para que el CTRU se calcule desde cero con datos reales.
+
+#### CAMBIO-230 — Eliminar BMN-0001 duplicado de SUP-0085
+- Fecha: 2026-04-03
+- Tipo: Correccion de datos
+- Descripcion: El producto SUP-0085 tenia dos documentos en Firestore: el original y un duplicado con codigo BMN-0001 creado durante una sesion de pruebas anterior. Eliminado el duplicado.
+
+#### CAMBIO-231 — Linea de negocio obligatoria en formulario de producto
+- Fecha: 2026-04-03
+- Tipo: Validacion (Decision 36)
+- Descripcion: El campo `lineaNegocioId` en `ProductoForm` ahora es requerido. El formulario no permite guardar sin seleccionar una linea de negocio. La validacion se aplica tanto en creacion como en edicion.
+- Archivo: `src/components/modules/productos/ProductoForm.tsx`
+
+#### CAMBIO-232 — InlineAutocomplete custom en VariantesTable
+- Fecha: 2026-04-03
+- Tipo: Feature UX
+- Descripcion: La tabla de edicion de variantes reemplaza el elemento `<datalist>` nativo del navegador (con soporte inconsistente) por un componente `InlineAutocomplete` custom que muestra sugerencias en un dropdown controlado. Comportamiento consistente en todos los navegadores.
+- Archivo: `src/components/modules/productos/VariantesTable.tsx`
+
+#### CAMBIO-233 — Sugerencias de autocomplete para variantes
+- Fecha: 2026-04-03
+- Tipo: Feature UX
+- Descripcion: El componente `InlineAutocomplete` de la tabla de variantes incluye listas de sugerencias predefinidas para los campos: presentaciones (Capsulas, Tabletas, Softgels, etc.), dosajes (500mg, 1000mg, 2000mg, etc.) y contenidos (30 caps, 60 caps, 90 caps, 120 caps, etc.). Las sugerencias se filtran en tiempo real mientras el usuario escribe.
+- Archivo: `src/components/modules/productos/VariantesTable.tsx`
+
+#### CAMBIO-234 — Normalizar 136 presentaciones en Firestore
+- Fecha: 2026-04-03
+- Tipo: Correccion de datos
+- Descripcion: Script detecta y corrige 136 presentaciones con variantes tipograficas incorrectas: `capsulas`→`Capsulas`, `gummies`→`Gummies`, `softgel`→`Softgels`, etc. Normalizacion aplicada directamente en Firestore via batch updates para mantener consistencia de filtros y reportes.
+
+#### CAMBIO-235 — OC estadoPagoLabels usa estados normalizados (pagado/parcial)
+- Fecha: 2026-04-03
+- Tipo: Fix de compatibilidad
+- Descripcion: El objeto `estadoPagoLabels` en el modulo de Ordenes de Compra usaba los estados legacy `pagada` y `pago_parcial`. Actualizado a `pagado` y `parcial` para alinearse con la normalizacion de estados ejecutada en S25 (INC-estados).
+- Archivo: componentes de OC
+
+#### CAMBIO-236 — OC estadoLabels con fallback para estados desconocidos
+- Fecha: 2026-04-03
+- Tipo: Robustez
+- Descripcion: El mapeador de etiquetas de estado en OC ahora incluye un fallback `?? estado` que muestra el valor raw cuando el estado no existe en el mapa. Antes mostraba `undefined` o string vacio, causando confusion al usuario.
+- Archivo: componentes de OC
+
+#### CAMBIO-237 — OC proteger .toFixed con ?? 0 para datos incompletos
+- Fecha: 2026-04-03
+- Tipo: Robustez
+- Descripcion: Tres puntos en los componentes de OC llamaban `.toFixed(2)` sobre campos numericos que podian ser `undefined` o `null` en documentos creados antes de la normalizacion del modelo. Protegidos con `(campo ?? 0).toFixed(2)`.
+- Archivo: componentes de OC
+
+#### CAMBIO-238 — TipoEtiqueta expandido de 3 a 10 tipos
+- Fecha: 2026-04-03
+- Tipo: Expansion de modelo
+- Descripcion: El enum/union `TipoEtiqueta` en `src/types/etiqueta.types.ts` se expande de 3 tipos (atributo, marketing, origen) a 10 tipos: atributo, marketing, origen, certificacion, beneficio, formato, ingrediente, restriccion, publico, uso. Permite clasificar etiquetas con mayor granularidad para filtros y reportes.
+- Archivo: `src/types/etiqueta.types.ts`
+
+#### CAMBIO-239 — getAgrupadas() dinamico: muestra todas las etiquetas
+- Fecha: 2026-04-03
+- Tipo: Feature
+- Descripcion: `etiqueta.service.ts` metodo `getAgrupadas()` ahora agrupa por los tipos activos en la base de datos en lugar de usar una lista fija. Si se agregan nuevos tipos de etiqueta, aparecen automaticamente en la vista agrupada sin cambios de codigo.
+- Archivo: `src/services/etiqueta.service.ts`
+
+#### CAMBIO-240 — 30 etiquetas nuevas para suplementos
+- Fecha: 2026-04-03
+- Tipo: Datos
+- Descripcion: Creadas 30 etiquetas nuevas en Firestore para la linea Suplementos: 12 etiquetas de beneficio (Energia, Recuperacion muscular, Inmunidad, etc.) y 18 etiquetas de atributos especificos (Sin gluten, Vegano, Sin lactosa, GMP certified, etc.). Total del catalogo de etiquetas: 49 (19 SKC existentes + 30 nuevas SUP).
+
+#### CAMBIO-241 — Renumerar SUP-0149/0150 a SUP-0143/0144
+- Fecha: 2026-04-03
+- Tipo: Correccion de datos
+- Descripcion: Los productos SUP-0149 y SUP-0150 tenian SKUs fuera de secuencia (gap de SUP-0143 a SUP-0148 vacios). Renumerados a SUP-0143 y SUP-0144 para cerrar el gap y mantener la secuencia continua.
+
+#### CAMBIO-242 — Asignar Suplementos a 7 marcas, 2 proveedores y 54 tipos de producto
+- Fecha: 2026-04-03
+- Tipo: Datos
+- Descripcion: Escritura directa en Firestore del campo `lineaNegocioIds: ['suplementos']` en 7 marcas que no lo tenian asignado, 2 proveedores adicionales identificados, y 54 tipos de producto que clasifican suplementos. Complementa CAMBIO-204.
+
+#### CAMBIO-243 — Todos los tipos de producto asignados a Suplementos
+- Fecha: 2026-04-03
+- Tipo: Datos
+- Descripcion: Verificacion y correccion: todos los documentos de la coleccion `tiposProducto` que corresponden a suplementos tienen `lineaNegocioIds: ['suplementos']`. Garantiza que el filtro por linea en el catalogo de tipos de producto es exhaustivo.
+
+---
+
+### Decisiones del titular documentadas en S27
+
+| Decision | Detalle |
+|----------|---------|
+| Decision 31 | Datos seed eliminados permanentemente — comenzar de cero con datos reales |
+| Decision 32 | Triggers de reversion de metricas implementados en frontend (no Cloud Functions) para eliminar entidades |
+| Decision 33 | Sincronizacion manual de metricas via "Sincronizar Todo" reservada para eliminaciones backend (rara vez necesaria) |
+| Decision 34 | Puntuacion viabilidad redistribuida: Margen(40) + Competencia(30) + Multiplicador(30) — sin componente Demanda |
+| Decision 35 | Investigacion simplificada: sin demanda, sin tendencia, sin punto de equilibrio en el modal |
+| Decision 36 | Linea de negocio obligatoria al crear o editar un producto |
+
+---
+
+### Scripts creados en S27
+
+| Script | Proposito |
+|--------|-----------|
+| `scripts/migrar-competidores-backup.mjs` | Restaurar competidores del backup Firestore |
+| `scripts/reconectar-competidores-productos.mjs` | Reconectar referencias competidorId en productos |
+| `scripts/sync-maestros-completo.mjs` | Sincronizar nombres y snapshots desnormalizados |
+| `scripts/audit-integridad.mjs` | Auditoria de contadores y referencias rotas |
+| `scripts/audit-desnormalizacion.mjs` | Verificar campos desnormalizados en colecciones |
+| `scripts/inferir-lineas-maestros.mjs` | Inferir lineaNegocioIds desde productos |
+| `scripts/health-check-360.mjs` | Check de salud completo del sistema |
+
+---
+
+### Tareas completadas en esta sesion
+
+| ID | Descripcion | Estado |
+|----|-------------|--------|
+| INTEGRIDAD-001 | Restaurar 78 competidores del backup | COMPLETADA (CAMBIO-184/185) |
+| INTEGRIDAD-002 | Corregir contadores desfasados y codigos duplicados | COMPLETADA (CAMBIO-189/190) |
+| INTEGRIDAD-003 | Eliminar todos los datos seed/test | COMPLETADA (CAMBIO-192/193) |
+| LINEA-MAESTROS | lineaNegocioIds en las 4 entidades Maestros + filtro | COMPLETADA (CAMBIO-198 a CAMBIO-206) |
+| VARIANTES-FIX | createConVariantes con marcaId, snapshots y metricas | COMPLETADA (CAMBIO-211 a CAMBIO-213) |
+| INVESTIGACION-SIMPLIF | Simplificar modal de investigacion | COMPLETADA (CAMBIO-224 a CAMBIO-228) |
+| ETIQUETAS-EXPAND | Expandir catalogo a 10 tipos + 30 etiquetas SUP | COMPLETADA (CAMBIO-238 a CAMBIO-243) |
+
+### Tareas pendientes para la proxima sesion
+
+| Prioridad | ID | Descripcion | Estimacion |
+|-----------|-----|-------------|------------|
+| Alta | TAREA-098 | Contenido tabs Reportes (Logistica, Clientes, Auditorias, Compras) + CxC + CxP | 15-20h |
+| Alta | TAREA-099 | Trazabilidad de ubicacion de productos | 8-12h |
+| Alta | TAREA-097 Fase 2 | Calibracion automatica de proyecciones, persistencia en Firestore | 10-15h |
+| Media | ARCHIVO-FASE3 | clientesArchivo + logs sincronizacion unidades | 3-4h |
+| Media | UI-BANNER-ERR | Banner errorTesoreria en Dashboard (CONT-002) | 2-3h |
+| Media | CLEANUP-CUENTACAJA | Eliminar CuentaCajaForm.tsx deprecated | 1h |
+| Baja | SEC-C01 | Rotar API keys expuestas en historial Git | — |
+
+---
+
+### Estado del sistema al cierre de S27
+
+| Modulo | Estado |
+|--------|--------|
+| Maestros (Marcas, Competidores, Proveedores, Clientes) | ACTIVO — lineaNegocioIds + filtro por linea en las 4 vistas |
+| Productos / Catalogo | ACTIVO — createConVariantes corregido, marca obligatoria, linea obligatoria |
+| Investigacion de Productos | ACTIVO — simplificado (sin demanda/tendencia/punto equilibrio), nueva puntuacion viabilidad |
+| Etiquetas | ACTIVO — 10 tipos, 49 etiquetas (19 SKC + 30 SUP), getAgrupadas() dinamico |
+| Metricas Maestros | ACTIVO — triggers de incremento y reversion implementados |
+| Integridad BD | LIMPIA — datos seed eliminados, contadores corregidos, 78 competidores restaurados |
+| Tesoreria / Cuentas | ACTIVO — sin cambios esta sesion |
+| Proyeccion 360 | ACTIVO — sin cambios esta sesion |
+| Reportes | PARCIAL — estructura lista, contenido pendiente TAREA-098 |
+| SUNAT | Inexistente — gap regulatorio critico abierto |
+| WhatsApp | En desarrollo — sin uso en produccion |
+
+---
+
+### Metricas finales de la Sesion 27
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys realizados | 18 (Deploy 51 a Deploy 68) |
+| Commits totales | ~20 |
+| Bloques de trabajo | 7 |
+| Cambios registrados | 60 (CAMBIO-184 a CAMBIO-243) |
+| Bugs corregidos | 6 (BUG-001, BUG-004, BUG-005, BUG-006, DATA-001, DATA-002) |
+| Datos seed eliminados | 3 ventas + 3 OC + 63 unidades + 18 gastos + 88 clientes + 128 mlOrderSync |
+| Competidores restaurados | 78 |
+| Referencias reconectadas | 306 |
+| Etiquetas nuevas | 30 |
+| Scripts creados | 7 |
+| Decisiones del titular | 6 (Decision 31 a 36) |
+
+---
+
+*Cierre registrado por implementation-controller (Agente 23).*
+*2026-04-03 — Sesion 27 CERRADA. 18 deploys (Deploy 51-68), ~20 commits. 7 bloques: competidores, integridad post fresh-start, metricas/triggers, linea de negocio en maestros, producto/variantes, estabilidad/investigacion simplificada, datos/etiquetas. 60 cambios (CAMBIO-184 a CAMBIO-243). 6 decisiones del titular (D-31 a D-36). BD limpia: datos seed eliminados, contadores corregidos, 78 competidores restaurados y 306 referencias reconectadas. Proxima sesion: TAREA-098 (contenido Reportes) → TAREA-099 (trazabilidad ubicacion) → TAREA-097 Fase 2.*
