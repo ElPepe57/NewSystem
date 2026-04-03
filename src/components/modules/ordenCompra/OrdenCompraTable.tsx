@@ -24,8 +24,8 @@ const estadoLabels: Record<EstadoOrden, { label: string; variant: 'success' | 'w
 
 const estadoPagoLabels: Record<EstadoPagoOC, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
   pendiente: { label: 'Pendiente', variant: 'danger' },
-  pagada: { label: 'Pagada', variant: 'success' },
-  pago_parcial: { label: 'Pago Parcial', variant: 'warning' }
+  pagado: { label: 'Pagada', variant: 'success' },
+  parcial: { label: 'Pago Parcial', variant: 'warning' }
 };
 
 // Componente para una fila de recepción
