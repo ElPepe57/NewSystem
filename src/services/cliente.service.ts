@@ -620,11 +620,23 @@ export const clienteService = {
       const cliente = await this.getById(id);
       if (!cliente) throw new Error('Cliente no encontrado');
 
-      if (cliente.metricas.totalCompras > 0) {
+      if (cliente.metricas?.totalCompras > 0) {
         throw new Error('No se puede eliminar un cliente con historial de compras. Márquelo como inactivo.');
       }
 
+      // Archivar antes de eliminar (trazabilidad)
+      const clienteSnap = await getDoc(doc(db, COLLECTION_NAME, id));
+      if (clienteSnap.exists()) {
+        await addDoc(collection(db, 'clientesArchivo'), {
+          ...clienteSnap.data(),
+          clienteOriginalId: id,
+          fechaArchivo: Timestamp.now(),
+          motivoArchivo: 'eliminado'
+        });
+      }
+
       await deleteDoc(doc(db, COLLECTION_NAME, id));
+      logger.info(`Cliente ${cliente.codigo} archivado y eliminado`);
     } catch (error: any) {
       logger.error('Error al eliminar cliente:', error);
       throw new Error(error.message || 'Error al eliminar cliente');

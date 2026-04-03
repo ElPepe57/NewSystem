@@ -10,7 +10,8 @@ import {
   orderBy,
   Timestamp,
   writeBatch,
-  deleteField
+  deleteField,
+  arrayUnion
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
@@ -415,11 +416,21 @@ export const unidadService = {
       throw new Error('Unidad no encontrada');
     }
 
+    const ahora = Timestamp.now();
+    const movimiento = {
+      id: `mov-${Date.now()}`,
+      tipo: 'cambio_estado',
+      fecha: ahora,
+      usuarioId: userId,
+      observaciones: observaciones || `${unidad.estado} → ${nuevoEstado}`,
+    };
+
     const docRef = doc(db, COLLECTION_NAME, id);
     await updateDoc(docRef, {
       estado: nuevoEstado,
       actualizadoPor: userId,
-      fechaActualizacion: Timestamp.now()
+      fechaActualizacion: ahora,
+      movimientos: arrayUnion(movimiento),
     });
 
     // Sincronizar stock del producto automáticamente

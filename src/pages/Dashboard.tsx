@@ -23,6 +23,7 @@ import {
   LayoutDashboard
 } from 'lucide-react';
 import { Card, Badge, DashboardSkeleton, LineaFiltroActivoBanner, GradientHeader } from '../components/common';
+import { ErrorTesoreriaBanner } from '../components/modules/dashboard/ErrorTesoreriaBanner';
 import {
   UsuariosActivosWidget,
   VencimientosWidget,
@@ -486,6 +487,9 @@ export const Dashboard: React.FC = () => {
         icon={LayoutDashboard}
         variant="dark"
       />
+
+      {/* Banner de errores de tesorería */}
+      <ErrorTesoreriaBanner />
 
       {/* Banner de filtro activo por línea de negocio */}
       <LineaFiltroActivoBanner onClear={() => setLineaFiltroGlobal(null)} />
