@@ -340,6 +340,7 @@ export const clienteService = {
       if (data.canalOrigen !== undefined) updates.canalOrigen = data.canalOrigen;
       if (data.referidoPor !== undefined) updates.referidoPor = data.referidoPor?.trim();
       if (data.notas !== undefined) updates.notas = data.notas?.trim();
+      if (data.lineaNegocioIds !== undefined) updates.lineaNegocioIds = data.lineaNegocioIds;
       if (data.etiquetas !== undefined) updates.etiquetas = data.etiquetas;
 
       if (data.direcciones !== undefined) {

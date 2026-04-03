@@ -229,6 +229,7 @@ export const competidorService = {
       if (data.debilidades !== undefined) updates.debilidades = data.debilidades || null;
       if (data.estrategiaPrecio !== undefined) updates.estrategiaPrecio = data.estrategiaPrecio;
       if (data.nivelAmenaza) updates.nivelAmenaza = data.nivelAmenaza;
+      if (data.lineaNegocioIds !== undefined) updates.lineaNegocioIds = data.lineaNegocioIds;
       if (data.notas !== undefined) updates.notas = data.notas || null;
 
       await updateDoc(doc(db, COLLECTION_NAME, id), updates);

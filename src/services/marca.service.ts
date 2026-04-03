@@ -310,6 +310,7 @@ export const marcaService = {
       if (data.logoUrl !== undefined) updates.logoUrl = data.logoUrl?.trim();
       if (data.colorPrimario !== undefined) updates.colorPrimario = data.colorPrimario;
       if (data.proveedoresPreferidos !== undefined) updates.proveedoresPreferidos = data.proveedoresPreferidos;
+      if (data.lineaNegocioIds !== undefined) updates.lineaNegocioIds = data.lineaNegocioIds;
       if (data.notas !== undefined) updates.notas = data.notas?.trim();
 
       await updateDoc(doc(db, COLLECTION_NAME, id), updates);

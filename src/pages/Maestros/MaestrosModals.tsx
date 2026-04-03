@@ -7,6 +7,7 @@ import {
   Crown
 } from 'lucide-react';
 import { Button, Modal } from '../../components/common';
+import { LineaNegocioCheckboxes } from '../../components/Maestros/LineaNegocioBadge';
 import {
   ClienteDetalleModal,
   MarcaDetalleModal,
@@ -282,6 +283,11 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
             </div>
           </div>
 
+          <LineaNegocioCheckboxes
+            value={clienteForm.lineaNegocioIds || []}
+            onChange={(ids) => onClienteFormChange({ ...clienteForm, lineaNegocioIds: ids })}
+          />
+
           <div className="flex justify-end space-x-3 pt-4 border-t">
             <Button variant="ghost" onClick={onCloseClienteModal}>
               Cancelar
@@ -394,6 +400,11 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
               placeholder="Breve descripcion de la marca..."
             />
           </div>
+
+          <LineaNegocioCheckboxes
+            value={marcaForm.lineaNegocioIds || []}
+            onChange={(ids) => onMarcaFormChange({ ...marcaForm, lineaNegocioIds: ids })}
+          />
 
           <div className="flex justify-end space-x-3 pt-4 border-t">
             <Button variant="ghost" onClick={onCloseMarcaModal}>
@@ -517,6 +528,11 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
               />
             </div>
           </div>
+
+          <LineaNegocioCheckboxes
+            value={proveedorForm.lineaNegocioIds || []}
+            onChange={(ids) => onProveedorFormChange({ ...proveedorForm, lineaNegocioIds: ids })}
+          />
 
           <div className="flex justify-end space-x-3 pt-4 border-t">
             <Button variant="ghost" onClick={onCloseProveedorModal}>
@@ -1044,6 +1060,11 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
               />
             </div>
           </div>
+
+          <LineaNegocioCheckboxes
+            value={competidorForm.lineaNegocioIds || []}
+            onChange={(ids) => onCompetidorFormChange({ ...competidorForm, lineaNegocioIds: ids })}
+          />
 
           <div className="flex justify-end space-x-3 pt-4 border-t">
             <Button variant="ghost" onClick={onCloseCompetidorModal}>

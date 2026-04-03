@@ -207,6 +207,7 @@ class ProveedorService {
       if (data.telefono !== undefined) updates.telefono = data.telefono?.trim() || null;
       if (data.direccion !== undefined) updates.direccion = data.direccion?.trim() || null;
       if (data.pais !== undefined) updates.pais = data.pais;
+      if (data.lineaNegocioIds !== undefined) updates.lineaNegocioIds = data.lineaNegocioIds;
       if (data.notasInternas !== undefined) updates.notasInternas = data.notasInternas?.trim() || null;
 
       await updateDoc(doc(db, COLLECTION_NAME, id), updates);
