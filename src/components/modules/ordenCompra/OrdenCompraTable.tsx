@@ -240,8 +240,8 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
                 </div>
                 <div className="flex items-center justify-between mt-2 text-xs">
                   <div className="flex items-center gap-3">
-                    <span className="text-gray-500">{prod.cantidad}u × <span className="font-mono">${prod.costoUnitario.toFixed(2)}</span></span>
-                    <span className="font-semibold text-gray-900 font-mono">${prod.subtotal.toFixed(2)}</span>
+                    <span className="text-gray-500">{prod.cantidad}u × <span className="font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</span></span>
+                    <span className="font-semibold text-gray-900 font-mono">${(prod.subtotal ?? 0).toFixed(2)}</span>
                   </div>
                   {tieneRecepciones && (
                     <div className="flex items-center gap-2">
@@ -310,8 +310,8 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
                       </div>
                     </td>
                     <td className="px-3 py-2 text-right font-medium">{prod.cantidad}</td>
-                    <td className="px-3 py-2 text-right font-mono">${prod.costoUnitario.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right font-mono font-medium">${prod.subtotal.toFixed(2)}</td>
+                    <td className="px-3 py-2 text-right font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</td>
+                    <td className="px-3 py-2 text-right font-mono font-medium">${(prod.subtotal ?? 0).toFixed(2)}</td>
                     {tieneRecepciones && (
                       <td className="px-3 py-2 text-right">
                         <div className="flex items-center justify-end gap-2">
@@ -532,7 +532,7 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {ordenesPaginadas.map((orden) => {
-              const estadoInfo = estadoLabels[orden.estado];
+              const estadoInfo = estadoLabels[orden.estado] || estadoLabels.borrador;
               const isExpanded = expandedRows.has(orden.id);
 
               return (
@@ -594,7 +594,7 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
                                 </>
                               )}
                               <span className="text-gray-300">·</span>
-                              <span className="font-medium text-gray-600">{p.cantidad}u × ${p.costoUnitario.toFixed(2)}</span>
+                              <span className="font-medium text-gray-600">{p.cantidad}u × ${(p.costoUnitario ?? 0).toFixed(2)}</span>
                             </div>
                           </div>
                         );

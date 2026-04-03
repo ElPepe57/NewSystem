@@ -486,7 +486,7 @@ class CompetidorAnalyticsService {
     productos.forEach(producto => {
       // Buscar precio del competidor en los datos del producto (en investigación)
       const competidorPeru = producto.investigacion?.competidoresPeru?.find(
-        c => c.id === competidor.id || c.nombre?.toLowerCase().includes(competidor.nombre.toLowerCase())
+        c => c.competidorId === competidor.id
       );
 
       if (competidorPeru && competidorPeru.precio && competidorPeru.precio > 0) {

@@ -138,6 +138,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
   const [formData, setFormData] = useState<ProductoFormData>({
     marca: initialData?.marca || '',
+    marcaId: initialData?.marcaId || undefined,
     nombreComercial: initialData?.nombreComercial || '',
     presentacion: initialData?.presentacion || 'capsulas',
     dosaje: initialData?.dosaje || '',
@@ -273,41 +274,53 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   // Inicializar marca seleccionada cuando se edita un producto existente
   useEffect(() => {
     const inicializarMarca = async () => {
-      if (initialData?.marca && !marcaSeleccionada) {
+      if (!marcaSeleccionada && (initialData?.marcaId || initialData?.marca)) {
         try {
-          const marcas = await marcaService.getAll();
-          const marcaEncontrada = marcas.find(
-            m => m.nombre.toLowerCase() === initialData.marca?.toLowerCase()
-          );
+          // Priorizar marcaId si existe (más confiable que nombre)
+          if (initialData.marcaId) {
+            const marcaCompleta = await marcaService.getById(initialData.marcaId);
+            if (marcaCompleta) {
+              setMarcaSeleccionada({ marcaId: marcaCompleta.id, nombre: marcaCompleta.nombre });
+              setFormData(prev => ({ ...prev, marcaId: marcaCompleta.id, marca: marcaCompleta.nombre }));
+              setMarcaMetricas({
+                productosActivos: marcaCompleta.metricas.productosActivos,
+                unidadesVendidas: marcaCompleta.metricas.unidadesVendidas,
+                margenPromedio: marcaCompleta.metricas.margenPromedio
+              });
+              return;
+            }
+          }
 
-          if (marcaEncontrada) {
-            const snapshot: MarcaSnapshot = {
-              marcaId: marcaEncontrada.id,
-              nombre: marcaEncontrada.nombre
-            };
-            setMarcaSeleccionada(snapshot);
-            setMarcaMetricas({
-              productosActivos: marcaEncontrada.metricas.productosActivos,
-              unidadesVendidas: marcaEncontrada.metricas.unidadesVendidas,
-              margenPromedio: marcaEncontrada.metricas.margenPromedio
-            });
-          } else {
-            setMarcaSeleccionada({
-              marcaId: '',
-              nombre: initialData.marca
-            });
+          // Fallback: buscar por nombre si no hay marcaId o no se encontró
+          if (initialData.marca) {
+            const marcas = await marcaService.getAll();
+            const marcaEncontrada = marcas.find(
+              m => m.nombre.toLowerCase() === initialData.marca?.toLowerCase()
+            );
+
+            if (marcaEncontrada) {
+              setMarcaSeleccionada({ marcaId: marcaEncontrada.id, nombre: marcaEncontrada.nombre });
+              setFormData(prev => ({ ...prev, marcaId: marcaEncontrada.id, marca: marcaEncontrada.nombre }));
+              setMarcaMetricas({
+                productosActivos: marcaEncontrada.metricas.productosActivos,
+                unidadesVendidas: marcaEncontrada.metricas.unidadesVendidas,
+                margenPromedio: marcaEncontrada.metricas.margenPromedio
+              });
+            } else {
+              setMarcaSeleccionada({ marcaId: '', nombre: initialData.marca });
+            }
           }
         } catch (error) {
           console.error('Error al buscar marca en maestro:', error);
-          setMarcaSeleccionada({
-            marcaId: '',
-            nombre: initialData.marca
-          });
+          if (initialData.marca) {
+            setMarcaSeleccionada({ marcaId: '', nombre: initialData.marca });
+          }
         }
       }
     };
 
     inicializarMarca();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData?.marca]);
 
   // Calcular ciclo de recompra automaticamente cuando cambian contenido y servingsPerDay
@@ -466,7 +479,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     setMarcaSeleccionada(marca);
 
     if (marca) {
-      setFormData(prev => ({ ...prev, marca: marca.nombre }));
+      setFormData(prev => ({ ...prev, marca: marca.nombre, marcaId: marca.marcaId || undefined }));
 
       if (marca.marcaId) {
         try {
@@ -483,7 +496,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
         }
       }
     } else {
-      setFormData(prev => ({ ...prev, marca: '' }));
+      setFormData(prev => ({ ...prev, marca: '', marcaId: undefined }));
       setMarcaMetricas(null);
     }
   };
@@ -964,32 +977,16 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {!marcaSeleccionada && (
-                <AutocompleteInput
-                  label="Marca (manual)"
-                  value={formData.marca}
-                  onChange={handleAutocompleteChange('marca')}
-                  suggestions={sugerencias.marcas}
-                  required
-                  placeholder={esSuplemento ? 'ej: Nordic Naturals' : 'ej: COSRX'}
-                  allowCreate
-                  createLabel="Crear marca"
-                />
-              )}
-
-              <AutocompleteInput
-                label="Nombre Comercial"
-                value={formData.nombreComercial}
-                onChange={handleAutocompleteChange('nombreComercial')}
-                suggestions={sugerencias.nombresComerciales}
-                required
-                placeholder={esSuplemento ? 'ej: Ultimate Omega' : 'ej: Advanced Snail Mucin'}
-                allowCreate
-                createLabel="Crear nombre"
-                className={marcaSeleccionada ? 'md:col-span-2' : ''}
-              />
-            </div>
+            <AutocompleteInput
+              label="Nombre Comercial"
+              value={formData.nombreComercial}
+              onChange={handleAutocompleteChange('nombreComercial')}
+              suggestions={sugerencias.nombresComerciales}
+              required
+              placeholder={esSuplemento ? 'ej: Ultimate Omega' : 'ej: Advanced Snail Mucin'}
+              allowCreate
+              createLabel="Crear nombre"
+            />
 
             {/* === CAMPOS ESPECÍFICOS POR LÍNEA DE NEGOCIO === */}
             {esSuplemento ? (

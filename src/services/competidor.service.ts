@@ -290,8 +290,22 @@ export const competidorService = {
       const competidor = await this.getById(id);
       if (!competidor) throw new Error('Competidor no encontrado');
 
+      // Guardia primaria: verificar métrica cacheada
       if (competidor.metricas?.productosAnalizados > 0) {
         throw new Error('No se puede eliminar un competidor con análisis asociados. Márquelo como inactivo.');
+      }
+
+      // Guardia secundaria: verificar referencias reales en productos
+      const productosSnap = await getDocs(collection(db, 'productos'));
+      const refsReales = productosSnap.docs.filter(d => {
+        const comps = d.data().investigacion?.competidoresPeru;
+        return comps?.some((c: any) => c.competidorId === id);
+      }).length;
+
+      if (refsReales > 0) {
+        throw new Error(
+          `No se puede eliminar: ${refsReales} producto(s) referencian a este competidor en su investigación de mercado. Márquelo como inactivo.`
+        );
       }
 
       await deleteDoc(doc(db, COLLECTION_NAME, id));

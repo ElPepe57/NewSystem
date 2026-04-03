@@ -247,6 +247,7 @@ export const Productos: React.FC = () => {
     // Pre-llenar formulario con datos del padre
     const varianteData: Partial<ProductoFormData> = {
       marca: padre.marca,
+      marcaId: padre.marcaId,
       nombreComercial: padre.nombreComercial,
       grupo: padre.grupo,
       subgrupo: padre.subgrupo,
