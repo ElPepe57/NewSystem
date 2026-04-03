@@ -1194,7 +1194,8 @@ export const Productos: React.FC = () => {
             try {
               await ProductoService.createConVariantes(datosComunes, variantes, user.uid);
               toast.success(`Grupo creado con ${variantes.length} variantes`);
-              handleCloseFormModal();
+              setIsFormModalOpen(false);
+              setSelectedProducto(null);
               fetchProductos();
             } catch (err: any) {
               toast.error(err.message || 'Error al crear grupo');
