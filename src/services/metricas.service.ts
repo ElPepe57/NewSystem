@@ -23,6 +23,7 @@ import { COLLECTIONS } from '../config/collections';
 
 const CLIENTES_COLLECTION = COLLECTIONS.CLIENTES;
 const MARCAS_COLLECTION = COLLECTIONS.MARCAS;
+const PROVEEDORES_COLLECTION = COLLECTIONS.PROVEEDORES;
 
 export const metricasService = {
   /**
@@ -188,6 +189,29 @@ export const metricasService = {
   /**
    * Revertir métricas del proveedor cuando se elimina una OC
    */
+  /**
+   * Incrementar métricas del proveedor cuando se crea una OC
+   */
+  async incrementarMetricasProveedorPorOC(
+    proveedorId: string,
+    datosOC: { totalUSD: number }
+  ): Promise<void> {
+    if (!proveedorId) return;
+
+    try {
+      const provRef = doc(db, PROVEEDORES_COLLECTION, proveedorId);
+      await updateDoc(provRef, {
+        'metricas.ordenesCompra': increment(1),
+        'metricas.montoTotalUSD': increment(datosOC.totalUSD),
+        'metricas.ultimaCompra': serverTimestamp(),
+        fechaActualizacion: serverTimestamp()
+      });
+      logger.success(`Métricas incrementadas para proveedor ${proveedorId} (OC creada)`);
+    } catch (error: any) {
+      logger.error('Error incrementando métricas del proveedor:', error);
+    }
+  },
+
   async revertirMetricasProveedorPorOC(
     proveedorId: string,
     datosOC: { totalUSD: number }

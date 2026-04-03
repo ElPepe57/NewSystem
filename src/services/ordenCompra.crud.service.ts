@@ -280,6 +280,15 @@ export async function create(
       })
       .catch(() => {});
 
+    // Incrementar métricas del proveedor
+    if (data.proveedorId && totalUSD > 0) {
+      try {
+        await metricasService.incrementarMetricasProveedorPorOC(data.proveedorId, { totalUSD });
+      } catch (metricasError) {
+        logger.warn('Error incrementando métricas proveedor (no bloquea):', metricasError);
+      }
+    }
+
     return {
       id: docRef.id,
       ...nuevaOrden,

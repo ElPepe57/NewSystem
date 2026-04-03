@@ -1481,7 +1481,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                 <VariantesTable
                   variantes={variantesRows}
                   onChange={setVariantesRows}
-                  skuPrefix={formData.lineaNegocioId ? 'SUP' : 'BMN'}
+                  skuPrefix={lineasActivas.find(l => l.id === formData.lineaNegocioId)?.codigo || 'BMN'}
                   esSkincare={!esSuplemento}
                 />
               </div>
@@ -1532,6 +1532,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
               onClick={() => {
                 const datosComunes = {
                   marca: formData.marca,
+                  marcaId: formData.marcaId,
                   nombreComercial: formData.nombreComercial,
                   presentacion: formData.presentacion,
                   dosaje: formData.dosaje,

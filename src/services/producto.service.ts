@@ -572,6 +572,7 @@ export class ProductoService {
   static async createConVariantes(
     datosComunes: {
       marca: string;
+      marcaId?: string;
       nombreComercial: string;
       presentacion?: string;
       dosaje?: string;
@@ -619,10 +620,28 @@ export class ProductoService {
       skus.push(sku);
     }
 
-    // 3. Generate shared group ID
+    // 3. Resolve snapshots for classification (like create() does)
+    let tipoProductoSnapshot: any = undefined;
+    let categoriasSnapshots: any[] = [];
+    let etiquetasSnapshots: any[] = [];
+    try {
+      if (datosComunes.tipoProductoId) {
+        tipoProductoSnapshot = await tipoProductoService.getSnapshot(datosComunes.tipoProductoId);
+      }
+      if (datosComunes.categoriaIds?.length) {
+        categoriasSnapshots = await categoriaService.getSnapshots(datosComunes.categoriaIds);
+      }
+      if (datosComunes.etiquetaIds?.length) {
+        etiquetasSnapshots = await etiquetaService.getSnapshots(datosComunes.etiquetaIds);
+      }
+    } catch (e) {
+      logger.warn('createConVariantes: error getting snapshots:', e);
+    }
+
+    // 4. Generate shared group ID
     const grupoVarianteId = crypto.randomUUID();
 
-    // 4. Pre-assign document refs for batch
+    // 5. Pre-assign document refs for batch
     const col = collection(db, COLLECTION_NAME);
     const docRefs = variantes.map(() => doc(col));
 
@@ -638,6 +657,7 @@ export class ProductoService {
       const docData: Record<string, any> = {
         sku: skus[i],
         marca: datosComunes.marca || '',
+        marcaId: datosComunes.marcaId || undefined,
         nombreComercial: datosComunes.nombreComercial || '',
         presentacion: datosComunes.presentacion || '',
         grupo: datosComunes.grupo || '',
@@ -670,10 +690,19 @@ export class ProductoService {
         docData.lineaNegocioId = datosComunes.lineaNegocioId;
         if (lineaNegocioNombre) docData.lineaNegocioNombre = lineaNegocioNombre;
       }
-      if (datosComunes.tipoProductoId) docData.tipoProductoId = datosComunes.tipoProductoId;
-      if (datosComunes.categoriaIds?.length) docData.categoriaIds = datosComunes.categoriaIds;
+      if (datosComunes.tipoProductoId) {
+        docData.tipoProductoId = datosComunes.tipoProductoId;
+        if (tipoProductoSnapshot) docData.tipoProducto = tipoProductoSnapshot;
+      }
+      if (datosComunes.categoriaIds?.length) {
+        docData.categoriaIds = datosComunes.categoriaIds;
+        if (categoriasSnapshots.length) docData.categorias = categoriasSnapshots;
+      }
       if (datosComunes.categoriaPrincipalId) docData.categoriaPrincipalId = datosComunes.categoriaPrincipalId;
-      if (datosComunes.etiquetaIds?.length) docData.etiquetaIds = datosComunes.etiquetaIds;
+      if (datosComunes.etiquetaIds?.length) {
+        docData.etiquetaIds = datosComunes.etiquetaIds;
+        if (etiquetasSnapshots.length) docData.etiquetasData = etiquetasSnapshots;
+      }
 
       batch.set(docRefs[i], docData);
       productosCreados.push({ id: docRefs[i].id, ...docData, fechaCreacion: ahora } as Producto);
@@ -681,6 +710,22 @@ export class ProductoService {
 
     // 6. Atomic commit
     await batch.commit();
+
+    // Update metrics for brand, type, and categories
+    const numVariantes = variantes.length;
+    if (datosComunes.marcaId) {
+      for (let i = 0; i < numVariantes; i++) {
+        metricasService.incrementarProductosMarca(datosComunes.marcaId).catch(() => {});
+      }
+    }
+    if (datosComunes.tipoProductoId) {
+      tipoProductoService.actualizarMetricas(datosComunes.tipoProductoId, { productosActivos: numVariantes }).catch(() => {});
+    }
+    if (datosComunes.categoriaIds?.length) {
+      for (const catId of datosComunes.categoriaIds) {
+        categoriaService.actualizarMetricas(catId, numVariantes).catch(() => {});
+      }
+    }
 
     logger.info(`createConVariantes: grupo ${grupoVarianteId} con ${variantes.length} variantes. SKUs: ${skus.join(', ')}`);
     return productosCreados;

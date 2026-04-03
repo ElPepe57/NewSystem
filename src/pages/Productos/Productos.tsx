@@ -198,6 +198,7 @@ export const Productos: React.FC = () => {
 
     await createProducto({
       marca: grupo.marca,
+      marcaId: grupo.marcaId,
       nombreComercial: grupo.nombreComercial,
       presentacion: grupo.presentacion || '',
       grupo: grupo.grupo || '',
