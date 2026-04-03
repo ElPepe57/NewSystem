@@ -248,22 +248,24 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       ? precioEntrada / ctruEstimado
       : 0;
 
-    // Puntuación de viabilidad (0-100)
+    // Puntuación de viabilidad (0-100) — 3 factores basados en datos reales
     let puntuacion = 0;
-    if (margenEstimado >= 30) puntuacion += 30;
-    else if (margenEstimado >= 20) puntuacion += 20;
-    else if (margenEstimado >= 15) puntuacion += 10;
 
-    if (formData.demandaEstimada === 'alta') puntuacion += 25;
-    else if (formData.demandaEstimada === 'media') puntuacion += 15;
-    else puntuacion += 5;
+    // Factor 1: Margen estimado (max 40 pts)
+    if (margenEstimado >= 35) puntuacion += 40;
+    else if (margenEstimado >= 25) puntuacion += 30;
+    else if (margenEstimado >= 15) puntuacion += 20;
+    else if (margenEstimado > 0) puntuacion += 10;
 
-    if (formData.tendencia === 'subiendo') puntuacion += 20;
-    else if (formData.tendencia === 'estable') puntuacion += 10;
+    // Factor 2: Nivel de competencia (max 30 pts)
+    if (formData.nivelCompetencia === 'baja') puntuacion += 30;
+    else if (formData.nivelCompetencia === 'media') puntuacion += 20;
+    else if (formData.nivelCompetencia === 'alta') puntuacion += 10;
 
-    if (formData.nivelCompetencia === 'baja') puntuacion += 25;
-    else if (formData.nivelCompetencia === 'media') puntuacion += 15;
-    else if (formData.nivelCompetencia === 'alta') puntuacion += 5;
+    // Factor 3: Multiplicador precio/costo (max 30 pts)
+    if (multiplicador >= 2.0) puntuacion += 30;
+    else if (multiplicador >= 1.5) puntuacion += 20;
+    else if (multiplicador >= 1.2) puntuacion += 10;
 
     return {
       mejorPrecioUSASinImpuesto,
@@ -532,36 +534,6 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
         {/* Tab 3: Decisión */}
         <TabPanel tabId="decision">
           <div className="space-y-4">
-            {/* Evaluación de oportunidad */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Demanda estimada</label>
-                <select
-                  value={formData.demandaEstimada}
-                  onChange={(e) => handleChange('demandaEstimada', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md text-sm"
-                  disabled={loading}
-                >
-                  <option value="baja">Baja</option>
-                  <option value="media">Media</option>
-                  <option value="alta">Alta</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Tendencia</label>
-                <select
-                  value={formData.tendencia}
-                  onChange={(e) => handleChange('tendencia', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md text-sm"
-                  disabled={loading}
-                >
-                  <option value="subiendo">Subiendo</option>
-                  <option value="estable">Estable</option>
-                  <option value="bajando">Bajando</option>
-                </select>
-              </div>
-            </div>
-
             {/* Recomendación */}
             <div className="bg-gray-100 p-4 rounded-lg">
               <h4 className="font-semibold text-gray-800 mb-3 flex items-center">

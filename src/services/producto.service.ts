@@ -1059,22 +1059,25 @@ export class ProductoService {
       const presenciaML = data.presenciaML || competidoresPeru.some(c => c.plataforma === 'mercado_libre');
       const numeroCompetidores = competidoresPeru.length;
 
-      // Calcular puntuación de viabilidad
+      // Calcular puntuación de viabilidad — 3 factores basados en datos reales
       let puntuacionViabilidad = 0;
-      if (margenEstimado >= 30) puntuacionViabilidad += 30;
-      else if (margenEstimado >= 20) puntuacionViabilidad += 20;
-      else if (margenEstimado >= 15) puntuacionViabilidad += 10;
+      const multiplicador = ctruEstimado > 0 && precioEntrada > 0 ? precioEntrada / ctruEstimado : 0;
 
-      if (data.demandaEstimada === 'alta') puntuacionViabilidad += 25;
-      else if (data.demandaEstimada === 'media') puntuacionViabilidad += 15;
-      else puntuacionViabilidad += 5;
+      // Factor 1: Margen estimado (max 40 pts)
+      if (margenEstimado >= 35) puntuacionViabilidad += 40;
+      else if (margenEstimado >= 25) puntuacionViabilidad += 30;
+      else if (margenEstimado >= 15) puntuacionViabilidad += 20;
+      else if (margenEstimado > 0) puntuacionViabilidad += 10;
 
-      if (data.tendencia === 'subiendo') puntuacionViabilidad += 20;
-      else if (data.tendencia === 'estable') puntuacionViabilidad += 10;
+      // Factor 2: Nivel de competencia (max 30 pts)
+      if (data.nivelCompetencia === 'baja') puntuacionViabilidad += 30;
+      else if (data.nivelCompetencia === 'media') puntuacionViabilidad += 20;
+      else if (data.nivelCompetencia === 'alta') puntuacionViabilidad += 10;
 
-      if (data.nivelCompetencia === 'baja') puntuacionViabilidad += 25;
-      else if (data.nivelCompetencia === 'media') puntuacionViabilidad += 15;
-      else if (data.nivelCompetencia === 'alta') puntuacionViabilidad += 5;
+      // Factor 3: Multiplicador precio/costo (max 30 pts)
+      if (multiplicador >= 2.0) puntuacionViabilidad += 30;
+      else if (multiplicador >= 1.5) puntuacionViabilidad += 20;
+      else if (multiplicador >= 1.2) puntuacionViabilidad += 10;
 
       // Fechas de vigencia (+60 días)
       const ahora = new Date();
