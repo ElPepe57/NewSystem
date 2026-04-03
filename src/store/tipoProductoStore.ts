@@ -31,7 +31,7 @@ interface TipoProductoState {
   // Acciones CRUD
   getById: (id: string) => Promise<TipoProducto | null>;
   create: (data: TipoProductoFormData, userId: string) => Promise<TipoProducto>;
-  crearRapido: (nombre: string, userId: string) => Promise<TipoProducto>;
+  crearRapido: (nombre: string, userId: string, lineaNegocioIds?: string[]) => Promise<TipoProducto>;
   update: (id: string, data: Partial<TipoProductoFormData>, userId: string) => Promise<void>;
   delete: (id: string) => Promise<void>;
   cambiarEstado: (id: string, estado: 'activo' | 'inactivo', userId: string) => Promise<void>;
@@ -144,10 +144,10 @@ export const useTipoProductoStore = create<TipoProductoState>((set, get) => ({
     }
   },
 
-  crearRapido: async (nombre: string, userId: string) => {
+  crearRapido: async (nombre: string, userId: string, lineaNegocioIds?: string[]) => {
     set({ loading: true, error: null });
     try {
-      const nuevoTipo = await tipoProductoService.crearRapido(nombre, userId);
+      const nuevoTipo = await tipoProductoService.crearRapido(nombre, userId, lineaNegocioIds);
       await get().fetchTiposActivos();
       set({ loading: false });
       return nuevoTipo;

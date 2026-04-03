@@ -31,10 +31,10 @@ import { normalizarParaBusqueda as normalizarTexto } from '../lib/textUtils';
 
 /**
  * Genera el siguiente codigo automaticamente
- * Formato: TPR-001, TPR-002, etc.
+ * Formato: TP-001, TP-002, etc.
  */
 async function generarCodigo(): Promise<string> {
-  return getNextSequenceNumber('TPR', 3);
+  return getNextSequenceNumber('TP', 3);
 }
 
 export const tipoProductoService = {
@@ -164,8 +164,8 @@ export const tipoProductoService = {
   /**
    * Crear tipo de producto rapido (desde selector en ProductoForm)
    */
-  async crearRapido(nombre: string, userId: string): Promise<TipoProducto> {
-    return this.create({ nombre }, userId);
+  async crearRapido(nombre: string, userId: string, lineaNegocioIds?: string[]): Promise<TipoProducto> {
+    return this.create({ nombre, lineaNegocioIds }, userId);
   },
 
   /**

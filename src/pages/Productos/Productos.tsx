@@ -82,8 +82,7 @@ export const Productos: React.FC = () => {
     key: string;
     direction: 'asc' | 'desc';
   }>>([
-    { key: 'marca', direction: 'asc' },
-    { key: 'nombreComercial', direction: 'asc' },
+    { key: 'sku', direction: 'desc' },
   ]);
 
   // Detectar si Ctrl está presionado para multiorden

@@ -106,7 +106,7 @@ export function TipoProductoSelector({
 
     setCreating(true);
     try {
-      const nuevoTipo = await crearRapido(searchTerm.trim(), user.uid);
+      const nuevoTipo = await crearRapido(searchTerm.trim(), user.uid, lineaNegocioId ? [lineaNegocioId] : undefined);
       const snapshot: TipoProductoSnapshot = {
         tipoProductoId: nuevoTipo.id,
         codigo: nuevoTipo.codigo,
