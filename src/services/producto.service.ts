@@ -657,7 +657,7 @@ export class ProductoService {
       const docData: Record<string, any> = {
         sku: skus[i],
         marca: datosComunes.marca || '',
-        marcaId: datosComunes.marcaId || undefined,
+        ...(datosComunes.marcaId ? { marcaId: datosComunes.marcaId } : {}),
         nombreComercial: datosComunes.nombreComercial || '',
         presentacion: datosComunes.presentacion || '',
         grupo: datosComunes.grupo || '',
@@ -670,7 +670,7 @@ export class ProductoService {
         esPrincipalGrupo,
         // Legacy compat
         esPadre: esPrincipalGrupo,
-        parentId: esPrincipalGrupo ? undefined : docRefs[0].id,
+        ...(esPrincipalGrupo ? {} : { parentId: docRefs[0].id }),
         esVariante: true,
         // Stock
         stockUSA: 0, stockPeru: 0, stockTransito: 0, stockReservado: 0, stockDisponible: 0,
