@@ -212,10 +212,10 @@ export const useCategoriaStore = create<CategoriaState>((set, get) => ({
     }
   },
 
-  crearRapida: async (nombre: string, nivel: NivelCategoria, userId: string, categoriaPadreId?: string) => {
+  crearRapida: async (nombre: string, nivel: NivelCategoria, userId: string, categoriaPadreId?: string, lineaNegocioIds?: string[]) => {
     set({ loading: true, error: null });
     try {
-      const nuevaCategoria = await categoriaService.crearRapida(nombre, nivel, userId, categoriaPadreId);
+      const nuevaCategoria = await categoriaService.crearRapida(nombre, nivel, userId, categoriaPadreId, lineaNegocioIds);
       await get().fetchCategoriasActivas();
       await get().fetchArbol();
       await get().fetchCategoriasConPath();

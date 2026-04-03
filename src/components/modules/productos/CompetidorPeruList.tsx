@@ -21,6 +21,7 @@ interface CompetidorPeruListProps {
   competidores: CompetidorPeruFormData[];
   onChange: (competidores: CompetidorPeruFormData[]) => void;
   disabled?: boolean;
+  lineaNegocioId?: string;
 }
 
 // Componente de Autocomplete de Competidores del Gestor Maestro
@@ -238,7 +239,8 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
 export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
   competidores,
   onChange,
-  disabled = false
+  disabled = false,
+  lineaNegocioId
 }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const user = useAuthStore(state => state.user);
@@ -261,6 +263,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
     try {
       const data: CompetidorFormData = {
         nombre,
+        lineaNegocioIds: lineaNegocioId ? [lineaNegocioId] : undefined,
         plataformaPrincipal: 'mercado_libre',
         reputacion: 'desconocida',
         nivelAmenaza: 'medio'

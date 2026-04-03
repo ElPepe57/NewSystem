@@ -210,8 +210,8 @@ export const etiquetaService = {
   /**
    * Crear etiqueta rapida (desde selector)
    */
-  async crearRapida(nombre: string, tipo: TipoEtiqueta, userId: string): Promise<Etiqueta> {
-    return this.create({ nombre, tipo }, userId);
+  async crearRapida(nombre: string, tipo: TipoEtiqueta, userId: string, lineaNegocioIds?: string[]): Promise<Etiqueta> {
+    return this.create({ nombre, tipo, lineaNegocioIds }, userId);
   },
 
   /**

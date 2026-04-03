@@ -515,6 +515,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
       const marcaData: MarcaFormData = {
         nombre: data.nombre,
         tipoMarca: data.tipoMarca || 'suplementos',
+        lineaNegocioIds: formData.lineaNegocioId ? [formData.lineaNegocioId] : undefined,
         descripcion: data.descripcion,
         paisOrigen: data.paisOrigen
       };

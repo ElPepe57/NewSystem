@@ -180,7 +180,7 @@ export function CategoriaSelector({
 
     setCreating(true);
     try {
-      const nuevaCategoria = await crearRapida(searchTerm.trim(), 1, user.uid);
+      const nuevaCategoria = await crearRapida(searchTerm.trim(), 1, user.uid, undefined, lineaNegocioId ? [lineaNegocioId] : undefined);
       // Seleccionarla automaticamente
       const snapshot: CategoriaSnapshot = {
         categoriaId: nuevaCategoria.id,

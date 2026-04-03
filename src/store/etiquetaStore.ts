@@ -184,10 +184,10 @@ export const useEtiquetaStore = create<EtiquetaState>((set, get) => ({
     }
   },
 
-  crearRapida: async (nombre: string, tipo: TipoEtiqueta, userId: string) => {
+  crearRapida: async (nombre: string, tipo: TipoEtiqueta, userId: string, lineaNegocioIds?: string[]) => {
     set({ loading: true, error: null });
     try {
-      const nuevaEtiqueta = await etiquetaService.crearRapida(nombre, tipo, userId);
+      const nuevaEtiqueta = await etiquetaService.crearRapida(nombre, tipo, userId, lineaNegocioIds);
       await get().fetchEtiquetasActivas();
       await get().fetchEtiquetasAgrupadas();
       set({ loading: false });

@@ -240,11 +240,12 @@ export const categoriaService = {
   /**
    * Crear categoria rapida (desde selector)
    */
-  async crearRapida(nombre: string, nivel: NivelCategoria, userId: string, categoriaPadreId?: string): Promise<Categoria> {
+  async crearRapida(nombre: string, nivel: NivelCategoria, userId: string, categoriaPadreId?: string, lineaNegocioIds?: string[]): Promise<Categoria> {
     return this.create({
       nombre,
       nivel,
-      categoriaPadreId
+      categoriaPadreId,
+      lineaNegocioIds
     }, userId);
   },
 

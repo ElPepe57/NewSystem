@@ -140,7 +140,7 @@ export function EtiquetaSelector({
 
     setCreating(true);
     try {
-      const nuevaEtiqueta = await crearRapida(searchTerm.trim(), tipoParaCrear, user.uid);
+      const nuevaEtiqueta = await crearRapida(searchTerm.trim(), tipoParaCrear, user.uid, lineaNegocioId ? [lineaNegocioId] : []);
       const snapshot: EtiquetaSnapshot = {
         etiquetaId: nuevaEtiqueta.id,
         codigo: nuevaEtiqueta.codigo,
