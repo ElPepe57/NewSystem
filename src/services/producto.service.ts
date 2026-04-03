@@ -704,7 +704,11 @@ export class ProductoService {
         if (etiquetasSnapshots.length) docData.etiquetasData = etiquetasSnapshots;
       }
 
-      batch.set(docRefs[i], docData);
+      // Clean undefined values — Firestore batch rejects undefined
+      const cleanData = Object.fromEntries(
+        Object.entries(docData).filter(([_, v]) => v !== undefined)
+      );
+      batch.set(docRefs[i], cleanData);
       productosCreados.push({ id: docRefs[i].id, ...docData, fechaCreacion: ahora } as Producto);
     }
 
