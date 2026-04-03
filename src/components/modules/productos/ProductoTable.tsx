@@ -131,7 +131,7 @@ const ProductoCardResponsive: React.FC<{
             <div className="flex items-center gap-1 mt-1">
               <Tag className="h-3 w-3 text-blue-500" />
               <span className="text-xs text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
-                {producto.tipoProducto.nombre}
+                {typeof producto.tipoProducto === 'string' ? producto.tipoProducto : producto.tipoProducto.nombre}
               </span>
             </div>
           )}
@@ -658,7 +658,7 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                           <div className="flex items-center gap-1 mb-0.5">
                             <Tag className="h-3 w-3 text-blue-500 flex-shrink-0" />
                             <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0.5 rounded truncate max-w-[100px]">
-                              {producto.tipoProducto.nombre}
+                              {typeof producto.tipoProducto === 'string' ? producto.tipoProducto : producto.tipoProducto.nombre}
                             </span>
                           </div>
                         )}

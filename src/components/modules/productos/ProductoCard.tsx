@@ -701,7 +701,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                   <FlaskConical className="h-3 w-3" /> Tipo de Producto
                 </span>
                 <span className="inline-block bg-primary-100 text-primary-700 text-sm px-2 py-0.5 rounded">
-                  {producto.tipoProducto.nombre}
+                  {typeof producto.tipoProducto === 'string' ? producto.tipoProducto : producto.tipoProducto.nombre}
                 </span>
               </div>
             ) : producto.subgrupo && (
