@@ -530,56 +530,6 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                     disabled={disabled}
                   />
 
-                  <Input
-                    label="Ventas mensuales estimadas"
-                    name="ventas"
-                    type="number"
-                    value={competidor.ventas || ''}
-                    onChange={(e) => handleUpdateCompetidor(competidor.id, {
-                      ventas: parseInt(e.target.value) || 0
-                    })}
-                    placeholder="ej: 50"
-                    disabled={disabled}
-                  />
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Reputación
-                    </label>
-                    <select
-                      value={competidor.reputacion || 'desconocida'}
-                      onChange={(e) => handleUpdateCompetidor(competidor.id, {
-                        reputacion: e.target.value as CompetidorPeruFormData['reputacion']
-                      })}
-                      disabled={disabled}
-                      className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    >
-                      <option value="desconocida">Desconocida</option>
-                      <option value="excelente">Excelente</option>
-                      <option value="buena">Buena</option>
-                      <option value="regular">Regular</option>
-                      <option value="mala">Mala</option>
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2 flex items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={competidor.esLiderCategoria || false}
-                        onChange={(e) => handleUpdateCompetidor(competidor.id, {
-                          esLiderCategoria: e.target.checked
-                        })}
-                        disabled={disabled}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm text-gray-700 flex items-center gap-1">
-                        <Crown className="h-4 w-4 text-yellow-500" />
-                        Líder de categoría
-                      </span>
-                    </label>
-                  </div>
-
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Notas

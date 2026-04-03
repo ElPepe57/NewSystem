@@ -220,8 +220,8 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
     const montoImpuestoUSA = mejorPrecioUSASinImpuesto * (impuestoMejorProveedor / 100);
 
     // Precio sugerido con margen objetivo
-    const categoriaPrincipal = producto.categorias?.find((c: any) => c.id === producto.categoriaPrincipalId) || producto.categorias?.[0];
-    const margenObjetivo = categoriaPrincipal?.margenObjetivo ?? 30;
+    const categoriaPrincipal = producto.categorias?.find((c: any) => c.categoriaId === producto.categoriaPrincipalId) || producto.categorias?.[0];
+    const margenObjetivo = Math.min(categoriaPrincipal?.margenObjetivo ?? 30, 99);
     const precioSugeridoCalculado = ctruEstimado > 0
       ? ctruEstimado / (1 - margenObjetivo / 100)
       : 0;
@@ -535,53 +535,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
         {/* Tab 3: Mercado */}
         <TabPanel tabId="mercado">
           <div className="space-y-4">
-            {/* Demanda y Tendencia */}
-            <div className="bg-green-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-                <TrendingUp className="h-4 w-4 mr-2 text-green-600" />
-                Demanda y Tendencia
-              </h4>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">Demanda estimada</label>
-                  <select
-                    value={formData.demandaEstimada}
-                    onChange={(e) => handleChange('demandaEstimada', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md text-sm"
-                    disabled={loading}
-                  >
-                    <option value="baja">Baja</option>
-                    <option value="media">Media</option>
-                    <option value="alta">Alta</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">Tendencia</label>
-                  <select
-                    value={formData.tendencia}
-                    onChange={(e) => handleChange('tendencia', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md text-sm"
-                    disabled={loading}
-                  >
-                    <option value="subiendo">Subiendo</option>
-                    <option value="estable">Estable</option>
-                    <option value="bajando">Bajando</option>
-                  </select>
-                </div>
-              </div>
-              <div className="mt-3">
-                <label className="block text-xs text-gray-600 mb-1">Volumen de mercado (unid/mes)</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.volumenMercadoEstimado || ''}
-                  onChange={(e) => handleChange('volumenMercadoEstimado', parseInt(e.target.value) || 0)}
-                  className="w-full px-3 py-2 border rounded-md text-sm"
-                  placeholder="ej: 100"
-                  disabled={loading}
-                />
-              </div>
-            </div>
+            <p className="text-sm text-gray-500 italic">Las proyecciones de demanda y mercado se gestionan desde la sección de Proyección 360.</p>
           </div>
         </TabPanel>
 
@@ -832,25 +786,6 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
             onMarcarTodasLeidas={async () => {
               await ProductoService.marcarAlertasLeidas(producto.id);
             }}
-          />
-        </div>
-      )}
-
-      {/* Sección de Punto de Equilibrio */}
-      {calculos.ctruEstimado > 0 && (
-        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-lg border border-indigo-200">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-            <Calculator className="h-4 w-4 mr-2 text-indigo-600" />
-            Análisis de Punto de Equilibrio
-          </h4>
-          <PuntoEquilibrioCard
-            ctruEstimado={calculos.ctruEstimado}
-            precioVentaSugerido={calculos.precioSugeridoCalculado}
-            precioPERUMin={preciosPeru.min}
-            demandaEstimada={formData.demandaEstimada}
-            volumenMercadoEstimado={formData.volumenMercadoEstimado}
-            costoTotalUSD={calculos.costoTotalUSD}
-            precioEntrada={calculos.precioEntrada}
           />
         </div>
       )}

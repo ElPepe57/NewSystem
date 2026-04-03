@@ -591,23 +591,6 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
           </select>
         </div>
 
-        <div className="flex items-end gap-2">
-          <Input
-            label="Envío estimado (USD)"
-            name="envioEstimado"
-            type="number"
-            step="0.01"
-            value={proveedor.envioEstimado || ''}
-            onChange={(e) => onUpdate({
-              envioEstimado: parseFloat(e.target.value) || 0
-            })}
-            disabled={disabled}
-          />
-          <div className="pb-2">
-            <Truck className="h-5 w-5 text-gray-400" />
-          </div>
-        </div>
-
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Notas

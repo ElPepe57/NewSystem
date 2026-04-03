@@ -282,11 +282,13 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             if (marcaCompleta) {
               setMarcaSeleccionada({ marcaId: marcaCompleta.id, nombre: marcaCompleta.nombre });
               setFormData(prev => ({ ...prev, marcaId: marcaCompleta.id, marca: marcaCompleta.nombre }));
-              setMarcaMetricas({
-                productosActivos: marcaCompleta.metricas.productosActivos,
-                unidadesVendidas: marcaCompleta.metricas.unidadesVendidas,
-                margenPromedio: marcaCompleta.metricas.margenPromedio
-              });
+              if (marcaCompleta.metricas) {
+                setMarcaMetricas({
+                  productosActivos: marcaCompleta.metricas.productosActivos ?? 0,
+                  unidadesVendidas: marcaCompleta.metricas.unidadesVendidas ?? 0,
+                  margenPromedio: marcaCompleta.metricas.margenPromedio ?? 0
+                });
+              }
               return;
             }
           }
@@ -301,11 +303,13 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             if (marcaEncontrada) {
               setMarcaSeleccionada({ marcaId: marcaEncontrada.id, nombre: marcaEncontrada.nombre });
               setFormData(prev => ({ ...prev, marcaId: marcaEncontrada.id, marca: marcaEncontrada.nombre }));
-              setMarcaMetricas({
-                productosActivos: marcaEncontrada.metricas.productosActivos,
-                unidadesVendidas: marcaEncontrada.metricas.unidadesVendidas,
-                margenPromedio: marcaEncontrada.metricas.margenPromedio
-              });
+              if (marcaEncontrada.metricas) {
+                setMarcaMetricas({
+                  productosActivos: marcaEncontrada.metricas.productosActivos ?? 0,
+                  unidadesVendidas: marcaEncontrada.metricas.unidadesVendidas ?? 0,
+                  margenPromedio: marcaEncontrada.metricas.margenPromedio ?? 0
+                });
+              }
             } else {
               setMarcaSeleccionada({ marcaId: '', nombre: initialData.marca });
             }
@@ -326,14 +330,16 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   // Calcular ciclo de recompra automaticamente cuando cambian contenido y servingsPerDay
   useEffect(() => {
     const { contenido, servingsPerDay } = formData;
-    // Extraer numero del contenido (ej: "60 softgels" -> 60, "300" -> 300)
     const contenidoNumero = contenido ? parseInt(contenido.replace(/\D/g, '')) : 0;
     if (contenidoNumero > 0 && servingsPerDay && servingsPerDay > 0) {
-      const cicloCalculado = Math.round(contenidoNumero / servingsPerDay);
-      if (cicloCalculado !== formData.cicloRecompraDias) {
-        setFormData(prev => ({ ...prev, cicloRecompraDias: cicloCalculado }));
-      }
+      setFormData(prev => {
+        const cicloCalculado = Math.round(contenidoNumero / servingsPerDay);
+        return cicloCalculado !== prev.cicloRecompraDias
+          ? { ...prev, cicloRecompraDias: cicloCalculado }
+          : prev;
+      });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.contenido, formData.servingsPerDay]);
 
   // Cargar sugerencias para autocompletado
@@ -484,11 +490,11 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
       if (marca.marcaId) {
         try {
           const marcaCompleta = await marcaService.getById(marca.marcaId);
-          if (marcaCompleta) {
+          if (marcaCompleta?.metricas) {
             setMarcaMetricas({
-              productosActivos: marcaCompleta.metricas.productosActivos,
-              unidadesVendidas: marcaCompleta.metricas.unidadesVendidas,
-              margenPromedio: marcaCompleta.metricas.margenPromedio
+              productosActivos: marcaCompleta.metricas.productosActivos ?? 0,
+              unidadesVendidas: marcaCompleta.metricas.unidadesVendidas ?? 0,
+              margenPromedio: marcaCompleta.metricas.margenPromedio ?? 0
             });
           }
         } catch (error) {
