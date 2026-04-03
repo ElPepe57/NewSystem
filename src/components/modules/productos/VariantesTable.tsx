@@ -19,6 +19,12 @@ interface VariantesTableProps {
   onChange: (variantes: VarianteRow[]) => void;
   skuPrefix: string;
   esSkincare?: boolean;
+  sugerencias?: {
+    presentaciones?: string[];
+    dosajes?: string[];
+    contenidos?: string[];
+    sabores?: string[];
+  };
 }
 
 let nextId = 1;
@@ -33,6 +39,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
   onChange,
   skuPrefix,
   esSkincare = false,
+  sugerencias,
 }) => {
   // Placeholders adaptados por línea
   const ph = esSkincare
@@ -115,6 +122,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
             <div>
               <input
                 type="text"
+                list="dl-presentaciones"
                 value={v.presentacion}
                 onChange={(e) => updateVariante(v.id, 'presentacion', e.target.value)}
                 placeholder={ph.presentacion}
@@ -124,6 +132,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
             <div>
               <input
                 type="text"
+                list="dl-contenidos"
                 value={v.contenido}
                 onChange={(e) => updateVariante(v.id, 'contenido', e.target.value)}
                 placeholder={ph.contenido}
@@ -133,6 +142,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
             <div>
               <input
                 type="text"
+                list="dl-dosajes"
                 value={v.dosaje}
                 onChange={(e) => updateVariante(v.id, 'dosaje', e.target.value)}
                 placeholder={ph.dosaje}
@@ -142,6 +152,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
             <div>
               <input
                 type="text"
+                list="dl-sabores"
                 value={v.sabor}
                 onChange={(e) => updateVariante(v.id, 'sabor', e.target.value)}
                 placeholder={ph.sabor || 'Sabor'}
@@ -194,6 +205,28 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
       <div className="text-xs text-gray-400">
         {variantes.length} variante{variantes.length !== 1 ? 's' : ''} · SKUs se generarán como {skuPrefix}-XXXX al guardar
       </div>
+
+      {/* Datalists for autocomplete suggestions */}
+      {sugerencias?.presentaciones && (
+        <datalist id="dl-presentaciones">
+          {sugerencias.presentaciones.map(s => <option key={s} value={s} />)}
+        </datalist>
+      )}
+      {sugerencias?.contenidos && (
+        <datalist id="dl-contenidos">
+          {sugerencias.contenidos.map(s => <option key={s} value={s} />)}
+        </datalist>
+      )}
+      {sugerencias?.dosajes && (
+        <datalist id="dl-dosajes">
+          {sugerencias.dosajes.map(s => <option key={s} value={s} />)}
+        </datalist>
+      )}
+      {sugerencias?.sabores && (
+        <datalist id="dl-sabores">
+          {sugerencias.sabores.map(s => <option key={s} value={s} />)}
+        </datalist>
+      )}
     </div>
   );
 };

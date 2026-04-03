@@ -1489,6 +1489,11 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                   onChange={setVariantesRows}
                   skuPrefix={lineasActivas.find(l => l.id === formData.lineaNegocioId)?.codigo || 'BMN'}
                   esSkincare={!esSuplemento}
+                  sugerencias={{
+                    presentaciones: sugerencias.presentaciones,
+                    dosajes: sugerencias.dosajes,
+                    contenidos: sugerencias.contenidos,
+                  }}
                 />
               </div>
             </TabPanel>
