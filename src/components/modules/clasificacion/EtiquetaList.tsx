@@ -11,11 +11,21 @@ import type { Etiqueta, TipoEtiqueta } from '../../../types/etiqueta.types';
 
 const TIPO_LABELS: Record<TipoEtiqueta, { label: string; color: string }> = {
   atributo: { label: 'Atributos', color: 'bg-green-100 text-green-700' },
+  certificacion: { label: 'Certificaciones', color: 'bg-indigo-100 text-indigo-700' },
+  dieta: { label: 'Dieta', color: 'bg-emerald-100 text-emerald-700' },
+  publico: { label: 'Público', color: 'bg-pink-100 text-pink-700' },
   marketing: { label: 'Marketing', color: 'bg-yellow-100 text-yellow-700' },
-  origen: { label: 'Origen', color: 'bg-blue-100 text-blue-700' }
+  calidad: { label: 'Calidad', color: 'bg-purple-100 text-purple-700' },
+  origen: { label: 'Origen', color: 'bg-blue-100 text-blue-700' },
+  presentacion: { label: 'Presentación', color: 'bg-cyan-100 text-cyan-700' },
+  comercial: { label: 'Comercial', color: 'bg-amber-100 text-amber-700' },
+  almacenamiento: { label: 'Almacenamiento', color: 'bg-red-100 text-red-700' },
 };
 
-const TIPO_ORDER: TipoEtiqueta[] = ['atributo', 'marketing', 'origen'];
+const TIPO_ORDER: TipoEtiqueta[] = [
+  'atributo', 'certificacion', 'dieta', 'publico', 'marketing',
+  'calidad', 'origen', 'presentacion', 'comercial', 'almacenamiento'
+];
 
 export function EtiquetaList() {
   const { user } = useAuthStore();

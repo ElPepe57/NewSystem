@@ -15,9 +15,16 @@ import type { Timestamp } from 'firebase/firestore';
  */
 
 export type TipoEtiqueta =
-  | 'atributo'      // vegano, organico, sin-gluten, sin-lactosa
-  | 'marketing'     // best-seller, nuevo, promocion, destacado
-  | 'origen';       // importado-usa, nacional, importado-europa
+  | 'atributo'        // vegano, organico, alta potencia, fórmula combinada
+  | 'certificacion'   // Non-GMO, USDA Organic, GMP, NSF
+  | 'dieta'           // sin gluten, sin lácteos, vegano, apto keto
+  | 'publico'         // para niños, para mujeres, para adultos +50
+  | 'marketing'       // best-seller, nuevo, trending, producto estrella
+  | 'calidad'         // made in USA, marca premium, science-based
+  | 'origen'          // importado USA, importado Corea
+  | 'presentacion'    // formato gomitas, líquido, alto contenido
+  | 'comercial'       // margen alto, competencia baja
+  | 'almacenamiento'; // requiere frío, fecha corta
 
 export type EstadoEtiqueta = 'activa' | 'inactiva';
 
@@ -132,9 +139,7 @@ export interface EtiquetaFiltros {
  * Etiquetas agrupadas por tipo (para UI)
  */
 export interface EtiquetasAgrupadas {
-  atributo: Etiqueta[];
-  marketing: Etiqueta[];
-  origen: Etiqueta[];
+  [tipo: string]: Etiqueta[];
 }
 
 /**

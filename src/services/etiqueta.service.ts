@@ -99,12 +99,12 @@ export const etiquetaService = {
    */
   async getAgrupadas(): Promise<EtiquetasAgrupadas> {
     const activas = await this.getActivas();
-
-    return {
-      atributo: activas.filter(e => e.tipo === 'atributo'),
-      marketing: activas.filter(e => e.tipo === 'marketing'),
-      origen: activas.filter(e => e.tipo === 'origen')
-    };
+    const agrupadas: Record<string, any[]> = {};
+    activas.forEach(e => {
+      if (!agrupadas[e.tipo]) agrupadas[e.tipo] = [];
+      agrupadas[e.tipo].push(e);
+    });
+    return agrupadas as EtiquetasAgrupadas;
   },
 
   /**

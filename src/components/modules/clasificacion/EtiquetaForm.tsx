@@ -15,12 +15,19 @@ interface EtiquetaFormProps {
 }
 
 const TIPO_OPTIONS: { value: TipoEtiqueta; label: string; descripcion: string }[] = [
-  { value: 'atributo', label: 'Atributo', descripcion: 'Caracteristicas del producto (vegano, organico, sin gluten)' },
-  { value: 'marketing', label: 'Marketing', descripcion: 'Etiquetas promocionales (best-seller, nuevo, oferta)' },
-  { value: 'origen', label: 'Origen', descripcion: 'Procedencia del producto (USA, nacional, importado)' }
+  { value: 'atributo', label: 'Atributo', descripcion: 'Características del producto (alta potencia, fórmula combinada)' },
+  { value: 'certificacion', label: 'Certificación', descripcion: 'Certificaciones oficiales (Non-GMO, USDA Organic, GMP)' },
+  { value: 'dieta', label: 'Dieta', descripcion: 'Restricciones alimentarias (sin gluten, vegano, apto keto)' },
+  { value: 'publico', label: 'Público', descripcion: 'Público objetivo (niños, mujeres, adultos +50)' },
+  { value: 'marketing', label: 'Marketing', descripcion: 'Etiquetas promocionales (best-seller, nuevo, trending)' },
+  { value: 'calidad', label: 'Calidad', descripcion: 'Indicadores de calidad (Made in USA, marca premium)' },
+  { value: 'origen', label: 'Origen', descripcion: 'Procedencia (importado USA, importado Corea)' },
+  { value: 'presentacion', label: 'Presentación', descripcion: 'Formato del producto (gomitas, líquido, polvo)' },
+  { value: 'comercial', label: 'Comercial', descripcion: 'Indicadores comerciales (margen alto, competencia baja)' },
+  { value: 'almacenamiento', label: 'Almacenamiento', descripcion: 'Condiciones especiales (requiere frío, fecha corta)' },
 ];
 
-const COLORES_PRESET = {
+const COLORES_PRESET: Record<string, Array<{ fondo: string; texto: string; borde: string; label: string }>> = {
   atributo: [
     { fondo: '#DCFCE7', texto: '#166534', borde: '#86EFAC', label: 'Verde' },
     { fondo: '#DBEAFE', texto: '#1E40AF', borde: '#93C5FD', label: 'Azul' },
