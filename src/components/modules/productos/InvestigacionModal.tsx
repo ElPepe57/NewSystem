@@ -45,14 +45,12 @@ interface InvestigacionModalProps {
 const INVESTIGACION_TABS: Tab[] = [
   { id: 'proveedores', label: 'Proveedores', icon: <DollarSign className="h-4 w-4" /> },
   { id: 'competencia', label: 'Competencia', icon: <Users className="h-4 w-4" /> },
-  { id: 'mercado', label: 'Mercado', icon: <TrendingUp className="h-4 w-4" /> },
   { id: 'decision', label: 'Decision', icon: <Target className="h-4 w-4" /> }
 ];
 
 const TABS_CONFIG = [
   { id: 'proveedores', label: 'Proveedores', shortLabel: 'Provee.', icon: DollarSign },
   { id: 'competencia', label: 'Competencia', shortLabel: 'Compet.', icon: Users },
-  { id: 'mercado', label: 'Mercado', shortLabel: 'Mercado', icon: TrendingUp },
   { id: 'decision', label: 'Decisión', shortLabel: 'Decisión', icon: Target },
 ];
 
@@ -532,14 +530,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
           </div>
         </TabPanel>
 
-        {/* Tab 3: Mercado */}
-        <TabPanel tabId="mercado">
-          <div className="space-y-4">
-            <p className="text-sm text-gray-500 italic">Las proyecciones de demanda y mercado se gestionan desde la sección de Proyección 360.</p>
-          </div>
-        </TabPanel>
-
-        {/* Tab 4: Decisión */}
+        {/* Tab 3: Decisión */}
         <TabPanel tabId="decision">
           <div className="space-y-4">
             {/* Recomendación */}
