@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMarcaStore } from '../../store/marcaStore';
 import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
+import { LineaNegocioBadges, LineaNegocioSelect } from './LineaNegocioBadge';
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 import type { Marca } from '../../types/entidadesMaestras.types';
 import { MarcaDetailView } from './MarcaDetailView';
@@ -27,6 +28,7 @@ export function MarcasAnalytics({
   const [busqueda, setBusqueda] = useState('');
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
+  const [filtroLinea, setFiltroLinea] = useState<string>('todos');
   const [ordenarPor, setOrdenarPor] = useState<'nombre' | 'ventas' | 'margen' | 'productos'>('nombre');
   const [marcaDetalle, setMarcaDetalle] = useState<Marca | null>(null);
   const [mostrarComparador, setMostrarComparador] = useState(false);
@@ -135,6 +137,11 @@ export function MarcasAnalytics({
       resultado = resultado.filter(m => m.tipoMarca === filtroTipo);
     }
 
+    // Filtro por línea de negocio (local)
+    if (filtroLinea !== 'todos') {
+      resultado = resultado.filter(m => m.lineaNegocioIds?.includes(filtroLinea));
+    }
+
     // Filtro por estado
     if (filtroEstado !== 'todos') {
       resultado = resultado.filter(m => m.estado === filtroEstado);
@@ -155,7 +162,7 @@ export function MarcasAnalytics({
     });
 
     return resultado;
-  }, [marcas, busqueda, filtroTipo, filtroEstado, ordenarPor]);
+  }, [marcas, busqueda, filtroTipo, filtroLinea, filtroEstado, ordenarPor]);
 
   // Paginación
   const {
@@ -231,6 +238,8 @@ export function MarcasAnalytics({
           <option value="otro">Otro</option>
         </select>
 
+        <LineaNegocioSelect value={filtroLinea} onChange={setFiltroLinea} />
+
         <select
           value={filtroEstado}
           onChange={(e) => setFiltroEstado(e.target.value)}
@@ -292,6 +301,9 @@ export function MarcasAnalytics({
                 Tipo
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Línea
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Estado
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -337,6 +349,9 @@ export function MarcasAnalytics({
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTipoColor(marca.tipoMarca)}`}>
                     {getTipoLabel(marca.tipoMarca)}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <LineaNegocioBadges lineaIds={marca.lineaNegocioIds} />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${getEstadoColor(marca.estado)}`}>

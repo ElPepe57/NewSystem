@@ -49,6 +49,7 @@ import {
 } from '../common';
 import { useClienteStore } from '../../store/clienteStore';
 import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
+import { LineaNegocioBadges, LineaNegocioSelect } from './LineaNegocioBadge';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { recompraService, type AlertaRecompra, type ResumenAlertasRecompra } from '../../services/recompra.service';
@@ -1002,6 +1003,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 <option value="inactivo">Inactivo</option>
               </select>
 
+              {/* Filtro por línea de negocio — visual, no funcional aquí ya que useLineaFilterMulti opera con el sidebar */}
+
               {/* Contador de resultados */}
               <span className="text-sm text-gray-500">
                 {clientesFiltrados.length} de {clientes.length}
@@ -1071,6 +1074,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                             </span>
                           </div>
                           <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
+                            <LineaNegocioBadges lineaIds={cliente.lineaNegocioIds} />
                             {cliente.telefono && (
                               <span className="flex items-center">
                                 <Phone className="h-3 w-3 mr-1" />

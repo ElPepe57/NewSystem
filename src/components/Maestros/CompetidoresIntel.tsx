@@ -3,6 +3,7 @@ import { Eye, Edit2, Trash2, ExternalLink, Plus, Filter, X } from 'lucide-react'
 import { formatCurrencyPEN } from '../../utils/format';
 import { useCompetidorStore } from '../../store/competidorStore';
 import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
+import { LineaNegocioBadges, LineaNegocioSelect } from './LineaNegocioBadge';
 import { CompetidorDetailView } from './CompetidorDetailView';
 import type { Competidor, PlataformaCompetidor, ReputacionCompetidor } from '../../types/entidadesMaestras.types';
 import { Pagination, usePagination, Badge } from '../common';
@@ -99,6 +100,7 @@ export function CompetidoresIntel({
   const [filtroPlataforma, setFiltroPlataforma] = useState<string>('todos');
   const [filtroAmenaza, setFiltroAmenaza] = useState<string>('todos');
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
+  const [filtroLinea, setFiltroLinea] = useState<string>('todos');
   const [competidorDetalle, setCompetidorDetalle] = useState<Competidor | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -189,13 +191,18 @@ export function CompetidoresIntel({
       resultado = resultado.filter(c => c.nivelAmenaza === filtroAmenaza);
     }
 
+    // Filtro por línea de negocio
+    if (filtroLinea !== 'todos') {
+      resultado = resultado.filter(c => c.lineaNegocioIds?.includes(filtroLinea));
+    }
+
     // Filtro por estado
     if (filtroEstado !== 'todos') {
       resultado = resultado.filter(c => c.estado === filtroEstado);
     }
 
     return resultado.sort((a, b) => a.nombre.localeCompare(b.nombre));
-  }, [competidores, busqueda, filtroPlataforma, filtroAmenaza, filtroEstado]);
+  }, [competidores, busqueda, filtroPlataforma, filtroAmenaza, filtroLinea, filtroEstado]);
 
   // Paginación
   const {
@@ -337,6 +344,8 @@ export function CompetidoresIntel({
             <option value="bajo">Amenaza Baja</option>
           </select>
 
+          <LineaNegocioSelect value={filtroLinea} onChange={setFiltroLinea} className="w-full lg:w-auto" />
+
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value)}
@@ -348,11 +357,12 @@ export function CompetidoresIntel({
             <option value="cerrado">Cerrado</option>
           </select>
 
-          {(filtroPlataforma !== 'todos' || filtroAmenaza !== 'todos' || filtroEstado !== 'todos') && (
+          {(filtroPlataforma !== 'todos' || filtroAmenaza !== 'todos' || filtroLinea !== 'todos' || filtroEstado !== 'todos') && (
             <button
               onClick={() => {
                 setFiltroPlataforma('todos');
                 setFiltroAmenaza('todos');
+                setFiltroLinea('todos');
                 setFiltroEstado('todos');
               }}
               className="w-full lg:w-auto px-4 py-2 text-gray-600 hover:text-gray-800 flex items-center justify-center gap-1"
@@ -412,6 +422,9 @@ export function CompetidoresIntel({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Plataforma
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Línea
+              </th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Amenaza
               </th>
@@ -455,6 +468,9 @@ export function CompetidoresIntel({
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPlataformaColor(competidor.plataformaPrincipal || 'otra')}`}>
                     {getPlataformaLabel(competidor.plataformaPrincipal || 'otra')}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <LineaNegocioBadges lineaIds={competidor.lineaNegocioIds} />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${getAmenazaColor(competidor.nivelAmenaza)}`}>

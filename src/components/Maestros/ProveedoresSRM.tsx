@@ -40,6 +40,7 @@ import {
 } from '../common';
 import { useProveedorStore } from '../../store/proveedorStore';
 import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
+import { LineaNegocioBadges, LineaNegocioSelect } from './LineaNegocioBadge';
 import { useAuthStore } from '../../store/authStore';
 import { ProveedorDetailView } from './ProveedorDetailView';
 import type { Proveedor, ClasificacionProveedor, TipoProveedor } from '../../types/ordenCompra.types';
@@ -67,6 +68,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
   const [filtroClasificacion, setFiltroClasificacion] = useState<ClasificacionProveedor | 'todos'>('todos');
   const [filtroPais, setFiltroPais] = useState<string>('todos');
   const [filtroTipo, setFiltroTipo] = useState<TipoProveedor | 'todos'>('todos');
+  const [filtroLinea, setFiltroLinea] = useState<string>('todos');
   const [proveedorDetalle, setProveedorDetalle] = useState<Proveedor | null>(null);
 
   const {
@@ -114,6 +116,11 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
     // Filtro por tipo
     if (filtroTipo !== 'todos') {
       if (p.tipo !== filtroTipo) return false;
+    }
+
+    // Filtro por línea de negocio
+    if (filtroLinea !== 'todos') {
+      if (!p.lineaNegocioIds?.includes(filtroLinea)) return false;
     }
 
     return true;
@@ -538,6 +545,8 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                 <option value="distribuidor">Distribuidor</option>
                               </select>
 
+              <LineaNegocioSelect value={filtroLinea} onChange={setFiltroLinea} />
+
               <span className="text-sm text-gray-500">
                 {proveedoresFiltrados.length} de {proveedores.length}
               </span>
@@ -603,6 +612,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                             <span className={`px-2 py-0.5 text-xs rounded ${getTipoColor(proveedor.tipo)}`}>
                               {proveedor.tipo}
                             </span>
+                            <LineaNegocioBadges lineaIds={proveedor.lineaNegocioIds} />
                             {proveedor.evaluacion && proveedor.evaluacion.puntuacion > 0 && (
                               <span className="flex items-center">
                                 <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400" />
