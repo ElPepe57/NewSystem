@@ -437,6 +437,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                 proveedores={proveedoresUSA}
                 onChange={setProveedoresUSA}
                 disabled={loading}
+                lineaNegocioId={producto.lineaNegocioId}
                 sugerenciasProveedores={sugerenciasProveedores}
               />
             </div>

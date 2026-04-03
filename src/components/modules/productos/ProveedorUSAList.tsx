@@ -10,6 +10,7 @@ interface ProveedorUSAListProps {
   proveedores: ProveedorUSAFormData[];
   onChange: (proveedores: ProveedorUSAFormData[]) => void;
   disabled?: boolean;
+  lineaNegocioId?: string;
   /** Sugerencias adicionales de proveedores (de la base de datos - legacy) */
   sugerenciasProveedores?: string[];
 }
@@ -18,6 +19,7 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
   proveedores,
   onChange,
   disabled = false,
+  lineaNegocioId,
   sugerenciasProveedores = []
 }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -203,7 +205,8 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
 onCreateProveedor={async (data) => {
                   if (!user) return null;
                   try {
-                    const proveedorId = await createProveedor(data, user.uid);
+                    const dataConLinea = lineaNegocioId ? { ...data, lineaNegocioIds: [lineaNegocioId] } : data;
+                    const proveedorId = await createProveedor(dataConLinea, user.uid);
                     return proveedorId;
                   } catch (error) {
                     console.error('Error creando proveedor:', error);
