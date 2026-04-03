@@ -358,10 +358,8 @@ export const Productos: React.FC = () => {
   };
 
   const handleCloseFormModal = () => {
-    if (!isEditing && isFormModalOpen) {
-      const confirmar = window.confirm('¿Seguro que quieres salir? Se perderán los datos ingresados.');
-      if (!confirmar) return;
-    }
+    const confirmar = window.confirm('¿Seguro que quieres salir? Se perderán los datos ingresados.');
+    if (!confirmar) return;
     setIsFormModalOpen(false);
     setSelectedProducto(null);
     setIsEditing(false);
