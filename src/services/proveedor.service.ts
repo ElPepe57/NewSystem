@@ -158,6 +158,7 @@ class ProveedorService {
       const nuevoProveedor: any = {
         codigo,
         nombre: data.nombre.trim(),
+        lineaNegocioIds: data.lineaNegocioIds || [],
         tipo: data.tipo,
         url: data.url?.trim() || '',
         pais: data.pais,

@@ -39,11 +39,28 @@ export function useLineaFilter<T>(
       if (allowUndefined && !lineaId) return true;
       return lineaId === lineaFiltroGlobal;
     });
-    // getLineaId is intentionally omitted from deps — callers must pass a stable
-    // reference (inline arrow functions defined outside useMemo are fine because
-    // this hook memoizes on items + lineaFiltroGlobal, which already captures all
-    // necessary invalidations). If a caller needs identity-based deps they can
-    // wrap getLineaId in useCallback themselves.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, lineaFiltroGlobal, allowUndefined]);
+}
+
+/**
+ * Filtra entidades que tienen `lineaNegocioIds: string[]` (array de líneas).
+ * Si la entidad no tiene líneas asignadas (vacío/undefined), se incluye siempre.
+ */
+export function useLineaFilterMulti<T>(
+  items: T[],
+  getLineaIds: (item: T) => string[] | undefined
+): T[] {
+  const lineaFiltroGlobal = useLineaNegocioStore(state => state.lineaFiltroGlobal);
+
+  return useMemo(() => {
+    if (!lineaFiltroGlobal) return items;
+
+    return items.filter(item => {
+      const ids = getLineaIds(item);
+      if (!ids || ids.length === 0) return true; // Sin línea asignada = disponible para todas
+      return ids.includes(lineaFiltroGlobal);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, lineaFiltroGlobal]);
 }

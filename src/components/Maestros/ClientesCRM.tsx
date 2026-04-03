@@ -48,6 +48,7 @@ import {
   usePagination
 } from '../common';
 import { useClienteStore } from '../../store/clienteStore';
+import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { recompraService, type AlertaRecompra, type ResumenAlertasRecompra } from '../../services/recompra.service';
@@ -80,7 +81,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
   const [clienteDetalle, setClienteDetalle] = useState<Cliente | null>(null);
 
   const {
-    clientes,
+    clientes: clientesRaw,
     stats: clienteStats,
     statsCRM,
     alertasCRM,
@@ -99,6 +100,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
     setFiltroEstado,
     getClientesFiltrados
   } = useClienteStore();
+
+  const clientes = useLineaFilterMulti(clientesRaw, c => c.lineaNegocioIds);
 
   // Auto-recalcular ABC si hay clientes con ventas pero sin clasificar
   useEffect(() => {

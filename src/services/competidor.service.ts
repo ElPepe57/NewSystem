@@ -143,6 +143,7 @@ export const competidorService = {
         codigo,
         nombre: data.nombre.trim(),
         nombreNormalizado: normalizarTexto(data.nombre),
+        lineaNegocioIds: data.lineaNegocioIds || [],
         // Nuevo sistema: plataformasData como array de objetos
         plataformasData: data.plataformasData || [],
         // Legacy: mantener para compatibilidad

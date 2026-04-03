@@ -95,6 +95,7 @@ export interface MetricasProveedor {
 export interface Proveedor {
   id: string;
   codigo: string;                    // PRV-001, PRV-002, etc.
+  lineaNegocioIds?: string[];        // Líneas de negocio (si vacío = todas)
   nombre: string;
   tipo: TipoProveedor;
   url: string;                       // URL del sitio web del proveedor (obligatorio)
@@ -408,6 +409,7 @@ export interface OrdenCompraStats {
 
 export interface ProveedorFormData {
   nombre: string;
+  lineaNegocioIds?: string[];
   tipo: TipoProveedor;
   url: string;                       // URL del sitio web (obligatorio)
   contacto?: string;                 // Nombre de contacto

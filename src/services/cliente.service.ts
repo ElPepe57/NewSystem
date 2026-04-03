@@ -287,6 +287,7 @@ export const clienteService = {
       const nuevoCliente: any = {
         codigo,
         nombre: data.nombre.trim(),
+        lineaNegocioIds: data.lineaNegocioIds || [],
         tipoCliente: data.tipoCliente,
         canalOrigen: data.canalOrigen,
         estado: 'activo',

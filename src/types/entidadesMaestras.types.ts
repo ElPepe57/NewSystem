@@ -92,6 +92,7 @@ export interface DireccionCliente {
 export interface Cliente {
   id: string;
   codigo: string;                    // CLI-001, CLI-002, etc.
+  lineaNegocioIds?: string[];        // Líneas de negocio (si vacío = todas)
 
   // Identificación
   nombre: string;             // Nombre completo o razón social
@@ -167,6 +168,7 @@ export interface ClienteSnapshot {
  */
 export interface ClienteFormData {
   nombre: string;
+  lineaNegocioIds?: string[];
   nombreCorto?: string;
   tipoCliente: TipoCliente;
   dniRuc?: string;
@@ -208,6 +210,7 @@ export type TipoMarca = 'farmaceutica' | 'suplementos' | 'skincare' | 'cosmetica
 export interface Marca {
   id: string;
   codigo: string;                    // MRC-001, MRC-002, etc.
+  lineaNegocioIds?: string[];        // Líneas de negocio (si vacío = todas)
 
   // Identificación
   nombre: string;             // Nombre oficial: "Pfizer", "NOW Foods", etc.
@@ -266,6 +269,7 @@ export interface MarcaSnapshot {
  */
 export interface MarcaFormData {
   nombre: string;
+  lineaNegocioIds?: string[];
   alias?: string[];
   descripcion?: string;
   paisOrigen?: string;
@@ -386,6 +390,7 @@ export interface PlataformaCompetidorData {
 export interface Competidor {
   id: string;
   codigo: string;                    // CMP-001, CMP-002, etc.
+  lineaNegocioIds?: string[];        // Líneas de negocio (si vacío = todas)
 
   // Identificación
   nombre: string;             // Nombre del vendedor o tienda
@@ -443,6 +448,7 @@ export interface Competidor {
  */
 export interface CompetidorFormData {
   nombre: string;
+  lineaNegocioIds?: string[];
   // Nuevo sistema de plataformas
   plataformasData?: PlataformaCompetidorData[];
   // Legacy (mantener para compatibilidad)

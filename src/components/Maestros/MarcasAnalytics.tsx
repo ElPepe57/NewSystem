@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMarcaStore } from '../../store/marcaStore';
+import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 import type { Marca } from '../../types/entidadesMaestras.types';
 import { MarcaDetailView } from './MarcaDetailView';
@@ -31,12 +32,14 @@ export function MarcasAnalytics({
   const [mostrarComparador, setMostrarComparador] = useState(false);
 
   const {
-    marcas,
+    marcas: marcasRaw,
     stats,
     loading,
     fetchMarcas,
     fetchStats
   } = useMarcaStore();
+
+  const marcas = useLineaFilterMulti(marcasRaw, m => m.lineaNegocioIds);
 
   // Los datos se cargan desde Maestros.tsx, solo cargar si no hay datos
   useEffect(() => {

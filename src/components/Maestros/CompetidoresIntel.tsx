@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Eye, Edit2, Trash2, ExternalLink, Plus, Filter, X } from 'lucide-react';
 import { formatCurrencyPEN } from '../../utils/format';
 import { useCompetidorStore } from '../../store/competidorStore';
+import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
 import { CompetidorDetailView } from './CompetidorDetailView';
 import type { Competidor, PlataformaCompetidor, ReputacionCompetidor } from '../../types/entidadesMaestras.types';
 import { Pagination, usePagination, Badge } from '../common';
@@ -102,12 +103,14 @@ export function CompetidoresIntel({
   const [showFilters, setShowFilters] = useState(false);
 
   const {
-    competidores,
+    competidores: competidoresRaw,
     stats,
     loading,
     fetchCompetidores,
     fetchStats
   } = useCompetidorStore();
+
+  const competidores = useLineaFilterMulti(competidoresRaw, c => c.lineaNegocioIds);
 
   // Los datos se cargan desde Maestros.tsx, solo cargar si no hay datos
   useEffect(() => {

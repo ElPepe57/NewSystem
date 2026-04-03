@@ -255,6 +255,7 @@ export const marcaService = {
         nombre: data.nombre.trim(),
         nombreNormalizado: normalizarTexto(data.nombre),
         tipoMarca: data.tipoMarca,
+        lineaNegocioIds: data.lineaNegocioIds || [],
         estado: 'activa',
         metricas: {
           productosActivos: 0,

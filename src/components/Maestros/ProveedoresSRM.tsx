@@ -39,6 +39,7 @@ import {
   usePagination
 } from '../common';
 import { useProveedorStore } from '../../store/proveedorStore';
+import { useLineaFilterMulti } from '../../hooks/useLineaFilter';
 import { useAuthStore } from '../../store/authStore';
 import { ProveedorDetailView } from './ProveedorDetailView';
 import type { Proveedor, ClasificacionProveedor, TipoProveedor } from '../../types/ordenCompra.types';
@@ -69,12 +70,14 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
   const [proveedorDetalle, setProveedorDetalle] = useState<Proveedor | null>(null);
 
   const {
-    proveedores,
+    proveedores: proveedoresRaw,
     stats,
     loading,
     fetchProveedores,
     fetchStats
   } = useProveedorStore();
+
+  const proveedores = useLineaFilterMulti(proveedoresRaw, p => p.lineaNegocioIds);
 
   // Los datos se cargan desde Maestros.tsx, solo cargar si no hay datos
   useEffect(() => {
