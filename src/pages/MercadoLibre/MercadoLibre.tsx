@@ -10,6 +10,7 @@
  */
 
 import React, { useEffect, useState, useMemo } from 'react';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { useSearchParams } from 'react-router-dom';
 import {
   ShoppingBag,
@@ -191,6 +192,9 @@ export const MercadoLibre: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
