@@ -156,12 +156,14 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Percent className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-600 text-sm">
-                    {proveedor.impuesto ? `${proveedor.impuesto}% tax` : 'Sin tax'}
-                  </span>
-                </div>
+                {esUSA && (
+                  <div className="flex items-center gap-2">
+                    <Percent className="h-4 w-4 text-gray-400" />
+                    <span className="text-gray-600 text-sm">
+                      {proveedor.impuesto ? `${proveedor.impuesto}% tax` : 'Sin tax'}
+                    </span>
+                  </div>
+                )}
 
                 <div className="flex items-center gap-2">
                   {proveedor.url && (
@@ -559,26 +561,28 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
           disabled={disabled}
         />
 
-        <div className="flex items-end gap-2">
-          <Input
-            label="Impuesto USA (%)"
-            name="impuesto"
-            type="number"
-            step="0.01"
-            min="0"
-            max="15"
-            value={proveedor.impuesto || ''}
-            onChange={(e) => onUpdate({
-              impuesto: parseFloat(e.target.value) || 0
-            })}
-            placeholder="ej: 8.25"
-            helperText="Sales tax del estado"
-            disabled={disabled}
-          />
-          <div className="pb-2">
-            <Percent className="h-5 w-5 text-gray-400" />
+        {paisDefault === 'USA' && (
+          <div className="flex items-end gap-2">
+            <Input
+              label="Impuesto USA (%)"
+              name="impuesto"
+              type="number"
+              step="0.01"
+              min="0"
+              max="15"
+              value={proveedor.impuesto || ''}
+              onChange={(e) => onUpdate({
+                impuesto: parseFloat(e.target.value) || 0
+              })}
+              placeholder="ej: 8.25"
+              helperText="Sales tax del estado"
+              disabled={disabled}
+            />
+            <div className="pb-2">
+              <Percent className="h-5 w-5 text-gray-400" />
+            </div>
           </div>
-        </div>
+        )}
 
         <Input
           label="URL del producto"
