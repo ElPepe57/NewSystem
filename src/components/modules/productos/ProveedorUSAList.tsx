@@ -11,6 +11,8 @@ interface ProveedorUSAListProps {
   onChange: (proveedores: ProveedorUSAFormData[]) => void;
   disabled?: boolean;
   lineaNegocioId?: string;
+  /** Origen del producto para adaptar etiquetas y filtros */
+  origenProducto?: 'usa' | 'internacional';
   /** Sugerencias adicionales de proveedores (de la base de datos - legacy) */
   sugerenciasProveedores?: string[];
 }
@@ -20,8 +22,14 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
   onChange,
   disabled = false,
   lineaNegocioId,
+  origenProducto = 'usa',
   sugerenciasProveedores = []
 }) => {
+  const esUSA = origenProducto === 'usa';
+  const labelProveedor = esUSA ? 'Proveedores USA' : 'Proveedores Internacionales';
+  const labelAgregar = esUSA ? 'Agregar Proveedor USA' : 'Agregar Proveedor';
+  const labelNuevo = esUSA ? 'Nuevo Proveedor USA' : 'Nuevo Proveedor';
+  const paisDefault = esUSA ? 'USA' : '';
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const user = useAuthStore(state => state.user);
 
@@ -40,10 +48,11 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
     }
   }, []);
 
-  // Filtrar solo proveedores USA
-  const proveedoresUSA = useMemo(() => {
-    return proveedoresActivos.filter(p => p.pais === 'USA');
-  }, [proveedoresActivos]);
+  // Filtrar proveedores según origen
+  const proveedoresDisponibles = useMemo(() => {
+    if (esUSA) return proveedoresActivos.filter(p => p.pais === 'USA');
+    return proveedoresActivos; // Internacional: mostrar todos
+  }, [proveedoresActivos, esUSA]);
 
   const handleAddProveedor = () => {
     const newProveedor: ProveedorUSAFormData = {
@@ -92,7 +101,7 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
         <div className="flex items-center gap-2">
           <DollarSign className="h-5 w-5 text-blue-600" />
-          <h4 className="font-medium text-gray-900">Proveedores USA</h4>
+          <h4 className="font-medium text-gray-900">{labelProveedor}</h4>
           <span className="text-sm text-gray-500">({proveedores.length})</span>
         </div>
         {proveedores.length > 0 && (
@@ -197,7 +206,9 @@ export const ProveedorUSAList: React.FC<ProveedorUSAListProps> = ({
             {expandedId === proveedor.id && (
               <ProveedorExpandido
                 proveedor={proveedor}
-                proveedoresUSA={proveedoresUSA}
+                proveedoresDisponibles={proveedoresDisponibles}
+                paisDefault={paisDefault}
+                labelNuevo={labelNuevo}
                 loadingProveedores={loadingProveedores}
                 disabled={disabled}
                 onUpdate={(updates) => handleUpdateProveedor(proveedor.id, updates)}
@@ -228,7 +239,7 @@ onCreateProveedor={async (data) => {
           className="w-full"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Agregar Proveedor USA
+          {labelAgregar}
         </Button>
       )}
 
@@ -244,7 +255,9 @@ onCreateProveedor={async (data) => {
 // Componente para la sección expandida con el autocomplete de proveedores
 interface ProveedorExpandidoProps {
   proveedor: ProveedorUSAFormData;
-  proveedoresUSA: Proveedor[];
+  proveedoresDisponibles: Proveedor[];
+  paisDefault: string;
+  labelNuevo: string;
   loadingProveedores: boolean;
   disabled: boolean;
   onUpdate: (updates: Partial<ProveedorUSAFormData>) => void;
@@ -254,7 +267,9 @@ interface ProveedorExpandidoProps {
 
 const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
   proveedor,
-  proveedoresUSA,
+  proveedoresDisponibles,
+  paisDefault,
+  labelNuevo,
   loadingProveedores,
   disabled,
   onUpdate,
@@ -268,7 +283,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
   const [nuevoProveedor, setNuevoProveedor] = useState<Partial<ProveedorFormData>>({
     nombre: '',
     tipo: 'distribuidor',
-    pais: 'USA',
+    pais: paisDefault || 'USA',
     url: ''
   });
 
@@ -277,13 +292,13 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
 
   // Filtrar proveedores por búsqueda
   const proveedoresFiltrados = useMemo(() => {
-    if (inputValue.length < 1) return proveedoresUSA;
+    if (inputValue.length < 1) return proveedoresDisponibles;
     const searchLower = inputValue.toLowerCase();
-    return proveedoresUSA.filter(p =>
+    return proveedoresDisponibles.filter(p =>
       p.nombre.toLowerCase().includes(searchLower) ||
       p.codigo?.toLowerCase().includes(searchLower)
     );
-  }, [inputValue, proveedoresUSA]);
+  }, [inputValue, proveedoresDisponibles]);
 
   // Click fuera para cerrar dropdown
   useEffect(() => {
@@ -461,7 +476,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
           {showCreateForm && (
             <div className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 p-3">
               <div className="flex items-center justify-between mb-2">
-                <h5 className="font-medium text-gray-900 text-sm">Nuevo Proveedor USA</h5>
+                <h5 className="font-medium text-gray-900 text-sm">{labelNuevo}</h5>
                 <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}

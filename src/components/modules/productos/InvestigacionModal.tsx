@@ -64,6 +64,10 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
   const existeInvestigacion = !!producto.investigacion;
   const inv = producto.investigacion;
 
+  // Determinar origen según línea de negocio (suplementos = USA, skincare = internacional)
+  const SUPL_LINEA = 'Z50CnuaBdD5x0w7XGRv8';
+  const origenProducto = producto.lineaNegocioId === SUPL_LINEA ? 'usa' as const : 'internacional' as const;
+
   // Convertir datos existentes al nuevo formato
   const getProveedoresIniciales = (): ProveedorUSAFormData[] => {
     if (inv?.proveedoresUSA && inv.proveedoresUSA.length > 0) {
@@ -438,6 +442,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                 onChange={setProveedoresUSA}
                 disabled={loading}
                 lineaNegocioId={producto.lineaNegocioId}
+                origenProducto={origenProducto}
                 sugerenciasProveedores={sugerenciasProveedores}
               />
             </div>
