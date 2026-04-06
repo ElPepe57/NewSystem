@@ -158,7 +158,7 @@ export const Transferencias: React.FC = () => {
   // Pipeline stages para visualizacion
   const pipelineStages: PipelineStage[] = useMemo(() => {
     const contarPorEstado = (estados: EstadoTransferencia[]) =>
-      transferencias.filter(t => estados.includes(t.estado)).length;
+      transferenciasPorLinea.filter(t => estados.includes(t.estado)).length;
 
     return [
       {
@@ -404,7 +404,7 @@ export const Transferencias: React.FC = () => {
           </div>
         }
         stats={[
-          { label: 'Total', value: transferencias.length },
+          { label: 'Total', value: transferenciasPorLinea.length },
           { label: 'En Transito', value: resumen?.enTransito || 0 },
           { label: 'Pendientes', value: resumen?.pendientesRecepcion || 0 },
           { label: 'Completadas', value: resumen?.completadasMes || 0 },
@@ -418,7 +418,7 @@ export const Transferencias: React.FC = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         <StatCard
           label="Total"
-          value={transferencias.length}
+          value={transferenciasPorLinea.length}
           icon={ArrowRightLeft}
           variant="blue"
         />
@@ -472,8 +472,8 @@ export const Transferencias: React.FC = () => {
         <StatDistribution
           title="Tipo de Transferencias"
           data={[
-            { label: 'Internacional → Peru', value: transferencias.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-blue-500' },
-            { label: 'Interna Origen', value: transferencias.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-gray-500' },
+            { label: 'Internacional → Peru', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-blue-500' },
+            { label: 'Interna Origen', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-gray-500' },
           ]}
         />
       </div>
@@ -492,7 +492,7 @@ export const Transferencias: React.FC = () => {
         filtroTipo={filtroTipo}
         filtroEstado={filtroEstado}
         busqueda={busqueda}
-        totalTransferencias={transferencias.length}
+        totalTransferencias={transferenciasPorLinea.length}
         totalEnTransito={transferenciasEnTransito.length}
         totalPendientes={transferenciasPendientes.length}
         onTabChange={setActiveTab}

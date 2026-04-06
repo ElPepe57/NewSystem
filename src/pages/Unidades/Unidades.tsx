@@ -143,7 +143,7 @@ export const Unidades: React.FC = () => {
       reservada,
       vendida,
       problemas,
-      total: unidades.length,
+      total: unidadesPorLinea.length,
       totalActivo,
       valorTotalUSD,
       proximasAVencer
@@ -565,7 +565,7 @@ export const Unidades: React.FC = () => {
             <span className="text-sm text-gray-600">
               Mostrando <span className="font-medium">{unidadesPaginadas.length}</span> de{' '}
               <span className="font-medium">{unidadesFiltradas.length}</span> unidades
-              {unidadesFiltradas.length !== unidades.length && ` (${unidades.length} total)`}
+              {unidadesFiltradas.length !== unidadesPorLinea.length && ` (${unidadesPorLinea.length} total)`}
             </span>
             {hayFiltrosActivos && (
               <button
@@ -744,7 +744,7 @@ export const Unidades: React.FC = () => {
             <div className="px-4 py-3 border-t border-gray-200 space-y-4">
               <ListSummary
                 filteredCount={unidadesFiltradas.length}
-                totalCount={unidades.length}
+                totalCount={unidadesPorLinea.length}
                 itemLabel="unidades"
                 summaryItems={[
                   {
