@@ -36,6 +36,8 @@ const MercadoLibre = React.lazy(() => import('./pages/MercadoLibre/MercadoLibre'
 const NotasIA = React.lazy(() => import('./pages/NotasIA/NotasIA').then(m => ({ default: m.NotasIA })));
 const LineaNegocio = React.lazy(() => import('./pages/LineaNegocio/LineaNegocio').then(m => ({ default: m.LineaNegocio })));
 const Proyeccion = React.lazy(() => import('./pages/Proyeccion/Proyeccion').then(m => ({ default: m.Proyeccion })));
+const PagosMasivos = React.lazy(() => import('./pages/PagosMasivos/PagosMasivos').then(m => ({ default: m.PagosMasivos })));
+const MapaCalor = React.lazy(() => import('./pages/MapaCalor/MapaCalor').then(m => ({ default: m.MapaCalor })));
 // MigracionProductos removed — one-time migration tool no longer needed
 
 // Stores y servicios
@@ -156,6 +158,8 @@ function App() {
               <Route path="rendimiento-cambiario" element={<RendimientoCambiario />} />
               <Route path="reportes" element={<Reportes />} />
               <Route path="proyeccion" element={<Proyeccion />} />
+              <Route path="mapa-ventas" element={<MapaCalor />} />
+              <Route path="pagos-masivos" element={<PagosMasivos />} />
 
               {/* Administración */}
               <Route path="lineas-negocio" element={<LineaNegocio />} />

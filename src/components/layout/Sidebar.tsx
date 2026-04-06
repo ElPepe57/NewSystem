@@ -32,7 +32,9 @@ import {
   ScanLine,
   BrainCircuit,
   Palette,
-  Target
+  Target,
+  Layers,
+  MapPin
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
@@ -94,6 +96,7 @@ const menuGroups: MenuGroup[] = [
       { icon: Wallet, label: 'Tesorería', path: '/tesoreria', permiso: PERMISOS.VER_TESORERIA },
       { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
       { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
+      { icon: Layers, label: 'Pagos Masivos', path: '/pagos-masivos', permiso: PERMISOS.VER_TESORERIA },
     ]
   },
   {
@@ -107,6 +110,7 @@ const menuGroups: MenuGroup[] = [
       { icon: Zap, label: 'Intel. Productos', path: '/productos-intel', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Activity, label: 'Rendimiento FX', path: '/rendimiento-cambiario', permiso: PERMISOS.VER_TESORERIA },
       { icon: Target, label: 'Proyeccion', path: '/proyeccion', permiso: PERMISOS.VER_CTRU },
+      { icon: MapPin, label: 'Mapa Ventas', path: '/mapa-ventas', permiso: PERMISOS.VER_REPORTES },
     ]
   },
   {
