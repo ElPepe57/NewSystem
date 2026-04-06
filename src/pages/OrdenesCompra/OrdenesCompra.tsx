@@ -624,7 +624,7 @@ export const OrdenesCompra: React.FC = () => {
           <Button
             variant="outline"
             onClick={() => exportService.exportOrdenesCompra(ordenes)}
-            disabled={ordenes.length === 0}
+            disabled={ordenesLN.length === 0}
             className="flex-1 sm:flex-initial justify-center"
           >
             <Download className="h-5 w-5 mr-2" />
@@ -745,7 +745,7 @@ export const OrdenesCompra: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900">
             {filtroEstado
               ? `${pipelineStages.find(s => s.id === filtroEstado)?.label || 'Órdenes'} (${ordenesFiltradas.length})`
-              : `Órdenes de Compra (${ordenes.length})`
+              : `Órdenes de Compra (${ordenesLN.length})`
             }
           </h3>
         </div>

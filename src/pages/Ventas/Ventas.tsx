@@ -134,18 +134,18 @@ export const Ventas: React.FC = () => {
   const ventasSociosMes = useMemo(() => {
     const ahora = new Date();
     const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
-    return ventas.filter(v => {
+    return ventasLineaFiltradas.filter(v => {
       if (!v.esVentaSocio) return false;
       if (v.estado === 'cancelada') return false;
       const fecha = v.fechaCreacion?.toDate?.();
       return fecha && fecha >= inicioMes;
     });
-  }, [ventas]);
+  }, [ventasLineaFiltradas]);
 
   // Resumen de ventas a socios con subsidio y alertas
   const resumenSocios = useMemo<ResumenVentasSocios | null>(() => {
     if (ventasSociosMes.length === 0) return null;
-    const ventasRegularesMes = ventas.filter(v => {
+    const ventasRegularesMes = ventasLineaFiltradas.filter(v => {
       if (v.esVentaSocio) return false;
       if (v.estado === 'cancelada') return false;
       const fecha = v.fechaCreacion?.toDate?.();
@@ -787,7 +787,7 @@ export const Ventas: React.FC = () => {
           rentabilidad={rentabilidad}
           resumenPagos={resumenPagos}
           leadTimeMetrics={leadTimeMetrics}
-          totalVentas={ventas.filter(v => v.estado !== 'cotizacion' && v.estado !== 'cancelada').length}
+          totalVentas={ventasLineaFiltradas.filter(v => v.estado !== 'cotizacion' && v.estado !== 'cancelada').length}
           totalEntregadas={stats.entregadas}
         />
       )}
@@ -1042,7 +1042,7 @@ export const Ventas: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900">
               {filtroEstado
                 ? `${pipelineStages.find(s => s.id === filtroEstado)?.label || 'Ventas'} (${ventasFiltradas.length})`
-                : `Ventas y Cotizaciones (${ventas.length})`
+                : `Ventas y Cotizaciones (${ventasLineaFiltradas.length})`
               }
             </h3>
             {/* Indicadores de rentabilidad con distribución proporcional */}

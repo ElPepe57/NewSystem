@@ -409,12 +409,12 @@ export const Gastos: React.FC = () => {
             {/* Label para modos no-mensuales */}
             {viewMode === 'all' && (
               <span className="text-sm sm:text-lg font-semibold text-gray-900 text-center sm:text-right">
-                Todos los gastos ({gastos.length})
+                Todos los gastos ({gastosPorLinea.length})
               </span>
             )}
             {viewMode === 'pending' && (
               <span className="text-sm sm:text-lg font-semibold text-amber-700 text-center sm:text-right">
-                Pendientes de pago ({gastos.length})
+                Pendientes de pago ({gastosPorLinea.length})
               </span>
             )}
           </div>
@@ -1048,7 +1048,7 @@ export const Gastos: React.FC = () => {
           <div className="px-4 py-3 border-t border-gray-200">
             <ListSummary
               filteredCount={gastosVisibles.length}
-              totalCount={gastos.length}
+              totalCount={gastosPorLinea.length}
               itemLabel="gastos"
               summaryItems={[
                 {
