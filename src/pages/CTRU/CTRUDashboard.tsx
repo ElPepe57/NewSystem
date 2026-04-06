@@ -139,7 +139,7 @@ export const CTRUDashboard: React.FC = () => {
             )}
             {resumen && (
               <div className="text-xs text-gray-500 hidden sm:block">
-                {resumen.totalProductos} productos · {resumen.totalProductosActivos} en inventario · {resumen.totalUnidadesActivas + resumen.totalUnidadesVendidas} unidades
+                {productosFiltrados.length} productos · {productosFiltrados.filter(p => p.unidadesActivas > 0).length} en inventario · {productosFiltrados.reduce((s, p) => s + p.unidadesActivas + p.unidadesVendidas, 0)} unidades
               </div>
             )}
           </div>

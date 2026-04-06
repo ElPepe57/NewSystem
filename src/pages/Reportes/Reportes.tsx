@@ -345,6 +345,13 @@ export const Reportes: React.FC = () => {
   const invValorPEN = useMemo(() => inventarioValorizado.reduce((s, i) => s + i.valorTotalPEN, 0), [inventarioValorizado]);
   const invDisponibles = useMemo(() => inventarioValorizado.reduce((s, i) => s + i.unidadesDisponibles, 0), [inventarioValorizado]);
 
+  // KPIs de ventas recalculados por línea (override del resumenEjecutivo global)
+  const ventasKPILinea = useMemo(() => {
+    const ventasPEN = ventasEntregadasFiltradas.reduce((s, v) => s + (v.totalPEN || 0), 0);
+    const utilidadPEN = ventasEntregadasFiltradas.reduce((s, v) => s + (v.utilidadPEN || 0), 0);
+    return { ventasPEN, utilidadPEN, cantidad: ventasEntregadasFiltradas.length };
+  }, [ventasEntregadasFiltradas]);
+
   if (loading && !resumenEjecutivo) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -441,10 +448,10 @@ export const Reportes: React.FC = () => {
                   <span className="text-[11px] sm:text-sm text-gray-500">Ventas del Periodo</span>
                 </div>
                 <div className="text-lg sm:text-2xl font-bold text-primary-600 leading-tight">
-                  S/ {resumenEjecutivo.ventasRangoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  S/ {ventasKPILinea.ventasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">
-                  {resumenEjecutivo.ventasRangoCantidad} ventas
+                  {ventasKPILinea.cantidad} ventas
                 </div>
               </div>
 
@@ -455,11 +462,11 @@ export const Reportes: React.FC = () => {
                   <span className="text-[11px] sm:text-sm text-gray-500">Utilidad del Periodo</span>
                 </div>
                 <div className="text-lg sm:text-2xl font-bold text-success-600 leading-tight">
-                  S/ {resumenEjecutivo.utilidadRangoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  S/ {ventasKPILinea.utilidadPEN.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">
-                  Margen: {resumenEjecutivo.ventasRangoPEN > 0
-                    ? ((resumenEjecutivo.utilidadRangoPEN / resumenEjecutivo.ventasRangoPEN) * 100).toFixed(1)
+                  Margen: {ventasKPILinea.ventasPEN > 0
+                    ? ((ventasKPILinea.utilidadPEN / ventasKPILinea.ventasPEN) * 100).toFixed(1)
                     : '0.0'}%
                 </div>
               </div>
