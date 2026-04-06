@@ -68,6 +68,11 @@ export {
   wasendmessage,
 } from "./whatsapp";
 
+// ============================================================
+// GEOCODING — Geocodificación automática de ventas
+// ============================================================
+export { geocodificaCoordenadasVenta } from "./geocoding.functions";
+
 const db = admin.firestore();
 
 // ============================================================

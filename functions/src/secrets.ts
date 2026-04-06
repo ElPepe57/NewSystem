@@ -26,6 +26,7 @@ const ALLOWED_SECRETS = [
   "WHATSAPP_PHONE_NUMBER_ID",
   "WHATSAPP_VERIFY_TOKEN",
   "WHATSAPP_APP_SECRET",
+  "GOOGLE_MAPS_API_KEY",
 ] as const;
 
 type SecretName = typeof ALLOWED_SECRETS[number];

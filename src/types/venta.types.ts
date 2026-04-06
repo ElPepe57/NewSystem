@@ -174,6 +174,10 @@ export interface PagoVenta {
   cuentaDestinoId?: string;       // ID de la cuenta de caja donde se registró
   errorTesoreria?: boolean;        // true si falló el registro en tesorería
   errorTesoreriaMsg?: string;      // Mensaje de error para reconciliación
+
+  // Pago masivo (trazabilidad de lote)
+  lotePagoId?: string;
+  esPagoMasivo?: boolean;
 }
 
 export interface ProductoVenta {
@@ -226,6 +230,9 @@ export interface Venta {
     lat: number;
     lng: number;
   };
+  placeId?: string;
+  geohash?: string;
+  geocodingStatus?: 'ok' | 'fallido' | 'pendiente' | 'manual' | 'aproximado';
   dniRuc?: string;
 
   // Línea de negocio (desnormalizado del producto principal)

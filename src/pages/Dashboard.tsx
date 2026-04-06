@@ -34,6 +34,7 @@ import {
   TareasDelDia
 } from '../components/modules/dashboard';
 import type { ActividadItem, TipoActividad } from '../components/modules/dashboard';
+import { MapaVentasWidget } from '../components/modules/dashboard/MapaVentasWidget';
 import { useProductoStore } from '../store/productoStore';
 import { useInventarioStore } from '../store/inventarioStore';
 import { useVentaStore } from '../store/ventaStore';
@@ -1394,13 +1395,16 @@ export const Dashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Widget de Vencimientos y Actividad Reciente */}
-      <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+      {/* Widget de Vencimientos, Actividad y Mapa */}
+      <div className="hidden sm:grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Widget de Control de Vencimientos */}
         <VencimientosWidget maxItems={6} />
 
         {/* Widget de Actividad Reciente */}
         <ActividadRecienteWidget actividades={actividadReciente} maxItems={10} />
+
+        {/* Widget Mapa de Ventas */}
+        <MapaVentasWidget />
       </div>
 
       {/* Widget de Usuarios - Solo visible para admin */}

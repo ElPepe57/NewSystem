@@ -80,9 +80,12 @@ export interface DireccionCliente {
   etiqueta: string;           // "Casa", "Oficina", "Mamá", etc.
   direccion: string;
   distrito?: string;
+  provincia?: string;
   ciudad?: string;
   referencia?: string;
   esPrincipal: boolean;
+  coordenadas?: { lat: number; lng: number };
+  placeId?: string;
 }
 
 /**
