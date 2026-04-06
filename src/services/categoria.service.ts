@@ -245,7 +245,12 @@ export const categoriaService = {
       nombre,
       nivel,
       categoriaPadreId,
-      lineaNegocioIds
+      lineaNegocioIds,
+      color: '#3B82F6',
+      margenMinimo: 20,
+      margenObjetivo: 35,
+      margenMaximo: 60,
+      mostrarEnWeb: true
     }, userId);
   },
 

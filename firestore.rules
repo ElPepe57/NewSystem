@@ -217,12 +217,12 @@ service cloud.firestore {
 
     match /categorias/{docId} {
       allow read: if isActiveUser();
-      allow write: if isAdmin();
+      allow write: if hasAnyRole(['admin', 'gerente']);
     }
 
     match /tiposProducto/{docId} {
       allow read: if isActiveUser();
-      allow write: if isAdmin();
+      allow write: if hasAnyRole(['admin', 'gerente']);
     }
 
     match /canalesVenta/{docId} {
@@ -232,7 +232,7 @@ service cloud.firestore {
 
     match /etiquetas/{docId} {
       allow read: if isActiveUser();
-      allow write: if isAdmin();
+      allow write: if hasAnyRole(['admin', 'gerente']);
     }
 
     match /competidores/{docId} {
@@ -397,6 +397,14 @@ service cloud.firestore {
     match /cierresContables/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
       allow write: if isAdmin();
+    }
+
+    // ============================================================
+    // LOTES DE PAGOS MASIVOS
+    // ============================================================
+    match /lotePagos/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
     }
 
     // ============================================================

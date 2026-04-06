@@ -43,7 +43,7 @@ interface CategoriaState {
   // Acciones CRUD
   getById: (id: string) => Promise<Categoria | null>;
   create: (data: CategoriaFormData, userId: string) => Promise<Categoria>;
-  crearRapida: (nombre: string, nivel: NivelCategoria, userId: string, categoriaPadreId?: string) => Promise<Categoria>;
+  crearRapida: (nombre: string, nivel: NivelCategoria, userId: string, categoriaPadreId?: string, lineaNegocioIds?: string[]) => Promise<Categoria>;
   update: (id: string, data: Partial<CategoriaFormData>, userId: string) => Promise<void>;
   delete: (id: string) => Promise<void>;
   cambiarEstado: (id: string, estado: 'activa' | 'inactiva', userId: string) => Promise<void>;

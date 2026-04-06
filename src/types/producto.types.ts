@@ -133,8 +133,26 @@ export const TIPO_PIEL_OPTIONS = [
 ];
 
 export const PREOCUPACIONES_OPTIONS = [
-  'Acné', 'Manchas', 'Arrugas', 'Poros', 'Hidratación', 'Protección Solar',
-  'Luminosidad', 'Firmeza', 'Rojeces', 'Textura', 'Oleosidad',
+  // Textura y superficie
+  'Acné', 'Puntos negros', 'Poros', 'Textura irregular', 'Oleosidad', 'Piel áspera',
+  // Pigmentación
+  'Manchas', 'Hiperpigmentación', 'Melasma', 'Marcas post-acné', 'Tono desigual', 'Piel opaca',
+  // Anti-aging
+  'Arrugas', 'Líneas finas', 'Flacidez', 'Firmeza', 'Pérdida de elasticidad', 'Patas de gallo',
+  // Hidratación y barrera
+  'Deshidratación', 'Hidratación', 'Piel seca', 'Barrera dañada', 'Descamación',
+  // Sensibilidad
+  'Rojeces', 'Rosácea', 'Irritación', 'Piel reactiva', 'Eczema', 'Dermatitis',
+  // Zona de ojos
+  'Ojeras', 'Bolsas', 'Párpados caídos',
+  // Luminosidad
+  'Luminosidad', 'Falta de brillo', 'Tez apagada',
+  // Cicatrices
+  'Cicatrices', 'Cicatrices de acné', 'Estrías',
+  // Protección
+  'Protección Solar', 'Daño solar', 'Fotoenvejecimiento',
+  // Específicos
+  'Exceso de sebo', 'Poros dilatados', 'Celulitis', 'Cuello y escote',
 ];
 
 export const ZONA_APLICACION_OPTIONS = [

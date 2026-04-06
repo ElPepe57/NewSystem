@@ -387,6 +387,23 @@ export function EtiquetaSelector({
                     No hay etiquetas creadas
                   </div>
                 )}
+
+                {/* Hint para crear nueva etiqueta */}
+                {!showCreateOption && !creating && (
+                  <div className="border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const input = containerRef.current?.querySelector('input[type="text"]') as HTMLInputElement;
+                        input?.focus();
+                      }}
+                      className="w-full px-4 py-2.5 flex items-center gap-2 text-left text-sm text-gray-500 hover:bg-gray-50"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Escribe un nombre para crear nueva etiqueta</span>
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </div>

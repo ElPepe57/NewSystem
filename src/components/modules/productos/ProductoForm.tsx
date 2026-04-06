@@ -22,6 +22,7 @@ import {
   Palette
 } from 'lucide-react';
 import { Button, Input, AutocompleteInput, Tabs, TabsProvider, TabPanel, useTabs } from '../../common';
+import { ChipMultiSelect } from '../../common/ChipMultiSelect';
 import type { Tab } from '../../common/Tabs';
 import { MarcaAutocomplete } from '../entidades/MarcaAutocomplete';
 import { TipoProductoSelector, CategoriaSelector, EtiquetaSelector } from '../clasificacion';
@@ -1177,23 +1178,19 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         allowCreate
                         createLabel="Usar"
                       />
-                      <AutocompleteInput
+                      <ChipMultiSelect
                         label="Tipo de Piel"
-                        value={(formData.atributosSkincare?.tipoPiel || []).join(', ')}
-                        onChange={(v) => updateSKC({ tipoPiel: v ? v.split(',').map(s => s.trim()).filter(Boolean) : [] })}
-                        suggestions={TIPO_PIEL_OPTIONS}
-                        placeholder="ej: Grasa, Mixta, Sensible..."
-                        allowCreate
-                        createLabel="Usar"
+                        value={formData.atributosSkincare?.tipoPiel || []}
+                        onChange={(v) => updateSKC({ tipoPiel: v })}
+                        options={TIPO_PIEL_OPTIONS}
+                        placeholder="Seleccionar tipos de piel..."
                       />
-                      <AutocompleteInput
+                      <ChipMultiSelect
                         label="Preocupaciones"
-                        value={(formData.atributosSkincare?.preocupaciones || []).join(', ')}
-                        onChange={(v) => updateSKC({ preocupaciones: v ? v.split(',').map(s => s.trim()).filter(Boolean) : [] })}
-                        suggestions={PREOCUPACIONES_OPTIONS}
-                        placeholder="ej: Acné, Poros, Manchas..."
-                        allowCreate
-                        createLabel="Usar"
+                        value={formData.atributosSkincare?.preocupaciones || []}
+                        onChange={(v) => updateSKC({ preocupaciones: v })}
+                        options={PREOCUPACIONES_OPTIONS}
+                        placeholder="Seleccionar preocupaciones..."
                       />
                     </div>
 

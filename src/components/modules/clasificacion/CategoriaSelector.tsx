@@ -100,11 +100,11 @@ export function CategoriaSelector({
       }))
     : arbol;
 
-  // Mostrar opcion de crear si no hay coincidencia exacta
+  // Mostrar opcion de crear si hay texto y no hay coincidencia exacta
   useEffect(() => {
-    if (searchTerm.length >= 2) {
+    if (searchTerm.trim().length >= 2) {
       const existeExacto = categoriasActivas.some(
-        c => c.nombre.toLowerCase() === searchTerm.toLowerCase()
+        c => c.nombre.toLowerCase() === searchTerm.trim().toLowerCase()
       );
       setShowCreateOption(!existeExacto);
     } else {
@@ -467,6 +467,23 @@ export function CategoriaSelector({
                       No hay categorias creadas
                     </div>
                   )
+                )}
+
+                {/* Boton fijo para crear nueva categoria (siempre visible si no hay showCreateOption inline) */}
+                {!showCreateOption && !creating && (
+                  <div className="border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const input = containerRef.current?.querySelector('input[type="text"]') as HTMLInputElement;
+                        input?.focus();
+                      }}
+                      className="w-full px-4 py-2.5 flex items-center gap-2 text-left text-sm text-gray-500 hover:bg-gray-50"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Escribe un nombre para crear nueva categoria</span>
+                    </button>
+                  </div>
                 )}
               </>
             )}
