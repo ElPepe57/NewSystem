@@ -8,6 +8,7 @@ import {
   CheckSquare
 } from 'lucide-react';
 import { Button, ConfirmDialog, Modal, useConfirmDialog } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
 import { VincularOCModal } from '../../components/modules/requerimiento/VincularOCModal';
@@ -685,6 +686,9 @@ export const Requerimientos: React.FC = () => {
           onVerTodasCotizaciones={() => setIsFromCotizacionModalOpen(true)}
         />
       )}
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* Vista Kanban o Lista */}
       {viewMode === 'kanban' ? (

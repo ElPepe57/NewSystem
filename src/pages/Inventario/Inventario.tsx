@@ -38,6 +38,7 @@ import {
   StatDistribution,
   Tabs
 } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import type { Tab } from '../../components/common/Tabs';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
 import {
@@ -763,6 +764,9 @@ export const Inventario: React.FC = () => {
               maxAlertas={6}
             />
           )}
+
+          {/* Filtro de línea de negocio */}
+          <LineaFilterInline />
 
           {/* Barra de búsqueda y filtros */}
           <Card padding="md">

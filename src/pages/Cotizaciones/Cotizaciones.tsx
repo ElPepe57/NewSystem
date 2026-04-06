@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../utils/format';
 import { Plus, RefreshCw } from 'lucide-react';
 import { Button, ConfirmDialog, useConfirmDialog } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { CotizacionForm } from './CotizacionForm';
 import { CotizacionesMetricas } from './CotizacionesMetricas';
 import { CotizacionesAlertas } from './CotizacionesAlertas';
@@ -520,6 +521,9 @@ export const Cotizaciones: React.FC = () => {
         reservasVirtuales={reservasVirtuales}
         onVerDetalles={handleVerDetalles}
       />
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* Filtros */}
       <CotizacionesFiltros

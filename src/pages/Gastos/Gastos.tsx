@@ -3,6 +3,7 @@ import { formatFecha } from '../../utils/dateFormatters';
 import { formatCurrencyPEN } from '../../utils/format';
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2 } from 'lucide-react';
 import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton, GastoLineaBadge } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
@@ -598,6 +599,9 @@ export const Gastos: React.FC = () => {
           </div>
         </Card>
       )}
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* Búsqueda + Filtros */}
       <Card padding="md">

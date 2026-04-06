@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users, RotateCcw } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal, ErrorBoundary } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { DevolucionesTab } from './DevolucionesTab';
 import { DevolucionFormModal } from './DevolucionFormModal';
 import { useDevolucionStore } from '../../store/devolucionStore';
@@ -798,6 +799,9 @@ export const Ventas: React.FC = () => {
         onStageClick={setFiltroEstado}
         title="Pipeline de Ventas"
       />
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* Resumen Ventas a Socios (colapsable con KPIs + alertas) */}
       {resumenSocios && (
