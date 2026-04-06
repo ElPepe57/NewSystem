@@ -655,8 +655,8 @@ export const Productos: React.FC = () => {
     return marcas.sort();
   }, [productos]);
 
-  // Métricas
-  const productosArray = Array.isArray(productos) ? productos : [];
+  // Métricas (basadas en productos filtrados por línea)
+  const productosArray = productosPorLinea;
   const productosActivos = productosArray.filter(p => p.estado === 'activo').length;
   const productosConML = 0; // ML field removed
   const productosStockCritico = productosArray.filter(p => p.stockPeru <= p.stockMinimo).length;
