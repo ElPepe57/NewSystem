@@ -744,6 +744,69 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               </div>
             )}
 
+            {/* Atributos Skincare */}
+            {!esUSA && producto.atributosSkincare && (
+              <div className="col-span-2 bg-purple-50/50 rounded-lg p-3 border border-purple-100">
+                <span className="text-xs font-medium text-purple-700 mb-2 block">Atributos Skincare</span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {producto.atributosSkincare.tipoPiel?.length > 0 && (
+                    <div>
+                      <span className="text-[10px] text-gray-500 block">Tipo de Piel</span>
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {producto.atributosSkincare.tipoPiel.map((t: string) => (
+                          <span key={t} className="text-[11px] px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-full">{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {producto.atributosSkincare.preocupaciones?.length > 0 && (
+                    <div className="col-span-2 sm:col-span-2">
+                      <span className="text-[10px] text-gray-500 block">Preocupaciones</span>
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {producto.atributosSkincare.preocupaciones.map((p: string) => (
+                          <span key={p} className="text-[11px] px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded-full">{p}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {producto.atributosSkincare.ingredienteClave && (
+                    <div>
+                      <span className="text-[10px] text-gray-500 block">Ingrediente Clave</span>
+                      <p className="text-sm font-medium text-gray-800">{producto.atributosSkincare.ingredienteClave}</p>
+                    </div>
+                  )}
+                  {(producto.atributosSkincare.spf || producto.atributosSkincare.pa) && (
+                    <div>
+                      <span className="text-[10px] text-gray-500 block">Protección</span>
+                      <p className="text-sm font-medium text-gray-800">
+                        {producto.atributosSkincare.spf ? `SPF ${producto.atributosSkincare.spf}` : ''}
+                        {producto.atributosSkincare.spf && producto.atributosSkincare.pa ? ' · ' : ''}
+                        {producto.atributosSkincare.pa || ''}
+                      </p>
+                    </div>
+                  )}
+                  {producto.atributosSkincare.volumen && (
+                    <div>
+                      <span className="text-[10px] text-gray-500 block">Volumen</span>
+                      <p className="text-sm font-medium text-gray-800">{producto.atributosSkincare.volumen}</p>
+                    </div>
+                  )}
+                  {producto.atributosSkincare.pasoRutina && (
+                    <div>
+                      <span className="text-[10px] text-gray-500 block">Paso Rutina</span>
+                      <p className="text-sm font-medium text-gray-800">{PASO_RUTINA_LABELS[producto.atributosSkincare.pasoRutina] || producto.atributosSkincare.pasoRutina}</p>
+                    </div>
+                  )}
+                  {producto.atributosSkincare.pao && (
+                    <div>
+                      <span className="text-[10px] text-gray-500 block">PAO</span>
+                      <p className="text-sm font-medium text-gray-800">{producto.atributosSkincare.pao} meses</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {producto.codigoUPC && (
               <div>
                 <span className="text-xs text-gray-500 mb-1 block">Código UPC</span>
