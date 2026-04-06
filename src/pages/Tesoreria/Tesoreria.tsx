@@ -14,6 +14,7 @@ import {
   ArrowLeftRight
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { TesoreriaService } from '../../services/tesoreria.service';
 import { cuentasPendientesService } from '../../services/cuentasPendientes.service';
 import { useAuthStore } from '../../store/authStore';
@@ -789,6 +790,9 @@ export const Tesoreria: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* KPIs */}
       {stats && (

@@ -13,6 +13,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { Button, Card, Modal, GradientHeader } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import {
   ResumenCajaCard,
   ProductoIntelCard,
@@ -126,6 +127,9 @@ export const ProductosIntel: React.FC = () => {
         subtitle="Analisis de rotacion, liquidez y rentabilidad"
         variant="blue"
       />
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* Toolbar */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">

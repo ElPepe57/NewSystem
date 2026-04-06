@@ -11,6 +11,7 @@ import {
   ReferenceLine, Cell, PieChart, Pie
 } from 'recharts';
 import { Card } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { useCTRUStore } from '../../store/ctruStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
@@ -82,6 +83,9 @@ export const Proyeccion: React.FC = () => {
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4">
       <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* KPIs EJECUTIVOS — siempre visibles */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">

@@ -23,6 +23,7 @@ import {
   LayoutDashboard
 } from 'lucide-react';
 import { Card, Badge, DashboardSkeleton, LineaFiltroActivoBanner, GradientHeader } from '../components/common';
+import { LineaFilterInline } from '../components/common/LineaFilterInline';
 import { ErrorTesoreriaBanner } from '../components/modules/dashboard/ErrorTesoreriaBanner';
 import {
   UsuariosActivosWidget,
@@ -493,6 +494,9 @@ export const Dashboard: React.FC = () => {
 
       {/* Banner de filtro activo por línea de negocio */}
       <LineaFiltroActivoBanner onClear={() => setLineaFiltroGlobal(null)} />
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* Widget: Tareas del Dia — pendientes operativos priorizados */}
       <TareasDelDia />

@@ -33,6 +33,7 @@ const TABS: { id: ReporteTab; label: string; icon: React.ReactNode }[] = [
   { id: 'compras', label: 'Compras', icon: <ShoppingCart className="h-4 w-4" /> },
 ];
 import { Card, Button, Badge } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { TendenciaChart } from '../../components/modules/reporte/TendenciaChart';
 import { ProductosRentabilidadTable } from '../../components/modules/reporte/ProductosRentabilidadTable';
 import { InventarioValorizadoTable } from '../../components/modules/reporte/InventarioValorizadoTable';
@@ -380,6 +381,9 @@ export const Reportes: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* Tabs de navegación */}
       <div className="border-b border-gray-200 overflow-x-auto">

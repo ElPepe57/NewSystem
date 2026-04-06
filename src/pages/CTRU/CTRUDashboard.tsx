@@ -7,6 +7,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { Card, GradientHeader } from '../../components/common';
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import {
   CTRUKPIGrid,
   CostCompositionChart,
@@ -75,6 +76,9 @@ export const CTRUDashboard: React.FC = () => {
         icon={Calculator}
         variant="blue"
       />
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* Toolbar */}
       <div className="sticky top-0 z-10 bg-white border-b shadow-sm px-3 sm:px-6 py-2 sm:py-3">

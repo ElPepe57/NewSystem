@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Package,
 } from "lucide-react";
+import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import {
   Button,
   Card,
@@ -409,6 +410,9 @@ export const Transferencias: React.FC = () => {
           { label: 'Completadas', value: resumen?.completadasMes || 0 },
         ]}
       />
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
 
       {/* StatCards interactivos */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
