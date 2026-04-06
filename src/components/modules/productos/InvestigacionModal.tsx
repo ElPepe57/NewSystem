@@ -663,7 +663,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Mejor Precio USA</p>
+              <p className="text-xs text-gray-600">{origenProducto === 'usa' ? 'Mejor Precio USA' : 'Mejor Precio'}</p>
               <p className="text-lg font-bold">${calculos.mejorPrecioUSAConImpuesto.toFixed(2)}</p>
               {preciosUSA.mejor && (
                 <p className="text-xs text-gray-500">{preciosUSA.mejor.nombre}</p>

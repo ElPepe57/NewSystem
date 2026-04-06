@@ -197,6 +197,9 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
   // Resumen de investigación
   const invResumen = useMemo(() => ProductoService.getResumenInvestigacion(producto), [producto]);
   const inv = producto.investigacion;
+  const esUSA = producto.lineaNegocioId === 'Z50CnuaBdD5x0w7XGRv8';
+  const labelPrecioOrigen = esUSA ? 'Precio USA' : 'Precio Proveedor';
+  const labelSubPrecio = esUSA ? 'con impuesto' : 'precio unitario';
 
   // Resolver nombres de usuario
   const creadoPorNombre = useUserName(producto.creadoPor);
@@ -428,7 +431,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               {/* Mobile: Grid layout */}
               <div className="grid grid-cols-3 gap-2 sm:hidden">
                 <div className="text-center p-2 bg-white rounded-lg border border-gray-100">
-                  <p className="text-[10px] text-gray-500 mb-0.5">Precio USA</p>
+                  <p className="text-[10px] text-gray-500 mb-0.5">{labelPrecioOrigen}</p>
                   <p className="text-sm font-bold text-primary-600">
                     ${(inv.precioUSAMin || inv.precioUSAPromedio).toFixed(2)}
                   </p>
@@ -464,11 +467,11 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <div className="hidden sm:flex items-center justify-between gap-2 text-sm">
                 {/* Precio USA */}
                 <div className="text-center flex-1">
-                  <p className="text-xs text-gray-500 mb-1">Precio USA</p>
+                  <p className="text-xs text-gray-500 mb-1">{labelPrecioOrigen}</p>
                   <p className="text-lg font-bold text-primary-600">
                     ${(inv.precioUSAMin || inv.precioUSAPromedio).toFixed(2)}
                   </p>
-                  <p className="text-[10px] text-gray-400">con impuesto</p>
+                  <p className="text-[10px] text-gray-400">{labelSubPrecio}</p>
                 </div>
 
                 <span className="text-gray-400 font-bold text-lg">+</span>
