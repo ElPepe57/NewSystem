@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-03 (Sesion 27 — Deploy 51-68: Integridad datos post fresh-start, 78 competidores restaurados, lineaNegocioIds en Maestros, createConVariantes corregido, investigacion simplificada, 30 etiquetas SUP. CAMBIO-184 a CAMBIO-243.)
+**Ultima actualizacion:** 2026-04-08 (Sesion 30 — Deploy 92: TAREA-101 Pagos Masivos, TAREA-103 Planilla completa, TAREA-104 Peso en Producto (4 fases), auditoria 360, fix submit ProductoForm. CAMBIO-276 a CAMBIO-292.)
 **Branch activo:** main
 
 ---
@@ -11,13 +11,13 @@
 
 | Indicador | Valor |
 |-----------|-------|
-| Modulos en produccion | 11 de 14 |
-| Sesiones de trabajo registradas | 27 |
+| Modulos en produccion | 15 de 17 |
+| Sesiones de trabajo registradas | 30 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
-| Hallazgos totales identificados | 220+ |
-| Fixes aplicados | ~341 (31 S1-4 + 6 S5 + 24 S8 + 17 S9 + 8 S10 + 5 S11 + 9 S12 + 6 S13 + 5 S14 + 3 S15 + 10 S16 + 28 S17 + 7 S18 + 20 S19 + 13 S20 + 16 S21 + 11 S24 + 15 S25 FINAL + 47 S26 + 60 S27) |
+| Hallazgos totales identificados | 230+ |
+| Fixes aplicados | ~390 (373 S1-S29 + 17 S30) |
 | Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 68 (ultimo: 2026-04-03 Deploy 68, hosting vitaskinperu.web.app) |
+| Deploys realizados | 92 (ultimo: 2026-04-08 Deploy 92, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -9847,3 +9847,601 @@ Sesion enfocada en restaurar la integridad de los datos maestros post fresh-star
 
 *Cierre registrado por implementation-controller (Agente 23).*
 *2026-04-03 — Sesion 27 CERRADA. 18 deploys (Deploy 51-68), ~20 commits. 7 bloques: competidores, integridad post fresh-start, metricas/triggers, linea de negocio en maestros, producto/variantes, estabilidad/investigacion simplificada, datos/etiquetas. 60 cambios (CAMBIO-184 a CAMBIO-243). 6 decisiones del titular (D-31 a D-36). BD limpia: datos seed eliminados, contadores corregidos, 78 competidores restaurados y 306 referencias reconectadas. Proxima sesion: TAREA-098 (contenido Reportes) → TAREA-099 (trazabilidad ubicacion) → TAREA-097 Fase 2.*
+
+---
+
+## SESION 28 — 2026-04-05 (Continuacion S27: integridad BD, herencia linea inline, UX, etiquetas, diseno Pagos Masivos)
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Extension de S27 — integridad post fresh-start, herencia lineaNegocio en entidades inline, correcciones UX de formularios, limpieza de etiquetas duplicadas, diseno modulo Pagos Masivos
+**Deploys realizados en la sesion:** 9 (Deploy 69 a Deploy 77)
+**Cambios registrados:** CAMBIO-244 a CAMBIO-256 (13 cambios)
+
+---
+
+### Resumen de la sesion
+
+Sesion centrada en cerrar deuda pendiente de S27 y avanzar en nuevas funcionalidades. Se completaron los ultimos pendientes de integridad de la BD post fresh-start (cuentas caja infladas, logging de transiciones de unidades, clientesArchivo), se implemento la herencia automatica de lineaNegocioId al crear entidades maestras inline desde el formulario de producto, se corrigieron tres problemas UX criticos en formularios (confirmacion al cerrar, tipo de boton por defecto, bloqueo de Enter), y se eliminaron duplicados del catalogo de etiquetas. Como cierre de sesion se diseño el modulo de Pagos Masivos con plan completo aprobado (TAREA-101).
+
+---
+
+### CAMBIO-244 — clientesArchivo: archivar antes de eliminar
+- Fecha: 2026-04-05
+- Tipo: Feature / Trazabilidad
+- Descripcion: El flujo de eliminacion de clientes ahora mueve el documento a la coleccion `clientesArchivo` antes de eliminarlo de `clientes`. Mantiene trazabilidad de clientes que alguna vez tuvieron transacciones. Alineado con el patron de archivo de 6 colecciones implementado en S26.
+- Archivo: `src/services/cliente.service.ts`
+- Reversible: si
+
+### CAMBIO-245 — Logging de transiciones de unidades con arrayUnion
+- Fecha: 2026-04-05
+- Tipo: Feature / Trazabilidad
+- Descripcion: Las transiciones de estado de las unidades (ej: disponible_peru → reservada) ahora se registran en el campo `movimientos[]` del documento de la unidad usando `arrayUnion`. Cada entrada incluye: estado anterior, estado nuevo, timestamp, y creadoPor. Mejora la trazabilidad del ciclo de vida de cada unidad.
+- Archivo: `src/services/unidad.service.ts`
+- Reversible: si
+
+### CAMBIO-246 — ErrorTesoreriaBanner en Dashboard (CONT-002 UI cerrado)
+- Fecha: 2026-04-05
+- Tipo: Feature UI
+- Descripcion: Banner de alerta en el Dashboard que aparece cuando existen documentos en Tesoreria con el campo `errorTesoreria: true`. El banner muestra el conteo de movimientos con error y un enlace directo a Tesoreria para resolver. Implementa la capa de UI del gap CONT-002 registrado en sesiones anteriores.
+- Archivo: `src/pages/Dashboard.tsx` + componente `ErrorTesoreriaBanner.tsx`
+- Reversible: si
+- Nota: El banner pendiente mencionado en S27 queda cerrado con este cambio.
+
+### CAMBIO-247 — Resetear saldos de cuentas de caja a 0
+- Fecha: 2026-04-05
+- Tipo: Correccion de datos
+- Descripcion: Las cuentas de caja tenian saldos inflados por movimientos de prueba eliminados en el fresh-start de S27. Script de correccion que resetea `saldoActual` a 0 en todas las cuentas de tipo `caja`. Las cuentas de tipo `banco` y `digital` no se modifican — sus saldos deben sincronizarse manualmente con los estados reales de cuenta.
+- Reversible: si (saldos anteriores en historial git del script)
+
+### CAMBIO-248 — Script health-check-360.mjs + registro implementacion actualizado
+- Fecha: 2026-04-05
+- Tipo: Herramienta / Documentacion
+- Descripcion: Script `scripts/health-check-360.mjs` que verifica 12 indicadores de salud del sistema: contadores vs COUNT real, referencias rotas en productos, documentos sin lineaNegocioId, etiquetas duplicadas, cuentas con saldo negativo inesperado, y otros. Output en tabla con estado OK/WARN/ERROR por indicador. El archivo `REGISTRO_IMPLEMENTACION.md` se actualiza para reflejar el estado actual (S28).
+- Script: `scripts/health-check-360.mjs` (nuevo)
+
+### CAMBIO-249 — Herencia de lineaNegocioId al crear entidades inline (Decision 37)
+- Fecha: 2026-04-05
+- Tipo: Feature
+- Descripcion: Cuando el usuario crea una entidad nueva directamente desde el formulario de producto (modo inline / quick-create), la entidad hereda automaticamente el `lineaNegocioId` del producto en edicion. Entidades afectadas: TipoProducto, Categoria, Etiqueta, Marca, Competidor, Proveedor. Evita que el usuario tenga que ir a Maestros a asignar la linea manualmente.
+- Archivos: componentes de autocomplete inline del formulario de producto
+- Decision del titular: Decision 37
+- Reversible: si
+
+### CAMBIO-250 — Proveedores en investigacion heredan linea del producto
+- Fecha: 2026-04-05
+- Tipo: Feature
+- Descripcion: En el modal de investigacion de producto, al agregar un proveedor nuevo directamente desde el formulario de investigacion, el proveedor hereda el `lineaNegocioIds` del producto investigado. Extensiona CAMBIO-249 al contexto especifico de investigacion de mercado.
+- Archivo: `src/components/modules/productos/InvestigacionModal.tsx`
+- Reversible: si
+
+### CAMBIO-251 — Confirmacion al cerrar modales de producto e investigacion
+- Fecha: 2026-04-05
+- Tipo: UX / Prevencion de perdida de datos
+- Descripcion: Los modales de ProductoForm e InvestigacionModal ahora piden confirmacion al usuario antes de cerrarse si hay cambios no guardados. La confirmacion se muestra siempre al cerrar en modo edicion o cuando el formulario ha sido modificado. Previene perdida accidental de datos al hacer click fuera del modal o en el boton de cierre.
+- Archivos: `src/components/modules/productos/ProductoForm.tsx`, `InvestigacionModal.tsx`
+- Reversible: si
+
+### CAMBIO-252 — Button default type=button (prevencion de submit accidental)
+- Fecha: 2026-04-05
+- Tipo: Bug fix / UX (Decision 38)
+- Descripcion: El componente `Button` del design system ahora tiene `type="button"` como valor por defecto. Anteriormente el default era `type="submit"` (comportamiento nativo del navegador), lo que causaba que botones de accion dentro de formularios disparasen el submit del formulario al hacer click. Afectaba especialmente a botones de limpiar, agregar item, y acciones secundarias dentro de formularios complejos.
+- Archivo: `src/components/ui/Button.tsx`
+- Decision del titular: Decision 38
+- Reversible: si (cambiar default de vuelta a submit si se necesita)
+
+### CAMBIO-253 — No pedir confirmacion al cerrar modal tras creacion exitosa
+- Fecha: 2026-04-05
+- Tipo: UX / Refinamiento
+- Descripcion: Refinamiento de CAMBIO-251: si el modal se cierra inmediatamente despues de una creacion exitosa (flag `creacionExitosa: true`), no se muestra la confirmacion de cierre. El usuario completo la accion — no hay datos perdidos. Evita el patron molesto de "te confirmo lo que acabas de hacer con exito".
+- Archivos: `src/components/modules/productos/ProductoForm.tsx`, `InvestigacionModal.tsx`
+- Reversible: si
+
+### CAMBIO-254 — Prevenir submit por Enter en formulario de producto
+- Fecha: 2026-04-05
+- Tipo: Bug fix / UX (Decision 38)
+- Descripcion: Al presionar Enter en cualquier input de texto del formulario de producto, el formulario se disparaba como submit si habia un `<button type="submit">` en el DOM. Agregado handler `onKeyDown` en el elemento `<form>` que llama a `event.preventDefault()` cuando `key === 'Enter'` y el target es un input de texto. La unica forma de guardar es el click explicito en el boton "Guardar".
+- Archivo: `src/components/modules/productos/ProductoForm.tsx`
+- Reversible: si
+
+### CAMBIO-255 — Eliminar etiquetas SUP-0152 y SUP-0153 duplicadas
+- Fecha: 2026-04-05
+- Tipo: Correccion de datos
+- Descripcion: El script de creacion de etiquetas SUP de S27 genero dos etiquetas duplicadas (SUP-0152 y SUP-0153) que tenian contenido identico a etiquetas ya existentes en el catalogo. Eliminados los documentos duplicados de Firestore. Total etiquetas SUP: 28 (era 30, menos 2 duplicados).
+- Reversible: si (datos en historial de scripts)
+
+### CAMBIO-256 — Renumerar etiquetas SUP-0149/0150 a SUP-0143/0144
+- Fecha: 2026-04-05
+- Tipo: Correccion de datos
+- Descripcion: Las etiquetas SUP-0149 y SUP-0150 tenian SKUs fuera de secuencia por un gap en la numeracion del script de creacion masiva de S27. Renumeradas a SUP-0143 y SUP-0144 para cerrar el gap. El contador de etiquetas corregido al valor real post-limpieza.
+- Reversible: si
+
+---
+
+### Decisiones del titular documentadas en S28
+
+| Decision | Detalle |
+|----------|---------|
+| Decision 37 | Linea de negocio se hereda automaticamente al crear entidades inline desde formulario de producto — el usuario no necesita ir a Maestros a asignarla |
+| Decision 38 | Enter en inputs de texto no dispara submit — la unica accion de guardado es el click explicito en el boton. Button type=button como default en el design system. |
+| Decision 39 | Pagos masivos seran secuenciales (no batch Firestore) reutilizando el servicio registrarPago existente para garantizar compatibilidad con tesoreria, propagaciones y contabilidad |
+
+---
+
+### Tarea disenada en S28
+
+#### TAREA-101 — Modulo de Pagos Masivos
+
+**ID:** TAREA-101
+**Titulo:** Modulo de Pagos Masivos — registro de N pagos desde una lista de pendientes
+**Prioridad:** Alta
+**Tipo:** Feature / Modulo nuevo
+**Modulo:** Tesoreria / CxC / CxP
+**Estimacion:** 12-16 horas
+**Estado:** Pendiente — plan completo aprobado
+**Plan detallado:** `C:\Users\josel\.claude\plans\glowing-orbiting-pie.md`
+
+**Componentes a implementar (12 archivos nuevos):**
+- `src/types/pagoMasivo.types.ts` — tipos LotePago, FilaPago, estadoFilaPago
+- `src/services/pagoMasivo.service.ts` — logica de ejecucion secuencial
+- `src/store/pagoMasivoStore.ts` — estado reactivo del lote en proceso
+- `src/pages/PagosMasivos/PagosMasivos.tsx` — pagina principal
+- Componentes UI: TablaSeleccion, BarraProgreso, ResumenLote, HistorialLotes, FiltroPendientes
+- Coleccion Firestore nueva: `lotePagos` para historial de lotes
+- Campo nuevo en movimientos de tesoreria: `lotePagoId` para trazabilidad
+
+**Decisiones de diseno:**
+- Toggle EGRESOS/INGRESOS para seleccionar tipo de documentos pendientes
+- Ejecucion secuencial con progreso en tiempo real (no batch atomico)
+- Reutiliza el servicio `registrarPago` existente para cada pago individual
+- Rollback manual item por item si falla — no rollback automatico del lote completo
+
+---
+
+### Estado del sistema al cierre de S28
+
+| Modulo | Estado |
+|--------|--------|
+| Maestros (Marcas, Competidores, Proveedores, Clientes) | ACTIVO — lineaNegocioIds + filtro + herencia inline |
+| Productos / Catalogo | ACTIVO — createConVariantes estable, herencia linea inline, Enter bloqueado |
+| Investigacion de Productos | ACTIVO — proveedores heredan linea del producto |
+| Etiquetas | ACTIVO — 10 tipos, 47 etiquetas (19 SKC + 28 SUP), duplicados eliminados |
+| Dashboard | ACTIVO — ErrorTesoreriaBanner implementado (CONT-002 cerrado) |
+| Tesoreria / Cuentas | ACTIVO — saldos caja reseteados a 0, trazabilidad transiciones unidades |
+| Pagos Masivos | DISENADO — TAREA-101 con plan completo, pendiente implementacion |
+| Reportes | PARCIAL — estructura lista, contenido pendiente TAREA-098 |
+| SUNAT | Inexistente — gap regulatorio critico abierto |
+
+---
+
+### Metricas finales de la Sesion 28
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys realizados | 9 (Deploy 69 a Deploy 77) |
+| Cambios registrados | 13 (CAMBIO-244 a CAMBIO-256) |
+| Bugs corregidos | 3 (submit por Enter, Button type, confirmacion cierre) |
+| Datos corregidos | Saldos caja a 0, 2 etiquetas duplicadas eliminadas, 2 etiquetas renumeradas |
+| Tareas disenadas | 1 (TAREA-101 Pagos Masivos) |
+| Scripts creados | 1 (health-check-360.mjs) |
+| Decisiones del titular | 3 (D-37 a D-39) |
+| Fixes acumulados totales | ~354 |
+
+---
+
+*Cierre registrado por implementation-controller (Agente 23).*
+*2026-04-05 — Sesion 28 CERRADA. 9 deploys (Deploy 69-77). 13 cambios (CAMBIO-244 a CAMBIO-256). Integridad BD continuada: clientesArchivo, logging transiciones unidades, saldos caja reseteados. ErrorTesoreriaBanner implementado (CONT-002 cerrado). Herencia lineaNegocioId en 6 entidades inline. Tres fixes UX formularios: confirmacion cierre, Button type=button, bloqueo Enter. Limpieza etiquetas: 2 duplicados eliminados, 2 renumerados. 3 decisiones del titular (D-37 a D-39). TAREA-101 Pagos Masivos disenada con plan completo. Proxima sesion: TAREA-101 (Pagos Masivos) → TAREA-098 (contenido Reportes) → TAREA-099 (trazabilidad ubicacion).*
+
+---
+
+---
+
+## SESION 29 — 2026-04-05/06 (Clasificacion mejorada, LineaFilterInline, adaptacion skincare, GeoAnalytics)
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Feature — clasificacion/categorias mejorada, filtro de linea en 16 paginas, UX skincare, modulo Mapa de Calor de Ventas
+**Deploys realizados en la sesion:** 14 (Deploy 78 a Deploy 91)
+**Cambios registrados:** CAMBIO-257 a CAMBIO-275 (19 cambios)
+
+---
+
+### Resumen de la sesion
+
+Sesion de cuatro bloques principales. Primer bloque: mejoras a la clasificacion de productos — crearRapida inteligente para categorias, hints en selectores, permisos Firestore ampliados (gerente puede crear categorias/tipos/etiquetas), y script de produccion que organizo 14 categorias skincare con 30 subcategorias y recategorizo 149 productos + 156 etiquetas. Segundo bloque: nuevo componente ChipMultiSelect para atributos skincare multi-valor, expansion de preocupaciones skincare de 11 a 45 opciones organizadas en grupos, y visualizacion de atributos SKC en ProductoCard expandida. Tercer bloque: componente LineaFilterInline (pills coloreados) desplegado en 16 paginas del sistema, con KPIs y metricas que responden al filtro de linea en 8 modulos. Cuarto bloque: modulo Mapa de Calor de Ventas — pagina /mapa-ventas completa con Google Maps HeatmapLayer + MarkerClusterer, Cloud Function de geocodificacion asincrona, modelo de datos geografico, 3 indices Firestore nuevos, widget en Dashboard y tab geografico en Reportes.
+
+---
+
+### CAMBIO-257 — crearRapida de categorias con defaults inteligentes
+- Fecha: 2026-04-05
+- Tipo: Feature / UX
+- Descripcion: El metodo `crearRapida()` del servicio de categorias ahora establece valores por defecto inteligentes al crear una categoria desde el modo inline: color azul por defecto, margenes sugeridos de 20/35/60 (minimo/objetivo/maximo), y `mostrarEnWeb: true`. Reduce la friccion al crear categorias sin necesidad de abrir el formulario completo de maestros.
+- Archivo: `src/services/categoria.service.ts`
+- Reversible: si
+
+### CAMBIO-258 — Hints "Escribe un nombre para crear nueva" en selectores
+- Fecha: 2026-04-05
+- Tipo: UX / Descubribilidad
+- Descripcion: CategoriaSelector, TipoProductoSelector y EtiquetaSelector muestran el hint "Escribe un nombre para crear nueva" cuando el usuario escribe texto que no coincide con ninguna opcion existente. Guia al usuario a descubrir la funcionalidad de creacion rapida sin necesidad de documentacion externa.
+- Archivos: `src/components/modules/productos/CategoriaSelector.tsx`, `TipoProductoSelector.tsx`, `EtiquetaSelector.tsx`
+- Reversible: si
+
+### CAMBIO-259 — Firestore rules: categorias/tiposProducto/etiquetas permiten gerente
+- Fecha: 2026-04-05
+- Tipo: Permisos / Configuracion
+- Descripcion: Las reglas de Firestore para las colecciones `categorias`, `tiposProducto` y `etiquetas` se amplian para permitir operaciones de escritura al rol `gerente`, ademas del rol `admin` que ya las tenia. Antes solo el admin podia crear o modificar estos maestros, lo que generaba fricciones operativas cuando el gerente necesitaba crear una categoria nueva rapidamente.
+- Archivo: `firestore.rules`
+- Reversible: si
+
+### CAMBIO-260 — categoriaStore interfaz crearRapida corregida
+- Fecha: 2026-04-05
+- Tipo: Bug fix
+- Descripcion: La firma de `crearRapida()` en `categoriaStore.ts` no coincdia con la del servicio — faltaba el parametro `lineaNegocioIds` (5 parametros en el servicio vs 4 en el store). Corregida la interfaz del store para incluir `lineaNegocioIds` y propagarlo correctamente al servicio.
+- Archivo: `src/store/categoriaStore.ts`
+- Reversible: si
+
+### CAMBIO-261 — Script mejora-categorias-suplementos.mjs ejecutado en produccion
+- Fecha: 2026-04-05
+- Tipo: Correccion de datos / Script de produccion
+- Descripcion: Script ejecutado directamente en la BD de produccion con los siguientes resultados:
+  - 14 categorias existentes actualizadas con `lineaNegocioIds` asignado correctamente
+  - 30 subcategorias nuevas creadas (CAT-037 a CAT-066) organizadas segun decision D-40 (skincare por tipo de producto: serum, crema, limpiador) y D-41 (suplementos por mecanismo/ingrediente: nootr opicos, melatonina, omega 3, etc.)
+  - 149 productos recategorizados a las subcategorias correspondientes
+  - 156 productos con etiquetas corregidas (referencias a etiquetas incorrectas o faltantes)
+- Script: `scripts/mejora-categorias-suplementos.mjs`
+- Reversible: si (script de migracion con log de cambios aplicados)
+
+### CAMBIO-262 — ChipMultiSelect componente nuevo
+- Fecha: 2026-04-05
+- Tipo: Componente UI nuevo
+- Descripcion: Componente `ChipMultiSelect` para seleccion multiple mediante chips visuales. A diferencia de `AutocompleteInput` (single-value), permite seleccionar y deseleccionar multiples valores de una lista predefinida. Los valores seleccionados se muestran como chips con boton de eliminar. Acepta `options[]`, `selected[]`, `onChange`, `placeholder` y `grupos` (para agrupar opciones con header). Implementado con Tailwind sin dependencias externas.
+- Archivo: `src/components/ui/ChipMultiSelect.tsx` (nuevo)
+- Reversible: si
+
+### CAMBIO-263 — ProductoForm: tipoPiel y preocupaciones usan ChipMultiSelect
+- Fecha: 2026-04-05
+- Tipo: Feature / UX skincare
+- Descripcion: Los campos `tipoPiel` y `preocupaciones` en la seccion de atributos skincare del formulario de producto migraron de `AutocompleteInput` (single-value, con chips manuales) a `ChipMultiSelect` (multi-select visual nativo). Los atributos ahora se guardan como arrays en lugar de strings separados por coma. El cambio es retrocompatible — los valores legacy en formato string se migran al vuelo en la carga del formulario.
+- Archivo: `src/components/modules/productos/ProductoForm.tsx`
+- Reversible: si
+
+### CAMBIO-264 — Preocupaciones skincare ampliadas de 11 a 45 opciones por grupo
+- Fecha: 2026-04-05
+- Tipo: Feature / Datos de catalogo
+- Descripcion: El listado de preocupaciones skincare se amplia de 11 opciones planas a 45 opciones organizadas en 6 grupos tematicos: Hidratacion y Nutricion (7), Antiedad y Firmeza (8), Pigmentacion y Luminosidad (7), Sensibilidad y Calma (7), Control y Pureza (8), Proteccion (8). La organizacion en grupos usa la funcionalidad de `grupos` del componente ChipMultiSelect (CAMBIO-262).
+- Archivo: constantes de atributos skincare en el formulario de producto
+- Reversible: si
+
+### CAMBIO-265 — LineaFilterInline componente nuevo
+- Fecha: 2026-04-05
+- Tipo: Componente UI nuevo
+- Descripcion: Componente `LineaFilterInline` que muestra las lineas de negocio disponibles como pills coloreados con estado activo/inactivo. "Todas" siempre es la primera opcion. Cada linea tiene su color de acento segun la paleta del proyecto (skincare: rosa/salmon, suplementos: verde). Reemplaza el dropdown de linea global en las paginas que ya usaban `useLineaFilter` — mas visible, menos clicks.
+- Archivo: `src/components/ui/LineaFilterInline.tsx` (nuevo)
+- Reversible: si
+
+### CAMBIO-266 — LineaFilterInline desplegado en 16 paginas
+- Fecha: 2026-04-05
+- Tipo: Feature / Consistencia UI
+- Descripcion: El componente LineaFilterInline se integra en la barra de herramientas (header) de 16 paginas del sistema, reemplazando o complementando el filtro de linea anterior: Productos, Ventas, Compras, Gastos, Cotizaciones, Stock (Inventario), Requerimientos, Dashboard, Unidades, Transferencias, CTRU, Intel Productos, Proyeccion, Reportes, Tesoreria, MercadoLibre. En todas las paginas el filtro actua sobre los datos mostrados en tiempo real via el store `lineaFiltroGlobal`.
+- Archivos: 16 paginas modificadas en `src/pages/`
+- Reversible: si
+
+### CAMBIO-267 — KPIs y metricas recalculados al filtrar por linea
+- Fecha: 2026-04-05
+- Tipo: Feature / Consistencia de datos
+- Descripcion: En 8 modulos, los KPIs del header y las metricas de resumen responden al filtro de linea activo: Productos (conteo, valor inventario), Ventas (total ventas, ticket promedio, top productos), Compras (total OC, monto comprometido), Gastos (total gastos por linea), Unidades (disponibles, en transito, valor), Transferencias (pendientes, en proceso), CTRU (CTRU promedio filtrado), Reportes (metricas de rentabilidad). Tesoreria mantiene KPIs globales por decision D-42 (correcto contablemente).
+- Archivos: stores y componentes de KPI en los 8 modulos
+- Reversible: si
+
+### CAMBIO-268 — InvestigacionModal adaptado por linea de negocio
+- Fecha: 2026-04-05
+- Tipo: Feature / UX
+- Descripcion: El modal de investigacion de producto adapta su texto segun la linea del producto investigado. Para productos skincare: la seccion de proveedores externos muestra "Proveedores Internacionales" (no solo USA). Para suplementos: se mantiene "Proveedores USA" como antes. El cambio es puramente visual — el modelo de datos no cambia.
+- Archivo: `src/components/modules/productos/InvestigacionModal.tsx`
+- Reversible: si
+
+### CAMBIO-269 — Impuesto USA oculto para productos skincare en ProveedorUSAList
+- Fecha: 2026-04-05
+- Tipo: Feature / UX skincare
+- Descripcion: El campo "Impuesto USA" en la lista de proveedores de investigacion se oculta para productos de la linea skincare, ya que los productos cosmeticos importados de Korea/Europa no pasan por el mismo esquema de impuesto de importacion que aplica a suplementos desde USA. El campo sigue presente en el modelo de datos — solo se oculta visualmente cuando `lineaNegocioId === 'skincare'`.
+- Archivo: `src/components/modules/productos/ProveedorUSAList.tsx`
+- Reversible: si
+
+### CAMBIO-270 — Etiquetas de precio dinamicas segun linea
+- Fecha: 2026-04-05
+- Tipo: Feature / UX
+- Descripcion: En la investigacion de productos, las etiquetas de precio se adaptan segun la linea: para skincare muestra "Precio Proveedor" y "precio unitario"; para suplementos muestra "Precio USA" y "con impuesto". Refleja la terminologia correcta para cada modelo de compra (skincare: proveedor internacional; suplementos: proveedor USA con impuesto).
+- Archivos: componentes de investigacion de productos
+- Reversible: si
+
+### CAMBIO-271 — Atributos Skincare visibles en ProductoCard expandida
+- Fecha: 2026-04-05
+- Tipo: Feature / UX
+- Descripcion: La ProductoCard en modo expandido (click para ver detalle) muestra los atributos skincare del producto cuando la linea es SKC: tipo de piel (chips de colores), preocupaciones (chips agrupados), SPF (badge numerico), PA (badge), ingrediente clave (highlight), volumen (en ml), paso de rutina (badge numerado 1-7) y PAO (periodo de apertura). Para productos SUP la vista expandida no cambia.
+- Archivo: `src/components/modules/productos/ProductoCard.tsx`
+- Reversible: si
+
+### CAMBIO-272 — TAREA-102 Fase 1: Pagina /mapa-ventas completa
+- Fecha: 2026-04-06
+- Tipo: Feature mayor / Modulo nuevo (GeoAnalytics)
+- Descripcion: Pagina completa `/mapa-ventas` con las siguientes caracteristicas:
+  - **Mapa principal:** Google Maps con HeatmapLayer (intensidad de ventas por coordenadas), MarkerClusterer (marcadores agrupados por zona), y marcadores individuales diferenciados por linea de negocio (color rosa para SKC, verde para SUP).
+  - **6 KPIs en header:** zonas activas (distritos con al menos 1 venta), provincias alcanzadas, volumen total vendido (en PEN), ticket promedio por zona, zona top (distrito con mas ventas), cobertura nacional (% de distritos del Peru con al menos 1 venta).
+  - **Filtros:** selector de periodo (ultima semana, mes, trimestre, semestre, ano, todo), selector de linea de negocio, toggle de tipo de capa (calor vs marcadores).
+  - **Panel de zona:** al hacer click en un marcador o cluster, muestra detalle de la zona seleccionada (distrito, provincia, numero de ventas, ticket promedio, productos mas vendidos en esa zona).
+  - **Tabla ranking:** lista de distritos ordenados por volumen de ventas con columnas de provincia, ventas, ticket promedio y linea dominante.
+  - Ruta: `/mapa-ventas`. Menu: seccion Analisis del sidebar.
+- Archivos: `src/pages/MapaVentas/MapaVentas.tsx` (nuevo), `src/pages/MapaVentas/PanelZona.tsx` (nuevo), `src/pages/MapaVentas/TablaRanking.tsx` (nuevo), `src/services/mapaVentas.service.ts` (nuevo), `src/store/mapaVentasStore.ts` (nuevo), `src/types/mapaVentas.types.ts` (nuevo)
+- Reversible: si
+
+### CAMBIO-273 — TAREA-102 Fase 2: Cloud Function geocodificacion + modelo datos geografico
+- Fecha: 2026-04-06
+- Tipo: Feature mayor / Infraestructura geografica
+- Descripcion: Infraestructura completa para el modulo geografico:
+  - **Cloud Function `geocodificaCoordenadasVenta`:** trigger `onCreate` en la coleccion `ventas`. Al crearse una venta nueva con direccion de cliente, la funcion llama a la API de Google Maps Geocoding para obtener coordenadas (lat/lng), `placeId` y `geohash`. La geocodificacion es asincrona (no bloquea la creacion de la venta) — decision D-44.
+  - **Modelo de datos DireccionCliente:** nueva interfaz con campos `coordenadas` (`lat`, `lng`), `placeId` y `geocodingStatus` (`pendiente` | `completado` | `fallido`). Agregada a `ClienteBase` y propagada a los tipos de Venta.
+  - **Campos nuevos en Venta:** `placeId`, `geohash` y `geocodingStatus` para soportar consultas geograficas eficientes.
+  - **3 indices Firestore nuevos:** (1) `ventas`: distrito + fecha, (2) `ventas`: geohash + fecha, (3) `ventas`: geocodingStatus + fecha. Permiten consultas geograficas eficientes sin scans completos.
+  - **MapaVentasWidget:** widget miniatura del mapa embebido en el Dashboard. Muestra los ultimos 30 dias con capa de calor en mapa compacto y enlace a `/mapa-ventas`.
+  - **TabGeografico en Reportes:** tab nuevo en la pagina /reportes con tabla exportable de ventas por distrito/provincia, filtrable por periodo y linea.
+- Archivos: `functions/src/geocodificaVenta.ts` (nuevo), tipos en `src/types/venta.types.ts` y `src/types/maestros.types.ts`, `src/components/dashboard/MapaVentasWidget.tsx` (nuevo), tab geografico en `src/pages/Reportes/`
+- Reversible: si
+
+### CAMBIO-274 — useGoogleMaps: library visualization agregada
+- Fecha: 2026-04-06
+- Tipo: Configuracion / Fix tecnico
+- Descripcion: El hook `useGoogleMaps` (o la carga del script de Maps) incluye ahora la biblioteca `visualization` en la lista de bibliotecas cargadas. Esta biblioteca es necesaria para `google.maps.visualization.HeatmapLayer`. Sin ella la capa de calor no podia instanciarse y lanzaba un error de referencia.
+- Archivos: configuracion de carga de Google Maps en el frontend
+- Reversible: si
+
+### CAMBIO-275 — @googlemaps/markerclusterer instalado
+- Fecha: 2026-04-06
+- Tipo: Dependencia
+- Descripcion: Paquete `@googlemaps/markerclusterer` agregado a las dependencias del frontend (`package.json`). Necesario para el componente `MarkerClusterer` usado en `/mapa-ventas` para agrupar visualmente marcadores proximos cuando el zoom es bajo.
+- Archivo: `package.json`
+- Reversible: si (remover dependencia y refactorizar el mapa a marcadores sin clustering)
+
+---
+
+### Decisiones del titular documentadas en S29
+
+| Decision | Detalle |
+|----------|---------|
+| Decision 40 | Categorias skincare organizadas por tipo de producto (serum, crema, limpiador) — diferente a suplementos que se organizan por mecanismo/ingrediente activo (nootropicos, melatonina, omega 3, etc.) |
+| Decision 41 | Subcategorias de suplementos por mecanismo/ingrediente: refleja como el cliente compra (busca por beneficio o ingrediente, no por formato) |
+| Decision 42 | Tesoreria mantiene KPIs globales al filtrar por linea de negocio — correcto contablemente porque las cuentas y movimientos de tesoreria no tienen linea asignada; solo los documentos de negocio (ventas, compras, gastos) si la tienen |
+| Decision 43 | Mapa de calor cubre todo Peru, no solo Lima — el negocio ya vende en varias provincias y la vista nacional da perspectiva estrategica de expansion |
+| Decision 44 | Geocoding asincrono via Cloud Function (no sincrono en la creacion de la venta) — la creacion de venta no debe depender de una API externa; el mapa puede tener un retraso de segundos sin afectar la operacion |
+
+---
+
+### Nuevos archivos creados en S29
+
+| Archivo | Tipo |
+|---------|------|
+| `src/components/ui/ChipMultiSelect.tsx` | Componente UI |
+| `src/components/ui/LineaFilterInline.tsx` | Componente UI |
+| `src/pages/MapaVentas/MapaVentas.tsx` | Pagina |
+| `src/pages/MapaVentas/PanelZona.tsx` | Componente pagina |
+| `src/pages/MapaVentas/TablaRanking.tsx` | Componente pagina |
+| `src/services/mapaVentas.service.ts` | Servicio |
+| `src/store/mapaVentasStore.ts` | Store Zustand |
+| `src/types/mapaVentas.types.ts` | Tipos TypeScript |
+| `src/components/dashboard/MapaVentasWidget.tsx` | Widget Dashboard |
+| `functions/src/geocodificaVenta.ts` | Cloud Function |
+| Tab geografico en `src/pages/Reportes/` | Componente pagina |
+| `scripts/mejora-categorias-suplementos.mjs` | Script produccion |
+| Nuevos tipos en `src/types/venta.types.ts` | Tipos TypeScript |
+| Nuevos tipos en `src/types/maestros.types.ts` | Tipos TypeScript |
+| Tab `TabGeografico` en Reportes | Componente pagina |
+
+---
+
+### TAREA-102 — Mapa de Calor de Ventas (GeoAnalytics)
+
+**ID:** TAREA-102
+**Titulo:** Modulo de Mapa de Calor de Ventas — geolocalizacion de clientes y analisis geografico
+**Prioridad:** Media
+**Tipo:** Feature / Modulo nuevo
+**Modulo:** Analisis / Reportes
+**Estado:** FASE 1 y FASE 2 COMPLETADAS en S29
+**Fase 1:** Pagina /mapa-ventas — mapa, KPIs, filtros, panel zona, ranking (CAMBIO-272)
+**Fase 2:** Cloud Function geocodificacion, modelo datos, indices Firestore, widget Dashboard, tab Reportes (CAMBIO-273)
+**Pendiente:** Geocodificacion retroactiva de ventas historicas sin coordenadas (script a ejecutar)
+
+---
+
+### Estado del sistema al cierre de S29
+
+| Modulo | Estado |
+|--------|--------|
+| Maestros (Marcas, Competidores, Proveedores, Clientes) | ACTIVO — lineaNegocioIds + filtro + herencia inline |
+| Productos / Catalogo | ACTIVO — 14 categorias + 30 subcategorias, 149 productos recategorizados |
+| Atributos Skincare | ACTIVO — ChipMultiSelect, 45 preocupaciones en grupos, visualizacion en ProductoCard |
+| Investigacion de Productos | ACTIVO — adaptado por linea (SKC vs SUP), etiquetas precio dinamicas |
+| Filtro Linea (LineaFilterInline) | ACTIVO — desplegado en 16 paginas, KPIs responsivos en 8 modulos |
+| Mapa de Calor de Ventas | ACTIVO — /mapa-ventas con heatmap + clustering, geocodificacion asincrona (TAREA-102 completada) |
+| Dashboard | ACTIVO — MapaVentasWidget agregado |
+| Reportes | PARCIAL — TabGeografico agregado; tabs Logistica/Clientes/Auditorias/Compras pendientes (TAREA-098) |
+| Pagos Masivos | DISENADO — plan completo aprobado (TAREA-101, pendiente implementacion) |
+| Tesoreria / Cuentas | ACTIVO — sin cambios esta sesion |
+| SUNAT | Inexistente — gap regulatorio critico abierto |
+| WhatsApp | En desarrollo — sin uso en produccion |
+
+---
+
+### Metricas finales de la Sesion 29
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys realizados | 14 (Deploy 78 a Deploy 91) |
+| Cambios registrados | 19 (CAMBIO-257 a CAMBIO-275) |
+| Archivos nuevos creados | 15 |
+| Archivos modificados | ~30 |
+| Cloud Functions nuevas | 1 (geocodificaCoordenadasVenta) |
+| Indices Firestore nuevos | 3 |
+| Colecciones Firestore nuevas | 0 |
+| Subcategorias creadas en BD | 30 (CAT-037 a CAT-066) |
+| Productos recategorizados | 149 |
+| Productos con etiquetas corregidas | 156 |
+| Decisiones del titular | 5 (D-40 a D-44) |
+| Tareas completadas | 1 (TAREA-102 Fases 1 y 2) |
+| Fixes acumulados totales | ~373 |
+
+---
+
+*Cierre registrado por implementation-controller (Agente 23).*
+*2026-04-05/06 — Sesion 29 CERRADA. 14 deploys (Deploy 78-91). 19 cambios (CAMBIO-257 a CAMBIO-275). Clasificacion mejorada: 30 subcategorias, 149 productos recategorizados. ChipMultiSelect + 45 preocupaciones SKC. LineaFilterInline en 16 paginas con KPIs responsivos. Modulo Mapa de Calor de Ventas completo: /mapa-ventas (heatmap + clustering), geocodificacion asincrona via CF, modelo datos geografico, 3 indices, MapaVentasWidget en Dashboard, TabGeografico en Reportes. 5 decisiones (D-40 a D-44). Proxima sesion: TAREA-101 (Pagos Masivos) → TAREA-098 (contenido Reportes) → TAREA-099 (trazabilidad ubicacion).*
+
+---
+
+## SESION 30 — 2026-04-07/08 (Pagos Masivos + Planilla + Peso en Producto + Auditoria 360)
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** 3 modulos nuevos + auditoria arquitectonica + bug fixes
+**Deploy realizado:** Deploy 92
+**Cambios registrados:** CAMBIO-276 a CAMBIO-292 (17 cambios)
+
+---
+
+### CAMBIO-276 — TAREA-101 Pagos Masivos (tab en Tesoreria)
+- Fecha: 2026-04-07
+- Tipo: Feature / Modulo nuevo
+- Descripcion: Tab "Pagos Masivos" en Tesoreria para procesar N pagos en lote. Seleccion de pendientes con checkboxes, montos editables inline, configuracion de cuenta/metodo/TC compartida, ejecucion secuencial con progreso en tiempo real, historial de lotes. Reutiliza registrarPago existente (Decision D-39).
+- Archivos nuevos: pagoMasivo.types.ts, pagoMasivo.service.ts, pagoMasivoStore.ts, PagosMasivos.tsx, DocumentosPendientesTable.tsx, ConfigPagoPanel.tsx, ProgresoEjecucion.tsx, HistorialLotes.tsx, LoteDetalleModal.tsx, TabPagosMasivos.tsx
+- Coleccion nueva: lotePagos
+- Decisiones: D-45 (tab en Tesoreria, no pagina separada)
+
+### CAMBIO-277 — Trazabilidad lote en tipos de pago existentes
+- Fecha: 2026-04-07
+- Tipo: Feature
+- Descripcion: Campos lotePagoId? y esPagoMasivo? agregados a PagoGasto, PagoOrdenCompra y PagoVenta para vincular pagos individuales con el lote que los genero.
+- Archivos: gasto.types.ts, ordenCompra.types.ts, venta.types.ts
+
+### CAMBIO-278 — CxP/CxC removido de Tesoreria
+- Fecha: 2026-04-07
+- Tipo: Refactor / UX
+- Descripcion: Tab "Pendientes" (CxP/CxC) removido de Tesoreria por decision del titular. El componente TabPendientes.tsx sigue existiendo pero no esta montado. Se movera a Reportes en TAREA-098.
+- Archivos: Tesoreria.tsx (imports, state, funciones de pendientes eliminados)
+- Decision: D-46
+
+### CAMBIO-279 — TAREA-103 Planilla — modulo completo
+- Fecha: 2026-04-07
+- Tipo: Feature / Modulo nuevo
+- Descripcion: Modulo de planilla para control interno de nomina (microempresa, sin formalidad legal). Incluye: perfil laboral en subcoleccion private (privacidad salarial), boletas mensuales con comisiones automaticas desde ventas, adelantos como CxC temporal, boleta PDF descargable, integracion con PagoUnificadoForm. Gastos GA (sueldo) y GV (comisiones) generados automaticamente al pagar boleta.
+- Archivos nuevos: planilla.types.ts, planilla.service.ts, planilla.comisiones.service.ts, boletaPdf.service.ts, planillaStore.ts, Planilla.tsx, TabEmpleados.tsx, TabBoletas.tsx, TabAdelantos.tsx, EmpleadoForm.tsx, BoletaDetalle.tsx, AdelantoForm.tsx
+- Colecciones nuevas: boletas, adelantosNomina
+- Decisiones: D-47 (microempresa informal), D-48 (subcoleccion private), D-49 (creadoPor=vendedorId), D-50 (comisiones automaticas)
+
+### CAMBIO-280 — Permisos de Planilla
+- Fecha: 2026-04-07
+- Tipo: Feature
+- Descripcion: VER_PLANILLA y GESTIONAR_PLANILLA agregados a PERMISOS. Asignados a admin (via Object.values), gerente y finanzas en DEFAULT_PERMISOS.
+- Archivo: auth.types.ts
+
+### CAMBIO-281 — Tipos de movimiento tesoreria para planilla
+- Fecha: 2026-04-07
+- Tipo: Feature
+- Descripcion: pago_nomina y adelanto_empleado agregados a TipoMovimientoTesoreria.
+- Archivo: tesoreria.types.ts
+
+### CAMBIO-282 — Tipo gasto nomina + comisionesVendedores en P&L
+- Fecha: 2026-04-07
+- Tipo: Feature
+- Descripcion: Tipo 'nomina' agregado a TipoGasto (GA). comisionesVendedores agregado a GastosVenta en contabilidad.types.ts. calcularGV ahora clasifica comision_vendedor como linea separada en el Estado de Resultados. Linea "Comisiones vendedores" visible en EstadoResultados.tsx.
+- Archivos: gasto.types.ts, contabilidad.types.ts, contabilidad.service.ts, EstadoResultados.tsx
+
+### CAMBIO-283 — OrigenPago extendido
+- Fecha: 2026-04-07
+- Tipo: Feature
+- Descripcion: 'nomina' y 'adelanto' agregados a OrigenPago para integrar planilla con PagoUnificadoForm.
+- Archivo: pago.types.ts
+
+### CAMBIO-284 — Firestore Rules para planilla
+- Fecha: 2026-04-07
+- Tipo: Seguridad
+- Descripcion: Rules para users/{uid}/private/{docId} (solo admin/gerente), boletas (admin/gerente/finanzas), adelantosNomina (admin/gerente/finanzas). Desplegadas a produccion.
+- Archivo: firestore.rules
+
+### CAMBIO-285 — Fix undefined en Firestore (planilla)
+- Fecha: 2026-04-07
+- Tipo: Bug fix
+- Descripcion: cleanUndefined() en planilla.service.ts para todos los setDoc. Evita campos undefined (empleadoCargo, lineaNegocioId, esquemaComision) que Firestore rechaza con error "Unsupported field value: undefined".
+- Archivo: planilla.service.ts
+
+### CAMBIO-286 — TAREA-104 Fase A — pesoLibras en Producto
+- Fecha: 2026-04-08
+- Tipo: Feature
+- Descripcion: Campo pesoLibras? (number, libras) agregado a Producto y ProductoFormData. Input en formulario para suplementos (grid Sabor+Peso+UPC) Y skincare (grid SPF+PA+Peso). Columna Peso(lb) en VariantesTable. Campo en FormVarianteReducida con herencia del grupo. Persistido en create() y createConVariantes() con logica v.pesoLibras ?? datosComunes.pesoLibras. Escaner muestra peso si existe o alerta "Sin peso registrado".
+- Archivos: producto.types.ts, ProductoForm.tsx, VariantesTable.tsx, FormVarianteReducida.tsx, producto.service.ts, ProductoResultCard.tsx
+- Decision: D-51 (libras, analitico), D-52 (suplementos Y skincare)
+
+### CAMBIO-287 — TAREA-104 Fase B — peso en Transferencia + OC
+- Fecha: 2026-04-08
+- Tipo: Feature
+- Descripcion: Desnormalizacion de peso: pesoLibras en TransferenciaUnidad, pesoTotalLibras y costoFletePorLibra en Transferencia, pesoLibras en ProductoOrden, pesoTotalEstimadoLb en OrdenCompra, tarifaPorLibraUSD en Almacen. Servicio transferencia obtiene peso del producto y calcula totales al crear. OC calcula pesoTotalEstimadoLb. Panel "Analisis por Peso" en TransferenciaDetailModal. Peso y $/lb en EditFleteModal.
+- Archivos: transferencia.types.ts, ordenCompra.types.ts, almacen.types.ts, transferencia.service.ts, ordenCompra.crud.service.ts, TransferenciaDetailModal.tsx, EditFleteModal.tsx
+
+### CAMBIO-288 — TAREA-104 Fase C — KPIs peso en Reportes Logistica
+- Fecha: 2026-04-08
+- Tipo: Feature
+- Descripcion: 6 KPI cards en TabLogistica (2 nuevas: Peso total, Costo/lb). pesoTotalTransportadoLb y costoPromedioPorLibra en RendimientoViajero y ResumenLogistica. pesoTotalLb y costoFletePorLibra en TransferenciaResumen. Tabla transferencias con columnas Peso y $/lb. Ranking de productos por eficiencia logistica (margen/lb) con segmentacion (Ultraliviano/Liviano/Medio/Pesado). Viajero subtitle y mini-stats con peso.
+- Archivos: logistica.reporte.service.ts, TabLogistica.tsx
+
+### CAMBIO-289 — TAREA-104 Fase D — Dashboard + Productos Intel
+- Fecha: 2026-04-08
+- Tipo: Feature
+- Descripcion: Widget EficienciaImportacionWidget en Dashboard (costo/lb promedio, tendencia ultimo envio, productos con/sin peso). pesoLibras y margenPorLibra en ProductoIntel. Columna Peso en ProductoIntelTable. Alerta tipo 'sin_peso' en generacion de alertas de ProductoIntel.
+- Archivos nuevos: EficienciaImportacionWidget.tsx
+- Archivos modificados: Dashboard.tsx, productoIntel.types.ts, ProductoIntelTable.tsx, productoIntel.service.ts
+
+### CAMBIO-290 — Indice Firestore creadoPor+fechaVenta
+- Fecha: 2026-04-08
+- Tipo: Infraestructura
+- Descripcion: Indice compuesto en coleccion ventas para consulta de comisiones por vendedor y periodo. Desplegado a produccion.
+- Archivo: firestore.indexes.json
+
+### CAMBIO-291 — Fix submit accidental en ProductoForm
+- Fecha: 2026-04-08
+- Tipo: Bug fix
+- Descripcion: El formulario de producto se guardaba automaticamente al navegar entre tabs. Causa raiz: submit nativo del form disparado por evento no controlado. Solucion: eliminado type="submit" del boton Crear/Actualizar (ahora type="button" con onClick explicito). handleSubmit convertido en bloqueador puro (solo preventDefault). El guardado solo ocurre con click explicito.
+- Archivo: ProductoForm.tsx
+
+### CAMBIO-292 — Auditoria 360 del sistema
+- Fecha: 2026-04-07
+- Tipo: Analisis / Documentacion
+- Descripcion: Auditoria completa con 3 agentes (system-architect, accounting-manager, erp-business-architect). 9 hallazgos + 6 gaps documentados. Hallazgos criticos: TabPendientes no montado (H-01), gastos parciales omitidos en CxP (CONT-005), CTRU y Estado de Resultados desconectados (GAP-001). Pendientes para proximas sesiones.
+
+---
+
+### Decisiones del titular S30
+
+| Decision | Detalle |
+|----------|---------|
+| D-45 | Pagos Masivos como tab en Tesoreria, no pagina separada en sidebar |
+| D-46 | CxP/CxC removido de Tesoreria — se movera a Reportes |
+| D-47 | Planilla informal microempresa — sin EsSalud, CTS, AFP. Gratificaciones por metas |
+| D-48 | Perfil laboral en subcoleccion users/{uid}/private/laboral (privacidad salarial) |
+| D-49 | creadoPor = vendedorId — reutilizar campo existente, no agregar nuevo |
+| D-50 | Comisiones automaticas calculadas desde ventas del periodo |
+| D-51 | Peso en libras (lb), analitico no contable, no cambia prorrateo de flete en CTRU |
+| D-52 | Peso aplica a ambas lineas de negocio (suplementos Y skincare) |
+
+---
+
+### Metricas finales de la Sesion 30
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys realizados | 1 (Deploy 92) |
+| Cambios registrados | 17 (CAMBIO-276 a CAMBIO-292) |
+| Archivos nuevos | 23 |
+| Archivos modificados | 32 |
+| Lineas agregadas | ~4658 |
+| Tareas completadas | 3 (TAREA-101, TAREA-103, TAREA-104) |
+| Bugs corregidos | 3 (undefined Firestore, submit accidental, preventDefault) |
+| Decisiones del titular | 8 (D-45 a D-52) |
+| Fixes acumulados totales | ~390 |
+
+---
+
+*Cierre registrado por implementation-controller (Agente 23).*
+*2026-04-07/08 — Sesion 30 CERRADA. Deploy 92. 17 cambios (CAMBIO-276 a CAMBIO-292). Tres modulos nuevos: Pagos Masivos (tab Tesoreria, ejecucion secuencial), Planilla (empleados/boletas/adelantos/PDF, comisiones automaticas), Peso en Producto (4 fases: campo base, transferencias/OC, reportes logistica, dashboard/intel). Auditoria 360 con 9 hallazgos. Fix submit accidental ProductoForm. 8 decisiones (D-45 a D-52). Proxima sesion: TAREA-098 (Reportes CxC/CxP + costo landed) → fix gastos parciales → script pesos masivo → TAREA-099 (trazabilidad ubicacion).*
