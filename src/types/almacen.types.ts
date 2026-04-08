@@ -134,6 +134,7 @@ export interface Almacen {
 
   // Costos del viajero (para referencia, el costo real está en Producto)
   costoPromedioFlete?: number;       // Costo promedio por unidad USD
+  tarifaPorLibraUSD?: number;        // Tarifa cobrada por libra (para estimar flete)
 
   // === MÉTRICAS ===
   // Total de unidades que ha recibido históricamente

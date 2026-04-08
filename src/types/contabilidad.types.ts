@@ -49,6 +49,8 @@ export interface ComprasPeriodo {
 export interface GastosVenta {
   /** Comisiones de plataformas (ML, pasarelas) */
   comisionesPlataformas: number;
+  /** Comisiones de vendedores (planilla) */
+  comisionesVendedores: number;
   /** Marketing y publicidad */
   marketingPublicidad: number;
   /** Otros gastos de venta */

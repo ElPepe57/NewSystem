@@ -464,6 +464,9 @@ export interface Producto {
    */
   costoFleteInternacional?: number;
 
+  /** Peso por unidad en libras (lb). Ej: 0.12, 1.5, 5.0 */
+  pesoLibras?: number;
+
   // === ORIGEN Y LÍNEA DE NEGOCIO ===
   paisOrigen?: string;                    // País de origen del producto ('USA', 'China', 'Corea', 'Peru')
   lineaNegocioId?: string;                // ID de la línea de negocio
@@ -566,6 +569,7 @@ export interface ProductoFormData {
   stockMinimo: number;
   stockMaximo: number;
   costoFleteInternacional?: number;
+  pesoLibras?: number;                      // Peso por unidad en libras (lb)
   paisOrigen?: string;                      // País de origen del producto
   lineaNegocioId?: string;                  // ID de la línea de negocio
 

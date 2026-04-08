@@ -679,6 +679,22 @@ export const productoIntelService = {
     // Calcular lead time
     const leadTime = this.calcularLeadTimeProducto(producto.id, ordenesCompra);
 
+    // Peso y eficiencia logística
+    const pesoLibras = producto.pesoLibras || undefined;
+    const margenPorLibra = pesoLibras && pesoLibras > 0 && rentabilidad.utilidadPorUnidad > 0
+      ? Math.round((rentabilidad.utilidadPorUnidad / pesoLibras) * 100) / 100
+      : undefined;
+
+    // Alerta sin peso
+    if (!pesoLibras) {
+      alertas.push({
+        tipo: 'sin_peso',
+        severidad: 'info',
+        mensaje: 'Sin peso registrado — no aparece en métricas de eficiencia logística',
+        fechaCreacion: ahora,
+      });
+    }
+
     return {
       productoId: producto.id,
       sku: producto.sku,
@@ -687,6 +703,8 @@ export const productoIntelService = {
       rotacion,
       rentabilidad,
       liquidez,
+      pesoLibras,
+      margenPorLibra,
       leadTimePromedioDias: leadTime?.tiempoPromedioTotal,
       ultimaCompraFecha: leadTime?.ultimaCompra,
       alertas,
@@ -728,6 +746,15 @@ export const productoIntelService = {
       const alertas = this.generarAlertas(producto, rotacion, rentabilidad, liquidez);
       const leadTime = this.calcularLeadTimeProducto(producto.id, ordenesCompra);
 
+      const pesoLibras = producto.pesoLibras || undefined;
+      const margenPorLibra = pesoLibras && pesoLibras > 0 && rentabilidad.utilidadPorUnidad > 0
+        ? Math.round((rentabilidad.utilidadPorUnidad / pesoLibras) * 100) / 100
+        : undefined;
+
+      if (!pesoLibras) {
+        alertas.push({ tipo: 'sin_peso', severidad: 'info', mensaje: 'Sin peso registrado', fechaCreacion: ahora });
+      }
+
       return {
         productoId: producto.id,
         sku: producto.sku,
@@ -736,6 +763,8 @@ export const productoIntelService = {
         rotacion,
         rentabilidad,
         liquidez,
+        pesoLibras,
+        margenPorLibra,
         leadTimePromedioDias: leadTime?.tiempoPromedioTotal,
         ultimaCompraFecha: leadTime?.ultimaCompra,
         alertas,

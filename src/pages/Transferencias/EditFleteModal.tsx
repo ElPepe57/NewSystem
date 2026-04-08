@@ -120,7 +120,15 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
                           <span className="text-xs text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">{productoFull.sabor}</span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">{producto.sku} &middot; {producto.cantidad} unidades</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {producto.sku} &middot; {producto.cantidad} uds
+                        {productoFull?.pesoLibras ? ` · ${(productoFull.pesoLibras * unidadesCount).toFixed(2)} lb total (${productoFull.pesoLibras} lb/ud)` : ''}
+                      </p>
+                      {productoFull?.pesoLibras && fletePorUnidad > 0 && (
+                        <p className="text-xs text-blue-600 mt-0.5">
+                          ${(fletePorUnidad / productoFull.pesoLibras).toFixed(2)} USD/lb
+                        </p>
+                      )}
                     </div>
                     <div className="flex-shrink-0 w-40">
                       <label className="block text-xs text-gray-500 mb-1">Flete por unidad (USD)</label>

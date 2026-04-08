@@ -110,6 +110,8 @@ export async function create(
     const lineaNegocioNombres: Record<string, string> = {};
     const paisesOrigen: string[] = [];
 
+    let pesoTotalEstimadoLb = 0;
+
     for (const prod of data.productos) {
       const producto = await ProductoService.getById(prod.productoId);
       if (!producto) throw new Error(`Producto ${prod.productoId} no encontrado`);
@@ -117,7 +119,7 @@ export async function create(
       const subtotal = prod.cantidad * prod.costoUnitario;
       subtotalUSD += subtotal;
 
-      productosOrden.push({
+      const prodOrden: ProductoOrden = {
         productoId: prod.productoId,
         sku: producto.sku,
         marca: producto.marca,
@@ -126,7 +128,12 @@ export async function create(
         cantidad: prod.cantidad,
         costoUnitario: prod.costoUnitario,
         subtotal
-      });
+      };
+      if (producto.pesoLibras && producto.pesoLibras > 0) {
+        prodOrden.pesoLibras = producto.pesoLibras;
+        pesoTotalEstimadoLb += producto.pesoLibras * prod.cantidad;
+      }
+      productosOrden.push(prodOrden);
 
       if (producto.lineaNegocioId) {
         lineaNegocioIds.push(producto.lineaNegocioId);
@@ -168,6 +175,7 @@ export async function create(
       fechaCreacion: serverTimestamp()
     };
 
+    if (pesoTotalEstimadoLb > 0) nuevaOrden.pesoTotalEstimadoLb = Math.round(pesoTotalEstimadoLb * 100) / 100;
     if (impuesto > 0) nuevaOrden.impuestoCompraUSD = impuesto;
     if (gastosEnvio > 0) nuevaOrden.costoEnvioProveedorUSD = gastosEnvio;
     if (otrosGastos > 0) nuevaOrden.otrosGastosCompraUSD = otrosGastos;

@@ -257,6 +257,9 @@ export class ProductoService {
       if (data.sabor) {
         newProducto.sabor = data.sabor;
       }
+      if (data.pesoLibras != null && data.pesoLibras > 0) {
+        newProducto.pesoLibras = data.pesoLibras;
+      }
       if (data.servingsPerDay !== undefined && data.servingsPerDay !== null) {
         newProducto.servingsPerDay = data.servingsPerDay;
       }
@@ -586,12 +589,14 @@ export class ProductoService {
       etiquetaIds?: string[];
       stockMinimo?: number;
       stockMaximo?: number;
+      pesoLibras?: number;
     },
     variantes: {
       contenido: string;
       sabor?: string;
       dosaje?: string;
       volumen?: string;
+      pesoLibras?: number;
       varianteLabel: string;
     }[],
     userId: string
@@ -683,6 +688,10 @@ export class ProductoService {
         creadoPor: userId,
         fechaCreacion: serverTimestamp(),
       };
+
+      // Peso: variante override o herencia del grupo
+      const pesoVariante = v.pesoLibras ?? datosComunes.pesoLibras;
+      if (pesoVariante != null && pesoVariante > 0) docData.pesoLibras = pesoVariante;
 
       // Optional fields
       if (datosComunes.paisOrigen) docData.paisOrigen = datosComunes.paisOrigen;

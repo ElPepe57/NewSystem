@@ -452,6 +452,13 @@ export default function EstadoResultados() {
                 indent={2}
               />
             )}
+            {estado.costosVariables.gv.comisionesVendedores > 0 && (
+              <LineaResultado
+                label="Comisiones vendedores"
+                valor={estado.costosVariables.gv.comisionesVendedores}
+                indent={2}
+              />
+            )}
             {estado.costosVariables.gv.marketingPublicidad > 0 && (
               <LineaResultado
                 label="Marketing y publicidad"

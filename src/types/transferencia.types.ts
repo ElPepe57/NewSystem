@@ -79,6 +79,8 @@ export interface Transferencia {
   // registramos el costo total de esta transferencia
   costoFleteTotal?: number;          // Suma de todos los fletes
   monedaFlete?: 'USD' | 'PEN';
+  pesoTotalLibras?: number;          // Suma de pesoLibras de todas las unidades
+  costoFletePorLibra?: number;       // costoFleteTotal / pesoTotalLibras
 
   // === PAGO AL VIAJERO ===
   estadoPagoViajero?: 'pendiente' | 'parcial' | 'pagado';
@@ -175,6 +177,7 @@ export interface TransferenciaUnidad {
 
   // Costo de flete de esta unidad (del Producto.costoFleteUSAPeru)
   costoFleteUSD: number;
+  pesoLibras?: number;               // Desnormalizado del producto
 
   // Estado en esta transferencia
   estadoTransferencia: 'pendiente' | 'preparada' | 'enviada' | 'recibida' | 'faltante' | 'danada';

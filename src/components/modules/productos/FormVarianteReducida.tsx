@@ -15,6 +15,7 @@ export interface VarianteReducidaData {
   contenido: string;
   sabor: string;
   dosaje: string;
+  pesoLibras?: number;
   varianteLabel: string;
   stockMinimo: number;
 }
@@ -33,6 +34,7 @@ export const FormVarianteReducida: React.FC<FormVarianteReducidaProps> = ({
   const [contenido, setContenido] = useState('');
   const [sabor, setSabor] = useState('');
   const [dosaje, setDosaje] = useState(grupoProducto.dosaje || '');
+  const [pesoLibras, setPesoLibras] = useState<number | undefined>(grupoProducto.pesoLibras);
   const [stockMinimo, setStockMinimo] = useState(10);
   const [submitting, setSubmitting] = useState(false);
 
@@ -47,6 +49,7 @@ export const FormVarianteReducida: React.FC<FormVarianteReducidaProps> = ({
         contenido: contenido.trim(),
         sabor: sabor.trim(),
         dosaje: dosaje.trim(),
+        pesoLibras,
         varianteLabel: varianteLabel || contenido.trim(),
         stockMinimo,
       });
@@ -135,6 +138,22 @@ export const FormVarianteReducida: React.FC<FormVarianteReducidaProps> = ({
             placeholder="Ej: 1000mg, 5mg"
             className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Peso (lb) <span className="text-gray-400">(hereda del grupo)</span>
+          </label>
+          <input
+            type="number"
+            value={pesoLibras ?? ''}
+            onChange={(e) => setPesoLibras(e.target.value ? parseFloat(e.target.value) : undefined)}
+            placeholder="Ej: 0.5, 1.2, 5.0"
+            step="0.01"
+            min="0"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+          />
+          <p className="text-xs text-gray-400 mt-1">Peso por unidad en libras</p>
         </div>
 
         <div>

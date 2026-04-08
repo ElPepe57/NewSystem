@@ -474,6 +474,7 @@ function calcularCompras(
  */
 function calcularGV(ventas: Venta[], gastos: Gasto[]): GastosVenta {
   let comisionesPlataformas = 0;
+  let comisionesVendedores = 0;
   let marketingPublicidad = 0;
   let otros = 0;
 
@@ -492,6 +493,8 @@ function calcularGV(ventas: Venta[], gastos: Gasto[]): GastosVenta {
         marketingPublicidad += g.montoPEN;
       } else if (g.tipo === 'comision_ml') {
         comisionesPlataformas += g.montoPEN;
+      } else if (g.tipo === 'comision_vendedor') {
+        comisionesVendedores += g.montoPEN;
       } else {
         otros += g.montoPEN;
       }
@@ -499,9 +502,10 @@ function calcularGV(ventas: Venta[], gastos: Gasto[]): GastosVenta {
 
   return {
     comisionesPlataformas,
+    comisionesVendedores,
     marketingPublicidad,
     otros,
-    total: comisionesPlataformas + marketingPublicidad + otros
+    total: comisionesPlataformas + comisionesVendedores + marketingPublicidad + otros
   };
 }
 

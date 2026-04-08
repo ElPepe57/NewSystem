@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTipoCambio } from '../../hooks/useTipoCambio';
-import { useNavigate } from 'react-router-dom';
+
 import {
   Wallet,
   ArrowUpCircle,
@@ -10,13 +10,13 @@ import {
   TrendingUp,
   Building2,
   Banknote,
-  FileText,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Layers
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { TesoreriaService } from '../../services/tesoreria.service';
-import { cuentasPendientesService } from '../../services/cuentasPendientes.service';
+
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { useTesoreriaStore } from '../../store/tesoreriaStore';
@@ -29,8 +29,6 @@ import type {
   CuentaCajaFormData,
   TipoMovimientoTesoreria,
   MonedaTesoreria,
-  DashboardCuentasPendientes,
-  PendienteFinanciero,
   TransferenciaEntreCuentasFormData
 } from '../../types/tesoreria.types';
 
@@ -38,9 +36,9 @@ import { TabMovimientos } from './TabMovimientos';
 import { TabConversiones } from './TabConversiones';
 import { TabTransferencias } from './TabTransferencias';
 import { TabCuentas } from './TabCuentas';
-import { TabPendientes } from './TabPendientes';
+import { TabPagosMasivos } from './TabPagosMasivos';
 
-type TabActiva = 'movimientos' | 'conversiones' | 'transferencias' | 'cuentas' | 'pendientes';
+type TabActiva = 'movimientos' | 'conversiones' | 'transferencias' | 'cuentas' | 'pagosMasivos';
 
 interface TransferenciaEntreCuentas {
   id: string;
@@ -70,7 +68,6 @@ export const Tesoreria: React.FC = () => {
     loading: loadingStore,
     fetchAll: storeFetchAll
   } = useTesoreriaStore();
-  const navigate = useNavigate();
 
   // Filtrar movimientos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
   const movimientosFiltrados = useLineaFilter(movimientos, m => m.lineaNegocioId, { allowUndefined: true });
@@ -80,9 +77,6 @@ export const Tesoreria: React.FC = () => {
   const loading = loadingStore || loadingLocal;
 
   const [transferencias, setTransferencias] = useState<TransferenciaEntreCuentas[]>([]);
-  const [dashboardPendientes, setDashboardPendientes] = useState<DashboardCuentasPendientes | null>(null);
-  const [loadingPendientes, setLoadingPendientes] = useState(false);
-
   // Modales
   const [isMovimientoModalOpen, setIsMovimientoModalOpen] = useState(false);
   const [isConversionModalOpen, setIsConversionModalOpen] = useState(false);
@@ -145,9 +139,6 @@ export const Tesoreria: React.FC = () => {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await loadData();
-    if (tabActiva === 'pendientes') {
-      await loadPendientes();
-    }
     setIsRefreshing(false);
   };
 
@@ -170,18 +161,6 @@ export const Tesoreria: React.FC = () => {
       toast.error(error.message, 'Error al recalcular');
     } finally {
       setIsRecalculando(false);
-    }
-  };
-
-  const loadPendientes = async () => {
-    setLoadingPendientes(true);
-    try {
-      const dashboard = await cuentasPendientesService.getDashboard();
-      setDashboardPendientes(dashboard);
-    } catch (error) {
-      console.error('Error cargando pendientes:', error);
-    } finally {
-      setLoadingPendientes(false);
     }
   };
 
@@ -600,15 +579,6 @@ export const Tesoreria: React.FC = () => {
     }
   };
 
-  const handleNavigarPendiente = (pendiente: PendienteFinanciero) => {
-    switch (pendiente.tipo) {
-      case 'venta_por_cobrar': navigate(`/ventas?ventaId=${pendiente.documentoId}`); break;
-      case 'orden_compra_por_pagar': navigate(`/compras?ocId=${pendiente.documentoId}`); break;
-      case 'gasto_por_pagar': navigate(`/gastos?gastoId=${pendiente.documentoId}`); break;
-      case 'viajero_por_pagar': navigate(`/transferencias?transferenciaId=${pendiente.documentoId}`); break;
-      default: console.warn('Tipo de pendiente no soportado:', pendiente.tipo);
-    }
-  };
 
   // ============ Computed values ============
   const saldosCorridos = useMemo(() => {
@@ -908,14 +878,11 @@ export const Tesoreria: React.FC = () => {
             { key: 'conversiones', icon: RefreshCw, label: 'Conversiones', labelSm: 'Conv.' },
             { key: 'transferencias', icon: ArrowLeftRight, label: 'Transferencias', labelSm: 'Transf.' },
             { key: 'cuentas', icon: Building2, label: 'Cuentas', labelSm: 'Ctas.' },
-            { key: 'pendientes', icon: FileText, label: 'CxP/CxC', labelSm: 'CxP' },
+            { key: 'pagosMasivos', icon: Layers, label: 'Pagos Masivos', labelSm: 'Lotes' },
           ] as { key: TabActiva; icon: any; label: string; labelSm: string }[]).map(({ key, icon: Icon, label, labelSm }) => (
             <button
               key={key}
-              onClick={() => {
-                setTabActiva(key);
-                if (key === 'pendientes' && !dashboardPendientes) loadPendientes();
-              }}
+              onClick={() => setTabActiva(key)}
               className={`flex-1 sm:flex-none py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center justify-center sm:justify-start gap-1 sm:gap-2 ${
                 tabActiva === key
                   ? 'border-primary-500 text-primary-600'
@@ -925,12 +892,6 @@ export const Tesoreria: React.FC = () => {
               <Icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
               <span className="hidden sm:inline">{label}</span>
               <span className="sm:hidden">{labelSm}</span>
-              {key === 'pendientes' && dashboardPendientes &&
-                (dashboardPendientes.cuentasPorCobrar.cantidadDocumentos + dashboardPendientes.cuentasPorPagar.cantidadDocumentos) > 0 && (
-                <span className="px-1 sm:px-2 py-0.5 text-[10px] sm:text-xs rounded-full bg-orange-100 text-orange-800">
-                  {dashboardPendientes.cuentasPorCobrar.cantidadDocumentos + dashboardPendientes.cuentasPorPagar.cantidadDocumentos}
-                </span>
-              )}
             </button>
           ))}
         </nav>
@@ -1011,13 +972,8 @@ export const Tesoreria: React.FC = () => {
         />
       )}
 
-      {tabActiva === 'pendientes' && (
-        <TabPendientes
-          dashboardPendientes={dashboardPendientes}
-          loadingPendientes={loadingPendientes}
-          loadPendientes={loadPendientes}
-          handleNavigarPendiente={handleNavigarPendiente}
-        />
+      {tabActiva === 'pagosMasivos' && (
+        <TabPagosMasivos />
       )}
 
       <ConfirmDialog {...dialogProps} />

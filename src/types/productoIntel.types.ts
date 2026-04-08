@@ -145,6 +145,10 @@ export interface ProductoIntel {
   rentabilidad: MetricasRentabilidad;
   liquidez: ScoreLiquidez;
 
+  // Peso y eficiencia logística
+  pesoLibras?: number;
+  margenPorLibra?: number;            // (precioVenta - ctru) / pesoLibras
+
   // Lead time (si tiene OC historicas)
   leadTimePromedioDias?: number;
   ultimaCompraFecha?: Date;
@@ -170,7 +174,8 @@ export interface AlertaProductoIntel {
     | 'margen_bajo'             // Margen por debajo del objetivo
     | 'tendencia_negativa'      // Ventas cayendo
     | 'oportunidad_reposicion'  // Alta rotacion + bajo stock
-    | 'sobre_stock';            // Stock muy por encima de la demanda
+    | 'sobre_stock'             // Stock muy por encima de la demanda
+    | 'sin_peso';               // Producto sin pesoLibras registrado
 
   severidad: 'info' | 'warning' | 'danger';
   mensaje: string;

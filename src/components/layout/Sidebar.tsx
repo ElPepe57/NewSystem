@@ -33,8 +33,8 @@ import {
   BrainCircuit,
   Palette,
   Target,
-  Layers,
-  MapPin
+  MapPin,
+  Banknote
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
@@ -95,8 +95,8 @@ const menuGroups: MenuGroup[] = [
       { icon: Receipt, label: 'Gastos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
       { icon: Wallet, label: 'Tesorería', path: '/tesoreria', permiso: PERMISOS.VER_TESORERIA },
       { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
+      { icon: Banknote, label: 'Planilla', path: '/planilla', permiso: PERMISOS.VER_PLANILLA },
       { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
-      { icon: Layers, label: 'Pagos Masivos', path: '/pagos-masivos', permiso: PERMISOS.VER_TESORERIA },
     ]
   },
   {

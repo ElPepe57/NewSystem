@@ -28,6 +28,8 @@ export interface RendimientoViajero {
   tasaIntegridad: number; // %
   montoPendientePagoUSD: number;
   costoFleteTotal: number;
+  pesoTotalTransportadoLb: number;    // Suma de pesoLibras de todas las unidades
+  costoPromedioPorLibra: number;      // costoFleteTotal / pesoTotalTransportadoLb
   ultimoEnvio: Date | null;
   transferencias: TransferenciaResumen[];
 }
@@ -37,10 +39,12 @@ export interface TransferenciaResumen {
   numero: string;
   fecha: Date;
   unidades: number;
+  pesoTotalLb?: number;
   diasTransito: number | null;
   aTiempo: boolean | null;
   costoFlete: number;
   tarifaPorUnidad: number;
+  costoFletePorLibra?: number;
   estado: string;
   danadas: number;
   faltantes: number;
@@ -53,6 +57,8 @@ export interface ResumenLogistica {
   tasaCumplimientoGlobal: number;
   tarifaPromedioGlobal: number;
   costoFleteTotal: number;
+  pesoTotalTransportadoLb: number;
+  costoPromedioPorLibraGlobal: number;
   viajeros: RendimientoViajero[];
 }
 
@@ -90,6 +96,7 @@ export const logisticaReporteService = {
       let totalEnviosConFecha = 0;
       let costoFleteGlobal = 0;
       let totalUnidadesGlobal = 0;
+      let pesoTotalGlobal = 0;
 
       for (const [key, trfs] of viajeroMap) {
         const almacen = almacenes.find(a =>
@@ -102,6 +109,7 @@ export const logisticaReporteService = {
         // Acumulados globales
         costoFleteGlobal += resultado.costoFleteTotal;
         totalUnidadesGlobal += resultado.unidadesTransportadas;
+        pesoTotalGlobal += resultado.pesoTotalTransportadoLb;
 
         for (const t of resultado.transferencias) {
           if (t.diasTransito != null) {
@@ -125,6 +133,8 @@ export const logisticaReporteService = {
         tasaCumplimientoGlobal: totalEnviosConFecha > 0 ? (totalATiempo / totalEnviosConFecha) * 100 : 0,
         tarifaPromedioGlobal: totalUnidadesGlobal > 0 ? costoFleteGlobal / totalUnidadesGlobal : 0,
         costoFleteTotal: costoFleteGlobal,
+        pesoTotalTransportadoLb: Math.round(pesoTotalGlobal * 100) / 100,
+        costoPromedioPorLibraGlobal: pesoTotalGlobal > 0 ? Math.round((costoFleteGlobal / pesoTotalGlobal) * 100) / 100 : 0,
         viajeros,
       };
     } catch (error) {
@@ -149,6 +159,7 @@ function calcularRendimientoViajero(
   let enviosConDias = 0;
   let totalFlete = 0;
   let totalUnidades = 0;
+  let totalPesoLb = 0;
   let totalRecibidas = 0;
   let totalDanadas = 0;
   let totalFaltantes = 0;
@@ -181,6 +192,7 @@ function calcularRendimientoViajero(
     const uds = t.totalUnidades || 0;
     totalFlete += flete;
     totalUnidades += uds;
+    totalPesoLb += t.pesoTotalLibras || 0;
     totalRecibidas += t.totalUnidadesRecibidas || 0;
     totalDanadas += t.totalUnidadesDanadas || 0;
     totalFaltantes += t.totalUnidadesFaltantes || 0;
@@ -194,15 +206,19 @@ function calcularRendimientoViajero(
       ultimoEnvio = fecha;
     }
 
+    const pesoEnvio = t.pesoTotalLibras || 0;
+
     resumenTransferencias.push({
       id: t.id,
       numero: t.numeroTransferencia,
       fecha: fecha || new Date(),
       unidades: uds,
+      pesoTotalLb: pesoEnvio > 0 ? pesoEnvio : undefined,
       diasTransito: dias,
       aTiempo,
       costoFlete: flete,
       tarifaPorUnidad: uds > 0 ? flete / uds : 0,
+      costoFletePorLibra: pesoEnvio > 0 && flete > 0 ? Math.round((flete / pesoEnvio) * 100) / 100 : undefined,
       estado: t.estado,
       danadas: t.totalUnidadesDanadas || 0,
       faltantes: t.totalUnidadesFaltantes || 0,
@@ -232,6 +248,8 @@ function calcularRendimientoViajero(
     tasaIntegridad: totalUnidades > 0 ? (integridadBase / totalUnidades) * 100 : 0,
     montoPendientePagoUSD: montoPendiente,
     costoFleteTotal: totalFlete,
+    pesoTotalTransportadoLb: Math.round(totalPesoLb * 100) / 100,
+    costoPromedioPorLibra: totalPesoLb > 0 ? Math.round((totalFlete / totalPesoLb) * 100) / 100 : 0,
     ultimoEnvio,
     transferencias: resumenTransferencias,
   };

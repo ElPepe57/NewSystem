@@ -19,6 +19,8 @@ export type TipoGasto =
   | 'comision_ml'               // GV: Comisión Mercado Libre
   | 'comision_pasarela'         // GV: Comisión pasarela de pago
   | 'comision_vendedor'         // GV: Comisión vendedor
+  // PLANILLA
+  | 'nomina'                     // GA: Sueldo/planilla de empleado
   // PÉRDIDAS DE INVENTARIO
   | 'merma_transferencia'       // Pérdida por daño en transferencia (cuenta 6952)
   | 'merma_vencimiento'         // Pérdida por vencimiento de producto (cuenta 6951)
@@ -216,6 +218,7 @@ export const TIPOS_GASTO_LABELS: Record<TipoGasto, string> = {
   merma_transferencia: 'Merma en Transferencia',
   merma_vencimiento: 'Merma por Vencimiento',
   desmedro: 'Desmedro',
+  nomina: 'Nómina / Planilla',
   otros: 'Otros'
 };
 
@@ -272,6 +275,10 @@ export interface PagoGasto {
   errorTesoreria?: boolean;          // true si falló el registro en tesorería
   errorTesoreriaMsg?: string;        // Mensaje de error para reconciliación
   cuentaOrigenNombre?: string;       // Desnormalizado para reportes (DATA-001 fix)
+
+  // Pago masivo (trazabilidad de lote)
+  lotePagoId?: string;
+  esPagoMasivo?: boolean;
 
   // Auditoría
   registradoPor: string;

@@ -314,8 +314,9 @@ export const transferenciaService = {
       }
     }
 
-    // Segunda pasada: calcular costo de flete por unidad basado en el flete por producto
+    // Segunda pasada: calcular costo de flete por unidad y obtener peso del producto
     let costoFleteTotal = 0;
+    let pesoTotalLibras = 0;
 
     for (const [productoId, grupo] of unidadesPorProducto) {
       // Obtener el costo de flete total para este producto (ingresado por el usuario)
@@ -325,9 +326,20 @@ export const transferenciaService = {
 
       costoFleteTotal += costoFleteProducto;
 
+      // Obtener peso del producto (si existe)
+      let pesoLibrasProducto: number | undefined;
+      try {
+        const producto = await ProductoService.getById(productoId);
+        pesoLibrasProducto = producto?.pesoLibras;
+      } catch { /* silenciar — peso es informativo */ }
+
+      if (pesoLibrasProducto && pesoLibrasProducto > 0) {
+        pesoTotalLibras += pesoLibrasProducto * grupo.count;
+      }
+
       // Agregar cada unidad con su costo de flete calculado
       for (const unidadData of grupo.unidades) {
-        unidades.push({
+        const tu: any = {
           unidadId: unidadData.id,
           productoId: unidadData.productoId,
           sku: unidadData.productoSKU,
@@ -336,7 +348,11 @@ export const transferenciaService = {
           fechaVencimiento: unidadData.fechaVencimiento,
           costoFleteUSD: costoPorUnidad,
           estadoTransferencia: 'pendiente'
-        });
+        };
+        if (pesoLibrasProducto && pesoLibrasProducto > 0) {
+          tu.pesoLibras = pesoLibrasProducto;
+        }
+        unidades.push(tu);
       }
     }
 
@@ -379,6 +395,14 @@ export const transferenciaService = {
     if (esTipoTransferenciaInternacional(data.tipo)) {
       nuevaTransferencia.costoFleteTotal = costoFleteTotal;
       nuevaTransferencia.monedaFlete = 'USD';
+    }
+
+    // Peso total del envío (si hay productos con peso registrado)
+    if (pesoTotalLibras > 0) {
+      nuevaTransferencia.pesoTotalLibras = Math.round(pesoTotalLibras * 100) / 100;
+      if (costoFleteTotal > 0) {
+        nuevaTransferencia.costoFletePorLibra = Math.round((costoFleteTotal / pesoTotalLibras) * 100) / 100;
+      }
     }
 
     if (data.motivo) {

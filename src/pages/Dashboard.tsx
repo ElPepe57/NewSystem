@@ -35,6 +35,7 @@ import {
 } from '../components/modules/dashboard';
 import type { ActividadItem, TipoActividad } from '../components/modules/dashboard';
 import { MapaVentasWidget } from '../components/modules/dashboard/MapaVentasWidget';
+import { EficienciaImportacionWidget } from '../components/modules/dashboard/EficienciaImportacionWidget';
 import { useProductoStore } from '../store/productoStore';
 import { useInventarioStore } from '../store/inventarioStore';
 import { useVentaStore } from '../store/ventaStore';
@@ -1205,6 +1206,11 @@ export const Dashboard: React.FC = () => {
             </div>
           )}
         </Card>
+      </div>
+
+      {/* Eficiencia de Importación */}
+      <div className="hidden sm:grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+        <EficienciaImportacionWidget />
       </div>
 
       {/* Top Productos y Ventas por Canal (widgets nuevos) */}

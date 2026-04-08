@@ -65,7 +65,13 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
             {producto.presentacion} · {producto.dosaje} · {producto.contenido}
+            {producto.pesoLibras ? ` · ${producto.pesoLibras} lb` : ''}
           </p>
+          {!producto.pesoLibras && (
+            <p className="text-xs text-amber-600 mt-0.5 flex items-center gap-1">
+              <Box className="h-3 w-3" /> Sin peso registrado
+            </p>
+          )}
           {producto.codigoUPC && (
             <p className="text-xs text-gray-400 mt-1 font-mono">
               UPC: {producto.codigoUPC}

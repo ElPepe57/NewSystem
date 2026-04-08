@@ -134,6 +134,7 @@ export interface ProductoOrden {
   cantidad: number;
   costoUnitario: number;    // Precio por unidad en USD
   subtotal: number;         // cantidad × costoUnitario
+  pesoLibras?: number;      // Peso por unidad en lb (desnormalizado del producto)
   cantidadRecibida?: number; // Acumulado de unidades recibidas (0 por defecto)
   // Viajero destino (para distribución multi-viajero)
   viajeroId?: string;       // ID del almacén tipo viajero
@@ -177,6 +178,10 @@ export interface PagoOrdenCompra {
   movimientoTesoreriaId?: string;   // ID del movimiento en tesorería
   errorTesoreria?: boolean;          // true si falló el registro en tesorería
   errorTesoreriaMsg?: string;        // Mensaje de error para reconciliación
+
+  // Pago masivo (trazabilidad de lote)
+  lotePagoId?: string;
+  esPagoMasivo?: boolean;
 
   // Auditoría
   registradoPor: string;
@@ -229,6 +234,7 @@ export interface OrdenCompra {
   otrosGastosCompraUSD?: number;        // Otros gastos de la compra (handling, seguros, etc.)
   descuentoUSD?: number;                // Descuento general
   totalUSD: number;                     // subtotal + impuesto + envío + otros - descuento
+  pesoTotalEstimadoLb?: number;         // SUM(pesoLibras × cantidad) de todos los productos
 
   // Modo de entrega
   modoEntrega?: 'viajero' | 'envio_directo'; // Cómo llega a Perú

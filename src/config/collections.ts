@@ -90,6 +90,13 @@ export const COLLECTIONS = {
   // === Devoluciones ===
   DEVOLUCIONES: 'devoluciones',
 
+  // === Pagos Masivos ===
+  LOTES_PAGOS: 'lotePagos',
+
+  // === Planilla ===
+  BOLETAS: 'boletas',
+  ADELANTOS_NOMINA: 'adelantosNomina',
+
   // === Contabilidad ===
   CIERRES_CONTABLES: 'cierresContables',
 

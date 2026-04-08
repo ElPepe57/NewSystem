@@ -287,6 +287,29 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
           </div>
         )}
 
+        {/* Métricas de Peso (solo si tiene pesoTotalLibras) */}
+        {esTipoTransferenciaInternacional(transferencia.tipo) && transferencia.pesoTotalLibras && transferencia.pesoTotalLibras > 0 && (
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <div className="text-xs text-gray-500 uppercase mb-2 font-semibold">Analisis por Peso</div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <div className="text-xs text-gray-500">Peso total</div>
+                <div className="font-semibold text-gray-900">{transferencia.pesoTotalLibras.toFixed(2)} lb</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Unidades</div>
+                <div className="font-semibold text-gray-900">{transferencia.totalUnidades}</div>
+              </div>
+              {transferencia.costoFletePorLibra && transferencia.costoFletePorLibra > 0 && (
+                <div>
+                  <div className="text-xs text-gray-500">Costo/lb</div>
+                  <div className="font-semibold text-blue-700">${transferencia.costoFletePorLibra.toFixed(2)} USD/lb</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Historial de Pagos al Viajero */}
         {esTipoTransferenciaInternacional(transferencia.tipo) && (() => {
           const pagos = transferencia.pagosViajero && transferencia.pagosViajero.length > 0

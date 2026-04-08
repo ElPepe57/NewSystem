@@ -116,8 +116,8 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
   // Estado de variantes para modo "con_variantes"
   const [variantesRows, setVariantesRows] = useState<VarianteRow[]>([
-    { id: 'v1', presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, varianteLabel: '', esPrincipal: true },
-    { id: 'v2', presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, varianteLabel: '', esPrincipal: false },
+    { id: 'v1', presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, pesoLibras: 0, varianteLabel: '', esPrincipal: true },
+    { id: 'v2', presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, pesoLibras: 0, varianteLabel: '', esPrincipal: false },
   ]);
 
   // Estado para crear/editar país inline
@@ -156,6 +156,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     stockMinimo: initialData?.stockMinimo || 10,
     stockMaximo: initialData?.stockMaximo || 100,
     costoFleteInternacional: initialData?.costoFleteInternacional ?? 0,
+    pesoLibras: initialData?.pesoLibras,
     // Ciclo de recompra
     servingsPerDay: initialData?.servingsPerDay,
     cicloRecompraDias: initialData?.cicloRecompraDias,
@@ -540,7 +541,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
-    } else if (['stockMinimo', 'stockMaximo', 'costoFleteInternacional', 'cicloRecompraDias', 'servingsPerDay'].includes(name)) {
+    } else if (['stockMinimo', 'stockMaximo', 'costoFleteInternacional', 'pesoLibras', 'cicloRecompraDias', 'servingsPerDay'].includes(name)) {
       setFormData(prev => ({ ...prev, [name]: value ? parseFloat(value) : undefined }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -574,9 +575,9 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    if (!formData.lineaNegocioId) return; // Línea de negocio obligatoria
     e.preventDefault();
-    onSubmit(formData);
+    // Bloqueador: nunca permitir submit nativo del form
+    // El guardado se dispara SOLO via onClick del botón "Crear/Actualizar Producto"
   };
 
   // Icono de tendencia
@@ -1043,13 +1044,25 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         createLabel="Crear contenido"
                       />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Input
                         label="Sabor (opcional)"
                         name="sabor"
                         value={formData.sabor}
                         onChange={handleChange}
                         placeholder="ej: Limon, Fresa, Natural, Sin sabor"
+                      />
+                      <Input
+                        label="Peso (lb)"
+                        name="pesoLibras"
+                        type="number"
+                        value={formData.pesoLibras ?? ''}
+                        onChange={handleChange}
+                        placeholder="ej: 0.5, 1.2, 5.0"
+                        helperText="Peso por unidad en libras"
+                        step="0.01"
+                        min="0.01"
+                        max="50"
                       />
                       <Input
                         label="Codigo UPC/EAN (opcional)"
@@ -1209,6 +1222,17 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         value={formData.atributosSkincare?.pa || ''}
                         onChange={(e) => updateSKC({ pa: e.target.value || undefined })}
                         placeholder="ej: PA++++"
+                      />
+                      <Input
+                        label="Peso (lb)"
+                        name="pesoLibras"
+                        type="number"
+                        value={formData.pesoLibras ?? ''}
+                        onChange={handleChange}
+                        placeholder="ej: 0.12, 0.25"
+                        helperText="Peso por unidad en libras"
+                        step="0.01"
+                        min="0.01"
                       />
                     </div>
 
@@ -1557,11 +1581,13 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                   etiquetaIds: formData.etiquetaIds,
                   stockMinimo: formData.stockMinimo,
                   stockMaximo: formData.stockMaximo,
+                  pesoLibras: formData.pesoLibras,
                 };
                 const variantes = variantesRows.map(v => ({
                   contenido: v.contenido,
                   sabor: v.sabor || undefined,
                   dosaje: v.dosaje || formData.dosaje || undefined,
+                  pesoLibras: v.pesoLibras || undefined,
                   varianteLabel: v.varianteLabel || v.contenido,
                 }));
                 onSubmitConVariantes(datosComunes, variantes);
@@ -1572,9 +1598,13 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             </Button>
           ) : (
             <Button
-              type="submit"
+              type="button"
               variant="primary"
               loading={loading}
+              onClick={() => {
+                if (!formData.lineaNegocioId) return;
+                onSubmit(formData);
+              }}
             >
               {initialData ? 'Actualizar' : 'Crear'} Producto
             </Button>

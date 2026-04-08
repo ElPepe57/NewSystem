@@ -63,7 +63,7 @@ export const METODOS_PAGO_INFO: Record<MetodoPagoUnificado, {
 // PAGO UNIFICADO (estructura base para todo el sistema)
 // ============================================
 
-export type OrigenPago = 'venta' | 'orden_compra' | 'gasto' | 'viajero' | 'otro';
+export type OrigenPago = 'venta' | 'orden_compra' | 'gasto' | 'viajero' | 'nomina' | 'adelanto' | 'otro';
 
 export interface PagoUnificado {
   id: string;

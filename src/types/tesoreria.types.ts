@@ -36,6 +36,9 @@ export type TipoMovimientoTesoreria =
   | 'conversion_usd_pen'      // Cambio de USD a PEN
   // Transferencias internas
   | 'transferencia_interna'   // Movimiento entre cuentas propias (no afecta patrimonio)
+  // Planilla
+  | 'pago_nomina'             // Pago de sueldo/boleta a empleado
+  | 'adelanto_empleado'       // Adelanto de sueldo a empleado
   // Ajustes
   | 'ajuste_positivo'         // Ajuste de caja positivo
   | 'ajuste_negativo';        // Ajuste de caja negativo

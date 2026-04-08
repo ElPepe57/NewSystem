@@ -68,6 +68,7 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
               <HeaderCell campo="rotacion" label="Rotacion" align="center" />
               <HeaderCell campo="stock" label="Stock" align="center" />
               <HeaderCell campo="margen" label="Margen" align="center" />
+              <HeaderCell campo="peso" label="Peso" align="center" />
               <HeaderCell campo="ventas30d" label="Ventas 30d" align="right" />
               <HeaderCell campo="tendencia" label="Tendencia" align="center" />
               <HeaderCell campo="valorInv" label="Valor Inv." align="right" />
@@ -156,6 +157,20 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
                         ROI {rentabilidad.roiPromedio}%
                       </p>
                     </div>
+                  </td>
+
+                  {/* Peso */}
+                  <td className="px-3 py-3 text-center">
+                    {producto.pesoLibras ? (
+                      <div>
+                        <p className="font-mono text-sm text-gray-700">{producto.pesoLibras.toFixed(2)} lb</p>
+                        {producto.margenPorLibra != null && producto.margenPorLibra > 0 && (
+                          <p className="text-xs text-indigo-600">{formatCurrency(producto.margenPorLibra)}/lb</p>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-300">—</span>
+                    )}
                   </td>
 
                   {/* Ventas 30d */}

@@ -10,6 +10,7 @@ export interface VarianteRow {
   sabor: string;
   codigoUPC: string;
   servingsPerDay: number;
+  pesoLibras: number;
   varianteLabel: string;
   esPrincipal: boolean;
 }
@@ -100,7 +101,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
   const addVariante = () => {
     onChange([
       ...variantes,
-      { id: genId(), presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, varianteLabel: '', esPrincipal: false },
+      { id: genId(), presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, pesoLibras: 0, varianteLabel: '', esPrincipal: false },
     ]);
   };
 
@@ -143,12 +144,13 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
       <div className="border border-gray-200 rounded-lg overflow-x-auto">
         <div className="min-w-[700px]">
         {/* Header */}
-        <div className="grid grid-cols-[40px_100px_90px_80px_80px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 bg-gray-50 border-b text-[10px] font-medium text-gray-500 uppercase">
+        <div className="grid grid-cols-[40px_100px_90px_80px_80px_60px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 bg-gray-50 border-b text-[10px] font-medium text-gray-500 uppercase">
           <div className="text-center">Ppal</div>
           <div>Presentación</div>
           <div>Contenido *</div>
           <div>{esSkincare ? 'Ingrediente' : 'Dosaje'}</div>
           <div>{esSkincare ? 'Tipo Piel' : 'Sabor'}</div>
+          <div>Peso(lb)</div>
           <div>UPC/EAN</div>
           <div>Porc/día</div>
           <div>Label</div>
@@ -157,7 +159,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
 
         {/* Rows */}
         {variantes.map((v) => (
-          <div key={v.id} className={`grid grid-cols-[40px_100px_90px_80px_80px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 items-center border-b last:border-0 ${v.esPrincipal ? 'bg-primary-50/50' : ''}`}>
+          <div key={v.id} className={`grid grid-cols-[40px_100px_90px_80px_80px_60px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 items-center border-b last:border-0 ${v.esPrincipal ? 'bg-primary-50/50' : ''}`}>
             <div className="text-center">
               <input
                 type="radio"
@@ -191,6 +193,17 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
               suggestions={sugerencias?.sabores}
               placeholder={ph.sabor || 'Sabor'}
             />
+            <div>
+              <input
+                type="number"
+                value={v.pesoLibras || ''}
+                onChange={(e) => updateVariante(v.id, 'pesoLibras', parseFloat(e.target.value) || 0)}
+                placeholder="lb"
+                step="0.01"
+                min="0"
+                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+              />
+            </div>
             <div>
               <input
                 type="text"

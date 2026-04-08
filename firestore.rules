@@ -440,6 +440,36 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // PLANILLA — Datos laborales privados (subcoleccion de users)
+    // Solo admin y gerente pueden leer/escribir datos laborales.
+    // ============================================================
+    match /users/{userId}/private/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente']);
+      allow write: if hasAnyRole(['admin', 'gerente']);
+    }
+
+    // ============================================================
+    // PLANILLA — Boletas de pago
+    // Admin, gerente y finanzas pueden leer; admin y gerente escriben.
+    // ============================================================
+    match /boletas/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow create: if hasAnyRole(['admin', 'gerente']);
+      allow update: if hasAnyRole(['admin', 'gerente']);
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================
+    // PLANILLA — Adelantos de nómina
+    // ============================================================
+    match /adelantosNomina/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow create: if hasAnyRole(['admin', 'gerente']);
+      allow update: if hasAnyRole(['admin', 'gerente']);
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================
     // SIN REGLA CATCH-ALL
     // Cualquier coleccion no listada arriba sera DENEGADA por defecto.
     // ============================================================

@@ -209,6 +209,14 @@
         { "fieldPath": "geocodingStatus", "order": "ASCENDING" },
         { "fieldPath": "fechaCreacion", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "ventas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "creadoPor", "order": "ASCENDING" },
+        { "fieldPath": "fechaVenta", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
