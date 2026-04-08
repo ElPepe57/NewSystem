@@ -1207,21 +1207,34 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Textura</label>
+                        <select
+                          value={formData.atributosSkincare?.textura || ''}
+                          onChange={(e) => updateSKC({ textura: (e.target.value || undefined) as TexturaSKC | undefined })}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
+                        >
+                          <option value="">Seleccionar...</option>
+                          {Object.entries(TEXTURA_LABELS).map(([key, label]) => (
+                            <option key={key} value={key}>{label}</option>
+                          ))}
+                        </select>
+                      </div>
                       <Input
                         label="SPF"
                         name="spf"
                         type="number"
                         value={formData.atributosSkincare?.spf || ''}
                         onChange={(e) => updateSKC({ spf: parseInt(e.target.value) || undefined })}
-                        placeholder="ej: 50 (solo protectores)"
+                        placeholder="ej: 50"
                       />
                       <Input
                         label="PA"
                         name="pa"
                         value={formData.atributosSkincare?.pa || ''}
                         onChange={(e) => updateSKC({ pa: e.target.value || undefined })}
-                        placeholder="ej: PA++++"
+                        placeholder="ej: ++++"
                       />
                       <Input
                         label="Peso (lb)"
