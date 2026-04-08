@@ -115,9 +115,20 @@ const ProductoCardResponsive: React.FC<{
           {/* Ficha descriptiva */}
           <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1 text-[10px] text-gray-500">
             {producto.presentacion && <span>{producto.presentacion}</span>}
-            {producto.dosaje && <span>· {producto.dosaje}</span>}
-            {producto.contenido && <span>· {producto.contenido}</span>}
-            {producto.sabor && <span>· {producto.sabor}</span>}
+            {producto.atributosSkincare ? (
+              <>
+                {producto.atributosSkincare.volumen && <span>· {producto.atributosSkincare.volumen}</span>}
+                {producto.atributosSkincare.ingredienteClave && <span>· {producto.atributosSkincare.ingredienteClave}</span>}
+                {producto.atributosSkincare.textura && <span>· {producto.atributosSkincare.textura}</span>}
+                {producto.atributosSkincare.spf && <span>· SPF{producto.atributosSkincare.spf} {producto.atributosSkincare.pa || ''}</span>}
+              </>
+            ) : (
+              <>
+                {producto.dosaje && <span>· {producto.dosaje}</span>}
+                {producto.contenido && <span>· {producto.contenido}</span>}
+                {producto.sabor && <span>· {producto.sabor}</span>}
+              </>
+            )}
           </div>
           {/* Conexión de grupo */}
           {producto.esVariante && (
@@ -640,9 +651,20 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                       <div className="text-xs text-gray-500 truncate max-w-[180px]">{producto.nombreComercial}</div>
                       <div className="text-[10px] text-gray-400 truncate">
                         {producto.presentacion && `${producto.presentacion}`}
-                        {producto.dosaje && ` · ${producto.dosaje}`}
-                        {producto.contenido && ` · ${producto.contenido}`}
-                        {producto.sabor && ` · ${producto.sabor}`}
+                        {producto.atributosSkincare ? (
+                          <>
+                            {producto.atributosSkincare.volumen && ` · ${producto.atributosSkincare.volumen}`}
+                            {producto.atributosSkincare.ingredienteClave && ` · ${producto.atributosSkincare.ingredienteClave}`}
+                            {producto.atributosSkincare.textura && ` · ${producto.atributosSkincare.textura}`}
+                            {producto.atributosSkincare.spf && ` · SPF${producto.atributosSkincare.spf} ${producto.atributosSkincare.pa || ''}`}
+                          </>
+                        ) : (
+                          <>
+                            {producto.dosaje && ` · ${producto.dosaje}`}
+                            {producto.contenido && ` · ${producto.contenido}`}
+                            {producto.sabor && ` · ${producto.sabor}`}
+                          </>
+                        )}
                       </div>
                       {producto.esVariante && (
                         <span className="text-[9px] text-blue-600 bg-blue-50 px-1 py-0.5 rounded border border-blue-200">
