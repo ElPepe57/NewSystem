@@ -111,7 +111,10 @@ export const VincularUPCModal: React.FC<VincularUPCModalProps> = ({
                   <p className="text-sm font-medium text-gray-900 truncate">
                     {p.marca} {p.nombreComercial}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 truncate">
+                    {[p.presentacion, p.dosaje, p.contenido].filter(Boolean).join(' · ')}
+                  </p>
+                  <p className="text-xs text-gray-400">
                     SKU: {p.sku}
                     {p.codigoUPC && <span className="ml-2 text-amber-600">UPC: {p.codigoUPC}</span>}
                   </p>
@@ -131,7 +134,10 @@ export const VincularUPCModal: React.FC<VincularUPCModalProps> = ({
             <p className="text-sm font-medium text-green-900">
               {selected.marca} {selected.nombreComercial}
             </p>
-            <p className="text-xs text-green-700">SKU: {selected.sku}</p>
+            <p className="text-xs text-green-700">
+              {[selected.presentacion, selected.dosaje, selected.contenido].filter(Boolean).join(' · ')}
+            </p>
+            <p className="text-xs text-green-600">SKU: {selected.sku}</p>
 
             {selected.codigoUPC && (
               <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 border border-amber-200 rounded">
