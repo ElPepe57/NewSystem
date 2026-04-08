@@ -211,7 +211,11 @@
       "Bash(dd if=/tmp/tc_page.html bs=1 skip=40020 count=200)",
       "Bash(tasklist /FI 'PID eq 11936')",
       "Bash(wmic process:*)",
-      "Bash(taskkill //PID 11936 //F)"
+      "Bash(taskkill //PID 11936 //F)",
+      "Bash(npm list:*)",
+      "Bash(find C:Usersjoselbusinessmn-v2src -type f \\\\\\(-name *[Ss]kincare* -o -name *SKC* -o -name *[Ss]kin*[Ff]orm* \\\\\\))",
+      "Bash(for f:*)",
+      "Bash(python3 -c ':*)"
     ],
     "deny": [],
     "ask": []
