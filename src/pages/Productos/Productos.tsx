@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, Filter, X, Package, Trash2, BarChart3 } from 'lucide-react';
 import { useToastStore } from '../../store/toastStore';
 import { Button, Card, Modal, GradientHeader } from '../../components/common';
@@ -60,7 +61,8 @@ export const Productos: React.FC = () => {
   const [parentProducto, setParentProducto] = useState<Producto | null>(null);
 
   // Filtros y búsqueda
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('buscar') || '');
   const [showFilters, setShowFilters] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -88,6 +90,14 @@ export const Productos: React.FC = () => {
 
   // Detectar si Ctrl está presionado para multiorden
   const [ctrlPressed, setCtrlPressed] = useState(false);
+
+  // Limpiar query param 'buscar' de la URL después de usarlo
+  useEffect(() => {
+    if (searchParams.has('buscar')) {
+      searchParams.delete('buscar');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Escuchar teclas Ctrl
   React.useEffect(() => {

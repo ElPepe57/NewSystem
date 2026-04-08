@@ -118,7 +118,7 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
         <div className="flex flex-col sm:flex-row gap-2 pt-1 sm:pt-2">
           <button
             type="button"
-            onClick={() => navigate('/productos')}
+            onClick={() => navigate(`/productos?buscar=${encodeURIComponent(producto.sku)}`)}
             className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-2 text-sm font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
           >
             <ExternalLink className="h-4 w-4" />
