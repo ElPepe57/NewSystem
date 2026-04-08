@@ -336,14 +336,33 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
         {producto.presentacion && (
           <span><span className="text-gray-400">Presentación:</span> {producto.presentacion}</span>
         )}
-        {producto.dosaje && (
-          <span><span className="text-gray-400">Dosaje:</span> {producto.dosaje}</span>
-        )}
-        {producto.contenido && (
-          <span><span className="text-gray-400">Contenido:</span> {producto.contenido}</span>
-        )}
-        {producto.sabor && (
-          <span><span className="text-gray-400">Sabor:</span> {producto.sabor}</span>
+        {producto.atributosSkincare ? (
+          <>
+            {producto.atributosSkincare.volumen && (
+              <span><span className="text-gray-400">Volumen:</span> {producto.atributosSkincare.volumen}</span>
+            )}
+            {producto.atributosSkincare.ingredienteClave && (
+              <span><span className="text-gray-400">Ingrediente:</span> {producto.atributosSkincare.ingredienteClave}</span>
+            )}
+            {producto.atributosSkincare.textura && (
+              <span><span className="text-gray-400">Textura:</span> {producto.atributosSkincare.textura}</span>
+            )}
+            {producto.atributosSkincare.spf && (
+              <span><span className="text-gray-400">SPF:</span> {producto.atributosSkincare.spf} {producto.atributosSkincare.pa || ''}</span>
+            )}
+          </>
+        ) : (
+          <>
+            {producto.dosaje && (
+              <span><span className="text-gray-400">Dosaje:</span> {producto.dosaje}</span>
+            )}
+            {producto.contenido && (
+              <span><span className="text-gray-400">Contenido:</span> {producto.contenido}</span>
+            )}
+            {producto.sabor && (
+              <span><span className="text-gray-400">Sabor:</span> {producto.sabor}</span>
+            )}
+          </>
         )}
         {producto.varianteLabel && (
           <span className="text-blue-600 font-medium">Variante: {producto.varianteLabel}</span>
