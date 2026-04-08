@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Package,
@@ -9,8 +9,12 @@ import {
   DollarSign,
   ExternalLink,
   ScanLine,
-  Box
+  Box,
+  Check,
+  Loader2
 } from 'lucide-react';
+import { ProductoService } from '../../../services/producto.service';
+import { useToastStore } from '../../../store/toastStore';
 import type { Producto } from '../../../types/producto.types';
 
 interface ProductoResultCardProps {
@@ -23,6 +27,10 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
   onScanAgain
 }) => {
   const navigate = useNavigate();
+  const toast = useToastStore();
+  const [pesoInput, setPesoInput] = useState('');
+  const [savingPeso, setSavingPeso] = useState(false);
+  const [pesoGuardado, setPesoGuardado] = useState(false);
 
   const stockItems = [
     { label: 'Destino', value: producto.stockPeru || 0, icon: MapPin, color: 'green' },
@@ -67,9 +75,46 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
             {producto.presentacion} · {producto.dosaje} · {producto.contenido}
             {producto.pesoLibras ? ` · ${producto.pesoLibras} lb` : ''}
           </p>
-          {!producto.pesoLibras && (
-            <p className="text-xs text-amber-600 mt-0.5 flex items-center gap-1">
-              <Box className="h-3 w-3" /> Sin peso registrado
+          {!producto.pesoLibras && !pesoGuardado && (
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <Box className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                placeholder="Peso (lb)"
+                value={pesoInput}
+                onChange={e => setPesoInput(e.target.value)}
+                className="w-20 px-2 py-1 text-xs border border-amber-300 rounded-md focus:ring-1 focus:ring-amber-400 focus:border-amber-400"
+              />
+              <button
+                type="button"
+                disabled={!pesoInput || Number(pesoInput) <= 0 || savingPeso}
+                onClick={async () => {
+                  const peso = Number(pesoInput);
+                  if (!peso || peso <= 0) return;
+                  setSavingPeso(true);
+                  try {
+                    await ProductoService.update(producto.id, { pesoLibras: peso } as any);
+                    producto.pesoLibras = peso;
+                    setPesoGuardado(true);
+                    toast.success(`Peso actualizado: ${peso} lb`);
+                  } catch {
+                    toast.error('Error al guardar peso');
+                  } finally {
+                    setSavingPeso(false);
+                  }
+                }}
+                className="px-2 py-1 text-xs font-medium text-white bg-amber-500 rounded-md hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+              >
+                {savingPeso ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                Guardar
+              </button>
+            </div>
+          )}
+          {pesoGuardado && (
+            <p className="text-xs text-green-600 mt-0.5 flex items-center gap-1">
+              <Check className="h-3 w-3" /> Peso registrado: {producto.pesoLibras} lb
             </p>
           )}
           {producto.codigoUPC && (
