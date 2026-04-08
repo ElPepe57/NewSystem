@@ -115,16 +115,16 @@ const ProductoCardResponsive: React.FC<{
           <div className="text-xs text-gray-600 truncate">{producto.nombreComercial}</div>
           {/* Ficha descriptiva */}
           <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1 text-[10px] text-gray-500">
-            {producto.presentacion && <span>{producto.presentacion}</span>}
             {producto.atributosSkincare ? (
               <>
-                {producto.atributosSkincare.volumen && <span>· {producto.atributosSkincare.volumen}</span>}
+                <span>{producto.atributosSkincare.volumen || producto.contenido}</span>
                 {producto.atributosSkincare.ingredienteClave && <span>· {producto.atributosSkincare.ingredienteClave}</span>}
                 {producto.atributosSkincare.textura && <span>· {TEXTURA_LABELS[producto.atributosSkincare.textura as TexturaSKC] || producto.atributosSkincare.textura}</span>}
                 {producto.atributosSkincare.spf && <span>· SPF{producto.atributosSkincare.spf} {producto.atributosSkincare.pa || ''}</span>}
               </>
             ) : (
               <>
+                {producto.presentacion && <span>{producto.presentacion}</span>}
                 {producto.dosaje && <span>· {producto.dosaje}</span>}
                 {producto.contenido && <span>· {producto.contenido}</span>}
                 {producto.sabor && <span>· {producto.sabor}</span>}
@@ -651,16 +651,16 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                       <div className="text-sm font-medium text-gray-900 truncate max-w-[180px]">{producto.marca}</div>
                       <div className="text-xs text-gray-500 truncate max-w-[180px]">{producto.nombreComercial}</div>
                       <div className="text-[10px] text-gray-400 truncate">
-                        {producto.presentacion && `${producto.presentacion}`}
                         {producto.atributosSkincare ? (
                           <>
-                            {producto.atributosSkincare.volumen && ` · ${producto.atributosSkincare.volumen}`}
+                            {producto.atributosSkincare.volumen || producto.contenido}
                             {producto.atributosSkincare.ingredienteClave && ` · ${producto.atributosSkincare.ingredienteClave}`}
                             {producto.atributosSkincare.textura && ` · ${TEXTURA_LABELS[producto.atributosSkincare.textura as TexturaSKC] || producto.atributosSkincare.textura}`}
                             {producto.atributosSkincare.spf && ` · SPF${producto.atributosSkincare.spf} ${producto.atributosSkincare.pa || ''}`}
                           </>
                         ) : (
                           <>
+                            {producto.presentacion && `${producto.presentacion}`}
                             {producto.dosaje && ` · ${producto.dosaje}`}
                             {producto.contenido && ` · ${producto.contenido}`}
                             {producto.sabor && ` · ${producto.sabor}`}

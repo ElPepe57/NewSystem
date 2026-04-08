@@ -333,14 +333,9 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
 
       {/* ============ FICHA DESCRIPTIVA ============ */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 px-1">
-        {producto.presentacion && (
-          <span><span className="text-gray-400">Presentación:</span> {producto.presentacion}</span>
-        )}
         {producto.atributosSkincare ? (
           <>
-            {producto.atributosSkincare.volumen && (
-              <span><span className="text-gray-400">Volumen:</span> {producto.atributosSkincare.volumen}</span>
-            )}
+            <span><span className="text-gray-400">Volumen:</span> {producto.atributosSkincare.volumen || producto.contenido}</span>
             {producto.atributosSkincare.ingredienteClave && (
               <span><span className="text-gray-400">Ingrediente:</span> {producto.atributosSkincare.ingredienteClave}</span>
             )}
@@ -353,6 +348,9 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           </>
         ) : (
           <>
+            {producto.presentacion && (
+              <span><span className="text-gray-400">Presentación:</span> {producto.presentacion}</span>
+            )}
             {producto.dosaje && (
               <span><span className="text-gray-400">Dosaje:</span> {producto.dosaje}</span>
             )}
