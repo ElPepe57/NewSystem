@@ -15,10 +15,11 @@ import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
 import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../utils/multiOrigen.helpers';
 import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../../utils/dateFormatters';
 import { formatCurrency } from '../../../utils/format';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 interface UnidadCardProps {
   unidad: Unidad;
-  productoInfo?: { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string };
+  productoInfo?: { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string; atributosSkincare?: any };
   onVerDetalle: () => void;
 }
 
@@ -94,9 +95,9 @@ export const UnidadCard: React.FC<UnidadCardProps> = ({
             <div className="text-sm text-gray-600 truncate">
               {unidad.productoNombre || '-'}
             </div>
-            {productoInfo && (productoInfo.presentacion || productoInfo.contenido || productoInfo.dosaje || productoInfo.sabor) && (
+            {productoInfo && getDescripcionProducto(productoInfo) && (
               <div className="text-[10px] text-gray-400 truncate">
-                {[productoInfo.presentacion, productoInfo.contenido, productoInfo.dosaje, productoInfo.sabor].filter(Boolean).join(' · ')}
+                {getDescripcionProducto(productoInfo)}
               </div>
             )}
           </div>

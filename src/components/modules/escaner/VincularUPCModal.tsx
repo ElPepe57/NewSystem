@@ -5,6 +5,7 @@ import { ProductoService } from '../../../services/producto.service';
 import { useProductoStore } from '../../../store/productoStore';
 import { useToastStore } from '../../../store/toastStore';
 import type { Producto } from '../../../types/producto.types';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 interface VincularUPCModalProps {
   isOpen: boolean;
@@ -112,7 +113,7 @@ export const VincularUPCModal: React.FC<VincularUPCModalProps> = ({
                     {p.marca} {p.nombreComercial}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
-                    {[p.presentacion, p.dosaje, p.contenido].filter(Boolean).join(' · ')}
+                    {getDescripcionProducto(p)}
                   </p>
                   <p className="text-xs text-gray-400">
                     SKU: {p.sku}
@@ -135,7 +136,7 @@ export const VincularUPCModal: React.FC<VincularUPCModalProps> = ({
               {selected.marca} {selected.nombreComercial}
             </p>
             <p className="text-xs text-green-700">
-              {[selected.presentacion, selected.dosaje, selected.contenido].filter(Boolean).join(' · ')}
+              {getDescripcionProducto(selected)}
             </p>
             <p className="text-xs text-green-600">SKU: {selected.sku}</p>
 

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { formatCurrency } from '../../../utils/format';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import {
   ChevronDown,
   ChevronRight,
@@ -388,7 +389,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
                             {producto.marca} · {producto.nombre}
                           </div>
                           <div className="text-xs text-gray-400">
-                            {[producto.presentacion, producto.contenido, producto.dosaje, producto.sabor].filter(Boolean).join(' · ') || producto.grupo}
+                            {getDescripcionProducto(producto) || producto.grupo}
                           </div>
                           <LineaNegocioBadge lineaNegocioId={producto.lineaNegocioId} />
                         </div>

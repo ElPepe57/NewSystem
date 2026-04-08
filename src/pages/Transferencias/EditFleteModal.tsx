@@ -3,6 +3,7 @@ import { DollarSign, AlertTriangle } from "lucide-react";
 import { Modal, Button } from "../../components/common";
 import { useProductoStore } from "../../store/productoStore";
 import type { Transferencia } from "../../types/transferencia.types";
+import { getDescripcionProducto } from "../../utils/producto.helpers";
 
 interface EditFleteModalProps {
   transferencia: Transferencia;
@@ -107,17 +108,8 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
                         {productoFull?.marca && (
                           <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{productoFull.marca}</span>
                         )}
-                        {productoFull?.presentacion && (
-                          <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded capitalize">{productoFull.presentacion.replace('_', ' ')}</span>
-                        )}
-                        {productoFull?.dosaje && (
-                          <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{productoFull.dosaje}</span>
-                        )}
-                        {productoFull?.contenido && (
-                          <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{productoFull.contenido}</span>
-                        )}
-                        {productoFull?.sabor && (
-                          <span className="text-xs text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">{productoFull.sabor}</span>
+                        {productoFull && getDescripcionProducto(productoFull) && (
+                          <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(productoFull)}</span>
                         )}
                       </div>
                       <p className="text-xs text-gray-500 mt-1">

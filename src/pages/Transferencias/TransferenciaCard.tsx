@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, Badge, Button } from "../../components/common";
 import type { Transferencia, EstadoTransferencia, TipoTransferencia } from "../../types/transferencia.types";
 import type { Producto } from "../../types/producto.types";
+import { getDescripcionProducto } from "../../utils/producto.helpers";
 import {
   esTipoTransferenciaInterna,
   esTipoTransferenciaInternacional,
@@ -134,10 +135,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
                   {pFull && (
                     <div className="flex flex-wrap items-center gap-1 mt-0.5">
                       {pFull.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
-                      {pFull.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
-                      {pFull.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
-                      {pFull.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
-                      {pFull.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
+                      {getDescripcionProducto(pFull) && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
                     </div>
                   )}
                   <div className="flex items-center gap-1.5 text-xs text-gray-500">

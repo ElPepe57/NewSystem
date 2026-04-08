@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import { formatCurrency } from '../../../utils/format';
 import {
   TrendingUp,
@@ -69,7 +70,7 @@ interface ProductoAnalyticData {
 
 // Helper: referencia de presentación del producto
 const getProductoRef = (p: ProductoAnalyticData): string => {
-  return [p.presentacion, p.contenido, p.dosaje, p.sabor].filter(Boolean).join(' · ');
+  return getDescripcionProducto(p);
 };
 
 // Helper para calcular días desde una fecha

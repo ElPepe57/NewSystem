@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, PieChart, ChevronDown, ChevronUp, Package, DollarSign, Percent, Info, Truck, Zap, RotateCcw } from 'lucide-react';
 import { Badge, Pagination, usePagination, LineaNegocioBadge } from '../../common';
 import type { Venta, EstadoVenta } from '../../../types/venta.types';
@@ -325,21 +326,17 @@ const VentaCard: React.FC<{
       {/* Product details */}
       <div className="space-y-1">
         {venta.productos.slice(0, 2).map((p, idx) => {
-          const chips: string[] = [];
-          if (p.presentacion) chips.push(p.presentacion);
-          if (p.contenido) chips.push(p.contenido);
-          if (p.dosaje) chips.push(p.dosaje);
-          if (p.sabor) chips.push(p.sabor);
+          const desc = getDescripcionProducto(p);
 
           return (
             <div key={idx} className="text-xs leading-tight">
               <div className="font-medium text-gray-700 truncate">{p.marca} {p.nombreComercial}</div>
               <div className="flex items-center flex-wrap gap-x-1 gap-y-0.5 text-[10px] text-gray-500 mt-0.5">
                 <span className="font-mono text-gray-400">{p.sku}</span>
-                {chips.length > 0 && (
+                {desc && (
                   <>
                     <span className="text-gray-300">·</span>
-                    <span>{chips.join(' · ')}</span>
+                    <span>{desc}</span>
                   </>
                 )}
                 <span className="text-gray-300">·</span>
@@ -604,12 +601,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 <td className="px-6 py-4">
                   <div className="space-y-1.5 max-w-[340px]">
                     {venta.productos.slice(0, 3).map((p, idx) => {
-                      // Build description chips: presentacion, contenido, dosaje, sabor
-                      const chips: string[] = [];
-                      if (p.presentacion) chips.push(p.presentacion);
-                      if (p.contenido) chips.push(p.contenido);
-                      if (p.dosaje) chips.push(p.dosaje);
-                      if (p.sabor) chips.push(p.sabor);
+                      const desc = getDescripcionProducto(p);
 
                       return (
                         <div key={idx} className="text-xs leading-tight">
@@ -618,10 +610,10 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                           </div>
                           <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-[10px] text-gray-500 mt-0.5">
                             <span className="font-mono text-gray-400">{p.sku}</span>
-                            {chips.length > 0 && (
+                            {desc && (
                               <>
                                 <span className="text-gray-300">·</span>
-                                <span>{chips.join(' · ')}</span>
+                                <span>{desc}</span>
                               </>
                             )}
                             <span className="text-gray-300">·</span>

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToastStore } from '../../store/toastStore';
 import { calcularDiasParaVencer } from '../../utils/dateFormatters';
+import { getDescripcionProducto } from '../../utils/producto.helpers';
 import { formatCurrency } from '../../utils/format';
 import {
   Package,
@@ -955,7 +956,7 @@ export const Inventario: React.FC = () => {
           unidad={unidadSeleccionada}
           productoInfo={(() => {
             const p = productos.find(pr => pr.id === unidadSeleccionada.productoId);
-            return p ? { presentacion: p.presentacion, contenido: p.contenido, dosaje: p.dosaje, sabor: p.sabor } : undefined;
+            return p ? { presentacion: p.presentacion, contenido: p.contenido, dosaje: p.dosaje, sabor: p.sabor, atributosSkincare: p.atributosSkincare } : undefined;
           })()}
           onClose={() => setUnidadSeleccionada(null)}
         />

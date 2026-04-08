@@ -18,6 +18,7 @@ import {
 import { Button, Modal, Badge } from '../../components/common';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
+import { getDescripcionProducto } from '../../utils/producto.helpers';
 import { getLabelEstadoAsignacion } from '../../utils/multiOrigen.helpers';
 import type { Requerimiento, EstadoRequerimiento, TipoSolicitante } from '../../types/requerimiento.types';
 import type { AsignacionResponsable } from '../../types/requerimiento.types';
@@ -198,8 +199,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
           <h4 className="font-medium text-gray-900 mb-2">Productos ({req.productos.length})</h4>
           <div className="border rounded-lg divide-y">
             {req.productos.map((prod, index) => {
-              const detailParts = [prod.presentacion, prod.contenido, prod.dosaje, prod.sabor].filter(Boolean);
-              const detailStr = detailParts.join(' · ');
+              const detailStr = getDescripcionProducto(prod);
               return (
                 <div key={index} className="p-3">
                   <div className="flex items-center justify-between">

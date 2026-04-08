@@ -16,6 +16,7 @@ import {
 import { BarcodeScanner } from '../../common/BarcodeScanner';
 import type { ProductoDisponible } from '../../../types/venta.types';
 import { useProductoDropdown } from '../../../hooks/useProductoDropdown';
+import { getDescripcionProducto, getSearchableProductText } from '../../../utils/producto.helpers';
 
 /**
  * Snapshot del producto seleccionado para ventas
@@ -86,7 +87,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
     onSelectCallback,
   } = useProductoDropdown<ProductoDisponible>({
     items: Array.isArray(productos) ? productos : [],
-    getSearchableText: (p) => `${p.sku ?? ''} ${p.marca ?? ''} ${p.nombreComercial ?? ''} ${p.presentacion ?? ''} ${p.contenido ?? ''} ${p.dosaje ?? ''} ${p.sabor ?? ''}`,
+    getSearchableText: (p) => getSearchableProductText(p),
     getLabel: (p) => `${p.sku} - ${p.marca} ${p.nombreComercial}`,
     extraFilter: (p) => !(p as any).esPadre || !!(p as any).varianteLabel,
     maxResults: 15,
@@ -378,7 +379,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                         {producto.marca} - {producto.nombreComercial}
                       </div>
                       <div className="text-[10px] sm:text-xs text-gray-500">
-                        {[producto.presentacion, producto.contenido, producto.dosaje, producto.sabor].filter(Boolean).join(' · ')}
+                        {getDescripcionProducto(producto)}
                       </div>
                     </div>
 

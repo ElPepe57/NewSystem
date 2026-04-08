@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, ChevronUp, ChevronDown, Eye, ChevronRight } from 'lucide-react';
 import { Card } from '../../common';
 import { formatCurrency } from '../../common/Charts';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import type { CTRUProductoDetalle } from '../../../store/ctruStore';
 interface ProductoCTRUTableProps {
   productos: CTRUProductoDetalle[];
@@ -58,9 +59,9 @@ const MobileProductCard: React.FC<{
             </span>
           </div>
           <div className="text-sm font-semibold text-gray-900 mt-0.5 leading-tight">{p.productoNombre}</div>
-          {(p.marca || p.presentacion) && (
+          {(p.marca || getDescripcionProducto(p)) && (
             <div className="text-[10px] text-gray-400 leading-tight truncate">
-              {[p.marca, p.presentacion, p.contenido, p.dosaje, p.sabor].filter(Boolean).join(' · ')}
+              {[p.marca, getDescripcionProducto(p)].filter(Boolean).join(' · ')}
             </div>
           )}
         </div>
@@ -360,9 +361,9 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                             <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full shrink-0">mixto</span>
                           )}
                         </div>
-                        {(p.marca || p.presentacion || p.contenido || p.dosaje) && (
+                        {(p.marca || getDescripcionProducto(p)) && (
                           <div className="text-[10px] text-gray-400 leading-tight truncate">
-                            {[p.marca, p.presentacion, p.contenido, p.dosaje, p.sabor].filter(Boolean).join(' · ')}
+                            {[p.marca, getDescripcionProducto(p)].filter(Boolean).join(' · ')}
                           </div>
                         )}
                         <div

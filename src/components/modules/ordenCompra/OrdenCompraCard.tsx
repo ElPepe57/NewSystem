@@ -4,6 +4,7 @@ import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, Cr
 import { Badge, Button, StatusTimeline } from '../../common';
 import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC } from '../../../types/ordenCompra.types';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
@@ -348,28 +349,10 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                           <div className="text-sm font-medium text-gray-900">{producto.marca} {producto.nombreComercial}</div>
                           <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-gray-500 mt-0.5">
                             <span className="font-mono text-gray-400">{producto.sku}</span>
-                            {producto.presentacion && (
+                            {getDescripcionProducto(producto) && (
                               <>
                                 <span className="text-gray-300">·</span>
-                                <span>{producto.presentacion}</span>
-                              </>
-                            )}
-                            {producto.contenido && (
-                              <>
-                                <span className="text-gray-300">·</span>
-                                <span>{producto.contenido}</span>
-                              </>
-                            )}
-                            {producto.dosaje && (
-                              <>
-                                <span className="text-gray-300">·</span>
-                                <span>{producto.dosaje}</span>
-                              </>
-                            )}
-                            {producto.sabor && (
-                              <>
-                                <span className="text-gray-300">·</span>
-                                <span>{producto.sabor}</span>
+                                <span>{getDescripcionProducto(producto)}</span>
                               </>
                             )}
                           </div>

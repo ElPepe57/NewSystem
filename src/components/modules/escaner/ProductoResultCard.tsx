@@ -16,6 +16,7 @@ import {
 import { ProductoService } from '../../../services/producto.service';
 import { useToastStore } from '../../../store/toastStore';
 import type { Producto } from '../../../types/producto.types';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 interface ProductoResultCardProps {
   producto: Producto;
@@ -72,7 +73,7 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
             {producto.marca} - {producto.nombreComercial}
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-            {producto.presentacion} · {producto.dosaje} · {producto.contenido}
+            {getDescripcionProducto(producto)}
             {producto.pesoLibras ? ` · ${producto.pesoLibras} lb` : ''}
           </p>
           {!producto.pesoLibras && !pesoGuardado && (

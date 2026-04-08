@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GitBranch, X, ChevronDown, ChevronUp, Package } from 'lucide-react';
 import { Button } from '../../common';
 import type { Producto } from '../../../types/producto.types';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import type { VarianteCandidato } from '../../../hooks/useDetectarVarianteCandidatos';
 
 interface SugerenciaVarianteBannerProps {
@@ -61,17 +62,8 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
                 {principal.producto.marca} — {principal.producto.nombreComercial}
               </p>
               <div className="flex flex-wrap gap-1.5 mt-1">
-                {principal.producto.presentacion && (
-                  <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{principal.producto.presentacion}</span>
-                )}
-                {principal.producto.dosaje && (
-                  <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{principal.producto.dosaje}</span>
-                )}
-                {principal.producto.contenido && (
-                  <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{principal.producto.contenido}</span>
-                )}
-                {principal.producto.sabor && (
-                  <span className="text-xs text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">{principal.producto.sabor}</span>
+                {getDescripcionProducto(principal.producto) && (
+                  <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(principal.producto)}</span>
                 )}
               </div>
               {principal.camposDiferentes.length > 0 && (

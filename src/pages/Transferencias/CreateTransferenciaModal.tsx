@@ -20,6 +20,7 @@ import type { Almacen } from "../../types/almacen.types";
 import type { Unidad } from "../../types/unidad.types";
 import type { Producto } from "../../types/producto.types";
 import type { TransferenciaFormData, TipoTransferencia } from "../../types/transferencia.types";
+import { getDescripcionProducto } from "../../utils/producto.helpers";
 import { unidadService } from "../../services/unidad.service";
 import {
   esTipoTransferenciaInterna,
@@ -738,10 +739,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                               <h5 className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</h5>
                               <div className="flex flex-wrap items-center gap-1 mt-0.5">
                                 {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
-                                {pFull?.presentacion && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>}
-                                {pFull?.dosaje && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.dosaje}</span>}
-                                {pFull?.contenido && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{pFull.contenido}</span>}
-                                {pFull?.sabor && <span className="text-[10px] text-purple-700 bg-purple-50 px-1 py-0 rounded">{pFull.sabor}</span>}
+                                {pFull && getDescripcionProducto(pFull) && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
                               </div>
                               <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
                                 <span>{producto.sku}</span>

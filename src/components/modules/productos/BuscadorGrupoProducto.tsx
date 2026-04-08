@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Package, GitBranch, ChevronRight } from 'lucide-react';
 import type { Producto } from '../../../types/producto.types';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 interface BuscadorGrupoProductoProps {
   productos: Producto[];
@@ -90,8 +91,7 @@ export const BuscadorGrupoProducto: React.FC<BuscadorGrupoProductoProps> = ({
                   </div>
                   <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                     <span>{producto.sku}</span>
-                    {producto.presentacion && <span>· {producto.presentacion}</span>}
-                    {producto.dosaje && <span>· {producto.dosaje}</span>}
+                    {getDescripcionProducto(producto) && <span>· {getDescripcionProducto(producto)}</span>}
                   </div>
                   {variantesExistentes.length > 0 ? (
                     <div className="flex items-center gap-1 mt-1.5">

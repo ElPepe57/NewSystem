@@ -25,6 +25,7 @@ import { PricingIntelPanel } from '../../components/modules/mercadoLibre/Pricing
 import { BuyBoxBadge } from './BuyBoxBadge';
 import type { MLProductMap, MLProductGroup } from '../../types/mercadoLibre.types';
 import type { Producto } from '../../types/producto.types';
+import { getDescripcionProducto } from '../../utils/producto.helpers';
 
 // ---- MOBILE: LISTING SUB-ITEM ----
 const MobileListingItem: React.FC<{ listing: MLProductMap }> = ({ listing }) => {
@@ -558,7 +559,7 @@ const VincularProductoModal: React.FC<{
                     {p.marca} {p.nombreComercial}
                   </p>
                   <p className="text-xs text-gray-500">
-                    SKU: {p.sku} · {p.presentacion} {p.contenido} · Stock: {p.stockDisponible ?? 0}
+                    SKU: {p.sku} · {getDescripcionProducto(p)} · Stock: {p.stockDisponible ?? 0}
                   </p>
                 </div>
                 <LinkIcon className="w-4 h-4 text-gray-300 flex-shrink-0" />

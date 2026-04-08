@@ -1,6 +1,7 @@
 import React from 'react';
 import { Minus, Plus, Trash2, Package } from 'lucide-react';
 import type { AccumulatorItem } from '../../../types/escanerModos.types';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 interface ScanAccumulatorListProps<T> {
   items: AccumulatorItem<T>[];
@@ -54,7 +55,7 @@ export function ScanAccumulatorList<T>({
                   {p.marca} {p.nombreComercial}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
-                  {p.sku} · {p.presentacion} {p.dosaje && `· ${p.dosaje}`} {p.contenido && `· ${p.contenido}`}
+                  {p.sku} · {getDescripcionProducto(p)}
                 </p>
                 {/* Extra content from parent */}
                 {renderExtra && (

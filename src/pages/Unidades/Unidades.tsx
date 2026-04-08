@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { formatFecha, calcularDiasParaVencer as calcularDiasParaVencerUtil } from '../../utils/dateFormatters';
+import { getDescripcionProducto } from '../../utils/producto.helpers';
 import { formatCurrency } from '../../utils/format';
 import {
   Package,
@@ -258,10 +259,10 @@ export const Unidades: React.FC = () => {
 
   // Map de productos para lookup rápido de info descriptiva
   const productosMap = useMemo(() => {
-    const map = new Map<string, { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string }>();
+    const map = new Map<string, { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string; atributosSkincare?: any }>();
     productos.forEach(p => {
-      if (p.presentacion || p.contenido || p.dosaje || p.sabor) {
-        map.set(p.id, { presentacion: p.presentacion, contenido: p.contenido, dosaje: p.dosaje, sabor: p.sabor });
+      if (p.presentacion || p.contenido || p.dosaje || p.sabor || p.atributosSkincare) {
+        map.set(p.id, { presentacion: p.presentacion, contenido: p.contenido, dosaje: p.dosaje, sabor: p.sabor, atributosSkincare: p.atributosSkincare });
       }
     });
     return map;
@@ -691,7 +692,7 @@ export const Unidades: React.FC = () => {
                             <div className="text-sm text-gray-500">{unidad.productoNombre || '-'}</div>
                             {(() => {
                               const pInfo = productosMap.get(unidad.productoId);
-                              const desc = pInfo ? [pInfo.presentacion, pInfo.contenido, pInfo.dosaje, pInfo.sabor].filter(Boolean).join(' · ') : '';
+                              const desc = pInfo ? getDescripcionProducto(pInfo) : '';
                               return desc ? <div className="text-[10px] text-gray-400">{desc}</div> : null;
                             })()}
                             <div className="flex items-center gap-1 mt-0.5">

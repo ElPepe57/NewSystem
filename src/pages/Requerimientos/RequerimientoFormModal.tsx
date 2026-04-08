@@ -21,6 +21,7 @@ import { ClienteAutocomplete } from '../../components/modules/entidades/ClienteA
 import type { ClienteSnapshot } from '../../types/entidadesMaestras.types';
 import type { RequerimientoFormData, TipoSolicitante } from '../../types/requerimiento.types';
 import type { Producto } from '../../types/producto.types';
+import { getDescripcionProducto } from '../../utils/producto.helpers';
 import type { InvestigacionProducto } from './requerimientos.types';
 
 interface RequerimientoFormModalProps {
@@ -232,7 +233,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                           {selectedProd.marca} {selectedProd.nombreComercial}
                         </h5>
                         <p className="text-sm text-gray-500">
-                          {selectedProd.presentacion} • {selectedProd.contenido}
+                          {getDescripcionProducto(selectedProd)}
                         </p>
                       </div>
                       <div className="text-right">
@@ -428,8 +429,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
               {formData.productos.map((prod, index) => {
                 const producto = productos.find((p) => p.id === prod.productoId);
                 const subtotal = (prod.precioEstimadoUSD || 0) * prod.cantidadSolicitada;
-                const detailParts = [producto?.presentacion, producto?.contenido, producto?.dosaje, producto?.sabor].filter(Boolean);
-                const detailStr = detailParts.join(' · ');
+                const detailStr = producto ? getDescripcionProducto(producto) : '';
                 return (
                   <div key={index} className="flex items-center justify-between bg-white rounded-xl border p-4 hover:shadow-sm transition-shadow">
                     <div className="flex items-center space-x-4">

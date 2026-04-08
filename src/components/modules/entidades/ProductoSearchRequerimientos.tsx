@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { Producto } from '../../../types/producto.types';
 import { useProductoDropdown } from '../../../hooks/useProductoDropdown';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 /**
  * Snapshot del producto seleccionado para requerimientos
@@ -320,7 +321,7 @@ export const ProductoSearchRequerimientos: React.FC<ProductoSearchRequerimientos
                         {producto.marca} - {producto.nombreComercial}
                       </div>
                       <div className="text-[10px] sm:text-xs text-gray-500 truncate">
-                        {[producto.presentacion, producto.contenido, producto.dosaje, producto.sabor].filter(Boolean).join(' · ') || 'Sin detalle'}
+                        {getDescripcionProducto(producto) || 'Sin detalle'}
                       </div>
                     </div>
 

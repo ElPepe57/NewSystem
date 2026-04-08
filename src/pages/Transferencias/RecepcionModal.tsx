@@ -15,6 +15,7 @@ import { Modal, Button, Badge } from "../../components/common";
 import { BarcodeScanner } from "../../components/common/BarcodeScanner";
 import type { Transferencia, RecepcionFormData } from "../../types/transferencia.types";
 import type { Producto } from "../../types/producto.types";
+import { getDescripcionProducto } from "../../utils/producto.helpers";
 
 interface RecepcionModalProps {
   transferencia: Transferencia;
@@ -400,14 +401,8 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                           {pFull?.marca && (
                             <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{pFull.marca}</span>
                           )}
-                          {pFull?.presentacion && (
-                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded capitalize">{pFull.presentacion.replace('_', ' ')}</span>
-                          )}
-                          {pFull?.dosaje && (
-                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{pFull.dosaje}</span>
-                          )}
-                          {pFull?.contenido && (
-                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{pFull.contenido}</span>
+                          {pFull && getDescripcionProducto(pFull) && (
+                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(pFull)}</span>
                           )}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">{prod.sku}</div>

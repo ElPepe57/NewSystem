@@ -19,10 +19,11 @@ import { Badge, Button } from '../../common';
 import { useUserName } from '../../../hooks/useUserNames';
 import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
 import { getLabelEstadoUnidad, esEstadoEnOrigen, esEstadoEnTransitoOrigen, getPaisEmoji } from '../../../utils/multiOrigen.helpers';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 interface UnidadDetailsModalProps {
   unidad: Unidad;
-  productoInfo?: { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string };
+  productoInfo?: { presentacion?: string; contenido?: string; dosaje?: string; sabor?: string; atributosSkincare?: any };
   onClose: () => void;
   onLiberarReserva?: (unidad: Unidad) => void;
 }
@@ -87,9 +88,9 @@ export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
             <div>
               <div className="font-semibold text-gray-900">{unidad.productoSKU}</div>
               <div className="text-sm text-gray-500">{unidad.productoNombre}</div>
-              {productoInfo && (productoInfo.presentacion || productoInfo.contenido || productoInfo.dosaje || productoInfo.sabor) && (
+              {productoInfo && getDescripcionProducto(productoInfo) && (
                 <div className="text-xs text-gray-400">
-                  {[productoInfo.presentacion, productoInfo.contenido, productoInfo.dosaje, productoInfo.sabor].filter(Boolean).join(' · ')}
+                  {getDescripcionProducto(productoInfo)}
                 </div>
               )}
             </div>

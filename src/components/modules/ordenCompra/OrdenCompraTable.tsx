@@ -4,6 +4,7 @@ import { Package, Eye, Pencil, Trash2, TrendingUp, ChevronDown, ChevronUp, Dolla
 import { Badge, Pagination, usePagination, LineaNegocioBadge, PaisOrigenBadge } from '../../common';
 import { useUserName } from '../../../hooks/useUserNames';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC } from '../../../types/ordenCompra.types';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 interface OrdenCompraTableProps {
   ordenes: OrdenCompra[];
@@ -218,11 +219,7 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
           {orden.productos.map((prod, idx) => {
             const recibida = prod.cantidadRecibida || 0;
             const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
-            const chips: string[] = [];
-            if (prod.presentacion) chips.push(prod.presentacion);
-            if (prod.contenido) chips.push(prod.contenido);
-            if (prod.dosaje) chips.push(prod.dosaje);
-            if (prod.sabor) chips.push(prod.sabor);
+            const desc = getDescripcionProducto(prod);
 
             return (
               <div key={idx} className="px-4 py-3">
@@ -231,10 +228,10 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
                 </div>
                 <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-gray-500 mt-0.5">
                   <span className="font-mono text-gray-400">{prod.sku}</span>
-                  {chips.length > 0 && (
+                  {desc && (
                     <>
                       <span className="text-gray-300">·</span>
-                      <span>{chips.join(' · ')}</span>
+                      <span>{desc}</span>
                     </>
                   )}
                 </div>
@@ -287,11 +284,7 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
               {orden.productos.map((prod, idx) => {
                 const recibida = prod.cantidadRecibida || 0;
                 const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
-                const chips: string[] = [];
-                if (prod.presentacion) chips.push(prod.presentacion);
-                if (prod.contenido) chips.push(prod.contenido);
-                if (prod.dosaje) chips.push(prod.dosaje);
-                if (prod.sabor) chips.push(prod.sabor);
+                const desc = getDescripcionProducto(prod);
 
                 return (
                   <tr key={idx} className="hover:bg-gray-50">
@@ -301,10 +294,10 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
                       </div>
                       <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-gray-500 mt-0.5">
                         <span className="font-mono text-gray-400">{prod.sku}</span>
-                        {chips.length > 0 && (
+                        {desc && (
                           <>
                             <span className="text-gray-300">·</span>
-                            <span>{chips.join(' · ')}</span>
+                            <span>{desc}</span>
                           </>
                         )}
                       </div>
@@ -577,20 +570,16 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
                   <td className="px-6 py-4">
                     <div className="space-y-1.5 max-w-[340px]">
                       {orden.productos.slice(0, 3).map((p, idx) => {
-                        const chips: string[] = [];
-                        if (p.presentacion) chips.push(p.presentacion);
-                        if (p.contenido) chips.push(p.contenido);
-                        if (p.dosaje) chips.push(p.dosaje);
-                        if (p.sabor) chips.push(p.sabor);
+                        const desc = getDescripcionProducto(p);
                         return (
                           <div key={idx} className="text-xs leading-tight">
                             <div className="font-semibold text-gray-900 truncate">{p.marca} {p.nombreComercial}</div>
                             <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-gray-500 mt-0.5">
                               <span className="font-mono text-gray-400">{p.sku}</span>
-                              {chips.length > 0 && (
+                              {desc && (
                                 <>
                                   <span className="text-gray-300">·</span>
-                                  <span>{chips.join(' · ')}</span>
+                                  <span>{desc}</span>
                                 </>
                               )}
                               <span className="text-gray-300">·</span>

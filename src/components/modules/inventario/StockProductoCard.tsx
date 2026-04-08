@@ -14,6 +14,7 @@ import {
 import { Badge, Button, Card, LineaNegocioBadge } from '../../common';
 import type { ProductoConUnidades } from './ProductoInventarioTable';
 import { formatCurrency } from '../../../utils/format';
+import { getDescripcionProducto } from '../../../utils/producto.helpers';
 
 interface StockProductoCardProps {
   producto: ProductoConUnidades;
@@ -72,9 +73,9 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
         <div className="text-sm text-gray-600 mt-1 truncate">
           {producto.nombre}
         </div>
-        {(producto.presentacion || producto.contenido || producto.dosaje || producto.sabor) && (
+        {getDescripcionProducto(producto) && (
           <div className="text-[10px] text-gray-400 mt-0.5 truncate">
-            {[producto.presentacion, producto.contenido, producto.dosaje, producto.sabor].filter(Boolean).join(' · ')}
+            {getDescripcionProducto(producto)}
           </div>
         )}
 
