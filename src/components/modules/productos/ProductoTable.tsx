@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Eye, Pencil, Trash2, RefreshCw, Search, CheckCircle, XCircle, Clock, HelpCircle, DollarSign, Tag, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown, ChevronUp, Columns3 } from 'lucide-react';
 import { Badge } from '../../common';
 import { ProductoService } from '../../../services/producto.service';
-import type { Producto } from '../../../types/producto.types';
+import type { Producto, TexturaSKC } from '../../../types/producto.types';
+import { TEXTURA_LABELS } from '../../../types/producto.types';
 import type { CategoriaSnapshot } from '../../../types/categoria.types';
 import type { EtiquetaSnapshot } from '../../../types/etiqueta.types';
 
@@ -119,7 +120,7 @@ const ProductoCardResponsive: React.FC<{
               <>
                 {producto.atributosSkincare.volumen && <span>· {producto.atributosSkincare.volumen}</span>}
                 {producto.atributosSkincare.ingredienteClave && <span>· {producto.atributosSkincare.ingredienteClave}</span>}
-                {producto.atributosSkincare.textura && <span>· {producto.atributosSkincare.textura}</span>}
+                {producto.atributosSkincare.textura && <span>· {TEXTURA_LABELS[producto.atributosSkincare.textura as TexturaSKC] || producto.atributosSkincare.textura}</span>}
                 {producto.atributosSkincare.spf && <span>· SPF{producto.atributosSkincare.spf} {producto.atributosSkincare.pa || ''}</span>}
               </>
             ) : (
@@ -655,7 +656,7 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                           <>
                             {producto.atributosSkincare.volumen && ` · ${producto.atributosSkincare.volumen}`}
                             {producto.atributosSkincare.ingredienteClave && ` · ${producto.atributosSkincare.ingredienteClave}`}
-                            {producto.atributosSkincare.textura && ` · ${producto.atributosSkincare.textura}`}
+                            {producto.atributosSkincare.textura && ` · ${TEXTURA_LABELS[producto.atributosSkincare.textura as TexturaSKC] || producto.atributosSkincare.textura}`}
                             {producto.atributosSkincare.spf && ` · SPF${producto.atributosSkincare.spf} ${producto.atributosSkincare.pa || ''}`}
                           </>
                         ) : (

@@ -37,8 +37,8 @@ import { Button } from '../../common';
 import { ProductoService } from '../../../services/producto.service';
 import { useUserName } from '../../../hooks/useUserNames';
 import { PuntoEquilibrioCard } from './PuntoEquilibrioCard';
-import type { Producto } from '../../../types/producto.types';
-import { TIPO_PRODUCTO_SKC_LABELS, PASO_RUTINA_LABELS } from '../../../types/producto.types';
+import type { Producto, TexturaSKC } from '../../../types/producto.types';
+import { TIPO_PRODUCTO_SKC_LABELS, PASO_RUTINA_LABELS, TEXTURA_LABELS } from '../../../types/producto.types';
 
 interface ProductoCardProps {
   producto: Producto;
@@ -345,7 +345,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <span><span className="text-gray-400">Ingrediente:</span> {producto.atributosSkincare.ingredienteClave}</span>
             )}
             {producto.atributosSkincare.textura && (
-              <span><span className="text-gray-400">Textura:</span> {producto.atributosSkincare.textura}</span>
+              <span><span className="text-gray-400">Textura:</span> {TEXTURA_LABELS[producto.atributosSkincare.textura as TexturaSKC] || producto.atributosSkincare.textura}</span>
             )}
             {producto.atributosSkincare.spf && (
               <span><span className="text-gray-400">SPF:</span> {producto.atributosSkincare.spf} {producto.atributosSkincare.pa || ''}</span>
