@@ -214,6 +214,7 @@ export const requerimientoService = {
           contenido: productoInfo?.contenido || '',
           dosaje: productoInfo?.dosaje || '',
           sabor: productoInfo?.sabor || '',
+          ...(productoInfo?.atributosSkincare && { atributosSkincare: productoInfo.atributosSkincare }),
           cantidadSolicitada: p.cantidadSolicitada,
           cantidadAsignada: 0,
           cantidadPendiente: p.cantidadSolicitada,

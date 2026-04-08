@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { AtributosSkincare } from './producto.types';
 
 /**
  * Snapshot de expectativas al momento de cotizar.
@@ -92,6 +93,7 @@ export interface ProductoCotizacion {
   presentacion: string;
   contenido?: string;      // Ej: "180 cápsulas", "500g"
   dosaje?: string;         // Ej: "150mg", "1000 UI"
+  atributosSkincare?: AtributosSkincare; // Solo para productos SKC
 
   cantidad: number;
   precioUnitario: number;    // Precio cotizado en PEN

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Producto } from '../types/producto.types';
+import type { Producto, AtributosSkincare } from '../types/producto.types';
 import { normalizarTexto } from '../lib/textUtils';
 
 export interface VarianteCandidato {
@@ -11,13 +11,7 @@ export interface VarianteCandidato {
 /**
  * Hook que detecta productos candidatos a ser padre de una variante.
  * Se activa cuando marca + nombreComercial coinciden con productos existentes.
- *
- * @param productos - Lista completa de productos existentes
- * @param marca - Marca del producto en creación
- * @param nombreComercial - Nombre del producto en creación
- * @param contenido - Contenido del producto (campo diferenciador principal)
- * @param dosaje - Dosaje del producto
- * @param sabor - Sabor del producto
+ * Soporta tanto SUP (dosaje/sabor) como SKC (volumen de atributosSkincare).
  */
 export function useDetectarVarianteCandidatos(
   productos: Producto[],
@@ -26,6 +20,7 @@ export function useDetectarVarianteCandidatos(
   contenido?: string,
   dosaje?: string,
   sabor?: string,
+  atributosSkincare?: AtributosSkincare,
 ): VarianteCandidato[] {
   return useMemo(() => {
     if (!marca || !nombreComercial || marca.length < 2 || nombreComercial.length < 2) {
@@ -48,8 +43,16 @@ export function useDetectarVarianteCandidatos(
 
       // Exact match on marca + nombre
       if (pMarcaNorm === marcaNorm && pNombreNorm === nombreNorm) {
-        // Determine what's different
         const camposDiferentes: string[] = [];
+
+        // SKC: comparar volumen de atributosSkincare
+        if (atributosSkincare?.volumen && p.atributosSkincare?.volumen) {
+          if (normalizarTexto(atributosSkincare.volumen) !== normalizarTexto(p.atributosSkincare.volumen)) {
+            camposDiferentes.push('volumen');
+          }
+        }
+
+        // SUP: comparar contenido, dosaje, sabor
         if (contenido && p.contenido && normalizarTexto(contenido) !== normalizarTexto(p.contenido)) {
           camposDiferentes.push('contenido');
         }
@@ -74,5 +77,5 @@ export function useDetectarVarianteCandidatos(
       if (!a.producto.esPadre && b.producto.esPadre) return 1;
       return (a.producto.sku || '').localeCompare(b.producto.sku || '');
     });
-  }, [productos, marca, nombreComercial, contenido, dosaje, sabor]);
+  }, [productos, marca, nombreComercial, contenido, dosaje, sabor, atributosSkincare]);
 }

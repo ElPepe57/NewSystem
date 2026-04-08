@@ -284,6 +284,7 @@ export class VentaService {
           ...(producto.contenido && { contenido: producto.contenido }),
           ...(producto.dosaje && { dosaje: producto.dosaje }),
           ...(producto.sabor && { sabor: producto.sabor }),
+          ...(producto.atributosSkincare && { atributosSkincare: producto.atributosSkincare }),
           // Propagate variant fields for selector filtering
           ...(producto.esPadre && { esPadre: producto.esPadre }),
           ...(producto.grupoVarianteId && { grupoVarianteId: producto.grupoVarianteId }),
@@ -401,6 +402,7 @@ export class VentaService {
         if (producto.contenido) prodVenta.contenido = producto.contenido;
         if (producto.dosaje) prodVenta.dosaje = producto.dosaje;
         if ((producto as any).sabor) prodVenta.sabor = (producto as any).sabor;
+        if (producto.atributosSkincare) prodVenta.atributosSkincare = producto.atributosSkincare;
         productosVenta.push(prodVenta);
       }
 

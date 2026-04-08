@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { Card, Badge, StatCard, StatDistribution, Select, Button } from '../../common';
 import type { Unidad } from '../../../types/unidad.types';
-import type { Producto } from '../../../types/producto.types';
+import type { Producto, AtributosSkincare } from '../../../types/producto.types';
 import type { Almacen } from '../../../types/almacen.types';
 import type { CTRUProductoDetalle } from '../../../store/ctruStore';
 import { exportService } from '../../../services/export.service';
@@ -54,6 +54,7 @@ interface ProductoAnalyticData {
   contenido: string;
   dosaje: string;
   sabor: string;
+  atributosSkincare?: AtributosSkincare;
   cantidadTotal: number;
   valorTotal: number;
   diasEnInventario: number;
@@ -141,6 +142,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           contenido: producto?.contenido || '',
           dosaje: producto?.dosaje || '',
           sabor: producto?.sabor || '',
+          atributosSkincare: producto?.atributosSkincare,
           unidades: [],
           cantidadTotal: 0,
           valorTotal: 0,
@@ -633,8 +635,8 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
         'Nombre': p.nombre,
         'Marca': p.marca,
         'Presentación': p.presentacion,
-        'Contenido': p.contenido,
-        'Dosaje': p.dosaje,
+        'Contenido': p.atributosSkincare?.volumen || p.contenido,
+        'Dosaje/Ingrediente': p.atributosSkincare?.ingredienteClave || p.dosaje,
         'Clase': p.clasificacionABC,
         'Cantidad': p.cantidadTotal,
         'Valor USD': p.valorTotal,

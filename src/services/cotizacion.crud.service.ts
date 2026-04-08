@@ -136,6 +136,7 @@ export async function create(data: CotizacionFormData, userId: string): Promise<
         presentacion: producto.presentacion,
         contenido: producto.contenido,
         dosaje: producto.dosaje,
+        ...(producto.atributosSkincare && { atributosSkincare: producto.atributosSkincare }),
         cantidad: prod.cantidad,
         precioUnitario: prod.precioUnitario,
         subtotal,

@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { AtributosSkincare } from './producto.types';
 
 // Estado logístico de la orden (ciclo de vida del producto físico)
 export type EstadoOrden =
@@ -130,6 +131,7 @@ export interface ProductoOrden {
   contenido?: string;        // Ej: "60 cápsulas", "500g"
   dosaje?: string;           // Ej: "150mg", "1000 UI"
   sabor?: string;            // Ej: "Limón", "Fresa", "Natural"
+  atributosSkincare?: AtributosSkincare; // Solo para productos SKC
   codigoUPC?: string;       // Codigo UPC/EAN para escaneo en recepcion
   cantidad: number;
   costoUnitario: number;    // Precio por unidad en USD

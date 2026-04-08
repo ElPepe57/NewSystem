@@ -262,6 +262,7 @@ export function groupToFormData(
       if (p.contenido) prod.contenido = p.contenido;
       if (p.dosaje) prod.dosaje = p.dosaje;
       if (p.sabor) prod.sabor = p.sabor;
+      if (p.atributosSkincare) prod.atributosSkincare = p.atributosSkincare;
       return prod;
     }),
     subtotalUSD,

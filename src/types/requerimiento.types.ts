@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import type { AtributosSkincare } from './producto.types';
 
 /**
  * Estado del requerimiento
@@ -153,6 +154,7 @@ export interface ProductoRequerimiento {
   contenido?: string;               // e.g. "60 cápsulas", "500g"
   dosaje?: string;                  // e.g. "150mg", "1000 UI"
   sabor?: string;                   // e.g. "Limón", "Fresa", "Natural"
+  atributosSkincare?: AtributosSkincare; // Solo para productos SKC
 
   // Cantidades
   cantidadSolicitada: number;         // Total que se necesita

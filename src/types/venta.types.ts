@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { AtributosSkincare } from './producto.types';
 import type { EstadoCotizacion } from './cotizacion.types';
 export type { EstadoCotizacion };
 
@@ -189,6 +190,7 @@ export interface ProductoVenta {
   contenido?: string;        // Ej: "60 cápsulas", "500g"
   dosaje?: string;           // Ej: "150mg", "1000 UI"
   sabor?: string;            // Ej: "Limón", "Fresa", "Natural"
+  atributosSkincare?: AtributosSkincare; // Solo para productos SKC
 
   cantidad: number;
   precioUnitario: number;    // Precio de venta en PEN
@@ -508,6 +510,7 @@ export interface ProductoDisponible {
   contenido?: string;
   dosaje?: string;
   sabor?: string;
+  atributosSkincare?: AtributosSkincare; // Solo para productos SKC
   esPadre?: boolean;
   esVariante?: boolean;
   varianteLabel?: string;
