@@ -110,7 +110,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-gray-500 uppercase">
-            {transferencia.productosSummary.length} producto{transferencia.productosSummary.length !== 1 ? 's' : ''} · {transferencia.totalUnidades} unidades
+            {(transferencia.productosSummary?.length ?? 0)} producto{(transferencia.productosSummary?.length ?? 0) !== 1 ? 's' : ''} · {transferencia.totalUnidades} unidades
           </span>
           {transferencia.costoFleteTotal != null && transferencia.costoFleteTotal > 0 ? (
             <span className="text-xs font-medium text-green-600">Flete: ${transferencia.costoFleteTotal.toFixed(2)}</span>
@@ -119,8 +119,8 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
           ) : null}
         </div>
         <div className="space-y-1">
-          {transferencia.productosSummary.slice(0, 4).map(producto => {
-            const unidadesProducto = transferencia.unidades.filter(u => u.productoId === producto.productoId);
+          {(transferencia.productosSummary ?? []).slice(0, 4).map(producto => {
+            const unidadesProducto = (transferencia.unidades ?? []).filter(u => u.productoId === producto.productoId);
             const fleteUnitario = unidadesProducto.length > 0 ? unidadesProducto[0].costoFleteUSD : 0;
             const lotes = [...new Set(unidadesProducto.map(u => u.lote).filter(Boolean))];
 
@@ -157,9 +157,9 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
               </div>
             );
           })}
-          {transferencia.productosSummary.length > 4 && (
+          {(transferencia.productosSummary?.length ?? 0) > 4 && (
             <div className="text-xs text-gray-400 text-center py-1">
-              +{transferencia.productosSummary.length - 4} productos mas
+              +{(transferencia.productosSummary?.length ?? 0) - 4} productos mas
             </div>
           )}
         </div>
@@ -180,8 +180,8 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
 
       {/* Progreso de recepcion parcial */}
       {transferencia.estado === 'recibida_parcial' && (() => {
-        const recibidas = transferencia.totalUnidadesRecibidas ?? transferencia.unidades.filter(u => u.estadoTransferencia === 'recibida').length;
-        const danadas = transferencia.totalUnidadesDanadas ?? transferencia.unidades.filter(u => u.estadoTransferencia === 'danada').length;
+        const recibidas = transferencia.totalUnidadesRecibidas ?? (transferencia.unidades ?? []).filter(u => u.estadoTransferencia === 'recibida').length;
+        const danadas = transferencia.totalUnidadesDanadas ?? (transferencia.unidades ?? []).filter(u => u.estadoTransferencia === 'danada').length;
         const procesadas = recibidas + danadas;
         const totalU = transferencia.totalUnidades;
         const numRecepciones = (transferencia.recepcionesTransferencia || []).length || (transferencia.recepcion ? 1 : 0);
