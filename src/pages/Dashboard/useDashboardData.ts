@@ -11,7 +11,13 @@ import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { cuentasPendientesService } from '../../services/cuentasPendientes.service';
 import { filtrarVentasMes, calcularKPIVentas } from '../../utils/kpi.calculators';
 import { timed } from '../../lib/perf';
+import { formatCurrencyCompact } from '../../utils/format';
 import type { DashboardCuentasPendientes } from '../../types/tesoreria.types';
+
+const NOMBRES_MESES = [
+  'enero','febrero','marzo','abril','mayo','junio',
+  'julio','agosto','septiembre','octubre','noviembre','diciembre'
+];
 
 // Staleness threshold: skip re-fetch if data was loaded less than 5 minutes ago
 const STALE_TIME_MS = 5 * 60 * 1000;
@@ -55,11 +61,28 @@ export interface DashboardData {
   stockCritico: number;
   stockCriticoItems: StockCriticoItem[];
 
-  // KPIs del mes
+  // KPIs del mes actual
   totalVentasMes: number;
   utilidadMes: number;
   margenPromedioMes: number;
   cantidadVentasMes: number;
+
+  // KPIs del mes anterior (comparativo)
+  totalVentasMesAnterior: number;
+  utilidadMesAnterior: number;
+  margenMesAnterior: number;
+  crecimientoVentas: number;       // % vs mes anterior (puede ser null si no hay datos)
+  crecimientoUtilidad: number;     // % vs mes anterior
+  cambioMargen: number;            // puntos porcentuales vs mes anterior
+
+  // Meta mensual y progreso
+  metaMensual: number;
+  progresoMeta: number;            // 0-100
+  promedioDiarioNecesario: number;
+  diasRestantesMes: number;
+
+  // Texto natural del resumen gerencial
+  resumenTexto: string;
 
   // Datos para gráficos
   ventasUltimos30Dias: { fecha: string; fechaCompleta: Date; ventas: number; cantidad: number }[];
@@ -204,7 +227,7 @@ export function useDashboardData(): DashboardData {
       .sort((a, b) => a.disponibles - b.disponibles);
   }, [inventarioLN, productosLN]);
 
-  // KPIs del mes
+  // KPIs del mes actual
   const ahora = new Date();
   const ventasMesActual = filtrarVentasMes(ventasLN, ahora);
   const kpiMes = calcularKPIVentas(ventasMesActual);
@@ -212,6 +235,63 @@ export function useDashboardData(): DashboardData {
   const utilidadMes = kpiMes.utilidadPEN;
   const margenPromedioMes = kpiMes.margenPonderado;
   const cantidadVentasMes = ventasMesActual.length;
+
+  // KPIs del mes anterior
+  const fechaMesAnterior = new Date(ahora.getFullYear(), ahora.getMonth() - 1, 1);
+  const ventasMesAnterior = filtrarVentasMes(ventasLN, fechaMesAnterior);
+  const kpiMesAnterior = calcularKPIVentas(ventasMesAnterior);
+  const totalVentasMesAnterior = kpiMesAnterior.totalPEN;
+  const utilidadMesAnterior = kpiMesAnterior.utilidadPEN;
+  const margenMesAnterior = kpiMesAnterior.margenPonderado;
+
+  const crecimientoVentas = totalVentasMesAnterior > 0
+    ? ((totalVentasMes - totalVentasMesAnterior) / totalVentasMesAnterior) * 100
+    : 0;
+  const crecimientoUtilidad = utilidadMesAnterior > 0
+    ? ((utilidadMes - utilidadMesAnterior) / utilidadMesAnterior) * 100
+    : 0;
+  const cambioMargen = margenPromedioMes - margenMesAnterior;
+
+  // Meta mensual y progreso
+  const metaMensual = 67000;
+  const progresoMeta = metaMensual > 0 ? Math.min((totalVentasMes / metaMensual) * 100, 100) : 0;
+  const diasEnMes = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0).getDate();
+  const diasRestantesMes = diasEnMes - ahora.getDate();
+  const faltaMeta = Math.max(metaMensual - totalVentasMes, 0);
+  const promedioDiarioNecesario = diasRestantesMes > 0 ? faltaMeta / diasRestantesMes : 0;
+
+  // Texto natural del resumen gerencial
+  const mesActualNombre = NOMBRES_MESES[ahora.getMonth()];
+  const mesPasadoNombre = NOMBRES_MESES[fechaMesAnterior.getMonth()];
+  const fmtCompact = (v: number) => formatCurrencyCompact(v, 'PEN');
+  const cxc = dashboardCxPCxC?.cuentasPorCobrar.totalEquivalentePEN ?? 0;
+  const cxp = dashboardCxPCxC?.cuentasPorPagar.totalEquivalentePEN ?? 0;
+  const flujoNeto = cxc - cxp;
+
+  let resumenTexto = `En ${mesActualNombre} llevas ${fmtCompact(totalVentasMes)} en ventas`;
+  if (totalVentasMesAnterior > 0) {
+    if (crecimientoVentas > 0.5) {
+      resumenTexto += ` — ${crecimientoVentas.toFixed(1)}% mas que ${mesPasadoNombre}.`;
+    } else if (crecimientoVentas < -0.5) {
+      resumenTexto += ` — ${Math.abs(crecimientoVentas).toFixed(1)}% menos que ${mesPasadoNombre}.`;
+    } else {
+      resumenTexto += `, similar a ${mesPasadoNombre}.`;
+    }
+  } else {
+    resumenTexto += `.`;
+  }
+  if (margenPromedioMes > 0) {
+    resumenTexto += ` Tu margen promedio es ${margenPromedioMes.toFixed(1)}%`;
+    if (dashboardCxPCxC) {
+      if (flujoNeto >= 0) {
+        resumenTexto += ` y el flujo neto esta a favor por ${fmtCompact(flujoNeto)}.`;
+      } else {
+        resumenTexto += ` pero el flujo neto esta en contra por ${fmtCompact(Math.abs(flujoNeto))}.`;
+      }
+    } else {
+      resumenTexto += `.`;
+    }
+  }
 
   // Ventas últimos 30 días para gráfico
   const ventasUltimos30Dias = useMemo(() => {
@@ -311,6 +391,17 @@ export function useDashboardData(): DashboardData {
     utilidadMes,
     margenPromedioMes,
     cantidadVentasMes,
+    totalVentasMesAnterior,
+    utilidadMesAnterior,
+    margenMesAnterior,
+    crecimientoVentas,
+    crecimientoUtilidad,
+    cambioMargen,
+    metaMensual,
+    progresoMeta,
+    promedioDiarioNecesario,
+    diasRestantesMes,
+    resumenTexto,
     ventasUltimos30Dias,
     topProductosVendidos
   };

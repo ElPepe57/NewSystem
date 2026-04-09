@@ -5,7 +5,7 @@ import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ErrorTesoreriaBanner } from '../../components/modules/dashboard/ErrorTesoreriaBanner';
 import { UsuariosActivosWidget } from '../../components/modules/dashboard';
 import { useDashboardData } from './useDashboardData';
-import { HeroKPISection } from './sections/HeroKPISection';
+import { ExecutiveSummarySection } from './sections/ExecutiveSummarySection';
 import { AnalyticsSection } from './sections/AnalyticsSection';
 import { AlertsSection } from './sections/AlertsSection';
 
@@ -16,11 +16,10 @@ export const DashboardPage: React.FC = () => {
     return <DashboardSkeleton />;
   }
 
-  const tcCompra = data.tipoCambioDelDia?.compra?.toFixed(3);
-  const tcVenta = data.tipoCambioDelDia?.venta?.toFixed(3);
+  const cxcVencidos = data.dashboardCxPCxC?.cuentasPorCobrar.cantidadVencidos ?? 0;
 
   return (
-    <div className="space-y-6 lg:space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <GradientHeader
         title="Dashboard"
@@ -38,35 +37,38 @@ export const DashboardPage: React.FC = () => {
       <ErrorTesoreriaBanner />
       <LineaFiltroActivoBanner onClear={() => data.setLineaFiltroGlobal(null)} />
 
-      {/* Filtro de linea + TC del dia */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex-1 min-w-0">
-          <LineaFilterInline />
-        </div>
-        {tcCompra && (
-          <span className="inline-flex items-center text-xs text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full flex-shrink-0 font-medium">
-            TC: S/ {tcCompra} / {tcVenta}
-          </span>
-        )}
+      {/* Filtro de linea */}
+      <div className="flex-1 min-w-0">
+        <LineaFilterInline />
       </div>
 
-      {/* Zona 1 — 4 KPIs hero */}
-      <HeroKPISection
+      {/* Zona 1 — Executive Summary Card */}
+      <ExecutiveSummarySection
         totalVentasMes={data.totalVentasMes}
         utilidadMes={data.utilidadMes}
-        margenPromedio={data.margenPromedioMes}
-        cantidadVentas={data.cantidadVentasMes}
-        dashboardCxPCxC={data.dashboardCxPCxC}
+        margenPromedioMes={data.margenPromedioMes}
+        cantidadVentasMes={data.cantidadVentasMes}
+        crecimientoVentas={data.crecimientoVentas}
+        crecimientoUtilidad={data.crecimientoUtilidad}
+        cambioMargen={data.cambioMargen}
+        totalVentasMesAnterior={data.totalVentasMesAnterior}
+        metaMensual={data.metaMensual}
+        progresoMeta={data.progresoMeta}
+        promedioDiarioNecesario={data.promedioDiarioNecesario}
+        diasRestantesMes={data.diasRestantesMes}
+        resumenTexto={data.resumenTexto}
         stockCritico={data.stockCritico}
+        cxcVencidos={cxcVencidos}
       />
 
-      {/* Zona 2 — Tendencia + Top 5 productos */}
+      {/* Zona 2 — Tendencia + contexto lateral */}
       <AnalyticsSection
         ventasUltimos30Dias={data.ventasUltimos30Dias}
         topProductosVendidos={data.topProductosVendidos}
+        tipoCambioDelDia={data.tipoCambioDelDia}
       />
 
-      {/* Zona 3 — Alertas criticas */}
+      {/* Zona 3 — Alertas (solo si existen) */}
       <AlertsSection
         dashboardCxPCxC={data.dashboardCxPCxC}
         stockCriticoItems={data.stockCriticoItems}
