@@ -375,8 +375,8 @@ export const Inventario: React.FC = () => {
         : 0;
     });
 
-    // Ordenar por SKU
-    return Object.values(grupos).sort((a, b) => a.sku.localeCompare(b.sku));
+    // Ordenar por SKU (defensivo contra unidades sin SKU desnormalizado)
+    return Object.values(grupos).sort((a, b) => (a.sku ?? '').localeCompare(b.sku ?? ''));
   }, [unidadesPorLinea, productos, filtroAlmacen, filtroPais]);
 
   // Filtrar productos según el estado seleccionado en el pipeline y búsqueda

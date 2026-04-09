@@ -191,8 +191,10 @@ async function main() {
       const unidad = {
         productoId: p.productoId,
         sku: p.sku,
+        productoSKU: p.sku,              // Campo desnormalizado que espera Inventario
         marca: p.marca,
         nombreComercial: p.nombre,
+        productoNombre: p.nombre,        // Campo desnormalizado que espera Inventario
         presentacion: p.pres,
         lote: `OC-${numeroOrden}`,
         estado: 'disponible_peru', // Directo a disponible porque ya llegó
