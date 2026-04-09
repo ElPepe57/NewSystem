@@ -5,8 +5,9 @@ import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ErrorTesoreriaBanner } from '../../components/modules/dashboard/ErrorTesoreriaBanner';
 import { useDashboardData } from './useDashboardData';
 import { ExecutiveSummarySection } from './sections/ExecutiveSummarySection';
-import { AnalyticsSection } from './sections/AnalyticsSection';
-import { AlertsSection } from './sections/AlertsSection';
+import { CashLiquidezSection } from './sections/CashLiquidezSection';
+import { InsightsSection } from './sections/InsightsSection';
+import { DeepAnalyticsSection } from './sections/DeepAnalyticsSection';
 
 export const DashboardPage: React.FC = () => {
   const data = useDashboardData();
@@ -41,7 +42,7 @@ export const DashboardPage: React.FC = () => {
         <LineaFilterInline />
       </div>
 
-      {/* Zona 1 — Executive Summary Card */}
+      {/* Zona 1 — Executive Pulse */}
       <ExecutiveSummarySection
         totalVentasMes={data.totalVentasMes}
         utilidadMes={data.utilidadMes}
@@ -59,22 +60,40 @@ export const DashboardPage: React.FC = () => {
         progresoMeta={data.progresoMeta}
         promedioDiarioNecesario={data.promedioDiarioNecesario}
         diasRestantesMes={data.diasRestantesMes}
+        proyeccionVentasFinMes={data.proyeccionVentasFinMes}
+        proyeccionVsMeta={data.proyeccionVsMeta}
         resumenTexto={data.resumenTexto}
         stockCritico={data.stockCritico}
         cxcVencidos={cxcVencidos}
+        sparklineVentas={data.sparklineVentas}
+        sparklineUtilidad={data.sparklineUtilidad}
+        sparklineGastos={data.sparklineGastos}
+        sparklineMargen={data.sparklineMargen}
+        healthIndicators={data.healthIndicators}
       />
 
-      {/* Zona 2 — Tendencia + contexto lateral */}
-      <AnalyticsSection
-        ventasUltimos30Dias={data.ventasUltimos30Dias}
-        topProductosVendidos={data.topProductosVendidos}
+      {/* Zona 2 — Cash & Liquidez */}
+      <CashLiquidezSection
+        saldoCajaTotal={data.saldoCajaTotal}
+        gastoMensualPromedio={data.gastoMensualPromedio}
+        cashRunwayMeses={data.cashRunwayMeses}
+        valorInventarioPEN={data.valorInventarioPEN}
+        workingCapital={data.workingCapital}
+        dashboardCxPCxC={data.dashboardCxPCxC}
+        ventasDualLinea={data.ventasDualLinea}
+        lineaFiltroGlobal={data.lineaFiltroGlobal}
         tipoCambioDelDia={data.tipoCambioDelDia}
       />
 
-      {/* Zona 3 — Alertas (solo si existen) */}
-      <AlertsSection
-        dashboardCxPCxC={data.dashboardCxPCxC}
-        stockCriticoItems={data.stockCriticoItems}
+      {/* Zona 3 — Insights proactivos */}
+      <InsightsSection insights={data.insights} />
+
+      {/* Zona 4 — Profundidad: Top 5 + Rentabilidad por linea */}
+      <DeepAnalyticsSection
+        topProductosVendidos={data.topProductosVendidos}
+        rentabilidadSUP={data.rentabilidadSUP}
+        rentabilidadSKC={data.rentabilidadSKC}
+        lineaFiltroGlobal={data.lineaFiltroGlobal}
       />
     </div>
   );

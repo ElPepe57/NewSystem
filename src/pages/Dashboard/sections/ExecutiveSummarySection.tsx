@@ -1,6 +1,10 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Minus, Target } from 'lucide-react';
 import { formatCurrencyPEN, formatCurrencyCompact } from '../../../utils/format';
+import { Sparkline } from '../../../components/common/dashboard/Sparkline';
+import { BulletProgressBar } from '../../../components/common/dashboard/BulletProgressBar';
+import { HealthSemaphore } from '../../../components/common/dashboard/HealthSemaphore';
+import type { HealthIndicator } from '../../../components/common/dashboard/HealthSemaphore';
 
 interface ExecutiveSummarySectionProps {
   // Mes actual
@@ -23,11 +27,21 @@ interface ExecutiveSummarySectionProps {
   progresoMeta: number;
   promedioDiarioNecesario: number;
   diasRestantesMes: number;
+  // Proyeccion
+  proyeccionVentasFinMes: number;
+  proyeccionVsMeta: number;
   // Texto natural
   resumenTexto: string;
-  // Alertas para el resumen
+  // Alertas
   stockCritico: number;
   cxcVencidos: number;
+  // Sparklines
+  sparklineVentas: { value: number }[];
+  sparklineUtilidad: { value: number }[];
+  sparklineGastos: { value: number }[];
+  sparklineMargen: { value: number }[];
+  // Semaforo
+  healthIndicators: HealthIndicator[];
 }
 
 const fmt = (v: number) => formatCurrencyPEN(v);
@@ -42,7 +56,6 @@ interface TrendProps {
 const TrendBadge: React.FC<TrendProps> = ({ value, unit = 'percent', positiveIsGood = true }) => {
   const isPositive = value > 0.1;
   const isNegative = value < -0.1;
-  const isGood = positiveIsGood ? isPositive : isNegative;
 
   const colorClass = isPositive
     ? (positiveIsGood ? 'text-emerald-400' : 'text-rose-400')
@@ -81,37 +94,42 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
   progresoMeta,
   promedioDiarioNecesario,
   diasRestantesMes,
+  proyeccionVentasFinMes,
+  proyeccionVsMeta,
   resumenTexto,
   stockCritico,
   cxcVencidos,
+  sparklineVentas,
+  sparklineUtilidad,
+  sparklineGastos,
+  sparklineMargen,
+  healthIndicators,
 }) => {
   const faltaMeta = Math.max(metaMensual - totalVentasMes, 0);
   const metaAlcanzada = totalVentasMes >= metaMensual;
 
-  // Color de la barra de progreso
-  const barColor = progresoMeta >= 70
-    ? 'bg-emerald-500'
-    : progresoMeta >= 40
-      ? 'bg-amber-500'
-      : 'bg-rose-500';
-
-  const hayAlertas = stockCritico > 0 || cxcVencidos > 0;
-
   return (
     <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 lg:p-8 shadow-xl">
 
-      {/* Fila superior: resumen en texto natural */}
+      {/* Fila superior: semaforo de salud */}
+      <div className="mb-5">
+        <HealthSemaphore indicators={healthIndicators} />
+      </div>
+
+      <div className="border-t border-slate-700/50 mb-5" />
+
+      {/* Narrativa con numeros destacados */}
       <div className="mb-6">
         <p className="text-base lg:text-lg text-slate-200 leading-relaxed">
           {resumenTexto}
         </p>
-        {hayAlertas && (
-          <p className="mt-2 text-sm text-amber-400 flex items-center gap-1.5">
-            <span className="text-amber-400">&#9888;</span>
+        {(stockCritico > 0 || cxcVencidos > 0) && (
+          <p className="mt-2 text-sm text-amber-400 flex items-center gap-1.5 flex-wrap">
+            <span>&#9888;</span>
             {stockCritico > 0 && (
               <span>{stockCritico} {stockCritico === 1 ? 'producto' : 'productos'} con stock critico</span>
             )}
-            {stockCritico > 0 && cxcVencidos > 0 && <span className="text-slate-500"> · </span>}
+            {stockCritico > 0 && cxcVencidos > 0 && <span className="text-slate-500">·</span>}
             {cxcVencidos > 0 && (
               <span>{cxcVencidos} {cxcVencidos === 1 ? 'cobro vencido' : 'cobros vencidos'} +30 dias</span>
             )}
@@ -119,94 +137,119 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
         )}
       </div>
 
-      {/* Divisor */}
       <div className="border-t border-slate-700 mb-6" />
 
-      {/* Fila media: 4 metricas inline — Ventas, Utilidad, Gastos, Margen */}
+      {/* Grid 4 metricas con sparklines */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6">
 
         {/* Ventas del mes */}
         <div className="min-w-0">
-          <div className="text-xs lg:text-sm text-slate-400 mb-1">Ventas del mes</div>
+          <div className="text-xs lg:text-sm text-slate-400 mb-1 uppercase tracking-wide font-medium">Ventas del mes</div>
           <div className="text-xl lg:text-3xl font-bold text-white leading-tight truncate">
             <span className="hidden lg:inline">{fmt(totalVentasMes)}</span>
             <span className="lg:hidden">{fmtC(totalVentasMes)}</span>
           </div>
-          <div className="mt-1.5">
-            {totalVentasMesAnterior > 0
-              ? <TrendBadge value={crecimientoVentas} />
-              : <span className="text-xs text-slate-500">{cantidadVentasMes} ventas</span>
-            }
+          <div className="mt-1.5 flex items-center justify-between gap-2">
+            <div>
+              {totalVentasMesAnterior > 0
+                ? <TrendBadge value={crecimientoVentas} />
+                : <span className="text-xs text-slate-500">{cantidadVentasMes} ventas</span>
+              }
+            </div>
+            {sparklineVentas.length >= 2 && (
+              <Sparkline data={sparklineVentas} width={72} height={24} />
+            )}
           </div>
         </div>
 
         {/* Utilidad */}
         <div className="min-w-0">
-          <div className="text-xs lg:text-sm text-slate-400 mb-1">Utilidad</div>
+          <div className="text-xs lg:text-sm text-slate-400 mb-1 uppercase tracking-wide font-medium">Utilidad</div>
           <div className="text-xl lg:text-3xl font-bold text-white leading-tight truncate">
             <span className="hidden lg:inline">{fmt(utilidadMes)}</span>
             <span className="lg:hidden">{fmtC(utilidadMes)}</span>
           </div>
-          <div className="mt-1.5">
+          <div className="mt-1.5 flex items-center justify-between gap-2">
             <TrendBadge value={crecimientoUtilidad} />
+            {sparklineUtilidad.length >= 2 && (
+              <Sparkline data={sparklineUtilidad} width={72} height={24} />
+            )}
           </div>
         </div>
 
         {/* Gastos del mes */}
         <div className="min-w-0">
-          <div className="text-xs lg:text-sm text-slate-400 mb-1">Gastos del mes</div>
+          <div className="text-xs lg:text-sm text-slate-400 mb-1 uppercase tracking-wide font-medium">Gastos del mes</div>
           <div className="text-xl lg:text-3xl font-bold text-white leading-tight truncate">
             <span className="hidden lg:inline">{fmt(gastosMes)}</span>
             <span className="lg:hidden">{fmtC(gastosMes)}</span>
           </div>
-          <div className="mt-1.5">
-            {gastosMesAnterior > 0
-              ? <TrendBadge value={crecimientoGastos} positiveIsGood={false} />
-              : ratioGastosVentas > 0
-                ? <span className="text-xs text-slate-500">{ratioGastosVentas.toFixed(0)}% de ventas</span>
-                : <span className="text-xs text-slate-500">Sin datos previos</span>
-            }
+          <div className="mt-1.5 flex items-center justify-between gap-2">
+            <div>
+              {gastosMesAnterior > 0
+                ? <TrendBadge value={crecimientoGastos} positiveIsGood={false} />
+                : ratioGastosVentas > 0
+                  ? <span className="text-xs text-slate-500">{ratioGastosVentas.toFixed(0)}% de ventas</span>
+                  : <span className="text-xs text-slate-500">Sin datos previos</span>
+              }
+            </div>
+            {sparklineGastos.length >= 2 && (
+              <Sparkline data={sparklineGastos} width={72} height={24} color="#f59e0b" />
+            )}
           </div>
         </div>
 
         {/* Margen */}
         <div className="min-w-0">
-          <div className="text-xs lg:text-sm text-slate-400 mb-1">Margen</div>
+          <div className="text-xs lg:text-sm text-slate-400 mb-1 uppercase tracking-wide font-medium">Margen</div>
           <div className="text-xl lg:text-3xl font-bold text-white leading-tight">
             {margenPromedioMes.toFixed(1)}%
           </div>
-          <div className="mt-1.5">
+          <div className="mt-1.5 flex items-center justify-between gap-2">
             <TrendBadge value={cambioMargen} unit="pp" />
+            {sparklineMargen.length >= 2 && (
+              <Sparkline data={sparklineMargen} width={72} height={24} />
+            )}
           </div>
         </div>
       </div>
 
-      {/* Divisor */}
       <div className="border-t border-slate-700 mb-5" />
 
-      {/* Fila inferior: barra de progreso hacia meta */}
+      {/* Bullet Chart: meta mensual con proyeccion */}
       <div>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Target className="h-4 w-4 text-slate-400 flex-shrink-0" />
-            <span className="text-sm font-medium text-slate-300">
-              Meta mensual
-            </span>
+            <span className="text-sm font-medium text-slate-300">Meta mensual</span>
           </div>
-          <span className={`text-sm font-bold ${
-            metaAlcanzada ? 'text-emerald-400' : 'text-slate-300'
-          }`}>
+          <span className={`text-sm font-bold ${metaAlcanzada ? 'text-emerald-400' : 'text-slate-300'}`}>
             {progresoMeta.toFixed(0)}% · {fmtC(totalVentasMes)} / {fmtC(metaMensual)}
           </span>
         </div>
 
-        {/* Barra */}
-        <div className="w-full bg-slate-700 rounded-full h-2.5 overflow-hidden">
-          <div
-            className={`h-2.5 rounded-full transition-all duration-700 ${barColor}`}
-            style={{ width: `${Math.min(progresoMeta, 100)}%` }}
-          />
-        </div>
+        <BulletProgressBar progress={progresoMeta} />
+
+        {/* Barra de proyeccion (secundaria, traslucida) */}
+        {proyeccionVentasFinMes > totalVentasMes && (
+          <div className="mt-2">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-slate-500">Proyeccion fin de mes</span>
+              <span className={`text-xs font-medium ${proyeccionVsMeta >= 100 ? 'text-emerald-400' : proyeccionVsMeta >= 80 ? 'text-amber-400' : 'text-rose-400'}`}>
+                {fmtC(proyeccionVentasFinMes)} ({proyeccionVsMeta.toFixed(0)}% de meta)
+              </span>
+            </div>
+            <div className="w-full bg-slate-800/40 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="h-1.5 rounded-full transition-all duration-700 opacity-60"
+                style={{
+                  width: `${Math.min(proyeccionVsMeta, 100)}%`,
+                  backgroundColor: proyeccionVsMeta >= 100 ? '#10b981' : proyeccionVsMeta >= 80 ? '#f59e0b' : '#f43f5e'
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Subtexto bajo la barra */}
         <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
