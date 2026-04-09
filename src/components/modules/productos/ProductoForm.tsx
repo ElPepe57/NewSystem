@@ -1019,7 +1019,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         label="Presentacion"
                         value={formData.presentacion}
                         onChange={handleAutocompleteChange('presentacion')}
-                        suggestions={['Tabletas', 'Gomitas', 'Capsulas', 'Capsulas Blandas', 'Polvo', 'Liquido', ...sugerencias.presentaciones]}
+                        suggestions={['Tabletas', 'Gomitas', 'Cápsulas', 'Cápsulas Blandas', 'Cápsulas Vegetales', 'Mini Cápsulas Blandas', 'Polvo', 'Líquido', ...sugerencias.presentaciones]}
                         required
                         placeholder="ej: Capsulas"
                         allowCreate

@@ -246,6 +246,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
             <button
               key={suggestion}
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleSelect(suggestion)}
               className={`
                 w-full text-left px-3 py-2 text-sm
@@ -261,6 +262,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           {showCreateOption && (
             <button
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={handleCreateNew}
               className={`
                 w-full text-left px-3 py-2 text-sm flex items-center gap-2
