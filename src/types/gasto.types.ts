@@ -6,6 +6,9 @@ import { Timestamp } from 'firebase/firestore';
 export type TipoGasto =
   // COSTOS DE IMPORTACIÓN (se pegan al producto vía CTRU)
   | 'flete_internacional'       // C2: Flete internacional (cualquier país → Perú)
+  /**
+   * @deprecated Usar 'flete_internacional'. Se mantiene para backward compat con docs existentes.
+   */
   | 'flete_usa_peru'            // Legacy: equivale a flete_internacional (backward compat)
   | 'recojo_local'              // C3: Recojo en Perú (courier/viajero → almacén)
   | 'almacenaje'                // Almacenamiento origen o Perú
@@ -207,14 +210,18 @@ export const CATEGORIAS_GASTO_VENTA: CategoriaGasto[] = ['GV', 'GD'];
  */
 export const TIPOS_GASTO_LABELS: Record<TipoGasto, string> = {
   flete_internacional: 'Flete Internacional',
-  flete_usa_peru: 'Flete USA-Perú (legacy)',
+  flete_usa_peru: 'Flete Internacional (legacy)',
+  recojo_local: 'Recojo Local',
   almacenaje: 'Almacenaje',
+  internacion: 'Internación / Aduanas',
   administrativo: 'Administrativo',
   operativo: 'Operativo',
   marketing: 'Marketing',
   empaque: 'Empaque',
   delivery: 'Delivery',
   comision_ml: 'Comisión ML',
+  comision_pasarela: 'Comisión Pasarela',
+  comision_vendedor: 'Comisión Vendedor',
   merma_transferencia: 'Merma en Transferencia',
   merma_vencimiento: 'Merma por Vencimiento',
   desmedro: 'Desmedro',

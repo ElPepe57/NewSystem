@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Input, Select } from '../../common';
-import type { AlmacenFormData } from '../../../types/almacen.types';
+import type { AlmacenFormData, PaisAlmacen } from '../../../types/almacen.types';
+import { PAISES_CONFIG } from '../../../types/almacen.types';
 
 interface AlmacenFormProps {
   initialData?: Partial<AlmacenFormData>;
@@ -18,7 +19,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
   const [formData, setFormData] = useState<AlmacenFormData>({
     codigo: initialData?.codigo || '',
     nombre: initialData?.nombre || '',
-    pais: initialData?.pais || 'USA',
+    pais: initialData?.pais || ('' as PaisAlmacen),
     direccion: initialData?.direccion || '',
     ciudad: initialData?.ciudad || '',
     estado: initialData?.estado || '',
@@ -47,6 +48,28 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
     onSubmit(formData);
   };
 
+  // Opciones de país generadas dinámicamente desde PAISES_CONFIG
+  const opcionesPais = [
+    { value: '', label: 'Selecciona un país...' },
+    ...Object.entries(PAISES_CONFIG).map(([key, config]) => ({
+      value: key,
+      label: `${config.emoji} ${config.nombre}`
+    }))
+  ];
+
+  // Tipo de almacén con label dinámico según el país seleccionado
+  const paisSeleccionado = formData.pais ? PAISES_CONFIG[formData.pais] : null;
+  const esOrigen = paisSeleccionado?.esOrigen ?? true;
+  const labelAlmacen = paisSeleccionado
+    ? `Almacén ${paisSeleccionado.nombre}`
+    : 'Almacén';
+
+  const opcionesTipo = [
+    { value: 'viajero', label: 'Viajero' },
+    { value: esOrigen ? 'almacen_origen' : 'almacen_peru', label: labelAlmacen },
+    { value: 'courier', label: 'Courier' },
+  ];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Información Básica */}
@@ -59,7 +82,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
             value={formData.codigo}
             onChange={handleChange}
             required
-            placeholder="ej: ALM-USA-001"
+            placeholder="ej: ALM-001"
             disabled={!!initialData?.codigo}
           />
 
@@ -69,7 +92,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
             value={formData.nombre}
             onChange={handleChange}
             required
-            placeholder="ej: Almacén Principal USA"
+            placeholder="ej: Almacén Principal"
           />
 
           <Select
@@ -77,10 +100,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
             name="pais"
             value={formData.pais}
             onChange={handleChange}
-            options={[
-              { value: 'USA', label: '🇺🇸 Estados Unidos' },
-              { value: 'Peru', label: '🇵🇪 Perú' }
-            ]}
+            options={opcionesPais}
             required
           />
 
@@ -89,11 +109,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
             name="tipo"
             value={formData.tipo}
             onChange={handleChange}
-            options={[
-              { value: 'viajero', label: 'Viajero' },
-              { value: 'almacen_usa', label: 'Almacén USA' },
-              { value: 'almacen_peru', label: 'Almacén Perú' }
-            ]}
+            options={opcionesTipo}
             required
           />
 
@@ -138,7 +154,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
               name="ciudad"
               value={formData.ciudad}
               onChange={handleChange}
-              placeholder="ej: Miami"
+              placeholder="ej: Ciudad"
             />
 
             <Input
@@ -146,7 +162,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
               name="estado"
               value={formData.estado || ''}
               onChange={handleChange}
-              placeholder="ej: Florida"
+              placeholder="ej: Estado/Provincia"
             />
 
             <Input
@@ -154,7 +170,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
               name="codigoPostal"
               value={formData.codigoPostal || ''}
               onChange={handleChange}
-              placeholder="ej: 33101"
+              placeholder="ej: Código postal"
             />
           </div>
         </div>
@@ -169,7 +185,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
             name="contacto"
             value={formData.contacto || ''}
             onChange={handleChange}
-            placeholder="ej: John Smith"
+            placeholder="ej: Nombre del contacto"
           />
 
           <Input
@@ -177,7 +193,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
             name="telefono"
             value={formData.telefono || ''}
             onChange={handleChange}
-            placeholder="ej: +1 (305) 123-4567"
+            placeholder="ej: +51 999 999 999"
           />
 
           <div className="md:col-span-2">

@@ -28,6 +28,7 @@ import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 import type { Transferencia } from '../types/transferencia.types';
+import { TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/transferencia.types';
 import type {
   EstadoResultados,
   PeriodoContable,
@@ -149,10 +150,10 @@ async function getPagosViajerosPendientes(tc: number): Promise<number> {
   try {
     const transferenciasRef = collection(db, COLLECTIONS.TRANSFERENCIAS);
     // No podemos filtrar por estadoPagoViajero !== 'pagado' en Firestore,
-    // así que traemos todas las usa_peru y filtramos en memoria
+    // así que traemos todas las internacionales (legacy + genérico) y filtramos en memoria
     const q = query(
       transferenciasRef,
-      where('tipo', '==', 'usa_peru')
+      where('tipo', 'in', TIPOS_TRANSFERENCIA_INTERNACIONAL)
     );
     const snapshot = await getDocs(q);
 
@@ -339,10 +340,10 @@ async function getTransferenciasPeriodo(mes: number, anio: number): Promise<Tran
     const inicioMes = new Date(anio, mes - 1, 1);
     const finMes = new Date(anio, mes, 0, 23, 59, 59);
 
-    // Query simple solo por tipo para evitar índice compuesto
+    // Query por todos los tipos internacionales (legacy usa_peru + genérico internacional_peru)
     const q = query(
       transferenciasRef,
-      where('tipo', '==', 'usa_peru')
+      where('tipo', 'in', TIPOS_TRANSFERENCIA_INTERNACIONAL)
     );
 
     const snapshot = await getDocs(q);

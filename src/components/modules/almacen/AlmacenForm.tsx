@@ -21,7 +21,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
   const [formData, setFormData] = useState<AlmacenFormData>({
     codigo: '',
     nombre: '',
-    pais: 'USA',
+    pais: '' as PaisAlmacen,
     tipo: 'viajero',
     estadoAlmacen: 'activo',
     direccion: '',

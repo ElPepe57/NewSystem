@@ -64,9 +64,9 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
   const existeInvestigacion = !!producto.investigacion;
   const inv = producto.investigacion;
 
-  // Determinar origen según línea de negocio (suplementos = USA, skincare = internacional)
+  // Determinar país de origen según línea de negocio (suplementos = USA, skincare = sin filtro)
   const SUPL_LINEA = 'Z50CnuaBdD5x0w7XGRv8';
-  const origenProducto = producto.lineaNegocioId === SUPL_LINEA ? 'usa' as const : 'internacional' as const;
+  const paisOrigen = producto.lineaNegocioId === SUPL_LINEA ? 'USA' : undefined;
 
   // Convertir datos existentes al nuevo formato
   const getProveedoresIniciales = (): ProveedorUSAFormData[] => {
@@ -442,7 +442,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                 onChange={setProveedoresUSA}
                 disabled={loading}
                 lineaNegocioId={producto.lineaNegocioId}
-                origenProducto={origenProducto}
+                paisOrigen={paisOrigen}
                 sugerenciasProveedores={sugerenciasProveedores}
               />
             </div>
@@ -663,7 +663,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">{origenProducto === 'usa' ? 'Mejor Precio USA' : 'Mejor Precio'}</p>
+              <p className="text-xs text-gray-600">{paisOrigen ? `Mejor Precio ${paisOrigen}` : 'Mejor Precio'}</p>
               <p className="text-lg font-bold">${calculos.mejorPrecioUSAConImpuesto.toFixed(2)}</p>
               {preciosUSA.mejor && (
                 <p className="text-xs text-gray-500">{preciosUSA.mejor.nombre}</p>

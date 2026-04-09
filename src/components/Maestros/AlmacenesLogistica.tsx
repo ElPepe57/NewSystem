@@ -132,17 +132,19 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
     initialItemsPerPage: 25
   });
 
+  // Mapa de colores por país (extensible con nuevos países)
+  const PAISES_COLORES: Record<string, { badge: string }> = {
+    USA:        { badge: 'bg-blue-100 text-blue-700 border-blue-300' },
+    China:      { badge: 'bg-rose-100 text-rose-700 border-rose-200' },
+    Corea:      { badge: 'bg-sky-100 text-sky-700 border-sky-300' },
+    Peru:       { badge: 'bg-amber-100 text-amber-700 border-amber-300' },
+    Peru_local: { badge: 'bg-amber-100 text-amber-700 border-amber-300' },
+  };
+  const DEFAULT_PAIS_COLOR = 'bg-gray-100 text-gray-700 border-gray-300';
+
   // Helpers de UI
   const getPaisColor = (pais: PaisAlmacen) => {
-    switch (pais) {
-      case 'USA': return 'bg-blue-100 text-blue-700 border-blue-300';
-      case 'China': return 'bg-red-100 text-red-700 border-red-300';
-      case 'Corea': return 'bg-sky-100 text-sky-700 border-sky-300';
-      case 'Peru':
-      case 'Peru_local':
-      default:
-        return 'bg-amber-100 text-amber-700 border-amber-300';
-    }
+    return PAISES_COLORES[pais]?.badge ?? DEFAULT_PAIS_COLOR;
   };
 
   const getTipoColor = (tipo: TipoAlmacen) => {
@@ -197,19 +199,21 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
     if (!almacenes.length) return null;
 
     const activos = almacenes.filter(a => a.estadoAlmacen === 'activo');
-    const almacenesUSA = almacenes.filter(a => a.pais === 'USA');
-    const almacenesPeru = almacenes.filter(a => a.pais === 'Peru');
     const viajeros = almacenes.filter(a => a.esViajero);
     const viajerosActivos = viajeros.filter(a => a.estadoAlmacen === 'activo');
 
-    const totalUnidadesUSA = almacenesUSA.reduce((sum, a) => sum + (a.unidadesActuales || 0), 0);
     const totalValorUSD = almacenes.reduce((sum, a) => sum + (a.valorInventarioUSD || 0), 0);
 
-    // Distribución por país
-    const porPais = {
-      USA: almacenesUSA.length,
-      Peru: almacenesPeru.length
-    };
+    // Distribución dinámica por país
+    const porPais = almacenes.reduce<Record<string, number>>((acc, a) => {
+      acc[a.pais] = (acc[a.pais] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Métricas de almacenes de origen (todos los países distintos a Peru/Peru_local)
+    const almacenesOrigen = almacenes.filter(a => a.pais !== 'Peru' && a.pais !== 'Peru_local');
+    const almacenesPeru = almacenes.filter(a => a.pais === 'Peru' || a.pais === 'Peru_local');
+    const totalUnidadesOrigen = almacenesOrigen.reduce((sum, a) => sum + (a.unidadesActuales || 0), 0);
 
     // Distribución por tipo
     const porTipo = {
@@ -260,11 +264,11 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
     return {
       totalAlmacenes: almacenes.length,
       activos: activos.length,
-      almacenesUSA: almacenesUSA.length,
+      almacenesOrigen: almacenesOrigen.length,
       almacenesPeru: almacenesPeru.length,
       viajeros: viajeros.length,
       viajerosActivos: viajerosActivos.length,
-      totalUnidadesUSA,
+      totalUnidadesOrigen,
       totalValorUSD,
       porPais,
       porTipo,
@@ -345,8 +349,8 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
               size="sm"
             />
             <KPICard
-              title="USA / Peru"
-              value={`${metricas.almacenesUSA} / ${metricas.almacenesPeru}`}
+              title="Origen / Perú"
+              value={`${metricas.almacenesOrigen} / ${metricas.almacenesPeru}`}
               subtitle="distribución"
               icon={Globe}
               variant="default"
@@ -361,8 +365,8 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
               size="sm"
             />
             <KPICard
-              title="Unidades en USA"
-              value={metricas.totalUnidadesUSA}
+              title="Unidades en Origen"
+              value={metricas.totalUnidadesOrigen}
               icon={Package}
               variant="info"
               size="sm"
