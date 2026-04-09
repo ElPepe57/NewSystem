@@ -155,6 +155,11 @@ export const Transferencias: React.FC = () => {
     }
   }, [searchParams, transferencias, setSearchParams]);
 
+  // Filtrar cada fuente por línea de negocio (sin lineaNegocioId = compartidas, siempre visibles)
+  const transferenciasPorLinea = useLineaFilter(transferencias, t => t.lineaNegocioId, { allowUndefined: true });
+  const transEnTransitoPorLinea = useLineaFilter(transferenciasEnTransito, t => t.lineaNegocioId, { allowUndefined: true });
+  const transPendientesPorLinea = useLineaFilter(transferenciasPendientes, t => t.lineaNegocioId, { allowUndefined: true });
+
   // Pipeline stages para visualizacion
   const pipelineStages: PipelineStage[] = useMemo(() => {
     const contarPorEstado = (estados: EstadoTransferencia[]) =>
@@ -197,7 +202,7 @@ export const Transferencias: React.FC = () => {
         icon: <XOctagon className="h-4 w-4" />,
       },
     ];
-  }, [transferencias]);
+  }, [transferenciasPorLinea]);
 
   // Calcular valor total en transito
   const valorEnTransito = useMemo(() => {
@@ -206,11 +211,6 @@ export const Transferencias: React.FC = () => {
       return total + valorTransferencia;
     }, 0);
   }, [transferenciasEnTransito]);
-
-  // Filtrar cada fuente por línea de negocio (sin lineaNegocioId = compartidas, siempre visibles)
-  const transferenciasPorLinea = useLineaFilter(transferencias, t => t.lineaNegocioId, { allowUndefined: true });
-  const transEnTransitoPorLinea = useLineaFilter(transferenciasEnTransito, t => t.lineaNegocioId, { allowUndefined: true });
-  const transPendientesPorLinea = useLineaFilter(transferenciasPendientes, t => t.lineaNegocioId, { allowUndefined: true });
 
   // Filtrar transferencias
   const transferenciasFiltradas = useMemo(() => {
