@@ -1,137 +1,145 @@
 import React from 'react';
-import { AlertTriangle, ShoppingCart } from 'lucide-react';
+import { AlertTriangle, CheckCircle, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, Badge } from '../../../components/common';
-import { VencimientosWidget } from '../../../components/modules/dashboard/VencimientosWidget';
-import { ActividadRecienteWidget } from '../../../components/modules/dashboard/ActividadRecienteWidget';
 import type { DashboardCuentasPendientes } from '../../../types/tesoreria.types';
-import type { ActividadItem } from '../../../components/modules/dashboard';
 import { formatCurrencyPEN } from '../../../utils/format';
+
+interface StockCriticoItem {
+  productoId: string;
+  sku: string;
+  nombre: string;
+  disponibles: number;
+  stockMinimo: number;
+  almacenNombre?: string;
+}
 
 interface AlertsSectionProps {
   dashboardCxPCxC: DashboardCuentasPendientes | null;
-  ventas: any[];
-  actividadReciente: ActividadItem[];
+  stockCriticoItems: StockCriticoItem[];
 }
 
 const fmt = (v: number) => formatCurrencyPEN(v);
 
 export const AlertsSection: React.FC<AlertsSectionProps> = ({
   dashboardCxPCxC,
-  ventas,
-  actividadReciente
+  stockCriticoItems
 }) => {
-  const alertas = dashboardCxPCxC?.alertas ?? [];
-  const alertasAlta = alertas.filter(a => a.prioridad === 'alta');
-  const alertasMedia = alertas.filter(a => a.prioridad === 'media');
-  const alertasTotal = alertas.length;
-
-  const ultimasVentas = (ventas || [])
-    .filter(v => v.estado !== 'cancelada')
-    .slice(0, 5);
+  const cxcVencidos = dashboardCxPCxC?.cuentasPorCobrar.cantidadVencidos ?? 0;
+  const cxcVencidoMonto = dashboardCxPCxC?.cuentasPorCobrar.pendienteMas30dias ?? 0;
+  const hayAlertaCxC = cxcVencidos > 0;
+  const hayStockCritico = stockCriticoItems.length > 0;
+  const sinAlertas = !hayStockCritico && !hayAlertaCxC;
 
   return (
-    <div className="space-y-4 lg:space-y-6">
-      {/* Alertas financieras */}
-      {alertasTotal > 0 && (
-        <Card padding="md" className="bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-500">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base lg:text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Alertas Financieras
-              <span className="text-sm font-normal text-amber-600">({alertasTotal})</span>
-              {alertasAlta.length > 0 && (
-                <Badge variant="danger" size="sm">{alertasAlta.length} alta prioridad</Badge>
-              )}
-            </h3>
-            <Link to="/tesoreria" className="text-sm text-primary-600 hover:text-primary-700">
-              Ver todas
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {alertas.slice(0, 6).map((alerta, idx) => (
-              <div
-                key={idx}
-                className={`p-3 rounded-lg border ${
-                  alerta.prioridad === 'alta' ? 'bg-red-50 border-red-200' :
-                  alerta.prioridad === 'media' ? 'bg-amber-50 border-amber-200' :
-                  'bg-gray-50 border-gray-200'
-                }`}
-              >
-                <div className="flex items-start gap-2">
-                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                    alerta.prioridad === 'alta' ? 'bg-red-500' :
-                    alerta.prioridad === 'media' ? 'bg-amber-500' : 'bg-gray-400'
-                  }`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-700 truncate">{alerta.mensaje}</p>
-                    <Badge
-                      variant={alerta.tipo === 'vencido' ? 'danger' : alerta.tipo === 'monto_alto' ? 'warning' : 'info'}
-                      size="sm"
-                    >
-                      {alerta.tipo === 'vencido' ? 'Vencido' : 'Monto Alto'}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+    <div>
+      <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
+        <AlertTriangle className="h-5 w-5 text-amber-500" />
+        Alertas Criticas
+      </h2>
 
-      {/* Últimas ventas + Vencimientos + Actividad */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-        {/* Últimas ventas */}
+        {/* Stock Critico */}
         <Card padding="md">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base lg:text-lg font-semibold text-gray-900">Ultimas Ventas</h3>
-            <Link to="/ventas" className="text-sm text-primary-600 hover:text-primary-700">
-              Ver todo
-            </Link>
+            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+              Stock Bajo Minimo
+            </h3>
+            {hayStockCritico && (
+              <Link to="/inventario" className="text-sm text-primary-600 hover:text-primary-700">
+                Ver inventario
+              </Link>
+            )}
           </div>
 
-          {ultimasVentas.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <ShoppingCart className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-              <p className="text-sm">No hay ventas registradas</p>
+          {!hayStockCritico ? (
+            <div className="flex items-center gap-3 py-6 px-2">
+              <CheckCircle className="h-8 w-8 text-green-400 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-green-700">Todo en orden</p>
+                <p className="text-xs text-gray-500">Ningun producto bajo el stock minimo</p>
+              </div>
             </div>
           ) : (
             <div className="space-y-2">
-              {ultimasVentas.map(venta => (
-                <div key={venta.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              {stockCriticoItems.slice(0, 5).map(item => (
+                <div
+                  key={item.productoId}
+                  className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100"
+                >
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-900 text-sm">{venta.numeroVenta}</div>
-                    <div className="text-xs text-gray-500 truncate">
-                      {venta.nombreCliente} · {venta.canal}
+                    <div className="font-medium text-gray-900 text-sm truncate">{item.nombre}</div>
+                    <div className="text-xs text-gray-500">
+                      {item.sku}{item.almacenNombre ? ` · ${item.almacenNombre}` : ''}
                     </div>
                   </div>
-                  <div className="text-right ml-2 flex-shrink-0">
-                    <div className="font-semibold text-gray-900 text-sm">{fmt(venta.totalPEN)}</div>
-                    <Badge
-                      variant={
-                        venta.estado === 'entregada' ? 'success' :
-                        venta.estado === 'despachada' ? 'info' :
-                        venta.estado === 'en_entrega' ? 'warning' :
-                        venta.estado === 'confirmada' ? 'warning' : 'default'
-                      }
-                      size="sm"
-                    >
-                      {venta.estado}
-                    </Badge>
+                  <div className="text-right ml-3 flex-shrink-0">
+                    <Badge variant="danger">{item.disponibles} uds</Badge>
+                    <div className="text-xs text-gray-500 mt-1">Min: {item.stockMinimo}</div>
                   </div>
                 </div>
               ))}
+              {stockCriticoItems.length > 5 && (
+                <Link
+                  to="/inventario"
+                  className="block text-center text-xs text-primary-600 hover:text-primary-700 pt-1"
+                >
+                  +{stockCriticoItems.length - 5} productos mas
+                </Link>
+              )}
             </div>
           )}
         </Card>
 
-        {/* Vencimientos */}
-        <VencimientosWidget maxItems={6} />
-      </div>
+        {/* CxC Vencida +30 dias */}
+        <Card padding="md">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-orange-500" />
+              CxC Vencida +30 Dias
+            </h3>
+            {hayAlertaCxC && (
+              <Link to="/tesoreria" className="text-sm text-primary-600 hover:text-primary-700">
+                Ver tesoreria
+              </Link>
+            )}
+          </div>
 
-      {/* Actividad reciente */}
-      <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-        <ActividadRecienteWidget actividades={actividadReciente} maxItems={10} />
+          {!dashboardCxPCxC ? (
+            <div className="flex items-center gap-3 py-6 px-2">
+              <div className="h-8 w-8 rounded-full bg-gray-100 flex-shrink-0 animate-pulse" />
+              <p className="text-sm text-gray-400">Cargando datos...</p>
+            </div>
+          ) : !hayAlertaCxC ? (
+            <div className="flex items-center gap-3 py-6 px-2">
+              <CheckCircle className="h-8 w-8 text-green-400 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-green-700">Sin vencidos</p>
+                <p className="text-xs text-gray-500">No hay CxC con mas de 30 dias pendientes</p>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-red-700">
+                    {cxcVencidos} {cxcVencidos === 1 ? 'documento vencido' : 'documentos vencidos'}
+                  </p>
+                  <p className="text-xl font-bold text-red-900 mt-1">{fmt(cxcVencidoMonto)}</p>
+                  <p className="text-xs text-red-600 mt-1">Pendiente de cobro con mas de 30 dias</p>
+                  <Link
+                    to="/tesoreria"
+                    className="inline-block mt-3 text-xs font-medium text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    Gestionar cobranza
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   );

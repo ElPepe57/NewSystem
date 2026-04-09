@@ -12,11 +12,19 @@ import { cuentasPendientesService } from '../../services/cuentasPendientes.servi
 import { filtrarVentasMes, calcularKPIVentas } from '../../utils/kpi.calculators';
 import { timed } from '../../lib/perf';
 import type { DashboardCuentasPendientes } from '../../types/tesoreria.types';
-import type { ActividadItem, TipoActividad } from '../../components/modules/dashboard';
 
 // Staleness threshold: skip re-fetch if data was loaded less than 5 minutes ago
 const STALE_TIME_MS = 5 * 60 * 1000;
 let dashboardLastFetchedAt = 0;
+
+export interface StockCriticoItem {
+  productoId: string;
+  sku: string;
+  nombre: string;
+  disponibles: number;
+  stockMinimo: number;
+  almacenNombre?: string;
+}
 
 export interface DashboardData {
   // Estado base
@@ -34,46 +42,27 @@ export interface DashboardData {
   // Datos filtrados por línea
   productosLN: any[];
   ventasLN: any[];
-  ordenesLN: any[];
+  inventarioLN: any[];
 
-  // Datos crudos (para fallback en alertas de inventario)
+  // Datos crudos
   productos: any[];
   ventas: any[];
   inventario: any[];
   resumenInventario: any;
-  gastosStats: any;
-  ordenesStats: any;
 
   // Métricas derivadas
   productosActivos: number;
   stockCritico: number;
-  valorInventarioPEN: number;
+  stockCriticoItems: StockCriticoItem[];
+
+  // KPIs del mes
   totalVentasMes: number;
   utilidadMes: number;
   margenPromedioMes: number;
-  ventasMesActual: any[];
-  anticiposPendientes: { cantidad: number; monto: number };
-  ordenesEnProceso: any[];
-
-  // ROI
-  metricsROI: {
-    productosConInvestigacion: number;
-    roiPromedio: number;
-    multiplicadorPromedio: number;
-    topMejorROI: any[];
-    oportunidadesInversion: any[];
-    productosSinInvestigar: number;
-  };
+  cantidadVentasMes: number;
 
   // Datos para gráficos
   ventasUltimos30Dias: { fecha: string; fechaCompleta: Date; ventas: number; cantidad: number }[];
-  distribucionInventario: { name: string; value: number; color: string }[];
-  ventasPorCanalData: { canal: string; ventas: number; color: string }[];
-  ventasPorCanalPie: {
-    mercadoLibre: { cantidad: number; totalPEN: number; porcentaje: number };
-    directo: { cantidad: number; totalPEN: number; porcentaje: number };
-    otro: { cantidad: number; totalPEN: number; porcentaje: number };
-  };
   topProductosVendidos: {
     productoId: string;
     sku: string;
@@ -84,7 +73,6 @@ export interface DashboardData {
     utilidadPEN: number;
     margenPromedio: number;
   }[];
-  actividadReciente: ActividadItem[];
 }
 
 export function useDashboardData(): DashboardData {
@@ -100,14 +88,10 @@ export function useDashboardData(): DashboardData {
   const fetchResumen = useInventarioStore(state => state.fetchResumen);
   const fetchInventario = useInventarioStore(state => state.fetchInventario);
   const ventas = useVentaStore(state => state.ventas);
-  const ventasStats = useVentaStore(state => state.stats);
   const fetchVentas = useVentaStore(state => state.fetchVentas);
   const fetchVentasStats = useVentaStore(state => state.fetchStats);
-  const ordenes = useOrdenCompraStore(state => state.ordenes);
-  const ordenesStats = useOrdenCompraStore(state => state.stats);
   const fetchOrdenes = useOrdenCompraStore(state => state.fetchOrdenes);
   const fetchOrdenesStats = useOrdenCompraStore(state => state.fetchStats);
-  const gastosStats = useGastoStore(state => state.stats);
   const fetchGastosStats = useGastoStore(state => state.fetchStats);
   const getTCDelDia = useTipoCambioStore(state => state.getTCDelDia);
   const userProfile = useAuthStore(state => state.userProfile);
@@ -185,7 +169,6 @@ export function useDashboardData(): DashboardData {
   // Filtrar por línea de negocio
   const productosLN = useLineaFilter(productos || [], p => p.lineaNegocioId);
   const ventasLN = useLineaFilter(ventas || [], v => v.lineaNegocioId);
-  const ordenesLN = useLineaFilter(ordenes || [], o => o.lineaNegocioId);
 
   const inventarioLN = useMemo(() => {
     const productoIdsLN = new Set(productosLN.map(p => p.id));
@@ -200,86 +183,37 @@ export function useDashboardData(): DashboardData {
     return inv.stockCritico || (inv.disponibles > 0 && producto?.stockMinimo && inv.disponibles <= producto.stockMinimo);
   }).length || 0;
 
-  const tcParaInventario = tipoCambioDelDia?.venta || tipoCambioDelDia?.compra || 0;
-  const valorInventarioPEN = resumenInventario?.total?.valorUSD && tcParaInventario > 0
-    ? resumenInventario.total.valorUSD * tcParaInventario
-    : 0;
+  // Lista detallada de stock crítico para AlertsSection
+  const stockCriticoItems = useMemo((): StockCriticoItem[] => {
+    return inventarioLN
+      .filter(inv => {
+        const producto = productosLN.find(p => p.id === inv.productoId);
+        return inv.stockCritico || (inv.disponibles > 0 && producto?.stockMinimo && inv.disponibles <= producto.stockMinimo);
+      })
+      .map(inv => {
+        const producto = productosLN.find(p => p.id === inv.productoId);
+        return {
+          productoId: inv.productoId,
+          sku: producto?.sku ?? inv.productoId,
+          nombre: [producto?.marca, producto?.nombreComercial].filter(Boolean).join(' ') || inv.productoId,
+          disponibles: inv.disponibles ?? 0,
+          stockMinimo: producto?.stockMinimo ?? 0,
+          almacenNombre: inv.almacenNombre
+        };
+      })
+      .sort((a, b) => a.disponibles - b.disponibles);
+  }, [inventarioLN, productosLN]);
 
+  // KPIs del mes
   const ahora = new Date();
   const ventasMesActual = filtrarVentasMes(ventasLN, ahora);
   const kpiMes = calcularKPIVentas(ventasMesActual);
   const totalVentasMes = kpiMes.totalPEN;
   const utilidadMes = kpiMes.utilidadPEN;
   const margenPromedioMes = kpiMes.margenPonderado;
+  const cantidadVentasMes = ventasMesActual.length;
 
-  const anticiposPendientes = useMemo(() => {
-    const ventasConAnticipo = ventasLN.filter(v =>
-      v.estado === 'reservada' && v.montoPagado > 0
-    );
-    const totalAnticipado = ventasConAnticipo.reduce((sum, v) => sum + v.montoPagado, 0);
-    return { cantidad: ventasConAnticipo.length, monto: totalAnticipado };
-  }, [ventasLN]);
-
-  const ordenesEnProceso = ordenesLN.filter(o =>
-    ['enviada', 'pagada', 'en_transito'].includes(o.estado)
-  );
-
-  // Métricas ROI
-  const metricsROI = useMemo(() => {
-    const productosConInvestigacion = productosLN.filter(p =>
-      p.investigacion &&
-      p.investigacion.ctruEstimado > 0 &&
-      p.investigacion.precioPERUPromedio > 0
-    );
-
-    const productosConROI = productosConInvestigacion.map(p => {
-      const inv = p.investigacion!;
-      const ganancia = inv.precioPERUPromedio - inv.ctruEstimado;
-      const roi = (ganancia / inv.ctruEstimado) * 100;
-      const multiplicador = inv.precioPERUPromedio / inv.ctruEstimado;
-      return { ...p, roiCalculado: roi, gananciaCalculada: ganancia, multiplicadorCalculado: multiplicador };
-    });
-
-    const roiPromedio = productosConROI.length > 0
-      ? productosConROI.reduce((sum, p) => sum + p.roiCalculado, 0) / productosConROI.length
-      : 0;
-
-    const multiplicadorPromedio = productosConROI.length > 0
-      ? productosConROI.reduce((sum, p) => sum + p.multiplicadorCalculado, 0) / productosConROI.length
-      : 0;
-
-    const topMejorROI = [...productosConROI]
-      .sort((a, b) => b.roiCalculado - a.roiCalculado)
-      .slice(0, 5);
-
-    const oportunidadesInversion = productosLN.filter(p => {
-      if (!p.investigacion) return false;
-      const inv = p.investigacion;
-      const vigenciaHasta = inv.vigenciaHasta?.toDate?.();
-      const estaVigente = vigenciaHasta ? vigenciaHasta > new Date() : false;
-      return estaVigente && inv.recomendacion === 'importar';
-    }).map(p => {
-      const inv = p.investigacion!;
-      const ganancia = inv.precioPERUPromedio - inv.ctruEstimado;
-      const roi = inv.ctruEstimado > 0 ? (ganancia / inv.ctruEstimado) * 100 : 0;
-      return { ...p, roiCalculado: roi, gananciaCalculada: ganancia };
-    }).sort((a, b) => b.roiCalculado - a.roiCalculado);
-
-    const productosSinInvestigar = productosLN.filter(p =>
-      p.estado === 'activo' && !p.investigacion
-    ).length;
-
-    return {
-      productosConInvestigacion: productosConInvestigacion.length,
-      roiPromedio,
-      multiplicadorPromedio,
-      topMejorROI,
-      oportunidadesInversion,
-      productosSinInvestigar
-    };
-  }, [productosLN]);
-
-  // Ventas últimos 30 días
+  // Ventas últimos 30 días para gráfico
   const ventasUltimos30Dias = useMemo(() => {
     const hoy = new Date();
     const hace30Dias = new Date(hoy.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -311,28 +245,6 @@ export function useDashboardData(): DashboardData {
 
     return dias;
   }, [ventasLN]);
-
-  // Distribución inventario por país
-  const distribucionInventario = useMemo(() => {
-    const peru = resumenInventario?.peru?.totalUnidades || 0;
-    const usa = resumenInventario?.usa?.totalUnidades || 0;
-    const transito = (resumenInventario?.peru?.enTransito || 0) + (resumenInventario?.usa?.enTransito || 0);
-
-    return [
-      { name: 'Perú', value: peru, color: '#10B981' },
-      { name: 'USA', value: usa, color: '#3B82F6' },
-      { name: 'En Tránsito', value: transito, color: '#F59E0B' }
-    ].filter(item => item.value > 0);
-  }, [resumenInventario]);
-
-  // Ventas por canal (barras)
-  const ventasPorCanalData = useMemo(() => {
-    return [
-      { canal: 'M. Libre', ventas: ventasStats?.ventasML || 0, color: '#FBBF24' },
-      { canal: 'Directo', ventas: ventasStats?.ventasDirecto || 0, color: '#3B82F6' },
-      { canal: 'Otros', ventas: ventasStats?.ventasOtro || 0, color: '#8B5CF6' }
-    ];
-  }, [ventasStats]);
 
   // Top productos vendidos
   const topProductosVendidos = useMemo(() => {
@@ -378,72 +290,6 @@ export function useDashboardData(): DashboardData {
       .slice(0, 10);
   }, [ventasLN]);
 
-  // Ventas por canal (circular)
-  const ventasPorCanalPie = useMemo(() => {
-    const ventasEntregadas = ventasLN.filter(v => v.estado === 'entregada');
-    const stats = {
-      mercadoLibre: { cantidad: 0, totalPEN: 0, porcentaje: 0 },
-      directo: { cantidad: 0, totalPEN: 0, porcentaje: 0 },
-      otro: { cantidad: 0, totalPEN: 0, porcentaje: 0 }
-    };
-    let total = 0;
-
-    ventasEntregadas.forEach(v => {
-      total += v.totalPEN;
-      if (v.canal === 'mercado_libre') {
-        stats.mercadoLibre.cantidad++;
-        stats.mercadoLibre.totalPEN += v.totalPEN;
-      } else if (v.canal === 'directo') {
-        stats.directo.cantidad++;
-        stats.directo.totalPEN += v.totalPEN;
-      } else {
-        stats.otro.cantidad++;
-        stats.otro.totalPEN += v.totalPEN;
-      }
-    });
-
-    if (total > 0) {
-      stats.mercadoLibre.porcentaje = (stats.mercadoLibre.totalPEN / total) * 100;
-      stats.directo.porcentaje = (stats.directo.totalPEN / total) * 100;
-      stats.otro.porcentaje = (stats.otro.totalPEN / total) * 100;
-    }
-
-    return stats;
-  }, [ventasLN]);
-
-  // Actividad reciente
-  const actividadReciente = useMemo((): ActividadItem[] => {
-    const actividades: ActividadItem[] = [];
-
-    ventasLN.slice(0, 10).forEach(v => {
-      const fecha = v.fechaCreacion?.toDate?.() || new Date();
-      const tipo: TipoActividad = v.estado === 'entregada' ? 'venta_entregada' : 'venta_nueva';
-      actividades.push({
-        id: `venta-${v.id}`,
-        tipo,
-        titulo: `Venta ${v.numeroVenta}`,
-        descripcion: `${v.nombreCliente} - S/ ${v.totalPEN.toFixed(2)}`,
-        fecha,
-        entidadId: v.id
-      });
-    });
-
-    ordenesLN.slice(0, 5).forEach(o => {
-      const fecha = o.fechaCreacion?.toDate?.() || new Date();
-      const tipo: TipoActividad = o.estado === 'recibida' ? 'orden_recibida' : 'orden_creada';
-      actividades.push({
-        id: `orden-${o.id}`,
-        tipo,
-        titulo: `Orden ${o.numeroOrden}`,
-        descripcion: `${o.nombreProveedor} - ${o.productos?.length || 0} productos`,
-        fecha,
-        entidadId: o.id
-      });
-    });
-
-    return actividades.sort((a, b) => b.fecha.getTime() - a.fecha.getTime()).slice(0, 15);
-  }, [ventasLN, ordenesLN]);
-
   return {
     loading,
     tipoCambioDelDia,
@@ -453,28 +299,19 @@ export function useDashboardData(): DashboardData {
     setLineaFiltroGlobal,
     productosLN,
     ventasLN,
-    ordenesLN,
+    inventarioLN,
     productos,
     ventas,
     inventario,
     resumenInventario,
-    gastosStats,
-    ordenesStats,
     productosActivos,
     stockCritico,
-    valorInventarioPEN,
+    stockCriticoItems,
     totalVentasMes,
     utilidadMes,
     margenPromedioMes,
-    ventasMesActual,
-    anticiposPendientes,
-    ordenesEnProceso,
-    metricsROI,
+    cantidadVentasMes,
     ventasUltimos30Dias,
-    distribucionInventario,
-    ventasPorCanalData,
-    ventasPorCanalPie,
-    topProductosVendidos,
-    actividadReciente
+    topProductosVendidos
   };
 }

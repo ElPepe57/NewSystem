@@ -6,10 +6,6 @@ import { ErrorTesoreriaBanner } from '../../components/modules/dashboard/ErrorTe
 import { UsuariosActivosWidget } from '../../components/modules/dashboard';
 import { useDashboardData } from './useDashboardData';
 import { HeroKPISection } from './sections/HeroKPISection';
-import { FinancialSection } from './sections/FinancialSection';
-import { InventorySection } from './sections/InventorySection';
-import { OperationalSection } from './sections/OperationalSection';
-import { ROISection } from './sections/ROISection';
 import { AnalyticsSection } from './sections/AnalyticsSection';
 import { AlertsSection } from './sections/AlertsSection';
 
@@ -20,17 +16,20 @@ export const DashboardPage: React.FC = () => {
     return <DashboardSkeleton />;
   }
 
+  const tcCompra = data.tipoCambioDelDia?.compra?.toFixed(3);
+  const tcVenta = data.tipoCambioDelDia?.venta?.toFixed(3);
+
   return (
-    <div className="space-y-4 lg:space-y-6">
-      {/* Header ejecutivo */}
+    <div className="space-y-6 lg:space-y-8">
+      {/* Header */}
       <GradientHeader
-        title="Dashboard Ejecutivo"
-        subtitle={`Resumen operativo y financiero — ${new Date().toLocaleDateString('es-PE', {
+        title="Dashboard"
+        subtitle={new Date().toLocaleDateString('es-PE', {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
           day: 'numeric'
-        })}`}
+        })}
         icon={LayoutDashboard}
         variant="dark"
       />
@@ -38,58 +37,39 @@ export const DashboardPage: React.FC = () => {
       {/* Banners de estado */}
       <ErrorTesoreriaBanner />
       <LineaFiltroActivoBanner onClear={() => data.setLineaFiltroGlobal(null)} />
-      <LineaFilterInline />
 
-      {/* 1. Hero KPIs: ventas, utilidad, margen, TC */}
+      {/* Filtro de linea + TC del dia */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <LineaFilterInline />
+        </div>
+        {tcCompra && (
+          <span className="inline-flex items-center text-xs text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full flex-shrink-0 font-medium">
+            TC: S/ {tcCompra} / {tcVenta}
+          </span>
+        )}
+      </div>
+
+      {/* Zona 1 — 4 KPIs hero */}
       <HeroKPISection
         totalVentasMes={data.totalVentasMes}
         utilidadMes={data.utilidadMes}
-        margenPromedioMes={data.margenPromedioMes}
-        ventasMesCount={data.ventasMesActual.length}
-        tipoCambioDelDia={data.tipoCambioDelDia}
-      />
-
-      {/* 2. Inventario: valor, stock crítico, distribución */}
-      <InventorySection
-        valorInventarioPEN={data.valorInventarioPEN}
+        margenPromedio={data.margenPromedioMes}
+        cantidadVentas={data.cantidadVentasMes}
+        dashboardCxPCxC={data.dashboardCxPCxC}
         stockCritico={data.stockCritico}
-        productosActivos={data.productosActivos}
-        totalProductos={data.productos.length}
-        distribucionInventario={data.distribucionInventario}
-        resumenInventario={data.resumenInventario}
-        tipoCambioDelDia={data.tipoCambioDelDia}
-        inventario={data.inventario}
-        productos={data.productos}
       />
 
-      {/* 3. ROI: métricas de inversión e investigación de mercado */}
-      <ROISection metricsROI={data.metricsROI} />
-
-      {/* 4. Financiero: CxC/CxP (solo si hay datos) */}
-      {data.dashboardCxPCxC && (
-        <FinancialSection dashboardCxPCxC={data.dashboardCxPCxC} />
-      )}
-
-      {/* 5. Operacional: OCs, gastos, anticipos, eficiencia importacion */}
-      <OperationalSection
-        ordenesEnProceso={data.ordenesEnProceso}
-        ordenesStats={data.ordenesStats}
-        gastosStats={data.gastosStats}
-        anticiposPendientes={data.anticiposPendientes}
-      />
-
-      {/* 6. Analytics: gráficos tendencia, canales, top productos, mapa */}
+      {/* Zona 2 — Tendencia + Top 5 productos */}
       <AnalyticsSection
         ventasUltimos30Dias={data.ventasUltimos30Dias}
         topProductosVendidos={data.topProductosVendidos}
-        ventasPorCanalPie={data.ventasPorCanalPie}
       />
 
-      {/* 7. Alertas: financieras, últimas ventas, vencimientos, actividad */}
+      {/* Zona 3 — Alertas criticas */}
       <AlertsSection
         dashboardCxPCxC={data.dashboardCxPCxC}
-        ventas={data.ventas}
-        actividadReciente={data.actividadReciente}
+        stockCriticoItems={data.stockCriticoItems}
       />
 
       {/* Widget de usuarios (solo admin) */}
