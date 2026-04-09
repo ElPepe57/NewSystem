@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Building2, Settings, Warehouse, User, Plus, Pencil, Trash2, RefreshCw, Database, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { Button, Card, Modal } from '../../components/common';
+import { Building2, Settings, User, RefreshCw, Database, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Button, Card } from '../../components/common';
 import { EmpresaForm } from '../../components/modules/configuracion/EmpresaForm';
 import { ConfiguracionForm } from '../../components/modules/configuracion/ConfiguracionForm';
-import { AlmacenForm } from '../../components/modules/configuracion/AlmacenForm';
 import { useConfiguracionStore } from '../../store/configuracionStore';
-import { useAlmacenStore } from '../../store/almacenStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { useProductoStore } from '../../store/productoStore';
@@ -20,9 +18,8 @@ import { useCategoriaStore } from '../../store/categoriaStore';
 import { useCompetidorStore } from '../../store/competidorStore';
 import { sincronizacionService, type SincronizacionGlobalResult } from '../../services/sincronizacion.service';
 import type { EmpresaFormData, ConfiguracionFormData } from '../../types/configuracion.types';
-import type { AlmacenFormData, Almacen } from '../../types/almacen.types';
 
-type TabType = 'empresa' | 'general' | 'almacenes' | 'perfil' | 'sistema';
+type TabType = 'empresa' | 'general' | 'perfil' | 'sistema';
 
 export const Configuracion: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -32,21 +29,11 @@ export const Configuracion: React.FC = () => {
   const {
     empresa,
     configuracion,
-    loading: configLoading,
     fetchEmpresa,
     saveEmpresa,
     fetchConfiguracion,
     saveConfiguracion
   } = useConfiguracionStore();
-
-  // Store de Almacenes
-  const {
-    almacenes,
-    loading: almacenesLoading,
-    fetchAlmacenes,
-    createAlmacen,
-    updateAlmacen
-  } = useAlmacenStore();
 
   // Stores adicionales para sincronización
   const fetchProductos = useProductoStore(state => state.fetchProductos);
@@ -61,11 +48,7 @@ export const Configuracion: React.FC = () => {
   const fetchCategoriasActivas = useCategoriaStore(state => state.fetchCategoriasActivas);
   const fetchCompetidores = useCompetidorStore(state => state.fetchCompetidores);
 
-  const loading = configLoading || almacenesLoading;
-
   const [activeTab, setActiveTab] = useState<TabType>('empresa');
-  const [isAlmacenModalOpen, setIsAlmacenModalOpen] = useState(false);
-  const [selectedAlmacen, setSelectedAlmacen] = useState<Almacen | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estado para sincronización
@@ -78,8 +61,7 @@ export const Configuracion: React.FC = () => {
   useEffect(() => {
     fetchEmpresa();
     fetchConfiguracion();
-    fetchAlmacenes();
-  }, [fetchEmpresa, fetchConfiguracion, fetchAlmacenes]);
+  }, [fetchEmpresa, fetchConfiguracion]);
 
   // Guardar empresa
   const handleSaveEmpresa = async (data: EmpresaFormData) => {
@@ -109,40 +91,6 @@ export const Configuracion: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Crear/actualizar almacén
-  const handleSaveAlmacen = async (data: AlmacenFormData) => {
-    if (!user) return;
-
-    setIsSubmitting(true);
-    try {
-      if (selectedAlmacen) {
-        await updateAlmacen(selectedAlmacen.id, data, user.uid);
-        toast.success('Almacén actualizado correctamente');
-      } else {
-        await createAlmacen(data, user.uid);
-        toast.success('Almacén creado correctamente');
-      }
-      setIsAlmacenModalOpen(false);
-      setSelectedAlmacen(null);
-    } catch (error: any) {
-      toast.error(error.message, 'Error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Abrir modal para editar almacén
-  const handleEditAlmacen = (almacen: Almacen) => {
-    setSelectedAlmacen(almacen);
-    setIsAlmacenModalOpen(true);
-  };
-
-  // Abrir modal para nuevo almacén
-  const handleNewAlmacen = () => {
-    setSelectedAlmacen(null);
-    setIsAlmacenModalOpen(true);
   };
 
   // Ejecutar sincronización
@@ -175,7 +123,6 @@ export const Configuracion: React.FC = () => {
       await Promise.all([
         fetchEmpresa(),
         fetchConfiguracion(),
-        fetchAlmacenes(),
         fetchProductos(),
         fetchProveedores(),
         fetchProveedorStats(),
@@ -200,7 +147,6 @@ export const Configuracion: React.FC = () => {
   const tabs = [
     { id: 'empresa' as TabType, label: 'Empresa', icon: Building2 },
     { id: 'general' as TabType, label: 'General', icon: Settings },
-    { id: 'almacenes' as TabType, label: 'Almacenes', icon: Warehouse },
     { id: 'perfil' as TabType, label: 'Mi Perfil', icon: User },
     { id: 'sistema' as TabType, label: 'Sistema', icon: Database }
   ];
@@ -276,115 +222,6 @@ export const Configuracion: React.FC = () => {
               />
             )}
           </Card>
-        )}
-
-        {/* Tab: Almacenes */}
-        {activeTab === 'almacenes' && (
-          <div className="space-y-6">
-            <Card padding="md">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Almacenes</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Gestiona tus ubicaciones de inventario
-                  </p>
-                </div>
-                <Button
-                  variant="primary"
-                  onClick={handleNewAlmacen}
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Nuevo Almacén
-                </Button>
-              </div>
-
-              {almacenes.length === 0 ? (
-                <div className="text-center py-12">
-                  <Warehouse className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No hay almacenes</h3>
-                  <p className="mt-1 text-sm text-gray-500">Comienza creando tu primer almacén</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Código
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Nombre
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          País
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Tipo
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Dirección
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Contacto
-                        </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                          Acciones
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {almacenes.map((almacen) => (
-                        <tr key={almacen.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {almacen.codigo}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{almacen.nombre}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm">
-                              {almacen.pais === 'USA' ? '🇺🇸 USA' : '🇵🇪 Perú'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              almacen.tipo === 'viajero' ? 'bg-blue-100 text-blue-800' :
-                              almacen.tipo === 'almacen_peru' ? 'bg-purple-100 text-purple-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {almacen.tipo === 'viajero' ? 'Viajero' :
-                               almacen.tipo === 'almacen_peru' ? 'Almacén Perú' : almacen.tipo}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-600">
-                              {almacen.direccion ? `${almacen.direccion}, ${almacen.ciudad || ''}` : '-'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-600">{almacen.contacto || '-'}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex items-center justify-end space-x-2">
-                              <button
-                                onClick={() => handleEditAlmacen(almacen)}
-                                className="text-primary-600 hover:text-primary-900"
-                                title="Editar"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Card>
-          </div>
         )}
 
         {/* Tab: Perfil */}
@@ -606,29 +443,6 @@ export const Configuracion: React.FC = () => {
         )}
       </div>
 
-      {/* Modal Almacén */}
-      <Modal
-        isOpen={isAlmacenModalOpen}
-        onClose={() => {
-          setIsAlmacenModalOpen(false);
-          setSelectedAlmacen(null);
-        }}
-        title={selectedAlmacen ? 'Editar Almacén' : 'Nuevo Almacén'}
-        size="lg"
-      >
-        <AlmacenForm
-          initialData={selectedAlmacen ? {
-            ...selectedAlmacen,
-            proximoViaje: selectedAlmacen.proximoViaje?.toDate()
-          } : undefined}
-          onSubmit={handleSaveAlmacen}
-          onCancel={() => {
-            setIsAlmacenModalOpen(false);
-            setSelectedAlmacen(null);
-          }}
-          loading={isSubmitting}
-        />
-      </Modal>
     </div>
   );
 };
