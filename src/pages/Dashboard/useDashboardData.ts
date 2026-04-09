@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { cuentasPendientesService } from '../../services/cuentasPendientes.service';
+import { gastoService } from '../../services/gasto.service';
 import { filtrarVentasMes, calcularKPIVentas } from '../../utils/kpi.calculators';
 import { timed } from '../../lib/perf';
 import { formatCurrencyCompact } from '../../utils/format';
@@ -75,6 +76,12 @@ export interface DashboardData {
   crecimientoUtilidad: number;     // % vs mes anterior
   cambioMargen: number;            // puntos porcentuales vs mes anterior
 
+  // Gastos del mes
+  gastosMes: number;
+  gastosMesAnterior: number;
+  crecimientoGastos: number;       // % vs mes anterior
+  ratioGastosVentas: number;       // gastos / ventas (%)
+
   // Meta mensual y progreso
   metaMensual: number;
   progresoMeta: number;            // 0-100
@@ -102,6 +109,8 @@ export function useDashboardData(): DashboardData {
   const [loading, setLoading] = useState(true);
   const [tipoCambioDelDia, setTipoCambioDelDia] = useState<any>(null);
   const [dashboardCxPCxC, setDashboardCxPCxC] = useState<DashboardCuentasPendientes | null>(null);
+  const [gastosMes, setGastosMes] = useState(0);
+  const [gastosMesAnterior, setGastosMesAnterior] = useState(0);
 
   // Store subscriptions
   const productos = useProductoStore(state => state.productos);
@@ -173,6 +182,23 @@ export function useDashboardData(): DashboardData {
               setDashboardCxPCxC(cxpCxc);
             } catch (error) {
               console.warn('No se pudieron cargar cuentas pendientes:', error);
+            }
+
+            // Cargar resumen de gastos del mes actual y anterior
+            try {
+              const ahoraG = new Date();
+              const mesActual = ahoraG.getMonth() + 1;
+              const anioActual = ahoraG.getFullYear();
+              const mesAnt = mesActual === 1 ? 12 : mesActual - 1;
+              const anioAnt = mesActual === 1 ? anioActual - 1 : anioActual;
+              const [resumenActual, resumenAnterior] = await Promise.all([
+                gastoService.getResumenMes(mesActual, anioActual).catch(() => null),
+                gastoService.getResumenMes(mesAnt, anioAnt).catch(() => null),
+              ]);
+              setGastosMes(resumenActual?.totalPEN ?? 0);
+              setGastosMesAnterior(resumenAnterior?.totalPEN ?? 0);
+            } catch (error) {
+              console.warn('No se pudieron cargar gastos del mes:', error);
             }
 
             dashboardLastFetchedAt = Date.now();
@@ -252,6 +278,14 @@ export function useDashboardData(): DashboardData {
     : 0;
   const cambioMargen = margenPromedioMes - margenMesAnterior;
 
+  // Gastos: crecimiento y ratio
+  const crecimientoGastos = gastosMesAnterior > 0
+    ? ((gastosMes - gastosMesAnterior) / gastosMesAnterior) * 100
+    : 0;
+  const ratioGastosVentas = totalVentasMes > 0
+    ? (gastosMes / totalVentasMes) * 100
+    : 0;
+
   // Meta mensual y progreso
   const metaMensual = 67000;
   const progresoMeta = metaMensual > 0 ? Math.min((totalVentasMes / metaMensual) * 100, 100) : 0;
@@ -281,7 +315,7 @@ export function useDashboardData(): DashboardData {
     resumenTexto += `.`;
   }
   if (margenPromedioMes > 0) {
-    resumenTexto += ` Tu margen promedio es ${margenPromedioMes.toFixed(1)}%`;
+    resumenTexto += ` Tu margen es ${margenPromedioMes.toFixed(1)}%`;
     if (dashboardCxPCxC) {
       if (flujoNeto >= 0) {
         resumenTexto += ` y el flujo neto esta a favor por ${fmtCompact(flujoNeto)}.`;
@@ -290,6 +324,16 @@ export function useDashboardData(): DashboardData {
       }
     } else {
       resumenTexto += `.`;
+    }
+  }
+  // Agregar contexto de gastos
+  if (gastosMes > 0) {
+    if (crecimientoGastos > 10) {
+      resumenTexto += ` Los gastos subieron ${crecimientoGastos.toFixed(0)}% vs ${mesPasadoNombre} (${fmtCompact(gastosMes)}).`;
+    } else if (crecimientoGastos < -10) {
+      resumenTexto += ` Los gastos bajaron ${Math.abs(crecimientoGastos).toFixed(0)}% vs ${mesPasadoNombre} (${fmtCompact(gastosMes)}).`;
+    } else if (ratioGastosVentas > 0) {
+      resumenTexto += ` Gastos del mes: ${fmtCompact(gastosMes)} (${ratioGastosVentas.toFixed(0)}% de ventas).`;
     }
   }
 
@@ -397,6 +441,10 @@ export function useDashboardData(): DashboardData {
     crecimientoVentas,
     crecimientoUtilidad,
     cambioMargen,
+    gastosMes,
+    gastosMesAnterior,
+    crecimientoGastos,
+    ratioGastosVentas,
     metaMensual,
     progresoMeta,
     promedioDiarioNecesario,

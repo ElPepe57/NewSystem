@@ -13,6 +13,11 @@ interface ExecutiveSummarySectionProps {
   crecimientoUtilidad: number;
   cambioMargen: number;
   totalVentasMesAnterior: number;
+  // Gastos
+  gastosMes: number;
+  gastosMesAnterior: number;
+  crecimientoGastos: number;
+  ratioGastosVentas: number;
   // Meta y progreso
   metaMensual: number;
   progresoMeta: number;
@@ -68,6 +73,10 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
   crecimientoUtilidad,
   cambioMargen,
   totalVentasMesAnterior,
+  gastosMes,
+  gastosMesAnterior,
+  crecimientoGastos,
+  ratioGastosVentas,
   metaMensual,
   progresoMeta,
   promedioDiarioNecesario,
@@ -113,13 +122,13 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
       {/* Divisor */}
       <div className="border-t border-slate-700 mb-6" />
 
-      {/* Fila media: 3 metricas grandes inline */}
-      <div className="grid grid-cols-3 gap-4 lg:gap-8 mb-6">
+      {/* Fila media: 4 metricas inline — Ventas, Utilidad, Gastos, Margen */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6">
 
         {/* Ventas del mes */}
         <div className="min-w-0">
-          <div className="text-sm text-slate-400 mb-1">Ventas del mes</div>
-          <div className="text-2xl lg:text-4xl font-bold text-white leading-tight truncate">
+          <div className="text-xs lg:text-sm text-slate-400 mb-1">Ventas del mes</div>
+          <div className="text-xl lg:text-3xl font-bold text-white leading-tight truncate">
             <span className="hidden lg:inline">{fmt(totalVentasMes)}</span>
             <span className="lg:hidden">{fmtC(totalVentasMes)}</span>
           </div>
@@ -133,8 +142,8 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
 
         {/* Utilidad */}
         <div className="min-w-0">
-          <div className="text-sm text-slate-400 mb-1">Utilidad</div>
-          <div className="text-2xl lg:text-4xl font-bold text-white leading-tight truncate">
+          <div className="text-xs lg:text-sm text-slate-400 mb-1">Utilidad</div>
+          <div className="text-xl lg:text-3xl font-bold text-white leading-tight truncate">
             <span className="hidden lg:inline">{fmt(utilidadMes)}</span>
             <span className="lg:hidden">{fmtC(utilidadMes)}</span>
           </div>
@@ -143,10 +152,27 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
           </div>
         </div>
 
+        {/* Gastos del mes */}
+        <div className="min-w-0">
+          <div className="text-xs lg:text-sm text-slate-400 mb-1">Gastos del mes</div>
+          <div className="text-xl lg:text-3xl font-bold text-white leading-tight truncate">
+            <span className="hidden lg:inline">{fmt(gastosMes)}</span>
+            <span className="lg:hidden">{fmtC(gastosMes)}</span>
+          </div>
+          <div className="mt-1.5">
+            {gastosMesAnterior > 0
+              ? <TrendBadge value={crecimientoGastos} positiveIsGood={false} />
+              : ratioGastosVentas > 0
+                ? <span className="text-xs text-slate-500">{ratioGastosVentas.toFixed(0)}% de ventas</span>
+                : <span className="text-xs text-slate-500">Sin datos previos</span>
+            }
+          </div>
+        </div>
+
         {/* Margen */}
         <div className="min-w-0">
-          <div className="text-sm text-slate-400 mb-1">Margen</div>
-          <div className="text-2xl lg:text-4xl font-bold text-white leading-tight">
+          <div className="text-xs lg:text-sm text-slate-400 mb-1">Margen</div>
+          <div className="text-xl lg:text-3xl font-bold text-white leading-tight">
             {margenPromedioMes.toFixed(1)}%
           </div>
           <div className="mt-1.5">

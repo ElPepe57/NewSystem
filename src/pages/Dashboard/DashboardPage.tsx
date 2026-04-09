@@ -3,7 +3,6 @@ import { LayoutDashboard } from 'lucide-react';
 import { DashboardSkeleton, GradientHeader, LineaFiltroActivoBanner } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ErrorTesoreriaBanner } from '../../components/modules/dashboard/ErrorTesoreriaBanner';
-import { UsuariosActivosWidget } from '../../components/modules/dashboard';
 import { useDashboardData } from './useDashboardData';
 import { ExecutiveSummarySection } from './sections/ExecutiveSummarySection';
 import { AnalyticsSection } from './sections/AnalyticsSection';
@@ -52,6 +51,10 @@ export const DashboardPage: React.FC = () => {
         crecimientoUtilidad={data.crecimientoUtilidad}
         cambioMargen={data.cambioMargen}
         totalVentasMesAnterior={data.totalVentasMesAnterior}
+        gastosMes={data.gastosMes}
+        gastosMesAnterior={data.gastosMesAnterior}
+        crecimientoGastos={data.crecimientoGastos}
+        ratioGastosVentas={data.ratioGastosVentas}
         metaMensual={data.metaMensual}
         progresoMeta={data.progresoMeta}
         promedioDiarioNecesario={data.promedioDiarioNecesario}
@@ -73,13 +76,6 @@ export const DashboardPage: React.FC = () => {
         dashboardCxPCxC={data.dashboardCxPCxC}
         stockCriticoItems={data.stockCriticoItems}
       />
-
-      {/* Widget de usuarios (solo admin) */}
-      {data.isAdmin && (
-        <div className="grid grid-cols-1 gap-6">
-          <UsuariosActivosWidget showDetailed={true} />
-        </div>
-      )}
     </div>
   );
 };
