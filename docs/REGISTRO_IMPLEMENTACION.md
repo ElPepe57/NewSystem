@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-08 (Sesion 30 — Deploy 92: TAREA-101 Pagos Masivos, TAREA-103 Planilla completa, TAREA-104 Peso en Producto (4 fases), auditoria 360, fix submit ProductoForm. CAMBIO-276 a CAMBIO-292.)
+**Ultima actualizacion:** 2026-04-08 (Sesion 31 — Deploy 93-101: escaner mejorado, limpieza SUP/SKC completa, helper centralizado getDescripcionProducto (27 componentes), atributosSkincare desnormalizado (5 tipos + 4 servicios), fix AutocompleteInput. CAMBIO-293 a CAMBIO-311.)
 **Branch activo:** main
 
 ---
@@ -12,12 +12,12 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 15 de 17 |
-| Sesiones de trabajo registradas | 30 |
+| Sesiones de trabajo registradas | 31 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
-| Fixes aplicados | ~390 (373 S1-S29 + 17 S30) |
+| Fixes aplicados | ~409 (390 S1-S30 + 19 S31) |
 | Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 92 (ultimo: 2026-04-08 Deploy 92, hosting vitaskinperu.web.app) |
+| Deploys realizados | 101 (ultimo: 2026-04-08 Deploy 101, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -10445,3 +10445,279 @@ Sesion de cuatro bloques principales. Primer bloque: mejoras a la clasificacion 
 
 *Cierre registrado por implementation-controller (Agente 23).*
 *2026-04-07/08 — Sesion 30 CERRADA. Deploy 92. 17 cambios (CAMBIO-276 a CAMBIO-292). Tres modulos nuevos: Pagos Masivos (tab Tesoreria, ejecucion secuencial), Planilla (empleados/boletas/adelantos/PDF, comisiones automaticas), Peso en Producto (4 fases: campo base, transferencias/OC, reportes logistica, dashboard/intel). Auditoria 360 con 9 hallazgos. Fix submit accidental ProductoForm. 8 decisiones (D-45 a D-52). Proxima sesion: TAREA-098 (Reportes CxC/CxP + costo landed) → fix gastos parciales → script pesos masivo → TAREA-099 (trazabilidad ubicacion).*
+
+---
+
+---
+
+## SESION 31 — 2026-04-08 — Limpieza catalogo SUP/SKC, helper centralizado y desnormalizacion atributosSkincare
+
+**Registrado por:** implementation-controller (Agente 23)
+**Tipo:** Limpieza de datos maestros + refactoring de descripcion de producto + desnormalizacion
+**Deploys realizados:** 9 (Deploy 93 a Deploy 101)
+**Cambios registrados:** 19 (CAMBIO-293 a CAMBIO-311)
+**Fecha:** 2026-04-08
+
+---
+
+### Resumen ejecutivo de la sesion
+
+Sesion de consolidacion del catalogo de productos en tres frentes: (1) mejoras al escaner (filtro por SKU especifico, peso inline, detalle en modal UPC); (2) limpieza exhaustiva del catalogo — eliminacion de SUP duplicado, renumeracion completa de 155 SKUs SUP sin huecos, migracion de campos SKC heredados de suplementos (sabor/dosaje) a los correctos (tipoPiel/ingredienteClave), correcciones de marca y tiposProducto, y sincronizacion raiz↔atributosSkincare; (3) helper centralizado `getDescripcionProducto()` aplicado en 27 componentes para unificar el formato de descripcion textual del producto; (4) desnormalizacion de `atributosSkincare` en 5 tipos de datos y 4 servicios de creacion para que las transacciones lleven los atributos skincare completos; y (5) fix de UX en `AutocompleteInput` para seleccion con primer clic.
+
+---
+
+### BLOQUE 1 — Mejoras al escaner
+
+#### CAMBIO-293 — Fix "Ver Producto" filtra por SKU especifico
+- Fecha: 2026-04-08
+- Tipo: Bug fix
+- Descripcion: El boton "Ver Producto" en el escaner navegaba a `/productos` sin ningun filtro, dejando al usuario en la lista completa sin saber que producto ver. Ahora navega a `/productos?sku=SUP-0042` (o el SKU escaneado), y la pagina de productos aplica ese filtro al montar.
+- Archivos: escaner + Productos.tsx
+- Reversible: si
+
+#### CAMBIO-294 — Input peso inline desde escaner
+- Fecha: 2026-04-08
+- Tipo: Feature
+- Descripcion: Campo de peso (en libras) directamente en la pantalla del escaner. Permite registrar o actualizar el `pesoLibras` de un producto sin salir del escaner, mediante un campo numerico con boton guardar. El valor se escribe directamente al documento del producto en Firestore.
+- Archivos: escaner (componente principal)
+- Reversible: si
+
+#### CAMBIO-295 — Detalle en modal vincular UPC
+- Fecha: 2026-04-08
+- Tipo: Mejora UX
+- Descripcion: El modal de vinculacion de UPC ahora muestra los atributos descriptivos del producto candidato (presentacion, dosaje, contenido) para que el operador confirme que esta vinculando el codigo correcto antes de guardar.
+- Archivos: modal vincular UPC
+- Reversible: si
+
+---
+
+### BLOQUE 2 — Limpieza SUP
+
+#### CAMBIO-296 — Eliminar SUP-0021 (Carlyle Berberina duplicada) + renumerar 155 SKUs + cerrar hueco SUP-0137
+- Fecha: 2026-04-08
+- Tipo: Limpieza de datos / Integridad de catalogo
+- Descripcion: Script `scripts/eliminar-y-renumerar-sup-0021.mjs`. Eliminado el documento SUP-0021 (Carlyle Berberina duplicada de SUP-0020). Renumerados los 155 SKUs restantes para cerrar todos los huecos (incluyendo el hueco SUP-0137 generado en S28). La secuencia queda limpia: SUP-0001 a SUP-0155 sin saltos. Contador `contadores/SUP` actualizado a 155. Metrica de Carlyle actualizada: 28 → 26 productos.
+- Script: `scripts/eliminar-y-renumerar-sup-0021.mjs` (nuevo)
+- Reversible: no (operacion de datos — requiere backup previo)
+
+---
+
+### BLOQUE 3 — Limpieza SKC completa
+
+#### CAMBIO-297 — Migrar campos SKC: sabor→tipoPiel, dosaje→ingredienteClave (16 productos)
+- Fecha: 2026-04-08
+- Tipo: Migracion de datos
+- Descripcion: Script `scripts/fix-skc-completo.mjs`. Los 16 productos SKC tenian los campos suplementos (`sabor`, `dosaje`) usados para almacenar datos skincare. Migrado el contenido de `sabor` a `atributosSkincare.tipoPiel` y de `dosaje` a `atributosSkincare.ingredienteClave` en los documentos que correspondian.
+- Script: `scripts/fix-skc-completo.mjs` (nuevo)
+- Reversible: no (migracion de datos — solo hay marcha atras con backup)
+
+#### CAMBIO-298 — Fix marca Pipping Rock → Piping Rock (2 productos + eliminar MRC-025 duplicada)
+- Fecha: 2026-04-08
+- Tipo: Correccion de datos
+- Descripcion: La marca "Pipping Rock" estaba mal escrita. Corregido a "Piping Rock" en los 2 productos afectados y en el documento de la marca. Eliminada la marca MRC-025 que era el duplicado mal escrito. Metrica de Piping Rock actualizada: 1 → 2 productos.
+- Archivos: coleccion marcas + 2 productos SKC
+- Reversible: si (recrear MRC-025 y actualizar referencias)
+
+#### CAMBIO-299 — Renumerar marcas MRC-001 a MRC-045 sin huecos
+- Fecha: 2026-04-08
+- Tipo: Limpieza de datos
+- Descripcion: Tras eliminar MRC-025, las marcas tenian un hueco en la secuencia. Renumeradas las marcas para que la secuencia quede limpia de MRC-001 a MRC-045. Contador `contadores/MRC` actualizado a 45.
+- Script: integrado en `scripts/fix-skc-completo.mjs`
+- Reversible: no (operacion de datos)
+
+#### CAMBIO-300 — Correccion completa atributos SKC: textura, preocupaciones, spf, pa, nombreComercial, ingredienteClave
+- Fecha: 2026-04-08
+- Tipo: Correccion de datos
+- Descripcion: Revision y correccion campo por campo de los 16 productos SKC. Texturas asignadas al enum correcto (Serum/Gel, Crema, Liquida, etc.). Preocupaciones corregidas a los valores del ChipMultiSelect. SPF/PA limpiados en productos que no son protectores solares. nombreComercial y ingredienteClave completados donde faltaban.
+- Archivos: 16 documentos de productos SKC en Firestore
+- Reversible: no (edicion de datos — requiere backup)
+
+#### CAMBIO-301 — Fix tipoProducto "[object Object]" en 37 SUP + 16 SKC (53 productos total)
+- Fecha: 2026-04-08
+- Tipo: Bug fix de datos critico
+- Descripcion: Script `scripts/fix-inconsistencias-360.mjs`. El campo `tipoProducto` estaba almacenado como la representacion `[object Object]` en lugar del nombre string correcto. Causa: `createConVariantes` en versiones anteriores no extraia correctamente el nombre del tipo. Corregido en los 53 documentos afectados mediante un script que resuelve el nombre desde el `tipoProductoId` referenciado.
+- Script: `scripts/fix-inconsistencias-360.mjs` (nuevo)
+- Reversible: no (correccion de datos — verificar antes de ejecutar)
+
+#### CAMBIO-302 — tiposProducto SKC corregidos: Ampoule→Ampolla, Spot Cream→Tratamiento Localizado, Air-Fit fusionado a Protector Solar
+- Fecha: 2026-04-08
+- Tipo: Normalizacion de datos maestros
+- Descripcion: Tres tipos de producto SKC en ingles o con nombres no estandarizados fueron corregidos: "Ampoule" → "Ampolla", "Spot Cream" → "Tratamiento Localizado". El tipo "Air-Fit" (tipo de textura, no categoria de producto) fue fusionado con "Protector Solar" y sus productos reasignados. Metrica de Protector Solar actualizada: 0 → 3 productos.
+- Archivos: coleccion tiposProducto + productos afectados
+- Reversible: si (recrear los tipos eliminados y reasignar)
+
+#### CAMBIO-303 — Campo Textura agregado al formulario de edicion SKC
+- Fecha: 2026-04-08
+- Tipo: Feature UI
+- Descripcion: El formulario de producto (pestana SKC) incluye ahora el selector de `textura` con las 6 categorias definidas (Balamo, Espuma, Liquida, Crema, Serum/Gel, Arcilla/Stick). El campo se guarda en `atributosSkincare.textura`.
+- Archivo: `src/components/modules/productos/ProductoForm.tsx`
+- Reversible: si
+
+#### CAMBIO-304 — Eliminar redundancia presentacion en linea descriptiva SKC (card y tabla)
+- Fecha: 2026-04-08
+- Tipo: Mejora UX
+- Descripcion: En la card y tabla de productos SKC, la presentacion aparecia duplicada: una vez en la etiqueta verde del `tipoProducto` y otra vez en la linea descriptiva de texto. Eliminada de la linea descriptiva, ya que la etiqueta verde es suficiente. Decision D-58.
+- Archivos: ProductoCard.tsx, tabla de productos
+- Reversible: si
+
+#### CAMBIO-305 — Sincronizar datos raiz↔atributosSkincare
+- Fecha: 2026-04-08
+- Tipo: Correccion de datos / Sincronizacion
+- Descripcion: Sincronizacion bidireccional para asegurar consistencia entre los campos raiz del documento y el subdocumento `atributosSkincare`: PA normalizado a formato estandar (PA+/PA++/PA+++/PA++++), texturas corregidas al enum, y SKC-0012 sin campos SPF/PA (no es protector solar — Decision D-57).
+- Archivos: 16 documentos SKC en Firestore
+- Reversible: no (edicion de datos)
+
+---
+
+### BLOQUE 4 — Helper centralizado getDescripcionProducto
+
+#### CAMBIO-306 — Crear getDescripcionProducto() y getSearchableProductText() en utils/producto.helpers.ts
+- Fecha: 2026-04-08
+- Tipo: Refactoring / Nuevo helper
+- Descripcion: Archivo nuevo `src/utils/producto.helpers.ts` con dos funciones exportadas:
+  - `getDescripcionProducto(producto)`: retorna la linea descriptiva formateada del producto segun su linea (SUP: presentacion + dosaje + contenido + sabor; SKC: tipoPiel + ingredienteClave + textura + volumen). Unico punto donde se define el formato.
+  - `getSearchableProductText(producto)`: retorna texto concatenado para busqueda full-text (nombre + descripcion + SKU + marca).
+- Archivo: `src/utils/producto.helpers.ts` (nuevo)
+- Reversible: si
+
+#### CAMBIO-307 — Aplicar helper en 27 componentes
+- Fecha: 2026-04-08
+- Tipo: Refactoring
+- Descripcion: Los 27 componentes que construian la descripcion del producto de forma ad-hoc (con concatenaciones manuales distintas en cada lugar) fueron migrados a usar `getDescripcionProducto()`. Componentes migrados: escaner, buscadores de producto, OC, transferencias, inventario, CTRU, ventas, requerimientos, ML, catalogo de productos. La descripcion ahora es identica en toda la app.
+- Archivos: 27 componentes en src/components/ y src/pages/
+- Reversible: si
+
+---
+
+### BLOQUE 5 — Fase 2: tipos desnormalizados con atributosSkincare
+
+#### CAMBIO-308 — Agregar atributosSkincare a 5 tipos desnormalizados
+- Fecha: 2026-04-08
+- Tipo: Cambio de tipos TypeScript
+- Descripcion: Campo opcional `atributosSkincare?: AtributosSkincare` agregado a: `ProductoOrden`, `ProductoVenta`, `ProductoDisponible`, `ProductoCotizacion`, `ProductoRequerimiento`. Permite que las transacciones lleven los atributos completos de los productos SKC sin necesidad de un join adicional.
+- Archivos: `src/types/producto.types.ts` y tipos derivados
+- Reversible: si (campo opcional — sin breaking change)
+
+#### CAMBIO-309 — Desnormalizar atributosSkincare en 4 servicios + getProductosDisponibles
+- Fecha: 2026-04-08
+- Tipo: Feature / Desnormalizacion
+- Descripcion: Cuatro servicios de creacion de transacciones ahora incluyen `atributosSkincare` en el snapshot del producto al momento de crear el documento:
+  - `OC Builder` (ordenCompra.builder.service.ts): incluye en ProductoOrden
+  - `VentaService` (venta.service.ts): incluye en ProductoVenta
+  - `CotizacionService` (cotizacion.service.ts): incluye en ProductoCotizacion
+  - `RequerimientoService` (requerimiento.service.ts): incluye en ProductoRequerimiento
+  Tambien `getProductosDisponibles()` en `unidad.service.ts` incluye `atributosSkincare` en el objeto ProductoDisponible retornado.
+- Archivos: 4 servicios de creacion + unidad.service.ts
+- Reversible: si (campo opcional — documentos existentes no se ven afectados)
+
+#### CAMBIO-310 — Hook useDetectarVarianteCandidatos soporta SKC + InventarioAnalytics export condicional
+- Fecha: 2026-04-08
+- Tipo: Feature
+- Descripcion: El hook `useDetectarVarianteCandidatos` ahora compara el campo `volumen` de `atributosSkincare` para productos SKC al detectar candidatos a variante (antes solo comparaba campos SUP como dosaje/contenido). `InventarioAnalytics` agrega export condicional: solo muestra la columna de exportacion para lineas con datos suficientes.
+- Archivos: hook de variantes + InventarioAnalytics.tsx
+- Reversible: si
+
+---
+
+### BLOQUE 6 — Fix UX AutocompleteInput
+
+#### CAMBIO-311 — AutocompleteInput: primer clic no seleccionaba + tildes en sugerencias
+- Fecha: 2026-04-08
+- Tipo: Bug fix UX
+- Descripcion: Dos bugs en el componente `AutocompleteInput`: (1) el primer clic sobre una sugerencia no la seleccionaba porque el evento `blur` del input se disparaba antes que el `click` de la sugerencia, cerrando el dropdown antes de que se procesara la seleccion. Fix: reemplazar el handler `onClick` de la sugerencia por `onMouseDown` con `e.preventDefault()` para evitar que el blur cierre el dropdown. (2) Las sugerencias de presentacion generadas automaticamente no incluian tildes en palabras como "capsulas" (debia ser "capsulas" con tilde). Corregido el catalogo de sugerencias.
+- Archivo: `src/components/common/AutocompleteInput.tsx`
+- Reversible: si
+- Commit: 8c32d5d
+
+---
+
+### Decisiones del titular — Sesion 31
+
+| Decision | Detalle | Impacto |
+|----------|---------|---------|
+| D-53 | Mantener marcas huerfanas (Garden of Life, Dr. Tobias, Right Remedies) para uso futuro | No se eliminan aunque no tengan productos activos — pueden reutilizarse |
+| D-54 | Texturas SKC generalizadas en 6 categorias: Balamo, Espuma, Liquida, Crema, Serum/Gel, Arcilla/Stick | Enum fijo en lugar de texto libre — consistencia en filtros y busqueda |
+| D-55 | SKC-0013 tipoPiel "Manchas" cambiado a "Todo tipo" | Manchas es una preocupacion, no un tipo de piel |
+| D-56 | SKC-0015 ingredienteClave "Extracto de Bamboo" cambiado a "Pantenol" | Pantenol al 10% es el activo principal; bamboo es ingrediente secundario |
+| D-57 | SKC-0012 no es protector solar — eliminar SPF/PA de atributosSkincare | El producto era una crema hidratante mal categorizado como protector |
+| D-58 | Para display SKC: no mostrar presentacion en linea descriptiva (aparece en etiqueta verde tipoProducto) | Elimina redundancia visual |
+
+---
+
+### Metricas recalculadas en Sesion 31
+
+| Marca/TipoProducto | Antes | Despues | Causa |
+|-------------------|-------|---------|-------|
+| Carlyle (marca) | 28 | 26 | SUP-0021 eliminado (duplicado) |
+| Solaray (marca) | 8 | 7 | Reclasificacion |
+| Deal Supplement (marca) | 0 | 1 | Reasignacion |
+| Piping Rock (marca) | 1 | 2 | Fix nombre + reconexion |
+| Protector Solar (tipoProducto SKC) | 0 | 3 | Air-Fit fusionado + reclasificacion |
+
+---
+
+### Scripts creados en Sesion 31
+
+| Script | Descripcion |
+|--------|-------------|
+| `scripts/eliminar-y-renumerar-sup-0021.mjs` | Elimina SUP-0021 (duplicado) y renumera 155 SKUs sin huecos |
+| `scripts/fix-inconsistencias-360.mjs` | Corrige tipoProducto [object Object] en 53 productos |
+| `scripts/fix-skc-completo.mjs` | Migracion campos SKC, renumeracion marcas, sincronizacion raiz↔atributosSkincare |
+
+---
+
+### Archivos nuevos creados en Sesion 31
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `src/utils/producto.helpers.ts` | getDescripcionProducto() y getSearchableProductText() — helper centralizado |
+
+---
+
+### Estado del catalogo al cierre de S31
+
+| Indicador | Valor |
+|-----------|-------|
+| Productos SUP | 155 (secuencia limpia SUP-0001 a SUP-0155) |
+| Productos SKC | 16 (todos los campos correctos: tipoPiel, ingredienteClave, textura, preocupaciones, spf, pa, lineaProducto) |
+| Marcas | 45 (secuencia limpia MRC-001 a MRC-045) |
+| Productos con tipoProducto "[object Object]" | 0 |
+| Productos SKC con campos dosaje/sabor residuales | 0 |
+| Componentes usando helper centralizado | 27 |
+| Tipos desnormalizados con atributosSkincare | 5 |
+| Servicios que persisten atributosSkincare | 4 |
+
+---
+
+### Pendientes para la proxima sesion
+
+| Prioridad | ID | Descripcion | Estimacion |
+|-----------|-----|-------------|------------|
+| Alta | TAREA-098 | Contenido tabs Reportes (CxC/CxP, Compras con costo landed) + reconectar TabPendientes | 15-20h |
+| Alta | TAREA-099 | Trazabilidad de ubicacion de productos | 8-12h |
+| Alta | TAREA-097 Fase 2 | Calibracion automatica y persistencia de proyecciones en /proyeccion | 10-15h |
+| Media | — | Fix gastos parciales en cuentasPendientesService | 3-4h |
+| Media | — | Fix boletas/adelantos en CxP/CxC | 3-4h |
+| Baja | — | Script poblado masivo de pesos en productos existentes | 2-3h |
+
+---
+
+### Metricas finales de la Sesion 31
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys realizados | 9 (Deploy 93 a Deploy 101) |
+| Cambios registrados | 19 (CAMBIO-293 a CAMBIO-311) |
+| Scripts nuevos | 3 |
+| Archivos nuevos | 1 (producto.helpers.ts) |
+| Componentes migrados al helper | 27 |
+| Productos corregidos en BD | 53 (tipoProducto) + 16 (campos SKC) |
+| SKUs renumerados | 155 (SUP) |
+| Marcas renumeradas | 45 |
+| Decisiones del titular | 6 (D-53 a D-58) |
+| Fixes acumulados totales | ~409 |
+
+---
+
+*Cierre registrado por implementation-controller (Agente 23).*
+*2026-04-08 — Sesion 31 CERRADA. 9 deploys (Deploy 93-101). 19 cambios (CAMBIO-293 a CAMBIO-311). Limpieza exhaustiva del catalogo: SUP renumerado (155 SKUs sin huecos), SKC migrado a campos correctos (tipoPiel/ingredienteClave/textura), 53 productos con tipoProducto [object Object] corregidos, marcas renumeradas (45 sin huecos). Helper centralizado getDescripcionProducto aplicado en 27 componentes. atributosSkincare desnormalizado en 5 tipos + 4 servicios de creacion. Fix UX AutocompleteInput (mousedown/blur). 6 decisiones (D-53 a D-58). Proxima sesion: TAREA-098 (Reportes CxC/CxP + costo landed) → TAREA-097 Fase 2 (calibracion proyecciones) → TAREA-099 (trazabilidad ubicacion).*

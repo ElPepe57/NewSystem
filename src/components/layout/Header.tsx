@@ -1,11 +1,12 @@
-import React from 'react';
-import { User, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { User, Menu, PanelLeftClose, PanelLeftOpen, CheckSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { usePermissions } from '../../hooks/usePermissions';
 import { ROLE_LABELS } from '../../types/auth.types';
 import { NotificationCenter } from '../common/NotificationCenter';
 import { CollaborationButton } from './CollaborationButton';
+import { TareasDelDia } from '../modules/dashboard';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -17,6 +18,19 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onToggleSidebar, si
   const user = useAuthStore(state => state.user);
   const navigate = useNavigate();
   const { displayName, role, profile } = usePermissions();
+  const [tareasOpen, setTareasOpen] = useState(false);
+  const tareasRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (tareasRef.current && !tareasRef.current.contains(e.target as Node)) {
+        setTareasOpen(false);
+      }
+    };
+    if (tareasOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [tareasOpen]);
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 lg:py-4">
@@ -59,6 +73,24 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onToggleSidebar, si
         <div className="flex items-center space-x-2 lg:space-x-4">
           {/* Centro de Notificaciones */}
           <NotificationCenter />
+
+          {/* Tareas del Día - Dropdown */}
+          <div ref={tareasRef} className="relative">
+            <button
+              onClick={() => setTareasOpen(!tareasOpen)}
+              className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              title="Tareas del día"
+            >
+              <CheckSquare className="h-5 w-5 text-gray-500" />
+            </button>
+            {tareasOpen && (
+              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 max-h-[70vh] overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-200 z-50">
+                <div className="p-3">
+                  <TareasDelDia />
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Colaboración: Equipo en línea + Chat */}
           <CollaborationButton />
