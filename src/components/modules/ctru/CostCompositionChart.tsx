@@ -50,7 +50,7 @@ export const CostCompositionChart: React.FC<CostCompositionChartProps> = ({ prod
     { label: 'Compra', value: compraProm, pct: pct(compraProm), color: 'bg-blue-500', dotColor: 'bg-blue-500', textColor: 'text-blue-700' },
     { label: 'Adic. OC', value: adicOCProm, pct: pct(adicOCProm), color: 'bg-amber-400', dotColor: 'bg-amber-400', textColor: 'text-amber-700' },
     { label: 'Flete Intl', value: fleteIntlProm, pct: pct(fleteIntlProm), color: 'bg-orange-500', dotColor: 'bg-orange-500', textColor: 'text-orange-700' },
-    { label: 'GA/GO', value: gagoProm, pct: pct(gagoProm), color: 'bg-purple-500', dotColor: 'bg-purple-500', textColor: 'text-purple-700' },
+    { label: 'Gastos Fijos', value: gagoProm, pct: pct(gagoProm), color: 'bg-purple-500', dotColor: 'bg-purple-500', textColor: 'text-purple-700' },
     { label: 'GV/GD', value: gvgdProm, pct: pct(gvgdProm), color: 'bg-cyan-500', dotColor: 'bg-cyan-500', textColor: 'text-cyan-700' }
   ].filter(s => s.value > 0.01);
 

@@ -114,15 +114,15 @@ export const CLASES_GASTO: Record<ClaseGasto, {
 }> = {
   GVD: {
     codigo: 'GVD',
-    nombre: 'Gastos de Venta y Distribución',
-    descripcion: 'Gastos directos asociados a ventas específicas',
+    nombre: 'Costos por Venta',
+    descripcion: 'Costos directos asociados a ventas (comisiones, delivery, empaque)',
     categorias: ['GV', 'GD'],
     impactaCTRU: false
   },
   GAO: {
     codigo: 'GAO',
-    nombre: 'Gastos Administrativos y Operativos',
-    descripcion: 'Gastos generales prorrateables entre unidades',
+    nombre: 'Gastos Fijos del Mes',
+    descripcion: 'Gastos del periodo (personal, local, servicios, operativos)',
     categorias: ['GA', 'GO'],
     impactaCTRU: true
   }

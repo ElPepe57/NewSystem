@@ -29,7 +29,7 @@ export const CostEvolutionChart: React.FC<CostEvolutionChartProps> = ({ historia
       Compra: Math.round(h.costoCompraProm * 100) / 100,
       'Adic. OC': Math.round(adicOC * 100) / 100,
       'Flete Intl': Math.round(h.costoFleteIntlProm * 100) / 100,
-      'GA/GO': Math.round(h.gastoGAGOProm * 100) / 100,
+      'Gastos Fijos': Math.round(h.gastoGAGOProm * 100) / 100,
       'Precio Venta': h.precioVentaProm > 0 ? Math.round(h.precioVentaProm * 100) / 100 : null
     };
   });
@@ -103,8 +103,8 @@ export const CostEvolutionChart: React.FC<CostEvolutionChartProps> = ({ historia
             />
             <Area
               type="monotone"
-              dataKey="GA/GO"
-              name="GA/GO"
+              dataKey="Gastos Fijos"
+              name="Gastos Fijos"
               fill={CHART_COLORS.secondary}
               fillOpacity={0.6}
               stroke={CHART_COLORS.secondary}

@@ -9,6 +9,7 @@ import { CashLiquidezSection } from './sections/CashLiquidezSection';
 import { InsightsSection } from './sections/InsightsSection';
 import { DeepAnalyticsSection } from './sections/DeepAnalyticsSection';
 import { RentabilidadTresNivelesWidget } from '../../components/modules/dashboard/RentabilidadTresNivelesWidget';
+import { DiferencialCambiarioWidget } from '../../components/modules/dashboard/DiferencialCambiarioWidget';
 
 export const DashboardPage: React.FC = () => {
   const data = useDashboardData();
@@ -86,8 +87,11 @@ export const DashboardPage: React.FC = () => {
         tipoCambioDelDia={data.tipoCambioDelDia}
       />
 
-      {/* Zona 3 — Rentabilidad 3 Niveles */}
-      <RentabilidadTresNivelesWidget />
+      {/* Zona 3 — Rentabilidad + FX */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <RentabilidadTresNivelesWidget />
+        <DiferencialCambiarioWidget />
+      </div>
 
       {/* Zona 4 — Insights proactivos */}
       <InsightsSection insights={data.insights} />

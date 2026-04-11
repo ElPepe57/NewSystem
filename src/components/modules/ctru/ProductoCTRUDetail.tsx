@@ -140,7 +140,7 @@ function CostosTab({ p, formatUSD, costoTotal, margenBrutoMonto, margenNetoMonto
       bg: 'bg-orange-50'
     },
     {
-      label: 'GA/GO',
+      label: 'Gastos Fijos',
       usd: null,
       pen: p.unidadesVendidas > 0 ? formatCurrency(p.gastoGAGOProm) : formatCurrency(0),
       pct: p.unidadesVendidas > 0 ? `${p.pctGAGO.toFixed(1)}%` : '0%',

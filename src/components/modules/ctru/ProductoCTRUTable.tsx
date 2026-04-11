@@ -311,7 +311,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
               <SortHeader field="adicOC" label="Adic. OC" />
               <SortHeader field="costoFleteIntlPENProm" label="Flete" />
               {/* Gastos */}
-              <SortHeader field="gastoGAGOProm" label="GA/GO" className="border-l border-gray-100" />
+              <SortHeader field="gastoGAGOProm" label="Gastos Fijos" className="border-l border-gray-100" />
               <SortHeader field="gastoGVGDProm" label="GV/GD" />
               {/* Resultado */}
               <SortHeader field="ctruPromedio" label="CTRU" className="border-l border-gray-100" />

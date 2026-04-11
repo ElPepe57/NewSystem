@@ -374,8 +374,8 @@ export function Contabilidad() {
               valueFormat="currency"
               data={[
                 { label: 'Compras', value: estado.compras.total, color: 'bg-orange-500' },
-                { label: 'GV + GD', value: estado.costosVariables.total, color: 'bg-purple-500' },
-                { label: 'GA + GO', value: estado.costosFijos.total, color: 'bg-amber-500' },
+                { label: 'Costos Venta', value: estado.costosVariables.total, color: 'bg-purple-500' },
+                { label: 'Gastos Fijos', value: estado.costosFijos.total, color: 'bg-amber-500' },
               ]}
             />
             <StatDistribution

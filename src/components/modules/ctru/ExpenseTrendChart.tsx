@@ -12,7 +12,7 @@ export const ExpenseTrendChart: React.FC<ExpenseTrendChartProps> = ({ historialG
 
   const chartData = historialGastos.map(h => ({
     name: h.label,
-    'GA/GO': Math.round((h.GA + h.GO) * 100) / 100,
+    'Gastos Fijos': Math.round((h.GA + h.GO) * 100) / 100,
     'GV/GD': Math.round((h.GV + h.GD) * 100) / 100
   }));
 
@@ -26,7 +26,7 @@ export const ExpenseTrendChart: React.FC<ExpenseTrendChartProps> = ({ historialG
         <MultiBarChart
           data={chartData}
           bars={[
-            { dataKey: 'GA/GO', color: '#8b5cf6', name: 'GA/GO (Admin + Operativos)' },
+            { dataKey: 'Gastos Fijos', color: '#8b5cf6', name: 'Gastos Fijos del Mes' },
             { dataKey: 'GV/GD', color: '#14b8a6', name: 'GV/GD (Venta + Distribucion)' }
           ]}
           stacked
