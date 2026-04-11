@@ -39,7 +39,7 @@ import {
   StatDistribution,
   Tabs
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import type { Tab } from '../../components/common/Tabs';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
@@ -99,6 +99,7 @@ export const Inventario: React.FC = () => {
   const [filtroAlmacen, setFiltroAlmacen] = useState<string>('');
   const [filtroPais, setFiltroPais] = useState<string>('');
   const [busqueda, setBusqueda] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [vistaActual, setVistaActual] = useState<VistaInventario>('tabla');
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
   const [sincronizando, setSincronizando] = useState(false);
@@ -775,41 +776,28 @@ export const Inventario: React.FC = () => {
           {/* Filtro de línea de negocio */}
           <LineaFilterInline />
 
-          {/* Toolbar unificado */}
+          {/* Toolbar */}
           <Toolbar
             search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar por SKU, nombre o marca...' }}
             viewMode={vistaActual === 'tabla' ? 'table' : 'card'}
             onViewModeChange={(mode) => setVistaActual(mode === 'table' ? 'tabla' : 'cards')}
+            filterCount={[filtroPais, filtroAlmacen].filter(Boolean).length}
+            onFilterToggle={() => setShowFilters(true)}
             resultCount={productosFiltrados.length}
+          />
+
+          {/* FilterDrawer */}
+          <FilterDrawer
+            isOpen={showFilters}
+            onClose={() => setShowFilters(false)}
+            onClearAll={limpiarFiltros}
+            activeFilterCount={[filtroPais, filtroAlmacen].filter(Boolean).length}
           >
-            {/* Filtros inline */}
-            <div className="flex flex-wrap items-center gap-2">
-              <Select
-                value={filtroPais}
-                onChange={(e) => setFiltroPais(e.target.value)}
-                options={[
-                  { value: '', label: 'Todos' },
-                  { value: 'USA', label: 'USA' },
-                  { value: 'Peru', label: 'Peru' }
-                ]}
-                className="w-28"
-              />
-              <Select
-                value={filtroAlmacen}
-                onChange={(e) => setFiltroAlmacen(e.target.value)}
-                options={[
-                  { value: '', label: 'Todas las casillas' },
-                  ...almacenes.map(a => ({ value: a.id, label: a.nombre }))
-                ]}
-                className="w-44"
-              />
-              {hayFiltrosActivos && (
-                <button onClick={limpiarFiltros} className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
-                  Limpiar
-                </button>
-              )}
-            </div>
-          </Toolbar>
+            <FilterSection title="Ubicacion">
+              <Select label="Pais" value={filtroPais} onChange={(e) => setFiltroPais(e.target.value)} options={[{ value: '', label: 'Todos' }, { value: 'USA', label: 'USA' }, { value: 'Peru', label: 'Peru' }]} />
+              <Select label="Casilla" value={filtroAlmacen} onChange={(e) => setFiltroAlmacen(e.target.value)} options={[{ value: '', label: 'Todas' }, ...almacenes.map(a => ({ value: a.id, label: a.nombre }))]} />
+            </FilterSection>
+          </FilterDrawer>
 
           {/* Contenido según vista */}
           {vistaActual === 'cards' ? (

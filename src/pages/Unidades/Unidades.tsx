@@ -36,7 +36,7 @@ import {
   LineaNegocioBadge,
   PaisOrigenBadge
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
 import { UnidadDetailsModal, UnidadCard, EditarVencimientoModal } from '../../components/modules/inventario';
 import { useUnidadStore } from '../../store/unidadStore';
@@ -69,6 +69,7 @@ export const Unidades: React.FC = () => {
   });
   const [filtroEstadoPipeline, setFiltroEstadoPipeline] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [sincronizando, setSincronizando] = useState(false);
   const [unidadSeleccionada, setUnidadSeleccionada] = useState<Unidad | null>(null);
   const [showEditarVencimiento, setShowEditarVencimiento] = useState(false);
@@ -475,64 +476,29 @@ export const Unidades: React.FC = () => {
             search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar por SKU, nombre, lote...' }}
             viewMode={vistaActual === 'tabla' ? 'table' : 'card'}
             onViewModeChange={(mode) => setVistaActual(mode === 'table' ? 'tabla' : 'cards')}
+            filterCount={[filtros.productoId, filtros.almacenId, filtros.estado, filtros.pais].filter(Boolean).length}
+            onFilterToggle={() => setShowFilters(true)}
             resultCount={unidadesFiltradas.length}
           />
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-            <Select
-              label="Producto"
-              value={filtros.productoId}
-              onChange={(e) => setFiltros({ ...filtros, productoId: e.target.value })}
-              options={[
-                { value: '', label: 'Todos los productos' },
-                ...productos.map(p => ({
-                  value: p.id,
-                  label: `${p.sku} - ${p.nombreComercial}`
-                }))
-              ]}
-            />
-
-            <Select
-              label="Almacén"
-              value={filtros.almacenId}
-              onChange={(e) => setFiltros({ ...filtros, almacenId: e.target.value })}
-              options={[
-                { value: '', label: 'Todos los almacenes' },
-                ...almacenes.map(a => ({
-                  value: a.id,
-                  label: `${getPaisEmoji(a.pais)} ${a.nombre}`
-                }))
-              ]}
-            />
-
-            <Select
-              label="Estado"
-              value={filtros.estado}
-              onChange={(e) => setFiltros({ ...filtros, estado: e.target.value as EstadoUnidad | '' })}
-              options={[
-                { value: '', label: 'Todos los estados' },
-                { value: 'recibida_origen', label: 'Recibida en Origen' },
-                { value: 'en_transito_origen', label: 'En Tránsito Origen' },
-                { value: 'en_transito_peru', label: 'En Tránsito → Perú' },
-                { value: 'disponible_peru', label: 'Disponible Perú' },
-                { value: 'reservada', label: 'Reservada' },
-                { value: 'vendida', label: 'Vendida' },
-                { value: 'vencida', label: 'Vencida' },
-                { value: 'danada', label: 'Dañada' }
-              ]}
-            />
-
-            <Select
-              label="País"
-              value={filtros.pais}
-              onChange={(e) => setFiltros({ ...filtros, pais: e.target.value })}
-              options={[
-                { value: '', label: 'Todos los países' },
-                { value: 'USA', label: '🇺🇸 USA' },
-                { value: 'Peru', label: '🇵🇪 Perú' }
-              ]}
-            />
-          </div>
+          {/* FilterDrawer */}
+          <FilterDrawer
+            isOpen={showFilters}
+            onClose={() => setShowFilters(false)}
+            onClearAll={() => setFiltros({ productoId: '', almacenId: '', estado: '' as any, pais: '' })}
+            activeFilterCount={[filtros.productoId, filtros.almacenId, filtros.estado, filtros.pais].filter(Boolean).length}
+          >
+            <FilterSection title="Producto">
+              <Select label="Producto" value={filtros.productoId} onChange={(e) => setFiltros({ ...filtros, productoId: e.target.value })} options={[{ value: '', label: 'Todos' }, ...productos.map(p => ({ value: p.id, label: `${p.sku} - ${p.nombreComercial}` }))]} />
+            </FilterSection>
+            <FilterSection title="Ubicacion">
+              <Select label="Casilla" value={filtros.almacenId} onChange={(e) => setFiltros({ ...filtros, almacenId: e.target.value })} options={[{ value: '', label: 'Todas' }, ...almacenes.map(a => ({ value: a.id, label: a.nombre }))]} />
+              <Select label="Pais" value={filtros.pais} onChange={(e) => setFiltros({ ...filtros, pais: e.target.value })} options={[{ value: '', label: 'Todos' }, { value: 'USA', label: 'USA' }, { value: 'Peru', label: 'Peru' }]} />
+            </FilterSection>
+            <FilterSection title="Estado">
+              <Select label="Estado" value={filtros.estado} onChange={(e) => setFiltros({ ...filtros, estado: e.target.value as EstadoUnidad | '' })} options={[{ value: '', label: 'Todos' }, { value: 'pedida', label: 'Pedida' }, { value: 'en_transito', label: 'En Transito' }, { value: 'disponible', label: 'Disponible' }, { value: 'reservada', label: 'Reservada' }, { value: 'vendida', label: 'Vendida' }, { value: 'danada', label: 'Danada' }]} />
+            </FilterSection>
+          </FilterDrawer>
 
           {/* Contador de resultados */}
           <div className="flex items-center justify-between">
