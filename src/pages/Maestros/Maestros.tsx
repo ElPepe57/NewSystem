@@ -23,7 +23,7 @@ import {
   useConfirmDialog,
   ConfirmDialog
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, KPIBar, StatCard as DSStatCard } from '../../design-system';
 // Toolbar available for future use
 import { useToastStore } from '../../store/toastStore';
 import { useClienteStore } from '../../store/clienteStore';
@@ -736,72 +736,16 @@ export const Maestros: React.FC = () => {
       />
 
       {tabActiva !== 'resumen' && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-          <StatCard
-            label="Clientes"
-            value={clientes.length}
-            icon={Users}
-           
-            onClick={() => setTabActiva('clientes')}
-            active={tabActiva === 'clientes'}
-          />
-          <StatCard
-            label="Marcas"
-            value={marcas.length}
-            icon={Tag}
-           
-            onClick={() => setTabActiva('marcas')}
-            active={tabActiva === 'marcas'}
-          />
-          <StatCard
-            label="Proveedores"
-            value={proveedores.length}
-            icon={Truck}
-           
-            onClick={() => setTabActiva('proveedores')}
-            active={tabActiva === 'proveedores'}
-          />
-          <StatCard
-            label="Almacenes"
-            value={almacenes.length}
-            icon={Warehouse}
-            variant="amber"
-            onClick={() => setTabActiva('almacenes')}
-            active={tabActiva === 'almacenes'}
-          />
-          <StatCard
-            label="Competidores"
-            value={competidores.length}
-            icon={Shield}
-            variant="red"
-            onClick={() => setTabActiva('competidores')}
-            active={tabActiva === 'competidores'}
-          />
-          <StatCard
-            label="Transportistas"
-            value={transportistas.length}
-            icon={Truck}
-           
-            onClick={() => setTabActiva('transportistas')}
-            active={tabActiva === 'transportistas'}
-          />
-          <StatCard
-            label="Canales"
-            value={canales.length}
-            icon={Store}
-           
-            onClick={() => setTabActiva('canales')}
-            active={tabActiva === 'canales'}
-          />
-          <StatCard
-            label="Resumen 360"
-            value="Ver"
-            icon={LayoutDashboard}
-            variant="default"
-            onClick={() => setTabActiva('resumen')}
-            active={false}
-          />
-        </div>
+        <KPIBar columns={4}>
+          <DSStatCard label="Clientes" value={clientes.length} icon={Users} variant="brand" onClick={() => setTabActiva('clientes')} active={tabActiva === 'clientes'} size="sm" />
+          <DSStatCard label="Marcas" value={marcas.length} icon={Tag} variant="brand" onClick={() => setTabActiva('marcas')} active={tabActiva === 'marcas'} size="sm" />
+          <DSStatCard label="Proveedores" value={proveedores.length} icon={Truck} variant="brand" onClick={() => setTabActiva('proveedores')} active={tabActiva === 'proveedores'} size="sm" />
+          <DSStatCard label="Red Log." value={almacenes.length} icon={Warehouse} variant="warning" onClick={() => setTabActiva('almacenes')} active={tabActiva === 'almacenes'} size="sm" />
+          <DSStatCard label="Competidores" value={competidores.length} icon={Shield} variant="danger" onClick={() => setTabActiva('competidores')} active={tabActiva === 'competidores'} size="sm" />
+          <DSStatCard label="Transportistas" value={transportistas.length} icon={Truck} variant="neutral" onClick={() => setTabActiva('transportistas')} active={tabActiva === 'transportistas'} size="sm" />
+          <DSStatCard label="Canales" value={canales.length} icon={Store} variant="neutral" onClick={() => setTabActiva('canales')} active={tabActiva === 'canales'} size="sm" />
+          <DSStatCard label="Resumen" value="360" icon={LayoutDashboard} variant="info" onClick={() => setTabActiva('resumen')} size="sm" />
+        </KPIBar>
       )}
 
       {/* Tab: Resumen (lazy loaded) */}
