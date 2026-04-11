@@ -300,9 +300,9 @@ export const Gastos: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Costos y Gastos</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gastos Fijos del Mes</h1>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">
-            Gestión de costos de importación, gastos operativos y pérdidas
+            Gastos del per\u00edodo: personal, local, servicios, operativos
           </p>
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">

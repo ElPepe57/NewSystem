@@ -155,19 +155,24 @@ export const Inventario: React.FC = () => {
       total++;
       valorTotalUSD += u.costoUnitarioUSD;
 
-      if (esEstadoEnOrigen(u.estado)) {
+      if (u.estado === 'pedida') {
+        enOrigen++; // Reingenieria: pedida = en origen
+      } else if (esEstadoEnOrigen(u.estado)) {
         enOrigen++;
-      } else if (esEstadoEnTransitoOrigen(u.estado)) {
+      } else if (u.estado === 'en_transito' || esEstadoEnTransitoOrigen(u.estado)) {
         enTransitoOrigen++;
       } else if (u.estado === 'en_transito_peru') {
         enTransitoPeru++;
-      } else if (u.estado === 'disponible_peru') {
+      } else if (u.estado === 'disponible' || u.estado === 'disponible_peru') {
         disponiblePeru++;
       } else if (u.estado === 'reservada') {
         reservada++;
         if (u.pais !== 'Peru') reservadaOrigen++;
         else reservadaPeru++;
-      } else if (u.estado === 'vencida' || u.estado === 'danada') {
+      } else if (u.estado === 'asignada_venta' || u.estado === 'asignada_pedido') {
+        reservada++; // asignada = comprometida
+        reservadaPeru++;
+      } else if (u.estado === 'vencida' || u.estado === 'danada' || u.estado === 'perdida' || u.estado === 'retenida_aduana') {
         problemas++;
       }
 

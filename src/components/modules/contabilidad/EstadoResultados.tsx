@@ -427,7 +427,7 @@ export default function EstadoResultados() {
           colorValor={estado.utilidadBruta >= 0 ? 'success' : 'danger'}
         />
 
-        {/* COSTOS VARIABLES (GV + GD) */}
+        {/* COSTOS POR VENTA */}
         <SeccionColapsable
           titulo="COSTOS VARIABLES"
           subtitulo="Gastos de Venta (GV) + Gastos de Distribución (GD)"
@@ -515,7 +515,7 @@ export default function EstadoResultados() {
           </div>
         </SeccionColapsable>
 
-        {/* COSTOS FIJOS (GA + GO) */}
+        {/* GASTOS FIJOS DEL MES */}
         <SeccionColapsable
           titulo="COSTOS FIJOS"
           subtitulo="Gastos Administrativos (GA) + Gastos Operativos (GO)"
@@ -777,14 +777,14 @@ export default function EstadoResultados() {
               <div className="text-xl font-semibold text-purple-600">
                 {formatPercent(estado.indicadores.ratioGastosVariables)}
               </div>
-              <div className="text-xs text-gray-400">(GV + GD) / Ventas</div>
+              <div className="text-xs text-gray-400">Costos Venta / Ventas</div>
             </div>
             <div>
               <div className="text-sm text-gray-500">Ratio Gastos Fijos</div>
               <div className="text-xl font-semibold text-amber-600">
                 {formatPercent(estado.indicadores.ratioGastosFijos)}
               </div>
-              <div className="text-xs text-gray-400">(GA + GO) / Ventas</div>
+              <div className="text-xs text-gray-400">Gastos Fijos / Ventas</div>
             </div>
           </div>
 

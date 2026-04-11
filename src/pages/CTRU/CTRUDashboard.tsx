@@ -118,7 +118,7 @@ export const CTRUDashboard: React.FC = () => {
                       ? 'bg-white text-blue-700 shadow-sm'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
-                  title="CTRU Contable: GA/GO solo entre unidades vendidas. Para P&L y estados financieros."
+                  title="CTRU Contable: Precio + Costos Landed. Para P&L y estados financieros."
                 >
                   <span className="hidden sm:inline">Contable</span>
                   <span className="sm:hidden">C</span>
@@ -130,7 +130,7 @@ export const CTRUDashboard: React.FC = () => {
                       ? 'bg-white text-emerald-700 shadow-sm'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
-                  title="CTRU Gerencial: GA/GO entre todas las unidades. Para cotizar y fijar precios."
+                  title="CTRU Gerencial: Precio + Costos Landed (todas las unidades). Para cotizar y fijar precios."
                 >
                   <span className="hidden sm:inline">Gerencial</span>
                   <span className="sm:hidden">G</span>
@@ -207,8 +207,8 @@ export const CTRUDashboard: React.FC = () => {
                 : 'bg-emerald-50 border-emerald-200 text-emerald-700'
             }`}>
               {vistaCosto === 'contable'
-                ? '📊 Vista Contable: CTRU histórico por lote. Gastos Administrativos y Operativos solo entre unidades vendidas. Para P&L y estados financieros.'
-                : '💼 Vista Gerencial: CTRU con Gastos Administrativos y Operativos entre todas las unidades. Para cotizar y fijar precios con costo más realista.'}
+                ? 'Vista Contable: CTRU = Precio producto + Costos de importaci\u00f3n (landed costs). Para P&L y estados financieros.'
+                : 'Vista Gerencial: CTRU con costos landed entre todas las unidades. Para cotizar y fijar precios.'}
             </div>
             <ProductoCTRUTable
               productos={productosFiltrados}
