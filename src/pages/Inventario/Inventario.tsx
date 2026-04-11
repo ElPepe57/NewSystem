@@ -39,7 +39,7 @@ import {
   StatDistribution,
   Tabs
 } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import type { Tab } from '../../components/common/Tabs';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
@@ -775,98 +775,41 @@ export const Inventario: React.FC = () => {
           {/* Filtro de línea de negocio */}
           <LineaFilterInline />
 
-          {/* Barra de búsqueda y filtros */}
-          <Card padding="md">
-            <div className="space-y-4">
-              {/* Barra de búsqueda */}
-              <SearchInput
-                value={busqueda}
-                onChange={setBusqueda}
-                placeholder="Buscar por SKU, nombre o marca..."
+          {/* Toolbar unificado */}
+          <Toolbar
+            search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar por SKU, nombre o marca...' }}
+            viewMode={vistaActual === 'tabla' ? 'table' : 'card'}
+            onViewModeChange={(mode) => setVistaActual(mode === 'table' ? 'tabla' : 'cards')}
+            resultCount={productosFiltrados.length}
+          >
+            {/* Filtros inline */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Select
+                value={filtroPais}
+                onChange={(e) => setFiltroPais(e.target.value)}
+                options={[
+                  { value: '', label: 'Todos' },
+                  { value: 'USA', label: 'USA' },
+                  { value: 'Peru', label: 'Peru' }
+                ]}
+                className="w-28"
               />
-
-              {/* Filtros y toggle de vista */}
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-700">Filtros:</span>
-                  </div>
-
-                  <Select
-                    value={filtroPais}
-                    onChange={(e) => setFiltroPais(e.target.value)}
-                    options={[
-                      { value: '', label: 'Todos los países' },
-                      { value: 'USA', label: '🇺🇸 USA' },
-                      { value: 'Peru', label: '🇵🇪 Perú' }
-                    ]}
-                    className="w-40"
-                  />
-
-                  <Select
-                    value={filtroAlmacen}
-                    onChange={(e) => setFiltroAlmacen(e.target.value)}
-                    options={[
-                      { value: '', label: 'Todas las casillas' },
-                      ...almacenes.map(a => ({
-                        value: a.id,
-                        label: `${getPaisEmoji(a.pais)} ${a.nombre}`
-                      }))
-                    ]}
-                    className="w-52"
-                  />
-
-                  {hayFiltrosActivos && (
-                    <button
-                      onClick={limpiarFiltros}
-                      className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                    >
-                      Limpiar filtros
-                    </button>
-                  )}
-                </div>
-
-                {/* Toggle de vista */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Vista:</span>
-                  <div className="flex rounded-lg border border-gray-300 overflow-hidden">
-                    <button
-                      onClick={() => setVistaActual('cards')}
-                      className={`p-2 ${
-                        vistaActual === 'cards'
-                          ? 'bg-primary-100 text-primary-700'
-                          : 'bg-white text-gray-500 hover:bg-gray-50'
-                      }`}
-                      title="Vista de tarjetas"
-                    >
-                      <LayoutGrid className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => setVistaActual('tabla')}
-                      className={`p-2 ${
-                        vistaActual === 'tabla'
-                          ? 'bg-primary-100 text-primary-700'
-                          : 'bg-white text-gray-500 hover:bg-gray-50'
-                      }`}
-                      title="Vista de tabla"
-                    >
-                      <List className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contador de resultados */}
-              <div className="text-sm text-gray-600">
-                Mostrando <span className="font-medium">{productosFiltrados.length}</span> productos
-                {' · '}
-                <span className="font-medium">
-                  {productosFiltrados.reduce((sum, p) => sum + p.totalUnidades, 0)}
-                </span> unidades
-              </div>
+              <Select
+                value={filtroAlmacen}
+                onChange={(e) => setFiltroAlmacen(e.target.value)}
+                options={[
+                  { value: '', label: 'Todas las casillas' },
+                  ...almacenes.map(a => ({ value: a.id, label: a.nombre }))
+                ]}
+                className="w-44"
+              />
+              {hayFiltrosActivos && (
+                <button onClick={limpiarFiltros} className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                  Limpiar
+                </button>
+              )}
             </div>
-          </Card>
+          </Toolbar>
 
           {/* Contenido según vista */}
           {vistaActual === 'cards' ? (
