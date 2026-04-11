@@ -22,12 +22,34 @@ export const TabTarjetasCredito: React.FC = () => {
   const user = useAuthStore(s => s.user);
   const toast = useToastStore();
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<TarjetaCreditoFormData>(FORM_INITIAL);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchTarjetas();
   }, [fetchTarjetas]);
+
+  const openEdit = (tarjeta: any) => {
+    setFormData({
+      nombre: tarjeta.nombre,
+      banco: tarjeta.banco,
+      ultimosDigitos: tarjeta.ultimosDigitos,
+      moneda: tarjeta.moneda || 'USD',
+      limiteUSD: tarjeta.limiteUSD,
+      diaCorte: tarjeta.diaCorte,
+      diaPago: tarjeta.diaPago,
+      activa: tarjeta.activa,
+    });
+    setEditingId(tarjeta.id);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setFormData(FORM_INITIAL);
+  };
 
   const handleSubmit = async () => {
     if (!user || !formData.nombre || !formData.banco || !formData.ultimosDigitos) {
@@ -36,10 +58,14 @@ export const TabTarjetasCredito: React.FC = () => {
     }
     setSubmitting(true);
     try {
-      await crearTarjeta(formData, user.uid);
-      toast.success(`Tarjeta ${formData.nombre} creada`);
-      setShowForm(false);
-      setFormData(FORM_INITIAL);
+      if (editingId) {
+        await actualizarTarjeta(editingId, formData, user.uid);
+        toast.success('Tarjeta actualizada');
+      } else {
+        await crearTarjeta(formData, user.uid);
+        toast.success(`Tarjeta ${formData.nombre} creada`);
+      }
+      closeForm();
     } catch (error: any) {
       toast.error(error.message, 'Error');
     } finally {
@@ -89,7 +115,7 @@ export const TabTarjetasCredito: React.FC = () => {
           {tarjetas.map(tarjeta => {
             const uso = tarjeta.limiteUSD > 0 ? (tarjeta.saldoActualUSD / tarjeta.limiteUSD) * 100 : 0;
             return (
-              <Card key={tarjeta.id} className="p-4">
+              <Card key={tarjeta.id} className="p-4 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => openEdit(tarjeta)}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-gray-100 rounded-lg">
@@ -130,7 +156,7 @@ export const TabTarjetasCredito: React.FC = () => {
       )}
 
       {/* Modal crear tarjeta */}
-      <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Nueva Tarjeta de Cr\u00e9dito" size="md">
+      <Modal isOpen={showForm} onClose={closeForm} title={editingId ? 'Editar Tarjeta' : 'Nueva Tarjeta de Cr\u00e9dito'} size="md">
         <div className="space-y-4">
           <Input
             label="Nombre"
@@ -183,9 +209,9 @@ export const TabTarjetasCredito: React.FC = () => {
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
+            <Button variant="secondary" onClick={closeForm}>Cancelar</Button>
             <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Guardando...' : 'Crear Tarjeta'}
+              {submitting ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Crear Tarjeta'}
             </Button>
           </div>
         </div>

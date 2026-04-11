@@ -34,16 +34,38 @@ const UNIDADES_MEDIDA = [
 ];
 
 export const InsumosEmpaque: React.FC = () => {
-  const { insumos, insumosStockBajo, loading, fetchInsumos, crearInsumo } = useInsumoStore();
+  const { insumos, insumosStockBajo, loading, fetchInsumos, crearInsumo, actualizarInsumo } = useInsumoStore();
   const user = useAuthStore(s => s.user);
   const toast = useToastStore();
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<InsumoFormData>(FORM_INITIAL);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchInsumos();
   }, [fetchInsumos]);
+
+  const openEdit = (insumo: any) => {
+    setFormData({
+      nombre: insumo.nombre,
+      tipo: insumo.tipo,
+      unidadMedida: insumo.unidadMedida,
+      stockMinimo: insumo.stockMinimo,
+      costoUnitarioPEN: insumo.costoUnitarioPEN,
+      proveedorNombre: insumo.proveedorNombre || '',
+      proveedorContacto: insumo.proveedorContacto || '',
+      activo: insumo.activo,
+    });
+    setEditingId(insumo.id);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setFormData(FORM_INITIAL);
+  };
 
   const handleSubmit = async () => {
     if (!user || !formData.nombre) {
@@ -52,10 +74,14 @@ export const InsumosEmpaque: React.FC = () => {
     }
     setSubmitting(true);
     try {
-      await crearInsumo(formData, user.uid);
-      toast.success(`Insumo ${formData.nombre} creado`);
-      setShowForm(false);
-      setFormData(FORM_INITIAL);
+      if (editingId) {
+        await actualizarInsumo(editingId, formData, user.uid);
+        toast.success('Insumo actualizado');
+      } else {
+        await crearInsumo(formData, user.uid);
+        toast.success(`Insumo ${formData.nombre} creado`);
+      }
+      closeForm();
     } catch (error: any) {
       toast.error(error.message, 'Error');
     } finally {
@@ -98,7 +124,7 @@ export const InsumosEmpaque: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {insumos.map(insumo => (
-            <Card key={insumo.id} className="p-3">
+            <Card key={insumo.id} className="p-3 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => openEdit(insumo)}>
               <div className="flex items-start justify-between">
                 <div>
                   <div className="font-medium text-gray-900 text-sm">{insumo.nombre}</div>
@@ -121,7 +147,7 @@ export const InsumosEmpaque: React.FC = () => {
       )}
 
       {/* Modal crear insumo */}
-      <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Nuevo Insumo de Empaque" size="md">
+      <Modal isOpen={showForm} onClose={closeForm} title={editingId ? 'Editar Insumo' : 'Nuevo Insumo de Empaque'} size="md">
         <div className="space-y-4">
           <Input
             label="Nombre"
@@ -168,9 +194,9 @@ export const InsumosEmpaque: React.FC = () => {
             onChange={e => setFormData({ ...formData, proveedorNombre: e.target.value })}
           />
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
+            <Button variant="secondary" onClick={closeForm}>Cancelar</Button>
             <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Guardando...' : 'Crear Insumo'}
+              {submitting ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Crear Insumo'}
             </Button>
           </div>
         </div>
