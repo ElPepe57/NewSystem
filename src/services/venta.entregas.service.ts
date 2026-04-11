@@ -277,7 +277,47 @@ export async function marcarEntregada(
     logger.warn('[marcarEntregada] Error al reclasificar anticipos:', reclasError);
   }
 
-  // 5. Actualizar métricas del Gestor Maestro (cliente y marcas)
+  // 5. Consumo automatico de kit de empaque (si hay kits configurados)
+  try {
+    const { kitEmpaqueService } = await import('./kitEmpaque.service');
+    // Calcular peso total del despacho
+    let pesoTotalLb = 0;
+    for (const prod of venta.productos) {
+      const producto = await ProductoService.getById(prod.productoId);
+      if (producto?.pesoLibras) {
+        pesoTotalLb += producto.pesoLibras * prod.cantidad;
+      }
+    }
+
+    if (pesoTotalLb > 0) {
+      const kit = await kitEmpaqueService.seleccionarPorPeso(pesoTotalLb);
+      if (kit) {
+        const costoKit = await kitEmpaqueService.consumirKit(kit.id, userId);
+        // Agregar costo del kit como costoVenta
+        if (costoKit > 0) {
+          const ventaRef2 = doc(db, COLLECTION_NAME, id);
+          const costosVentaActuales = (venta as any).costosVenta || [];
+          await updateDoc(ventaRef2, {
+            costosVenta: [...costosVentaActuales, {
+              id: `CV-KIT-${Date.now()}`,
+              categoriaCostoId: 'kit_empaque',
+              categoriaCostoNombre: 'Kit de Empaque',
+              descripcion: `${kit.nombre} (${pesoTotalLb.toFixed(1)} lb)`,
+              monto: costoKit,
+              moneda: 'PEN',
+              montoPEN: costoKit,
+            }],
+            costoVentaTotalPEN: ((venta as any).costoVentaTotalPEN || 0) + costoKit,
+          });
+          logger.log(`[marcarEntregada] Kit ${kit.codigo} consumido: S/${costoKit.toFixed(2)}`);
+        }
+      }
+    }
+  } catch (kitError) {
+    logger.warn('[marcarEntregada] Error consumiendo kit de empaque:', kitError);
+  }
+
+  // 6. Actualizar metricas del Gestor Maestro (cliente y marcas)
   try {
     const marcaIds = new Map<string, string>();
     for (const producto of venta.productos) {
