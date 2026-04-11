@@ -182,7 +182,10 @@ export async function create(
     if (data.modoEntrega) nuevaOrden.modoEntrega = data.modoEntrega;
     if (data.fleteIncluidoEnPrecio) nuevaOrden.fleteIncluidoEnPrecio = data.fleteIncluidoEnPrecio;
     if (descuento > 0) nuevaOrden.descuentoUSD = descuento;
-    if (data.tcCompra) nuevaOrden.tcCompra = data.tcCompra;
+    if (data.tcCompra) {
+      nuevaOrden.tcCompra = data.tcCompra;
+      nuevaOrden.tcReferencial = data.tcCompra; // Unificacion: tcReferencial = tcCompra al crear
+    }
 
     if (data.almacenDestino) {
       nuevaOrden.almacenDestino = data.almacenDestino;

@@ -117,7 +117,7 @@ export const onOrdenCompraRecibida = functions.firestore
         let unidadCount = 1;
 
         // Obtener TC de pago para calcular costos
-        const tcCompra = after.tcCompra || 3.7;
+        const tcCompra = after.tcReferencial || after.tcCompra || 0;
         const tcPago = after.tcPago || tcCompra;
 
         // Obtener datos del almacén/viajero destino

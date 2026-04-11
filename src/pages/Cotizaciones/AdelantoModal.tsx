@@ -255,7 +255,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                       step="0.001"
                       min="0.01"
                       value={tipoCambio}
-                      onChange={(e) => onTipoCambio(parseFloat(e.target.value) || 3.7)}
+                      onChange={(e) => onTipoCambio(parseFloat(e.target.value) || 0)}
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       TC del día cargado automáticamente. Puedes ajustarlo si es necesario.

@@ -71,7 +71,7 @@ export const usePagoMasivoStore = create<PagoMasivoState>((set, get) => ({
     set({ loadingPendientes: true, error: null });
     try {
       const tcData = await useTipoCambioStore.getState().getTCDelDia();
-      const tc = tcData?.venta || 3.7;
+      const tc = tcData?.venta || 0;
       const { tipoLote } = get();
 
       let pendientes: PendienteFinanciero[];

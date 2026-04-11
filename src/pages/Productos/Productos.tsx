@@ -415,7 +415,7 @@ export const Productos: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const tc = tipoCambioActual?.venta || 3.70;
+      const tc = tipoCambioActual?.venta || 0;
       await guardarInvestigacion(selectedProducto.id, data, user.uid, tc);
       toast.success('Investigación guardada correctamente');
       setIsInvestigacionModalOpen(false);
@@ -1266,7 +1266,7 @@ export const Productos: React.FC = () => {
         {selectedProducto && (
           <InvestigacionModal
             producto={selectedProducto}
-            tipoCambio={tipoCambioActual?.venta || 3.70}
+            tipoCambio={tipoCambioActual?.venta || 0}
             onSave={handleSaveInvestigacion}
             onDelete={selectedProducto.investigacion ? handleDeleteInvestigacion : undefined}
             onClose={handleCloseInvestigacionModal}

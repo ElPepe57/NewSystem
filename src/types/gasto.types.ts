@@ -147,11 +147,11 @@ export const CATEGORIAS_GASTO: Record<CategoriaGasto, {
 }> = {
   GV: {
     codigo: 'GV',
-    nombre: 'Gasto de Venta',
+    nombre: 'Costo por Venta',
     nombreCorto: 'Ventas',
     descripcion: 'Comisiones, pasarelas de pago, fees de plataformas',
     color: 'purple',
-    ejemplos: ['Comisión ML', 'Comisión pasarela', 'Fee plataforma', 'Marketing'],
+    ejemplos: ['Comisi\u00f3n ML', 'Comisi\u00f3n pasarela', 'Fee plataforma', 'Marketing'],
     impactaCTRU: false,
     tipoCosto: 'directo',
     asignacion: 'venta',
@@ -159,8 +159,8 @@ export const CATEGORIAS_GASTO: Record<CategoriaGasto, {
   },
   GD: {
     codigo: 'GD',
-    nombre: 'Gasto de Distribución',
-    nombreCorto: 'Distribución',
+    nombre: 'Costo de Distribuci\u00f3n',
+    nombreCorto: 'Distribuci\u00f3n',
     descripcion: 'Delivery, empaque, flete local',
     color: 'blue',
     ejemplos: ['Delivery', 'Empaque', 'Flete local', 'Courier'],
@@ -171,24 +171,24 @@ export const CATEGORIAS_GASTO: Record<CategoriaGasto, {
   },
   GA: {
     codigo: 'GA',
-    nombre: 'Gasto Administrativo',
+    nombre: 'Gasto Fijo Administrativo',
     nombreCorto: 'Administrativos',
     descripcion: 'Planilla, servicios, contador, alquiler',
     color: 'amber',
     ejemplos: ['Planilla', 'Luz', 'Agua', 'Internet', 'Contador', 'Alquiler'],
-    impactaCTRU: true,
+    impactaCTRU: false,
     tipoCosto: 'indirecto',
     asignacion: 'periodo',
     comportamiento: 'fijo'
   },
   GO: {
     codigo: 'GO',
-    nombre: 'Gasto Operativo',
+    nombre: 'Gasto Fijo Operativo',
     nombreCorto: 'Operativos',
     descripcion: 'Movilidad, suministros, mantenimiento',
     color: 'green',
     ejemplos: ['Movilidad', 'Suministros', 'Mantenimiento', 'Herramientas'],
-    impactaCTRU: true,
+    impactaCTRU: false,
     tipoCosto: 'indirecto',
     asignacion: 'periodo',
     comportamiento: 'semi_variable'

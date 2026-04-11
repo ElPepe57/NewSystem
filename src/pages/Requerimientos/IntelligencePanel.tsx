@@ -197,7 +197,7 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">En soles (aprox)</span>
               <span className="font-semibold text-gray-900">
-                S/ {(stats.costoEstimadoPendiente * (tcDelDia?.venta || 3.70)).toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                S/ {(stats.costoEstimadoPendiente * (tcDelDia?.venta || 0)).toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </span>
             </div>
           </div>

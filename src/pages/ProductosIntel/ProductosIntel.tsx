@@ -68,7 +68,7 @@ export const ProductosIntel: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       const tc = await getTCDelDia();
-      await cargarDatos(tc?.venta || 3.7);
+      await cargarDatos(tc?.venta || 0);
     };
     loadData();
   }, []);
@@ -97,7 +97,7 @@ export const ProductosIntel: React.FC = () => {
   // Handlers
   const handleRefresh = async () => {
     const tc = await getTCDelDia();
-    await cargarDatos(tc?.venta || 3.7);
+    await cargarDatos(tc?.venta || 0);
   };
 
   const handleProductoClick = (productoId: string) => {

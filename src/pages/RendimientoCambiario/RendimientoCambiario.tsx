@@ -1066,7 +1066,7 @@ const TabCicloPENUSD: React.FC<{
             const existing = productosMap.get(key);
             // Estimar costoUSD desde margen y precio si hay costoTotalUnidades
             const costoUSDEstimado = p.costoTotalUnidades && p.cantidad > 0
-              ? (p.costoTotalUnidades / p.cantidad) / (tcpa || tcMercado || 3.70)
+              ? (p.costoTotalUnidades / p.cantidad) / (tcpa || tcMercado || 0)
               : 0;
             if (existing) {
               existing.precioVenta = (existing.precioVenta * existing.count + (p.precioUnitario || 0)) / (existing.count + 1);
@@ -1080,7 +1080,7 @@ const TabCicloPENUSD: React.FC<{
                 nombreProducto: `${p.marca} ${p.nombreComercial}`,
                 precioVenta: p.precioUnitario || 0,
                 costoUSD: costoUSDEstimado,
-                tcHistorico: tcpa || tcMercado || 3.70,
+                tcHistorico: tcpa || tcMercado || 0,
                 gagoAsignado: 0,
                 count: 1,
               });

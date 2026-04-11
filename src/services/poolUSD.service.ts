@@ -803,7 +803,7 @@ export const poolUSDService = {
           pagosOC.push({
             tipo: 'PAGO_OC',
             montoUSD: pago.montoUSD || pago.montoOriginal || 0,
-            tcOperacion: pago.tipoCambio || oc.tcPago || oc.tcCompra || 3.70,
+            tcOperacion: pago.tipoCambio || oc.tcPago || oc.tcCompra || 0,
             fecha: fechaPago,
             docTipo: 'orden_compra',
             docId: d.id,
@@ -831,7 +831,7 @@ export const poolUSDService = {
       gastosUSD.push({
         tipo: esImportacion ? 'GASTO_IMPORTACION_USD' : 'GASTO_SERVICIO_USD',
         montoUSD: g.montoOriginal || g.monto || 0,
-        tcOperacion: g.tipoCambio || 3.70,
+        tcOperacion: g.tipoCambio || 0,
         fecha: fechaGasto,
         docTipo: 'gasto',
         docId: d.id,
@@ -856,7 +856,7 @@ export const poolUSDService = {
         conversiones.push({
           tipo: 'COMPRA_USD_BANCO',
           montoUSD: c.montoDestino || 0,
-          tcOperacion: c.tipoCambio || 3.70,
+          tcOperacion: c.tipoCambio || 0,
           fecha: fechaConv,
           docTipo: 'conversion_cambiaria',
           docId: d.id,
@@ -868,7 +868,7 @@ export const poolUSDService = {
         conversiones.push({
           tipo: 'VENTA_USD',
           montoUSD: c.montoOrigen || 0,
-          tcOperacion: c.tipoCambio || 3.70,
+          tcOperacion: c.tipoCambio || 0,
           fecha: fechaConv,
           docTipo: 'conversion_cambiaria',
           docId: d.id,

@@ -307,7 +307,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
         {/* Calcular desglose de costos por producto */}
         {(() => {
-          const tc = orden.tcCompra || orden.tcPago || 3.70;
+          const tc = orden.tcCompra || orden.tcPago || 0;
           const totalUnidades = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
           const costoBaseTotal = orden.productos.reduce((sum, p) => sum + (p.costoUnitario * p.cantidad), 0);
 
