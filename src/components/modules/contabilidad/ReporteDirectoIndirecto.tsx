@@ -103,17 +103,17 @@ export const ReporteDirectoIndirecto: React.FC<{ mes?: number; anio?: number }> 
   }, [mes, anio]);
 
   if (loading) {
-    return <Card className="p-4 animate-pulse"><div className="h-32 bg-gray-200 rounded" /></Card>;
+    return <Card className="p-4 animate-pulse"><div className="h-32 bg-slate-200 rounded" /></Card>;
   }
 
   if (!data || data.totalGeneral === 0) {
     return (
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-2">
-          <BarChart3 className="h-5 w-5 text-gray-400" />
-          <h3 className="font-semibold text-gray-700">Directo vs Indirecto</h3>
+          <BarChart3 className="h-5 w-5 text-slate-400" />
+          <h3 className="font-semibold text-slate-700">Directo vs Indirecto</h3>
         </div>
-        <p className="text-sm text-gray-500">Sin gastos registrados en el mes.</p>
+        <p className="text-sm text-slate-500">Sin gastos registrados en el mes.</p>
       </Card>
     );
   }
@@ -125,8 +125,8 @@ export const ReporteDirectoIndirecto: React.FC<{ mes?: number; anio?: number }> 
   return (
     <Card className="p-4">
       <div className="flex items-center gap-2 mb-4">
-        <BarChart3 className="h-5 w-5 text-gray-600" />
-        <h3 className="font-semibold text-gray-900">Costos Directos vs Indirectos</h3>
+        <BarChart3 className="h-5 w-5 text-slate-600" />
+        <h3 className="font-semibold text-slate-900">Costos Directos vs Indirectos</h3>
         <Badge variant="outline" className="text-xs ml-auto">
           {new Date(anio, mes - 1).toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })}
         </Badge>
@@ -148,7 +148,7 @@ export const ReporteDirectoIndirecto: React.FC<{ mes?: number; anio?: number }> 
             {pctIndirecto.toFixed(0)}%
           </div>
         </div>
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <div className="flex justify-between text-xs text-slate-500 mt-1">
           <span>Directos: {formatMonto(data.totalDirectos)}</span>
           <span>Indirectos: {formatMonto(data.totalIndirectos)}</span>
         </div>
@@ -176,9 +176,9 @@ export const ReporteDirectoIndirecto: React.FC<{ mes?: number; anio?: number }> 
       </div>
 
       {/* Ratio */}
-      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-sm">
-        <span className="text-gray-500">Ratio D/I</span>
-        <span className="font-bold text-gray-900">{data.ratioDirectoIndirecto.toFixed(2)}x</span>
+      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-sm">
+        <span className="text-slate-500">Ratio D/I</span>
+        <span className="font-bold text-slate-900">{data.ratioDirectoIndirecto.toFixed(2)}x</span>
       </div>
     </Card>
   );
@@ -191,9 +191,9 @@ const Linea: React.FC<{ label: string; monto: number; total: number; color: 'blu
 
   return (
     <div className="flex items-center justify-between text-xs">
-      <span className="text-gray-600">{label}</span>
+      <span className="text-slate-600">{label}</span>
       <span className={`font-medium ${color === 'blue' ? 'text-blue-700' : 'text-amber-700'}`}>
-        {fmt} <span className="text-gray-400">({pct.toFixed(0)}%)</span>
+        {fmt} <span className="text-slate-400">({pct.toFixed(0)}%)</span>
       </span>
     </div>
   );

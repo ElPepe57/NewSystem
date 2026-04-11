@@ -38,7 +38,7 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
       case 'almacenero':
         return <Warehouse className="h-4 w-4 text-green-500" />;
       default:
-        return <User className="h-4 w-4 text-gray-500" />;
+        return <User className="h-4 w-4 text-slate-500" />;
     }
   };
 
@@ -95,7 +95,7 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
     return (
       <Card padding="md">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
         </div>
       </Card>
     );
@@ -104,38 +104,38 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
   return (
     <Card padding="md">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Users className="h-5 w-5 mr-2 text-primary-500" />
+        <h3 className="text-lg font-semibold text-slate-900 flex items-center">
+          <Users className="h-5 w-5 mr-2 text-teal-500" />
           Usuarios del Sistema
         </h3>
-        <Link to="/usuarios" className="text-sm text-primary-600 hover:text-primary-700">
+        <Link to="/usuarios" className="text-sm text-teal-600 hover:text-teal-700">
           Gestionar →
         </Link>
       </div>
 
       {/* Estadísticas rápidas */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <div className="p-3 bg-gray-50 rounded-lg text-center">
-          <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-          <div className="text-xs text-gray-500">Total</div>
+        <div className="p-3 bg-slate-50 rounded-lg text-center">
+          <div className="text-2xl font-bold text-slate-900">{stats.total}</div>
+          <div className="text-xs text-slate-500">Total</div>
         </div>
         <div className="p-3 bg-green-50 rounded-lg text-center">
           <div className="text-2xl font-bold text-green-600">{stats.activos}</div>
-          <div className="text-xs text-gray-500">Activos</div>
+          <div className="text-xs text-slate-500">Activos</div>
         </div>
         <div className="p-3 bg-blue-50 rounded-lg text-center">
           <div className="text-2xl font-bold text-blue-600">{usuariosRecientes.length}</div>
-          <div className="text-xs text-gray-500">Hoy</div>
+          <div className="text-xs text-slate-500">Hoy</div>
         </div>
         <div className="p-3 bg-red-50 rounded-lg text-center">
           <div className="text-2xl font-bold text-red-600">{stats.inactivos}</div>
-          <div className="text-xs text-gray-500">Inactivos</div>
+          <div className="text-xs text-slate-500">Inactivos</div>
         </div>
       </div>
 
       {/* Distribución por rol */}
       <div className="mb-4">
-        <div className="text-xs text-gray-500 mb-2">Por Rol</div>
+        <div className="text-xs text-slate-500 mb-2">Por Rol</div>
         <div className="flex gap-2 flex-wrap">
           {stats.porRol.admin > 0 && (
             <div className="flex items-center gap-1 px-2 py-1 bg-purple-50 rounded-full text-xs">
@@ -156,8 +156,8 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
             </div>
           )}
           {stats.porRol.invitado > 0 && (
-            <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-xs">
-              <User className="h-3 w-3 text-gray-500" />
+            <div className="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-full text-xs">
+              <User className="h-3 w-3 text-slate-500" />
               <span>{stats.porRol.invitado} Invitados</span>
             </div>
           )}
@@ -167,7 +167,7 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
       {/* Lista detallada */}
       {showDetailed && (
         <div className="border-t pt-4">
-          <div className="text-xs text-gray-500 mb-2">Actividad Reciente</div>
+          <div className="text-xs text-slate-500 mb-2">Actividad Reciente</div>
           <div className="space-y-2">
             {usuarios
               .sort((a, b) => {
@@ -179,21 +179,21 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
               .map(usuario => (
                 <div
                   key={usuario.uid}
-                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-2 bg-slate-50 rounded-lg"
                 >
                   <div className="flex items-center gap-2">
                     {getRoleIcon(usuario.role)}
                     <div>
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-slate-900">
                         {usuario.displayName}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-slate-500">
                         {usuario.email}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-slate-500">
                       {formatLastConnection(usuario.ultimaConexion)}
                     </div>
                     <div className="flex items-center gap-1">

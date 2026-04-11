@@ -103,16 +103,16 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
   // formatCurrency importado de utils/format (USD por defecto)
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       {/* Header con totales */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Pipeline de Inventario</h2>
-          <p className="text-sm text-gray-500">Estado actual de las unidades</p>
+          <h2 className="text-lg font-semibold text-slate-900">Pipeline de Inventario</h2>
+          <p className="text-sm text-slate-500">Estado actual de las unidades</p>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-          <div className="text-sm text-gray-500">unidades totales</div>
+          <div className="text-2xl font-bold text-slate-900">{stats.total}</div>
+          <div className="text-sm text-slate-500">unidades totales</div>
           <div className="text-sm font-medium text-green-600">
             {formatCurrency(stats.valorTotalUSD)} USD
           </div>
@@ -136,21 +136,21 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
                   ${isActive
                     ? `${stage.bgColor} ${stage.borderColor} ring-2 ring-offset-2 ring-${stage.color.replace('text-', '')}`
                     : hasUnits
-                      ? `bg-white border-gray-200 ${stage.hoverColor} cursor-pointer`
-                      : 'bg-gray-50 border-gray-100 cursor-not-allowed opacity-50'
+                      ? `bg-white border-slate-200 ${stage.hoverColor} cursor-pointer`
+                      : 'bg-slate-50 border-slate-100 cursor-not-allowed opacity-50'
                   }
                 `}
               >
                 {/* Icon y label */}
                 <div className="flex flex-col items-center text-center">
-                  <div className={`mb-2 ${isActive ? stage.color : hasUnits ? 'text-gray-400' : 'text-gray-300'}`}>
+                  <div className={`mb-2 ${isActive ? stage.color : hasUnits ? 'text-slate-400' : 'text-slate-300'}`}>
                     {stage.icon}
                   </div>
-                  <div className={`text-xs font-medium ${isActive ? stage.color : 'text-gray-600'}`}>
+                  <div className={`text-xs font-medium ${isActive ? stage.color : 'text-slate-600'}`}>
                     {stage.label}
                   </div>
-                  <div className="text-xs text-gray-400">{stage.sublabel}</div>
-                  <div className={`mt-2 text-2xl font-bold ${isActive ? stage.color : 'text-gray-900'}`}>
+                  <div className="text-xs text-slate-400">{stage.sublabel}</div>
+                  <div className={`mt-2 text-2xl font-bold ${isActive ? stage.color : 'text-slate-900'}`}>
                     {stage.count}
                   </div>
                 </div>
@@ -164,7 +164,7 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
               {/* Flecha entre stages */}
               {index < stages.length - 1 && (
                 <div className="flex items-center justify-center w-6">
-                  <div className="w-full h-0.5 bg-gray-200 relative">
+                  <div className="w-full h-0.5 bg-slate-200 relative">
                     <div className="absolute right-0 top-1/2 transform -translate-y-1/2 border-t-4 border-b-4 border-l-6 border-transparent border-l-gray-300"></div>
                   </div>
                 </div>
@@ -179,7 +179,7 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
         <div className="mt-4 flex justify-center">
           <button
             onClick={() => onFiltroChange(null)}
-            className="text-sm text-gray-500 hover:text-gray-700 underline"
+            className="text-sm text-slate-500 hover:text-slate-700 underline"
           >
             Limpiar filtro
           </button>

@@ -25,14 +25,14 @@ export const ActivityFeed: React.FC = () => {
   if (actividadesNegocio.length === 0) {
     return (
       <div className="p-4 text-center">
-        <p className="text-sm text-gray-400 italic">Sin actividad reciente</p>
+        <p className="text-sm text-slate-400 italic">Sin actividad reciente</p>
       </div>
     );
   }
 
   return (
     <div className="p-3">
-      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+      <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
         Actividad Reciente
       </h4>
       <div className="space-y-0.5">
@@ -45,21 +45,21 @@ export const ActivityFeed: React.FC = () => {
 };
 
 const ActivityItem: React.FC<{ actividad: ActividadReciente }> = ({ actividad }) => {
-  const config = ACTIVIDAD_CONFIG[actividad.tipo] || { emoji: '📌', color: 'text-gray-500' };
+  const config = ACTIVIDAD_CONFIG[actividad.tipo] || { emoji: '📌', color: 'text-slate-500' };
 
   return (
-    <div className="flex items-start gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+    <div className="flex items-start gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors">
       {/* Emoji */}
       <span className="text-base mt-0.5 flex-shrink-0">{config.emoji}</span>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-gray-800">
+        <p className="text-sm text-slate-800">
           <span className="font-medium">{actividad.displayName}</span>
           {' '}
-          <span className="text-gray-600">{actividad.mensaje}</span>
+          <span className="text-slate-600">{actividad.mensaje}</span>
         </p>
-        <p className="text-[11px] text-gray-400 mt-0.5">
+        <p className="text-[11px] text-slate-400 mt-0.5">
           {formatTimeAgo(actividad.timestamp)}
         </p>
       </div>

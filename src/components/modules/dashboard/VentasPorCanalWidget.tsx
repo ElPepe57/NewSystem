@@ -60,10 +60,10 @@ export const VentasPorCanalWidget: React.FC<VentasPorCanalWidgetProps> = ({ data
     if (active && payload && payload.length) {
       const item = payload[0].payload;
       return (
-        <div className="bg-white p-3 shadow-lg rounded-lg border border-gray-200">
-          <p className="font-semibold text-gray-900">{item.name}</p>
-          <p className="text-sm text-gray-600">{formatCurrency(item.value)}</p>
-          <p className="text-xs text-gray-500">{item.cantidad} ventas ({item.porcentaje.toFixed(1)}%)</p>
+        <div className="bg-white p-3 shadow-lg rounded-lg border border-slate-200">
+          <p className="font-semibold text-slate-900">{item.name}</p>
+          <p className="text-sm text-slate-600">{formatCurrency(item.value)}</p>
+          <p className="text-xs text-slate-500">{item.cantidad} ventas ({item.porcentaje.toFixed(1)}%)</p>
         </div>
       );
     }
@@ -84,19 +84,19 @@ export const VentasPorCanalWidget: React.FC<VentasPorCanalWidgetProps> = ({ data
   return (
     <Card padding="md">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Store className="h-5 w-5 mr-2 text-primary-500" />
+        <h3 className="text-lg font-semibold text-slate-900 flex items-center">
+          <Store className="h-5 w-5 mr-2 text-teal-500" />
           Ventas por Canal
         </h3>
         <div className="text-right">
-          <div className="text-sm font-semibold text-gray-900">{formatCurrency(totalVentas)}</div>
-          <div className="text-xs text-gray-500">{totalCantidad} ventas</div>
+          <div className="text-sm font-semibold text-slate-900">{formatCurrency(totalVentas)}</div>
+          <div className="text-xs text-slate-500">{totalCantidad} ventas</div>
         </div>
       </div>
 
       {totalVentas === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <Store className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+        <div className="text-center py-8 text-slate-500">
+          <Store className="h-12 w-12 mx-auto mb-2 text-slate-300" />
           <p className="text-sm">Sin datos de ventas</p>
         </div>
       ) : (
@@ -128,23 +128,23 @@ export const VentasPorCanalWidget: React.FC<VentasPorCanalWidgetProps> = ({ data
             {chartData.map((item) => (
               <div
                 key={item.name}
-                className="flex items-center justify-between p-2 rounded-lg bg-gray-50"
+                className="flex items-center justify-between p-2 rounded-lg bg-slate-50"
               >
                 <div className="flex items-center gap-2">
                   <div
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: item.color }}
                   />
-                  <div className="flex items-center gap-1 text-sm text-gray-700">
+                  <div className="flex items-center gap-1 text-sm text-slate-700">
                     {getIcon(item.name)}
                     <span>{item.name}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-slate-900">
                     {item.porcentaje.toFixed(1)}%
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-slate-500">
                     {item.cantidad} ventas
                   </div>
                 </div>

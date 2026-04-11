@@ -44,7 +44,7 @@ function SeccionBalance({
   total,
   children,
   defaultOpen = true,
-  colorHeader = 'bg-gray-100',
+  colorHeader = 'bg-slate-100',
   icon,
 }: SeccionBalanceProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -57,14 +57,14 @@ function SeccionBalance({
       >
         <div className="flex items-center gap-2">
           {isOpen ? (
-            <ChevronUp className="w-4 h-4 text-gray-500" />
+            <ChevronUp className="w-4 h-4 text-slate-500" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-gray-500" />
+            <ChevronDown className="w-4 h-4 text-slate-500" />
           )}
           {icon}
-          <span className="font-semibold text-gray-800">{titulo}</span>
+          <span className="font-semibold text-slate-800">{titulo}</span>
         </div>
-        <span className="font-mono font-bold text-gray-900">{formatCurrency(total)}</span>
+        <span className="font-mono font-bold text-slate-900">{formatCurrency(total)}</span>
       </button>
       {isOpen && <div className="bg-white border-t">{children}</div>}
     </div>
@@ -86,13 +86,13 @@ function LineaBalance({ label, valor, indent = 0, esSubtotal, detalle }: LineaBa
   return (
     <div
       className={`flex justify-between items-center py-2 px-4 ${
-        esSubtotal ? 'bg-gray-50 font-semibold border-t' : 'hover:bg-gray-50'
+        esSubtotal ? 'bg-slate-50 font-semibold border-t' : 'hover:bg-slate-50'
       }`}
       style={{ paddingLeft: `${16 + paddingLeft}px` }}
     >
       <div>
-        <span className={`${esSubtotal ? 'text-gray-800' : 'text-gray-600'}`}>{label}</span>
-        {detalle && <span className="text-xs text-gray-400 ml-2">{detalle}</span>}
+        <span className={`${esSubtotal ? 'text-slate-800' : 'text-slate-600'}`}>{label}</span>
+        {detalle && <span className="text-xs text-slate-400 ml-2">{detalle}</span>}
       </div>
       <span className="font-mono">{formatCurrency(valor)}</span>
     </div>
@@ -145,18 +145,18 @@ export default function BalanceGeneral({ mes, anio }: Props) {
   return (
     <div className="space-y-6">
       {/* Header del Balance */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg p-4 sm:p-6">
+      <div className="bg-gradient-to-r from-teal-600 to-purple-600 text-white rounded-lg p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold">BALANCE GENERAL</h2>
-            <p className="text-indigo-100 text-sm sm:text-base">
+            <p className="text-teal-100 text-sm sm:text-base">
               Al {balance.fechaCorte.toLocaleDateString('es-PE', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
               })}
             </p>
-            <p className="text-xs sm:text-sm text-indigo-200 mt-1">TC: {balance.tipoCambio.toFixed(2)}</p>
+            <p className="text-xs sm:text-sm text-teal-200 mt-1">TC: {balance.tipoCambio.toFixed(2)}</p>
           </div>
           <div className="sm:text-right">
             {balance.balanceCuadra ? (
@@ -176,15 +176,15 @@ export default function BalanceGeneral({ mes, anio }: Props) {
         {/* Resumen rápido */}
         <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 sm:mt-6">
           <div className="bg-white/10 rounded-lg p-2.5 sm:p-4">
-            <div className="text-indigo-200 text-xs sm:text-sm">Total Activos</div>
+            <div className="text-teal-200 text-xs sm:text-sm">Total Activos</div>
             <div className="text-base sm:text-2xl font-bold">{formatCurrency(activos.totalActivos)}</div>
           </div>
           <div className="bg-white/10 rounded-lg p-2.5 sm:p-4">
-            <div className="text-indigo-200 text-xs sm:text-sm">Total Pasivos</div>
+            <div className="text-teal-200 text-xs sm:text-sm">Total Pasivos</div>
             <div className="text-base sm:text-2xl font-bold">{formatCurrency(pasivos.totalPasivos)}</div>
           </div>
           <div className="bg-white/10 rounded-lg p-2.5 sm:p-4">
-            <div className="text-indigo-200 text-xs sm:text-sm">Patrimonio</div>
+            <div className="text-teal-200 text-xs sm:text-sm">Patrimonio</div>
             <div className="text-base sm:text-2xl font-bold">{formatCurrency(patrimonio.totalPatrimonio)}</div>
           </div>
         </div>
@@ -193,7 +193,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ACTIVOS */}
         <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
+          <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
             <TrendingUp className="w-6 h-6 text-green-600" />
             ACTIVOS
           </h3>
@@ -207,7 +207,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
           >
             {/* Efectivo */}
             <div className="border-b">
-              <div className="px-4 py-2 bg-gray-50 font-medium text-gray-700 flex items-center gap-2">
+              <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700 flex items-center gap-2">
                 <Banknote className="w-4 h-4" />
                 Efectivo y Equivalentes
               </div>
@@ -243,7 +243,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
 
             {/* Cuentas por Cobrar */}
             <div className="border-b">
-              <div className="px-4 py-2 bg-gray-50 font-medium text-gray-700 flex items-center gap-2">
+              <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700 flex items-center gap-2">
                 <Receipt className="w-4 h-4" />
                 Cuentas por Cobrar
               </div>
@@ -266,7 +266,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
                 esSubtotal
               />
               {/* Antigüedad */}
-              <div className="px-4 sm:px-6 py-2 text-xs text-gray-500 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
+              <div className="px-4 sm:px-6 py-2 text-xs text-slate-500 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                 <div>0-7d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.de0a7dias)}</div>
                 <div>8-15d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.de8a15dias)}</div>
                 <div>16-30d: {formatCurrency(activos.corriente.cuentasPorCobrar.antiguedad.de16a30dias)}</div>
@@ -276,11 +276,11 @@ export default function BalanceGeneral({ mes, anio }: Props) {
 
             {/* Inventarios */}
             <div>
-              <div className="px-4 py-2 bg-gray-50 font-medium text-gray-700 flex items-center gap-2">
+              <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700 flex items-center gap-2">
                 <Package className="w-4 h-4" />
                 Inventarios ({activos.corriente.inventarios.metodoValorizacion})
               </div>
-              <div className="px-4 py-2 text-xs text-gray-500">
+              <div className="px-4 py-2 text-xs text-slate-500">
                 CTRU Promedio: {formatCurrency(activos.corriente.inventarios.ctruPromedio)}
               </div>
               <LineaBalance
@@ -289,7 +289,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
                 indent={1}
                 detalle={`${activos.corriente.inventarios.inventarioUSA.unidades} uds (${formatCurrencyUSD(activos.corriente.inventarios.inventarioUSA.valorUSD)})`}
               />
-              <div className="px-8 text-xs text-gray-500 pb-1">
+              <div className="px-8 text-xs text-slate-500 pb-1">
                 En almacenes: {activos.corriente.inventarios.inventarioUSA.enAlmacenes} |
                 En tránsito: {activos.corriente.inventarios.inventarioUSA.enTransito}
               </div>
@@ -299,7 +299,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
                 indent={1}
                 detalle={`${activos.corriente.inventarios.inventarioPeru.unidades} uds`}
               />
-              <div className="px-8 text-xs text-gray-500 pb-1">
+              <div className="px-8 text-xs text-slate-500 pb-1">
                 Disponible: {activos.corriente.inventarios.inventarioPeru.disponible} |
                 Reservado: {activos.corriente.inventarios.inventarioPeru.reservado}
               </div>
@@ -329,8 +329,8 @@ export default function BalanceGeneral({ mes, anio }: Props) {
             <SeccionBalance
               titulo="Activo No Corriente"
               total={activos.noCorriente.total}
-              colorHeader="bg-gray-100"
-              icon={<Building2 className="w-5 h-5 text-gray-600" />}
+              colorHeader="bg-slate-100"
+              icon={<Building2 className="w-5 h-5 text-slate-600" />}
               defaultOpen={false}
             >
               {activos.noCorriente.propiedadPlantaEquipo && (
@@ -361,7 +361,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
         <div className="space-y-6">
           {/* PASIVOS */}
           <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
+            <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
               <CreditCard className="w-6 h-6 text-red-600" />
               PASIVOS
             </h3>
@@ -375,7 +375,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
             >
               {/* Cuentas por Pagar Proveedores */}
               <div className="border-b">
-                <div className="px-4 py-2 bg-gray-50 font-medium text-gray-700">
+                <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700">
                   Cuentas por Pagar (Proveedores)
                 </div>
                 <LineaBalance
@@ -385,7 +385,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
                   detalle={`${pasivos.corriente.cuentasPorPagarProveedores.cantidadOCs} OCs (${formatCurrencyUSD(pasivos.corriente.cuentasPorPagarProveedores.ordenesCompraUSD)})`}
                 />
                 {/* Antigüedad */}
-                <div className="px-4 sm:px-6 py-2 text-xs text-gray-500 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
+                <div className="px-4 sm:px-6 py-2 text-xs text-slate-500 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                   <div>0-7d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.de0a7dias)}</div>
                   <div>8-15d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.de8a15dias)}</div>
                   <div>16-30d: {formatCurrency(pasivos.corriente.cuentasPorPagarProveedores.antiguedad.de16a30dias)}</div>
@@ -395,7 +395,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
 
               {/* Otras Cuentas por Pagar */}
               <div>
-                <div className="px-4 py-2 bg-gray-50 font-medium text-gray-700">
+                <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700">
                   Otras Cuentas por Pagar
                 </div>
                 {pasivos.corriente.otrasCuentasPorPagar.gastosPendientes > 0 && (
@@ -423,7 +423,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
               {pasivos.corriente.anticiposClientes &&
                pasivos.corriente.anticiposClientes.totalAnticiposPEN > 0 && (
                 <div className="border-b">
-                  <div className="px-4 py-2 bg-gray-50 font-medium text-gray-700 flex items-center gap-2">
+                  <div className="px-4 py-2 bg-slate-50 font-medium text-slate-700 flex items-center gap-2">
                     <DollarSign className="w-4 h-4" />
                     Anticipos de Clientes (Ingresos Diferidos)
                   </div>
@@ -470,7 +470,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
                   )}
                   {pasivos.corriente.deudasFinancieras.detalle.length > 0 &&
                     pasivos.corriente.deudasFinancieras.detalle.map((d) => (
-                      <div key={d.cuentaId} className="px-8 py-1 text-xs text-gray-500 flex justify-between">
+                      <div key={d.cuentaId} className="px-8 py-1 text-xs text-slate-500 flex justify-between">
                         <span>{d.nombreCuenta} {d.banco ? `(${d.banco})` : ''}</span>
                         <span className="font-mono">{formatCurrency(d.montoPEN)}</span>
                       </div>
@@ -496,7 +496,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
               <SeccionBalance
                 titulo="Pasivo No Corriente"
                 total={pasivos.noCorriente.total}
-                colorHeader="bg-gray-100"
+                colorHeader="bg-slate-100"
                 defaultOpen={false}
               >
                 <LineaBalance
@@ -518,7 +518,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
 
           {/* PATRIMONIO */}
           <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-3">
+            <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
               <PiggyBank className="w-6 h-6 text-blue-600" />
               PATRIMONIO
             </h3>

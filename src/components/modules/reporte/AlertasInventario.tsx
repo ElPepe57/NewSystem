@@ -45,12 +45,12 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({ alertas })
         const bg = backgrounds[alerta.tipo];
 
         return (
-          <div key={index} className={`${bg} p-2.5 sm:p-4 rounded-lg border border-gray-200`}>
+          <div key={index} className={`${bg} p-2.5 sm:p-4 rounded-lg border border-slate-200`}>
             <div className="flex items-start gap-2 sm:gap-3">
               <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${color} shrink-0 mt-0.5`} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-0.5 sm:mb-1">
-                  <h4 className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
+                  <h4 className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
                     {alerta.marca} {alerta.nombreComercial}
                   </h4>
                   <Badge
@@ -60,8 +60,8 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({ alertas })
                     {alerta.prioridad.toUpperCase()}
                   </Badge>
                 </div>
-                <p className="text-[11px] sm:text-sm text-gray-700">{alerta.mensaje}</p>
-                <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5">{alerta.sku}</p>
+                <p className="text-[11px] sm:text-sm text-slate-700">{alerta.mensaje}</p>
+                <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5">{alerta.sku}</p>
               </div>
             </div>
           </div>

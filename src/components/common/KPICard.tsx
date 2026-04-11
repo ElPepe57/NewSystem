@@ -21,9 +21,9 @@ export interface KPICardProps {
 const variantStyles = {
   default: {
     bg: 'bg-white',
-    border: 'border-gray-200',
-    iconBg: 'bg-gray-100',
-    iconColor: 'text-gray-600'
+    border: 'border-slate-200',
+    iconBg: 'bg-slate-100',
+    iconColor: 'text-slate-600'
   },
   success: {
     bg: 'bg-white',
@@ -101,7 +101,7 @@ export const KPICard: React.FC<KPICardProps> = ({
     const isPositiveGood = trend.isPositiveGood !== false;
     if (trend.value > 0) return isPositiveGood ? 'text-green-600' : 'text-red-600';
     if (trend.value < 0) return isPositiveGood ? 'text-red-600' : 'text-green-600';
-    return 'text-gray-500';
+    return 'text-slate-500';
   };
 
   const TrendIcon = getTrendIcon();
@@ -116,14 +116,14 @@ export const KPICard: React.FC<KPICardProps> = ({
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className={`${sizes.titleSize} font-medium text-gray-500 truncate`}>
+          <p className={`${sizes.titleSize} font-medium text-slate-500 truncate`}>
             {title}
           </p>
-          <p className={`${sizes.valueSize} font-bold text-gray-900 mt-1`}>
+          <p className={`${sizes.valueSize} font-bold text-slate-900 mt-1`}>
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-gray-500 mt-1 truncate">
+            <p className="text-xs text-slate-500 mt-1 truncate">
               {subtitle}
             </p>
           )}
@@ -132,7 +132,7 @@ export const KPICard: React.FC<KPICardProps> = ({
               {TrendIcon && <TrendIcon className="h-3 w-3 mr-1" />}
               <span className="text-xs font-medium">
                 {trend.value > 0 ? '+' : ''}{trend.value.toFixed(1)}%
-                {trend.label && <span className="text-gray-500 ml-1">{trend.label}</span>}
+                {trend.label && <span className="text-slate-500 ml-1">{trend.label}</span>}
               </span>
             </div>
           )}
@@ -259,7 +259,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({
             <Icon className={`h-4 w-4 ${styles.iconColor}`} />
           </div>
         )}
-        <h3 className="font-medium text-gray-900">{title}</h3>
+        <h3 className="font-medium text-slate-900">{title}</h3>
         {items.length > 0 && (
           <span className={`ml-auto text-xs font-medium ${styles.iconColor} ${styles.iconBg} px-2 py-0.5 rounded-full`}>
             {items.length}
@@ -268,7 +268,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({
       </div>
 
       {items.length === 0 ? (
-        <p className="text-sm text-gray-500 text-center py-2">{emptyMessage}</p>
+        <p className="text-sm text-slate-500 text-center py-2">{emptyMessage}</p>
       ) : (
         <div className="space-y-1">
           {displayItems.map((item) => (
@@ -278,13 +278,13 @@ export const AlertCard: React.FC<AlertCardProps> = ({
               onClick={() => onItemClick?.(item.id)}
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-900 truncate">{item.label}</p>
+                <p className="text-sm font-medium text-slate-900 truncate">{item.label}</p>
                 {item.sublabel && (
-                  <p className="text-xs text-gray-500 truncate">{item.sublabel}</p>
+                  <p className="text-xs text-slate-500 truncate">{item.sublabel}</p>
                 )}
               </div>
               {item.value !== undefined && (
-                <span className="text-sm font-medium text-gray-700 ml-2 flex-shrink-0">
+                <span className="text-sm font-medium text-slate-700 ml-2 flex-shrink-0">
                   {item.value}
                 </span>
               )}
@@ -293,7 +293,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({
           {hasMore && onViewAll && (
             <button
               onClick={onViewAll}
-              className="w-full text-center text-sm text-gray-500 hover:text-gray-700 py-2"
+              className="w-full text-center text-sm text-slate-500 hover:text-slate-700 py-2"
             >
               Ver {items.length - maxItems} más...
             </button>
@@ -359,15 +359,15 @@ export const StatDistribution: React.FC<StatDistributionProps> = ({
     'bg-red-500',
     'bg-purple-500',
     'bg-pink-500',
-    'bg-indigo-500'
+    'bg-teal-500'
   ];
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
-      <h3 className="text-sm font-medium text-gray-700 mb-3">{title}</h3>
+    <div className="bg-white border border-slate-200 rounded-lg p-4">
+      <h3 className="text-sm font-medium text-slate-700 mb-3">{title}</h3>
 
       {/* Barra de distribución */}
-      <div className="h-3 flex rounded-full overflow-hidden bg-gray-100 mb-4">
+      <div className="h-3 flex rounded-full overflow-hidden bg-slate-100 mb-4">
         {data.map((item, index) => {
           const percentage = total > 0 ? (item.value / total) * 100 : 0;
           if (percentage === 0) return null;
@@ -390,14 +390,14 @@ export const StatDistribution: React.FC<StatDistributionProps> = ({
             <div key={item.label} className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <div className={`h-3 w-3 rounded flex-shrink-0 ${item.color || defaultColors[index % defaultColors.length]}`} />
-                <span className="text-sm text-gray-700 truncate" title={item.label}>{item.label}</span>
+                <span className="text-sm text-slate-700 truncate" title={item.label}>{item.label}</span>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold text-slate-900">
                   {formatStatValue(item.value, valueFormat)}
                 </span>
                 {showPercentage && total > 0 && (
-                  <span className="text-xs text-gray-500 w-10 text-right">({percentage.toFixed(0)}%)</span>
+                  <span className="text-xs text-slate-500 w-10 text-right">({percentage.toFixed(0)}%)</span>
                 )}
               </div>
             </div>

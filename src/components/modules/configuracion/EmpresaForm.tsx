@@ -242,10 +242,10 @@ export const EmpresaForm: React.FC<EmpresaFormProps> = ({
       {/* Sección QR de Pagos */}
       <div className="border-t pt-6">
         <div className="flex items-center space-x-2 mb-4">
-          <QrCode className="h-5 w-5 text-primary-600" />
-          <h3 className="text-lg font-semibold text-gray-900">QR de Pagos (Yape / Plin)</h3>
+          <QrCode className="h-5 w-5 text-teal-600" />
+          <h3 className="text-lg font-semibold text-slate-900">QR de Pagos (Yape / Plin)</h3>
         </div>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-slate-600 mb-4">
           Configura tu información de pago para que aparezca en los tickets de envío cuando hay cobro pendiente.
         </p>
 
@@ -273,7 +273,7 @@ export const EmpresaForm: React.FC<EmpresaFormProps> = ({
 
           {/* Columna derecha: Imagen QR */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Imagen del QR
             </label>
 
@@ -283,7 +283,7 @@ export const EmpresaForm: React.FC<EmpresaFormProps> = ({
                 <img
                   src={formData.qrPagoUrl}
                   alt="QR de Pago"
-                  className="w-40 h-40 object-contain border border-gray-200 rounded-lg bg-white"
+                  className="w-40 h-40 object-contain border border-slate-200 rounded-lg bg-white"
                 />
                 <button
                   type="button"
@@ -298,13 +298,13 @@ export const EmpresaForm: React.FC<EmpresaFormProps> = ({
               // Área para subir imagen
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary-500 hover:bg-primary-50 transition-colors"
+                className="w-40 h-40 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 hover:bg-teal-50 transition-colors"
               >
-                <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-500 text-center px-2">
+                <Upload className="h-8 w-8 text-slate-400 mb-2" />
+                <span className="text-sm text-slate-500 text-center px-2">
                   Subir imagen QR
                 </span>
-                <span className="text-xs text-gray-400 mt-1">
+                <span className="text-xs text-slate-400 mt-1">
                   PNG, JPG (máx. 2MB)
                 </span>
               </div>
@@ -318,7 +318,7 @@ export const EmpresaForm: React.FC<EmpresaFormProps> = ({
               className="hidden"
             />
 
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-slate-500 mt-2">
               El QR se recortará automáticamente
             </p>
           </div>

@@ -233,18 +233,18 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
   return (
     <div className="space-y-4">
       {/* Transfer selector */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-          <Truck className="h-4 w-4 text-gray-500" />
+      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+          <Truck className="h-4 w-4 text-slate-500" />
           Transferencia a recibir
         </label>
         {loading ? (
           <div className="flex items-center gap-2 py-2">
-            <div className="h-4 w-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-gray-500">Cargando transferencias...</span>
+            <div className="h-4 w-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm text-slate-500">Cargando transferencias...</span>
           </div>
         ) : transferencias.length === 0 ? (
-          <p className="text-sm text-gray-500 py-2">No hay transferencias pendientes de recepcion</p>
+          <p className="text-sm text-slate-500 py-2">No hay transferencias pendientes de recepcion</p>
         ) : (
           <select
             value={selectedTransferencia?.id || ''}
@@ -252,7 +252,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
               const t = transferencias.find(tr => tr.id === e.target.value) || null;
               setSelectedTransferencia(t);
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
           >
             <option value="">Selecciona una transferencia</option>
             {transferencias.map(t => (
@@ -279,33 +279,33 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
       {selectedTransferencia && productosAgrupados.length > 0 && (
         <>
           {/* Progress bar */}
-          <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-slate-700">
                 Progreso: {totalARecibir}/{totalPendiente}
               </span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={handleRecibirTodas}
-                  className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                  className="text-xs text-teal-600 hover:text-teal-700 font-medium"
                 >
                   Recibir todas
                 </button>
-                <span className="text-gray-300">|</span>
+                <span className="text-slate-300">|</span>
                 <button
                   type="button"
                   onClick={handleLimpiar}
-                  className="text-xs text-gray-500 hover:text-gray-700"
+                  className="text-xs text-slate-500 hover:text-slate-700"
                 >
                   Limpiar
                 </button>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div className="w-full bg-slate-200 rounded-full h-2.5">
               <div
                 className={`h-2.5 rounded-full transition-all ${
-                  progreso >= 100 ? 'bg-green-500' : progreso > 0 ? 'bg-primary-500' : 'bg-gray-300'
+                  progreso >= 100 ? 'bg-green-500' : progreso > 0 ? 'bg-teal-500' : 'bg-slate-300'
                 }`}
                 style={{ width: `${Math.min(progreso, 100)}%` }}
               />
@@ -327,7 +327,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                       ? 'border-green-300 bg-green-50/30'
                       : parcial
                         ? 'border-amber-300 bg-amber-50/20'
-                        : 'border-gray-200'
+                        : 'border-slate-200'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -338,11 +338,11 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                         ) : parcial ? (
                           <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
                         ) : (
-                          <Clock className="h-4 w-4 text-gray-400 shrink-0" />
+                          <Clock className="h-4 w-4 text-slate-400 shrink-0" />
                         )}
-                        <p className="text-sm font-medium text-gray-900 truncate">{prod.nombre}</p>
+                        <p className="text-sm font-medium text-slate-900 truncate">{prod.nombre}</p>
                       </div>
-                      <p className="text-xs text-gray-500 ml-6">
+                      <p className="text-xs text-slate-500 ml-6">
                         {prod.sku} {prod.lote && `· Lote: ${prod.lote}`}
                       </p>
 
@@ -424,17 +424,17 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                           ...prev,
                           [prod.productoId]: Math.max(0, (prev[prod.productoId] || 0) - 1),
                         }))}
-                        className="w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 text-base sm:text-sm font-bold"
+                        className="w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-base sm:text-sm font-bold"
                       >
                         -
                       </button>
                       <div className="text-center min-w-[3rem]">
                         <span className={`text-sm font-bold tabular-nums ${
-                          completo ? 'text-green-600' : parcial ? 'text-amber-600' : 'text-gray-900'
+                          completo ? 'text-green-600' : parcial ? 'text-amber-600' : 'text-slate-900'
                         }`}>
                           {recibido}
                         </span>
-                        <span className="text-xs text-gray-400">/{prod.pendiente}</span>
+                        <span className="text-xs text-slate-400">/{prod.pendiente}</span>
                       </div>
                       <button
                         type="button"
@@ -443,7 +443,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                           [prod.productoId]: Math.min(prod.pendiente, (prev[prod.productoId] || 0) + 1),
                         }))}
                         disabled={completo}
-                        className="w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 text-base sm:text-sm font-bold disabled:opacity-30"
+                        className="w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-base sm:text-sm font-bold disabled:opacity-30"
                       >
                         +
                       </button>
@@ -455,19 +455,19 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
           </div>
 
           {/* Observaciones */}
-          <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
-            <label className="text-xs font-medium text-gray-600 mb-1 block">Observaciones (opcional)</label>
+          <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Observaciones (opcional)</label>
             <textarea
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               placeholder="Notas sobre la recepcion..."
             />
           </div>
 
           {/* Action button - sticky bottom */}
-          <div className="sticky bottom-0 bg-gray-50/95 backdrop-blur-sm border-t border-gray-200 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3">
+          <div className="sticky bottom-0 bg-slate-50/95 backdrop-blur-sm border-t border-slate-200 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3">
             <button
               type="button"
               onClick={handleConfirmarRecepcion}
@@ -490,7 +490,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
       {selectedTransferencia && productosAgrupados.length === 0 && (
         <div className="text-center py-8">
           <Package className="h-8 w-8 text-green-400 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Todas las unidades ya fueron recibidas</p>
+          <p className="text-sm text-slate-500">Todas las unidades ya fueron recibidas</p>
         </div>
       )}
       <VincularUPCModal

@@ -68,7 +68,7 @@ export const DigitalForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSub
               <button key={p.id} type="button"
                 onClick={() => handlePlataformaChange(p.id)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
-                  plataforma === p.id ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
+                  plataforma === p.id ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
                 }`}>
                 {p.label}
               </button>
@@ -81,7 +81,7 @@ export const DigitalForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSub
             <label className="block text-sm font-medium text-slate-700 mb-1">Nombre de la plataforma *</label>
             <input type="text" value={nombreCustom}
               onChange={e => setNombreCustom(e.target.value)}
-              className="w-full rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+              className="w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
               placeholder="Ej: Izipay, Tunki" />
           </div>
         )}
@@ -90,7 +90,7 @@ export const DigitalForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSub
           <label className="block text-sm font-medium text-slate-700 mb-1">Nombre descriptivo *</label>
           <input type="text" value={plataforma === 'otro' ? nombreCustom : nombre}
             onChange={e => plataforma === 'otro' ? setNombreCustom(e.target.value) : setNombre(e.target.value)}
-            className="w-full rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+            className="w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
             placeholder="Ej: Yape Jose" />
         </div>
 
@@ -111,7 +111,7 @@ export const DigitalForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSub
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
             <select value={moneda} onChange={e => setMoneda(e.target.value as MonedaTesoreria)}
-              className="w-full rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500">
+              className="w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500">
               <option value="PEN">PEN</option>
               <option value="USD">USD</option>
             </select>
@@ -122,7 +122,7 @@ export const DigitalForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSub
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{moneda === 'USD' ? '$' : 'S/'}</span>
               <input type="number" step="0.01" value={saldoInicial || ''}
                 onChange={e => setSaldoInicial(parseFloat(e.target.value) || 0)}
-                className="w-full pl-8 rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full pl-8 rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
                 placeholder="0.00" />
             </div>
           </div>

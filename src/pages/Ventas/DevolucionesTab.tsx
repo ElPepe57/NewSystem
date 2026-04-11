@@ -235,7 +235,7 @@ export const DevolucionesTab: React.FC = () => {
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               placeholder="Buscar por # devolución, # venta o cliente..."
-              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           </div>
 
@@ -243,7 +243,7 @@ export const DevolucionesTab: React.FC = () => {
           <select
             value={filtroEstado}
             onChange={e => setFiltroEstado(e.target.value as EstadoDevolucion | '')}
-            className="text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 min-w-[180px]"
+            className="text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 min-w-[180px]"
           >
             {ESTADOS_OPCIONES.map(op => (
               <option key={op.value} value={op.value}>
@@ -281,7 +281,7 @@ export const DevolucionesTab: React.FC = () => {
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
           </div>
         ) : devolucionesFiltradas.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-slate-400">

@@ -14,7 +14,7 @@ export function MapaCalorPanelZona() {
       <div className="bg-white rounded-lg border border-slate-200 shadow-lg p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-            <ShoppingCart className="h-4 w-4 text-primary-500" />
+            <ShoppingCart className="h-4 w-4 text-teal-500" />
             {ventaSeleccionada.codigo}
           </h3>
           <button type="button" onClick={() => setVentaSeleccionada(null)} className="text-slate-400 hover:text-slate-600">

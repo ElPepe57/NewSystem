@@ -28,7 +28,7 @@ export const Input: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className="block text-sm font-medium text-slate-700 mb-1"
         >
           {label}
           {props.required && <span className="text-danger-500 ml-1" aria-hidden="true">*</span>}
@@ -48,11 +48,11 @@ export const Input: React.FC<InputProps> = ({
           aria-describedby={error ? errorId : helperText ? helperId : undefined}
           aria-required={props.required}
           className={`
-            block w-full rounded-lg border ${error ? 'border-danger-300' : 'border-gray-300'}
+            block w-full rounded-lg border ${error ? 'border-danger-300' : 'border-slate-300'}
             ${icon ? 'pl-10' : 'pl-3'} pr-3 py-2
-            text-gray-900 placeholder-gray-400
-            focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-            disabled:bg-gray-100 disabled:cursor-not-allowed
+            text-slate-900 placeholder-slate-400
+            focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
+            disabled:bg-slate-100 disabled:cursor-not-allowed
             ${className}
           `}
           {...props}
@@ -66,13 +66,13 @@ export const Input: React.FC<InputProps> = ({
       )}
 
       {!error && helperText && (
-        <p id={helperId} className="mt-1 text-sm text-gray-500">
+        <p id={helperId} className="mt-1 text-sm text-slate-500">
           {helperText}
         </p>
       )}
 
       {!error && !helperText && hint && (
-        <p className="mt-1 text-sm text-gray-400 italic">
+        <p className="mt-1 text-sm text-slate-400 italic">
           {hint}
         </p>
       )}

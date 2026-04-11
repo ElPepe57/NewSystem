@@ -62,16 +62,16 @@ export function MapaVentasWidget() {
   return (
     <Link
       to="/mapa-ventas"
-      className="block bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-4 hover:shadow-md transition-shadow"
+      className="block bg-gradient-to-br from-blue-50 to-teal-50 rounded-xl border border-blue-200 p-4 hover:shadow-md transition-shadow"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="p-1.5 bg-blue-100 rounded-lg">
             <MapPin className="h-4 w-4 text-blue-600" />
           </div>
-          <h3 className="font-semibold text-gray-800 text-sm">Mapa de Ventas</h3>
+          <h3 className="font-semibold text-slate-800 text-sm">Mapa de Ventas</h3>
         </div>
-        <ArrowRight className="h-4 w-4 text-gray-400" />
+        <ArrowRight className="h-4 w-4 text-slate-400" />
       </div>
 
       {loading ? (
@@ -83,20 +83,20 @@ export function MapaVentasWidget() {
         <div className="grid grid-cols-2 gap-2">
           <div>
             <p className="text-xl font-bold text-blue-700">{stats.distritosActivos}</p>
-            <p className="text-[10px] text-gray-500">distritos activos</p>
+            <p className="text-[10px] text-slate-500">distritos activos</p>
           </div>
           <div>
-            <p className="text-xl font-bold text-indigo-700">{stats.provinciasActivas}</p>
-            <p className="text-[10px] text-gray-500">provincias</p>
+            <p className="text-xl font-bold text-teal-700">{stats.provinciasActivas}</p>
+            <p className="text-[10px] text-slate-500">provincias</p>
           </div>
           <div className="col-span-2">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-slate-500">
               {stats.ventasGeo} ventas geolocalizadas este mes
             </p>
           </div>
         </div>
       ) : (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-slate-500">
           Las ventas con dirección aparecerán en el mapa automáticamente
         </p>
       )}

@@ -153,18 +153,18 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
   const getTipoColor = (tipo: TipoProveedor) => {
     const colores: Record<TipoProveedor, string> = {
       mayorista: 'bg-purple-100 text-purple-700',
-      fabricante: 'bg-indigo-100 text-indigo-700',
+      fabricante: 'bg-teal-100 text-teal-700',
       distribuidor: 'bg-cyan-100 text-cyan-700',
       minorista: 'bg-blue-100 text-blue-700'
     };
-    return colores[tipo] || 'bg-gray-100 text-gray-700';
+    return colores[tipo] || 'bg-slate-100 text-slate-700';
   };
 
   const getRatingStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`h-3 w-3 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+        className={`h-3 w-3 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300'}`}
       />
     ));
   };
@@ -247,8 +247,8 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Por Clasificación */}
             <Card padding="lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Shield className="h-5 w-5 text-indigo-600" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-teal-600" />
                 Clasificación de Proveedores
               </h3>
               <div className="space-y-4">
@@ -263,11 +263,11 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                           {config.icon}
                           {config.label}
                         </span>
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className="text-sm font-medium text-slate-700">
                           {count} ({porcentaje.toFixed(0)}%)
                         </span>
                       </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all ${
                             clasificacion === 'preferido' ? 'bg-green-500' :
@@ -285,8 +285,8 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
 
             {/* Por País */}
             <Card padding="lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Globe className="h-5 w-5 text-indigo-600" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <Globe className="h-5 w-5 text-teal-600" />
                 Proveedores por País
               </h3>
               <div className="space-y-3">
@@ -296,15 +296,15 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                     const porcentaje = proveedores.length > 0 ? (count / proveedores.length) * 100 : 0;
                     return (
                       <div key={pais} className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">{pais}</span>
+                        <span className="text-sm font-medium text-slate-700">{pais}</span>
                         <div className="flex items-center gap-3">
-                          <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-indigo-500 rounded-full"
+                              className="h-full bg-teal-500 rounded-full"
                               style={{ width: `${porcentaje}%` }}
                             />
                           </div>
-                          <span className="text-sm text-gray-600 w-12 text-right">
+                          <span className="text-sm text-slate-600 w-12 text-right">
                             {count}
                           </span>
                         </div>
@@ -398,7 +398,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
           {/* Proveedores sin evaluar */}
           {proveedoresSinEvaluar.length > 0 && (
             <Card padding="lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-amber-500" />
                 Proveedores Pendientes de Evaluación
                 <Badge variant="warning">{proveedoresSinEvaluar.length}</Badge>
@@ -415,8 +415,8 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                         <Truck className="h-5 w-5 text-amber-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{prov.nombre}</p>
-                        <p className="text-sm text-gray-500">{prov.pais} - {prov.tipo}</p>
+                        <p className="font-medium text-slate-900">{prov.nombre}</p>
+                        <p className="text-sm text-slate-500">{prov.pais} - {prov.tipo}</p>
                       </div>
                     </div>
                     <Button variant="secondary" size="sm">
@@ -430,8 +430,8 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
 
           {/* Ranking de proveedores evaluados */}
           <Card padding="lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Award className="h-5 w-5 text-indigo-600" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <Award className="h-5 w-5 text-teal-600" />
               Ranking de Proveedores
             </h3>
             <div className="space-y-3">
@@ -444,25 +444,25 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                   return (
                     <div
                       key={prov.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
                       onClick={() => onViewProveedor(prov)}
                     >
                       <div className="flex items-center gap-4">
                         <div className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm ${
                           index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                          index === 1 ? 'bg-gray-200 text-gray-700' :
+                          index === 1 ? 'bg-slate-200 text-slate-700' :
                           index === 2 ? 'bg-amber-100 text-amber-700' :
-                          'bg-gray-100 text-gray-600'
+                          'bg-slate-100 text-slate-600'
                         }`}>
                           #{index + 1}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{prov.nombre}</p>
+                          <p className="font-medium text-slate-900">{prov.nombre}</p>
                           <div className="flex items-center gap-2">
                             <span className={`text-xs px-2 py-0.5 rounded-full ${config.color}`}>
                               {config.label}
                             </span>
-                            <span className="text-xs text-gray-500">{prov.pais}</span>
+                            <span className="text-xs text-slate-500">{prov.pais}</span>
                           </div>
                         </div>
                       </div>
@@ -471,10 +471,10 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                           {getRatingStars(Math.round((prov.evaluacion?.puntuacion || 0) / 2))}
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-indigo-600">
+                          <p className="font-bold text-teal-600">
                             {prov.evaluacion?.puntuacion.toFixed(1)}
                           </p>
-                          <p className="text-xs text-gray-500">de 10</p>
+                          <p className="text-xs text-slate-500">de 10</p>
                         </div>
                       </div>
                     </div>
@@ -493,23 +493,23 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
             <div className="flex flex-wrap items-center gap-4">
               {/* Búsqueda */}
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar por nombre, contacto, email..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               {/* Filtro por clasificación */}
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-gray-400" />
+                <Filter className="h-4 w-4 text-slate-400" />
                 <select
                   value={filtroClasificacion}
                   onChange={(e) => setFiltroClasificacion(e.target.value as ClasificacionProveedor | 'todos')}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="todos">Todas las clasificaciones</option>
                   <option value="preferido">Preferido</option>
@@ -523,7 +523,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
               <select
                 value={filtroPais}
                 onChange={(e) => setFiltroPais(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
               >
                 <option value="todos">Todos los países</option>
                 {Object.entries(PAISES_CONFIG).map(([code, cfg]) => (
@@ -536,7 +536,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
               <select
                 value={filtroTipo}
                 onChange={(e) => setFiltroTipo(e.target.value as TipoProveedor | 'todos')}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
               >
                 <option value="todos">Todos los tipos</option>
                 <option value="minorista">Minorista</option>
@@ -547,7 +547,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
 
               <LineaNegocioSelect value={filtroLinea} onChange={setFiltroLinea} />
 
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-slate-500">
                 {proveedoresFiltrados.length} de {proveedores.length}
               </span>
             </div>
@@ -555,16 +555,16 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
 
           {/* Lista de proveedores */}
           <Card padding="none">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-slate-900">
                 Proveedores ({proveedoresFiltrados.length})
               </h3>
             </div>
 
             {proveedoresFiltrados.length === 0 ? (
               <div className="text-center py-12">
-                <Truck className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No hay proveedores que coincidan con los filtros</p>
+                <Truck className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                <p className="text-slate-600">No hay proveedores que coincidan con los filtros</p>
                 <Button
                   variant="primary"
                   onClick={() => onOpenProveedorModal()}
@@ -575,27 +575,27 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                 </Button>
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-slate-200">
                 {proveedoresPaginados.map((proveedor) => {
                   const clasificacionConfig = getClasificacionConfig(proveedor.evaluacion?.clasificacion);
                   return (
                     <div
                       key={proveedor.id}
-                      className="px-6 py-4 hover:bg-gray-50 flex items-center justify-between"
+                      className="px-6 py-4 hover:bg-slate-50 flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center relative">
-                          <Truck className="h-6 w-6 text-indigo-600" />
+                        <div className="h-12 w-12 bg-teal-100 rounded-full flex items-center justify-center relative">
+                          <Truck className="h-6 w-6 text-teal-600" />
                           {proveedor.evaluacion?.clasificacion === 'preferido' && (
                             <Star className="absolute -top-1 -right-1 h-4 w-4 text-yellow-400 fill-yellow-400" />
                           )}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
+                            <span className="text-xs text-slate-500 font-mono bg-slate-100 px-1.5 py-0.5 rounded">
                               {proveedor.codigo}
                             </span>
-                            <span className="font-medium text-gray-900">{proveedor.nombre}</span>
+                            <span className="font-medium text-slate-900">{proveedor.nombre}</span>
                             <Badge variant={proveedor.activo ? 'success' : 'default'}>
                               {proveedor.activo ? 'Activo' : 'Inactivo'}
                             </Badge>
@@ -604,7 +604,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                               {clasificacionConfig.label}
                             </span>
                           </div>
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
+                          <div className="flex items-center space-x-4 mt-1 text-sm text-slate-500">
                             <span className="flex items-center">
                               <Globe className="h-3 w-3 mr-1" />
                               {proveedor.pais}
@@ -625,7 +625,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
 
                       <div className="flex items-center space-x-4">
                         <div className="text-right">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-slate-900">
                             {proveedor.metricas?.ordenesCompra || 0} OC
                           </div>
                           <div className="text-sm text-green-600 font-medium">
@@ -639,7 +639,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                               href={proveedor.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                              className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
                               title="Visitar sitio"
                             >
                               <ExternalLink className="h-4 w-4" />
@@ -647,28 +647,28 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                           )}
                           <button
                             onClick={() => setProveedorDetalle(proveedor)}
-                            className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded"
+                            className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded"
                             title="Ver analytics detallado"
                           >
                             <BarChart3 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onViewProveedor(proveedor)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
                             title="Ver detalle"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onEditProveedor(proveedor)}
-                            className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                            className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
                             title="Editar"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onDeleteProveedor(proveedor.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
                             title="Eliminar"
                           >
                             <Trash2 className="h-4 w-4" />

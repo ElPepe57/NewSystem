@@ -114,7 +114,7 @@ export const MainLayout: React.FC = () => {
         <TCFreshnessBanner />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 lg:p-6">
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-4 lg:p-6">
           <ErrorBoundary fallbackMessage="Ocurrió un error en esta página">
             <Outlet />
           </ErrorBoundary>

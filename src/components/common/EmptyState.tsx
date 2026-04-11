@@ -132,27 +132,27 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   // Clonar el icono para aplicar las clases de tamaño
   const styledIcon = React.isValidElement(displayIcon)
     ? React.cloneElement(displayIcon as React.ReactElement<{ className?: string }>, {
-        className: `${sizes.icon} text-gray-400`
+        className: `${sizes.icon} text-slate-400`
       })
     : displayIcon;
 
   return (
     <div className={`flex flex-col items-center justify-center text-center ${sizes.container} ${className}`}>
       {/* Icon */}
-      <div className="mb-4 text-gray-400">
+      <div className="mb-4 text-slate-400">
         {styledIcon}
       </div>
 
       {/* Title */}
       {displayTitle && (
-        <h3 className={`font-semibold text-gray-900 mb-2 ${sizes.title}`}>
+        <h3 className={`font-semibold text-slate-900 mb-2 ${sizes.title}`}>
           {displayTitle}
         </h3>
       )}
 
       {/* Description */}
       {displayDescription && (
-        <p className={`text-gray-500 max-w-sm mx-auto mb-6 ${sizes.description}`}>
+        <p className={`text-slate-500 max-w-sm mx-auto mb-6 ${sizes.description}`}>
           {displayDescription}
         </p>
       )}

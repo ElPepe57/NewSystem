@@ -430,7 +430,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
               <select
                 value={lineaNegocioId || ''}
                 onChange={(e) => setLineaNegocioId(e.target.value || null)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
               >
                 <option value="">Compartido (todas las líneas)</option>
                 {lineasActivas.map((linea) => (
@@ -489,7 +489,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                       value={busquedaVenta}
                       onChange={(e) => setBusquedaVenta(e.target.value)}
                       placeholder="Buscar por número de venta o cliente..."
-                      className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                     />
                   </div>
 
@@ -624,7 +624,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                   value={formData.montoOriginal || ''}
                   onChange={(e) => handleChange('montoOriginal', parseFloat(e.target.value) || 0)}
                   placeholder="0.00"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 text-lg font-medium"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-lg font-medium"
                 />
               </div>
               <div>
@@ -640,7 +640,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                   value={formData.tipoCambio || ''}
                   onChange={(e) => handleChange('tipoCambio', parseFloat(e.target.value) || 0)}
                   placeholder="3.700"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
                 />
                 <p className="text-xs text-slate-500 mt-1">TC del día para equivalencias</p>
               </div>
@@ -683,7 +683,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                     type="checkbox"
                     checked={formData.esProrrateable}
                     onChange={(e) => handleChange('esProrrateable', e.target.checked)}
-                    className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-slate-300 rounded"
+                    className="mt-1 h-4 w-4 text-teal-600 focus:ring-teal-500 border-slate-300 rounded"
                   />
                   <div>
                     <div className="text-sm font-medium text-slate-900">
@@ -740,7 +740,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                   required
                   value={formData.fecha.toISOString().split('T')[0]}
                   onChange={(e) => handleChange('fecha', new Date(e.target.value))}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
@@ -849,7 +849,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 value={formData.notas || ''}
                 onChange={(e) => handleChange('notas', e.target.value)}
                 rows={2}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 placeholder="Observaciones adicionales..."
               />
             </div>

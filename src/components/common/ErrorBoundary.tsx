@@ -64,11 +64,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             <AlertTriangle className="h-7 w-7 text-red-500" aria-hidden="true" />
           </div>
 
-          <h3 className="text-base font-semibold text-gray-900 mb-1">
+          <h3 className="text-base font-semibold text-slate-900 mb-1">
             {message}
           </h3>
 
-          <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+          <p className="text-sm text-slate-500 mb-6 leading-relaxed">
             {this.state.error?.message
               ? `Detalle: ${this.state.error.message}`
               : 'Se produjo un error inesperado. Puedes reintentar o volver al inicio.'}
@@ -87,7 +87,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             <button
               type="button"
               onClick={this.handleGoHome}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 text-sm font-medium rounded-lg border border-slate-300 hover:bg-slate-50 active:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
             >
               <Home className="h-4 w-4" aria-hidden="true" />
               Volver al inicio

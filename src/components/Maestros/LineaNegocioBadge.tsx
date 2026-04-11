@@ -10,7 +10,7 @@ export const LineaNegocioBadges: React.FC<{ lineaIds?: string[] }> = ({ lineaIds
   const { lineas } = useLineaNegocioStore();
 
   if (!lineaIds || lineaIds.length === 0) {
-    return <span className="text-xs text-gray-400 italic">Sin asignar</span>;
+    return <span className="text-xs text-slate-400 italic">Sin asignar</span>;
   }
 
   return (
@@ -20,7 +20,7 @@ export const LineaNegocioBadges: React.FC<{ lineaIds?: string[] }> = ({ lineaIds
         return linea ? (
           <span
             key={id}
-            className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-indigo-100 text-indigo-700"
+            className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-teal-100 text-teal-700"
           >
             {linea.nombre}
           </span>
@@ -43,7 +43,7 @@ export const LineaNegocioCheckboxes: React.FC<{
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="block text-sm font-medium text-slate-700 mb-2">
         Línea de Negocio
       </label>
       <div className="flex flex-wrap gap-2">
@@ -54,8 +54,8 @@ export const LineaNegocioCheckboxes: React.FC<{
             onClick={() => toggle(l.id)}
             className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
               value.includes(l.id)
-                ? 'bg-indigo-100 text-indigo-700 border-indigo-300'
-                : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+                ? 'bg-teal-100 text-teal-700 border-teal-300'
+                : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
             }`}
           >
             {value.includes(l.id) && '✓ '}{l.nombre}

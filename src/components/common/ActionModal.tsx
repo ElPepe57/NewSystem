@@ -168,7 +168,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
           {!loading && (
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
               aria-label="Cerrar"
             >
               <X className="h-5 w-5" />
@@ -192,12 +192,12 @@ export const ActionModal: React.FC<ActionModalProps> = ({
                 <div className="flex-1 min-w-0">
                   <h3
                     id="action-modal-title"
-                    className="text-lg font-semibold text-gray-900"
+                    className="text-lg font-semibold text-slate-900"
                   >
                     {title}
                   </h3>
                   {description && (
-                    <div className="mt-2 text-sm text-gray-600">
+                    <div className="mt-2 text-sm text-slate-600">
                       {typeof description === 'string' ? <p>{description}</p> : description}
                     </div>
                   )}
@@ -206,12 +206,12 @@ export const ActionModal: React.FC<ActionModalProps> = ({
 
               {/* Contexto adicional */}
               {contextInfo && contextInfo.length > 0 && (
-                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <div className="mt-4 p-3 bg-slate-50 rounded-lg">
                   <div className="grid grid-cols-2 gap-2">
                     {contextInfo.map((info, index) => (
                       <div key={index}>
-                        <span className="text-xs text-gray-500">{info.label}</span>
-                        <p className="text-sm font-medium text-gray-900">{info.value}</p>
+                        <span className="text-xs text-slate-500">{info.label}</span>
+                        <p className="text-sm font-medium text-slate-900">{info.value}</p>
                       </div>
                     ))}
                   </div>
@@ -225,7 +225,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
                     <div key={field.id}>
                       <label
                         htmlFor={field.id}
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="block text-sm font-medium text-slate-700 mb-1"
                       >
                         {field.label}
                         {field.required && <span className="text-red-500 ml-1">*</span>}
@@ -239,7 +239,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
                           placeholder={field.placeholder}
                           required={field.required}
                           rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 resize-none"
                         />
                       ) : index === 0 ? (
                         <input
@@ -256,7 +256,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
                           min={field.min}
                           max={field.max}
                           step={field.step}
-                          className="block w-full rounded-lg border border-gray-300 pl-3 pr-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="block w-full rounded-lg border border-slate-300 pl-3 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                         />
                       ) : (
                         <Input
@@ -281,7 +281,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
+            <div className="px-6 py-4 bg-slate-50 rounded-b-xl flex justify-end gap-3">
               <Button
                 type="button"
                 variant="secondary"

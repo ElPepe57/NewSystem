@@ -65,9 +65,9 @@ export const MarginErosionChart: React.FC<ResumenFinancieroProps> = ({ productos
       label: 'Costo Total Real Prom',
       sublabel: 'Capas 1-7: + GV/GD por venta',
       value: formatCurrency(metricas.costoTotal),
-      icon: <DollarSign className="w-4 h-4 text-gray-500" />,
-      bg: 'bg-gray-50',
-      valueColor: 'text-gray-700'
+      icon: <DollarSign className="w-4 h-4 text-slate-500" />,
+      bg: 'bg-slate-50',
+      valueColor: 'text-slate-700'
     },
     {
       label: 'Utilidad Prom / Venta',
@@ -80,21 +80,21 @@ export const MarginErosionChart: React.FC<ResumenFinancieroProps> = ({ productos
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-5">
-      <h3 className="text-base font-semibold text-gray-900 mb-0.5">Resumen Financiero</h3>
-      <p className="text-xs text-gray-400 mb-4">Promedios ponderados por unidad</p>
+    <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-5">
+      <h3 className="text-base font-semibold text-slate-900 mb-0.5">Resumen Financiero</h3>
+      <p className="text-xs text-slate-400 mb-4">Promedios ponderados por unidad</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {items.map((item) => (
           <div key={item.label} className={`${item.bg} rounded-lg p-3`}>
             <div className="flex items-center gap-1.5 mb-2">
               {item.icon}
-              <span className="text-[11px] font-medium text-gray-500 leading-tight">{item.label}</span>
+              <span className="text-[11px] font-medium text-slate-500 leading-tight">{item.label}</span>
             </div>
             <div className={`text-lg sm:text-xl font-bold ${item.valueColor}`}>
               {item.value}
             </div>
-            <div className="text-[10px] text-gray-400 mt-1 leading-snug">
+            <div className="text-[10px] text-slate-400 mt-1 leading-snug">
               {item.sublabel}
             </div>
           </div>

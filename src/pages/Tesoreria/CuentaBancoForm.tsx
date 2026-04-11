@@ -124,7 +124,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
     setCanales([]);
   };
 
-  const ic = 'w-full rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500';
+  const ic = 'w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500';
 
   return (
     <Modal isOpen={isOpen} onClose={() => { if (!esEdicion) reset(); onClose(); }}
@@ -205,7 +205,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
                   const siguiente = CANALES_DISPONIBLES.find(c => !usados.includes(c.id));
                   if (siguiente) setCanales([...canales, { tipo: siguiente.id, identificador: '' }]);
                 }}
-                className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 font-medium">
+                className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-medium">
                 <Plus className="h-3.5 w-3.5" /> Agregar canal
               </button>
             )}

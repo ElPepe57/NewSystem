@@ -130,20 +130,20 @@ export const KitsEmpaque: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="text-center py-8 text-gray-500">Cargando kits...</div>;
+  if (loading) return <div className="text-center py-8 text-slate-500">Cargando kits...</div>;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Kits de Empaque</h3>
+        <h3 className="text-lg font-semibold text-slate-900">Kits de Empaque</h3>
         <Button size="sm" onClick={() => setShowForm(true)}>
           <Plus className="h-4 w-4 mr-1" /> Nuevo Kit
         </Button>
       </div>
 
       {kits.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <Package className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+        <div className="text-center py-12 text-slate-500">
+          <Package className="h-12 w-12 mx-auto mb-3 text-slate-300" />
           <p className="font-medium">Sin kits de empaque</p>
           <p className="text-sm mt-1">Los kits se seleccionan autom\u00e1ticamente por peso al despachar.</p>
         </div>
@@ -153,8 +153,8 @@ export const KitsEmpaque: React.FC = () => {
             <Card key={kit.id} className="p-4 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => openEdit(kit)}>
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="font-medium text-gray-900">{kit.nombre}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">
+                  <div className="font-medium text-slate-900">{kit.nombre}</div>
+                  <div className="text-xs text-slate-500 mt-0.5">
                     {kit.codigo} &middot; {kit.pesoMinLb}-{kit.pesoMaxLb} lb
                   </div>
                 </div>
@@ -162,7 +162,7 @@ export const KitsEmpaque: React.FC = () => {
                   <Badge variant={kit.activo ? 'success' : 'secondary'} className="text-xs">
                     {kit.activo ? 'Activo' : 'Inactivo'}
                   </Badge>
-                  <div className="text-sm font-bold text-gray-900 mt-1">
+                  <div className="text-sm font-bold text-slate-900 mt-1">
                     S/{kit.costoTotalPEN.toFixed(2)}
                   </div>
                 </div>
@@ -170,11 +170,11 @@ export const KitsEmpaque: React.FC = () => {
               {kit.componentes.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {kit.componentes.map((comp, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
-                      <ChevronRight className="h-3 w-3 text-gray-300" />
+                    <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
+                      <ChevronRight className="h-3 w-3 text-slate-300" />
                       <span>{comp.insumoNombre}</span>
-                      <span className="text-gray-400">x{comp.cantidad}</span>
-                      <span className="text-gray-400 ml-auto">S/{(comp.costoUnitarioPEN * comp.cantidad).toFixed(2)}</span>
+                      <span className="text-slate-400">x{comp.cantidad}</span>
+                      <span className="text-slate-400 ml-auto">S/{(comp.costoUnitarioPEN * comp.cantidad).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
@@ -223,7 +223,7 @@ export const KitsEmpaque: React.FC = () => {
           {/* Componentes */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Componentes</label>
+              <label className="text-sm font-medium text-slate-700">Componentes</label>
               <button
                 type="button"
                 onClick={handleAddComponente}
@@ -233,7 +233,7 @@ export const KitsEmpaque: React.FC = () => {
               </button>
             </div>
             {componentes.length === 0 ? (
-              <p className="text-xs text-gray-400 text-center py-3 border border-dashed rounded">
+              <p className="text-xs text-slate-400 text-center py-3 border border-dashed rounded">
                 Agrega insumos al kit
               </p>
             ) : (
@@ -241,7 +241,7 @@ export const KitsEmpaque: React.FC = () => {
                 {componentes.map((comp, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <select
-                      className="flex-1 text-sm border border-gray-300 rounded px-2 py-1.5"
+                      className="flex-1 text-sm border border-slate-300 rounded px-2 py-1.5"
                       value={comp.insumoId}
                       onChange={e => handleComponenteChange(i, 'insumoId', e.target.value)}
                     >
@@ -252,7 +252,7 @@ export const KitsEmpaque: React.FC = () => {
                     <input
                       type="number"
                       min={1}
-                      className="w-16 text-sm border border-gray-300 rounded px-2 py-1.5 text-center"
+                      className="w-16 text-sm border border-slate-300 rounded px-2 py-1.5 text-center"
                       value={comp.cantidad}
                       onChange={e => handleComponenteChange(i, 'cantidad', parseInt(e.target.value) || 1)}
                     />

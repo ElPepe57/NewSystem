@@ -52,11 +52,11 @@ const statusConfig = {
   },
   pending: {
     icon: null,
-    bgColor: 'bg-gray-100',
-    iconColor: 'text-gray-400',
-    borderColor: 'border-gray-300',
-    lineColor: 'bg-gray-200',
-    textColor: 'text-gray-500'
+    bgColor: 'bg-slate-100',
+    iconColor: 'text-slate-400',
+    borderColor: 'border-slate-300',
+    lineColor: 'bg-slate-200',
+    textColor: 'text-slate-500'
   },
   skipped: {
     icon: <AlertCircle className="h-4 w-4" />,
@@ -70,10 +70,10 @@ const statusConfig = {
 
 const actionVariantConfig: Record<string, { bg: string; border: string; text: string; button: string }> = {
   primary: {
-    bg: 'bg-primary-50',
-    border: 'border-primary-200',
-    text: 'text-primary-700',
-    button: 'bg-primary-600 hover:bg-primary-700 text-white'
+    bg: 'bg-teal-50',
+    border: 'border-teal-200',
+    text: 'text-teal-700',
+    button: 'bg-teal-600 hover:bg-teal-700 text-white'
   },
   warning: {
     bg: 'bg-amber-50',
@@ -150,11 +150,11 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                   </div>
 
                   {step.description && (
-                    <p className="text-sm text-gray-500 mt-0.5">{step.description}</p>
+                    <p className="text-sm text-slate-500 mt-0.5">{step.description}</p>
                   )}
 
                   {showDates && step.date && (
-                    <p className="text-xs text-gray-400 mt-1">{formatDate(step.date)}</p>
+                    <p className="text-xs text-slate-400 mt-1">{formatDate(step.date)}</p>
                   )}
 
                   {step.metadata && Object.keys(step.metadata).length > 0 && (
@@ -162,7 +162,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                       {Object.entries(step.metadata).map(([key, value]) => (
                         <span
                           key={key}
-                          className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded"
+                          className="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded"
                         >
                           {key}: {value}
                         </span>
@@ -225,7 +225,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
 
                 {/* Fecha */}
                 {showDates && step.date && (
-                  <span className="text-xs text-gray-400 mt-0.5 text-center">
+                  <span className="text-xs text-slate-400 mt-0.5 text-center">
                     {formatDate(step.date)}
                   </span>
                 )}
@@ -242,7 +242,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
               {!isLast && (
                 <div className="flex-1 mx-2 min-w-[20px] flex flex-col items-center justify-center">
                   {step.durationLabel && (
-                    <span className="text-[10px] text-gray-400 mb-0.5 whitespace-nowrap">
+                    <span className="text-[10px] text-slate-400 mb-0.5 whitespace-nowrap">
                       {step.durationLabel}
                     </span>
                   )}
@@ -284,7 +284,7 @@ const NextActionBox: React.FC<NextActionBoxProps> = ({ action, className = '' })
             {action.label}
           </p>
           {action.description && (
-            <p className="text-sm text-gray-600 mt-0.5">
+            <p className="text-sm text-slate-600 mt-0.5">
               {action.description}
             </p>
           )}

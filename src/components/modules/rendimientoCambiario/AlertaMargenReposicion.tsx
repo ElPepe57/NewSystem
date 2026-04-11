@@ -110,21 +110,21 @@ export const AlertaMargenReposicion: React.FC<AlertaMargenReposicionProps> = ({
       {/* Cifras clave */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/60 rounded-md p-2.5">
         <div className="text-center">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">Precio venta</p>
-          <p className="text-sm font-bold text-gray-800">S/ {precioVenta.toFixed(2)}</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Precio venta</p>
+          <p className="text-sm font-bold text-slate-800">S/ {precioVenta.toFixed(2)}</p>
         </div>
         <div className="text-center">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">CTRU actual</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">CTRU actual</p>
           <p className="text-sm font-bold text-green-700">S/ {ctruPromedio.toFixed(2)}</p>
           <p className="text-[10px] text-green-600">+{margenCtru.toFixed(1)}%</p>
         </div>
         <div className="text-center">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">Costo reposición</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Costo reposición</p>
           <p className="text-sm font-bold text-amber-700">S/ {costoReposicion.toFixed(2)}</p>
           <p className="text-[10px] text-amber-600">TCPA {tcpa.toFixed(4)}</p>
         </div>
         <div className="text-center">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">Gap cambiario</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Gap cambiario</p>
           <p className="text-sm font-bold text-red-600">-S/ {gapPorUnidad.toFixed(2)}</p>
           <p className="text-[10px] text-red-600">{margenReposicion.toFixed(1)}% margen repo</p>
         </div>

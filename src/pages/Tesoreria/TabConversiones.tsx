@@ -170,7 +170,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                     cuentaDestinoId: undefined
                   })
                 }
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
               >
                 <option value="USD">USD (Dolares)</option>
                 <option value="PEN">PEN (Soles)</option>
@@ -183,7 +183,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                 step="0.01"
                 value={conversionForm.montoOrigen || ''}
                 onChange={(e) => setConversionForm({ ...conversionForm, montoOrigen: parseFloat(e.target.value) })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                 placeholder="0.00"
               />
             </div>
@@ -197,7 +197,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                 step="0.001"
                 value={conversionForm.tipoCambio || ''}
                 onChange={(e) => setConversionForm({ ...conversionForm, tipoCambio: parseFloat(e.target.value) })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                 placeholder="3.700"
               />
             </div>
@@ -207,7 +207,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                 type="text"
                 value={conversionForm.entidadCambio || ''}
                 onChange={(e) => setConversionForm({ ...conversionForm, entidadCambio: e.target.value })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                 placeholder="Casa de cambio, banco, etc."
               />
             </div>
@@ -216,7 +216,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
           {/* Seccion de Cuentas */}
           <div className="border-t border-slate-200 pt-4 mt-4">
             <h4 className="text-sm font-medium text-slate-900 mb-3 flex items-center">
-              <Wallet className="h-4 w-4 mr-2 text-primary-600" />
+              <Wallet className="h-4 w-4 mr-2 text-teal-600" />
               Vincular con Cuentas (Opcional)
             </h4>
             <p className="text-xs text-slate-500 mb-3">
@@ -231,7 +231,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                 <select
                   value={conversionForm.cuentaOrigenId || ''}
                   onChange={(e) => setConversionForm({ ...conversionForm, cuentaOrigenId: e.target.value || undefined })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                 >
                   <option value="">Sin cuenta (solo registro)</option>
                   {cuentas
@@ -258,7 +258,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                 <select
                   value={conversionForm.cuentaDestinoId || ''}
                   onChange={(e) => setConversionForm({ ...conversionForm, cuentaDestinoId: e.target.value || undefined })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                 >
                   <option value="">Sin cuenta (solo registro)</option>
                   {cuentas
@@ -347,7 +347,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
               type="text"
               value={conversionForm.motivo || ''}
               onChange={(e) => setConversionForm({ ...conversionForm, motivo: e.target.value })}
-              className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
               placeholder="Razon de la conversion"
             />
           </div>

@@ -310,8 +310,8 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
               )}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">{transportista.nombre}</h3>
-              <p className="text-sm text-gray-500">{transportista.codigo}</p>
+              <h3 className="text-lg font-semibold text-slate-900">{transportista.nombre}</h3>
+              <p className="text-sm text-slate-500">{transportista.codigo}</p>
             </div>
           </div>
           <div className="flex flex-col items-end gap-1">
@@ -326,14 +326,14 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
 
         {/* Métricas */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="bg-gray-50 rounded-lg p-2 text-center">
-            <div className="text-xs text-gray-500 mb-1">Entregas</div>
-            <div className="text-lg font-bold text-gray-900">
+          <div className="bg-slate-50 rounded-lg p-2 text-center">
+            <div className="text-xs text-slate-500 mb-1">Entregas</div>
+            <div className="text-lg font-bold text-slate-900">
               {transportista.totalEntregas || 0}
             </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-2 text-center">
-            <div className="text-xs text-gray-500 mb-1">Éxito</div>
+          <div className="bg-slate-50 rounded-lg p-2 text-center">
+            <div className="text-xs text-slate-500 mb-1">Éxito</div>
             <div className={`text-lg font-bold ${
               tasaExito >= 90 ? 'text-green-600' :
               tasaExito >= 70 ? 'text-amber-600' : 'text-red-600'
@@ -341,9 +341,9 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
               {tasaExito.toFixed(0)}%
             </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-2 text-center">
-            <div className="text-xs text-gray-500 mb-1">Costo</div>
-            <div className="text-lg font-bold text-gray-900">
+          <div className="bg-slate-50 rounded-lg p-2 text-center">
+            <div className="text-xs text-slate-500 mb-1">Costo</div>
+            <div className="text-lg font-bold text-slate-900">
               S/ {(transportista.costoPromedioPorEntrega || transportista.costoFijo || 0).toFixed(0)}
             </div>
           </div>
@@ -352,11 +352,11 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
         {/* Barra de éxito */}
         {transportista.totalEntregas && transportista.totalEntregas > 0 && (
           <div className="mb-4">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
+            <div className="flex justify-between text-xs text-slate-500 mb-1">
               <span>Tasa de éxito</span>
               <span>{transportista.entregasExitosas || 0} / {transportista.totalEntregas}</span>
             </div>
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full ${
                   tasaExito >= 90 ? 'bg-green-500' :
@@ -371,14 +371,14 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
         {/* Info adicional */}
         <div className="space-y-2 pt-3 border-t">
           {transportista.telefono && (
-            <div className="flex items-center text-sm text-gray-600">
-              <Phone className="h-4 w-4 mr-2 text-gray-400" />
+            <div className="flex items-center text-sm text-slate-600">
+              <Phone className="h-4 w-4 mr-2 text-slate-400" />
               {transportista.telefono}
             </div>
           )}
 
           {transportista.calificacionPromedio && (
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-sm text-slate-600">
               <Star className="h-4 w-4 mr-2 text-amber-400" />
               {transportista.calificacionPromedio.toFixed(1)} / 5.0
             </div>
@@ -407,9 +407,9 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
   const RankingRow = ({ transportista, position }: { transportista: Transportista; position: number }) => {
     const getMedalColor = (pos: number) => {
       if (pos === 1) return 'text-yellow-500';
-      if (pos === 2) return 'text-gray-400';
+      if (pos === 2) return 'text-slate-400';
       if (pos === 3) return 'text-amber-600';
-      return 'text-gray-300';
+      return 'text-slate-300';
     };
 
     return (
@@ -418,18 +418,18 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           {position <= 3 ? (
             <Award className={`h-8 w-8 mx-auto ${getMedalColor(position)}`} />
           ) : (
-            <span className="text-2xl font-bold text-gray-400">#{position}</span>
+            <span className="text-2xl font-bold text-slate-400">#{position}</span>
           )}
         </div>
 
         <div className="flex-1 ml-4">
           <div className="flex items-center">
-            <span className="font-semibold text-gray-900">{transportista.nombre}</span>
+            <span className="font-semibold text-slate-900">{transportista.nombre}</span>
             <Badge variant={transportista.tipo === 'interno' ? 'info' : 'warning'} size="sm" className="ml-2">
               {transportista.tipo === 'interno' ? 'Interno' : 'Externo'}
             </Badge>
           </div>
-          <div className="flex items-center mt-1 text-sm text-gray-500">
+          <div className="flex items-center mt-1 text-sm text-slate-500">
             <Package className="h-4 w-4 mr-1" />
             {transportista.totalEntregas} entregas
             <span className="mx-2">·</span>
@@ -445,7 +445,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           }`}>
             {(transportista.tasaExito || 0).toFixed(1)}%
           </div>
-          <div className="text-xs text-gray-500">tasa de éxito</div>
+          <div className="text-xs text-slate-500">tasa de éxito</div>
         </div>
       </div>
     );
@@ -466,13 +466,13 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           className="flex-1 sm:max-w-md"
         />
 
-        <div className="flex gap-1 sm:gap-2 bg-gray-100 rounded-lg p-1 overflow-x-auto">
+        <div className="flex gap-1 sm:gap-2 bg-slate-100 rounded-lg p-1 overflow-x-auto">
           <button
             onClick={() => setFiltroTipo('todos')}
             className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               filtroTipo === 'todos'
-                ? 'bg-white shadow text-gray-900'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white shadow text-slate-900'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Todos
@@ -482,7 +482,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
             className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               filtroTipo === 'interno'
                 ? 'bg-white shadow text-blue-600'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <User className="h-4 w-4 inline mr-1" />
@@ -494,7 +494,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
             className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               filtroTipo === 'externo'
                 ? 'bg-white shadow text-purple-600'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Truck className="h-4 w-4 inline mr-1" />
@@ -605,7 +605,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
               {
                 label: 'Inactivos',
                 value: metricas.porEstado.inactivo,
-                color: 'bg-gray-500'
+                color: 'bg-slate-500'
               }
             ]}
           />
@@ -735,11 +735,11 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
         {/* Ranking Completo */}
         <Card padding="lg">
           <div className="mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+            <h2 className="text-xl font-semibold text-slate-900 flex items-center">
               <Award className="h-5 w-5 mr-2 text-amber-500" />
               Ranking de Rendimiento
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-slate-600 mt-1">
               Transportistas ordenados por tasa de éxito en entregas
             </p>
           </div>
@@ -758,7 +758,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
         {/* Análisis Detallado */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <Card padding="lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
               <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
               Alto Rendimiento (&gt;90%)
             </h3>
@@ -768,8 +768,8 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
                 .map(t => (
                   <div key={t.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                     <div>
-                      <p className="font-medium text-gray-900">{t.nombre}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="font-medium text-slate-900">{t.nombre}</p>
+                      <p className="text-sm text-slate-600">
                         {t.entregasExitosas} / {t.totalEntregas} entregas
                       </p>
                     </div>
@@ -779,7 +779,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
                   </div>
                 ))}
               {transportistasConEntregas.filter(t => (t.tasaExito || 0) >= 90).length === 0 && (
-                <p className="text-sm text-gray-600 text-center py-4">
+                <p className="text-sm text-slate-600 text-center py-4">
                   Ningún transportista alcanza este nivel
                 </p>
               )}
@@ -787,7 +787,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           </Card>
 
           <Card padding="lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
               <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
               Necesitan Mejora (&lt;80%)
             </h3>
@@ -797,8 +797,8 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
                 .map(t => (
                   <div key={t.id} className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
                     <div>
-                      <p className="font-medium text-gray-900">{t.nombre}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="font-medium text-slate-900">{t.nombre}</p>
+                      <p className="text-sm text-slate-600">
                         {t.entregasExitosas} / {t.totalEntregas} entregas
                       </p>
                     </div>
@@ -808,7 +808,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
                   </div>
                 ))}
               {transportistasConEntregas.filter(t => (t.tasaExito || 0) < 80).length === 0 && (
-                <p className="text-sm text-gray-600 text-center py-4">
+                <p className="text-sm text-slate-600 text-center py-4">
                   Todos los transportistas superan este nivel
                 </p>
               )}
@@ -826,7 +826,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
   if (loading && transportistas.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -836,11 +836,11 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
       <>
         <Card padding="lg">
           <div className="text-center py-12">
-            <Truck className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <Truck className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
               No hay transportistas registrados
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-slate-600 mb-6">
               Crea transportistas para gestionar las entregas de tus ventas
             </p>
             <div className="flex justify-center space-x-4">

@@ -196,9 +196,9 @@ export function MarcasAnalytics({
       suplementos: 'bg-green-100 text-green-800',
       cosmetica: 'bg-pink-100 text-pink-800',
       tecnologia: 'bg-purple-100 text-purple-800',
-      otro: 'bg-gray-100 text-gray-800'
+      otro: 'bg-slate-100 text-slate-800'
     };
-    return colors[tipo] || 'bg-gray-100 text-gray-800';
+    return colors[tipo] || 'bg-slate-100 text-slate-800';
   };
 
   const getEstadoColor = (estado: string) => {
@@ -207,7 +207,7 @@ export function MarcasAnalytics({
       inactiva: 'bg-yellow-100 text-yellow-800',
       descontinuada: 'bg-red-100 text-red-800'
     };
-    return colors[estado] || 'bg-gray-100 text-gray-800';
+    return colors[estado] || 'bg-slate-100 text-slate-800';
   };
 
   // Render de la lista de marcas
@@ -285,44 +285,44 @@ export function MarcasAnalytics({
       </div>
 
       {/* Contador */}
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-slate-500">
         Mostrando {marcasFiltradas.length} de {marcas.length} marcas
       </div>
 
       {/* Tabla */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Marca
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Tipo
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Línea
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Estado
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Productos
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Ventas
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Margen
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {marcasPaginadas.map(marca => (
-              <tr key={marca.id} className="hover:bg-gray-50">
+              <tr key={marca.id} className="hover:bg-slate-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     {marca.logoUrl ? (
@@ -340,8 +340,8 @@ export function MarcasAnalytics({
                       </div>
                     )}
                     <div>
-                      <div className="font-medium text-gray-900">{marca.nombre}</div>
-                      <div className="text-sm text-gray-500">{marca.codigo}</div>
+                      <div className="font-medium text-slate-900">{marca.nombre}</div>
+                      <div className="text-sm text-slate-500">{marca.codigo}</div>
                     </div>
                   </div>
                 </td>
@@ -358,10 +358,10 @@ export function MarcasAnalytics({
                     {marca.estado.charAt(0).toUpperCase() + marca.estado.slice(1)}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-900">
                   {marca.metricas?.productosActivos || 0}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-900">
                   {formatCurrency(marca.metricas?.ventasTotalPEN || 0)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
@@ -382,7 +382,7 @@ export function MarcasAnalytics({
                     </button>
                     <button
                       onClick={() => onEditMarca ? onEditMarca(marca) : onOpenMarcaModal(marca)}
-                      className="text-gray-600 hover:text-gray-800"
+                      className="text-slate-600 hover:text-slate-800"
                       title="Editar"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -406,7 +406,7 @@ export function MarcasAnalytics({
         </table>
 
         {marcasFiltradas.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-slate-500">
             No se encontraron marcas con los filtros aplicados
           </div>
         )}
@@ -431,37 +431,37 @@ export function MarcasAnalytics({
       {/* KPIs principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 mb-1">Total Marcas</div>
-          <div className="text-3xl font-bold text-gray-900">{metricas?.total || 0}</div>
+          <div className="text-sm text-slate-500 mb-1">Total Marcas</div>
+          <div className="text-3xl font-bold text-slate-900">{metricas?.total || 0}</div>
           <div className="text-sm text-green-600 mt-1">
             {metricas?.activas || 0} activas
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 mb-1">Marcas con Productos</div>
+          <div className="text-sm text-slate-500 mb-1">Marcas con Productos</div>
           <div className="text-3xl font-bold text-blue-600">{metricas?.conProductos || 0}</div>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-slate-500 mt-1">
             {metricas?.totalProductos || 0} productos totales
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 mb-1">Ventas Totales</div>
+          <div className="text-sm text-slate-500 mb-1">Ventas Totales</div>
           <div className="text-3xl font-bold text-green-600">
             {formatCurrency(metricas?.totalVentas || 0)}
           </div>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-slate-500 mt-1">
             {(metricas?.totalUnidades || 0).toLocaleString()} unidades
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 mb-1">Margen Promedio</div>
+          <div className="text-sm text-slate-500 mb-1">Margen Promedio</div>
           <div className={`text-3xl font-bold ${(metricas?.margenPonderado || 0) >= 25 ? 'text-green-600' : (metricas?.margenPonderado || 0) >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
             {formatPercent(metricas?.margenPonderado || 0)}
           </div>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-slate-500 mt-1">
             Ponderado por unidades
           </div>
         </div>
@@ -470,7 +470,7 @@ export function MarcasAnalytics({
       {/* Distribución por tipo */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribución por Tipo</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Distribución por Tipo</h3>
           <div className="space-y-3">
             {metricas?.porTipo && Object.entries(metricas.porTipo)
               .sort((a, b) => b[1] - a[1])
@@ -481,13 +481,13 @@ export function MarcasAnalytics({
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTipoColor(tipo)}`}>
                       {getTipoLabel(tipo)}
                     </span>
-                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                    <div className="flex-1 bg-slate-200 rounded-full h-2">
                       <div
                         className="bg-blue-600 h-2 rounded-full"
                         style={{ width: `${porcentaje}%` }}
                       />
                     </div>
-                    <span className="text-sm text-gray-600 w-20 text-right">
+                    <span className="text-sm text-slate-600 w-20 text-right">
                       {cantidad} ({porcentaje.toFixed(0)}%)
                     </span>
                   </div>
@@ -498,7 +498,7 @@ export function MarcasAnalytics({
 
         {/* Alertas */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Alertas de Marcas</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Alertas de Marcas</h3>
           <div className="space-y-3">
             {(metricas?.sinVentasRecientes?.length || 0) > 0 && (
               <div className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg">
@@ -549,16 +549,16 @@ export function MarcasAnalytics({
       {/* Top marcas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top 5 por Ventas</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Top 5 por Ventas</h3>
           <div className="space-y-3">
             {metricas?.topVentas?.map((marca, idx) => (
               <div key={marca.id} className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${idx === 0 ? 'bg-yellow-500' : idx === 1 ? 'bg-gray-400' : idx === 2 ? 'bg-amber-600' : 'bg-blue-500'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${idx === 0 ? 'bg-yellow-500' : idx === 1 ? 'bg-slate-400' : idx === 2 ? 'bg-amber-600' : 'bg-blue-500'}`}>
                   {idx + 1}
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">{marca.nombre}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="font-medium text-slate-900">{marca.nombre}</div>
+                  <div className="text-sm text-slate-500">
                     Margen: {formatPercent(marca.metricas?.margenPromedio || 0)}
                   </div>
                 </div>
@@ -570,7 +570,7 @@ export function MarcasAnalytics({
               </div>
             ))}
             {(!metricas?.topVentas || metricas.topVentas.length === 0) && (
-              <div className="text-center text-gray-500 py-4">
+              <div className="text-center text-slate-500 py-4">
                 No hay datos de ventas aún
               </div>
             )}
@@ -578,7 +578,7 @@ export function MarcasAnalytics({
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top 5 por Margen</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Top 5 por Margen</h3>
           <div className="space-y-3">
             {metricas?.topMargen?.map((marca, idx) => (
               <div key={marca.id} className="flex items-center gap-3">
@@ -586,8 +586,8 @@ export function MarcasAnalytics({
                   {idx + 1}
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">{marca.nombre}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="font-medium text-slate-900">{marca.nombre}</div>
+                  <div className="text-sm text-slate-500">
                     Ventas: {formatCurrency(marca.metricas?.ventasTotalPEN || 0)}
                   </div>
                 </div>
@@ -599,7 +599,7 @@ export function MarcasAnalytics({
               </div>
             ))}
             {(!metricas?.topMargen || metricas.topMargen.length === 0) && (
-              <div className="text-center text-gray-500 py-4">
+              <div className="text-center text-slate-500 py-4">
                 Necesita más ventas para calcular
               </div>
             )}
@@ -649,10 +649,10 @@ export function MarcasAnalytics({
       <div className="space-y-6">
         {/* Matriz BCG simplificada */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">
             Matriz de Rentabilidad (Ventas vs Margen)
           </h3>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-slate-500 mb-6">
             Clasificación basada en mediana de ventas ({formatCurrency(ventasMediana)}) y margen ({formatPercent(margenMediana)})
           </p>
 
@@ -741,7 +741,7 @@ export function MarcasAnalytics({
 
         {/* Recomendaciones */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recomendaciones Estratégicas</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Recomendaciones Estratégicas</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-green-50 rounded-lg">
               <h4 className="font-medium text-green-800 mb-2">Invertir en Estrellas</h4>
@@ -778,7 +778,7 @@ export function MarcasAnalytics({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Cargando marcas...</span>
+        <span className="ml-3 text-slate-600">Cargando marcas...</span>
       </div>
     );
   }
@@ -786,14 +786,14 @@ export function MarcasAnalytics({
   return (
     <div className="space-y-6">
       {/* Sub-tabs de navegación */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-slate-200">
         <nav className="-mb-px flex gap-4">
           <button
             onClick={() => setSubTab('lista')}
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
               subTab === 'lista'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
             Lista de Marcas
@@ -803,7 +803,7 @@ export function MarcasAnalytics({
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
               subTab === 'dashboard'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
             Dashboard Analytics
@@ -813,7 +813,7 @@ export function MarcasAnalytics({
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
               subTab === 'rentabilidad'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
             Análisis de Rentabilidad

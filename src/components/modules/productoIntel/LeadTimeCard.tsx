@@ -30,27 +30,27 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
 
   if (leadTime.ordenesAnalizadas === 0) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-5">
+      <div className="bg-white border border-slate-200 rounded-lg p-5">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 bg-blue-100 rounded-lg">
             <Truck className="h-5 w-5 text-blue-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Lead Time Promedio</h3>
-            <p className="text-xs text-gray-500">Tiempo de compra a recepcion</p>
+            <h3 className="font-semibold text-slate-900">Lead Time Promedio</h3>
+            <p className="text-xs text-slate-500">Tiempo de compra a recepcion</p>
           </div>
         </div>
         <div className="text-center py-6">
-          <Clock className="h-10 w-10 text-gray-300 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Sin datos suficientes</p>
-          <p className="text-xs text-gray-400">Se necesitan OC completadas para calcular</p>
+          <Clock className="h-10 w-10 text-slate-300 mx-auto mb-2" />
+          <p className="text-sm text-slate-500">Sin datos suficientes</p>
+          <p className="text-xs text-slate-400">Se necesitan OC completadas para calcular</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
+    <div className="bg-white border border-slate-200 rounded-lg p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -58,8 +58,8 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
             <Truck className="h-5 w-5 text-blue-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Lead Time Promedio</h3>
-            <p className="text-xs text-gray-500">Tiempo de compra a recepcion</p>
+            <h3 className="font-semibold text-slate-900">Lead Time Promedio</h3>
+            <p className="text-xs text-slate-500">Tiempo de compra a recepcion</p>
           </div>
         </div>
         <span className={`px-2 py-1 rounded text-xs font-medium ${colors.bg} ${colors.text}`}>
@@ -71,7 +71,7 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
       <div className={`rounded-lg p-4 mb-4 ${colors.bg} border ${colors.border}`}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-600">Tiempo Total Promedio</p>
+            <p className="text-sm text-slate-600">Tiempo Total Promedio</p>
             <p className={`text-3xl font-bold ${colors.text}`}>
               {leadTime.tiempoPromedioTotal} dias
             </p>
@@ -84,38 +84,38 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
 
       {/* Desglose de tiempos */}
       <div className="space-y-3 mb-4">
-        <h4 className="text-xs font-medium text-gray-500 uppercase">Desglose Estimado</h4>
+        <h4 className="text-xs font-medium text-slate-500 uppercase">Desglose Estimado</h4>
 
         {/* Compra a envio */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-            <span className="text-sm text-gray-600">Compra → Envio</span>
+            <span className="text-sm text-slate-600">Compra → Envio</span>
           </div>
-          <span className="font-medium text-gray-900">{leadTime.tiempoPromedioCompraEnvio}d</span>
+          <span className="font-medium text-slate-900">{leadTime.tiempoPromedioCompraEnvio}d</span>
         </div>
 
         {/* Transito USA */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-purple-400"></div>
-            <span className="text-sm text-gray-600">Transito USA</span>
+            <span className="text-sm text-slate-600">Transito USA</span>
           </div>
-          <span className="font-medium text-gray-900">{leadTime.tiempoPromedioTransitoUSA}d</span>
+          <span className="font-medium text-slate-900">{leadTime.tiempoPromedioTransitoUSA}d</span>
         </div>
 
         {/* USA a Peru */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-400"></div>
-            <span className="text-sm text-gray-600">USA → Peru</span>
+            <span className="text-sm text-slate-600">USA → Peru</span>
           </div>
-          <span className="font-medium text-gray-900">{leadTime.tiempoPromedioUSAPeru}d</span>
+          <span className="font-medium text-slate-900">{leadTime.tiempoPromedioUSAPeru}d</span>
         </div>
       </div>
 
       {/* Barra visual */}
-      <div className="h-2 flex rounded-full overflow-hidden bg-gray-100 mb-4">
+      <div className="h-2 flex rounded-full overflow-hidden bg-slate-100 mb-4">
         <div
           className="bg-blue-400"
           style={{ width: `${(leadTime.tiempoPromedioCompraEnvio / leadTime.tiempoPromedioTotal) * 100}%` }}
@@ -131,24 +131,24 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
       </div>
 
       {/* Estadisticas adicionales */}
-      <div className="grid grid-cols-3 gap-2 pt-4 border-t border-gray-100">
+      <div className="grid grid-cols-3 gap-2 pt-4 border-t border-slate-100">
         <div className="text-center">
-          <p className="text-xs text-gray-500">Minimo</p>
-          <p className="font-semibold text-gray-900">{leadTime.tiempoMinimo}d</p>
+          <p className="text-xs text-slate-500">Minimo</p>
+          <p className="font-semibold text-slate-900">{leadTime.tiempoMinimo}d</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-500">Maximo</p>
-          <p className="font-semibold text-gray-900">{leadTime.tiempoMaximo}d</p>
+          <p className="text-xs text-slate-500">Maximo</p>
+          <p className="font-semibold text-slate-900">{leadTime.tiempoMaximo}d</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-500">Desviacion</p>
-          <p className="font-semibold text-gray-900">±{leadTime.desviacionEstandar}d</p>
+          <p className="text-xs text-slate-500">Desviacion</p>
+          <p className="font-semibold text-slate-900">±{leadTime.desviacionEstandar}d</p>
         </div>
       </div>
 
       {/* Metadata */}
-      <div className="mt-4 pt-4 border-t border-gray-100">
-        <p className="text-xs text-gray-500">
+      <div className="mt-4 pt-4 border-t border-slate-100">
+        <p className="text-xs text-slate-500">
           Basado en {leadTime.ordenesAnalizadas} ordenes completadas
           {leadTime.periodoAnalisis && (
             <span className="ml-1">

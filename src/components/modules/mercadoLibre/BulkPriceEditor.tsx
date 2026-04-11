@@ -121,12 +121,12 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
     <div className="fixed bottom-0 left-0 right-0 z-40">
       {/* Preview panel */}
       {showPreview && (
-        <div className="bg-white border-t border-gray-200 shadow-2xl max-h-[50vh] overflow-auto mx-4 md:mx-auto md:max-w-4xl rounded-t-xl">
-          <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-gray-900">
+        <div className="bg-white border-t border-slate-200 shadow-2xl max-h-[50vh] overflow-auto mx-4 md:mx-auto md:max-w-4xl rounded-t-xl">
+          <div className="sticky top-0 bg-white border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-slate-900">
               Preview: {previewRows.length} cambio{previewRows.length !== 1 ? 's' : ''}
             </h3>
-            <button onClick={() => setShowPreview(false)} className="p-1 text-gray-400 hover:text-gray-600">
+            <button onClick={() => setShowPreview(false)} className="p-1 text-slate-400 hover:text-slate-600">
               <ChevronDown className="w-4 h-4" />
             </button>
           </div>
@@ -134,7 +134,7 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
           {previewRows.length === 0 ? (
             <div className="px-4 py-8 text-center">
               <AlertTriangle className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-slate-500">
                 {strategy === 'margen' && 'Ningún producto seleccionado tiene datos de costo'}
                 {strategy === 'buybox' && 'Ningún producto seleccionado tiene precio Buy Box'}
                 {strategy === 'porcentaje' && 'No hay cambios de precio (ajuste = 0%)'}
@@ -142,25 +142,25 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
             </div>
           ) : (
             <table className="w-full text-xs">
-              <thead className="bg-gray-50">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="text-left px-4 py-2 text-gray-500">Producto</th>
-                  <th className="text-right px-4 py-2 text-gray-500">Precio Actual</th>
-                  <th className="text-right px-4 py-2 text-gray-500">Nuevo Precio</th>
-                  <th className="text-right px-4 py-2 text-gray-500">Margen Actual</th>
-                  <th className="text-right px-4 py-2 text-gray-500">Nuevo Margen</th>
+                  <th className="text-left px-4 py-2 text-slate-500">Producto</th>
+                  <th className="text-right px-4 py-2 text-slate-500">Precio Actual</th>
+                  <th className="text-right px-4 py-2 text-slate-500">Nuevo Precio</th>
+                  <th className="text-right px-4 py-2 text-slate-500">Margen Actual</th>
+                  <th className="text-right px-4 py-2 text-slate-500">Nuevo Margen</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-slate-50">
                 {previewRows.map((pr) => (
                   <tr key={pr.row.groupKey}>
                     <td className="px-4 py-2 truncate max-w-[200px]">
                       {pr.row.mlTitle}
                       {pr.row.listings.length > 1 && (
-                        <span className="ml-1 text-gray-400">({pr.row.listings.length} pub.)</span>
+                        <span className="ml-1 text-slate-400">({pr.row.listings.length} pub.)</span>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-right text-gray-600">{fmtPEN(pr.row.mlPrice)}</td>
+                    <td className="px-4 py-2 text-right text-slate-600">{fmtPEN(pr.row.mlPrice)}</td>
                     <td className="px-4 py-2 text-right font-semibold">{fmtPEN(pr.newPrice)}</td>
                     <td className={`px-4 py-2 text-right ${getMarginColor(pr.oldMargin)}`}>{fmtPct(pr.oldMargin)}</td>
                     <td className={`px-4 py-2 text-right font-semibold ${getMarginColor(pr.newMargin)}`}>{fmtPct(pr.newMargin)}</td>
@@ -173,7 +173,7 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
       )}
 
       {/* Bottom bar */}
-      <div className="bg-gray-900 text-white px-4 py-3 shadow-2xl">
+      <div className="bg-slate-900 text-white px-4 py-3 shadow-2xl">
         <div className="max-w-6xl mx-auto flex items-center gap-3 flex-wrap">
           {/* Count */}
           <span className="text-sm font-medium shrink-0">
@@ -183,11 +183,11 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
           {/* Strategy selector */}
           <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
             {/* Strategy buttons */}
-            <div className="flex bg-gray-800 rounded-lg p-0.5">
+            <div className="flex bg-slate-800 rounded-lg p-0.5">
               <button
                 onClick={() => setStrategy('margen')}
                 className={`flex items-center gap-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
-                  strategy === 'margen' ? 'bg-amber-500 text-white' : 'text-gray-400 hover:text-white'
+                  strategy === 'margen' ? 'bg-amber-500 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 <DollarSign className="w-3 h-3" />
@@ -196,7 +196,7 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
               <button
                 onClick={() => setStrategy('buybox')}
                 className={`flex items-center gap-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
-                  strategy === 'buybox' ? 'bg-amber-500 text-white' : 'text-gray-400 hover:text-white'
+                  strategy === 'buybox' ? 'bg-amber-500 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 <Trophy className="w-3 h-3" />
@@ -205,7 +205,7 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
               <button
                 onClick={() => setStrategy('porcentaje')}
                 className={`flex items-center gap-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
-                  strategy === 'porcentaje' ? 'bg-amber-500 text-white' : 'text-gray-400 hover:text-white'
+                  strategy === 'porcentaje' ? 'bg-amber-500 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 <Percent className="w-3 h-3" />
@@ -216,34 +216,34 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
             {/* Strategy input */}
             {strategy === 'margen' && (
               <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-400">Margen:</span>
+                <span className="text-xs text-slate-400">Margen:</span>
                 <input
                   type="number"
                   value={targetMargin}
                   onChange={(e) => setTargetMargin(e.target.value)}
-                  className="w-16 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-white focus:ring-amber-500 focus:border-amber-500"
+                  className="w-16 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-xs text-white focus:ring-amber-500 focus:border-amber-500"
                   step="1"
                   min="1"
                   max="99"
                 />
-                <span className="text-xs text-gray-400">%</span>
+                <span className="text-xs text-slate-400">%</span>
               </div>
             )}
             {strategy === 'porcentaje' && (
               <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-400">Ajuste:</span>
+                <span className="text-xs text-slate-400">Ajuste:</span>
                 <input
                   type="number"
                   value={pctAdjust}
                   onChange={(e) => setPctAdjust(e.target.value)}
-                  className="w-16 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-white focus:ring-amber-500 focus:border-amber-500"
+                  className="w-16 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-xs text-white focus:ring-amber-500 focus:border-amber-500"
                   step="1"
                 />
-                <span className="text-xs text-gray-400">%</span>
+                <span className="text-xs text-slate-400">%</span>
               </div>
             )}
             {strategy === 'buybox' && (
-              <span className="text-xs text-gray-400">Igualar precio para ganar Buy Box</span>
+              <span className="text-xs text-slate-400">Igualar precio para ganar Buy Box</span>
             )}
           </div>
 
@@ -251,7 +251,7 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-xs transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs transition-colors"
             >
               {showPreview ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
               Preview
@@ -277,7 +277,7 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
 
             <button
               onClick={onClearSelection}
-              className="p-1.5 text-gray-400 hover:text-white transition-colors"
+              className="p-1.5 text-slate-400 hover:text-white transition-colors"
               title="Deseleccionar"
             >
               <X className="w-4 h-4" />

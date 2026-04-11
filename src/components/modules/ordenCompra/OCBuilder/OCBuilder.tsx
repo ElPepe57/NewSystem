@@ -228,7 +228,7 @@ export const OCBuilder: React.FC<OCBuilderProps> = ({
           <div className="flex gap-2 flex-shrink-0">
             <button
               onClick={handleDiscardDraft}
-              className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
             >
               Descartar
             </button>
@@ -244,7 +244,7 @@ export const OCBuilder: React.FC<OCBuilderProps> = ({
 
       <div className="flex flex-col h-full min-h-0">
         {/* Stepper */}
-        <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-b border-gray-100 bg-gray-50/50">
+        <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-b border-slate-100 bg-slate-50/50">
           <Stepper
             steps={STEPS}
             currentStep={state.currentStep}

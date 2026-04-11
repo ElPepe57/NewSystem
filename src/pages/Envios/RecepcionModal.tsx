@@ -303,35 +303,35 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
     >
       <div className="space-y-4">
         {/* Sticky header */}
-        <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 sticky top-0 z-10">
+        <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 sticky top-0 z-10">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-primary-900">Unidades a recibir</h4>
-              <p className="text-sm text-primary-700">
+              <h4 className="font-medium text-teal-900">Unidades a recibir</h4>
+              <p className="text-sm text-teal-700">
                 {totalARecibir} de {totalPendiente} pendientes · Recepcion #{recepcionNumero}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-primary-700">
+              <div className="text-2xl font-bold text-teal-700">
                 {totalPendiente > 0 ? Math.round((totalARecibir / totalPendiente) * 100) : 0}%
               </div>
-              <div className="text-xs text-primary-600">Progreso</div>
+              <div className="text-xs text-teal-600">Progreso</div>
             </div>
           </div>
 
-          <div className="w-full bg-primary-200 rounded-full h-2 mt-3">
+          <div className="w-full bg-teal-200 rounded-full h-2 mt-3">
             <div
-              className="bg-primary-600 h-2 rounded-full transition-all"
+              className="bg-teal-600 h-2 rounded-full transition-all"
               style={{ width: `${totalPendiente > 0 ? (totalARecibir / totalPendiente) * 100 : 0}%` }}
             />
           </div>
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary-200">
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-teal-200">
             <button
               type="button"
               onClick={() => setShowRecepcionScanner(!showRecepcionScanner)}
               className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors ${
-                showRecepcionScanner ? 'bg-primary-200 text-primary-800' : 'text-primary-700 hover:text-primary-900 hover:bg-primary-100'
+                showRecepcionScanner ? 'bg-teal-200 text-teal-800' : 'text-teal-700 hover:text-teal-900 hover:bg-teal-100'
               }`}
             >
               <ScanLine className="h-3.5 w-3.5" />
@@ -341,17 +341,17 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleRecibirTodo(totalARecibir !== totalPendiente)}
-                className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                className="text-xs text-teal-700 hover:text-teal-900 font-medium"
               >
                 Seleccionar todas ({totalPendiente})
               </button>
               {totalARecibir > 0 && (
                 <>
-                  <span className="text-primary-300">|</span>
+                  <span className="text-teal-300">|</span>
                   <button
                     type="button"
                     onClick={() => handleRecibirTodo(false)}
-                    className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                    className="text-xs text-teal-700 hover:text-teal-900 font-medium"
                   >
                     Limpiar seleccion
                   </button>
@@ -361,7 +361,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
           </div>
 
           {showRecepcionScanner && (
-            <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
+            <div className="mt-3 p-3 bg-white border border-teal-200 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium text-slate-700">Escanear producto</span>
                 <button type="button" onClick={() => setShowRecepcionScanner(false)} className="text-slate-400 hover:text-slate-600">
@@ -393,7 +393,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                         type="checkbox"
                         checked={todoRecibido}
                         onChange={() => handleCantidadChange(prod.productoId, todoRecibido ? 0 : prod.pendiente)}
-                        className="h-4 w-4 text-primary-600 rounded mr-3 flex-shrink-0"
+                        className="h-4 w-4 text-teal-600 rounded mr-3 flex-shrink-0"
                       />
                       <div className="min-w-0 flex-1">
                         <h4 className="font-medium text-slate-900 truncate">{pFull?.nombreComercial || prod.nombreFallback}</h4>
@@ -496,7 +496,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                               <select
                                 value={lote.mes}
                                 onChange={(e) => handleLoteFieldChange(prod.productoId, idx, 'mes', parseInt(e.target.value))}
-                                className="text-sm border rounded px-2 py-1.5 bg-white focus:ring-1 focus:ring-primary-500 w-20"
+                                className="text-sm border rounded px-2 py-1.5 bg-white focus:ring-1 focus:ring-teal-500 w-20"
                               >
                                 {MESES.map((m, i) => (
                                   <option key={i} value={i + 1}>{m}</option>
@@ -506,7 +506,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                               <select
                                 value={lote.anio}
                                 onChange={(e) => handleLoteFieldChange(prod.productoId, idx, 'anio', parseInt(e.target.value))}
-                                className="text-sm border rounded px-2 py-1.5 bg-white focus:ring-1 focus:ring-primary-500 w-20"
+                                className="text-sm border rounded px-2 py-1.5 bg-white focus:ring-1 focus:ring-teal-500 w-20"
                               >
                                 {ANIOS.map(a => (
                                   <option key={a} value={a}>{a}</option>
@@ -518,7 +518,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                                   type="number"
                                   value={lote.cantidad || ''}
                                   onChange={(e) => handleLoteFieldChange(prod.productoId, idx, 'cantidad', Math.max(0, parseInt(e.target.value) || 0))}
-                                  className="text-sm border rounded px-2 py-1.5 bg-white focus:ring-1 focus:ring-primary-500 w-14 text-center"
+                                  className="text-sm border rounded px-2 py-1.5 bg-white focus:ring-1 focus:ring-teal-500 w-14 text-center"
                                   min="0"
                                   placeholder="0"
                                 />
@@ -551,7 +551,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleAgregarLote(prod.productoId)}
-                        className="mt-2 text-xs text-primary-600 hover:text-primary-800 font-medium flex items-center gap-1"
+                        className="mt-2 text-xs text-teal-600 hover:text-teal-800 font-medium flex items-center gap-1"
                       >
                         <Plus className="h-3 w-3" />
                         Otra fecha de vencimiento
@@ -566,7 +566,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                       <div
                         key={unidad.unidadId}
                         className={`flex items-center justify-between p-3 ${
-                          idx < cant ? 'bg-primary-50' : 'hover:bg-slate-50'
+                          idx < cant ? 'bg-teal-50' : 'hover:bg-slate-50'
                         }`}
                       >
                         <div className="flex items-center">
@@ -638,7 +638,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
             value={observaciones}
             onChange={(e) => setObservaciones(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
             placeholder="Ej: Paquete 2 de 3, tracking TBA12345..."
           />
         </div>

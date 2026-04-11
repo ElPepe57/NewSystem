@@ -22,7 +22,7 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
 
   if (productos.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-slate-500">
         No hay datos de ventas para mostrar
       </div>
     );
@@ -33,13 +33,13 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
       {/* Mobile: Card layout */}
       <div className="sm:hidden space-y-2">
         {productosPaginados.map((producto) => (
-          <div key={producto.productoId} className="border border-gray-100 rounded-lg p-2.5">
+          <div key={producto.productoId} className="border border-slate-100 rounded-lg p-2.5">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900 truncate">
+                <div className="text-xs font-medium text-slate-900 truncate">
                   {producto.marca} {producto.nombreComercial}
                 </div>
-                <div className="text-[10px] text-gray-400">{producto.sku}</div>
+                <div className="text-[10px] text-slate-400">{producto.sku}</div>
               </div>
               <div className="flex items-center shrink-0">
                 {producto.margenPromedio >= 0 ? (
@@ -56,15 +56,15 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
             </div>
             <div className="grid grid-cols-3 gap-1.5 text-[10px]">
               <div>
-                <span className="text-gray-400">Uds</span>
-                <div className="font-semibold text-gray-900">{producto.unidadesVendidas}</div>
+                <span className="text-slate-400">Uds</span>
+                <div className="font-semibold text-slate-900">{producto.unidadesVendidas}</div>
               </div>
               <div>
-                <span className="text-gray-400">Ventas</span>
-                <div className="font-semibold text-gray-900">S/ {producto.ventasTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+                <span className="text-slate-400">Ventas</span>
+                <div className="font-semibold text-slate-900">S/ {producto.ventasTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
               </div>
               <div>
-                <span className="text-gray-400">Utilidad</span>
+                <span className="text-slate-400">Utilidad</span>
                 <div className="font-semibold text-success-600">S/ {producto.utilidadPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
               </div>
             </div>
@@ -74,45 +74,45 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
 
       {/* Desktop: Table layout */}
       <div className="hidden sm:block overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
                 Producto
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Unidades
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Ventas
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Costo
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Utilidad
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Margen
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {productosPaginados.map((producto) => (
-              <tr key={producto.productoId} className="hover:bg-gray-50">
+              <tr key={producto.productoId} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-slate-900">
                     {producto.marca} {producto.nombreComercial}
                   </div>
-                  <div className="text-xs text-gray-500">{producto.sku}</div>
+                  <div className="text-xs text-slate-500">{producto.sku}</div>
                 </td>
-                <td className="px-4 py-3 text-right text-sm text-gray-900">
+                <td className="px-4 py-3 text-right text-sm text-slate-900">
                   {producto.unidadesVendidas}
                 </td>
-                <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
                   S/ {producto.ventasTotalPEN.toFixed(2)}
                 </td>
-                <td className="px-4 py-3 text-right text-sm text-gray-600">
+                <td className="px-4 py-3 text-right text-sm text-slate-600">
                   S/ {producto.costoTotalPEN.toFixed(2)}
                 </td>
                 <td className="px-4 py-3 text-right text-sm font-semibold text-success-600">

@@ -17,9 +17,9 @@ export const ExpenseTrendChart: React.FC<ExpenseTrendChartProps> = ({ historialG
   }));
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-5">
-      <h3 className="text-base font-semibold text-gray-900 mb-0.5">Gastos Operativos Mensuales</h3>
-      <p className="text-xs text-gray-400 mb-4">
+    <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-5">
+      <h3 className="text-base font-semibold text-slate-900 mb-0.5">Gastos Operativos Mensuales</h3>
+      <p className="text-xs text-slate-400 mb-4">
         GA/GO impacta CTRU · GV/GD impacta margen de venta
       </p>
       {hasData ? (
@@ -34,9 +34,9 @@ export const ExpenseTrendChart: React.FC<ExpenseTrendChartProps> = ({ historialG
           height={240}
         />
       ) : (
-        <div className="flex flex-col items-center justify-center h-[240px] text-gray-300">
+        <div className="flex flex-col items-center justify-center h-[240px] text-slate-300">
           <Receipt className="w-10 h-10 mb-2" />
-          <p className="text-sm text-gray-400">No hay gastos registrados</p>
+          <p className="text-sm text-slate-400">No hay gastos registrados</p>
         </div>
       )}
     </div>

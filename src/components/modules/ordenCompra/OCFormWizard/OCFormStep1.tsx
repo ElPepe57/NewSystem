@@ -20,7 +20,7 @@ const CasillaSelect: React.FC<{ value: string; onChange: (id: string, nombre: st
   useEffect(() => { if (almacenes.length === 0) fetchAlmacenes(); }, []);
   return (
     <select
-      className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2"
+      className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"
       value={value}
       onChange={e => {
         const selected = almacenes.find(a => a.id === e.target.value);
@@ -41,7 +41,7 @@ const ColaboradorSelect: React.FC<{ value: string; onChange: (id: string, nombre
   const transportadores = colaboradores.filter(c => c.tipo === 'viajero' || c.tipo === 'courier_externo');
   return (
     <select
-      className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2"
+      className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"
       value={value}
       onChange={e => {
         const selected = transportadores.find(c => c.id === e.target.value);
@@ -149,24 +149,24 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
           </div>
         </div>
       ) : requerimientoId ? (
-        <div className="p-3 bg-primary-50 border border-primary-200 rounded-lg flex items-center gap-3">
-          <ClipboardList className="h-5 w-5 text-primary-600" />
-          <p className="text-sm font-medium text-primary-900">
+        <div className="p-3 bg-teal-50 border border-teal-200 rounded-lg flex items-center gap-3">
+          <ClipboardList className="h-5 w-5 text-teal-600" />
+          <p className="text-sm font-medium text-teal-900">
             Desde Requerimiento: {requerimientoNumero || requerimientoId}
           </p>
         </div>
       ) : null}
 
       {/* Section: Proveedor y Ruta */}
-      <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-          <Globe className="h-4 w-4 text-gray-500" />
+      <div className="bg-slate-50 rounded-lg border border-slate-200 p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+          <Globe className="h-4 w-4 text-slate-500" />
           Proveedor y Ruta
         </h3>
 
         {/* Row 1: Proveedor (full width) + País badge */}
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs font-medium text-slate-600 mb-1">
             Proveedor <span className="text-red-500">*</span>
           </label>
           <div className="flex items-center gap-2">
@@ -188,7 +188,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
                   <span>{state.paisOrigenOC}</span>
                 </div>
                 {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-slate-800 text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   País de origen (del proveedor)
                 </div>
               </div>
@@ -198,7 +198,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
                   <select
                     value={state.paisOrigenOC}
                     onChange={(e) => dispatch({ type: 'SET_PAIS_ORIGEN', payload: e.target.value })}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white"
                   >
                     <option value="">País...</option>
                     {paisesOrigen.map(p => (
@@ -208,7 +208,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
                     ))}
                   </select>
                 ) : (
-                  <div className="flex items-center gap-1 px-3 py-2 bg-gray-100 border border-dashed border-gray-300 rounded-lg text-xs text-gray-400">
+                  <div className="flex items-center gap-1 px-3 py-2 bg-slate-100 border border-dashed border-slate-300 rounded-lg text-xs text-slate-400">
                     <Globe className="h-3.5 w-3.5" />
                     <span>País</span>
                   </div>
@@ -227,7 +227,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Almacen Destino */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-slate-600 mb-1">
               Almacen Destino <span className="text-red-500">*</span>
             </label>
             <AlmacenAutocomplete
@@ -238,7 +238,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
               filterPais={state.paisOrigenOC || undefined}
             />
             {state.paisOrigenOC && !state.almacenDestino && (
-              <p className="text-[10px] text-gray-400 mt-0.5">
+              <p className="text-[10px] text-slate-400 mt-0.5">
                 Mostrando almacenes de {state.paisOrigenOC}
               </p>
             )}
@@ -262,26 +262,26 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
         {/* Row 2.5: Casilla destino + Colaborador (Reingenieria) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-slate-600 mb-1">
               Casilla Destino
             </label>
             <CasillaSelect
               value={state.casillaDestinoId}
               onChange={(id, nombre) => dispatch({ type: 'SET_CASILLA_DESTINO', payload: { id, nombre } })}
             />
-            <p className="text-[10px] text-gray-400 mt-0.5">
+            <p className="text-[10px] text-slate-400 mt-0.5">
               Donde se recibir\u00e1n los productos
             </p>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-slate-600 mb-1">
               Transportador (opcional)
             </label>
             <ColaboradorSelect
               value={state.colaboradorId}
               onChange={(id, nombre) => dispatch({ type: 'SET_COLABORADOR', payload: { id, nombre } })}
             />
-            <p className="text-[10px] text-gray-400 mt-0.5">
+            <p className="text-[10px] text-slate-400 mt-0.5">
               Viajero o courier que transporta
             </p>
           </div>
@@ -301,12 +301,12 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
       </div>
 
       {/* Section: Productos */}
-      <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+      <div className="bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-gray-500" />
-            <span className="text-sm font-semibold text-gray-700">Productos</span>
-            <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full">
+            <Package className="h-4 w-4 text-slate-500" />
+            <span className="text-sm font-semibold text-slate-700">Productos</span>
+            <span className="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">
               {state.productos.filter(p => p.productoId).length}
             </span>
           </div>
@@ -318,18 +318,18 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
               key={index}
               className={`p-3 rounded-lg border transition-all ${
                 item.productoId && item.costoUnitario > 0
-                  ? 'bg-white border-gray-200'
-                  : 'bg-gray-50 border-dashed border-gray-300'
+                  ? 'bg-white border-slate-200'
+                  : 'bg-slate-50 border-dashed border-slate-300'
               }`}
             >
               {/* Row header: Number + SKU info + remove */}
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-medium text-slate-600">
                     {index + 1}
                   </div>
                   {item.productoId && (
-                    <span className="text-[10px] text-gray-400">
+                    <span className="text-[10px] text-slate-400">
                       {item.sku} · {item.presentacion}
                     </span>
                   )}
@@ -372,7 +372,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
                       min="1"
                       value={item.cantidad}
                       onChange={(e) => handleProductoFieldChange(index, 'cantidad', parseInt(e.target.value) || 0)}
-                      className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-center"
+                      className="w-full px-2 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-center"
                       placeholder="Cant."
                     />
                   </div>
@@ -380,14 +380,14 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
                   {/* Precio */}
                   <div className="flex-1 sm:w-28 sm:flex-none">
                     <div className="relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
                       <input
                         type="number"
                         min="0"
                         step="0.01"
                         value={item.costoUnitario}
                         onChange={(e) => handleProductoFieldChange(index, 'costoUnitario', parseFloat(e.target.value) || 0)}
-                        className="w-full pl-6 pr-2 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-right"
+                        className="w-full pl-6 pr-2 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-right"
                         placeholder="0.00"
                       />
                     </div>
@@ -395,8 +395,8 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
 
                   {/* Subtotal */}
                   <div className="w-20 sm:w-24 text-right">
-                    <div className="text-xs text-gray-500">Subtotal</div>
-                    <div className="text-sm sm:text-base font-semibold text-gray-900">
+                    <div className="text-xs text-slate-500">Subtotal</div>
+                    <div className="text-sm sm:text-base font-semibold text-slate-900">
                       ${(item.cantidad * item.costoUnitario).toFixed(2)}
                     </div>
                   </div>
@@ -409,7 +409,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
           <button
             type="button"
             onClick={handleAddProducto}
-            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2 text-sm"
+            className="w-full py-2 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 transition-colors flex items-center justify-center gap-2 text-sm"
           >
             <Plus className="h-4 w-4" />
             Agregar producto
@@ -417,10 +417,10 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
 
           {/* Subtotal footer */}
           {subtotalUSD > 0 && (
-            <div className="flex justify-end pt-3 border-t border-gray-200">
+            <div className="flex justify-end pt-3 border-t border-slate-200">
               <div className="text-right">
-                <span className="text-xs text-gray-500 mr-3">Subtotal:</span>
-                <span className="text-base font-bold text-gray-900">${subtotalUSD.toFixed(2)}</span>
+                <span className="text-xs text-slate-500 mr-3">Subtotal:</span>
+                <span className="text-base font-bold text-slate-900">${subtotalUSD.toFixed(2)}</span>
               </div>
             </div>
           )}
@@ -429,7 +429,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
 
       {/* Sub-Ordenes (opcional, solo si hay >1 producto) */}
       {productosValidos.length > 1 && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-slate-200">
           <OCFormStepSubOrdenes state={state} dispatch={dispatch} />
         </div>
       )}

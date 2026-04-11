@@ -262,11 +262,11 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
       {/* Progress Steps */}
       <div className="flex items-center justify-center mb-6">
         <div className="flex items-center">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 1 ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-600'}`}>1</div>
-          <div className={`w-24 h-1 mx-2 ${step >= 2 ? 'bg-primary-600' : 'bg-slate-200'}`}></div>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 2 ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-600'}`}>2</div>
-          <div className={`w-24 h-1 mx-2 ${step >= 3 ? 'bg-primary-600' : 'bg-slate-200'}`}></div>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 3 ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-600'}`}>3</div>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 1 ? 'bg-teal-600 text-white' : 'bg-slate-200 text-slate-600'}`}>1</div>
+          <div className={`w-24 h-1 mx-2 ${step >= 2 ? 'bg-teal-600' : 'bg-slate-200'}`}></div>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 2 ? 'bg-teal-600 text-white' : 'bg-slate-200 text-slate-600'}`}>2</div>
+          <div className={`w-24 h-1 mx-2 ${step >= 3 ? 'bg-teal-600' : 'bg-slate-200'}`}></div>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 3 ? 'bg-teal-600 text-white' : 'bg-slate-200 text-slate-600'}`}>3</div>
         </div>
       </div>
 
@@ -387,27 +387,27 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
       {step === 2 && (
         <div className="space-y-4">
           {/* Resumen de seleccion - Sticky */}
-          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 sticky top-0 z-10">
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 sticky top-0 z-10">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-primary-900">Unidades seleccionadas</h4>
-                <p className="text-sm text-primary-700">
+                <h4 className="font-medium text-teal-900">Unidades seleccionadas</h4>
+                <p className="text-sm text-teal-700">
                   {resumenSeleccion.cantidad} unidades de {resumenSeleccion.productosUnicos} productos
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-primary-700">${resumenSeleccion.costoTotal.toFixed(2)}</div>
-                <div className="text-xs text-primary-600">Valor total</div>
+                <div className="text-2xl font-bold text-teal-700">${resumenSeleccion.costoTotal.toFixed(2)}</div>
+                <div className="text-xs text-teal-600">Valor total</div>
               </div>
             </div>
 
             {unidadesDisponibles.length > 0 && (
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary-200">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-teal-200">
                 <button
                   type="button"
                   onClick={() => setShowScanner(!showScanner)}
                   className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors ${
-                    showScanner ? 'bg-primary-200 text-primary-800' : 'text-primary-700 hover:text-primary-900 hover:bg-primary-100'
+                    showScanner ? 'bg-teal-200 text-teal-800' : 'text-teal-700 hover:text-teal-900 hover:bg-teal-100'
                   }`}
                 >
                   <ScanLine className="h-3.5 w-3.5" />
@@ -417,17 +417,17 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                   <button
                     type="button"
                     onClick={seleccionarTodas}
-                    className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                    className="text-xs text-teal-700 hover:text-teal-900 font-medium"
                   >
                     Seleccionar todas ({unidadesDisponibles.length})
                   </button>
                   {unidadesSeleccionadas.length > 0 && (
                     <>
-                      <span className="text-primary-300">|</span>
+                      <span className="text-teal-300">|</span>
                       <button
                         type="button"
                         onClick={deseleccionarTodas}
-                        className="text-xs text-primary-700 hover:text-primary-900 font-medium"
+                        className="text-xs text-teal-700 hover:text-teal-900 font-medium"
                       >
                         Limpiar seleccion
                       </button>
@@ -438,7 +438,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
             )}
 
             {showScanner && (
-              <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
+              <div className="mt-3 p-3 bg-white border border-teal-200 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-slate-700">Escanear producto</span>
                   <button type="button" onClick={() => setShowScanner(false)} className="text-slate-400 hover:text-slate-600">
@@ -453,7 +453,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
           {/* Lista de unidades agrupadas por producto */}
           {loadingUnidades ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
             </div>
           ) : Object.keys(unidadesAgrupadas).length === 0 ? (
             <div className="text-center py-12 bg-slate-50 rounded-lg">
@@ -478,7 +478,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                             type="checkbox"
                             checked={todasSeleccionadas}
                             onChange={() => toggleProducto(productoId)}
-                            className="h-4 w-4 text-primary-600 rounded mr-3 flex-shrink-0"
+                            className="h-4 w-4 text-teal-600 rounded mr-3 flex-shrink-0"
                             onClick={(e) => e.stopPropagation()}
                           />
                           <div className="min-w-0 flex-1">
@@ -606,7 +606,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                           <div
                             key={unidad.id}
                             className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
-                              unidadesSeleccionadas.includes(unidad.id) ? 'bg-primary-50' : 'hover:bg-slate-50'
+                              unidadesSeleccionadas.includes(unidad.id) ? 'bg-teal-50' : 'hover:bg-slate-50'
                             }`}
                             onClick={() => toggleUnidad(unidad.id)}
                           >
@@ -615,7 +615,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                                 type="checkbox"
                                 checked={unidadesSeleccionadas.includes(unidad.id)}
                                 onChange={() => toggleUnidad(unidad.id)}
-                                className="h-4 w-4 text-primary-600 rounded mr-3"
+                                className="h-4 w-4 text-teal-600 rounded mr-3"
                               />
                               <div>
                                 <div className="flex items-center space-x-2">
@@ -708,7 +708,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                       setCostoFleteUnitarioPorProducto({});
                     }
                   }}
-                  className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                  className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
                 />
                 <div>
                   <span className="text-sm font-medium text-slate-900">Agregar costo de flete ahora</span>
@@ -764,7 +764,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                                       [producto.productoId]: valor
                                     }));
                                   }}
-                                  className="w-full pl-6 pr-2 py-1.5 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                  className="w-full pl-6 pr-2 py-1.5 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-teal-500"
                                   placeholder="0.00"
                                   step="0.01"
                                   min="0"
@@ -831,7 +831,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
               value={formData.notas || ''}
               onChange={(e) => setFormData({ ...formData, notas: e.target.value })}
               rows={3}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
               placeholder="Notas adicionales..."
             />
           </div>

@@ -9,8 +9,8 @@ interface TipoCambioChartProps {
 export const TipoCambioChart: React.FC<TipoCambioChartProps> = ({ tiposCambio }) => {
   if (tiposCambio.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12 bg-gray-50 rounded-lg">
-        <p className="text-gray-500">No hay datos para mostrar en el gráfico</p>
+      <div className="flex items-center justify-center py-12 bg-slate-50 rounded-lg">
+        <p className="text-slate-500">No hay datos para mostrar en el gráfico</p>
       </div>
     );
   }
@@ -28,8 +28,8 @@ export const TipoCambioChart: React.FC<TipoCambioChartProps> = ({ tiposCambio })
   const lastTC = tiposCambio[tiposCambio.length - 1];
 
   return (
-    <div className="bg-white p-6 rounded-lg border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+    <div className="bg-white p-6 rounded-lg border border-slate-200">
+      <h3 className="text-lg font-semibold text-slate-900 mb-4">
         Evolución del Tipo de Cambio (Últimos {tiposCambio.length} días)
       </h3>
       
@@ -90,19 +90,19 @@ export const TipoCambioChart: React.FC<TipoCambioChartProps> = ({ tiposCambio })
 
       <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
         <div className="bg-green-50 p-3 rounded">
-          <div className="text-xs text-gray-600">TC Compra Actual</div>
+          <div className="text-xs text-slate-600">TC Compra Actual</div>
           <div className="text-lg font-bold text-green-600">
             S/ {lastTC?.compra.toFixed(3)}
           </div>
         </div>
         <div className="bg-red-50 p-3 rounded">
-          <div className="text-xs text-gray-600">TC Venta Actual</div>
+          <div className="text-xs text-slate-600">TC Venta Actual</div>
           <div className="text-lg font-bold text-red-600">
             S/ {lastTC?.venta.toFixed(3)}
           </div>
         </div>
         <div className="bg-blue-50 p-3 rounded">
-          <div className="text-xs text-gray-600">Promedio Actual</div>
+          <div className="text-xs text-slate-600">Promedio Actual</div>
           <div className="text-lg font-bold text-blue-600">
             S/ {((lastTC?.compra + lastTC?.venta) / 2).toFixed(3)}
           </div>

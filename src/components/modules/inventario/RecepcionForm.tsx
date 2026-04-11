@@ -92,14 +92,14 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Información del Producto */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <div className="text-sm text-gray-600">Producto</div>
-        <div className="text-lg font-semibold text-gray-900">{sku}</div>
+      <div className="bg-slate-50 p-4 rounded-lg">
+        <div className="text-sm text-slate-600">Producto</div>
+        <div className="text-lg font-semibold text-slate-900">{sku}</div>
       </div>
 
       {/* Recepción */}
       <div>
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Recepción de Unidades</h4>
+        <h4 className="text-lg font-semibold text-slate-900 mb-4">Recepción de Unidades</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Cantidad de Unidades"
@@ -142,7 +142,7 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
 
       {/* Costos */}
       <div>
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Costos y Tipo de Cambio</h4>
+        <h4 className="text-lg font-semibold text-slate-900 mb-4">Costos y Tipo de Cambio</h4>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Input
             label="Costo Unitario (USD)"
@@ -178,12 +178,12 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
         </div>
 
         {formData.costoUnitarioUSD > 0 && formData.tcPago > 0 && (
-          <div className="mt-4 p-4 bg-primary-50 rounded-lg">
-            <div className="text-sm text-gray-600">Costo Total por Unidad (PEN)</div>
-            <div className="text-2xl font-bold text-primary-600">
+          <div className="mt-4 p-4 bg-teal-50 rounded-lg">
+            <div className="text-sm text-slate-600">Costo Total por Unidad (PEN)</div>
+            <div className="text-2xl font-bold text-teal-600">
               S/ {costoPEN.toFixed(2)}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-slate-500 mt-1">
               Total {formData.cantidad} unidades: S/ {(costoPEN * formData.cantidad).toFixed(2)}
             </div>
           </div>
@@ -192,7 +192,7 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
 
       {/* Tracking */}
       <div>
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Tracking (Opcional)</h4>
+        <h4 className="text-lg font-semibold text-slate-900 mb-4">Tracking (Opcional)</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Número de Tracking"
@@ -214,7 +214,7 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
 
       {/* Observaciones */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
           Observaciones
         </label>
         <textarea
@@ -222,7 +222,7 @@ export const RecepcionForm: React.FC<RecepcionFormProps> = ({
           value={formData.observaciones}
           onChange={handleChange}
           rows={3}
-          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
           placeholder="Notas adicionales sobre la recepción..."
         />
       </div>

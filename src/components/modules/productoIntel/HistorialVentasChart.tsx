@@ -172,59 +172,59 @@ export const HistorialVentasChart: React.FC<HistorialVentasChartProps> = ({
 
   if (loading) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="bg-white border border-slate-200 rounded-lg p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-          <div className="h-48 bg-gray-200 rounded"></div>
+          <div className="h-4 bg-slate-200 rounded w-1/3"></div>
+          <div className="h-48 bg-slate-200 rounded"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
+    <div className="bg-white border border-slate-200 rounded-lg p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-indigo-100 rounded-lg">
-            <TrendingUp className="h-5 w-5 text-indigo-600" />
+          <div className="p-2 bg-teal-100 rounded-lg">
+            <TrendingUp className="h-5 w-5 text-teal-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Historial de Ventas</h3>
-            <p className="text-xs text-gray-500">{nombreProducto}</p>
+            <h3 className="font-semibold text-slate-900">Historial de Ventas</h3>
+            <p className="text-xs text-slate-500">{nombreProducto}</p>
           </div>
         </div>
 
         {/* Controles */}
         <div className="flex items-center gap-2">
           {/* Vista */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+          <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
             <button
               onClick={() => setVista('mensual')}
-              className={`px-2 py-1 text-xs rounded ${vista === 'mensual' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-600'}`}
+              className={`px-2 py-1 text-xs rounded ${vista === 'mensual' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600'}`}
             >
               Mensual
             </button>
             <button
               onClick={() => setVista('semanal')}
-              className={`px-2 py-1 text-xs rounded ${vista === 'semanal' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-600'}`}
+              className={`px-2 py-1 text-xs rounded ${vista === 'semanal' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600'}`}
             >
               Semanal
             </button>
           </div>
 
           {/* Metrica */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+          <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
             <button
               onClick={() => setMetrica('unidades')}
-              className={`px-2 py-1 text-xs rounded ${metrica === 'unidades' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-600'}`}
+              className={`px-2 py-1 text-xs rounded ${metrica === 'unidades' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600'}`}
             >
               <Package className="h-3 w-3 inline mr-1" />
               Uds
             </button>
             <button
               onClick={() => setMetrica('ventasPEN')}
-              className={`px-2 py-1 text-xs rounded ${metrica === 'ventasPEN' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-600'}`}
+              className={`px-2 py-1 text-xs rounded ${metrica === 'ventasPEN' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600'}`}
             >
               <DollarSign className="h-3 w-3 inline mr-1" />
               S/
@@ -235,21 +235,21 @@ export const HistorialVentasChart: React.FC<HistorialVentasChartProps> = ({
 
       {/* KPIs rapidos */}
       <div className="grid grid-cols-4 gap-3 mb-4">
-        <div className="bg-gray-50 rounded-lg p-2 text-center">
-          <p className="text-xs text-gray-500">Total {periodoMeses}m</p>
-          <p className="font-bold text-gray-900">{totalUnidades} uds</p>
+        <div className="bg-slate-50 rounded-lg p-2 text-center">
+          <p className="text-xs text-slate-500">Total {periodoMeses}m</p>
+          <p className="font-bold text-slate-900">{totalUnidades} uds</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-2 text-center">
-          <p className="text-xs text-gray-500">Ventas</p>
-          <p className="font-bold text-gray-900">S/{totalVentas.toFixed(0)}</p>
+        <div className="bg-slate-50 rounded-lg p-2 text-center">
+          <p className="text-xs text-slate-500">Ventas</p>
+          <p className="font-bold text-slate-900">S/{totalVentas.toFixed(0)}</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-2 text-center">
-          <p className="text-xs text-gray-500">Prom/mes</p>
-          <p className="font-bold text-gray-900">{promedioMensual.toFixed(1)} uds</p>
+        <div className="bg-slate-50 rounded-lg p-2 text-center">
+          <p className="text-xs text-slate-500">Prom/mes</p>
+          <p className="font-bold text-slate-900">{promedioMensual.toFixed(1)} uds</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-2 text-center">
-          <p className="text-xs text-gray-500">Tendencia</p>
-          <p className={`font-bold ${tendencia > 0 ? 'text-green-600' : tendencia < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+        <div className="bg-slate-50 rounded-lg p-2 text-center">
+          <p className="text-xs text-slate-500">Tendencia</p>
+          <p className={`font-bold ${tendencia > 0 ? 'text-green-600' : tendencia < 0 ? 'text-red-600' : 'text-slate-600'}`}>
             {tendencia > 0 ? '+' : ''}{tendencia} uds
           </p>
         </div>
@@ -257,9 +257,9 @@ export const HistorialVentasChart: React.FC<HistorialVentasChartProps> = ({
 
       {/* Grafico */}
       {datos.length === 0 ? (
-        <div className="h-48 flex items-center justify-center text-gray-500">
+        <div className="h-48 flex items-center justify-center text-slate-500">
           <div className="text-center">
-            <Calendar className="h-10 w-10 text-gray-300 mx-auto mb-2" />
+            <Calendar className="h-10 w-10 text-slate-300 mx-auto mb-2" />
             <p className="text-sm">Sin datos de ventas en este periodo</p>
           </div>
         </div>
@@ -303,8 +303,8 @@ export const HistorialVentasChart: React.FC<HistorialVentasChartProps> = ({
       )}
 
       {/* Leyenda */}
-      <div className="mt-3 pt-3 border-t border-gray-100">
-        <p className="text-xs text-gray-500 text-center">
+      <div className="mt-3 pt-3 border-t border-slate-100">
+        <p className="text-xs text-slate-500 text-center">
           Mostrando {vista === 'mensual' ? `ultimos ${periodoMeses} meses` : 'ultimas 12 semanas'}
           {' • '}
           {datos.reduce((sum, d) => sum + d.cantidadVentas, 0)} ventas totales

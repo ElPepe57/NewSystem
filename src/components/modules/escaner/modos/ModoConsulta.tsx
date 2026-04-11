@@ -182,8 +182,8 @@ export const ModoConsulta = forwardRef<ModoConsultaHandle>((_props, ref) => {
           {/* Loading state */}
           {isSearching && (
             <div className="flex items-center justify-center gap-2 py-3">
-              <div className="h-5 w-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
-              <span className="text-sm text-gray-600">Buscando producto...</span>
+              <div className="h-5 w-5 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm text-slate-600">Buscando producto...</span>
             </div>
           )}
 
@@ -210,8 +210,8 @@ export const ModoConsulta = forwardRef<ModoConsultaHandle>((_props, ref) => {
 
         {/* Right: Results (desktop only) */}
         <div className="hidden lg:block space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Search className="h-5 w-5 text-primary-600" />
+          <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+            <Search className="h-5 w-5 text-teal-600" />
             Resultado
           </h2>
           <ResultSection
@@ -261,13 +261,13 @@ const ResultSection: React.FC<{
           <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-full flex items-center justify-center mb-3">
             <ScanLine className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
           </div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-1">
             Producto no encontrado
           </h3>
-          <p className="text-sm text-gray-500 mb-1">
+          <p className="text-sm text-slate-500 mb-1">
             Codigo: <span className="font-mono font-medium text-xs sm:text-sm">{notFoundBarcode}</span>
           </p>
-          <p className="text-xs text-gray-400 mb-4">
+          <p className="text-xs text-slate-400 mb-4">
             Este codigo no esta registrado en el sistema
           </p>
 
@@ -277,18 +277,18 @@ const ResultSection: React.FC<{
                 Info de {externalInfo.source === 'openfoodfacts' ? 'Open Food Facts' : 'API externa'}:
               </p>
               {externalInfo.brand && (
-                <p className="text-sm text-gray-800">
-                  <span className="text-gray-500">Marca:</span> {externalInfo.brand}
+                <p className="text-sm text-slate-800">
+                  <span className="text-slate-500">Marca:</span> {externalInfo.brand}
                 </p>
               )}
               {externalInfo.name && (
-                <p className="text-sm text-gray-800">
-                  <span className="text-gray-500">Nombre:</span> {externalInfo.name}
+                <p className="text-sm text-slate-800">
+                  <span className="text-slate-500">Nombre:</span> {externalInfo.name}
                 </p>
               )}
               {externalInfo.category && (
-                <p className="text-sm text-gray-800 truncate">
-                  <span className="text-gray-500">Categoria:</span> {externalInfo.category}
+                <p className="text-sm text-slate-800 truncate">
+                  <span className="text-slate-500">Categoria:</span> {externalInfo.category}
                 </p>
               )}
             </div>
@@ -308,7 +308,7 @@ const ResultSection: React.FC<{
               onClick={() => {
                 window.location.href = `/productos?crear=true&upc=${encodeURIComponent(notFoundBarcode)}${externalInfo?.brand ? `&marca=${encodeURIComponent(externalInfo.brand)}` : ''}${externalInfo?.name ? `&nombre=${encodeURIComponent(externalInfo.name)}` : ''}`;
               }}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors"
             >
               <Plus className="h-4 w-4" />
               Crear Producto
@@ -316,7 +316,7 @@ const ResultSection: React.FC<{
             <button
               type="button"
               onClick={onScanAgain}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
             >
               <ScanLine className="h-4 w-4" />
               Escanear Otro
@@ -327,14 +327,14 @@ const ResultSection: React.FC<{
     )}
 
     {!currentResult && !notFoundBarcode && !isSearching && (
-      <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 text-center">
-        <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-          <ScanLine className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
+      <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 text-center">
+        <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+          <ScanLine className="h-6 w-6 sm:h-8 sm:w-8 text-slate-400" />
         </div>
-        <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-1.5 sm:mb-2">
+        <h3 className="text-base sm:text-lg font-medium text-slate-700 mb-1.5 sm:mb-2">
           Listo para escanear
         </h3>
-        <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto">
+        <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
           Usa la camara o un lector para escanear el codigo de barras de un suplemento
         </p>
       </div>

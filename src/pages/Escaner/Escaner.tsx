@@ -118,7 +118,7 @@ export const Escaner: React.FC = () => {
         <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
           <div className="flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2">
-              <ScanLine className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+              <ScanLine className="h-4 w-4 sm:h-5 sm:w-5 text-teal-600" />
               Escanear
             </h2>
             {/* Toggle modo continuo eliminado — era UI sin efecto funcional */}

@@ -60,27 +60,27 @@ const useTabsContext = () => {
 
 const variantStyles = {
   underline: {
-    container: 'border-b border-gray-200',
+    container: 'border-b border-slate-200',
     tab: {
-      base: 'relative px-4 py-2 font-medium text-gray-500 hover:text-gray-700 transition-colors',
-      active: 'text-primary-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary-600',
-      disabled: 'text-gray-300 cursor-not-allowed hover:text-gray-300'
+      base: 'relative px-4 py-2 font-medium text-slate-500 hover:text-slate-700 transition-colors',
+      active: 'text-teal-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-teal-600',
+      disabled: 'text-slate-300 cursor-not-allowed hover:text-slate-300'
     }
   },
   pills: {
-    container: 'bg-gray-100 p-1 rounded-lg flex sm:inline-flex',
+    container: 'bg-slate-100 p-1 rounded-lg flex sm:inline-flex',
     tab: {
-      base: 'px-2.5 sm:px-4 py-1.5 sm:py-2 font-medium text-gray-600 rounded-md transition-all',
-      active: 'bg-white text-gray-900 shadow-sm',
-      disabled: 'text-gray-400 cursor-not-allowed'
+      base: 'px-2.5 sm:px-4 py-1.5 sm:py-2 font-medium text-slate-600 rounded-md transition-all',
+      active: 'bg-white text-slate-900 shadow-sm',
+      disabled: 'text-slate-400 cursor-not-allowed'
     }
   },
   boxed: {
-    container: 'border border-gray-200 rounded-lg p-1 inline-flex gap-1',
+    container: 'border border-slate-200 rounded-lg p-1 inline-flex gap-1',
     tab: {
-      base: 'px-4 py-2 font-medium text-gray-600 rounded-md transition-all',
-      active: 'bg-primary-50 text-primary-700 border border-primary-200',
-      disabled: 'text-gray-400 cursor-not-allowed'
+      base: 'px-4 py-2 font-medium text-slate-600 rounded-md transition-all',
+      active: 'bg-teal-50 text-teal-700 border border-teal-200',
+      disabled: 'text-slate-400 cursor-not-allowed'
     }
   }
 };
@@ -191,7 +191,7 @@ export const Tabs: React.FC<TabsProps> = ({
               <span
                 className={`
                   px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium
-                  ${isActive ? 'bg-primary-100 text-primary-700' : 'bg-gray-200 text-gray-600'}
+                  ${isActive ? 'bg-teal-100 text-teal-700' : 'bg-slate-200 text-slate-600'}
                 `}
               >
                 {tab.badge}

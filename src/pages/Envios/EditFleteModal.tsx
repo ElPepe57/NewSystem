@@ -136,7 +136,7 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
                               [producto.productoId]: valor
                             }));
                           }}
-                          className="w-full pl-6 pr-2 py-1.5 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                          className="w-full pl-6 pr-2 py-1.5 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-teal-500"
                           placeholder="0.00"
                           step="0.01"
                           min="0"

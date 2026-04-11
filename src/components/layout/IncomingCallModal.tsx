@@ -9,8 +9,8 @@ const ROLE_COLORS: Record<string, string> = {
   comprador: 'from-amber-500 to-yellow-500',
   almacenero: 'from-green-500 to-emerald-500',
   finanzas: 'from-teal-500 to-cyan-500',
-  supervisor: 'from-indigo-500 to-purple-500',
-  invitado: 'from-gray-400 to-gray-500',
+  supervisor: 'from-teal-500 to-purple-500',
+  invitado: 'from-slate-400 to-slate-500',
 };
 
 /**
@@ -186,7 +186,7 @@ export const IncomingCallModal: React.FC = () => {
             {/* Timer */}
             <div className="flex items-center justify-center gap-2 mb-6">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm text-gray-500 tabular-nums font-medium">
+              <span className="text-sm text-slate-500 tabular-nums font-medium">
                 Sonando {timerDisplay}
               </span>
             </div>
@@ -205,7 +205,7 @@ export const IncomingCallModal: React.FC = () => {
                 >
                   <PhoneOff className="h-7 w-7" />
                 </button>
-                <span className="text-xs text-gray-500 font-medium">Rechazar</span>
+                <span className="text-xs text-slate-500 font-medium">Rechazar</span>
               </div>
 
               {/* Aceptar */}
@@ -220,7 +220,7 @@ export const IncomingCallModal: React.FC = () => {
                 >
                   <Phone className="h-7 w-7" />
                 </button>
-                <span className="text-xs text-gray-500 font-medium">Aceptar</span>
+                <span className="text-xs text-slate-500 font-medium">Aceptar</span>
               </div>
             </div>
           </div>

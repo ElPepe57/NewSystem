@@ -70,7 +70,7 @@ export const TabAuditorias: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
+        <Loader2 className="h-10 w-10 animate-spin text-teal-600" />
       </div>
     );
   }
@@ -121,13 +121,13 @@ export const TabAuditorias: React.FC = () => {
       <div className="bg-white rounded-xl border overflow-hidden">
         <div className="px-4 py-3 bg-slate-50 border-b flex items-center justify-between gap-3">
           <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-            <ClipboardCheck className="h-4 w-4 text-primary-600" />
+            <ClipboardCheck className="h-4 w-4 text-teal-600" />
             Historial de Auditorias ({sesionesFiltradas.length})
           </h3>
           <select
             value={filtroAlmacen}
             onChange={e => setFiltroAlmacen(e.target.value)}
-            className="text-xs border rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-primary-500"
+            className="text-xs border rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-teal-500"
           >
             <option value="">Todos los almacenes</option>
             {almacenes.map(a => <option key={a} value={a}>{a}</option>)}

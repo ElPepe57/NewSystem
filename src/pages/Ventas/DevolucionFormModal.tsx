@@ -192,7 +192,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
     >
       {loadingVenta ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
         </div>
       ) : venta ? (
         <div className="space-y-6">
@@ -219,7 +219,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
                   key={prod.productoId}
                   className={`rounded-lg border p-3 transition-colors ${
                     prod.seleccionado
-                      ? 'border-primary-300 bg-primary-50'
+                      ? 'border-teal-300 bg-teal-50'
                       : 'border-slate-200 bg-white'
                   }`}
                 >
@@ -229,7 +229,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
                       id={`prod-${prod.productoId}`}
                       checked={prod.seleccionado}
                       onChange={() => toggleProducto(index)}
-                      className="mt-1 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
                     />
                     <label
                       htmlFor={`prod-${prod.productoId}`}
@@ -252,7 +252,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
                           max={prod.cantidadVendida}
                           value={prod.cantidadDevolver}
                           onChange={e => setCantidad(index, parseInt(e.target.value, 10) || 1)}
-                          className="w-16 text-sm border border-slate-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          className="w-16 text-sm border border-slate-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-teal-500"
                         />
                       </div>
                     )}
@@ -274,7 +274,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
               id="motivo-devolucion"
               value={motivo}
               onChange={e => setMotivo(e.target.value as MotivoDevolucion)}
-              className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               {MOTIVOS_DEVOLUCION.map(m => (
                 <option key={m.value} value={m.value}>
@@ -299,7 +299,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
                 onChange={e => setDetalleMotivo(e.target.value)}
                 rows={3}
                 placeholder="Describe el motivo de la devolución..."
-                className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
               />
             </div>
           )}
@@ -319,7 +319,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
               onChange={e => setObservaciones(e.target.value)}
               rows={2}
               placeholder="Información adicional para el equipo de almacén..."
-              className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+              className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
             />
           </div>
 

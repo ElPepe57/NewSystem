@@ -296,20 +296,20 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Info de la venta */}
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-slate-50 p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Venta</p>
-              <p className="font-semibold text-gray-900">{venta.numeroVenta}</p>
+              <p className="text-sm text-slate-500">Venta</p>
+              <p className="font-semibold text-slate-900">{venta.numeroVenta}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500">Cliente</p>
-              <p className="font-semibold text-gray-900">{venta.nombreCliente}</p>
+              <p className="text-sm text-slate-500">Cliente</p>
+              <p className="font-semibold text-slate-900">{venta.nombreCliente}</p>
             </div>
           </div>
           <div className="flex items-center justify-between mt-2">
             {venta.telefonoCliente && (
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-slate-600">
                 Tel: {venta.telefonoCliente}
               </p>
             )}
@@ -327,7 +327,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
 
         {/* Seleccion de Transportista */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             <Truck className="h-4 w-4 inline mr-2" />
             Transportista *
           </label>
@@ -335,7 +335,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
             value={transportistaId}
             onChange={(e) => setTransportistaId(e.target.value)}
             required
-            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="">Seleccionar transportista...</option>
             <optgroup label="Internos (Lima)">
@@ -375,7 +375,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                 </Badge>
               )}
               {transportistaSeleccionado.telefono && (
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-slate-500">
                   Tel: {transportistaSeleccionado.telefono}
                 </span>
               )}
@@ -384,7 +384,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
         </div>
 
         {/* Dirección con Google Maps */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white border border-slate-200 rounded-lg p-4">
           <GoogleMapsAddressInput
             value={addressData}
             onChange={setAddressData}
@@ -400,16 +400,16 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
             value={fechaProgramada}
             onChange={(e) => setFechaProgramada(e.target.value)}
             required
-            icon={<Calendar className="h-5 w-5 text-gray-400" />}
+            icon={<Calendar className="h-5 w-5 text-slate-400" />}
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Rango Horario
             </label>
             <select
               value={horaProgramada}
               onChange={(e) => setHoraProgramada(e.target.value)}
-              className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="">Sin especificar</option>
               <option value="flexible">Flexible</option>
@@ -421,14 +421,14 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
 
         {/* Productos a entregar (para parciales) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             <Package className="h-4 w-4 inline mr-2" />
             Productos a Entregar
           </label>
 
           {loadingEntregas ? (
-            <div className="flex items-center justify-center py-4 text-gray-500">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600 mr-2"></div>
+            <div className="flex items-center justify-center py-4 text-slate-500">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-600 mr-2"></div>
               Calculando disponibilidad...
             </div>
           ) : todosEntregados ? (
@@ -440,11 +440,11 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
             </div>
           ) : (
             <>
-              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+              <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                <table className="min-w-full divide-y divide-slate-200">
+                  <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 w-10">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 w-10">
                         <input
                           type="checkbox"
                           checked={productosSeleccionados.filter(p => p.maxDisponible > 0).every(p => p.seleccionado)}
@@ -458,14 +458,14 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                               )
                             );
                           }}
-                          className="rounded border-gray-300"
+                          className="rounded border-slate-300"
                         />
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Producto</th>
-                      <th className="px-4 py-2 text-center text-xs font-medium text-gray-500">Cantidad</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-500">Producto</th>
+                      <th className="px-4 py-2 text-center text-xs font-medium text-slate-500">Cantidad</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-slate-200">
                     {productosSeleccionados.map((prod) => {
                       const productoVenta = getProductoVenta(prod.productoId);
                       if (!productoVenta) return null;
@@ -476,7 +476,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                         <tr
                           key={prod.productoId}
                           className={
-                            yaEntregado ? 'bg-gray-50 opacity-60' :
+                            yaEntregado ? 'bg-slate-50 opacity-60' :
                             prod.seleccionado ? 'bg-green-50' : ''
                           }
                         >
@@ -486,14 +486,14 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                               checked={prod.seleccionado}
                               onChange={() => handleProductoToggle(prod.productoId)}
                               disabled={yaEntregado}
-                              className="rounded border-gray-300 disabled:opacity-50"
+                              className="rounded border-slate-300 disabled:opacity-50"
                             />
                           </td>
                           <td className="px-4 py-2">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-slate-900">
                               {productoVenta.marca} {productoVenta.nombreComercial}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-slate-500">
                               {productoVenta.sku}
                               {yaEntregado && (
                                 <Badge variant="success" className="ml-2 text-[10px]">
@@ -504,7 +504,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                           </td>
                           <td className="px-4 py-2">
                             {yaEntregado ? (
-                              <div className="text-center text-xs text-gray-400">
+                              <div className="text-center text-xs text-slate-400">
                                 {productoVenta.cantidad}/{productoVenta.cantidad}
                               </div>
                             ) : (
@@ -516,9 +516,9 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                                   min={1}
                                   max={prod.maxDisponible}
                                   disabled={!prod.seleccionado}
-                                  className="w-16 text-center rounded border border-gray-300 px-2 py-1 text-sm disabled:bg-gray-100"
+                                  className="w-16 text-center rounded border border-slate-300 px-2 py-1 text-sm disabled:bg-slate-100"
                                 />
-                                <span className="text-xs text-gray-500">/ {prod.maxDisponible}</span>
+                                <span className="text-xs text-slate-500">/ {prod.maxDisponible}</span>
                               </div>
                             )}
                           </td>
@@ -572,7 +572,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
               <CreditCard className="h-5 w-5 text-amber-600 mr-2" />
-              <span className="font-medium text-gray-900">Cobro en Destino</span>
+              <span className="font-medium text-slate-900">Cobro en Destino</span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -581,7 +581,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                 onChange={(e) => setCobroPendiente(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+              <div className="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
             </label>
           </div>
 
@@ -594,16 +594,16 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                 onChange={(e) => setMontoPorCobrar(parseFloat(e.target.value) || 0)}
                 min={0}
                 step={0.01}
-                icon={<DollarSign className="h-5 w-5 text-gray-400" />}
+                icon={<DollarSign className="h-5 w-5 text-slate-400" />}
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Metodo de Pago Esperado
                 </label>
                 <select
                   value={metodoPagoEsperado}
                   onChange={(e) => setMetodoPagoEsperado(e.target.value as MetodoPago)}
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 >
                   {metodoPagoOptions.map(opt => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -636,7 +636,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
         <div className="bg-blue-50 p-4 rounded-lg">
           <div className="flex items-center mb-3">
             <DollarSign className="h-5 w-5 text-blue-600 mr-2" />
-            <span className="font-medium text-gray-900">Gasto de Distribucion (GD)</span>
+            <span className="font-medium text-slate-900">Gasto de Distribucion (GD)</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
@@ -649,7 +649,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
               helperText="Se registrara como gasto GD al completar la entrega"
             />
             {transportistaSeleccionado?.comisionPorcentaje && (
-              <div className="flex items-center text-sm text-gray-600">
+              <div className="flex items-center text-sm text-slate-600">
                 <span>
                   + {transportistaSeleccionado.comisionPorcentaje}% comision sobre el valor
                 </span>
@@ -680,39 +680,39 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
 
         {/* Observaciones */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Observaciones para el Transportista
           </label>
           <textarea
             value={observaciones}
             onChange={(e) => setObservaciones(e.target.value)}
             rows={2}
-            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+            className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
             placeholder="Instrucciones especiales, llamar antes de llegar, etc."
           />
         </div>
 
         {/* Resumen */}
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <h4 className="font-medium text-gray-900 mb-3">Resumen de la Entrega</h4>
+        <div className="bg-slate-100 p-4 rounded-lg">
+          <h4 className="font-medium text-slate-900 mb-3">Resumen de la Entrega</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <span className="text-gray-500">Productos</span>
+              <span className="text-slate-500">Productos</span>
               <p className="font-semibold">
                 {productosParaEntregar.reduce((sum, p) => sum + p.cantidad, 0)} items
               </p>
             </div>
             <div>
-              <span className="text-gray-500">Transportista</span>
+              <span className="text-slate-500">Transportista</span>
               <p className="font-semibold">{transportistaSeleccionado?.nombre || '-'}</p>
             </div>
             <div>
-              <span className="text-gray-500">Costo GD</span>
+              <span className="text-slate-500">Costo GD</span>
               <p className="font-semibold">S/ {costoTransportista.toFixed(2)}</p>
             </div>
             {cobroPendiente && (
               <div>
-                <span className="text-gray-500">A Cobrar</span>
+                <span className="text-slate-500">A Cobrar</span>
                 <p className="font-semibold text-amber-600">S/ {montoPorCobrar.toFixed(2)}</p>
               </div>
             )}

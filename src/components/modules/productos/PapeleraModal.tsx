@@ -66,9 +66,9 @@ export const ArchivoModal: React.FC<ArchivoModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} title="Archivo de Productos" size="lg">
       <div className="space-y-4">
         {/* Header info */}
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-slate-500">
           {archivados.length} producto{archivados.length !== 1 ? 's' : ''} archivado{archivados.length !== 1 ? 's' : ''}
-          <span className="text-xs text-gray-400 ml-2">· Los productos archivados se conservan permanentemente para trazabilidad</span>
+          <span className="text-xs text-slate-400 ml-2">· Los productos archivados se conservan permanentemente para trazabilidad</span>
         </p>
 
         {/* Búsqueda */}
@@ -78,24 +78,24 @@ export const ArchivoModal: React.FC<ArchivoModalProps> = ({
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar por SKU, marca o nombre..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         )}
 
         {/* Loading */}
         {loading && (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-            <span className="ml-2 text-sm text-gray-500">Cargando archivo...</span>
+            <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+            <span className="ml-2 text-sm text-slate-500">Cargando archivo...</span>
           </div>
         )}
 
         {/* Lista vacía */}
         {!loading && archivados.length === 0 && (
           <div className="text-center py-12">
-            <Archive className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 font-medium">El archivo está vacío</p>
-            <p className="text-gray-400 text-sm mt-1">Los productos eliminados se archivarán aquí</p>
+            <Archive className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+            <p className="text-slate-500 font-medium">El archivo está vacío</p>
+            <p className="text-slate-400 text-sm mt-1">Los productos eliminados se archivarán aquí</p>
           </div>
         )}
 
@@ -108,26 +108,26 @@ export const ArchivoModal: React.FC<ArchivoModalProps> = ({
               return (
                 <div
                   key={producto.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono bg-gray-200 text-gray-600 px-2 py-0.5 rounded">
+                      <span className="text-xs font-mono bg-slate-200 text-slate-600 px-2 py-0.5 rounded">
                         {producto.sku}
                       </span>
-                      <span className="text-sm font-medium text-gray-900 truncate">
+                      <span className="text-sm font-medium text-slate-900 truncate">
                         {producto.marca}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 truncate">
+                    <p className="text-xs text-slate-500 mt-0.5 truncate">
                       {producto.nombreComercial}
                       {producto.presentacion ? ` · ${producto.presentacion}` : ''}
                       {producto.dosaje ? ` · ${producto.dosaje}` : ''}
                     </p>
-                    <span className="text-[10px] text-gray-400 flex items-center gap-1 mt-1">
+                    <span className="text-[10px] text-slate-400 flex items-center gap-1 mt-1">
                       <Clock className="h-3 w-3" />
                       Archivado: {formatFecha(producto.fechaEliminacion)}
-                      {dias > 0 && <span className="text-gray-400">({dias} día{dias !== 1 ? 's' : ''})</span>}
+                      {dias > 0 && <span className="text-slate-400">({dias} día{dias !== 1 ? 's' : ''})</span>}
                     </span>
                   </div>
 
@@ -155,7 +155,7 @@ export const ArchivoModal: React.FC<ArchivoModalProps> = ({
 
         {/* Sin resultados de búsqueda */}
         {!loading && archivados.length > 0 && filtrados.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-4">No se encontraron coincidencias</p>
+          <p className="text-sm text-slate-400 text-center py-4">No se encontraron coincidencias</p>
         )}
       </div>
     </Modal>

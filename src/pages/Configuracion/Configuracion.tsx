@@ -175,7 +175,7 @@ export const Configuracion: React.FC = () => {
                 className={`
                   flex items-center py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap
                   ${isActive
-                    ? 'border-primary-500 text-primary-600'
+                    ? 'border-teal-500 text-teal-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                   }
                 `}
@@ -238,8 +238,8 @@ export const Configuracion: React.FC = () => {
 
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
-                <div className="h-20 w-20 rounded-full bg-primary-100 flex items-center justify-center">
-                  <User className="h-10 w-10 text-primary-600" />
+                <div className="h-20 w-20 rounded-full bg-teal-100 flex items-center justify-center">
+                  <User className="h-10 w-10 text-teal-600" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900">{user.displayName || 'Usuario'}</h3>
@@ -333,7 +333,7 @@ export const Configuracion: React.FC = () => {
                 {isSyncing && (
                   <div className="w-full bg-slate-200 rounded-full h-2">
                     <div
-                      className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-teal-600 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${syncProgress}%` }}
                     />
                   </div>

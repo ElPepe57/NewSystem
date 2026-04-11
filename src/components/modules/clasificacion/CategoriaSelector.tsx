@@ -257,14 +257,14 @@ export function CategoriaSelector({
         className={`
           w-full px-3 py-2 flex items-center gap-2 text-left transition-colors
           ${isChild ? 'pl-8' : ''}
-          ${isSelected ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50'}
+          ${isSelected ? 'bg-teal-50 text-teal-700' : 'hover:bg-slate-50'}
           ${!isSelected && value.length >= maxCategorias ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
         <div
           className={`
             w-5 h-5 rounded border flex items-center justify-center flex-shrink-0
-            ${isSelected ? 'bg-primary-500 border-primary-500' : 'border-gray-300'}
+            ${isSelected ? 'bg-teal-500 border-teal-500' : 'border-slate-300'}
           `}
         >
           {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -291,10 +291,10 @@ export function CategoriaSelector({
             <button
               type="button"
               onClick={() => toggleExpand(padre.id)}
-              className="p-1 hover:bg-gray-100 rounded"
+              className="p-1 hover:bg-slate-100 rounded"
             >
               <ChevronRight
-                className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
               />
             </button>
           )}
@@ -304,7 +304,7 @@ export function CategoriaSelector({
         </div>
 
         {isExpanded && tieneHijos && (
-          <div className="border-l-2 border-gray-100 ml-3">
+          <div className="border-l-2 border-slate-100 ml-3">
             {padre.hijos.map(hijo => renderCategoria(hijo, true))}
           </div>
         )}
@@ -315,11 +315,11 @@ export function CategoriaSelector({
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       {/* Label */}
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        <FolderTree className="inline-block w-4 h-4 mr-1 text-gray-400" />
+      <label className="block text-sm font-medium text-slate-700 mb-1">
+        <FolderTree className="inline-block w-4 h-4 mr-1 text-slate-400" />
         Categorias
         {required && <span className="text-red-500 ml-1">*</span>}
-        <span className="text-gray-400 font-normal ml-2">
+        <span className="text-slate-400 font-normal ml-2">
           ({value.length}/{maxCategorias})
         </span>
       </label>
@@ -336,8 +336,8 @@ export function CategoriaSelector({
                   className={`
                     inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm
                     ${isPrincipal
-                      ? 'bg-primary-100 text-primary-700 border border-primary-300'
-                      : 'bg-gray-100 text-gray-700 border border-gray-200'
+                      ? 'bg-teal-100 text-teal-700 border border-teal-300'
+                      : 'bg-slate-100 text-slate-700 border border-slate-200'
                     }
                   `}
                 >
@@ -355,17 +355,17 @@ export function CategoriaSelector({
                     <button
                       type="button"
                       onClick={() => handleSetPrincipal(cat.id)}
-                      className="p-0.5 hover:bg-gray-200 rounded-full"
+                      className="p-0.5 hover:bg-slate-200 rounded-full"
                       title="Marcar como principal"
                     >
-                      <Star className="w-3 h-3 text-gray-400" />
+                      <Star className="w-3 h-3 text-slate-400" />
                     </button>
                   )}
                   {!disabled && (
                     <button
                       type="button"
                       onClick={() => handleRemove(cat.id)}
-                      className="p-0.5 hover:bg-gray-200 rounded-full"
+                      className="p-0.5 hover:bg-slate-200 rounded-full"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -375,7 +375,7 @@ export function CategoriaSelector({
             })}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">Sin categorias seleccionadas</p>
+          <p className="text-sm text-slate-400">Sin categorias seleccionadas</p>
         )}
       </div>
 
@@ -386,12 +386,12 @@ export function CategoriaSelector({
           onClick={() => setIsOpen(!isOpen)}
           className={`
             w-full px-3 py-2 border rounded-lg text-left flex items-center gap-2
-            hover:border-primary-400 transition-colors
-            ${error ? 'border-red-300' : 'border-gray-300'}
+            hover:border-teal-400 transition-colors
+            ${error ? 'border-red-300' : 'border-slate-300'}
           `}
         >
-          <Plus className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-500">Agregar categoria...</span>
+          <Plus className="w-4 h-4 text-slate-400" />
+          <span className="text-slate-500">Agregar categoria...</span>
         </button>
       )}
 
@@ -402,22 +402,22 @@ export function CategoriaSelector({
 
       {/* Dropdown */}
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-80 overflow-hidden">
           {/* Busqueda */}
-          <div className="p-2 border-b border-gray-100">
+          <div className="p-2 border-b border-slate-100">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar categoria..."
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               autoFocus
             />
           </div>
 
           <div className="max-h-60 overflow-auto">
             {loading ? (
-              <div className="px-4 py-3 text-center text-gray-500">
+              <div className="px-4 py-3 text-center text-slate-500">
                 Cargando...
               </div>
             ) : (
@@ -428,7 +428,7 @@ export function CategoriaSelector({
                     type="button"
                     onClick={handleCreateNew}
                     disabled={creating}
-                    className="w-full px-4 py-3 flex items-center gap-2 text-left hover:bg-primary-50 border-b border-gray-100 text-primary-600"
+                    className="w-full px-4 py-3 flex items-center gap-2 text-left hover:bg-teal-50 border-b border-slate-100 text-teal-600"
                   >
                     <Plus className="w-4 h-4" />
                     <span>
@@ -442,10 +442,10 @@ export function CategoriaSelector({
                   // Mostrar resultados de busqueda planos
                   categoriasFiltradas.length > 0 ? (
                     categoriasFiltradas.map(cat => (
-                      <div key={cat.id} className="border-b border-gray-50 last:border-0">
+                      <div key={cat.id} className="border-b border-slate-50 last:border-0">
                         {renderCategoria(cat)}
                         {cat.nivel === 2 && cat.categoriaPadreNombre && (
-                          <span className="text-xs text-gray-400 pl-10 pb-1 block">
+                          <span className="text-xs text-slate-400 pl-10 pb-1 block">
                             en {cat.categoriaPadreNombre}
                           </span>
                         )}
@@ -453,7 +453,7 @@ export function CategoriaSelector({
                     ))
                   ) : (
                     !showCreateOption && (
-                      <div className="px-4 py-3 text-center text-gray-500">
+                      <div className="px-4 py-3 text-center text-slate-500">
                         No se encontraron categorias
                       </div>
                     )
@@ -463,7 +463,7 @@ export function CategoriaSelector({
                   arbolFiltrado.length > 0 ? (
                     arbolFiltrado.map(padre => renderCategoriaPadre(padre))
                   ) : (
-                    <div className="px-4 py-3 text-center text-gray-500">
+                    <div className="px-4 py-3 text-center text-slate-500">
                       No hay categorias creadas
                     </div>
                   )
@@ -471,14 +471,14 @@ export function CategoriaSelector({
 
                 {/* Boton fijo para crear nueva categoria (siempre visible si no hay showCreateOption inline) */}
                 {!showCreateOption && !creating && (
-                  <div className="border-t border-gray-100">
+                  <div className="border-t border-slate-100">
                     <button
                       type="button"
                       onClick={() => {
                         const input = containerRef.current?.querySelector('input[type="text"]') as HTMLInputElement;
                         input?.focus();
                       }}
-                      className="w-full px-4 py-2.5 flex items-center gap-2 text-left text-sm text-gray-500 hover:bg-gray-50"
+                      className="w-full px-4 py-2.5 flex items-center gap-2 text-left text-sm text-slate-500 hover:bg-slate-50"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Escribe un nombre para crear nueva categoria</span>
@@ -492,7 +492,7 @@ export function CategoriaSelector({
       )}
 
       {/* Hint */}
-      <p className="mt-1 text-xs text-gray-500">
+      <p className="mt-1 text-xs text-slate-500">
         Selecciona las areas de salud/beneficio que aplican a este producto
       </p>
     </div>

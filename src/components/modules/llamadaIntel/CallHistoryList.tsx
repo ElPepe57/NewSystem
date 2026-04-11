@@ -47,7 +47,7 @@ export const CallHistoryList: React.FC = () => {
   if (cargando) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+        <Loader2 className="h-6 w-6 text-slate-400 animate-spin" />
       </div>
     );
   }
@@ -55,9 +55,9 @@ export const CallHistoryList: React.FC = () => {
   if (historial.length === 0) {
     return (
       <div className="text-center py-12 px-4">
-        <Mic className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-        <p className="text-sm text-gray-500 font-medium">Sin grabaciones</p>
-        <p className="text-xs text-gray-400 mt-1">
+        <Mic className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+        <p className="text-sm text-slate-500 font-medium">Sin grabaciones</p>
+        <p className="text-xs text-slate-400 mt-1">
           Presiona el botón de micrófono durante una llamada para grabar y obtener notas de IA.
         </p>
       </div>
@@ -66,20 +66,20 @@ export const CallHistoryList: React.FC = () => {
 
   return (
     <>
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-slate-100">
         {historial.map((intel) => (
           <button
             key={intel.id}
             onClick={() => setSelectedId(intel.id)}
-            className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors group"
+            className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors group"
           >
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-primary-50 rounded-lg shrink-0">
-                <FileText className="h-4 w-4 text-primary-600" />
+              <div className="p-2 bg-teal-50 rounded-lg shrink-0">
+                <FileText className="h-4 w-4 text-teal-600" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-800 truncate">
+                  <span className="text-sm font-medium text-slate-800 truncate">
                     {intel.participantes.join(', ')}
                   </span>
                   {intel.analisis?.sentimiento && (
@@ -89,11 +89,11 @@ export const CallHistoryList: React.FC = () => {
                   )}
                 </div>
                 {intel.analisis?.resumenEjecutivo?.[0] && (
-                  <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                  <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">
                     {intel.analisis.resumenEjecutivo[0]}
                   </p>
                 )}
-                <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-400">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {formatDuration(intel.audioDuracionSeg)}
@@ -112,7 +112,7 @@ export const CallHistoryList: React.FC = () => {
                   </div>
                 )}
               </div>
-              <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-gray-500 mt-1 shrink-0" />
+              <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-500 mt-1 shrink-0" />
             </div>
           </button>
         ))}

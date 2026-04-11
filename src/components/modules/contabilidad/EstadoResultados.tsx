@@ -88,22 +88,22 @@ function LineaResultado({
     <div
       className={`flex justify-between items-center py-2 px-4 ${
         esTotal
-          ? 'bg-gray-100 font-bold text-lg border-t-2 border-gray-300'
+          ? 'bg-slate-100 font-bold text-lg border-t-2 border-slate-300'
           : esSubtotal
-          ? 'bg-gray-50 font-semibold border-t border-gray-200'
-          : 'hover:bg-gray-50'
+          ? 'bg-slate-50 font-semibold border-t border-slate-200'
+          : 'hover:bg-slate-50'
       }`}
       style={{ paddingLeft: `${16 + paddingLeft}px` }}
     >
       <div className="flex items-center gap-2">
-        <span className={esTotal ? 'text-gray-900' : esSubtotal ? 'text-gray-800' : 'text-gray-700'}>
+        <span className={esTotal ? 'text-slate-900' : esSubtotal ? 'text-slate-800' : 'text-slate-700'}>
           {esNegativo && !esSubtotal && !esTotal && '(-) '}
           {label}
         </span>
         {tooltip && (
           <div className="group relative">
-            <Info className="w-4 h-4 text-gray-400 cursor-help" />
-            <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10 max-w-xs">
+            <Info className="w-4 h-4 text-slate-400 cursor-help" />
+            <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10 max-w-xs">
               {tooltip}
             </div>
           </div>
@@ -115,7 +115,7 @@ function LineaResultado({
           {formatCurrency(Math.abs(valor))}
         </span>
         {porcentaje !== undefined && (
-          <span className="text-gray-500 text-sm w-16 text-right">
+          <span className="text-slate-500 text-sm w-16 text-right">
             {formatPercent(porcentaje)}
           </span>
         )}
@@ -143,35 +143,35 @@ function SeccionColapsable({
   porcentaje,
   children,
   defaultOpen = true,
-  colorHeader = 'bg-gray-100',
+  colorHeader = 'bg-slate-100',
   icon,
 }: SeccionColapsableProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-gray-200">
+    <div className="border-b border-slate-200">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full flex justify-between items-center py-3 px-4 ${colorHeader} hover:bg-opacity-80 transition-colors`}
       >
         <div className="flex items-center gap-2">
           {isOpen ? (
-            <ChevronUp className="w-4 h-4 text-gray-500" />
+            <ChevronUp className="w-4 h-4 text-slate-500" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-gray-500" />
+            <ChevronDown className="w-4 h-4 text-slate-500" />
           )}
           {icon}
           <div className="text-left">
-            <span className="font-semibold text-gray-800">{titulo}</span>
+            <span className="font-semibold text-slate-800">{titulo}</span>
             {subtitulo && (
-              <span className="text-xs text-gray-500 block">{subtitulo}</span>
+              <span className="text-xs text-slate-500 block">{subtitulo}</span>
             )}
           </div>
         </div>
         <div className="flex items-center gap-4">
           <span className="font-mono font-semibold">{formatCurrency(total)}</span>
           {porcentaje !== undefined && (
-            <span className="text-gray-500 text-sm w-16 text-right">
+            <span className="text-slate-500 text-sm w-16 text-right">
               {formatPercent(porcentaje)}
             </span>
           )}
@@ -237,13 +237,13 @@ export default function EstadoResultados() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Estado de Resultados</h1>
-          <p className="text-sm text-gray-500">Contabilidad de Negocio - Flujo de Actividad</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Estado de Resultados</h1>
+          <p className="text-sm text-slate-500">Contabilidad de Negocio - Flujo de Actividad</p>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Selector de período */}
           <div className="flex items-center gap-1 sm:gap-2 bg-white border rounded-lg px-2 sm:px-3 py-1.5 sm:py-2">
-            <Calendar className="w-4 h-4 text-gray-400 hidden sm:block" />
+            <Calendar className="w-4 h-4 text-slate-400 hidden sm:block" />
             <select
               value={mes}
               onChange={(e) => setMes(Number(e.target.value))}
@@ -270,10 +270,10 @@ export default function EstadoResultados() {
           {/* Botón refrescar */}
           <button
             onClick={cargarDatos}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-slate-100 rounded-lg"
             title="Refrescar"
           >
-            <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+            <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
           </button>
           {/* Botón exportar */}
           <button
@@ -289,30 +289,30 @@ export default function EstadoResultados() {
       {/* Indicadores rápidos */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
         <div className="bg-white rounded-lg border p-3 sm:p-4">
-          <div className="text-xs sm:text-sm text-gray-500">Ventas Netas</div>
+          <div className="text-xs sm:text-sm text-slate-500">Ventas Netas</div>
           <div className="text-lg sm:text-2xl font-bold">{formatCurrency(estado.ventasNetas)}</div>
-          <div className="text-xs text-gray-400">{estado.metricas.transacciones} transacciones</div>
+          <div className="text-xs text-slate-400">{estado.metricas.transacciones} transacciones</div>
         </div>
         <div className="bg-white rounded-lg border p-3 sm:p-4">
-          <div className="text-xs sm:text-sm text-gray-500">Utilidad Bruta</div>
+          <div className="text-xs sm:text-sm text-slate-500">Utilidad Bruta</div>
           <div className={`text-lg sm:text-2xl font-bold ${estado.utilidadBruta >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
             {formatPercent(estado.utilidadBrutaPorcentaje)}
           </div>
-          <div className="text-xs text-gray-400">{formatCurrency(estado.utilidadBruta)}</div>
+          <div className="text-xs text-slate-400">{formatCurrency(estado.utilidadBruta)}</div>
         </div>
         <div className="bg-white rounded-lg border p-3 sm:p-4">
-          <div className="text-xs sm:text-sm text-gray-500">Utilidad Operativa</div>
+          <div className="text-xs sm:text-sm text-slate-500">Utilidad Operativa</div>
           <div className={`text-lg sm:text-2xl font-bold ${estado.utilidadOperativa >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {formatCurrency(estado.utilidadOperativa)}
           </div>
-          <div className="text-xs text-gray-400">{formatPercent(estado.utilidadOperativaPorcentaje)}</div>
+          <div className="text-xs text-slate-400">{formatPercent(estado.utilidadOperativaPorcentaje)}</div>
         </div>
         <div className="bg-white rounded-lg border p-3 sm:p-4">
-          <div className="text-xs sm:text-sm text-gray-500">Punto de Equilibrio</div>
+          <div className="text-xs sm:text-sm text-slate-500">Punto de Equilibrio</div>
           <div className="text-lg sm:text-2xl font-bold text-amber-600">
             {formatCurrency(estado.indicadores.puntoEquilibrioSoles)}
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-slate-400">
             Margen seg.: {formatPercent(estado.indicadores.margenSeguridad)}
           </div>
         </div>
@@ -637,9 +637,9 @@ export default function EstadoResultados() {
             titulo="OTROS INGRESOS / GASTOS"
             subtitulo="No operativos"
             total={estado.otrosIngresosGastos.total}
-            colorHeader="bg-gray-100"
+            colorHeader="bg-slate-100"
             defaultOpen={false}
-            icon={<Settings className="w-5 h-5 text-gray-600" />}
+            icon={<Settings className="w-5 h-5 text-slate-600" />}
           >
             {estado.otrosIngresosGastos.gananciaCambiariaVentas > 0 && (
               <LineaResultado
@@ -707,7 +707,7 @@ export default function EstadoResultados() {
         )}
 
         {/* UTILIDAD NETA */}
-        <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white">
+        <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 sm:py-4 px-4 sm:px-6 gap-1 sm:gap-0">
             <div className="flex items-center gap-2 sm:gap-3">
               {estado.utilidadNeta >= 0 ? (
@@ -721,7 +721,7 @@ export default function EstadoResultados() {
               <span className={`text-xl sm:text-2xl font-bold ${estado.utilidadNeta >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {formatCurrency(estado.utilidadNeta)}
               </span>
-              <span className="text-gray-300 text-sm sm:text-lg">
+              <span className="text-slate-300 text-sm sm:text-lg">
                 {formatPercent(estado.utilidadNetaPorcentaje)}
               </span>
             </div>
@@ -731,86 +731,86 @@ export default function EstadoResultados() {
 
       {/* Indicadores Clave */}
       <div className="bg-white rounded-lg border p-4 sm:p-6">
-        <h3 className="font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+        <h3 className="font-bold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-blue-600" />
           Indicadores Clave
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           {/* Márgenes */}
           <div className="space-y-4">
-            <div className="text-sm font-semibold text-gray-600 border-b pb-1">Márgenes</div>
+            <div className="text-sm font-semibold text-slate-600 border-b pb-1">Márgenes</div>
             <div>
-              <div className="text-sm text-gray-500">Margen Bruto</div>
+              <div className="text-sm text-slate-500">Margen Bruto</div>
               <div className={`text-xl font-semibold ${estado.indicadores.margenBruto >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                 {formatPercent(estado.indicadores.margenBruto)}
               </div>
-              <div className="text-xs text-gray-400">(Ventas - Compras) / Ventas</div>
+              <div className="text-xs text-slate-400">(Ventas - Compras) / Ventas</div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">Margen Operativo</div>
+              <div className="text-sm text-slate-500">Margen Operativo</div>
               <div className={`text-xl font-semibold ${estado.indicadores.margenOperativo >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {formatPercent(estado.indicadores.margenOperativo)}
               </div>
-              <div className="text-xs text-gray-400">EBIT / Ventas</div>
+              <div className="text-xs text-slate-400">EBIT / Ventas</div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">Margen Neto</div>
+              <div className="text-sm text-slate-500">Margen Neto</div>
               <div className={`text-xl font-semibold ${estado.indicadores.margenNeto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {formatPercent(estado.indicadores.margenNeto)}
               </div>
-              <div className="text-xs text-gray-400">Utilidad Neta / Ventas</div>
+              <div className="text-xs text-slate-400">Utilidad Neta / Ventas</div>
             </div>
           </div>
 
           {/* Ratios */}
           <div className="space-y-4">
-            <div className="text-sm font-semibold text-gray-600 border-b pb-1">Ratios de Estructura</div>
+            <div className="text-sm font-semibold text-slate-600 border-b pb-1">Ratios de Estructura</div>
             <div>
-              <div className="text-sm text-gray-500">Ratio de Inversión</div>
+              <div className="text-sm text-slate-500">Ratio de Inversión</div>
               <div className="text-xl font-semibold text-orange-600">
                 {formatPercent(estado.indicadores.ratioInversion)}
               </div>
-              <div className="text-xs text-gray-400">Compras / Ventas</div>
+              <div className="text-xs text-slate-400">Compras / Ventas</div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">Ratio Gastos Variables</div>
+              <div className="text-sm text-slate-500">Ratio Gastos Variables</div>
               <div className="text-xl font-semibold text-purple-600">
                 {formatPercent(estado.indicadores.ratioGastosVariables)}
               </div>
-              <div className="text-xs text-gray-400">Costos Venta / Ventas</div>
+              <div className="text-xs text-slate-400">Costos Venta / Ventas</div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">Ratio Gastos Fijos</div>
+              <div className="text-sm text-slate-500">Ratio Gastos Fijos</div>
               <div className="text-xl font-semibold text-amber-600">
                 {formatPercent(estado.indicadores.ratioGastosFijos)}
               </div>
-              <div className="text-xs text-gray-400">Gastos Fijos / Ventas</div>
+              <div className="text-xs text-slate-400">Gastos Fijos / Ventas</div>
             </div>
           </div>
 
           {/* Punto de Equilibrio */}
           <div className="space-y-4">
-            <div className="text-sm font-semibold text-gray-600 border-b pb-1">Punto de Equilibrio</div>
+            <div className="text-sm font-semibold text-slate-600 border-b pb-1">Punto de Equilibrio</div>
             <div>
-              <div className="text-sm text-gray-500">PE en Soles</div>
+              <div className="text-sm text-slate-500">PE en Soles</div>
               <div className="text-xl font-semibold text-amber-600">
                 {formatCurrency(estado.indicadores.puntoEquilibrioSoles)}
               </div>
-              <div className="text-xs text-gray-400">Costos Fijos / Margen Contribución %</div>
+              <div className="text-xs text-slate-400">Costos Fijos / Margen Contribución %</div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">PE en Unidades</div>
+              <div className="text-sm text-slate-500">PE en Unidades</div>
               <div className="text-xl font-semibold text-amber-600">
                 ~{estado.indicadores.puntoEquilibrioUnidades.toLocaleString()} uds
               </div>
-              <div className="text-xs text-gray-400">A precio promedio actual</div>
+              <div className="text-xs text-slate-400">A precio promedio actual</div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">Margen de Seguridad</div>
+              <div className="text-sm text-slate-500">Margen de Seguridad</div>
               <div className={`text-xl font-semibold ${estado.indicadores.margenSeguridad >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {formatPercent(estado.indicadores.margenSeguridad)}
               </div>
-              <div className="text-xs text-gray-400">(Ventas - PE) / Ventas</div>
+              <div className="text-xs text-slate-400">(Ventas - PE) / Ventas</div>
             </div>
           </div>
         </div>
@@ -818,40 +818,40 @@ export default function EstadoResultados() {
 
       {/* Métricas Operativas */}
       <div className="bg-white rounded-lg border p-4 sm:p-6">
-        <h3 className="font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+        <h3 className="font-bold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
           <Package className="w-5 h-5 text-green-600" />
           Métricas Operativas
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-            <div className="text-xs sm:text-sm text-gray-500">Transacciones</div>
-            <div className="text-lg sm:text-2xl font-bold text-gray-900">
+          <div className="bg-slate-50 rounded-lg p-3 sm:p-4">
+            <div className="text-xs sm:text-sm text-slate-500">Transacciones</div>
+            <div className="text-lg sm:text-2xl font-bold text-slate-900">
               {estado.metricas.transacciones}
             </div>
-            <div className="text-xs text-gray-400">ventas del período</div>
+            <div className="text-xs text-slate-400">ventas del período</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-            <div className="text-xs sm:text-sm text-gray-500">Ticket Promedio</div>
-            <div className="text-lg sm:text-2xl font-bold text-gray-900">
+          <div className="bg-slate-50 rounded-lg p-3 sm:p-4">
+            <div className="text-xs sm:text-sm text-slate-500">Ticket Promedio</div>
+            <div className="text-lg sm:text-2xl font-bold text-slate-900">
               {formatCurrency(estado.metricas.ticketPromedio)}
             </div>
-            <div className="text-xs text-gray-400">por transacción</div>
+            <div className="text-xs text-slate-400">por transacción</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-            <div className="text-xs sm:text-sm text-gray-500">Unidades Vendidas</div>
-            <div className="text-lg sm:text-2xl font-bold text-gray-900">
+          <div className="bg-slate-50 rounded-lg p-3 sm:p-4">
+            <div className="text-xs sm:text-sm text-slate-500">Unidades Vendidas</div>
+            <div className="text-lg sm:text-2xl font-bold text-slate-900">
               {estado.metricas.unidadesVendidas.toLocaleString()}
             </div>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-slate-400">
               {formatCurrency(estado.metricas.precioPromedioUnidad)} / ud
             </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-            <div className="text-xs sm:text-sm text-gray-500">Rotación Implícita</div>
-            <div className="text-lg sm:text-2xl font-bold text-gray-900">
+          <div className="bg-slate-50 rounded-lg p-3 sm:p-4">
+            <div className="text-xs sm:text-sm text-slate-500">Rotación Implícita</div>
+            <div className="text-lg sm:text-2xl font-bold text-slate-900">
               {estado.metricas.rotacionImplicita.toFixed(2)}x
             </div>
-            <div className="text-xs text-gray-400">Ventas / Compras</div>
+            <div className="text-xs text-slate-400">Ventas / Compras</div>
           </div>
         </div>
       </div>

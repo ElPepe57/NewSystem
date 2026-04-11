@@ -470,12 +470,12 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
 
   if (mapsError) {
     return (
-      <div className={`bg-gray-50 rounded-lg p-4 ${className}`}>
+      <div className={`bg-slate-50 rounded-lg p-4 ${className}`}>
         <div className="flex items-center gap-2 text-amber-600 mb-2">
           <AlertCircle className="h-5 w-5" />
           <span className="text-sm font-medium">Google Maps no disponible</span>
         </div>
-        <p className="text-xs text-gray-500">{mapsError}</p>
+        <p className="text-xs text-slate-500">{mapsError}</p>
       </div>
     );
   }
@@ -484,7 +484,7 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
     <div className={`space-y-3 ${className}`}>
       {/* Buscador con dropdown custom */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
           <MapPin className="h-4 w-4 inline mr-1" />
           Buscar Dirección
           {countryFlag && (
@@ -494,9 +494,9 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
             {isGeocoding || isFetching ? (
-              <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+              <Loader2 className="h-5 w-5 text-slate-400 animate-spin" />
             ) : (
-              <Search className="h-5 w-5 text-gray-400" />
+              <Search className="h-5 w-5 text-slate-400" />
             )}
           </div>
 
@@ -510,7 +510,7 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
               if (predictions.length > 0) setShowDropdown(true);
             }}
             placeholder="Busca dirección, ciudad o lugar (PE, US, etc.)..."
-            className="block w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            className="block w-full rounded-lg border border-slate-300 pl-10 pr-10 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
             disabled={isLoading}
             autoComplete="off"
           />
@@ -518,7 +518,7 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
           <button
             type="button"
             onClick={handleUseCurrentLocation}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-primary-600 transition-colors z-10"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-teal-600 transition-colors z-10"
             title="Usar mi ubicación actual"
           >
             <Navigation className="h-4 w-4" />
@@ -528,50 +528,50 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
           {showDropdown && predictions.length > 0 && (
             <div
               ref={dropdownRef}
-              className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50 overflow-hidden"
+              className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg border border-slate-200 shadow-lg z-50 overflow-hidden"
             >
               {predictions.map((prediction, index) => (
                 <button
                   key={prediction.placeId}
                   type="button"
-                  className={`w-full text-left px-3 py-2.5 flex items-start gap-2.5 transition-colors border-b border-gray-50 last:border-b-0 ${
+                  className={`w-full text-left px-3 py-2.5 flex items-start gap-2.5 transition-colors border-b border-slate-50 last:border-b-0 ${
                     index === activeIndex
-                      ? 'bg-primary-50 text-primary-900'
-                      : 'hover:bg-gray-50 text-gray-900'
+                      ? 'bg-teal-50 text-teal-900'
+                      : 'hover:bg-slate-50 text-slate-900'
                   }`}
                   onClick={() => selectPrediction(prediction)}
                   onMouseEnter={() => setActiveIndex(index)}
                 >
-                  <MapPin className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
+                  <MapPin className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate">
                       {prediction.mainText}
                     </div>
                     {prediction.secondaryText && (
-                      <div className="text-xs text-gray-500 truncate">
+                      <div className="text-xs text-slate-500 truncate">
                         {prediction.secondaryText}
                       </div>
                     )}
                   </div>
                 </button>
               ))}
-              <div className="px-3 py-1.5 text-[10px] text-gray-300 text-right">
+              <div className="px-3 py-1.5 text-[10px] text-slate-300 text-right">
                 powered by Google
               </div>
             </div>
           )}
         </div>
-        <p className="mt-1 text-xs text-gray-400 flex items-center gap-1">
+        <p className="mt-1 text-xs text-slate-400 flex items-center gap-1">
           <Globe className="h-3 w-3" />
           Escribe, pega o haz clic en el mapa para seleccionar
         </p>
       </div>
 
       {/* Mapa */}
-      <div className="relative rounded-lg overflow-hidden border border-gray-200">
+      <div className="relative rounded-lg overflow-hidden border border-slate-200">
         {isLoading && (
-          <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
-            <div className="flex items-center gap-2 text-gray-500">
+          <div className="absolute inset-0 bg-slate-100 flex items-center justify-center z-10">
+            <div className="flex items-center gap-2 text-slate-500">
               <Loader2 className="h-5 w-5 animate-spin" />
               <span className="text-sm">Cargando mapa...</span>
             </div>
@@ -586,7 +586,7 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
 
       {/* Coordenadas + país detectado */}
       {value.coordenadas && (
-        <div className="flex items-center justify-between text-xs text-gray-400">
+        <div className="flex items-center justify-between text-xs text-slate-400">
           <div className="flex items-center gap-2">
             <MapPin className="h-3 w-3" />
             <span>
@@ -594,7 +594,7 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
             </span>
           </div>
           {value.pais && (
-            <span className="text-gray-500 font-medium">
+            <span className="text-slate-500 font-medium">
               {countryFlag} {value.pais}
             </span>
           )}
@@ -604,7 +604,7 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
       {/* Campos de dirección auto-llenados (editables) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Dirección de Entrega *
           </label>
           <input
@@ -613,11 +613,11 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
             onChange={(e) => onChange({ ...value, direccion: e.target.value })}
             placeholder="Av. Principal 123, Dpto 401"
             required
-            className="block w-full rounded-lg border border-gray-300 pl-3 pr-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            className="block w-full rounded-lg border border-slate-300 pl-3 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             {labels.distrito}
           </label>
           <input
@@ -625,11 +625,11 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
             value={value.distrito}
             onChange={(e) => onChange({ ...value, distrito: e.target.value })}
             placeholder={labels.distritoPlaceholder}
-            className="block w-full rounded-lg border border-gray-300 pl-3 pr-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            className="block w-full rounded-lg border border-slate-300 pl-3 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             {labels.provincia}
           </label>
           <input
@@ -637,11 +637,11 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
             value={value.provincia}
             onChange={(e) => onChange({ ...value, provincia: e.target.value })}
             placeholder={labels.provinciaPlaceholder}
-            className="block w-full rounded-lg border border-gray-300 pl-3 pr-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            className="block w-full rounded-lg border border-slate-300 pl-3 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             {labels.codigoPostal}
           </label>
           <input
@@ -649,11 +649,11 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
             value={value.codigoPostal}
             onChange={(e) => onChange({ ...value, codigoPostal: e.target.value })}
             placeholder={labels.codigoPostalPlaceholder}
-            className="block w-full rounded-lg border border-gray-300 pl-3 pr-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            className="block w-full rounded-lg border border-slate-300 pl-3 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Referencia
           </label>
           <input
@@ -661,7 +661,7 @@ export const GoogleMapsAddressInput: React.FC<GoogleMapsAddressInputProps> = ({
             value={value.referencia}
             onChange={(e) => onChange({ ...value, referencia: e.target.value })}
             placeholder="Frente al parque, edificio azul"
-            className="block w-full rounded-lg border border-gray-300 pl-3 pr-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            className="block w-full rounded-lg border border-slate-300 pl-3 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
           />
         </div>
       </div>

@@ -35,8 +35,8 @@ export const FiltrosRapidos: React.FC<FiltrosRapidosProps> = ({
       labelCorto: 'Todos',
       icon: Layers,
       count: totalProductos,
-      color: 'bg-gray-100 text-gray-600 hover:bg-gray-200',
-      activeColor: 'bg-primary-100 text-primary-700 ring-1 ring-primary-300',
+      color: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+      activeColor: 'bg-teal-100 text-teal-700 ring-1 ring-teal-300',
     },
     {
       id: 'activos',
@@ -44,7 +44,7 @@ export const FiltrosRapidos: React.FC<FiltrosRapidosProps> = ({
       labelCorto: 'Activos',
       icon: Package,
       count: activos,
-      color: 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+      color: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
       activeColor: 'bg-green-100 text-green-700 ring-1 ring-green-300',
     },
     {
@@ -53,7 +53,7 @@ export const FiltrosRapidos: React.FC<FiltrosRapidosProps> = ({
       labelCorto: 'Crítico',
       icon: AlertTriangle,
       count: stockCritico,
-      color: 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+      color: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
       activeColor: 'bg-red-100 text-red-700 ring-1 ring-red-300',
     },
     {
@@ -62,7 +62,7 @@ export const FiltrosRapidos: React.FC<FiltrosRapidosProps> = ({
       labelCorto: 'Sin Inv.',
       icon: Search,
       count: sinInvestigar,
-      color: 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+      color: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
       activeColor: 'bg-amber-100 text-amber-700 ring-1 ring-amber-300',
     },
   ];

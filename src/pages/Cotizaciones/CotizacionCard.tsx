@@ -72,8 +72,8 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
       {/* Header con número y estado */}
       <div className="flex items-center justify-between pb-4 border-b">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary-100 rounded-lg">
-            <FileText className="h-6 w-6 text-primary-600" />
+          <div className="p-2 bg-teal-100 rounded-lg">
+            <FileText className="h-6 w-6 text-teal-600" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900">
@@ -90,7 +90,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
         </div>
 
         <div className="text-right">
-          <div className="text-2xl font-bold text-primary-600">
+          <div className="text-2xl font-bold text-teal-600">
             {formatCurrency(cotizacion.totalPEN)}
           </div>
           <div className="text-xs text-slate-500">
@@ -153,7 +153,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
                 <Phone className="h-5 w-5 text-slate-400" />
                 <a
                   href={`tel:${cotizacion.telefonoCliente}`}
-                  className="text-sm text-primary-600 hover:underline"
+                  className="text-sm text-teal-600 hover:underline"
                 >
                   {cotizacion.telefonoCliente}
                 </a>
@@ -165,7 +165,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
                 <Mail className="h-5 w-5 text-slate-400" />
                 <a
                   href={`mailto:${cotizacion.emailCliente}`}
-                  className="text-sm text-primary-600 hover:underline"
+                  className="text-sm text-teal-600 hover:underline"
                 >
                   {cotizacion.emailCliente}
                 </a>
@@ -299,7 +299,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
             )}
             <div className="flex justify-between pt-2 border-t">
               <span className="font-semibold">Total:</span>
-              <span className="text-lg font-bold text-primary-600">
+              <span className="text-lg font-bold text-teal-600">
                 {formatCurrency(cotizacion.totalPEN)}
               </span>
             </div>

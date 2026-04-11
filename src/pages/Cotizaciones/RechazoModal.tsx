@@ -48,7 +48,7 @@ export const RechazoModal: React.FC<RechazoModalProps> = ({
       <div className="space-y-4">
         <div className="bg-slate-50 rounded-lg p-4">
           <p className="text-sm text-slate-600">Cotización</p>
-          <p className="font-semibold text-primary-600">{cotizacion.numeroCotizacion}</p>
+          <p className="font-semibold text-teal-600">{cotizacion.numeroCotizacion}</p>
           <p className="text-sm mt-1">{cotizacion.nombreCliente}</p>
           <p className="text-lg font-bold mt-2">{formatCurrency(cotizacion.totalPEN)}</p>
         </div>
@@ -71,7 +71,7 @@ export const RechazoModal: React.FC<RechazoModalProps> = ({
           <textarea
             value={descripcion}
             onChange={(e) => onDescripcion(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             rows={3}
             placeholder="¿Qué dijo el cliente? ¿Fue a la competencia?"
           />

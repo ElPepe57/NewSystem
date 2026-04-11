@@ -278,14 +278,14 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
         {!resultado?.success && (
           <>
             {/* Mode toggle: Manual vs Scanner */}
-            <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+            <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
               <button
                 type="button"
                 onClick={() => setModoEscaner(false)}
                 className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
                   !modoEscaner
-                    ? 'bg-white text-primary-700 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white text-teal-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <Keyboard className="h-4 w-4" />
@@ -297,8 +297,8 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                 onClick={() => setModoEscaner(true)}
                 className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
                   modoEscaner
-                    ? 'bg-white text-primary-700 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white text-teal-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <ScanLine className="h-4 w-4" />
@@ -345,7 +345,7 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                   type="checkbox"
                   checked={recibirTodo}
                   onChange={(e) => handleRecibirTodo(e.target.checked)}
-                  className="h-4 w-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500"
+                  className="h-4 w-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500"
                 />
                 <span className="text-sm font-medium text-amber-900">Recibir TODO lo pendiente (recepción completa)</span>
               </label>
@@ -354,14 +354,14 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
             {/* Lista de productos */}
             <div className="border rounded-lg overflow-x-auto">
               <table className="w-full text-xs sm:text-sm min-w-[480px]">
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-3 py-2 text-left text-gray-600 w-8"></th>
-                    <th className="px-3 py-2 text-left text-gray-600">Producto</th>
-                    <th className="px-2 py-2 text-center text-gray-600">Ordenado</th>
-                    <th className="px-2 py-2 text-center text-gray-600">Recibido</th>
-                    <th className="px-2 py-2 text-center text-gray-600">Pendiente</th>
-                    <th className="px-3 py-2 text-center text-gray-600">Recibir ahora</th>
+                    <th className="px-3 py-2 text-left text-slate-600 w-8"></th>
+                    <th className="px-3 py-2 text-left text-slate-600">Producto</th>
+                    <th className="px-2 py-2 text-center text-slate-600">Ordenado</th>
+                    <th className="px-2 py-2 text-center text-slate-600">Recibido</th>
+                    <th className="px-2 py-2 text-center text-slate-600">Pendiente</th>
+                    <th className="px-3 py-2 text-center text-slate-600">Recibir ahora</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -375,7 +375,7 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                             ? 'bg-green-100 ring-2 ring-inset ring-green-400'
                             : p.completo
                             ? 'bg-green-50 opacity-60'
-                            : 'hover:bg-gray-50'
+                            : 'hover:bg-slate-50'
                         }`}
                       >
                         <td className="px-3 py-2">
@@ -386,17 +386,17 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                               type="checkbox"
                               checked={(cantidades[p.productoId] || 0) > 0}
                               onChange={() => toggleProducto(p.productoId, p.pendiente)}
-                              className="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                              className="h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500"
                             />
                           )}
                         </td>
                         <td className="px-3 py-2">
-                          <div className="font-medium text-gray-900">{p.nombreComercial}</div>
-                          <div className="text-xs text-gray-500">{p.marca} · {p.sku}</div>
+                          <div className="font-medium text-slate-900">{p.nombreComercial}</div>
+                          <div className="text-xs text-slate-500">{p.marca} · {p.sku}</div>
                         </td>
                         <td className="px-2 py-2 text-center font-medium">{p.cantidad}</td>
                         <td className="px-2 py-2 text-center">
-                          <span className={p.recibido > 0 ? 'text-green-600 font-medium' : 'text-gray-400'}>
+                          <span className={p.recibido > 0 ? 'text-green-600 font-medium' : 'text-slate-400'}>
                             {p.recibido}
                           </span>
                         </td>
@@ -409,9 +409,9 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                         </td>
                         <td className="px-3 py-2 text-center">
                           {p.completo ? (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-slate-400">-</span>
                           ) : modoEscaner ? (
-                            <span className={`font-bold text-lg ${(cantidades[p.productoId] || 0) > 0 ? 'text-green-600' : 'text-gray-300'}`}>
+                            <span className={`font-bold text-lg ${(cantidades[p.productoId] || 0) > 0 ? 'text-green-600' : 'text-slate-300'}`}>
                               {cantidades[p.productoId] || 0}
                             </span>
                           ) : (
@@ -421,7 +421,7 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                               max={p.pendiente}
                               value={cantidades[p.productoId] || 0}
                               onChange={(e) => handleCantidadChange(p.productoId, parseInt(e.target.value) || 0, p.pendiente)}
-                              className="w-16 text-center border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                              className="w-16 text-center border border-slate-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                             />
                           )}
                         </td>
@@ -434,7 +434,7 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
 
             {/* Observaciones */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Observaciones (opcional)
               </label>
               <textarea
@@ -442,16 +442,16 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                 onChange={(e) => setObservaciones(e.target.value)}
                 placeholder="Ej: Paquete 2 de 3, tracking TBA12345..."
                 rows={2}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
 
             {/* Resumen */}
             {resumen.totalUnidades > 0 && (
-              <div className={`rounded-lg p-4 border ${resumen.esRecepcionFinal ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+              <div className={`rounded-lg p-4 border ${resumen.esRecepcionFinal ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
                 <div className="flex items-center gap-2 mb-2">
-                  <Package className="h-4 w-4 text-gray-600" />
-                  <span className="text-sm font-semibold text-gray-900">
+                  <Package className="h-4 w-4 text-slate-600" />
+                  <span className="text-sm font-semibold text-slate-900">
                     Resumen de recepción #{numeroRecepcion}
                   </span>
                   {resumen.esRecepcionFinal && (
@@ -462,15 +462,15 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                 </div>
                 <div className="grid grid-cols-3 gap-3 text-sm">
                   <div>
-                    <span className="text-gray-600">Productos:</span>
+                    <span className="text-slate-600">Productos:</span>
                     <span className="ml-1 font-medium">{resumen.productosCount}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Unidades:</span>
+                    <span className="text-slate-600">Unidades:</span>
                     <span className="ml-1 font-medium">{resumen.totalUnidades}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Valor:</span>
+                    <span className="text-slate-600">Valor:</span>
                     <span className="ml-1 font-medium">${resumen.costoRecepcionUSD.toFixed(2)}</span>
                   </div>
                 </div>

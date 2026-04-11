@@ -57,7 +57,7 @@ export const ProveedorForm: React.FC<ProveedorFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Información Básica */}
       <div>
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Información Básica</h4>
+        <h4 className="text-lg font-semibold text-slate-900 mb-4">Información Básica</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Nombre del Proveedor"
@@ -96,7 +96,7 @@ export const ProveedorForm: React.FC<ProveedorFormProps> = ({
 
       {/* Contacto */}
       <div>
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Datos de Contacto</h4>
+        <h4 className="text-lg font-semibold text-slate-900 mb-4">Datos de Contacto</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Email"
@@ -126,7 +126,7 @@ export const ProveedorForm: React.FC<ProveedorFormProps> = ({
 
       {/* Notas */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
           Notas Internas
         </label>
         <textarea
@@ -134,7 +134,7 @@ export const ProveedorForm: React.FC<ProveedorFormProps> = ({
           value={formData.notasInternas}
           onChange={handleChange}
           rows={3}
-          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
           placeholder="Términos de pago, condiciones especiales, etc."
         />
       </div>

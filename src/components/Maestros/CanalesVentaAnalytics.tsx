@@ -313,7 +313,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       {
         label: 'Inactivos',
         value: inactivosCount,
-        color: 'bg-gray-500'
+        color: 'bg-slate-500'
       }
     ];
 
@@ -488,7 +488,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
   if ((loadingCanales || loadingVentas) && canales.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -595,46 +595,46 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
 
           {/* Sección de Conversión por Canal */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary-600" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <Target className="h-5 w-5 text-teal-600" />
               Análisis de Conversión por Canal
             </h3>
             {Object.values(metricas).filter(m => (m.totalVentas + m.totalCotizaciones) > 0).length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-slate-200">
+                  <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Canal</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Cotizaciones</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Ventas</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Tasa Conversión</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Facturación</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ticket Prom.</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Canal</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Cotizaciones</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Ventas</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Tasa Conversión</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Facturación</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ticket Prom.</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-slate-200">
                     {Object.values(metricas)
                       .filter(m => (m.totalVentas + m.totalCotizaciones) > 0)
                       .sort((a, b) => b.tasaConversion - a.tasaConversion)
                       .map(m => {
                         const totalOps = m.totalVentas + m.totalCotizaciones;
                         return (
-                          <tr key={m.canalId} className="hover:bg-gray-50">
+                          <tr key={m.canalId} className="hover:bg-slate-50">
                             <td className="px-4 py-3 whitespace-nowrap">
                               <div className="flex items-center gap-2">
                                 <span className="w-3 h-3 rounded-full" style={{ backgroundColor: m.color }} />
-                                <span className="font-medium text-gray-900">{m.nombre}</span>
+                                <span className="font-medium text-slate-900">{m.nombre}</span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-center text-sm text-gray-600">
+                            <td className="px-4 py-3 text-center text-sm text-slate-600">
                               {m.totalCotizaciones}
                             </td>
-                            <td className="px-4 py-3 text-center text-sm font-medium text-gray-900">
+                            <td className="px-4 py-3 text-center text-sm font-medium text-slate-900">
                               {m.totalVentas}
                             </td>
                             <td className="px-4 py-3 text-center">
                               <div className="flex items-center justify-center gap-2">
-                                <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div className="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
                                   <div
                                     className={`h-full rounded-full ${
                                       m.tasaConversion >= 70 ? 'bg-green-500' :
@@ -651,10 +651,10 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                                 </span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                            <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
                               {formatCurrency(m.montoTotal)}
                             </td>
-                            <td className="px-4 py-3 text-right text-sm text-gray-600">
+                            <td className="px-4 py-3 text-right text-sm text-slate-600">
                               {formatCurrency(m.ticketPromedio)}
                             </td>
                           </tr>
@@ -664,8 +664,8 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                 </table>
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Target className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <div className="text-center py-8 text-slate-500">
+                <Target className="h-12 w-12 mx-auto mb-3 text-slate-300" />
                 <p>No hay datos de conversión disponibles</p>
                 <p className="text-sm mt-1">Registra cotizaciones y ventas para ver el análisis</p>
               </div>
@@ -675,31 +675,31 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
           {/* Distribuciones */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-primary-600" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-teal-600" />
                 Por Estado
               </h3>
               <StatDistribution title="Estado" data={distribuciones.porEstado} />
             </Card>
 
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Percent className="h-5 w-5 text-primary-600" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <Percent className="h-5 w-5 text-teal-600" />
                 Por Comisión
               </h3>
               <StatDistribution title="Comisión" data={distribuciones.porComision} />
             </Card>
 
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-primary-600" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <PieChart className="h-5 w-5 text-teal-600" />
                 Distribución de Ventas
               </h3>
               {distribuciones.porVentas.length > 0 ? (
                 <StatDistribution title="Ventas" data={distribuciones.porVentas} />
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Package className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                <div className="text-center py-8 text-slate-500">
+                  <Package className="h-8 w-8 mx-auto mb-2 text-slate-300" />
                   <p className="text-sm">Sin ventas registradas</p>
                 </div>
               )}
@@ -708,7 +708,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
 
           {/* Tarjetas de Canales con Métricas */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
               Canales con Métricas
             </h3>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -734,8 +734,8 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                             {renderIcon(canal.icono, canal.color)}
                           </div>
                           <div>
-                            <h4 className="font-medium text-gray-900">{canal.nombre}</h4>
-                            <p className="text-xs text-gray-500">{canal.codigo}</p>
+                            <h4 className="font-medium text-slate-900">{canal.nombre}</h4>
+                            <p className="text-xs text-slate-500">{canal.codigo}</p>
                           </div>
                         </div>
                         {canal.esSistema && (
@@ -746,8 +746,8 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                       {/* Métricas */}
                       <div className="grid grid-cols-2 gap-3 mb-3">
                         <div>
-                          <p className="text-xs text-gray-500">Ventas</p>
-                          <p className="text-lg font-semibold text-gray-900">
+                          <p className="text-xs text-slate-500">Ventas</p>
+                          <p className="text-lg font-semibold text-slate-900">
                             {metrics.totalVentas}
                           </p>
                           {metrics.tendenciaVentas !== 0 && (
@@ -764,15 +764,15 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                           )}
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Monto Total</p>
-                          <p className="text-lg font-semibold text-gray-900">
+                          <p className="text-xs text-slate-500">Monto Total</p>
+                          <p className="text-lg font-semibold text-slate-900">
                             {formatCurrency(metrics.montoTotal)}
                           </p>
                         </div>
                       </div>
 
                       {/* Info adicional */}
-                      <div className="space-y-1 text-xs text-gray-600 border-t pt-2">
+                      <div className="space-y-1 text-xs text-slate-600 border-t pt-2">
                         {metrics.tasaConversion > 0 && (
                           <div className="flex justify-between">
                             <span>Tasa de conversión:</span>
@@ -889,11 +889,11 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
           {/* Lista de canales */}
           {canalesFiltrados.length === 0 ? (
             <Card className="p-8 text-center">
-              <Tag className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <Tag className="h-12 w-12 mx-auto text-slate-300 mb-4" />
+              <h3 className="text-lg font-medium text-slate-900 mb-2">
                 {busqueda ? 'Sin resultados' : 'No hay canales de venta'}
               </h3>
-              <p className="text-gray-500 mb-4">
+              <p className="text-slate-500 mb-4">
                 {busqueda
                   ? 'No se encontraron canales con ese criterio de búsqueda'
                   : 'Crea tu primer canal de venta para comenzar'
@@ -927,8 +927,8 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                           {renderIcon(canal.icono, canal.color)}
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900">{canal.nombre}</h4>
-                          <p className="text-xs text-gray-500">{canal.codigo}</p>
+                          <h4 className="font-medium text-slate-900">{canal.nombre}</h4>
+                          <p className="text-xs text-slate-500">{canal.codigo}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -945,12 +945,12 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                     </div>
 
                     {canal.descripcion && (
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                      <p className="text-sm text-slate-600 mb-3 line-clamp-2">
                         {canal.descripcion}
                       </p>
                     )}
 
-                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+                    <div className="flex items-center gap-4 text-sm text-slate-500 mb-3">
                       {(canal.comisionPorcentaje || 0) > 0 && (
                         <div className="flex items-center gap-1">
                           <Percent className="h-4 w-4" />
@@ -967,13 +967,13 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
 
                     {/* Métricas rápidas */}
                     {metrics && metrics.totalVentas > 0 && (
-                      <div className="mb-3 p-2 bg-gray-50 rounded text-xs">
+                      <div className="mb-3 p-2 bg-slate-50 rounded text-xs">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Ventas:</span>
+                          <span className="text-slate-600">Ventas:</span>
                           <span className="font-medium">{metrics.totalVentas}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Total:</span>
+                          <span className="text-slate-600">Total:</span>
                           <span className="font-medium">{formatCurrency(metrics.montoTotal)}</span>
                         </div>
                       </div>
@@ -1074,63 +1074,63 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
 
           {/* Tabla de rendimiento por canal */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary-600" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-teal-600" />
               Rendimiento Detallado por Canal
             </h3>
 
             {Object.values(metricas).filter(m => m.totalVentas > 0 || m.totalCotizaciones > 0).length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-slate-200">
+                  <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                         Canal
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                         Cotizaciones
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                         Ventas
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                         Tasa Conv.
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                         Facturación
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                         Ticket Prom.
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                         Comisión
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                         Margen
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-slate-200">
                     {Object.values(metricas)
                       .filter(m => m.totalVentas > 0 || m.totalCotizaciones > 0)
                       .sort((a, b) => b.montoTotal - a.montoTotal)
                       .map((metrics) => (
-                        <tr key={metrics.canalId} className="hover:bg-gray-50">
+                        <tr key={metrics.canalId} className="hover:bg-slate-50">
                           <td className="px-4 py-3 whitespace-nowrap">
                             <div className="flex items-center gap-2">
                               <span
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: metrics.color }}
                               />
-                              <span className="text-sm font-medium text-gray-900">
+                              <span className="text-sm font-medium text-slate-900">
                                 {metrics.nombre}
                               </span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-gray-600">
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600">
                             {metrics.totalCotizaciones}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-slate-900">
                             {metrics.totalVentas}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-right text-sm">
@@ -1142,10 +1142,10 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                               {metrics.tasaConversion.toFixed(1)}%
                             </span>
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-gray-900">
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-900">
                             {formatCurrency(metrics.montoTotal)}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-gray-600">
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600">
                             {formatCurrency(metrics.ticketPromedio)}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-red-600">
@@ -1167,11 +1167,11 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
               </div>
             ) : (
               <div className="text-center py-12">
-                <Activity className="h-12 w-12 mx-auto text-gray-300 mb-3" />
-                <h4 className="text-lg font-medium text-gray-900 mb-2">
+                <Activity className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+                <h4 className="text-lg font-medium text-slate-900 mb-2">
                   Sin datos de rendimiento
                 </h4>
-                <p className="text-gray-500">
+                <p className="text-slate-500">
                   No hay ventas o cotizaciones registradas para analizar
                 </p>
               </div>
@@ -1182,7 +1182,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Top por ventas */}
             <Card className="p-6">
-              <h4 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-green-600" />
                 Top 3 por Ventas
               </h4>
@@ -1193,14 +1193,14 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                   .map((m, idx) => (
                     <div key={m.canalId} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-gray-400">#{idx + 1}</span>
+                        <span className="text-lg font-bold text-slate-400">#{idx + 1}</span>
                         <span
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: m.color }}
                         />
-                        <span className="text-sm font-medium text-gray-700">{m.nombre}</span>
+                        <span className="text-sm font-medium text-slate-700">{m.nombre}</span>
                       </div>
-                      <span className="text-sm font-bold text-gray-900">{m.totalVentas}</span>
+                      <span className="text-sm font-bold text-slate-900">{m.totalVentas}</span>
                     </div>
                   ))}
               </div>
@@ -1208,7 +1208,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
 
             {/* Top por facturación */}
             <Card className="p-6">
-              <h4 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-green-600" />
                 Top 3 por Facturación
               </h4>
@@ -1219,14 +1219,14 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                   .map((m, idx) => (
                     <div key={m.canalId} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-gray-400">#{idx + 1}</span>
+                        <span className="text-lg font-bold text-slate-400">#{idx + 1}</span>
                         <span
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: m.color }}
                         />
-                        <span className="text-sm font-medium text-gray-700">{m.nombre}</span>
+                        <span className="text-sm font-medium text-slate-700">{m.nombre}</span>
                       </div>
-                      <span className="text-sm font-bold text-gray-900">
+                      <span className="text-sm font-bold text-slate-900">
                         {formatCurrency(m.montoTotal)}
                       </span>
                     </div>
@@ -1236,7 +1236,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
 
             {/* Top por margen */}
             <Card className="p-6">
-              <h4 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
                 <Percent className="h-4 w-4 text-blue-600" />
                 Top 3 por Margen
               </h4>
@@ -1248,12 +1248,12 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                   .map((m, idx) => (
                     <div key={m.canalId} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-gray-400">#{idx + 1}</span>
+                        <span className="text-lg font-bold text-slate-400">#{idx + 1}</span>
                         <span
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: m.color }}
                         />
-                        <span className="text-sm font-medium text-gray-700">{m.nombre}</span>
+                        <span className="text-sm font-medium text-slate-700">{m.nombre}</span>
                       </div>
                       <span className="text-sm font-bold text-green-600">
                         {m.margenPromedio.toFixed(1)}%

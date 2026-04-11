@@ -36,7 +36,7 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
   if (loadingPendientes) {
     return (
       <div className="flex justify-center items-center py-12">
-        <RefreshCw className="h-8 w-8 animate-spin text-primary-500" />
+        <RefreshCw className="h-8 w-8 animate-spin text-teal-500" />
         <span className="ml-3 text-slate-600">Cargando pendientes...</span>
       </div>
     );

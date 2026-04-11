@@ -32,7 +32,7 @@ export const CotizacionesFiltros: React.FC<CotizacionesFiltrosProps> = ({
               placeholder="Buscar por número, cliente o teléfono..."
               value={busqueda}
               onChange={(e) => onBusquedaChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
           </div>
           <Select
@@ -50,14 +50,14 @@ export const CotizacionesFiltros: React.FC<CotizacionesFiltrosProps> = ({
         <div className="flex items-center border rounded-lg overflow-hidden self-start sm:self-auto">
           <button
             onClick={() => onVistaChange('kanban')}
-            className={`px-3 py-2 flex items-center gap-1 text-sm ${vista === 'kanban' ? 'bg-primary-100 text-primary-700' : 'text-slate-500 hover:bg-slate-100'}`}
+            className={`px-3 py-2 flex items-center gap-1 text-sm ${vista === 'kanban' ? 'bg-teal-100 text-teal-700' : 'text-slate-500 hover:bg-slate-100'}`}
           >
             <LayoutGrid className="h-4 w-4" />
             Kanban
           </button>
           <button
             onClick={() => onVistaChange('lista')}
-            className={`px-3 py-2 flex items-center gap-1 text-sm ${vista === 'lista' ? 'bg-primary-100 text-primary-700' : 'text-slate-500 hover:bg-slate-100'}`}
+            className={`px-3 py-2 flex items-center gap-1 text-sm ${vista === 'lista' ? 'bg-teal-100 text-teal-700' : 'text-slate-500 hover:bg-slate-100'}`}
           >
             <List className="h-4 w-4" />
             Lista

@@ -153,11 +153,11 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
         };
       default:
         return {
-          bg: 'bg-gray-50',
-          border: 'border-gray-200',
-          text: 'text-gray-700',
-          icon: 'text-gray-500',
-          progress: 'bg-gray-500'
+          bg: 'bg-slate-50',
+          border: 'border-slate-200',
+          text: 'text-slate-700',
+          icon: 'text-slate-500',
+          progress: 'bg-slate-500'
         };
     }
   };
@@ -170,7 +170,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
       case 'bajando':
         return <TrendingDown className="h-4 w-4 text-green-500" />;
       default:
-        return <Minus className="h-4 w-4 text-gray-500" />;
+        return <Minus className="h-4 w-4 text-slate-500" />;
     }
   };
 
@@ -182,9 +182,9 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
   // Estado de carga
   if (loading && !analysis) {
     return (
-      <div className="mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin text-primary-500 mr-2" />
-        <span className="text-sm text-gray-600">Analizando precio...</span>
+      <div className="mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin text-teal-500 mr-2" />
+        <span className="text-sm text-slate-600">Analizando precio...</span>
       </div>
     );
   }
@@ -220,12 +220,12 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
               {analysis.evaluacion.mensaje}
             </span>
             {analysis.evaluacion.vsPromedioHistorico !== 0 && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-slate-500">
                 ({analysis.evaluacion.vsPromedioHistorico > 0 ? '+' : ''}{analysis.evaluacion.vsPromedioHistorico.toFixed(1)}% vs promedio)
               </span>
             )}
           </div>
-          <ChevronDown className="h-4 w-4 text-gray-400" />
+          <ChevronDown className="h-4 w-4 text-slate-400" />
         </div>
       </div>
     );
@@ -247,25 +247,25 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
             <h4 className={`font-semibold ${styles.text}`}>
               Asesor de Precios
             </h4>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-slate-500">
               {producto.marca} - {producto.nombreComercial}
             </p>
           </div>
         </div>
         {compact && (
-          <ChevronUp className="h-5 w-5 text-gray-400" />
+          <ChevronUp className="h-5 w-5 text-slate-400" />
         )}
       </div>
 
       {/* Evaluación Principal */}
-      <div className="p-4 bg-white border-b border-gray-100">
+      <div className="p-4 bg-white border-b border-slate-100">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className={`text-lg font-bold ${styles.text}`}>
               {analysis.evaluacion.mensaje}
             </span>
             {loading && (
-              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+              <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
             )}
           </div>
           <div className={`px-3 py-1 rounded-full text-sm font-medium ${styles.bg} ${styles.text}`}>
@@ -274,25 +274,25 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
         </div>
 
         {/* Barra de progreso */}
-        <div className="w-full h-2 bg-gray-100 rounded-full mb-3">
+        <div className="w-full h-2 bg-slate-100 rounded-full mb-3">
           <div
             className={`h-full rounded-full transition-all duration-500 ${styles.progress}`}
             style={{ width: `${analysis.evaluacion.puntuacion}%` }}
           />
         </div>
 
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-slate-600">
           {analysis.evaluacion.descripcion}
         </p>
 
         {/* Métricas rápidas */}
         <div className="grid grid-cols-3 gap-3 mt-4">
           {analysis.tieneHistorico && (
-            <div className="text-center p-2 bg-gray-50 rounded-lg">
-              <div className="text-xs text-gray-500 mb-1">vs Promedio</div>
+            <div className="text-center p-2 bg-slate-50 rounded-lg">
+              <div className="text-xs text-slate-500 mb-1">vs Promedio</div>
               <div className={`text-sm font-semibold ${
                 analysis.evaluacion.vsPromedioHistorico > 5 ? 'text-red-600' :
-                analysis.evaluacion.vsPromedioHistorico < -5 ? 'text-green-600' : 'text-gray-700'
+                analysis.evaluacion.vsPromedioHistorico < -5 ? 'text-green-600' : 'text-slate-700'
               }`}>
                 {analysis.evaluacion.vsPromedioHistorico > 0 ? '+' : ''}
                 {analysis.evaluacion.vsPromedioHistorico.toFixed(1)}%
@@ -301,11 +301,11 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
           )}
 
           {analysis.evaluacion.vsInvestigacion !== null && (
-            <div className="text-center p-2 bg-gray-50 rounded-lg">
-              <div className="text-xs text-gray-500 mb-1">vs Investigación</div>
+            <div className="text-center p-2 bg-slate-50 rounded-lg">
+              <div className="text-xs text-slate-500 mb-1">vs Investigación</div>
               <div className={`text-sm font-semibold ${
                 analysis.evaluacion.vsInvestigacion > 5 ? 'text-red-600' :
-                analysis.evaluacion.vsInvestigacion < -5 ? 'text-green-600' : 'text-gray-700'
+                analysis.evaluacion.vsInvestigacion < -5 ? 'text-green-600' : 'text-slate-700'
               }`}>
                 {analysis.evaluacion.vsInvestigacion > 0 ? '+' : ''}
                 {analysis.evaluacion.vsInvestigacion.toFixed(1)}%
@@ -313,8 +313,8 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
             </div>
           )}
 
-          <div className="text-center p-2 bg-gray-50 rounded-lg">
-            <div className="text-xs text-gray-500 mb-1">Margen Est.</div>
+          <div className="text-center p-2 bg-slate-50 rounded-lg">
+            <div className="text-xs text-slate-500 mb-1">Margen Est.</div>
             <div className={`text-sm font-semibold ${
               analysis.proyeccionRentabilidad.margenEstimado < 15 ? 'text-red-600' :
               analysis.proyeccionRentabilidad.margenEstimado < 25 ? 'text-yellow-600' : 'text-green-600'
@@ -326,7 +326,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
       </div>
 
       {/* Tabs de secciones */}
-      <div className="flex border-b border-gray-200 bg-gray-50">
+      <div className="flex border-b border-slate-200 bg-slate-50">
         {[
           { id: 'overview', label: 'Resumen', icon: Zap },
           { id: 'history', label: 'Histórico', icon: History },
@@ -338,8 +338,8 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
             key={tab.id}
             className={`flex-1 px-3 py-2 text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
               activeSection === tab.id
-                ? 'text-primary-600 border-b-2 border-primary-500 bg-white'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                ? 'text-teal-600 border-b-2 border-teal-500 bg-white'
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'
             }`}
             onClick={() => setActiveSection(tab.id as any)}
           >
@@ -377,9 +377,9 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                   }`}>
                     {alerta.titulo}
                   </p>
-                  <p className="text-xs text-gray-600 mt-0.5">{alerta.mensaje}</p>
+                  <p className="text-xs text-slate-600 mt-0.5">{alerta.mensaje}</p>
                   {alerta.accion && (
-                    <p className="text-xs font-medium mt-1 text-gray-700">{alerta.accion}</p>
+                    <p className="text-xs font-medium mt-1 text-slate-700">{alerta.accion}</p>
                   )}
                 </div>
               </div>
@@ -423,26 +423,26 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
               <>
                 {/* Estadísticas */}
                 <div className="grid grid-cols-4 gap-3 mb-4">
-                  <div className="text-center p-2 bg-gray-50 rounded-lg">
-                    <div className="text-xs text-gray-500">Mínimo</div>
+                  <div className="text-center p-2 bg-slate-50 rounded-lg">
+                    <div className="text-xs text-slate-500">Mínimo</div>
                     <div className="text-sm font-semibold text-green-600">
                       ${analysis.estadisticasHistorico.minimo.toFixed(2)}
                     </div>
                   </div>
-                  <div className="text-center p-2 bg-gray-50 rounded-lg">
-                    <div className="text-xs text-gray-500">Promedio</div>
-                    <div className="text-sm font-semibold text-gray-700">
+                  <div className="text-center p-2 bg-slate-50 rounded-lg">
+                    <div className="text-xs text-slate-500">Promedio</div>
+                    <div className="text-sm font-semibold text-slate-700">
                       ${analysis.estadisticasHistorico.promedio.toFixed(2)}
                     </div>
                   </div>
-                  <div className="text-center p-2 bg-gray-50 rounded-lg">
-                    <div className="text-xs text-gray-500">Máximo</div>
+                  <div className="text-center p-2 bg-slate-50 rounded-lg">
+                    <div className="text-xs text-slate-500">Máximo</div>
                     <div className="text-sm font-semibold text-red-600">
                       ${analysis.estadisticasHistorico.maximo.toFixed(2)}
                     </div>
                   </div>
-                  <div className="text-center p-2 bg-gray-50 rounded-lg">
-                    <div className="text-xs text-gray-500">Tendencia</div>
+                  <div className="text-center p-2 bg-slate-50 rounded-lg">
+                    <div className="text-xs text-slate-500">Tendencia</div>
                     <div className="flex items-center justify-center gap-1">
                       <TendenciaIcon tendencia={analysis.estadisticasHistorico.tendencia} />
                       <span className="text-sm font-medium capitalize">
@@ -459,7 +459,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                   promedioHistorico={analysis.estadisticasHistorico.promedio}
                 />
 
-                <p className="text-xs text-gray-500 mt-3 text-center">
+                <p className="text-xs text-slate-500 mt-3 text-center">
                   {analysis.estadisticasHistorico.totalCompras} compras registradas
                   {analysis.estadisticasHistorico.ultimaCompra && (
                     <> · Última: {analysis.estadisticasHistorico.ultimaCompra.toLocaleDateString()}</>
@@ -467,7 +467,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                 </p>
               </>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-slate-500">
                 <History className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p className="text-sm">Sin historial de compras</p>
                 <p className="text-xs mt-1">Esta será la primera compra registrada para este producto</p>
@@ -489,14 +489,14 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                         ? 'bg-green-50 border-green-200'
                         : prov.esActual
                         ? 'bg-blue-50 border-blue-200'
-                        : 'bg-gray-50 border-gray-200'
+                        : 'bg-slate-50 border-slate-200'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className={`font-medium ${
                           prov.esRecomendado ? 'text-green-700' :
-                          prov.esActual ? 'text-blue-700' : 'text-gray-700'
+                          prov.esActual ? 'text-blue-700' : 'text-slate-700'
                         }`}>
                           {prov.nombre}
                         </span>
@@ -512,7 +512,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                         )}
                       </div>
                       <div className="text-right">
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold text-slate-900">
                           ${prov.precioConImpuesto.toFixed(2)}
                         </div>
                         {prov.porcentajeVsMejor > 0 && (
@@ -522,7 +522,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
                       <span>Base: ${prov.precioBase.toFixed(2)}</span>
                       {prov.impuesto > 0 && <span>Tax: {prov.impuesto}%</span>}
                       {prov.envioEstimado > 0 && <span>Envío: ${prov.envioEstimado.toFixed(2)}</span>}
@@ -530,7 +530,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                         prov.disponibilidad === 'en_stock' ? 'bg-green-100 text-green-700' :
                         prov.disponibilidad === 'bajo_stock' ? 'bg-yellow-100 text-yellow-700' :
                         prov.disponibilidad === 'sin_stock' ? 'bg-red-100 text-red-700' :
-                        'bg-gray-100 text-gray-600'
+                        'bg-slate-100 text-slate-600'
                       }`}>
                         {prov.disponibilidad === 'en_stock' ? 'En stock' :
                          prov.disponibilidad === 'bajo_stock' ? 'Bajo stock' :
@@ -542,7 +542,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                         href={prov.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 mt-2 text-xs text-primary-600 hover:text-primary-800"
+                        className="inline-flex items-center gap-1 mt-2 text-xs text-teal-600 hover:text-teal-800"
                       >
                         Ver producto <ExternalLink className="h-3 w-3" />
                       </a>
@@ -551,7 +551,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-slate-500">
                 <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p className="text-sm">Sin datos de proveedores</p>
                 <p className="text-xs mt-1">Realiza una investigación de mercado para comparar</p>
@@ -575,25 +575,25 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
         {activeSection === 'profitability' && (
           <div className="space-y-4">
             {/* Proyección de costos */}
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <h5 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <h5 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
                 Proyección de Costos
               </h5>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Costo compra (USD):</span>
+                  <span className="text-slate-600">Costo compra (USD):</span>
                   <span className="font-medium">${(precioIngresado || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">+ Flete Internacional:</span>
+                  <span className="text-slate-600">+ Flete Internacional:</span>
                   <span className="font-medium">${(fleteRuta || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2">
-                  <span className="text-gray-600">= Costo Total USD:</span>
+                  <span className="text-slate-600">= Costo Total USD:</span>
                   <span className="font-medium">${(analysis.proyeccionRentabilidad?.ctruProyectadoUSD || 0).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-primary-600">
+                <div className="flex justify-between text-teal-600">
                   <span>CTRU (TC {(tipoCambio || 0).toFixed(3)}):</span>
                   <span className="font-semibold">S/ {(analysis.proyeccionRentabilidad?.ctruProyectado || 0).toFixed(2)}</span>
                 </div>
@@ -608,11 +608,11 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
               </h5>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Precio venta sugerido:</span>
+                  <span className="text-slate-600">Precio venta sugerido:</span>
                   <span className="font-medium">S/ {(analysis.proyeccionRentabilidad?.precioVentaSugerido || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Ganancia por unidad:</span>
+                  <span className="text-slate-600">Ganancia por unidad:</span>
                   <span className={`font-medium ${
                     (analysis.proyeccionRentabilidad?.gananciaPorUnidad || 0) > 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
@@ -620,7 +620,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Margen estimado:</span>
+                  <span className="text-slate-600">Margen estimado:</span>
                   <span className={`font-semibold ${
                     (analysis.proyeccionRentabilidad?.margenEstimado || 0) >= 25 ? 'text-green-600' :
                     (analysis.proyeccionRentabilidad?.margenEstimado || 0) >= 15 ? 'text-yellow-600' : 'text-red-600'
@@ -638,18 +638,18 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                   ? 'bg-green-50'
                   : analysis.proyeccionRentabilidad.vsCompetenciaPeru.posicion === 'mas_caro'
                   ? 'bg-red-50'
-                  : 'bg-gray-50'
+                  : 'bg-slate-50'
               }`}>
-                <h5 className="text-sm font-medium text-gray-700 mb-2">
+                <h5 className="text-sm font-medium text-slate-700 mb-2">
                   vs Competencia Perú
                 </h5>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-slate-600">
                     Promedio competencia: S/ {(analysis.proyeccionRentabilidad.vsCompetenciaPeru.precioPromedio || 0).toFixed(2)}
                   </span>
                   <span className={`text-sm font-medium ${
                     analysis.proyeccionRentabilidad.vsCompetenciaPeru.posicion === 'mas_barato' ? 'text-green-600' :
-                    analysis.proyeccionRentabilidad.vsCompetenciaPeru.posicion === 'mas_caro' ? 'text-red-600' : 'text-gray-600'
+                    analysis.proyeccionRentabilidad.vsCompetenciaPeru.posicion === 'mas_caro' ? 'text-red-600' : 'text-slate-600'
                   }`}>
                     {(analysis.proyeccionRentabilidad.vsCompetenciaPeru.porcentaje || 0) > 0 ? '+' : ''}
                     {(analysis.proyeccionRentabilidad.vsCompetenciaPeru.porcentaje || 0).toFixed(1)}%

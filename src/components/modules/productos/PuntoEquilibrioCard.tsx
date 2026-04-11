@@ -190,7 +190,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
             </div>
             <div>
               <h4 className={`text-sm sm:text-base font-semibold ${viabilidad.color}`}>{viabilidad.label}</h4>
-              <p className="text-xs sm:text-sm text-gray-600">
+              <p className="text-xs sm:text-sm text-slate-600">
                 {puntoEquilibrio.tiempoRecuperacionCapital === Infinity
                   ? 'Sin recuperación posible'
                   : `Recuperas capital en ${puntoEquilibrio.tiempoRecuperacionCapital} mes${puntoEquilibrio.tiempoRecuperacionCapital !== 1 ? 'es' : ''}`}
@@ -198,10 +198,10 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
             </div>
           </div>
           <div className="text-left sm:text-right pl-8 sm:pl-0">
-            <p className="text-xl sm:text-2xl font-bold text-gray-900">
+            <p className="text-xl sm:text-2xl font-bold text-slate-900">
               {formatNumber(puntoEquilibrio.unidadesParaRecuperarCapital)} / {unidadesAComprar}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-slate-500">
               ventas para recuperar inversión
             </p>
           </div>
@@ -241,7 +241,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
       {/* Inputs editables */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-slate-500">
             {hasUserModified ? 'Valores personalizados' : 'Valores sugeridos por investigacion'}
           </span>
           {hasUserModified && (
@@ -257,7 +257,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
         </div>
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-slate-600 mb-1">
               <ShoppingCart className="h-3 w-3 inline mr-1" />
               <span className="hidden sm:inline">Unidades a </span>Comprar
             </label>
@@ -266,15 +266,15 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
               min="1"
               value={unidadesAComprar}
               onChange={handleUserChange((v) => setUnidadesAComprar(Math.max(1, Math.round(v))))}
-              className="w-full rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full rounded-lg border border-slate-300 px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
-            <p className="text-xs text-gray-400 mt-0.5 hidden sm:block">
+            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">
               Sugerido: {calcularUnidadesIniciales()} (2 meses)
             </p>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-slate-600 mb-1">
               <Package className="h-3 w-3 inline mr-1" />
               <span className="hidden sm:inline">Ventas / </span>Mes
             </label>
@@ -282,15 +282,15 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
               type="number"
               value={ventasMensuales}
               onChange={handleUserChange((v) => setVentasMensuales(Math.max(0, Math.round(v))))}
-              className="w-full rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full rounded-lg border border-slate-300 px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
-            <p className="text-xs text-gray-400 mt-0.5 hidden sm:block">
+            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">
               Demanda {demandaEstimada}: ~{calcularVentasEstimadas()}/mes
             </p>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-slate-600 mb-1">
               <Target className="h-3 w-3 inline mr-1" />
               Precio <span className="hidden sm:inline">Venta </span>(PEN)
             </label>
@@ -299,9 +299,9 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
               step="0.01"
               value={precioVenta}
               onChange={handleUserChange(setPrecioVenta)}
-              className="w-full rounded-lg border border-gray-300 px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full rounded-lg border border-slate-300 px-2 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
-            <p className="text-xs text-gray-400 mt-0.5 hidden sm:block">
+            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">
               {precioEntrada ? `Entrada: S/${precioEntrada.toFixed(2)}` :
                precioPERUMin > 0 ? `Min mercado: S/${precioPERUMin.toFixed(2)}` : 'Sin referencia'}
             </p>
@@ -310,36 +310,36 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
       </div>
 
       {/* Inversión calculada */}
-      <div className="bg-indigo-50 rounded-lg p-3 border border-indigo-200">
+      <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <DollarSign className="h-4 w-4 text-indigo-600 flex-shrink-0" />
-            <span className="text-xs sm:text-sm font-medium text-indigo-900">Inversión Total:</span>
+            <DollarSign className="h-4 w-4 text-teal-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-teal-900">Inversión Total:</span>
           </div>
           <div className="text-right flex-shrink-0">
-            <p className="text-base sm:text-lg font-bold text-indigo-700">
+            <p className="text-base sm:text-lg font-bold text-teal-700">
               {formatMoney(inversionCalculada)}
             </p>
             {costoTotalUSD > 0 && (
-              <p className="text-xs text-indigo-500">
+              <p className="text-xs text-teal-500">
                 (${inversionUSD.toFixed(2)} USD)
               </p>
             )}
           </div>
         </div>
-        <p className="text-xs text-indigo-600 mt-1">
+        <p className="text-xs text-teal-600 mt-1">
           {unidadesAComprar} unidades × {formatMoney(ctruEstimado)} CTRU
         </p>
       </div>
 
       {/* Métricas detalladas */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3">
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+        <div className="bg-slate-50 rounded-lg p-3">
+          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <Calculator className="h-3 w-3" />
             CTRU (Costo/Unidad)
           </div>
-          <p className="text-lg font-semibold text-gray-900">
+          <p className="text-lg font-semibold text-slate-900">
             {formatMoney(ctruEstimado)}
           </p>
         </div>
@@ -347,7 +347,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
         <div className={`rounded-lg p-3 ${
           puntoEquilibrio.gananciaUnitaria > 0 ? 'bg-green-50' : 'bg-red-50'
         }`}>
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <TrendingUp className="h-3 w-3" />
             Ganancia por Unidad
           </div>
@@ -359,7 +359,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
         </div>
 
         <div className="bg-blue-50 rounded-lg p-3">
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <Clock className="h-3 w-3" />
             Tiempo Recuperación Capital
           </div>
@@ -377,7 +377,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
           (puntoEquilibrio.rentabilidadMensual || 0) > 20 ? 'bg-green-50' :
           (puntoEquilibrio.rentabilidadMensual || 0) > 10 ? 'bg-blue-50' : 'bg-yellow-50'
         }`}>
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <TrendingUp className="h-3 w-3" />
             Rentabilidad Mensual
           </div>
@@ -392,18 +392,18 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
 
       {/* Proyección visual */}
       {puntoEquilibrio.gananciaUnitaria > 0 && (
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h5 className="text-sm font-medium text-gray-700 mb-3">Proyección de Recuperación</h5>
+        <div className="bg-slate-50 rounded-lg p-4">
+          <h5 className="text-sm font-medium text-slate-700 mb-3">Proyección de Recuperación</h5>
 
-          <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden">
+          <div className="relative h-8 bg-slate-200 rounded-full overflow-hidden">
             {/* Marcadores de meses */}
             {[1, 2, 3, 4, 5, 6].map((mes) => (
               <div
                 key={mes}
-                className="absolute top-0 bottom-0 border-r border-gray-300"
+                className="absolute top-0 bottom-0 border-r border-slate-300"
                 style={{ left: `${(mes / 6) * 100}%` }}
               >
-                <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs text-gray-400">
+                <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs text-slate-400">
                   M{mes}
                 </span>
               </div>
@@ -454,20 +454,20 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
 
           <div className="mt-8 grid grid-cols-3 gap-1 sm:gap-2 text-center">
             <div>
-              <p className="text-xs text-gray-500 truncate">Unidad #{puntoEquilibrio.unidadesParaRecuperarCapital}</p>
+              <p className="text-xs text-slate-500 truncate">Unidad #{puntoEquilibrio.unidadesParaRecuperarCapital}</p>
               <p className="text-xs sm:text-sm font-medium text-green-600">Recuperas capital</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 truncate">#{puntoEquilibrio.unidadesParaRecuperarCapital + 1}-{unidadesAComprar}</p>
+              <p className="text-xs text-slate-500 truncate">#{puntoEquilibrio.unidadesParaRecuperarCapital + 1}-{unidadesAComprar}</p>
               <p className="text-xs sm:text-sm font-medium text-emerald-600">¡Ganancia pura!</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Al vender todo</p>
+              <p className="text-xs text-slate-500">Al vender todo</p>
               <p className="text-xs sm:text-sm font-medium text-purple-600">+{formatMoney(puntoEquilibrio.gananciaTotalPotencial)}</p>
             </div>
           </div>
 
-          <div className="mt-4 text-xs text-gray-500 text-center">
+          <div className="mt-4 text-xs text-slate-500 text-center">
             Proyección a 6 meses con {ventasMensuales} ventas/mes
           </div>
         </div>

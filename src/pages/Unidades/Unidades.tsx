@@ -510,7 +510,7 @@ export const Unidades: React.FC = () => {
             {hayFiltrosActivos && (
               <button
                 onClick={limpiarFiltros}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                className="text-sm text-teal-600 hover:text-teal-700 font-medium"
               >
                 Limpiar filtros
               </button>
@@ -526,7 +526,7 @@ export const Unidades: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {loading ? (
               <div className="col-span-full flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
               </div>
             ) : unidadesPaginadas.length === 0 ? (
               <div className="col-span-full">
@@ -576,7 +576,7 @@ export const Unidades: React.FC = () => {
         <Card padding="md">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
             </div>
           ) : unidadesFiltradas.length === 0 ? (
             <div className="text-center py-12">
@@ -667,7 +667,7 @@ export const Unidades: React.FC = () => {
                         <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                           <button
                             onClick={() => setUnidadSeleccionada(unidad)}
-                            className="p-1.5 text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg transition-colors"
+                            className="p-1.5 text-teal-600 hover:text-teal-800 hover:bg-teal-50 rounded-lg transition-colors"
                             title="Ver detalles"
                           >
                             <Eye className="h-4 w-4" />

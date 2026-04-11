@@ -229,7 +229,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                           href={prod.urlReferencia}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-primary-600 hover:underline inline-flex items-center"
+                          className="text-teal-600 hover:underline inline-flex items-center"
                         >
                           Ver referencia
                           <ExternalLink className="h-3 w-3 ml-1" />

@@ -160,7 +160,7 @@ const DetailModalBase: React.FC<DetailModalBaseProps> = ({
           </div>
 
           {/* Content with scroll */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)] bg-gray-50">
+          <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)] bg-slate-50">
             {children}
           </div>
         </div>
@@ -293,7 +293,7 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
       title={cliente.nombre}
       code={cliente.codigo}
       subtitle={`Cliente desde ${formatFecha(cliente.fechaCreacion)}`}
-      headerColor="from-blue-600 to-indigo-700"
+      headerColor="from-blue-600 to-teal-700"
       badge={{
         text: cliente.estado.toUpperCase(),
         variant: cliente.estado === 'activo' ? 'success' : cliente.estado === 'potencial' ? 'info' : 'default'
@@ -384,43 +384,43 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
                 iconColor="text-blue-500"
               />
               <div className="space-y-3">
-                <div className="flex items-center gap-3 py-2 border-b border-gray-100">
-                  <Phone className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-3 py-2 border-b border-slate-100">
+                  <Phone className="h-4 w-4 text-slate-400" />
                   <div>
                     <p className="text-sm font-medium">{cliente.telefono || 'Sin teléfono'}</p>
                     {cliente.telefonoAlt && (
-                      <p className="text-xs text-gray-500">Alt: {cliente.telefonoAlt}</p>
+                      <p className="text-xs text-slate-500">Alt: {cliente.telefonoAlt}</p>
                     )}
                   </div>
                 </div>
                 {cliente.email && (
-                  <div className="flex items-center gap-3 py-2 border-b border-gray-100">
-                    <Mail className="h-4 w-4 text-gray-400" />
+                  <div className="flex items-center gap-3 py-2 border-b border-slate-100">
+                    <Mail className="h-4 w-4 text-slate-400" />
                     <p className="text-sm">{cliente.email}</p>
                   </div>
                 )}
                 {cliente.dniRuc && (
-                  <div className="flex items-center gap-3 py-2 border-b border-gray-100">
-                    <Hash className="h-4 w-4 text-gray-400" />
+                  <div className="flex items-center gap-3 py-2 border-b border-slate-100">
+                    <Hash className="h-4 w-4 text-slate-400" />
                     <div>
-                      <p className="text-xs text-gray-500">{cliente.dniRuc.length === 11 ? 'RUC' : 'DNI'}</p>
+                      <p className="text-xs text-slate-500">{cliente.dniRuc.length === 11 ? 'RUC' : 'DNI'}</p>
                       <p className="text-sm font-medium">{cliente.dniRuc}</p>
                     </div>
                   </div>
                 )}
-                <div className="flex items-center gap-3 py-2 border-b border-gray-100">
-                  <Building2 className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-3 py-2 border-b border-slate-100">
+                  <Building2 className="h-4 w-4 text-slate-400" />
                   <div>
-                    <p className="text-xs text-gray-500">Tipo</p>
+                    <p className="text-xs text-slate-500">Tipo</p>
                     <p className="text-sm font-medium capitalize">
                       {cliente.tipoCliente === 'persona' ? 'Persona Natural' : 'Empresa'}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 py-2">
-                  <Globe className="h-4 w-4 text-gray-400" />
+                  <Globe className="h-4 w-4 text-slate-400" />
                   <div>
-                    <p className="text-xs text-gray-500">Canal de Origen</p>
+                    <p className="text-xs text-slate-500">Canal de Origen</p>
                     <p className="text-sm font-medium capitalize">{resolverNombreCanal(cliente.canalOrigen)}</p>
                   </div>
                 </div>
@@ -441,24 +441,24 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 mb-4">Sin etiquetas asignadas</p>
+                <p className="text-sm text-slate-500 mb-4">Sin etiquetas asignadas</p>
               )}
 
               {cliente.notas && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <p className="text-xs text-gray-500 mb-1">Notas</p>
-                  <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">{cliente.notas}</p>
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <p className="text-xs text-slate-500 mb-1">Notas</p>
+                  <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">{cliente.notas}</p>
                 </div>
               )}
 
               {/* Productos favoritos */}
               {cliente.metricas?.productosFavoritos && cliente.metricas.productosFavoritos.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-4 pt-4 border-t border-slate-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Crown className="h-4 w-4 text-yellow-500" />
-                    <p className="text-xs font-medium text-gray-700">Productos Favoritos</p>
+                    <p className="text-xs font-medium text-slate-700">Productos Favoritos</p>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-600">
                     {cliente.metricas.productosFavoritos.length} productos identificados
                   </p>
                 </div>
@@ -480,7 +480,7 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
               {cliente.direcciones.map((dir) => (
                 <div
                   key={dir.id}
-                  className={`p-3 rounded-lg border-2 ${dir.esPrincipal ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'}`}
+                  className={`p-3 rounded-lg border-2 ${dir.esPrincipal ? 'border-blue-300 bg-blue-50' : 'border-slate-200 bg-white'}`}
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-medium text-sm">{dir.etiqueta}</span>
@@ -488,12 +488,12 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
                       <span className="px-1.5 py-0.5 bg-blue-500 text-white text-xs rounded">Principal</span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600">{dir.direccion}</p>
+                  <p className="text-sm text-slate-600">{dir.direccion}</p>
                   {dir.distrito && (
-                    <p className="text-xs text-gray-500">{dir.distrito}, {dir.ciudad}</p>
+                    <p className="text-xs text-slate-500">{dir.distrito}, {dir.ciudad}</p>
                   )}
                   {dir.referencia && (
-                    <p className="text-xs text-gray-400 mt-1 italic">Ref: {dir.referencia}</p>
+                    <p className="text-xs text-slate-400 mt-1 italic">Ref: {dir.referencia}</p>
                   )}
                 </div>
               ))}
@@ -682,25 +682,25 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
                 iconColor="text-green-500"
               />
               <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-sm text-gray-600">Tipo de Marca</span>
+                <div className="flex justify-between py-2 border-b border-slate-100">
+                  <span className="text-sm text-slate-600">Tipo de Marca</span>
                   <span className="text-sm font-medium capitalize">{marca.tipoMarca}</span>
                 </div>
                 {marca.paisOrigen && (
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">País de Origen</span>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-sm text-slate-600">País de Origen</span>
                     <span className="text-sm font-medium">{marca.paisOrigen}</span>
                   </div>
                 )}
                 {marca.metricas?.ultimaVenta && (
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Última Venta</span>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-sm text-slate-600">Última Venta</span>
                     <span className="text-sm font-medium">{formatFecha(marca.metricas.ultimaVenta)}</span>
                   </div>
                 )}
                 {marca.sitioWeb && (
                   <div className="pt-2">
-                    <p className="text-xs text-gray-500 mb-1">Sitio Web</p>
+                    <p className="text-xs text-slate-500 mb-1">Sitio Web</p>
                     <a
                       href={marca.sitioWeb.startsWith('http') ? marca.sitioWeb : `https://${marca.sitioWeb}`}
                       target="_blank"
@@ -715,18 +715,18 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
               </div>
 
               {/* Alias */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-xs font-medium text-gray-700 mb-2">Nombres Alternativos (Alias)</p>
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <p className="text-xs font-medium text-slate-700 mb-2">Nombres Alternativos (Alias)</p>
                 {marca.alias && marca.alias.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {marca.alias.map((alias, idx) => (
-                      <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                      <span key={idx} className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs">
                         {alias}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500">Sin alias registrados</p>
+                  <p className="text-sm text-slate-500">Sin alias registrados</p>
                 )}
               </div>
             </Card>
@@ -741,7 +741,7 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
               {marca.proveedoresPreferidos && marca.proveedoresPreferidos.length > 0 ? (
                 <div className="space-y-2">
                   {marca.proveedoresPreferidos.map((prov, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                    <div key={idx} className="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
                       <span className="text-sm font-medium">{prov.nombreProveedor}</span>
                       {prov.esPrincipal && (
                         <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">
@@ -752,22 +752,22 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">Sin proveedores preferidos configurados</p>
+                <p className="text-sm text-slate-500">Sin proveedores preferidos configurados</p>
               )}
 
               {/* Notas */}
               {(marca.descripcion || marca.notas) && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-4 pt-4 border-t border-slate-200">
                   {marca.descripcion && (
                     <div className="mb-3">
-                      <p className="text-xs font-medium text-gray-700 mb-1">Descripción</p>
-                      <p className="text-sm text-gray-600">{marca.descripcion}</p>
+                      <p className="text-xs font-medium text-slate-700 mb-1">Descripción</p>
+                      <p className="text-sm text-slate-600">{marca.descripcion}</p>
                     </div>
                   )}
                   {marca.notas && (
                     <div>
-                      <p className="text-xs font-medium text-gray-700 mb-1">Notas</p>
-                      <p className="text-sm text-gray-600 bg-yellow-50 p-2 rounded">{marca.notas}</p>
+                      <p className="text-xs font-medium text-slate-700 mb-1">Notas</p>
+                      <p className="text-sm text-slate-600 bg-yellow-50 p-2 rounded">{marca.notas}</p>
                     </div>
                   )}
                 </div>
@@ -777,7 +777,7 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
         />
 
         {/* Footer con fechas */}
-        <div className="flex justify-between text-xs text-gray-500 pt-2 border-t border-gray-200">
+        <div className="flex justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
           <span>Creada: {formatFecha(marca.fechaCreacion)}</span>
           {marca.fechaActualizacion && (
             <span>Actualizada: {formatFecha(marca.fechaActualizacion)}</span>
@@ -968,37 +968,37 @@ export const ProveedorDetalleModal: React.FC<ProveedorDetalleModalProps> = ({
                 iconColor="text-purple-500"
               />
               <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-sm text-gray-600">Tipo</span>
+                <div className="flex justify-between py-2 border-b border-slate-100">
+                  <span className="text-sm text-slate-600">Tipo</span>
                   <span className="text-sm font-medium capitalize">{proveedor.tipo}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-sm text-gray-600">País</span>
+                <div className="flex justify-between py-2 border-b border-slate-100">
+                  <span className="text-sm text-slate-600">País</span>
                   <span className="text-sm font-medium">{proveedor.pais}</span>
                 </div>
                 {proveedor.contacto && (
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Contacto</span>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-sm text-slate-600">Contacto</span>
                     <span className="text-sm font-medium">{proveedor.contacto}</span>
                   </div>
                 )}
                 {proveedor.email && (
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Email</span>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-sm text-slate-600">Email</span>
                     <a href={`mailto:${proveedor.email}`} className="text-sm text-blue-600 hover:underline">
                       {proveedor.email}
                     </a>
                   </div>
                 )}
                 {proveedor.telefono && (
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Teléfono</span>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-sm text-slate-600">Teléfono</span>
                     <span className="text-sm font-medium">{proveedor.telefono}</span>
                   </div>
                 )}
                 {proveedor.url && (
                   <div className="pt-2">
-                    <p className="text-xs text-gray-500 mb-1">URL</p>
+                    <p className="text-xs text-slate-500 mb-1">URL</p>
                     <a
                       href={proveedor.url.startsWith('http') ? proveedor.url : `https://${proveedor.url}`}
                       target="_blank"
@@ -1035,8 +1035,8 @@ export const ProveedorDetalleModal: React.FC<ProveedorDetalleModalProps> = ({
                   invertColors
                 />
                 {proveedor.metricas?.ultimaCompra && (
-                  <div className="flex justify-between py-2 border-t border-gray-100">
-                    <span className="text-sm text-gray-600">Última Compra</span>
+                  <div className="flex justify-between py-2 border-t border-slate-100">
+                    <span className="text-sm text-slate-600">Última Compra</span>
                     <span className="text-sm font-medium">{formatFecha(proveedor.metricas.ultimaCompra)}</span>
                   </div>
                 )}
@@ -1044,18 +1044,18 @@ export const ProveedorDetalleModal: React.FC<ProveedorDetalleModalProps> = ({
 
               {/* Productos comprados */}
               {proveedor.metricas?.productosComprados && proveedor.metricas.productosComprados.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <p className="text-xs font-medium text-gray-700 mb-2">
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <p className="text-xs font-medium text-slate-700 mb-2">
                     SKUs Comprados ({proveedor.metricas.productosComprados.length})
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {proveedor.metricas.productosComprados.slice(0, 8).map((sku: string, idx: number) => (
-                      <span key={idx} className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">
+                      <span key={idx} className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-xs">
                         {sku}
                       </span>
                     ))}
                     {proveedor.metricas.productosComprados.length > 8 && (
-                      <span className="px-2 py-0.5 bg-gray-200 text-gray-600 rounded text-xs">
+                      <span className="px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-xs">
                         +{proveedor.metricas.productosComprados.length - 8}
                       </span>
                     )}
@@ -1069,13 +1069,13 @@ export const ProveedorDetalleModal: React.FC<ProveedorDetalleModalProps> = ({
         {/* Notas */}
         {proveedor.notasInternas && (
           <Card padding="md">
-            <SectionHeader title="Notas Internas" icon={FileText} iconColor="text-gray-500" />
-            <p className="text-sm text-gray-700 bg-yellow-50 p-3 rounded-lg">{proveedor.notasInternas}</p>
+            <SectionHeader title="Notas Internas" icon={FileText} iconColor="text-slate-500" />
+            <p className="text-sm text-slate-700 bg-yellow-50 p-3 rounded-lg">{proveedor.notasInternas}</p>
           </Card>
         )}
 
         {/* Footer */}
-        <div className="flex justify-between text-xs text-gray-500 pt-2 border-t border-gray-200">
+        <div className="flex justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
           <span>Registrado: {formatFecha(proveedor.fechaCreacion)}</span>
           {proveedor.ultimaEdicion && (
             <span>Actualizado: {formatFecha(proveedor.ultimaEdicion)}</span>
@@ -1324,7 +1324,7 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
                     size="sm"
                     showValues={false}
                   />
-                  <p className="text-xs text-center text-gray-500 mt-1">
+                  <p className="text-xs text-center text-slate-500 mt-1">
                     {capacidadUsada.toFixed(0)}% capacidad
                   </p>
                 </div>
@@ -1373,7 +1373,7 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
               iconColor="text-amber-500"
             />
             <div className="relative mt-3">
-              <div className="h-8 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-8 bg-slate-200 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
                     capacidadUsada >= 90 ? 'bg-gradient-to-r from-red-400 to-red-600' :
@@ -1383,7 +1383,7 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
                   style={{ width: `${Math.min(capacidadUsada, 100)}%` }}
                 />
               </div>
-              <div className="flex justify-between mt-2 text-sm text-gray-600">
+              <div className="flex justify-between mt-2 text-sm text-slate-600">
                 <span>{capacidadUsada.toFixed(0)}% usado</span>
                 <span>{(100 - capacidadUsada).toFixed(0)}% disponible</span>
               </div>
@@ -1402,33 +1402,33 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
               />
               <div className="space-y-2">
                 <p className="text-sm font-medium">{almacen.direccion}</p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-slate-600">
                   {almacen.ciudad}{almacen.estado ? `, ${almacen.estado}` : ''} - {almacen.pais}
                 </p>
                 {almacen.codigoPostal && (
-                  <p className="text-xs text-gray-500">CP: {almacen.codigoPostal}</p>
+                  <p className="text-xs text-slate-500">CP: {almacen.codigoPostal}</p>
                 )}
               </div>
 
               {/* Contacto */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-xs font-medium text-gray-700 mb-2">Contacto</p>
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <p className="text-xs font-medium text-slate-700 mb-2">Contacto</p>
                 <div className="space-y-2">
                   {almacen.contacto && (
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-gray-400" />
+                      <User className="h-4 w-4 text-slate-400" />
                       <span className="text-sm">{almacen.contacto}</span>
                     </div>
                   )}
                   {almacen.telefono && (
                     <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-gray-400" />
+                      <Phone className="h-4 w-4 text-slate-400" />
                       <span className="text-sm">{almacen.telefono}</span>
                     </div>
                   )}
                   {almacen.email && (
                     <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-gray-400" />
+                      <Mail className="h-4 w-4 text-slate-400" />
                       <span className="text-sm">{almacen.email}</span>
                     </div>
                   )}
@@ -1471,8 +1471,8 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
                       {metricas.loading ? '...' : metricas.totalUnidadesEnviadas.toLocaleString()}
                     </p>
                   </div>
-                  <div className="bg-gray-50 p-3 rounded-lg col-span-2">
-                    <p className="text-xs text-gray-600">Días Promedio en Almacén</p>
+                  <div className="bg-slate-50 p-3 rounded-lg col-span-2">
+                    <p className="text-xs text-slate-600">Días Promedio en Almacén</p>
                     <p className="text-sm font-bold">
                       {metricas.loading ? '...' : `${metricas.tiempoPromedioAlmacenamiento} días`}
                     </p>
@@ -1503,19 +1503,19 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
                   iconColor="text-blue-500"
                 />
                 <div className="space-y-3">
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Tiempo Prom. Almacenamiento</span>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-sm text-slate-600">Tiempo Prom. Almacenamiento</span>
                     <span className="text-sm font-medium">
                       {metricas.loading ? '...' : `${metricas.tiempoPromedioAlmacenamiento} días`}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Fecha de Registro</span>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-sm text-slate-600">Fecha de Registro</span>
                     <span className="text-sm font-medium">{formatFecha(almacen.fechaCreacion)}</span>
                   </div>
                   {almacen.fechaActualizacion && (
                     <div className="flex justify-between py-2">
-                      <span className="text-sm text-gray-600">Última Actualización</span>
+                      <span className="text-sm text-slate-600">Última Actualización</span>
                       <span className="text-sm font-medium">{formatFecha(almacen.fechaActualizacion)}</span>
                     </div>
                   )}
@@ -1528,8 +1528,8 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
         {/* Notas */}
         {almacen.notas && (
           <Card padding="md">
-            <SectionHeader title="Notas" icon={FileText} iconColor="text-gray-500" />
-            <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">{almacen.notas}</p>
+            <SectionHeader title="Notas" icon={FileText} iconColor="text-slate-500" />
+            <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">{almacen.notas}</p>
           </Card>
         )}
       </div>
@@ -1564,7 +1564,7 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
       case 'alto': return { color: 'from-red-600 to-rose-700', badge: 'danger', label: 'ALTO RIESGO', score: 85 };
       case 'medio': return { color: 'from-yellow-600 to-amber-700', badge: 'warning', label: 'MEDIO', score: 50 };
       case 'bajo': return { color: 'from-green-600 to-emerald-700', badge: 'success', label: 'BAJO', score: 25 };
-      default: return { color: 'from-gray-600 to-slate-700', badge: 'default', label: 'DESCONOCIDO', score: 50 };
+      default: return { color: 'from-slate-600 to-slate-700', badge: 'default', label: 'DESCONOCIDO', score: 50 };
     }
   };
 
@@ -1720,19 +1720,19 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
               />
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs text-gray-500">Plataforma Principal</p>
+                  <p className="text-xs text-slate-500">Plataforma Principal</p>
                   <p className="text-sm font-medium capitalize">{(competidor.plataformaPrincipal || 'otra').replace('_', ' ')}</p>
                 </div>
 
                 {/* Mostrar plataformasData si existe (nuevo sistema) */}
                 {competidor.plataformasData && competidor.plataformasData.length > 0 && (
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Plataformas</p>
+                    <p className="text-xs text-slate-500 mb-1">Plataformas</p>
                     <div className="flex flex-wrap gap-1">
                       {competidor.plataformasData.map((p) => (
                         <span
                           key={p.id}
-                          className={`px-2 py-0.5 text-xs rounded ${p.esPrincipal ? 'bg-primary-100 text-primary-700 font-medium' : 'bg-gray-100 text-gray-700'}`}
+                          className={`px-2 py-0.5 text-xs rounded ${p.esPrincipal ? 'bg-teal-100 text-teal-700 font-medium' : 'bg-slate-100 text-slate-700'}`}
                         >
                           {p.nombre}{p.esPrincipal ? ' ⭐' : ''}
                         </span>
@@ -1744,12 +1744,12 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
                 {/* Fallback: mostrar plataformas legacy si no hay plataformasData */}
                 {(!competidor.plataformasData || competidor.plataformasData.length === 0) && competidor.plataformas && competidor.plataformas.length > 1 && (
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Otras Plataformas</p>
+                    <p className="text-xs text-slate-500 mb-1">Otras Plataformas</p>
                     <div className="flex flex-wrap gap-1">
                       {competidor.plataformas
                         .filter(p => p !== competidor.plataformaPrincipal)
                         .map((p, idx) => (
-                          <span key={idx} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
+                          <span key={idx} className="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded">
                             {p?.replace('_', ' ')}
                           </span>
                         ))}
@@ -1759,7 +1759,7 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
 
                 {competidor.urlTienda && (
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">URL de Tienda</p>
+                    <p className="text-xs text-slate-500 mb-1">URL de Tienda</p>
                     <a
                       href={competidor.urlTienda}
                       target="_blank"
@@ -1782,8 +1782,8 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
 
               {/* Alias */}
               {competidor.alias && competidor.alias.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <p className="text-xs font-medium text-gray-700 mb-2">Nombres Alternativos</p>
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <p className="text-xs font-medium text-slate-700 mb-2">Nombres Alternativos</p>
                   <div className="flex flex-wrap gap-2">
                     {competidor.alias.map((alias, idx) => (
                       <Badge key={idx} variant="default">{alias}</Badge>
@@ -1806,38 +1806,38 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
                   competidor.nivelAmenaza === 'medio' ? 'bg-yellow-50' :
                   'bg-green-50'
                 }`}>
-                  <p className="text-xs text-gray-600">Nivel Amenaza</p>
+                  <p className="text-xs text-slate-600">Nivel Amenaza</p>
                   <p className="text-sm font-bold capitalize">{competidor.nivelAmenaza}</p>
                 </div>
                 <div className={`p-3 rounded-lg ${
                   competidor.reputacion === 'excelente' || competidor.reputacion === 'buena' ? 'bg-green-50' :
                   competidor.reputacion === 'regular' ? 'bg-yellow-50' :
                   competidor.reputacion === 'mala' ? 'bg-red-50' :
-                  'bg-gray-50'
+                  'bg-slate-50'
                 }`}>
-                  <p className="text-xs text-gray-600">Reputación</p>
+                  <p className="text-xs text-slate-600">Reputación</p>
                   <p className="text-sm font-bold capitalize">{competidor.reputacion}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-blue-50">
-                  <p className="text-xs text-gray-600">Estrategia Precio</p>
+                  <p className="text-xs text-slate-600">Estrategia Precio</p>
                   <p className="text-sm font-bold capitalize">{competidor.estrategiaPrecio || 'N/A'}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-purple-50">
-                  <p className="text-xs text-gray-600">Último Análisis</p>
+                  <p className="text-xs text-slate-600">Último Análisis</p>
                   <p className="text-sm font-bold">{formatFecha(competidor.metricas?.ultimaActualizacion)}</p>
                 </div>
               </div>
 
               {/* Fortalezas y Debilidades */}
               {(competidor.fortalezas || competidor.debilidades) && (
-                <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
+                <div className="mt-4 pt-4 border-t border-slate-200 space-y-3">
                   {competidor.fortalezas && (
                     <div>
                       <div className="flex items-center gap-1 mb-1">
                         <TrendingUp className="h-4 w-4 text-green-600" />
                         <p className="text-xs font-medium text-green-700">Fortalezas</p>
                       </div>
-                      <p className="text-sm text-gray-700 bg-green-50 p-2 rounded">{competidor.fortalezas}</p>
+                      <p className="text-sm text-slate-700 bg-green-50 p-2 rounded">{competidor.fortalezas}</p>
                     </div>
                   )}
                   {competidor.debilidades && (
@@ -1846,7 +1846,7 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
                         <TrendingDown className="h-4 w-4 text-red-600" />
                         <p className="text-xs font-medium text-red-700">Debilidades</p>
                       </div>
-                      <p className="text-sm text-gray-700 bg-red-50 p-2 rounded">{competidor.debilidades}</p>
+                      <p className="text-sm text-slate-700 bg-red-50 p-2 rounded">{competidor.debilidades}</p>
                     </div>
                   )}
                 </div>
@@ -1874,13 +1874,13 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
         {/* Notas */}
         {competidor.notas && (
           <Card padding="md">
-            <SectionHeader title="Notas" icon={FileText} iconColor="text-gray-500" />
-            <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">{competidor.notas}</p>
+            <SectionHeader title="Notas" icon={FileText} iconColor="text-slate-500" />
+            <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">{competidor.notas}</p>
           </Card>
         )}
 
         {/* Footer */}
-        <div className="flex justify-between text-xs text-gray-500 pt-2 border-t border-gray-200">
+        <div className="flex justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
           <span>Registrado: {formatFecha(competidor.fechaCreacion)}</span>
           {competidor.fechaActualizacion && (
             <span>Actualizado: {formatFecha(competidor.fechaActualizacion)}</span>

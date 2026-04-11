@@ -38,7 +38,7 @@ export const TransferenciaFilters: React.FC<TransferenciaFiltersProps> = ({
             onClick={() => onTabChange('todas')}
             className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
               activeTab === 'todas'
-                ? 'border-primary-500 text-primary-600'
+                ? 'border-teal-500 text-teal-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
@@ -76,14 +76,14 @@ export const TransferenciaFilters: React.FC<TransferenciaFiltersProps> = ({
             placeholder="Buscar..."
             value={busqueda}
             onChange={(e) => onBusquedaChange(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-48"
+            className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-48"
           />
         </div>
         <div className="flex items-center gap-2">
           <select
             value={filtroTipo}
             onChange={(e) => onFiltroTipoChange(e.target.value as TipoTransferencia | 'todas')}
-            className="flex-1 sm:flex-initial px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="flex-1 sm:flex-initial px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="todas">Todos los tipos</option>
             <option value="internacional_peru">Internacional → Peru</option>
@@ -92,7 +92,7 @@ export const TransferenciaFilters: React.FC<TransferenciaFiltersProps> = ({
           <select
             value={filtroEstado}
             onChange={(e) => onFiltroEstadoChange(e.target.value as EstadoTransferencia | 'todas')}
-            className="flex-1 sm:flex-initial px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="flex-1 sm:flex-initial px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="todas">Todos los estados</option>
             <option value="borrador">Borrador</option>

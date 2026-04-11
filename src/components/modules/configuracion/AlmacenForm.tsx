@@ -74,7 +74,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Información Básica */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Información Básica</h3>
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Información Básica</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Código *"
@@ -138,7 +138,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
 
       {/* Ubicación */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Ubicación</h3>
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Ubicación</h3>
         <div className="grid grid-cols-1 gap-4">
           <Input
             label="Dirección"
@@ -178,7 +178,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
 
       {/* Información de Contacto */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Información de Contacto</h3>
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Información de Contacto</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Contacto"
@@ -211,7 +211,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
 
       {/* Notas */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
           Notas
         </label>
         <textarea
@@ -219,7 +219,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
           value={formData.notas || ''}
           onChange={handleChange}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           placeholder="Información adicional sobre el almacén..."
         />
       </div>

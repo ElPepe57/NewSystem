@@ -62,8 +62,8 @@ export const DiferencialCambiarioWidget: React.FC = () => {
   if (loading) {
     return (
       <Card className="p-4 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/3 mb-3" />
-        <div className="h-8 bg-gray-200 rounded w-1/2" />
+        <div className="h-4 bg-slate-200 rounded w-1/3 mb-3" />
+        <div className="h-8 bg-slate-200 rounded w-1/2" />
       </Card>
     );
   }
@@ -72,10 +72,10 @@ export const DiferencialCambiarioWidget: React.FC = () => {
     return (
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-1">
-          <DollarSign className="h-4 w-4 text-gray-400" />
-          <h3 className="text-sm font-semibold text-gray-700">Impacto FX</h3>
+          <DollarSign className="h-4 w-4 text-slate-400" />
+          <h3 className="text-sm font-semibold text-slate-700">Impacto FX</h3>
         </div>
-        <p className="text-xs text-gray-500">Sin datos de tipo de cambio disponibles.</p>
+        <p className="text-xs text-slate-500">Sin datos de tipo de cambio disponibles.</p>
       </Card>
     );
   }
@@ -96,7 +96,7 @@ export const DiferencialCambiarioWidget: React.FC = () => {
           ? <TrendingUp className="h-5 w-5 text-emerald-500" />
           : data.gananciaPerdiaPotencialPEN < 0
             ? <TrendingDown className="h-5 w-5 text-red-500" />
-            : <Minus className="h-4 w-4 text-gray-400" />
+            : <Minus className="h-4 w-4 text-slate-400" />
         }
       </div>
 
@@ -109,7 +109,7 @@ export const DiferencialCambiarioWidget: React.FC = () => {
           <div className={`text-xl font-bold ${esGanancia ? 'text-emerald-900' : 'text-red-900'}`}>
             {esGanancia ? '+' : '-'}{fmt(data.gananciaPerdiaPotencialPEN)}
           </div>
-          <div className="text-xs text-gray-500 mt-0.5">
+          <div className="text-xs text-slate-500 mt-0.5">
             sobre ${data.saldoUSD.toFixed(2)} USD en pool
           </div>
         </div>
@@ -118,14 +118,14 @@ export const DiferencialCambiarioWidget: React.FC = () => {
         <div>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="text-xs text-gray-500">TCPA</div>
-              <div className="text-sm font-bold text-gray-900">
+              <div className="text-xs text-slate-500">TCPA</div>
+              <div className="text-sm font-bold text-slate-900">
                 {data.tcpa > 0 ? data.tcpa.toFixed(4) : '-'}
               </div>
             </div>
             <div>
-              <div className="text-xs text-gray-500">TC Hoy</div>
-              <div className="text-sm font-bold text-gray-900">
+              <div className="text-xs text-slate-500">TC Hoy</div>
+              <div className="text-sm font-bold text-slate-900">
                 {data.tcDelDia > 0 ? data.tcDelDia.toFixed(4) : '-'}
               </div>
             </div>

@@ -77,7 +77,7 @@ export const ListaView: React.FC<ListaViewProps> = ({
                 <tr key={item.id} className={`hover:bg-slate-50 ${item.estado === 'rechazada' || item.estado === 'vencida' ? 'bg-red-50' : ''}`}>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-primary-600">{item.numeroCotizacion}</span>
+                      <span className="text-sm font-medium text-teal-600">{item.numeroCotizacion}</span>
                       {requiereStock && (
                         <span className="px-1.5 py-0.5 text-xs bg-amber-100 text-amber-700 rounded">Sin stock</span>
                       )}
@@ -145,7 +145,7 @@ export const ListaView: React.FC<ListaViewProps> = ({
                   </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <button onClick={() => onVerDetalles(item)} className="p-1.5 text-slate-400 hover:text-primary-600" title="Ver">
+                      <button onClick={() => onVerDetalles(item)} className="p-1.5 text-slate-400 hover:text-teal-600" title="Ver">
                         <Eye className="h-4 w-4" />
                       </button>
                       {item.telefonoCliente && (

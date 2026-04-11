@@ -44,7 +44,7 @@ export const CompartidoBadge: React.FC<{
     : 'px-2 py-0.5 text-xs';
 
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full font-medium bg-gray-100 text-gray-600 ${sizeClasses}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full font-medium bg-slate-100 text-slate-600 ${sizeClasses}`}>
       <Share2 className={size === 'sm' ? 'h-2.5 w-2.5' : 'h-3 w-3'} />
       Compartido
     </span>
@@ -78,7 +78,7 @@ export const PaisOrigenBadge: React.FC<{
     : 'px-2 py-0.5 text-xs';
 
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full font-medium bg-gray-100 text-gray-700 ${sizeClasses}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full font-medium bg-slate-100 text-slate-700 ${sizeClasses}`}>
       🌐 {paisOrigen}
     </span>
   );
@@ -107,7 +107,7 @@ export const LineaFiltroActivoBanner: React.FC<{
       }}
     >
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-600">Mostrando:</span>
+        <span className="text-sm text-slate-600">Mostrando:</span>
         <span
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold"
           style={{ backgroundColor: `${linea.color}20`, color: linea.color }}
@@ -118,7 +118,7 @@ export const LineaFiltroActivoBanner: React.FC<{
       </div>
       <button
         onClick={onClear}
-        className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-200"
+        className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-full hover:bg-slate-200"
         title="Mostrar todas las líneas"
       >
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

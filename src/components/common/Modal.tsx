@@ -280,7 +280,7 @@ export const Modal: React.FC<ModalProps> = ({
             className={`
               flex items-center justify-between
               px-4 py-3 sm:px-6 sm:py-4
-              border-b border-gray-200 bg-white
+              border-b border-slate-200 bg-white
               sm:rounded-t-xl
               ${showHeaderShadow && hasScroll && !isAtTop ? 'shadow-md z-10' : ''}
             `}
@@ -290,18 +290,18 @@ export const Modal: React.FC<ModalProps> = ({
             }}
           >
             <div className="flex-1 min-w-0 pr-4">
-              <h2 id={titleId} className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+              <h2 id={titleId} className="text-lg sm:text-xl font-semibold text-slate-900 truncate">
                 {title}
               </h2>
               {subtitle && (
-                <p id={descriptionId} className="text-sm text-gray-500 mt-0.5 truncate">
+                <p id={descriptionId} className="text-sm text-slate-500 mt-0.5 truncate">
                   {subtitle}
                 </p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors rounded-full p-2 hover:bg-gray-100 active:bg-gray-200"
+              className="flex-shrink-0 text-slate-400 hover:text-slate-600 transition-colors rounded-full p-2 hover:bg-slate-100 active:bg-slate-200"
               aria-label="Cerrar modal"
             >
               <X className="h-5 w-5" />
@@ -341,7 +341,7 @@ export const Modal: React.FC<ModalProps> = ({
             <div
               className={`
                 px-4 py-3 sm:px-6 sm:py-4
-                border-t border-gray-200 bg-gray-50
+                border-t border-slate-200 bg-slate-50
                 sm:rounded-b-xl
                 ${showHeaderShadow && hasScroll && !isAtBottom ? 'shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]' : ''}
               `}

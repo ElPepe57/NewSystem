@@ -81,7 +81,7 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: () => void }> = ({ toast, on
         {/* Boton cerrar */}
         <button
           onClick={onRemove}
-          className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+          className="flex-shrink-0 p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
@@ -89,7 +89,7 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: () => void }> = ({ toast, on
 
       {/* Barra de progreso */}
       {toast.duration > 0 && !toast.isLeaving && (
-        <div className="h-1 bg-gray-100">
+        <div className="h-1 bg-slate-100">
           <div
             className={`h-full ${style.iconBg.replace('100', '400')}`}
             style={{

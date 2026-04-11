@@ -74,15 +74,15 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({
 
     const data = payload[0].payload;
     return (
-      <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200 text-sm">
-        <p className="font-medium text-gray-900">{data.fechaCompleta}</p>
+      <div className="bg-white p-3 rounded-lg shadow-lg border border-slate-200 text-sm">
+        <p className="font-medium text-slate-900">{data.fechaCompleta}</p>
         <div className="mt-2 space-y-1">
-          <p className="text-gray-600">
-            <span className="font-medium text-primary-600">${data.precio.toFixed(2)}</span> USD
+          <p className="text-slate-600">
+            <span className="font-medium text-teal-600">${data.precio.toFixed(2)}</span> USD
           </p>
-          <p className="text-gray-500 text-xs">Proveedor: {data.proveedor}</p>
-          <p className="text-gray-500 text-xs">Cantidad: {data.cantidad} unidades</p>
-          <p className="text-gray-500 text-xs">Orden: {data.orden}</p>
+          <p className="text-slate-500 text-xs">Proveedor: {data.proveedor}</p>
+          <p className="text-slate-500 text-xs">Cantidad: {data.cantidad} unidades</p>
+          <p className="text-slate-500 text-xs">Orden: {data.orden}</p>
         </div>
       </div>
     );
@@ -91,10 +91,10 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({
   if (puntos.length === 0) {
     return (
       <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg border border-dashed border-gray-300"
+        className="flex items-center justify-center bg-slate-50 rounded-lg border border-dashed border-slate-300"
         style={{ height }}
       >
-        <p className="text-sm text-gray-400">Sin datos históricos para graficar</p>
+        <p className="text-sm text-slate-400">Sin datos históricos para graficar</p>
       </div>
     );
   }
@@ -187,13 +187,13 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({
       </ResponsiveContainer>
 
       {/* Leyenda */}
-      <div className="flex items-center justify-center gap-6 mt-2 text-xs text-gray-500">
+      <div className="flex items-center justify-center gap-6 mt-2 text-xs text-slate-500">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-0.5 bg-primary-500 rounded"></div>
+          <div className="w-3 h-0.5 bg-teal-500 rounded"></div>
           <span>Precios históricos</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-0.5 bg-gray-400 rounded" style={{ borderStyle: 'dashed' }}></div>
+          <div className="w-3 h-0.5 bg-slate-400 rounded" style={{ borderStyle: 'dashed' }}></div>
           <span>Promedio</span>
         </div>
         <div className="flex items-center gap-1">

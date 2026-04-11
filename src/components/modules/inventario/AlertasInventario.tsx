@@ -104,9 +104,9 @@ const alertaConfig = {
   },
   sin_movimiento: {
     icon: Package,
-    color: 'text-gray-600',
-    bgColor: 'bg-gray-50',
-    borderColor: 'border-gray-200',
+    color: 'text-slate-600',
+    bgColor: 'bg-slate-50',
+    borderColor: 'border-slate-200',
     badgeVariant: 'default' as const,
     label: 'Sin Movimiento'
   }
@@ -115,7 +115,7 @@ const alertaConfig = {
 const prioridadConfig = {
   alta: { color: 'text-red-600', bgColor: 'bg-red-100', label: 'ALTA' },
   media: { color: 'text-amber-600', bgColor: 'bg-amber-100', label: 'MEDIA' },
-  baja: { color: 'text-gray-600', bgColor: 'bg-gray-100', label: 'BAJA' }
+  baja: { color: 'text-slate-600', bgColor: 'bg-slate-100', label: 'BAJA' }
 };
 
 export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
@@ -345,8 +345,8 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-400" />
-              <span className="text-sm font-medium text-gray-700">Filtros:</span>
+              <Filter className="h-4 w-4 text-slate-400" />
+              <span className="text-sm font-medium text-slate-700">Filtros:</span>
             </div>
 
             <Select
@@ -376,7 +376,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
             {hayFiltrosActivos && (
               <button
                 onClick={limpiarFiltros}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                className="text-sm text-teal-600 hover:text-teal-700 font-medium"
               >
                 Limpiar filtros
               </button>
@@ -397,10 +397,10 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
         <Card padding="lg">
           <div className="text-center py-12">
             <CheckCircle className="mx-auto h-16 w-16 text-green-400" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900">
+            <h3 className="mt-4 text-lg font-medium text-slate-900">
               {hayFiltrosActivos ? 'No hay alertas con esos criterios' : 'Todo en orden'}
             </h3>
-            <p className="mt-2 text-gray-500">
+            <p className="mt-2 text-slate-500">
               {hayFiltrosActivos
                 ? 'Intenta ajustar los filtros de búsqueda'
                 : 'No hay alertas prioritarias en este momento'}
@@ -437,29 +437,29 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
 
                 {/* Producto Info */}
                 <div className="mb-3">
-                  <div className="font-mono text-sm font-bold text-gray-900">
+                  <div className="font-mono text-sm font-bold text-slate-900">
                     {alerta.sku}
                   </div>
-                  <div className="text-sm text-gray-700 truncate">
+                  <div className="text-sm text-slate-700 truncate">
                     {alerta.marca && `${alerta.marca} · `}{alerta.nombre}
                   </div>
                 </div>
 
                 {/* Mensaje de alerta */}
                 <div className="mb-4 p-3 bg-white/70 rounded-lg">
-                  <div className="text-sm font-medium text-gray-800">{alerta.mensaje}</div>
-                  <div className="text-xs text-gray-600 mt-1">{alerta.detalle}</div>
+                  <div className="text-sm font-medium text-slate-800">{alerta.mensaje}</div>
+                  <div className="text-xs text-slate-600 mt-1">{alerta.detalle}</div>
                 </div>
 
                 {/* Métricas */}
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   <div className="bg-white/50 rounded p-2 text-center">
-                    <div className="text-lg font-bold text-gray-900">{alerta.unidadesAfectadas}</div>
-                    <div className="text-xs text-gray-600">unidades</div>
+                    <div className="text-lg font-bold text-slate-900">{alerta.unidadesAfectadas}</div>
+                    <div className="text-xs text-slate-600">unidades</div>
                   </div>
                   <div className="bg-white/50 rounded p-2 text-center">
-                    <div className="text-lg font-bold text-gray-900">{formatCurrency(alerta.valorAfectado)}</div>
-                    <div className="text-xs text-gray-600">valor en riesgo</div>
+                    <div className="text-lg font-bold text-slate-900">{formatCurrency(alerta.valorAfectado)}</div>
+                    <div className="text-xs text-slate-600">valor en riesgo</div>
                   </div>
                 </div>
 
@@ -474,7 +474,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-2">
                       <div className="text-center bg-white/60 rounded p-1.5">
-                        <div className="text-xs text-gray-500 line-through">{formatCurrency(alerta.valorAfectado)}</div>
+                        <div className="text-xs text-slate-500 line-through">{formatCurrency(alerta.valorAfectado)}</div>
                         <div className="text-sm font-bold text-green-700">{formatCurrency(alerta.valorConDescuento || 0)}</div>
                         <div className="text-xs text-green-600">recuperas</div>
                       </div>
@@ -482,10 +482,10 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
                         <div className="text-sm font-bold text-amber-600">
                           -{alerta.descuentoSugerido}%
                         </div>
-                        <div className="text-xs text-gray-600">descuento</div>
+                        <div className="text-xs text-slate-600">descuento</div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 italic">
+                    <p className="text-xs text-slate-600 italic">
                       {alerta.sugerencia}
                     </p>
                   </div>
@@ -524,7 +524,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
 
       {/* Resumen al pie */}
       {alertasFiltradas.length > 0 && (
-        <div className="text-center text-sm text-gray-500">
+        <div className="text-center text-sm text-slate-500">
           Mostrando <span className="font-medium">{alertasFiltradas.length}</span> de{' '}
           <span className="font-medium">{alertas.length}</span> alertas
         </div>

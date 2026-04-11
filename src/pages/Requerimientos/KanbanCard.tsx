@@ -81,7 +81,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     <div
       key={req.id}
       className={`bg-white rounded-lg shadow-sm border p-4 mb-3 hover:shadow-md transition-shadow cursor-pointer ${
-        isSelected ? 'border-primary-500 ring-2 ring-primary-200 bg-primary-50' : 'border-slate-200'
+        isSelected ? 'border-teal-500 ring-2 ring-teal-200 bg-teal-50' : 'border-slate-200'
       }`}
       onClick={() => {
         if (isSelectable) {
@@ -97,13 +97,13 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
           {isSelectable && (
             <span className="flex-shrink-0">
               {isSelected ? (
-                <CheckSquare className="h-4 w-4 text-primary-600" />
+                <CheckSquare className="h-4 w-4 text-teal-600" />
               ) : (
                 <Square className="h-4 w-4 text-slate-400" />
               )}
             </span>
           )}
-          <span className="font-semibold text-primary-600 text-sm">{req.numeroRequerimiento}</span>
+          <span className="font-semibold text-teal-600 text-sm">{req.numeroRequerimiento}</span>
         </div>
         {getPrioridadBadge(req.prioridad)}
       </div>

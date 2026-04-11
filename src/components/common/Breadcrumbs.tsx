@@ -104,7 +104,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   }, [breadcrumbItems, maxItems]);
 
   const separatorElement = separator || (
-    <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+    <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
   );
 
   if (displayItems.length === 0 && !showHome) return null;
@@ -121,7 +121,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
             <Link
               to={homeHref}
               className={`
-                flex items-center gap-1 text-gray-500 hover:text-blue-600
+                flex items-center gap-1 text-slate-500 hover:text-blue-600
                 transition-colors duration-200
                 ${itemClassName}
               `}
@@ -146,12 +146,12 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
           return (
             <li key={index} className="flex items-center">
               {isEllipsis ? (
-                <span className="text-gray-400 px-1">...</span>
+                <span className="text-slate-400 px-1">...</span>
               ) : item.href && !isLast ? (
                 <Link
                   to={item.href}
                   className={`
-                    flex items-center gap-1 text-gray-500 hover:text-blue-600
+                    flex items-center gap-1 text-slate-500 hover:text-blue-600
                     transition-colors duration-200
                     ${itemClassName}
                   `}
@@ -162,7 +162,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               ) : (
                 <span
                   className={`
-                    flex items-center gap-1 font-medium text-gray-900
+                    flex items-center gap-1 font-medium text-slate-900
                     ${activeClassName}
                   `}
                   aria-current={isLast ? 'page' : undefined}
@@ -209,14 +209,14 @@ export const SimpleBreadcrumbs: React.FC<SimpleBreadcrumbsProps> = ({
               {item.href && !isLast ? (
                 <Link
                   to={item.href}
-                  className="flex items-center gap-1 text-gray-500 hover:text-blue-600 transition-colors"
+                  className="flex items-center gap-1 text-slate-500 hover:text-blue-600 transition-colors"
                 >
                   {item.icon}
                   <span>{item.label}</span>
                 </Link>
               ) : (
                 <span
-                  className="flex items-center gap-1 font-medium text-gray-900"
+                  className="flex items-center gap-1 font-medium text-slate-900"
                   aria-current={isLast ? 'page' : undefined}
                 >
                   {item.icon}
@@ -225,7 +225,7 @@ export const SimpleBreadcrumbs: React.FC<SimpleBreadcrumbsProps> = ({
               )}
 
               {!isLast && (
-                <ChevronRight className="w-4 h-4 text-gray-400 mx-2" />
+                <ChevronRight className="w-4 h-4 text-slate-400 mx-2" />
               )}
             </li>
           );
@@ -301,9 +301,9 @@ export const PageHeaderWithBreadcrumbs: React.FC<PageHeaderWithBreadcrumbsProps>
       <Breadcrumbs items={breadcrumbItems} className="mb-3" />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
           {subtitle && (
-            <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
+            <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
           )}
         </div>
         {actions && (

@@ -70,7 +70,7 @@ export const InsightCard: React.FC<{ insight: Insight }> = ({ insight }) => {
             </span>
           )}
         </div>
-        <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">{insight.descripcion}</p>
+        <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{insight.descripcion}</p>
         {insight.accion && (
           <Link
             to={insight.accion.link}

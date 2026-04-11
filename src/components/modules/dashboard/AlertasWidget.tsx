@@ -34,7 +34,7 @@ export const AlertasWidget: React.FC<AlertasWidgetProps> = ({
       case 'vencido':
         return <XCircle className="h-5 w-5 text-danger-500" />;
       default:
-        return <Package className="h-5 w-5 text-gray-500" />;
+        return <Package className="h-5 w-5 text-slate-500" />;
     }
   };
 
@@ -47,7 +47,7 @@ export const AlertasWidget: React.FC<AlertasWidgetProps> = ({
       case 'proximo_vencer':
         return 'bg-yellow-50 border-l-4 border-yellow-500';
       default:
-        return 'bg-gray-50';
+        return 'bg-slate-50';
     }
   };
 
@@ -74,7 +74,7 @@ export const AlertasWidget: React.FC<AlertasWidgetProps> = ({
   return (
     <Card padding="md">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+        <h3 className="text-lg font-semibold text-slate-900 flex items-center">
           <AlertTriangle className="h-5 w-5 mr-2 text-warning-500" />
           Alertas del Sistema
         </h3>
@@ -89,8 +89,8 @@ export const AlertasWidget: React.FC<AlertasWidgetProps> = ({
       </div>
 
       {alertas.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+        <div className="text-center py-8 text-slate-500">
+          <AlertTriangle className="h-12 w-12 mx-auto mb-2 text-slate-300" />
           <p className="text-sm">No hay alertas activas</p>
           <p className="text-xs text-success-600 mt-1">Todo está en orden</p>
         </div>
@@ -106,10 +106,10 @@ export const AlertasWidget: React.FC<AlertasWidgetProps> = ({
                 <div className="flex items-center gap-3">
                   {getAlertIcon(alerta.tipo)}
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900 text-sm">
+                    <div className="font-medium text-slate-900 text-sm">
                       {alerta.marca} {alerta.nombreComercial}
                     </div>
-                    <div className="text-xs text-gray-600">
+                    <div className="text-xs text-slate-600">
                       {alerta.mensaje}
                     </div>
                   </div>
@@ -124,7 +124,7 @@ export const AlertasWidget: React.FC<AlertasWidgetProps> = ({
           {alertas.length > maxItems && (
             <Link
               to="/inventario"
-              className="block text-center text-sm text-primary-600 hover:text-primary-700 py-2"
+              className="block text-center text-sm text-teal-600 hover:text-teal-700 py-2"
             >
               Ver {alertas.length - maxItems} alertas más →
             </Link>

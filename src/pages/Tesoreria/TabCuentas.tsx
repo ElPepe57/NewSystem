@@ -158,7 +158,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
     <div
       key={cuenta.id}
       className={`px-4 py-3 flex items-center justify-between group cursor-pointer transition-all hover:bg-white ${
-        cuentaDetalle?.id === cuenta.id ? 'bg-white ring-1 ring-primary-200' : ''
+        cuentaDetalle?.id === cuenta.id ? 'bg-white ring-1 ring-teal-200' : ''
       }`}
       onClick={() => { setCuentaDetalle(cuentaDetalle?.id === cuenta.id ? null : cuenta); setMovsLimit(50); }}
     >
@@ -212,7 +212,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
           <button
             onClick={(e) => { e.stopPropagation(); (() => { setCuentaEditando(cuenta); setBancoParaCuenta(cuenta.banco || ''); setShowCuentaBanco(true); })(); }}
-            className="p-1.5 text-slate-300 hover:text-primary-600 hover:bg-primary-50 rounded-full"
+            className="p-1.5 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-full"
             title="Editar cuenta"
           >
             <Edit2 className="h-3.5 w-3.5" />
@@ -233,14 +233,14 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   const renderCuentaCard = (cuenta: CuentaCaja) => (
     <div key={cuenta.id}
       className={`relative rounded-xl border bg-white p-4 group cursor-pointer hover:shadow-sm transition-all ${
-        cuentaDetalle?.id === cuenta.id ? 'ring-1 ring-primary-200 border-primary-200' : 'border-slate-200'
+        cuentaDetalle?.id === cuenta.id ? 'ring-1 ring-teal-200 border-teal-200' : 'border-slate-200'
       }`}
       onClick={() => { setCuentaDetalle(cuentaDetalle?.id === cuenta.id ? null : cuenta); setMovsLimit(50); }}
     >
       <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
         <button
           onClick={(e) => { e.stopPropagation(); (() => { setCuentaEditando(cuenta); setBancoParaCuenta(cuenta.banco || ''); setShowCuentaBanco(true); })(); }}
-          className="p-1.5 text-slate-300 hover:text-primary-600 hover:bg-primary-50 rounded-full"
+          className="p-1.5 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-full"
         >
           <Edit2 className="h-3.5 w-3.5" />
         </button>
@@ -292,7 +292,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-slate-400">{bancos.size} banco{bancos.size !== 1 ? 's' : ''} · {totalBancoCuentas} cuenta{totalBancoCuentas !== 1 ? 's' : ''}</span>
                 <button onClick={(e) => { e.stopPropagation(); setShowBancoNuevo(true); }}
-                  className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-2 py-1 rounded-md transition-colors">
+                  className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-2 py-1 rounded-md transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Banco
                 </button>
               </div>
@@ -303,7 +303,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                 <Building2 className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-400">No hay bancos registrados</p>
                 <button onClick={() => setShowBancoNuevo(true)}
-                  className="mt-2 text-sm text-primary-600 hover:underline">+ Agregar primer banco</button>
+                  className="mt-2 text-sm text-teal-600 hover:underline">+ Agregar primer banco</button>
               </div>
             ) : (
               <div className="space-y-3">
@@ -351,7 +351,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                     {/* Agregar cuenta */}
                     <div className="px-4 py-2 border-t border-blue-100 bg-blue-50/50">
                       <button onClick={() => abrirCuentaBanco(banco)}
-                        className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 font-medium">
+                        className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-medium">
                         <Plus className="h-3.5 w-3.5" /> Agregar cuenta en {banco}
                       </button>
                     </div>
@@ -370,7 +370,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-slate-400">{digitales.length} billetera{digitales.length !== 1 ? 's' : ''}</span>
                 <button onClick={(e) => { e.stopPropagation(); setShowDigital(true); }}
-                  className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-2 py-1 rounded-md transition-colors">
+                  className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-2 py-1 rounded-md transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Digital
                 </button>
               </div>
@@ -381,7 +381,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                 <Smartphone className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-400">No hay billeteras digitales</p>
                 <button onClick={() => setShowDigital(true)}
-                  className="mt-2 text-sm text-primary-600 hover:underline">+ Agregar billetera</button>
+                  className="mt-2 text-sm text-teal-600 hover:underline">+ Agregar billetera</button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -399,7 +399,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-slate-400">{efectivo.length} caja{efectivo.length !== 1 ? 's' : ''}</span>
                 <button onClick={(e) => { e.stopPropagation(); setShowEfectivo(true); }}
-                  className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-2 py-1 rounded-md transition-colors">
+                  className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-2 py-1 rounded-md transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Caja
                 </button>
               </div>
@@ -410,7 +410,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                 <Banknote className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-400">No hay cajas de efectivo</p>
                 <button onClick={() => setShowEfectivo(true)}
-                  className="mt-2 text-sm text-primary-600 hover:underline">+ Agregar caja</button>
+                  className="mt-2 text-sm text-teal-600 hover:underline">+ Agregar caja</button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -455,10 +455,10 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
 
           return (
             <div className="px-4 sm:px-6 pb-4">
-              <div className="border border-primary-200 rounded-xl bg-primary-50/30 overflow-hidden">
-                <div className="px-4 py-3 border-b border-primary-100 flex items-center justify-between">
+              <div className="border border-teal-200 rounded-xl bg-teal-50/30 overflow-hidden">
+                <div className="px-4 py-3 border-b border-teal-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-primary-500" />
+                    <FileText className="h-4 w-4 text-teal-500" />
                     <h4 className="text-sm font-semibold text-slate-900">Movimientos de {cuentaDetalle.nombre}</h4>
                     <span className="text-xs text-slate-400">({movsCuenta.length})</span>
                   </div>
@@ -469,7 +469,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                 </div>
 
                 {movsCuenta.length > 0 && (
-                  <div className="px-4 py-2.5 bg-white/60 border-b border-primary-100">
+                  <div className="px-4 py-2.5 bg-white/60 border-b border-teal-100">
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
                         <span className="text-slate-500">Entradas:</span>
@@ -580,7 +580,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                       <div className="px-4 py-3 text-center border-t border-slate-100">
                         <p className="text-xs text-slate-400">Mostrando {movsLimit} de {movsDisplay.length}</p>
                         <button onClick={() => setMovsLimit(prev => prev + 50)}
-                          className="text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline">
+                          className="text-sm text-teal-600 hover:text-teal-700 font-medium hover:underline">
                           Ver más movimientos
                         </button>
                       </div>

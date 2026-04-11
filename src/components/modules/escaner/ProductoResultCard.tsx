@@ -58,7 +58,7 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
             producto.estado === 'activo'
               ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-600'
+              : 'bg-slate-100 text-slate-600'
           }`}>
             {producto.estado}
           </span>
@@ -69,10 +69,10 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
       <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
         {/* Product info */}
         <div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 leading-tight">
             {producto.marca} - {producto.nombreComercial}
           </h3>
-          <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             {getDescripcionProducto(producto)}
             {producto.pesoLibras ? ` · ${producto.pesoLibras} lb` : ''}
           </p>
@@ -119,7 +119,7 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
             </p>
           )}
           {producto.codigoUPC && (
-            <p className="text-xs text-gray-400 mt-1 font-mono">
+            <p className="text-xs text-slate-400 mt-1 font-mono">
               UPC: {producto.codigoUPC}
             </p>
           )}
@@ -130,7 +130,7 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
           {stockItems.map((item, idx) => (
             <div
               key={item.label}
-              className={`text-center p-1.5 sm:p-2 bg-gray-50 rounded-lg ${
+              className={`text-center p-1.5 sm:p-2 bg-slate-50 rounded-lg ${
                 idx >= 3 ? 'hidden sm:block' : ''
               }`}
             >
@@ -138,13 +138,13 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
               <div className={`text-base sm:text-lg font-bold text-${item.color}-600`}>
                 {item.value}
               </div>
-              <div className="text-[10px] sm:text-xs text-gray-500">{item.label}</div>
+              <div className="text-[10px] sm:text-xs text-slate-500">{item.label}</div>
             </div>
           ))}
         </div>
 
         {/* Extra stock on mobile (Reservado + Disponible inline) */}
-        <div className="flex gap-3 sm:hidden text-xs text-gray-500">
+        <div className="flex gap-3 sm:hidden text-xs text-slate-500">
           <span>Reservado: <span className="font-semibold text-purple-600">{producto.stockReservado || 0}</span></span>
           <span>Disponible: <span className="font-semibold text-emerald-600">{producto.stockDisponible || 0}</span></span>
         </div>
@@ -154,7 +154,7 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
           {producto.ctruPromedio > 0 && (
             <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 bg-amber-50 rounded-lg">
               <DollarSign className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-500" />
-              <span className="text-xs sm:text-sm text-gray-600">CTRU:</span>
+              <span className="text-xs sm:text-sm text-slate-600">CTRU:</span>
               <span className="text-xs sm:text-sm font-bold text-amber-700">S/{producto.ctruPromedio.toFixed(2)}</span>
             </div>
           )}
@@ -165,7 +165,7 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
           <button
             type="button"
             onClick={() => navigate(`/productos?buscar=${encodeURIComponent(producto.sku)}`)}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-2 text-sm font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-2 text-sm font-medium text-teal-700 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors"
           >
             <ExternalLink className="h-4 w-4" />
             Ver Producto
@@ -173,7 +173,7 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
           <button
             type="button"
             onClick={onScanAgain}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-2 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors"
           >
             <ScanLine className="h-4 w-4" />
             Escanear Otro

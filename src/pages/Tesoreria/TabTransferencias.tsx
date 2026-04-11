@@ -286,7 +286,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                 step="0.01"
                 value={transferenciaForm.monto || ''}
                 onChange={(e) => setTransferenciaForm({ ...transferenciaForm, monto: parseFloat(e.target.value) })}
-                className="w-full pl-10 rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-lg font-semibold"
+                className="w-full pl-10 rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-lg font-semibold"
                 placeholder="0.00"
               />
             </div>
@@ -302,7 +302,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
               <select
                 value={transferenciaForm.cuentaOrigenId || ''}
                 onChange={(e) => setTransferenciaForm({ ...transferenciaForm, cuentaOrigenId: e.target.value || undefined })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
               >
                 <option value="">Seleccionar cuenta...</option>
                 {cuentasCompatibles
@@ -339,7 +339,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
               <select
                 value={transferenciaForm.cuentaDestinoId || ''}
                 onChange={(e) => setTransferenciaForm({ ...transferenciaForm, cuentaDestinoId: e.target.value || undefined })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
               >
                 <option value="">Seleccionar cuenta...</option>
                 {cuentasCompatibles
@@ -392,7 +392,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
               type="text"
               value={transferenciaForm.concepto || ''}
               onChange={(e) => setTransferenciaForm({ ...transferenciaForm, concepto: e.target.value })}
-              className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
               placeholder="Ej: Reposicion de caja chica, fondeo de cuenta..."
             />
           </div>

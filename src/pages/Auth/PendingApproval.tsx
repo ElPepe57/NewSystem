@@ -65,7 +65,7 @@ export const PendingApproval: React.FC = () => {
 
   return (
     <AuthPageWrapper>
-      <Card className="w-full max-w-lg relative z-10 shadow-xl shadow-primary-900/10 border border-primary-100">
+      <Card className="w-full max-w-lg relative z-10 shadow-xl shadow-teal-900/10 border border-teal-100">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex justify-center mb-4">
@@ -168,9 +168,9 @@ export const PendingApproval: React.FC = () => {
         {/* Animación de espera (solo para pendientes nuevos) */}
         {isPendingNew && (
           <div className="flex justify-center gap-1.5 mb-6">
-            <div className="h-2 w-2 rounded-full bg-primary-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="h-2 w-2 rounded-full bg-primary-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="h-2 w-2 rounded-full bg-primary-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="h-2 w-2 rounded-full bg-teal-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="h-2 w-2 rounded-full bg-teal-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="h-2 w-2 rounded-full bg-teal-400 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         )}
 

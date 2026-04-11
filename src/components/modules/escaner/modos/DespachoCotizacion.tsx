@@ -169,18 +169,18 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
   return (
     <div className="space-y-4">
       {/* Venta selector */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
           <FileText className="h-4 w-4 text-blue-500" />
           Venta a despachar
         </label>
         {loading ? (
           <div className="flex items-center gap-2 py-2">
-            <div className="h-4 w-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-gray-500">Cargando ventas...</span>
+            <div className="h-4 w-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm text-slate-500">Cargando ventas...</span>
           </div>
         ) : ventas.length === 0 ? (
-          <p className="text-sm text-gray-500 py-2">No hay ventas listas para despacho</p>
+          <p className="text-sm text-slate-500 py-2">No hay ventas listas para despacho</p>
         ) : (
           <select
             value={selectedVenta?.id || ''}
@@ -188,7 +188,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
               const v = ventas.find(vt => vt.id === e.target.value) || null;
               setSelectedVenta(v);
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
           >
             <option value="">Selecciona una venta</option>
             {ventas.map(v => (
@@ -220,9 +220,9 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
       {selectedVenta && productos.length > 0 && (
         <>
           {/* Progress */}
-          <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-slate-700">
                 Validacion: {totalEscaneado}/{totalEsperado}
               </span>
               {isValidated && (
@@ -231,10 +231,10 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
                 </span>
               )}
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div className="w-full bg-slate-200 rounded-full h-2.5">
               <div
                 className={`h-2.5 rounded-full transition-all ${
-                  progreso >= 100 ? 'bg-green-500' : progreso > 0 ? 'bg-blue-500' : 'bg-gray-300'
+                  progreso >= 100 ? 'bg-green-500' : progreso > 0 ? 'bg-blue-500' : 'bg-slate-300'
                 }`}
                 style={{ width: `${Math.min(progreso, 100)}%` }}
               />
@@ -255,7 +255,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
                       ? 'border-green-300 bg-green-50/30'
                       : parcial
                         ? 'border-amber-300 bg-amber-50/20'
-                        : 'border-gray-200'
+                        : 'border-slate-200'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -266,20 +266,20 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
                         ) : parcial ? (
                           <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
                         ) : (
-                          <Clock className="h-4 w-4 text-gray-400 shrink-0" />
+                          <Clock className="h-4 w-4 text-slate-400 shrink-0" />
                         )}
-                        <p className="text-sm font-medium text-gray-900 truncate">{prod.nombre}</p>
+                        <p className="text-sm font-medium text-slate-900 truncate">{prod.nombre}</p>
                       </div>
-                      <p className="text-xs text-gray-500 ml-6">{prod.sku}</p>
+                      <p className="text-xs text-slate-500 ml-6">{prod.sku}</p>
                     </div>
 
                     <div className="text-center min-w-[3rem] shrink-0">
                       <span className={`text-sm font-bold tabular-nums ${
-                        completo ? 'text-green-600' : parcial ? 'text-amber-600' : 'text-gray-900'
+                        completo ? 'text-green-600' : parcial ? 'text-amber-600' : 'text-slate-900'
                       }`}>
                         {prod.escaneado}
                       </span>
-                      <span className="text-xs text-gray-400">/{prod.esperado}</span>
+                      <span className="text-xs text-slate-400">/{prod.esperado}</span>
                     </div>
                   </div>
                 </div>
@@ -311,7 +311,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
       {selectedVenta && productos.length === 0 && (
         <div className="text-center py-8">
           <Package className="h-8 w-8 text-green-400 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Todos los productos ya fueron entregados</p>
+          <p className="text-sm text-slate-500">Todos los productos ya fueron entregados</p>
         </div>
       )}
     </div>

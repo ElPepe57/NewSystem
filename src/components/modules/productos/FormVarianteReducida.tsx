@@ -61,27 +61,27 @@ export const FormVarianteReducida: React.FC<FormVarianteReducidaProps> = ({
   return (
     <div className="space-y-5">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900">Nueva variante</h3>
-        <p className="text-sm text-gray-500 mt-1">Paso 2 de 2 — Define los campos de la variante</p>
+        <h3 className="text-lg font-semibold text-slate-900">Nueva variante</h3>
+        <p className="text-sm text-slate-500 mt-1">Paso 2 de 2 — Define los campos de la variante</p>
       </div>
 
       {/* Grupo seleccionado — read only */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+      <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <Package className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <Package className="h-4 w-4 text-slate-400 flex-shrink-0" />
             <div className="min-w-0">
-              <p className="font-medium text-gray-900 text-sm truncate">
+              <p className="font-medium text-slate-900 text-sm truncate">
                 {grupoProducto.marca} — {grupoProducto.nombreComercial}
               </p>
-              <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+              <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
                 <span>{grupoProducto.sku}</span>
                 {grupoProducto.presentacion && <span>· {grupoProducto.presentacion}</span>}
                 {grupoProducto.dosaje && <span>· {grupoProducto.dosaje}</span>}
               </div>
             </div>
           </div>
-          <button type="button" onClick={onBack} className="text-xs text-primary-600 hover:text-primary-800 flex-shrink-0">
+          <button type="button" onClick={onBack} className="text-xs text-teal-600 hover:text-teal-800 flex-shrink-0">
             Cambiar
           </button>
         </div>
@@ -98,7 +98,7 @@ export const FormVarianteReducida: React.FC<FormVarianteReducidaProps> = ({
       {/* Editable fields */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Contenido <span className="text-red-500">*</span>
           </label>
           <input
@@ -106,43 +106,43 @@ export const FormVarianteReducida: React.FC<FormVarianteReducidaProps> = ({
             value={contenido}
             onChange={(e) => setContenido(e.target.value)}
             placeholder="Ej: 180 caps, 500ml, 300g"
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"
             autoFocus
           />
           {variantesExistentes.length > 0 && (
-            <p className="text-xs text-gray-400 mt-1">Diferente a: {variantesExistentes.join(', ')}</p>
+            <p className="text-xs text-slate-400 mt-1">Diferente a: {variantesExistentes.join(', ')}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Sabor <span className="text-gray-400">(opcional)</span>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Sabor <span className="text-slate-400">(opcional)</span>
           </label>
           <input
             type="text"
             value={sabor}
             onChange={(e) => setSabor(e.target.value)}
             placeholder="Ej: Natural, Fresa, Chocolate"
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Dosaje <span className="text-gray-400">(hereda del grupo)</span>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Dosaje <span className="text-slate-400">(hereda del grupo)</span>
           </label>
           <input
             type="text"
             value={dosaje}
             onChange={(e) => setDosaje(e.target.value)}
             placeholder="Ej: 1000mg, 5mg"
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Peso (lb) <span className="text-gray-400">(hereda del grupo)</span>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Peso (lb) <span className="text-slate-400">(hereda del grupo)</span>
           </label>
           <input
             type="number"
@@ -151,26 +151,26 @@ export const FormVarianteReducida: React.FC<FormVarianteReducidaProps> = ({
             placeholder="Ej: 0.5, 1.2, 5.0"
             step="0.01"
             min="0"
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"
           />
-          <p className="text-xs text-gray-400 mt-1">Peso por unidad en libras</p>
+          <p className="text-xs text-slate-400 mt-1">Peso por unidad en libras</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Etiqueta de variante <span className="text-gray-400">(auto)</span>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Etiqueta de variante <span className="text-slate-400">(auto)</span>
           </label>
           <input
             type="text"
             value={varianteLabel}
             readOnly
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-600"
+            className="w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-slate-50 text-sm text-slate-600"
           />
-          <p className="text-xs text-gray-400 mt-1">Se genera automáticamente desde Contenido + Sabor</p>
+          <p className="text-xs text-slate-400 mt-1">Se genera automáticamente desde Contenido + Sabor</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Stock mínimo
           </label>
           <input
@@ -178,7 +178,7 @@ export const FormVarianteReducida: React.FC<FormVarianteReducidaProps> = ({
             value={stockMinimo}
             onChange={(e) => setStockMinimo(parseInt(e.target.value) || 0)}
             min={0}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"
           />
         </div>
       </div>

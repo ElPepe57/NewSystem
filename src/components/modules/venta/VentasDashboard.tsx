@@ -106,11 +106,11 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* CARD 1: INGRESOS */}
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-blue-50 to-teal-50 border border-blue-200 rounded-xl p-5">
           <div className="flex items-start justify-between mb-3">
             <div>
               <p className="text-sm font-medium text-blue-700">Ingresos</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
+              <p className="text-3xl font-bold text-slate-900 mt-1">
                 {fmtCurrency(stats.ventasTotalPEN)}
               </p>
             </div>
@@ -120,24 +120,24 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
           </div>
 
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-gray-700 font-medium">{totalVentas} ventas</span>
-            <span className="text-gray-400">|</span>
-            <span className="text-gray-600">
-              Ticket prom: <span className="font-semibold text-gray-800">{fmtCurrency(ticketPromedio)}</span>
+            <span className="text-slate-700 font-medium">{totalVentas} ventas</span>
+            <span className="text-slate-400">|</span>
+            <span className="text-slate-600">
+              Ticket prom: <span className="font-semibold text-slate-800">{fmtCurrency(ticketPromedio)}</span>
             </span>
           </div>
 
           {/* Canal breakdown */}
           <div className="mt-3 pt-3 border-t border-blue-200/50">
-            <div className="flex items-center gap-4 text-xs text-gray-600">
+            <div className="flex items-center gap-4 text-xs text-slate-600">
               {stats.ventasML > 0 && (
-                <span>ML: <span className="font-semibold text-gray-800">{stats.ventasML}</span></span>
+                <span>ML: <span className="font-semibold text-slate-800">{stats.ventasML}</span></span>
               )}
               {stats.ventasDirecto > 0 && (
-                <span>Directo: <span className="font-semibold text-gray-800">{stats.ventasDirecto}</span></span>
+                <span>Directo: <span className="font-semibold text-slate-800">{stats.ventasDirecto}</span></span>
               )}
               {stats.ventasOtro > 0 && (
-                <span>Otro: <span className="font-semibold text-gray-800">{stats.ventasOtro}</span></span>
+                <span>Otro: <span className="font-semibold text-slate-800">{stats.ventasOtro}</span></span>
               )}
             </div>
           </div>
@@ -166,8 +166,8 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
             <span className={`font-semibold ${margenNeto >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
               Margen {fmtPct(margenNeto)}
             </span>
-            <span className="text-gray-400">|</span>
-            <span className="text-gray-600">
+            <span className="text-slate-400">|</span>
+            <span className="text-slate-600">
               Multiplicador{' '}
               <span className={`font-semibold ${
                 multiplicador >= 2 ? 'text-emerald-700' : multiplicador >= 1.5 ? 'text-amber-600' : 'text-red-600'
@@ -180,9 +180,9 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
           {/* Mini breakdown */}
           {rentabilidad && (
             <div className="mt-3 pt-3 border-t border-emerald-200/50">
-              <div className="flex items-center gap-2 text-xs text-gray-600">
-                <span>Margen Bruto: <span className="font-semibold text-gray-800">{fmtCurrency(margenBruto, 2)}</span></span>
-                <ArrowRight className="h-3 w-3 text-gray-400" />
+              <div className="flex items-center gap-2 text-xs text-slate-600">
+                <span>Margen Bruto: <span className="font-semibold text-slate-800">{fmtCurrency(margenBruto, 2)}</span></span>
+                <ArrowRight className="h-3 w-3 text-slate-400" />
                 <span>Gastos: <span className="font-semibold text-orange-600">-{fmtCurrency(rentabilidad.totalGastosGAGO + rentabilidad.totalGastosGVGD, 2)}</span></span>
               </div>
             </div>
@@ -195,7 +195,7 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
             <div className="flex items-start justify-between mb-3">
               <div>
                 <p className="text-sm font-medium text-violet-700">Cobranza</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">
+                <p className="text-3xl font-bold text-slate-900 mt-1">
                   {fmtPct(pctCobrado)}
                 </p>
               </div>
@@ -213,11 +213,11 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
             </div>
 
             <div className="flex items-center gap-3 text-sm">
-              <span className="text-gray-600">
+              <span className="text-slate-600">
                 Pendiente: <span className="font-semibold text-red-600">{fmtCurrency(resumenPagos.totalPorCobrar, 2)}</span>
               </span>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-600">
+              <span className="text-slate-400">|</span>
+              <span className="text-slate-600">
                 Mes: <span className="font-semibold text-violet-700">{fmtCurrency(resumenPagos.cobranzaMesActual, 2)}</span>
               </span>
             </div>
@@ -246,8 +246,8 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
       {rentabilidad && rentabilidad.totalVentas > 0 && (
         <Card padding="md">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="h-4 w-4 text-gray-500" />
-            <h3 className="text-sm font-semibold text-gray-700">Estado de Resultados</h3>
+            <BarChart3 className="h-4 w-4 text-slate-500" />
+            <h3 className="text-sm font-semibold text-slate-700">Estado de Resultados</h3>
           </div>
 
           {/* Waterfall steps */}
@@ -306,14 +306,14 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
 
         {/* ROI Neto */}
         {rentabilidad && rentabilidad.totalVentas > 0 && (
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="bg-white border border-slate-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-500">ROI Neto</p>
+                <p className="text-xs font-medium text-slate-500">ROI Neto</p>
                 <p className={`text-2xl font-bold mt-1 ${roiPct >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   {fmtPct(roiPct)}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   S/ {(roiPct / 100).toFixed(2)} por S/ 1 invertido
                 </p>
               </div>
@@ -326,14 +326,14 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
 
         {/* CTRU Promedio */}
         {rentabilidad && rentabilidad.baseUnidades > 0 && (
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="bg-white border border-slate-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-500">CTRU Promedio</p>
+                <p className="text-xs font-medium text-slate-500">CTRU Promedio</p>
                 <p className="text-2xl font-bold mt-1 text-amber-600">
                   {fmtCurrency(ctruPromedio, 2)}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   costo real por unidad
                 </p>
               </div>
@@ -345,14 +345,14 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
         )}
 
         {/* Lead Time */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4 relative">
+        <div className="bg-white border border-slate-200 rounded-lg p-4 relative">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500">Lead Time Prom.</p>
+              <p className="text-xs font-medium text-slate-500">Lead Time Prom.</p>
               <p className="text-2xl font-bold mt-1 text-cyan-600">
                 {leadTimeMetrics ? `${leadTimeMetrics.total.avg.toFixed(1)}d` : '—'}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 {leadTimeMetrics
                   ? `${leadTimeMetrics.total.min.toFixed(1)}d – ${leadTimeMetrics.total.max.toFixed(1)}d`
                   : 'sin datos'
@@ -377,7 +377,7 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
 
           {/* Expandable lead time detail */}
           {showLeadTimeDetail && leadTimeMetrics && (
-            <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5">
+            <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
               <LeadTimeRow label="Cot → Conf" value={leadTimeMetrics.cotConf.avg} />
               <LeadTimeRow label="Conf → Asig" value={leadTimeMetrics.confAsig.avg} />
               <LeadTimeRow label="Asig → Prog" value={leadTimeMetrics.asigProg.avg} />
@@ -388,14 +388,14 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
         </div>
 
         {/* Tasa de Entrega */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white border border-slate-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-500">Tasa Entrega</p>
+              <p className="text-xs font-medium text-slate-500">Tasa Entrega</p>
               <p className={`text-2xl font-bold mt-1 ${tasaEntrega >= 80 ? 'text-emerald-600' : tasaEntrega >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
                 {fmtPct(tasaEntrega)}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 {totalEntregadas}/{totalVentas} entregadas
               </p>
             </div>
@@ -415,7 +415,7 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
 
 const colorMap: Record<string, { text: string; bg: string; bar: string }> = {
   blue:    { text: 'text-blue-700',    bg: 'bg-blue-50',    bar: 'bg-blue-400' },
-  gray:    { text: 'text-gray-700',    bg: 'bg-gray-50',    bar: 'bg-gray-400' },
+  gray:    { text: 'text-slate-700',    bg: 'bg-slate-50',    bar: 'bg-slate-400' },
   emerald: { text: 'text-emerald-700', bg: 'bg-emerald-50', bar: 'bg-emerald-400' },
   orange:  { text: 'text-orange-700',  bg: 'bg-orange-50',  bar: 'bg-orange-400' },
   purple:  { text: 'text-purple-700',  bg: 'bg-purple-50',  bar: 'bg-purple-400' },
@@ -436,11 +436,11 @@ const WaterfallStep: React.FC<WaterfallStepProps> = ({ label, amount, pct, color
   const c = colorMap[color] || colorMap.gray;
   return (
     <div className={`flex-1 text-center px-2 py-2 rounded-lg ${isResult ? c.bg : ''} ${isFirst ? c.bg : ''}`}>
-      <p className="text-xs font-medium text-gray-500 mb-1">{label}</p>
-      <p className={`text-sm sm:text-base font-bold ${isResult || isFirst ? c.text : 'text-gray-800'}`}>
+      <p className="text-xs font-medium text-slate-500 mb-1">{label}</p>
+      <p className={`text-sm sm:text-base font-bold ${isResult || isFirst ? c.text : 'text-slate-800'}`}>
         {fmtCurrency(amount, 0)}
       </p>
-      <p className={`text-xs ${isResult ? c.text : 'text-gray-500'} mt-0.5`}>
+      <p className={`text-xs ${isResult ? c.text : 'text-slate-500'} mt-0.5`}>
         {fmtPct(Math.abs(pct))}
       </p>
     </div>
@@ -448,14 +448,14 @@ const WaterfallStep: React.FC<WaterfallStepProps> = ({ label, amount, pct, color
 };
 
 const WaterfallArrow: React.FC<{ sign: string }> = ({ sign }) => (
-  <div className="hidden sm:flex items-center justify-center px-1 text-gray-400 font-bold text-sm self-center">
+  <div className="hidden sm:flex items-center justify-center px-1 text-slate-400 font-bold text-sm self-center">
     {sign}
   </div>
 );
 
 const LeadTimeRow: React.FC<{ label: string; value: number }> = ({ label, value }) => (
   <div className="flex items-center justify-between text-xs">
-    <span className="text-gray-500">{label}</span>
-    <span className="font-medium text-gray-700">{value.toFixed(1)}d</span>
+    <span className="text-slate-500">{label}</span>
+    <span className="font-medium text-slate-700">{value.toFixed(1)}d</span>
   </div>
 );

@@ -110,13 +110,13 @@ export const Stepper: React.FC<StepperProps> = ({
     const baseClasses = `
       ${sizes.circle} rounded-full flex items-center justify-center
       font-semibold transition-all duration-200
-      ${clickable ? 'cursor-pointer hover:ring-2 hover:ring-primary-300' : ''}
+      ${clickable ? 'cursor-pointer hover:ring-2 hover:ring-teal-300' : ''}
     `;
 
     const statusClasses = {
-      completed: 'bg-primary-600 text-white',
-      current: 'bg-primary-600 text-white ring-4 ring-primary-100',
-      pending: 'bg-gray-200 text-gray-500'
+      completed: 'bg-teal-600 text-white',
+      current: 'bg-teal-600 text-white ring-4 ring-teal-100',
+      pending: 'bg-slate-200 text-slate-500'
     };
 
     const statusLabels = {
@@ -161,7 +161,7 @@ export const Stepper: React.FC<StepperProps> = ({
         <div
           className={`
             flex-1 mx-2 ${sizes.connector} rounded-full transition-colors duration-200
-            ${isCompleted ? 'bg-primary-600' : 'bg-gray-200'}
+            ${isCompleted ? 'bg-teal-600' : 'bg-slate-200'}
           `}
         />
       );
@@ -171,7 +171,7 @@ export const Stepper: React.FC<StepperProps> = ({
       <div
         className={`
           ${sizes.verticalConnector} ml-4 rounded-full transition-colors duration-200
-          ${isCompleted ? 'bg-primary-600' : 'bg-gray-200'}
+          ${isCompleted ? 'bg-teal-600' : 'bg-slate-200'}
         `}
       />
     );
@@ -198,16 +198,16 @@ export const Stepper: React.FC<StepperProps> = ({
                 <span
                   className={`
                     font-medium ${sizes.text}
-                    ${status === 'pending' ? 'text-gray-500' : 'text-gray-900'}
+                    ${status === 'pending' ? 'text-slate-500' : 'text-slate-900'}
                   `}
                 >
                   {step.label}
                   {step.optional && (
-                    <span className="ml-1 text-gray-400 font-normal">(opcional)</span>
+                    <span className="ml-1 text-slate-400 font-normal">(opcional)</span>
                   )}
                 </span>
                 {step.description && (
-                  <span className={`text-gray-500 ${sizes.description} mt-0.5`}>
+                  <span className={`text-slate-500 ${sizes.description} mt-0.5`}>
                     {step.description}
                   </span>
                 )}
@@ -243,13 +243,13 @@ export const Stepper: React.FC<StepperProps> = ({
               <span
                 className={`
                   mt-2 font-medium ${sizes.text} text-center
-                  ${status === 'pending' ? 'text-gray-500' : 'text-gray-900'}
+                  ${status === 'pending' ? 'text-slate-500' : 'text-slate-900'}
                 `}
               >
                 {step.label}
               </span>
               {step.description && (
-                <span className={`text-gray-500 ${sizes.description} text-center mt-0.5`}>
+                <span className={`text-slate-500 ${sizes.description} text-center mt-0.5`}>
                   {step.description}
                 </span>
               )}
@@ -417,7 +417,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
         onClick={onPrev}
         disabled={isFirstStep || loading}
         aria-label={isFirstStep ? 'Ya estás en el primer paso' : 'Ir al paso anterior'}
-        className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {prevLabel}
       </button>
@@ -427,7 +427,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
         disabled={loading}
         aria-label={isLastStep ? 'Finalizar proceso' : 'Ir al siguiente paso'}
         aria-busy={loading}
-        className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? 'Procesando...' : isLastStep ? completeLabel : nextLabel}
       </button>

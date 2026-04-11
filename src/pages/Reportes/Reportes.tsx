@@ -363,7 +363,7 @@ export const Reportes: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600 mx-auto"></div>
           <p className="mt-4 text-slate-600">Generando reportes...</p>
         </div>
       </div>
@@ -411,7 +411,7 @@ export const Reportes: React.FC = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab.id
-                  ? 'border-primary-600 text-primary-600'
+                  ? 'border-teal-600 text-teal-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
@@ -426,7 +426,7 @@ export const Reportes: React.FC = () => {
       {activeTab !== 'rentabilidad' ? (
         <Suspense fallback={
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
           </div>
         }>
           {activeTab === 'logistica' && <TabLogistica />}
@@ -455,12 +455,12 @@ export const Reportes: React.FC = () => {
             {/* Ventas + Utilidad — siempre 2 columnas, compactos en móvil */}
             <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
               {/* Ventas del Periodo */}
-              <div className="bg-white border border-primary-200 rounded-xl p-3 sm:p-4">
+              <div className="bg-white border border-teal-200 rounded-xl p-3 sm:p-4">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-500" />
+                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-teal-500" />
                   <span className="text-[11px] sm:text-sm text-slate-500">Ventas del Periodo</span>
                 </div>
-                <div className="text-lg sm:text-2xl font-bold text-primary-600 leading-tight">
+                <div className="text-lg sm:text-2xl font-bold text-teal-600 leading-tight">
                   S/ {ventasKPILinea.ventasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="text-[10px] sm:text-xs text-slate-400 mt-0.5">
@@ -525,7 +525,7 @@ export const Reportes: React.FC = () => {
 
               <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 mb-0.5">
-                  <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-primary-500" />
+                  <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-teal-500" />
                   <span className="text-[10px] sm:text-xs text-slate-500">Productos</span>
                 </div>
                 <div className="text-sm sm:text-lg font-bold text-slate-900 leading-tight">
@@ -551,7 +551,7 @@ export const Reportes: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-baseline gap-1">
                   <span className="text-[10px] sm:text-xs text-slate-400">Mes</span>
-                  <span className="text-[11px] sm:text-sm font-semibold text-primary-600 truncate">S/ {resumenEjecutivo.ventasMes.toFixed(0)}</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-teal-600 truncate">S/ {resumenEjecutivo.ventasMes.toFixed(0)}</span>
                 </div>
               </div>
             </div>
@@ -702,7 +702,7 @@ export const Reportes: React.FC = () => {
       <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-5">
         <div className="flex items-center justify-between mb-2 sm:mb-4">
           <div className="flex items-center gap-1.5">
-            <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+            <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-teal-600" />
             <h2 className="text-sm sm:text-lg font-semibold text-slate-900">
               Tendencia de Ventas <span className="text-slate-400 font-normal">({periodoActivo === 'custom' ? 'Personalizado' : periodoActivo === 'hoy' ? 'Hoy' : periodoActivo === 'semana' ? '7d' : periodoActivo === 'mes' ? '30d' : periodoActivo === 'trimestre' ? '90d' : '1a'})</span>
             </h2>
@@ -710,7 +710,7 @@ export const Reportes: React.FC = () => {
           {tendenciaVentas.length > 0 && (
             <button
               onClick={exportarTendencia}
-              className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700"
+              className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700"
             >
               <Download className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Excel</span>
@@ -792,7 +792,7 @@ export const Reportes: React.FC = () => {
           {/* Header + botones */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
             <div className="flex items-center gap-1.5">
-              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-teal-600" />
               <h2 className="text-sm sm:text-lg font-semibold text-slate-900">
                 Top 10 Rentabilidad
               </h2>
@@ -854,17 +854,17 @@ export const Reportes: React.FC = () => {
         <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-5">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <div className="flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-teal-600" />
               <h2 className="text-sm sm:text-lg font-semibold text-slate-900">
                 Rentabilidad por Producto
               </h2>
-              <span className="text-[10px] sm:text-xs bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full font-medium">
+              <span className="text-[10px] sm:text-xs bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-medium">
                 {productosRentabilidadCompleto.length}
               </span>
             </div>
             <button
               onClick={exportarRentabilidad}
-              className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700"
+              className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700"
             >
               <Download className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Excel</span>
@@ -886,7 +886,7 @@ export const Reportes: React.FC = () => {
             </div>
             <button
               onClick={exportarInventario}
-              className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700"
+              className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700"
             >
               <Download className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Excel</span>

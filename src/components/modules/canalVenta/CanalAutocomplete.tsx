@@ -323,7 +323,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
     return (
       <>
         {text.slice(0, index)}
-        <span className="font-semibold text-primary-600">
+        <span className="font-semibold text-teal-600">
           {text.slice(index, index + searchTerm.length)}
         </span>
         {text.slice(index + searchTerm.length)}
@@ -334,7 +334,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
   return (
     <div className={`relative w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
           {label}
           {required && <span className="text-danger-500 ml-1">*</span>}
         </label>
@@ -345,9 +345,9 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
         <div
           className={`
             flex items-center w-full rounded-lg border
-            ${error ? 'border-danger-300' : 'border-gray-300'}
-            ${disabled ? 'bg-gray-100' : 'bg-white'}
-            focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent
+            ${error ? 'border-danger-300' : 'border-slate-300'}
+            ${disabled ? 'bg-slate-100' : 'bg-white'}
+            focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent
           `}
         >
           {selectedCanal && !isOpen ? (
@@ -355,7 +355,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
             <div className="flex items-center gap-2 pl-3 py-2 flex-1">
               {renderCanalBadge(selectedCanal, 'md')}
               {(selectedCanal.comisionPorcentaje || 0) > 0 && (
-                <span className="text-xs text-gray-500 flex items-center gap-0.5">
+                <span className="text-xs text-slate-500 flex items-center gap-0.5">
                   <Percent className="h-3 w-3" />
                   {selectedCanal.comisionPorcentaje}%
                 </span>
@@ -371,7 +371,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               disabled={disabled}
-              className="flex-1 px-3 py-2 bg-transparent text-gray-900 placeholder-gray-400 focus:outline-none disabled:cursor-not-allowed rounded-l-lg"
+              className="flex-1 px-3 py-2 bg-transparent text-slate-900 placeholder-slate-400 focus:outline-none disabled:cursor-not-allowed rounded-l-lg"
             />
           )}
 
@@ -380,7 +380,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
               <button
                 type="button"
                 onClick={handleClear}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                className="p-1 text-slate-400 hover:text-slate-600 rounded"
                 tabIndex={-1}
               >
                 <X className="h-4 w-4" />
@@ -397,7 +397,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
                   inputRef.current?.focus();
                 }
               }}
-              className="p-1 text-gray-400 hover:text-gray-600 rounded"
+              className="p-1 text-slate-400 hover:text-slate-600 rounded"
               tabIndex={-1}
               disabled={disabled}
             >
@@ -411,11 +411,11 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
       {isOpen && !disabled && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-72 overflow-auto"
+          className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-slate-200 max-h-72 overflow-auto"
         >
           {loading ? (
-            <div className="px-3 py-4 text-center text-gray-500">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600 mx-auto"></div>
+            <div className="px-3 py-4 text-center text-slate-500">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-600 mx-auto"></div>
             </div>
           ) : (
             <>
@@ -427,7 +427,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
                     onClick={() => handleSelect(canal)}
                     className={`
                       w-full text-left px-3 py-2.5 flex items-center gap-3
-                      ${highlightedIndex === index ? 'bg-primary-50' : 'hover:bg-gray-50'}
+                      ${highlightedIndex === index ? 'bg-teal-50' : 'hover:bg-slate-50'}
                       ${index === 0 ? 'rounded-t-lg' : ''}
                       ${index === filteredCanales.length - 1 && !showCreateOption ? 'rounded-b-lg' : ''}
                     `}
@@ -439,18 +439,18 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
                       {renderCanalIcon(canal)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 text-sm">
+                      <div className="font-medium text-slate-900 text-sm">
                         {highlightMatch(canal.nombre, searchValue)}
                       </div>
                       {canal.descripcion && (
-                        <div className="text-xs text-gray-500 truncate">
+                        <div className="text-xs text-slate-500 truncate">
                           {canal.descripcion}
                         </div>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
                       {(canal.comisionPorcentaje || 0) > 0 && (
-                        <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                        <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                           {canal.comisionPorcentaje}%
                         </span>
                       )}
@@ -463,7 +463,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
                   </button>
                 ))
               ) : searchValue.trim() && !showCreateOption ? (
-                <div className="px-3 py-4 text-center text-gray-500 text-sm">
+                <div className="px-3 py-4 text-center text-slate-500 text-sm">
                   No se encontraron canales
                 </div>
               ) : null}
@@ -475,19 +475,19 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
                   onClick={handleOpenCreateModal}
                   className={`
                     w-full text-left px-3 py-2.5 flex items-center gap-3
-                    border-t border-gray-100
-                    ${highlightedIndex === filteredCanales.length ? 'bg-primary-50' : 'hover:bg-gray-50'}
+                    border-t border-slate-100
+                    ${highlightedIndex === filteredCanales.length ? 'bg-teal-50' : 'hover:bg-slate-50'}
                     rounded-b-lg
                   `}
                 >
-                  <div className="p-1.5 rounded-lg bg-primary-100">
-                    <Plus className="h-4 w-4 text-primary-600" />
+                  <div className="p-1.5 rounded-lg bg-teal-100">
+                    <Plus className="h-4 w-4 text-teal-600" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-sm text-primary-600 font-medium">
+                    <span className="text-sm text-teal-600 font-medium">
                       Crear canal:
                     </span>
-                    <span className="text-sm font-semibold text-primary-700 ml-1">
+                    <span className="text-sm font-semibold text-teal-700 ml-1">
                       "{searchValue.trim()}"
                     </span>
                   </div>
@@ -496,7 +496,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
 
               {/* Sin resultados y sin opción de crear */}
               {filteredCanales.length === 0 && !showCreateOption && !searchValue.trim() && (
-                <div className="px-3 py-4 text-center text-gray-500 text-sm">
+                <div className="px-3 py-4 text-center text-slate-500 text-sm">
                   Escribe para buscar o crear un canal
                 </div>
               )}
@@ -528,7 +528,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
             autoFocus
           />
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             Puedes configurar más detalles (comisión, color, icono) desde la sección de Maestros después de crearlo.
           </p>
 

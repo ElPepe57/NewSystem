@@ -20,8 +20,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload || !payload.length) return null;
 
   return (
-    <div className="bg-white px-3 py-2 border border-gray-200 rounded-lg shadow-lg text-xs sm:text-sm">
-      <p className="font-semibold text-gray-900 mb-1">{label}</p>
+    <div className="bg-white px-3 py-2 border border-slate-200 rounded-lg shadow-lg text-xs sm:text-sm">
+      <p className="font-semibold text-slate-900 mb-1">{label}</p>
       {payload.map((entry: any, index: number) => (
         <div key={index} className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-1.5">
@@ -29,9 +29,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
               className="inline-block w-2.5 h-2.5 rounded-sm"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-gray-600">{entry.name}</span>
+            <span className="text-slate-600">{entry.name}</span>
           </span>
-          <span className="font-semibold text-gray-900">
+          <span className="font-semibold text-slate-900">
             {entry.name === 'Margen'
               ? `${Number(entry.value).toFixed(1)}%`
               : `S/ ${Number(entry.value).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -45,7 +45,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export const TendenciaChart: React.FC<TendenciaChartProps> = ({ data }) => {
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-48 text-sm text-gray-400">
+      <div className="flex items-center justify-center h-48 text-sm text-slate-400">
         No hay datos para mostrar la tendencia
       </div>
     );

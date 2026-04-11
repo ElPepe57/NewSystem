@@ -50,11 +50,11 @@ export const EditarMetodosBancoModal: React.FC<Props> = ({
       <div className="space-y-2 mb-4">
         {METODOS_PREDEFINIDOS.map(m => (
           <label key={m.id} className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
-            metodos.includes(m.id) ? 'bg-primary-50 border-primary-300' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+            metodos.includes(m.id) ? 'bg-teal-50 border-teal-300' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
           }`}>
             <input type="checkbox" checked={metodos.includes(m.id)}
               onChange={() => toggleMetodo(m.id)}
-              className="rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
+              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500" />
             <span className="text-sm">{m.label}</span>
           </label>
         ))}
@@ -81,7 +81,7 @@ export const EditarMetodosBancoModal: React.FC<Props> = ({
         <input type="text" value={nuevoMetodo}
           onChange={e => setNuevoMetodo(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), agregarCustom())}
-          className="flex-1 rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+          className="flex-1 rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
           placeholder="Agregar método personalizado" />
         <Button variant="outline" size="sm" onClick={agregarCustom} disabled={!nuevoMetodo.trim()}>
           <Plus className="h-4 w-4" />

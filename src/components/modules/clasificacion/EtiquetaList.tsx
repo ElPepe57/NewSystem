@@ -11,7 +11,7 @@ import type { Etiqueta, TipoEtiqueta } from '../../../types/etiqueta.types';
 
 const TIPO_LABELS: Record<TipoEtiqueta, { label: string; color: string }> = {
   atributo: { label: 'Atributos', color: 'bg-green-100 text-green-700' },
-  certificacion: { label: 'Certificaciones', color: 'bg-indigo-100 text-indigo-700' },
+  certificacion: { label: 'Certificaciones', color: 'bg-teal-100 text-teal-700' },
   dieta: { label: 'Dieta', color: 'bg-emerald-100 text-emerald-700' },
   publico: { label: 'Público', color: 'bg-pink-100 text-pink-700' },
   marketing: { label: 'Marketing', color: 'bg-yellow-100 text-yellow-700' },
@@ -106,9 +106,9 @@ export function EtiquetaList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Tag className="h-5 w-5 text-primary-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Etiquetas</h3>
-          <span className="text-sm text-gray-500">({totalEtiquetas})</span>
+          <Tag className="h-5 w-5 text-teal-600" />
+          <h3 className="text-lg font-semibold text-slate-900">Etiquetas</h3>
+          <span className="text-sm text-slate-500">({totalEtiquetas})</span>
         </div>
         <Button onClick={() => handleAddEtiqueta('atributo')} size="sm">
           <Plus className="h-4 w-4 mr-1" />
@@ -119,20 +119,20 @@ export function EtiquetaList() {
       {/* Busqueda y filtro */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Buscar etiqueta..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           />
         </div>
         {lineasActivas.length > 0 && (
           <select
             value={filtroLinea}
             onChange={(e) => setFiltroLinea(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           >
             <option value="">Todas las lineas</option>
             {lineasActivas.map(l => (
@@ -144,9 +144,9 @@ export function EtiquetaList() {
 
       {/* Lista agrupada por tipo */}
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Cargando...</div>
+        <div className="text-center py-8 text-slate-500">Cargando...</div>
       ) : !etiquetasAgrupadas ? (
-        <div className="text-center py-8 text-gray-500">No hay etiquetas creadas</div>
+        <div className="text-center py-8 text-slate-500">No hay etiquetas creadas</div>
       ) : (
         <div className="space-y-4">
           {TIPO_ORDER.map(tipo => {
@@ -154,18 +154,18 @@ export function EtiquetaList() {
             if (etiquetasDelTipo.length === 0 && searchTerm) return null;
 
             return (
-              <div key={tipo} className="border border-gray-200 rounded-lg overflow-hidden">
+              <div key={tipo} className="border border-slate-200 rounded-lg overflow-hidden">
                 {/* Header del tipo */}
-                <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200">
+                <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200">
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${TIPO_LABELS[tipo].color}`}>
                       {TIPO_LABELS[tipo].label}
                     </span>
-                    <span className="text-sm text-gray-500">({etiquetasDelTipo.length})</span>
+                    <span className="text-sm text-slate-500">({etiquetasDelTipo.length})</span>
                   </div>
                   <button
                     onClick={() => handleAddEtiqueta(tipo)}
-                    className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                    className="text-sm text-teal-600 hover:text-teal-700 flex items-center gap-1"
                   >
                     <Plus className="h-3 w-3" />
                     Agregar
@@ -174,18 +174,18 @@ export function EtiquetaList() {
 
                 {/* Lista de etiquetas */}
                 {etiquetasDelTipo.length === 0 ? (
-                  <div className="px-4 py-6 text-center text-gray-400 text-sm">
+                  <div className="px-4 py-6 text-center text-slate-400 text-sm">
                     No hay etiquetas de {TIPO_LABELS[tipo].label.toLowerCase()}
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-slate-100">
                     {etiquetasDelTipo.map(etiqueta => (
                       <div
                         key={etiqueta.id}
-                        className="flex items-center justify-between px-4 py-2 hover:bg-gray-50"
+                        className="flex items-center justify-between px-4 py-2 hover:bg-slate-50"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-xs font-mono text-gray-400">{etiqueta.codigo}</span>
+                          <span className="text-xs font-mono text-slate-400">{etiqueta.codigo}</span>
                           <span
                             className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm"
                             style={{
@@ -209,14 +209,14 @@ export function EtiquetaList() {
                               </span>
                             ))
                           ) : (
-                            <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                            <span className="text-xs px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">
                               Todas
                             </span>
                           )}
                         </div>
 
                         <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1 text-sm text-gray-500">
+                          <div className="flex items-center gap-1 text-sm text-slate-500">
                             <Package className="h-4 w-4" />
                             <span>{etiqueta.productosActivos || 0}</span>
                           </div>
@@ -224,21 +224,21 @@ export function EtiquetaList() {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => setViewingEtiqueta(etiqueta)}
-                              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
                               title="Ver Analytics"
                             >
                               <BarChart3 className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleEdit(etiqueta)}
-                              className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
+                              className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
                               title="Editar"
                             >
                               <Pencil className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => setDeletingEtiqueta(etiqueta)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
                               title="Eliminar"
                             >
                               <Trash2 className="h-4 w-4" />

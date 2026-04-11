@@ -163,7 +163,7 @@ export function TipoProductoForm({
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Alias (nombres alternativos)
           </label>
           <div className="flex gap-2">
@@ -173,7 +173,7 @@ export function TipoProductoForm({
               onChange={(e) => setAliasInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddAlias())}
               placeholder="Agregar alias..."
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+              className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
             />
             <Button type="button" variant="secondary" size="sm" onClick={handleAddAlias}>
               Agregar
@@ -184,7 +184,7 @@ export function TipoProductoForm({
               {formData.alias.map((alias) => (
                 <span
                   key={alias}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-full text-sm"
                 >
                   {alias}
                   <button
@@ -209,7 +209,7 @@ export function TipoProductoForm({
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Descripcion
           </label>
           <textarea
@@ -217,13 +217,13 @@ export function TipoProductoForm({
             value={formData.descripcion || ''}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
             placeholder="Descripcion general del tipo de producto..."
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Beneficios Principales
           </label>
           <div className="flex gap-2">
@@ -233,7 +233,7 @@ export function TipoProductoForm({
               onChange={(e) => setBeneficioInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddBeneficio())}
               placeholder="Agregar beneficio..."
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+              className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
             />
             <Button type="button" variant="secondary" size="sm" onClick={handleAddBeneficio}>
               Agregar
@@ -262,10 +262,10 @@ export function TipoProductoForm({
 
         {/* Lineas de Negocio */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Lineas de negocio
           </label>
-          <p className="text-xs text-gray-500 mb-2">
+          <p className="text-xs text-slate-500 mb-2">
             Dejar vacio para disponible en todas las lineas
           </p>
           <div className="flex flex-wrap gap-2">
@@ -279,7 +279,7 @@ export function TipoProductoForm({
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-colors ${
                     isSelected
                       ? 'border-transparent text-white'
-                      : 'border-gray-300 text-gray-600 hover:border-gray-400'
+                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
                   }`}
                   style={isSelected ? { backgroundColor: linea.color } : undefined}
                 >

@@ -210,7 +210,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
       <div className="relative flex gap-2">
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none">
-            <Package className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+            <Package className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400" />
           </div>
 
           <input
@@ -226,9 +226,9 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
             required={required}
             className={`
               block w-full pl-8 sm:pl-10 pr-10 py-2 text-sm sm:text-base border rounded-md shadow-sm
-              focus:ring-primary-500 focus:border-primary-500
-              ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-              ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
+              focus:ring-teal-500 focus:border-teal-500
+              ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
+              ${value ? 'border-green-300 bg-green-50' : 'border-slate-300'}
             `}
           />
 
@@ -241,7 +241,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                   <button
                     type="button"
                     onClick={handleClear}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-slate-400 hover:text-slate-600"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -251,7 +251,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
               <button
                 type="button"
                 onClick={handleClear}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-slate-400 hover:text-slate-600"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -267,8 +267,8 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
             title="Escanear codigo de barras"
             className={`px-3 py-2 border rounded-md shadow-sm transition-colors flex-shrink-0 ${
               showScanner
-                ? 'bg-primary-50 border-primary-300 text-primary-700'
-                : 'bg-white border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300 active:bg-gray-50'
+                ? 'bg-teal-50 border-teal-300 text-teal-700'
+                : 'bg-white border-slate-300 text-slate-500 hover:text-teal-600 hover:border-teal-300 active:bg-slate-50'
             }`}
           >
             <ScanLine className="h-5 w-5" />
@@ -278,13 +278,13 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
 
       {/* Scanner inline */}
       {showScanner && !disabled && !value && (
-        <div className="mt-2 p-3 sm:p-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 relative">
+        <div className="mt-2 p-3 sm:p-4 bg-white border border-slate-200 rounded-lg shadow-lg z-50 relative">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-gray-500">Escanear codigo de barras</span>
+            <span className="text-xs font-medium text-slate-500">Escanear codigo de barras</span>
             <button
               type="button"
               onClick={() => setShowScanner(false)}
-              className="p-1 text-gray-400 hover:text-gray-600 active:bg-gray-100 rounded"
+              className="p-1 text-slate-400 hover:text-slate-600 active:bg-slate-100 rounded"
             >
               <X className="h-4 w-4" />
             </button>
@@ -302,7 +302,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute left-0 right-0 mt-1 z-50 bg-white rounded-lg shadow-xl border border-gray-200 max-h-[400px] overflow-y-auto"
+          className="absolute left-0 right-0 mt-1 z-50 bg-white rounded-lg shadow-xl border border-slate-200 max-h-[400px] overflow-y-auto"
           style={{
             boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
             
@@ -313,12 +313,12 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
           {filteredProductos.length > 0 ? (
             <>
               {/* Header */}
-              <div className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+              <div className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-slate-50 border-b border-slate-200 sticky top-0 z-10">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] sm:text-xs text-gray-500">
+                  <span className="text-[10px] sm:text-xs text-slate-500">
                     {filteredProductos.length} producto{filteredProductos.length !== 1 ? 's' : ''}
                   </span>
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-gray-400">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-400">
                     <span className="flex items-center gap-0.5">
                       <Boxes className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Stock
                     </span>
@@ -345,15 +345,15 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                     type="button"
                     onClick={() => handleSelectProducto(producto)}
                     className={`
-                      w-full px-2.5 sm:px-4 py-2 sm:py-3 text-left border-b border-gray-100 last:border-0 transition-colors
-                      ${highlightedIndex === index ? 'bg-primary-50' : 'hover:bg-gray-50'}
+                      w-full px-2.5 sm:px-4 py-2 sm:py-3 text-left border-b border-slate-100 last:border-0 transition-colors
+                      ${highlightedIndex === index ? 'bg-teal-50' : 'hover:bg-slate-50'}
                       ${sinStockLibre ? 'opacity-60' : ''}
                     `}
                   >
                     {/* Top: SKU + badges + chevron */}
                     <div className="flex items-center justify-between gap-1.5">
                       <div className="flex items-center gap-1 sm:gap-2 flex-wrap min-w-0">
-                        <span className="font-mono text-xs sm:text-sm text-primary-600 font-medium flex-shrink-0">
+                        <span className="font-mono text-xs sm:text-sm text-teal-600 font-medium flex-shrink-0">
                           {producto.sku}
                         </span>
                         {producto.investigacion && (
@@ -370,15 +370,15 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                           </span>
                         )}
                       </div>
-                      <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-300 flex-shrink-0" />
+                      <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-300 flex-shrink-0" />
                     </div>
 
                     {/* Product name + presentation + details */}
                     <div className="mt-0.5 sm:mt-1">
-                      <div className="font-medium text-gray-900 text-xs sm:text-sm truncate">
+                      <div className="font-medium text-slate-900 text-xs sm:text-sm truncate">
                         {producto.marca} - {producto.nombreComercial}
                       </div>
-                      <div className="text-[10px] sm:text-xs text-gray-500">
+                      <div className="text-[10px] sm:text-xs text-slate-500">
                         {getDescripcionProducto(producto)}
                       </div>
                     </div>
@@ -386,8 +386,8 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                     {/* Metrics row: compact horizontal pills */}
                     <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-1.5 flex-wrap">
                       {/* Stock */}
-                      <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-50 rounded text-[10px] sm:text-xs">
-                        <Boxes className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-gray-400" />
+                      <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-slate-50 rounded text-[10px] sm:text-xs">
+                        <Boxes className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-slate-400" />
                         <span className={`font-bold ${
                           stockExt.libre > 5 ? 'text-green-600' :
                           stockExt.libre > 0 ? 'text-amber-600' : 'text-red-600'
@@ -395,7 +395,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                           {stockExt.libre}
                         </span>
                         {stockExt.reservado > 0 && (
-                          <span className="text-gray-400 flex items-center">
+                          <span className="text-slate-400 flex items-center">
                             <Lock className="h-2 w-2 sm:h-2.5 sm:w-2.5 mr-0.5" />
                             {stockExt.reservado}
                           </span>
@@ -404,9 +404,9 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
 
                       {/* CTRU */}
                       {stockExt.ctruPromedio && (
-                        <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 rounded text-[10px] sm:text-xs">
-                          <span className="text-gray-500">CTRU:</span>
-                          <span className="font-semibold text-gray-700">S/{stockExt.ctruPromedio.toFixed(0)}</span>
+                        <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-slate-100 rounded text-[10px] sm:text-xs">
+                          <span className="text-slate-500">CTRU:</span>
+                          <span className="font-semibold text-slate-700">S/{stockExt.ctruPromedio.toFixed(0)}</span>
                         </div>
                       )}
 
@@ -431,13 +431,13 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
             </>
           ) : inputValue.length >= 1 ? (
             <div className="px-4 py-6 text-center">
-              <Package className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">
+              <Package className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-500">
                 No se encontraron productos con "{inputValue}"
               </p>
             </div>
           ) : (
-            <div className="px-4 py-3 text-sm text-gray-500">
+            <div className="px-4 py-3 text-sm text-slate-500">
               Escribe para buscar productos...
             </div>
           )}
@@ -446,7 +446,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
 
       {/* Panel de info del producto seleccionado */}
       {value && (
-        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg">
           <div className="flex items-center gap-1.5 sm:gap-2">
             <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
             <span className="text-xs sm:text-sm font-medium text-blue-800">
@@ -457,7 +457,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-3 mt-2">
             {/* Stock libre */}
             <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
-              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+              <p className="text-[10px] sm:text-xs text-slate-600 flex items-center justify-center gap-0.5 sm:gap-1">
                 <Boxes className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Stock libre
               </p>
               <p className={`font-bold text-sm sm:text-lg ${
@@ -467,7 +467,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                 {value.stockLibre}
               </p>
               {value.stockReservado > 0 && (
-                <p className="text-[10px] sm:text-xs text-gray-400 flex items-center justify-center gap-0.5">
+                <p className="text-[10px] sm:text-xs text-slate-400 flex items-center justify-center gap-0.5">
                   <Lock className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
                   {value.stockReservado} reserv.
                 </p>
@@ -476,24 +476,24 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
 
             {/* CTRU */}
             <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
-              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+              <p className="text-[10px] sm:text-xs text-slate-600 flex items-center justify-center gap-0.5 sm:gap-1">
                 <DollarSign className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> CTRU
               </p>
-              <p className="font-bold text-sm sm:text-lg text-gray-700">
+              <p className="font-bold text-sm sm:text-lg text-slate-700">
                 {value.ctruPromedio ? `S/${value.ctruPromedio.toFixed(2)}` : '-'}
               </p>
             </div>
 
             {/* Margen */}
             <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
-              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+              <p className="text-[10px] sm:text-xs text-slate-600 flex items-center justify-center gap-0.5 sm:gap-1">
                 <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Margen
               </p>
               <p className={`font-bold text-sm sm:text-lg ${
                 value.margenEstimado
                   ? value.margenEstimado >= 20 ? 'text-green-600' :
                     value.margenEstimado >= 10 ? 'text-yellow-600' : 'text-red-600'
-                  : 'text-gray-400'
+                  : 'text-slate-400'
               }`}>
                 {value.margenEstimado ? `${value.margenEstimado.toFixed(1)}%` : '-'}
               </p>
@@ -501,19 +501,19 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
 
             {/* Vencimiento */}
             <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
-              <p className="text-[10px] sm:text-xs text-gray-600 flex items-center justify-center gap-0.5 sm:gap-1">
+              <p className="text-[10px] sm:text-xs text-slate-600 flex items-center justify-center gap-0.5 sm:gap-1">
                 <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Vence
               </p>
               <p className={`font-bold text-sm sm:text-lg ${
                 value.diasParaVencer
                   ? value.diasParaVencer <= 30 ? 'text-red-600' :
                     value.diasParaVencer <= 90 ? 'text-amber-600' : 'text-green-600'
-                  : 'text-gray-400'
+                  : 'text-slate-400'
               }`}>
                 {value.diasParaVencer ? `${value.diasParaVencer}d` : '-'}
               </p>
               {value.proximoVencimiento && (
-                <p className="text-[10px] sm:text-xs text-gray-400">
+                <p className="text-[10px] sm:text-xs text-slate-400">
                   {value.proximoVencimiento.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
                 </p>
               )}

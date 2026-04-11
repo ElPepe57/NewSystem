@@ -919,11 +919,11 @@ export const Inventario: React.FC = () => {
                     </div>
                     <div className="text-xs text-slate-500">Revisadas</div>
                   </div>
-                  <div className="bg-primary-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-primary-600">
+                  <div className="bg-teal-50 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-teal-600">
                       {resultadoSync.estadosUnidades?.correccionesRealizadas || 0}
                     </div>
-                    <div className="text-xs text-primary-700">Corregidas</div>
+                    <div className="text-xs text-teal-700">Corregidas</div>
                   </div>
                   <div className="bg-success-50 rounded-lg p-3 text-center">
                     <div className="text-xl font-bold text-success-600">
@@ -944,11 +944,11 @@ export const Inventario: React.FC = () => {
                     </div>
                     <div className="text-xs text-slate-500">Revisados</div>
                   </div>
-                  <div className="bg-primary-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-primary-600">
+                  <div className="bg-teal-50 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-teal-600">
                       {resultadoSync.stockProductos?.productosActualizados || 0}
                     </div>
-                    <div className="text-xs text-primary-700">Actualizados</div>
+                    <div className="text-xs text-teal-700">Actualizados</div>
                   </div>
                   <div className="bg-blue-50 rounded-lg p-3 text-center">
                     <div className="text-xl font-bold text-blue-600">
@@ -973,7 +973,7 @@ export const Inventario: React.FC = () => {
                   <span>Todo sincronizado correctamente. No se encontraron inconsistencias.</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-primary-600 bg-primary-50 p-3 rounded-lg">
+                <div className="flex items-center gap-2 text-teal-600 bg-teal-50 p-3 rounded-lg">
                   <CheckCircle className="h-5 w-5" />
                   <span>
                     Sincronización completada. Se corrigieron {resultadoSync.estadosUnidades?.correccionesRealizadas || 0} unidades

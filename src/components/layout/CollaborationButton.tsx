@@ -43,8 +43,8 @@ export const CollaborationButton: React.FC = () => {
         onClick={handleClickEquipo}
         className={`relative p-2 rounded-lg transition-colors ${
           panelAbierto
-            ? 'bg-primary-100 text-primary-600'
-            : 'hover:bg-gray-100 text-gray-600'
+            ? 'bg-teal-100 text-teal-600'
+            : 'hover:bg-slate-100 text-slate-600'
         }`}
         title="Equipo en línea"
       >
@@ -61,8 +61,8 @@ export const CollaborationButton: React.FC = () => {
         onClick={handleClickChat}
         className={`relative p-2 rounded-lg transition-colors ${
           panelAbierto
-            ? 'bg-primary-100 text-primary-600'
-            : 'hover:bg-gray-100 text-gray-600'
+            ? 'bg-teal-100 text-teal-600'
+            : 'hover:bg-slate-100 text-slate-600'
         }`}
         title="Chat del equipo"
       >

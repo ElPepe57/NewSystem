@@ -96,7 +96,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     <div className="bg-white border rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-2">
         <div>
-          <span className="text-sm font-semibold text-primary-600">{cotizacion.numeroCotizacion}</span>
+          <span className="text-sm font-semibold text-teal-600">{cotizacion.numeroCotizacion}</span>
           {requiereStock && (
             <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-amber-100 text-amber-700">
               <AlertTriangle className="h-3 w-3 mr-0.5" />
@@ -215,7 +215,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       <div className="flex items-center gap-1 pt-2 border-t">
         <button
           onClick={onView}
-          className="flex-1 p-1.5 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+          className="flex-1 p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors"
           title="Ver detalles"
         >
           <Eye className="h-4 w-4 mx-auto" />

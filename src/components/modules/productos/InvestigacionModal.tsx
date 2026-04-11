@@ -369,20 +369,20 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       {/* Header con info del producto */}
-      <div className="bg-gray-50 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 px-4 sm:px-6 py-3 sm:py-4 border-b sticky top-0 z-10">
+      <div className="bg-slate-50 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 px-4 sm:px-6 py-3 sm:py-4 border-b sticky top-0 z-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="font-semibold text-slate-900">
               {producto.marca} - {producto.nombreComercial}
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600">
               {producto.sku} | {producto.grupo}
               {producto.subgrupo && ` > ${producto.subgrupo}`}
             </p>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-xs text-gray-500">TC Actual</p>
-            <p className="font-bold text-primary-600">S/ {tipoCambio.toFixed(2)}</p>
+            <p className="text-xs text-slate-500">TC Actual</p>
+            <p className="font-bold text-teal-600">S/ {tipoCambio.toFixed(2)}</p>
           </div>
         </div>
 
@@ -399,7 +399,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                 Vencida
               </Badge>
             )}
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-slate-500">
               Última investigación: {inv?.fechaInvestigacion?.toDate?.().toLocaleDateString('es-PE')}
             </span>
           </div>
@@ -407,7 +407,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       </div>
 
       {/* Tabs de navegación — responsive: icon+shortLabel en móvil, icon+fullLabel en desktop */}
-      <div className="flex justify-between bg-gray-100 rounded-lg p-1 gap-1">
+      <div className="flex justify-between bg-slate-100 rounded-lg p-1 gap-1">
         {TABS_CONFIG.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -418,11 +418,11 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 px-1 sm:px-3 rounded-md text-center transition-all ${
                 isActive
-                  ? 'bg-white text-primary-700 shadow-sm font-medium'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'bg-white text-teal-700 shadow-sm font-medium'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
               }`}
             >
-              <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-primary-600' : ''}`} />
+              <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-teal-600' : ''}`} />
               <span className="text-[10px] leading-tight sm:hidden">{tab.shortLabel}</span>
               <span className="hidden sm:inline text-sm">{tab.label}</span>
             </button>
@@ -448,14 +448,14 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
             </div>
 
             {/* Logística */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-                <DollarSign className="h-4 w-4 mr-2 text-gray-600" />
+            <div className="bg-slate-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
+                <DollarSign className="h-4 w-4 mr-2 text-slate-600" />
                 Logística Estimada
               </h4>
               <div className="flex items-center gap-3">
                 <div className="flex-1">
-                  <label className="block text-xs text-gray-600 mb-1">Costo flete USD/unidad</label>
+                  <label className="block text-xs text-slate-600 mb-1">Costo flete USD/unidad</label>
                   <input
                     type="number"
                     step="0.01"
@@ -468,7 +468,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                   />
                 </div>
                 {(producto.costoFleteInternacional ?? 0) > 0 && (
-                  <div className="text-xs text-gray-500 mt-4">
+                  <div className="text-xs text-slate-500 mt-4">
                     Producto: ${producto.costoFleteInternacional}
                   </div>
                 )}
@@ -492,13 +492,13 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
 
             {/* Nivel de Competencia */}
             <div className="bg-purple-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+              <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
                 <Users className="h-4 w-4 mr-2 text-purple-600" />
                 Análisis de Competencia
               </h4>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Nivel de competencia</label>
+                  <label className="block text-xs text-slate-600 mb-1">Nivel de competencia</label>
                   <select
                     value={formData.nivelCompetencia}
                     onChange={(e) => handleChange('nivelCompetencia', e.target.value)}
@@ -521,9 +521,9 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
             </div>
 
             {/* Ventajas Competitivas */}
-            <div className="bg-indigo-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-                <Zap className="h-4 w-4 mr-2 text-indigo-600" />
+            <div className="bg-teal-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
+                <Zap className="h-4 w-4 mr-2 text-teal-600" />
                 Ventajas Competitivas
               </h4>
               <textarea
@@ -542,8 +542,8 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
         <TabPanel tabId="decision">
           <div className="space-y-4">
             {/* Recomendación */}
-            <div className="bg-gray-100 p-4 rounded-lg">
-              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+            <div className="bg-slate-100 p-4 rounded-lg">
+              <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
                 <Target className="h-4 w-4 mr-2" />
                 Recomendación
               </h4>
@@ -563,7 +563,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                             : rec === 'descartar'
                             ? 'bg-red-600 text-white'
                             : 'bg-yellow-500 text-white'
-                          : 'bg-white border hover:bg-gray-50'
+                          : 'bg-white border hover:bg-slate-50'
                       }`}
                     >
                       {rec === 'importar' && <CheckCircle className="h-4 w-4 inline mr-1" />}
@@ -575,7 +575,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Razonamiento</label>
+                  <label className="block text-xs text-slate-600 mb-1">Razonamiento</label>
                   <textarea
                     value={formData.razonamiento || ''}
                     onChange={(e) => handleChange('razonamiento', e.target.value)}
@@ -590,7 +590,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
 
             {/* Notas adicionales */}
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Notas adicionales</label>
+              <label className="block text-xs text-slate-600 mb-1">Notas adicionales</label>
               <textarea
                 value={formData.notas || ''}
                 onChange={(e) => handleChange('notas', e.target.value)}
@@ -622,7 +622,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
             <div
               key={tab.id}
               className={`h-2 w-2 rounded-full transition-colors ${
-                index === currentTabIndex ? 'bg-primary-600' : 'bg-gray-300'
+                index === currentTabIndex ? 'bg-teal-600' : 'bg-slate-300'
               }`}
             />
           ))}
@@ -644,16 +644,16 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       {(proveedoresUSA.length > 0 || competidoresPeru.length > 0) && (
         <div className={`p-4 rounded-lg ${calculos.esRentable ? 'bg-green-100' : 'bg-red-100'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0 mb-3">
-            <h4 className="font-semibold text-gray-800 flex items-center">
+            <h4 className="font-semibold text-slate-800 flex items-center">
               <BarChart3 className="h-4 w-4 mr-2" />
               Análisis Automático
             </h4>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Puntuación:</span>
+              <span className="text-sm text-slate-600">Puntuación:</span>
               <span className={`text-2xl font-bold ${getPuntuacionColor(calculos.puntuacion)}`}>
                 {calculos.puntuacion}
               </span>
-              <span className="text-xs text-gray-500">/100</span>
+              <span className="text-xs text-slate-500">/100</span>
             </div>
           </div>
 
@@ -663,10 +663,10 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">{paisOrigen ? `Mejor Precio ${paisOrigen}` : 'Mejor Precio'}</p>
+              <p className="text-xs text-slate-600">{paisOrigen ? `Mejor Precio ${paisOrigen}` : 'Mejor Precio'}</p>
               <p className="text-lg font-bold">${calculos.mejorPrecioUSAConImpuesto.toFixed(2)}</p>
               {preciosUSA.mejor && (
-                <p className="text-xs text-gray-500">{preciosUSA.mejor.nombre}</p>
+                <p className="text-xs text-slate-500">{preciosUSA.mejor.nombre}</p>
               )}
               {calculos.impuestoMejorProveedor > 0 && (
                 <p className="text-xs text-amber-600">
@@ -675,21 +675,21 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
               )}
             </div>
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">CTRU Estimado</p>
+              <p className="text-xs text-slate-600">CTRU Estimado</p>
               <p className="text-lg font-bold">S/ {calculos.ctruEstimado.toFixed(2)}</p>
-              <p className="text-xs text-gray-500">Tu inversión</p>
+              <p className="text-xs text-slate-500">Tu inversión</p>
             </div>
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Precio Sugerido</p>
-              <p className="text-lg font-bold text-primary-600">S/ {calculos.precioSugeridoCalculado.toFixed(2)}</p>
-              <p className="text-xs text-gray-500">con {calculos.margenObjetivo}% margen</p>
+              <p className="text-xs text-slate-600">Precio Sugerido</p>
+              <p className="text-lg font-bold text-teal-600">S/ {calculos.precioSugeridoCalculado.toFixed(2)}</p>
+              <p className="text-xs text-slate-500">con {calculos.margenObjetivo}% margen</p>
             </div>
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
-              <p className="text-xs text-gray-600">Margen Estimado</p>
+              <p className="text-xs text-slate-600">Margen Estimado</p>
               <p className={`text-lg font-bold ${calculos.esRentable ? 'text-green-600' : 'text-red-600'}`}>
                 {calculos.margenEstimado.toFixed(1)}%
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-slate-500">
                 {calculos.esRentable ? 'Rentable' : `Mínimo: ${calculos.margenMinimo}%`}
               </p>
             </div>
@@ -698,10 +698,10 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
           {/* Desglose de costos USA */}
           {calculos.impuestoMejorProveedor > 0 && (
             <div className="mt-3 p-3 bg-white bg-opacity-60 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 mb-2">Desglose Costo USA:</p>
+              <p className="text-sm font-medium text-slate-700 mb-2">Desglose Costo USA:</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs sm:text-sm">
                 <div>
-                  <span className="text-gray-500">Producto:</span>
+                  <span className="text-slate-500">Producto:</span>
                   <span className="ml-1 font-medium">${calculos.mejorPrecioUSASinImpuesto.toFixed(2)}</span>
                 </div>
                 <div>
@@ -709,12 +709,12 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                   <span className="ml-1 font-medium text-amber-600">${calculos.montoImpuestoUSA.toFixed(2)}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">+ Flete:</span>
+                  <span className="text-slate-500">+ Flete:</span>
                   <span className="ml-1 font-medium">${(formData.logisticaEstimada || 0).toFixed(2)}</span>
                 </div>
                 <div>
-                  <span className="text-gray-700 font-medium">= Total:</span>
-                  <span className="ml-1 font-bold text-gray-900">${calculos.costoTotalUSD.toFixed(2)}</span>
+                  <span className="text-slate-700 font-medium">= Total:</span>
+                  <span className="ml-1 font-bold text-slate-900">${calculos.costoTotalUSD.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -722,26 +722,26 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
 
           {/* Métricas de ROI */}
           {preciosPeru.promedio > 0 && calculos.ctruEstimado > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-300">
-              <h5 className="font-semibold text-gray-700 mb-3 flex items-center">
+            <div className="mt-4 pt-4 border-t border-slate-300">
+              <h5 className="font-semibold text-slate-700 mb-3 flex items-center">
                 <TrendingUp className="h-4 w-4 mr-2" />
                 Rendimiento de Inversión
               </h5>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div className="bg-white bg-opacity-60 p-3 rounded-lg text-center">
-                  <p className="text-xs text-gray-600 mb-1">Ganancia/Unidad</p>
+                  <p className="text-xs text-slate-600 mb-1">Ganancia/Unidad</p>
                   <p className={`text-xl font-bold ${calculos.gananciaUnidad > 0 ? 'text-green-600' : 'text-red-600'}`}>
                     S/ {calculos.gananciaUnidad.toFixed(2)}
                   </p>
                 </div>
                 <div className="bg-white bg-opacity-60 p-3 rounded-lg text-center">
-                  <p className="text-xs text-gray-600 mb-1">ROI</p>
+                  <p className="text-xs text-slate-600 mb-1">ROI</p>
                   <p className={`text-xl font-bold ${calculos.roi > 50 ? 'text-green-600' : calculos.roi > 0 ? 'text-yellow-600' : 'text-red-600'}`}>
                     {calculos.roi.toFixed(1)}%
                   </p>
                 </div>
                 <div className="bg-white bg-opacity-60 p-3 rounded-lg text-center">
-                  <p className="text-xs text-gray-600 mb-1">Multiplicador</p>
+                  <p className="text-xs text-slate-600 mb-1">Multiplicador</p>
                   <p className={`text-xl font-bold ${calculos.multiplicador >= 2 ? 'text-green-600' : calculos.multiplicador >= 1.5 ? 'text-yellow-600' : 'text-red-600'}`}>
                     {calculos.multiplicador.toFixed(2)}x
                   </p>
@@ -753,8 +753,8 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                 <div className="mt-3 p-3 bg-white bg-opacity-60 rounded-lg">
                   <p className="text-sm">
                     <span className="font-medium">Precio entrada:</span>{' '}
-                    <span className="text-primary-600 font-bold">S/ {calculos.precioEntrada.toFixed(2)}</span>
-                    <span className="text-xs text-gray-500 ml-1 sm:ml-2 block sm:inline mt-0.5 sm:mt-0">(5% menos que el competidor más bajo)</span>
+                    <span className="text-teal-600 font-bold">S/ {calculos.precioEntrada.toFixed(2)}</span>
+                    <span className="text-xs text-slate-500 ml-1 sm:ml-2 block sm:inline mt-0.5 sm:mt-0">(5% menos que el competidor más bajo)</span>
                   </p>
                 </div>
               )}
@@ -773,7 +773,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       {/* Sección de Alertas (solo si hay alertas) */}
       {inv?.alertas && inv.alertas.length > 0 && (
         <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+          <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
             <Bell className="h-4 w-4 mr-2 text-amber-600" />
             Alertas del Producto
           </h4>
@@ -792,10 +792,10 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
       {/* Sección de Historial de Precios (solo si existe) */}
       {inv?.historialPrecios && inv.historialPrecios.length > 0 && (
         <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-4 rounded-lg border border-cyan-200">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+          <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
             <History className="h-4 w-4 mr-2 text-cyan-600" />
             Historial de Precios
-            <span className="ml-2 text-xs text-gray-500 font-normal">
+            <span className="ml-2 text-xs text-slate-500 font-normal">
               ({inv.historialPrecios.length} registros)
             </span>
           </h4>

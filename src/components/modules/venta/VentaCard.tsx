@@ -344,10 +344,10 @@ export const VentaCard: React.FC<VentaCardProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center space-x-3">
-            <ShoppingCart className="h-8 w-8 text-primary-600" />
+            <ShoppingCart className="h-8 w-8 text-teal-600" />
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{venta.numeroVenta}</h2>
-              <p className="text-sm text-gray-600">{venta.nombreCliente}</p>
+              <h2 className="text-2xl font-bold text-slate-900">{venta.numeroVenta}</h2>
+              <p className="text-sm text-slate-600">{venta.nombreCliente}</p>
             </div>
           </div>
         </div>
@@ -369,7 +369,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
       </div>
 
       {/* Timeline de Estado */}
-      <div className="bg-gray-50 p-4 rounded-lg">
+      <div className="bg-slate-50 p-4 rounded-lg">
         <StatusTimeline
           steps={timelineSteps}
           nextAction={nextAction}
@@ -379,10 +379,10 @@ export const VentaCard: React.FC<VentaCardProps> = ({
         />
         {/* Lead Time Total para ventas entregadas */}
         {venta.estado === 'entregada' && venta.fechaCreacion && venta.fechaEntrega && (
-          <div className="mt-2 pt-2 border-t border-gray-200 flex items-center justify-end gap-1">
-            <Clock className="h-3.5 w-3.5 text-gray-400" />
-            <span className="text-xs text-gray-500">
-              Lead time total: <span className="font-semibold text-gray-700">{daysBetween(venta.fechaCreacion, venta.fechaEntrega)}</span>
+          <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-end gap-1">
+            <Clock className="h-3.5 w-3.5 text-slate-400" />
+            <span className="text-xs text-slate-500">
+              Lead time total: <span className="font-semibold text-slate-700">{daysBetween(venta.fechaCreacion, venta.fechaEntrega)}</span>
             </span>
           </div>
         )}
@@ -390,27 +390,27 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
       {/* Trazabilidad - Documentos Relacionados */}
       {(venta.numeroCotizacionOrigen || documentosRelacionados.requerimientos.length > 0 || documentosRelacionados.ordenesCompra.length > 0) && (
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg border border-indigo-200">
+        <div className="bg-gradient-to-r from-teal-50 to-purple-50 p-4 rounded-lg border border-teal-200">
           <div className="flex items-center mb-3">
-            <Link2 className="h-5 w-5 text-indigo-600 mr-2" />
-            <h4 className="font-semibold text-gray-900">Trazabilidad</h4>
+            <Link2 className="h-5 w-5 text-teal-600 mr-2" />
+            <h4 className="font-semibold text-slate-900">Trazabilidad</h4>
           </div>
           <div className="flex flex-wrap gap-3">
             {/* Cotización Origen */}
             {venta.numeroCotizacionOrigen && (
-              <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-indigo-200 shadow-sm">
-                <FileText className="h-4 w-4 text-indigo-500" />
+              <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-teal-200 shadow-sm">
+                <FileText className="h-4 w-4 text-teal-500" />
                 <div>
-                  <span className="text-xs text-gray-500 block">Origen</span>
-                  <span className="text-sm font-medium text-indigo-700">{venta.numeroCotizacionOrigen}</span>
+                  <span className="text-xs text-slate-500 block">Origen</span>
+                  <span className="text-sm font-medium text-teal-700">{venta.numeroCotizacionOrigen}</span>
                 </div>
               </div>
             )}
 
             {/* Requerimientos */}
             {documentosRelacionados.loading ? (
-              <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200">
-                <span className="text-xs text-gray-500">Cargando...</span>
+              <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200">
+                <span className="text-xs text-slate-500">Cargando...</span>
               </div>
             ) : (
               <>
@@ -418,7 +418,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                   <div key={req.id} className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-amber-200 shadow-sm">
                     <ClipboardList className="h-4 w-4 text-amber-500" />
                     <div>
-                      <span className="text-xs text-gray-500 block">Requerimiento</span>
+                      <span className="text-xs text-slate-500 block">Requerimiento</span>
                       <span className="text-sm font-medium text-amber-700">{req.numeroRequerimiento}</span>
                     </div>
                   </div>
@@ -429,7 +429,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                   <div key={oc.id} className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-emerald-200 shadow-sm">
                     <Package className="h-4 w-4 text-emerald-500" />
                     <div>
-                      <span className="text-xs text-gray-500 block">Orden Compra</span>
+                      <span className="text-xs text-slate-500 block">Orden Compra</span>
                       <span className="text-sm font-medium text-emerald-700">{oc.numeroOrden}</span>
                     </div>
                   </div>
@@ -442,7 +442,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
              !venta.numeroCotizacionOrigen &&
              documentosRelacionados.requerimientos.length === 0 &&
              documentosRelacionados.ordenesCompra.length === 0 && (
-              <span className="text-sm text-gray-500 italic">Sin documentos relacionados</span>
+              <span className="text-sm text-slate-500 italic">Sin documentos relacionados</span>
             )}
           </div>
         </div>
@@ -450,46 +450,46 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
       {/* Información del Cliente */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-slate-50 p-4 rounded-lg">
           <div className="flex items-center mb-2">
-            <User className="h-5 w-5 text-gray-600 mr-2" />
-            <h4 className="font-semibold text-gray-900">Cliente</h4>
+            <User className="h-5 w-5 text-slate-600 mr-2" />
+            <h4 className="font-semibold text-slate-900">Cliente</h4>
           </div>
           <div className="space-y-1 text-sm">
-            <div><span className="text-gray-600">Nombre:</span> <span className="text-gray-900 ml-2">{venta.nombreCliente}</span></div>
-            {venta.dniRuc && <div><span className="text-gray-600">DNI/RUC:</span> <span className="text-gray-900 ml-2">{venta.dniRuc}</span></div>}
-            {venta.emailCliente && <div><span className="text-gray-600">Email:</span> <span className="text-gray-900 ml-2">{venta.emailCliente}</span></div>}
-            {venta.telefonoCliente && <div><span className="text-gray-600">Teléfono:</span> <span className="text-gray-900 ml-2">{venta.telefonoCliente}</span></div>}
-            {venta.direccionEntrega && <div><span className="text-gray-600">Dirección:</span> <span className="text-gray-900 ml-2">{venta.direccionEntrega}</span></div>}
+            <div><span className="text-slate-600">Nombre:</span> <span className="text-slate-900 ml-2">{venta.nombreCliente}</span></div>
+            {venta.dniRuc && <div><span className="text-slate-600">DNI/RUC:</span> <span className="text-slate-900 ml-2">{venta.dniRuc}</span></div>}
+            {venta.emailCliente && <div><span className="text-slate-600">Email:</span> <span className="text-slate-900 ml-2">{venta.emailCliente}</span></div>}
+            {venta.telefonoCliente && <div><span className="text-slate-600">Teléfono:</span> <span className="text-slate-900 ml-2">{venta.telefonoCliente}</span></div>}
+            {venta.direccionEntrega && <div><span className="text-slate-600">Dirección:</span> <span className="text-slate-900 ml-2">{venta.direccionEntrega}</span></div>}
           </div>
         </div>
 
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-slate-50 p-4 rounded-lg">
           <div className="flex items-center mb-2">
-            <Calendar className="h-5 w-5 text-gray-600 mr-2" />
-            <h4 className="font-semibold text-gray-900">Fechas</h4>
+            <Calendar className="h-5 w-5 text-slate-600 mr-2" />
+            <h4 className="font-semibold text-slate-900">Fechas</h4>
           </div>
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Creación:</span>
-              <span className="text-gray-900">{formatDate(venta.fechaCreacion)}</span>
+              <span className="text-slate-600">Creación:</span>
+              <span className="text-slate-900">{formatDate(venta.fechaCreacion)}</span>
             </div>
             {venta.fechaConfirmacion && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Confirmación:</span>
-                <span className="text-gray-900">{formatDate(venta.fechaConfirmacion)}</span>
+                <span className="text-slate-600">Confirmación:</span>
+                <span className="text-slate-900">{formatDate(venta.fechaConfirmacion)}</span>
               </div>
             )}
             {venta.fechaAsignacion && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Asignación:</span>
-                <span className="text-gray-900">{formatDate(venta.fechaAsignacion)}</span>
+                <span className="text-slate-600">Asignación:</span>
+                <span className="text-slate-900">{formatDate(venta.fechaAsignacion)}</span>
               </div>
             )}
             {venta.fechaEntrega && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Entrega:</span>
-                <span className="text-gray-900">{formatDate(venta.fechaEntrega)}</span>
+                <span className="text-slate-600">Entrega:</span>
+                <span className="text-slate-900">{formatDate(venta.fechaEntrega)}</span>
               </div>
             )}
           </div>
@@ -497,55 +497,55 @@ export const VentaCard: React.FC<VentaCardProps> = ({
       </div>
 
       {/* Totales y Rentabilidad */}
-      <div className="bg-primary-50 p-4 rounded-lg">
+      <div className="bg-teal-50 p-4 rounded-lg">
         <div className="flex items-center mb-2">
-          <DollarSign className="h-5 w-5 text-primary-600 mr-2" />
-          <h4 className="font-semibold text-gray-900">Totales</h4>
+          <DollarSign className="h-5 w-5 text-teal-600 mr-2" />
+          <h4 className="font-semibold text-slate-900">Totales</h4>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal:</span>
+              <span className="text-slate-600">Subtotal:</span>
               <span className="font-semibold">S/ {(venta.subtotalPEN || 0).toFixed(2)}</span>
             </div>
             {venta.descuento && venta.descuento > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Descuento:</span>
+                <span className="text-slate-600">Descuento:</span>
                 <span className="text-danger-600">- S/ {venta.descuento.toFixed(2)}</span>
               </div>
             )}
             {venta.costoEnvio && venta.costoEnvio > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
+                <span className="text-slate-600">
                   Envío {venta.incluyeEnvio ? '(gratis)' : '(cobrado)'}:
                 </span>
-                <span className={venta.incluyeEnvio ? 'text-gray-400 line-through' : 'text-gray-900'}>
+                <span className={venta.incluyeEnvio ? 'text-slate-400 line-through' : 'text-slate-900'}>
                   {venta.incluyeEnvio ? '' : '+ '}S/ {venta.costoEnvio.toFixed(2)}
                 </span>
               </div>
             )}
-            <div className="border-t border-primary-200 pt-2">
+            <div className="border-t border-teal-200 pt-2">
               <div className="flex justify-between">
-                <span className="font-semibold text-gray-900">Total:</span>
-                <span className="text-xl font-bold text-primary-600">S/ {(venta.totalPEN || 0).toFixed(2)}</span>
+                <span className="font-semibold text-slate-900">Total:</span>
+                <span className="text-xl font-bold text-teal-600">S/ {(venta.totalPEN || 0).toFixed(2)}</span>
               </div>
             </div>
           </div>
           
           {venta.utilidadBrutaPEN !== undefined && (
-            <div className="space-y-2 border-l border-primary-200 pl-4">
+            <div className="space-y-2 border-l border-teal-200 pl-4">
               <div className="flex justify-between">
-                <span className="text-gray-600">Costo Total:</span>
+                <span className="text-slate-600">Costo Total:</span>
                 <span className="font-semibold">S/ {costoTotalPENCorregido.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Utilidad Bruta:</span>
+                <span className="text-slate-600">Utilidad Bruta:</span>
                 <span className={`font-semibold ${utilidadCorregida >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
                   S/ {utilidadCorregida.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Margen:</span>
+                <span className="text-slate-600">Margen:</span>
                 <div className="flex items-center">
                   <TrendingUp className={`h-4 w-4 mr-1 ${margenCorregido >= 0 ? 'text-success-500' : 'text-danger-500'}`} />
                   <span className={`text-lg font-bold ${margenCorregido >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
@@ -564,7 +564,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
               <Calculator className="h-5 w-5 text-orange-600 mr-2" />
-              <h4 className="font-semibold text-gray-900">Rentabilidad Neta</h4>
+              <h4 className="font-semibold text-slate-900">Rentabilidad Neta</h4>
               <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
                 Distribución Proporcional
               </span>
@@ -582,23 +582,23 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             <div className="space-y-2">
               {/* Paso 1: Precio de Venta */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600 font-medium">1. Precio de Venta:</span>
-                <span className="font-semibold text-gray-900">
+                <span className="text-slate-600 font-medium">1. Precio de Venta:</span>
+                <span className="font-semibold text-slate-900">
                   S/ {(venta.totalPEN || 0).toFixed(2)}
                 </span>
               </div>
 
               {/* Paso 2: Costo Base */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">2. (-) Costo Base:</span>
-                <span className="font-medium text-gray-700">
+                <span className="text-slate-600">2. (-) Costo Base:</span>
+                <span className="font-medium text-slate-700">
                   - S/ {rentabilidadProporcional.costoBase.toFixed(2)}
                 </span>
               </div>
 
               {/* Paso 3: GV (Gastos de Venta) */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
+                <span className="text-slate-600">
                   3. (-) GV:
                   <span className="text-xs text-purple-500 ml-1">(comisiones, pasarelas)</span>
                 </span>
@@ -609,7 +609,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
               {/* Paso 4: GD (Gastos de Distribución) */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
+                <span className="text-slate-600">
                   4. (-) GD:
                   <span className="text-xs text-blue-500 ml-1">(delivery - Transportistas)</span>
                 </span>
@@ -629,7 +629,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
               {/* Paso 5: GA/GO */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
+                <span className="text-slate-600">
                   5. (-) GA/GO:
                   <span className="text-xs text-orange-500 ml-1">
                     ({((rentabilidadProporcional.costoBase / (datosRentabilidad?.baseCostoTotal || 1)) * 100).toFixed(1)}% prorrateo)
@@ -643,7 +643,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
               {/* Resultado Final: Utilidad Neta */}
               <div className="border-t border-orange-300 pt-2 mt-2">
                 <div className="flex justify-between bg-gradient-to-r from-green-50 to-emerald-50 p-2 rounded border border-green-200">
-                  <span className="font-semibold text-gray-900">= Utilidad Neta:</span>
+                  <span className="font-semibold text-slate-900">= Utilidad Neta:</span>
                   <span className={`text-lg font-bold ${rentabilidadProporcional.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
                     S/ {rentabilidadProporcional.utilidadNeta.toFixed(2)}
                     <span className="text-sm ml-1">({rentabilidadProporcional.margenNeto.toFixed(1)}%)</span>
@@ -655,12 +655,12 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             {/* Columna derecha: Resumen de Costos */}
             <div className="space-y-3">
               {/* Costo Total */}
-              <div className="bg-white p-3 rounded-lg border border-gray-200">
-                <h5 className="text-xs font-medium text-gray-500 mb-2">Costo Total (CTRU)</h5>
-                <div className="text-xl font-bold text-gray-900">
+              <div className="bg-white p-3 rounded-lg border border-slate-200">
+                <h5 className="text-xs font-medium text-slate-500 mb-2">Costo Total (CTRU)</h5>
+                <div className="text-xl font-bold text-slate-900">
                   S/ {rentabilidadProporcional.costoTotal.toFixed(2)}
                 </div>
-                <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                <div className="text-xs text-slate-500 mt-1 space-y-0.5">
                   <div>Base: S/ {rentabilidadProporcional.costoBase.toFixed(2)}</div>
                   <div className="flex gap-2">
                     <span className="text-purple-600">GV: S/ {rentabilidadProporcional.gastosGV.toFixed(2)}</span>
@@ -675,15 +675,15 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                 <h5 className="text-xs font-medium text-orange-700 mb-2">GA/GO Global</h5>
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Total GA/GO:</span>
+                    <span className="text-slate-600">Total GA/GO:</span>
                     <span className="font-medium">S/ {datosRentabilidad?.totalGastosGAGO?.toFixed(2) ?? '0.00'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Base Costo Total:</span>
+                    <span className="text-slate-600">Base Costo Total:</span>
                     <span className="font-medium">S/ {datosRentabilidad?.baseCostoTotal?.toFixed(2) ?? '0.00'}</span>
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 italic">
+                <p className="text-xs text-slate-500 mt-2 italic">
                   Prorrateado por % de costo base
                 </p>
               </div>
@@ -695,46 +695,46 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             <div className="mt-4 pt-4 border-t border-orange-200">
               <div className="flex items-center mb-3">
                 <PieChart className="h-4 w-4 text-orange-600 mr-2" />
-                <h5 className="text-sm font-medium text-gray-900">Desglose de Costos por Producto</h5>
+                <h5 className="text-sm font-medium text-slate-900">Desglose de Costos por Producto</h5>
               </div>
               <div className="bg-white rounded-lg border border-orange-200 overflow-hidden">
                 <table className="min-w-full divide-y divide-orange-100">
                   <thead className="bg-orange-100">
                     <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">Producto</th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">Venta</th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">Costo Base</th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">
+                      <th className="px-3 py-2 text-left text-xs font-medium text-slate-600">Producto</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-slate-600">Venta</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-slate-600">Costo Base</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-slate-600">
                         <span className="text-purple-600">GV</span>+<span className="text-blue-600">GD</span>
                       </th>
                       <th className="px-3 py-2 text-right text-xs font-medium text-orange-600">GA/GO</th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">Costo Total</th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">U. Neta</th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">Margen</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-slate-600">Costo Total</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-slate-600">U. Neta</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-slate-600">Margen</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-orange-50">
                     {rentabilidadProporcional.desgloseProductos.map((prod, idx) => (
                       <tr key={idx}>
                         <td className="px-3 py-2">
-                          <div className="text-sm font-medium text-gray-900">{prod.nombre}</div>
-                          <div className="text-xs text-gray-500">{prod.cantidad} unidad(es)</div>
+                          <div className="text-sm font-medium text-slate-900">{prod.nombre}</div>
+                          <div className="text-xs text-slate-500">{prod.cantidad} unidad(es)</div>
                         </td>
-                        <td className="px-3 py-2 text-right text-sm text-gray-900">
+                        <td className="px-3 py-2 text-right text-sm text-slate-900">
                           S/ {prod.precioVenta.toFixed(2)}
                         </td>
-                        <td className="px-3 py-2 text-right text-sm text-gray-900">
+                        <td className="px-3 py-2 text-right text-sm text-slate-900">
                           S/ {prod.costoBase.toFixed(2)}
                         </td>
-                        <td className="px-3 py-2 text-right text-sm text-indigo-600">
+                        <td className="px-3 py-2 text-right text-sm text-teal-600">
                           S/ {prod.costoGVGD.toFixed(2)}
-                          <div className="text-xs text-gray-400">({prod.proporcionVenta.toFixed(1)}%)</div>
+                          <div className="text-xs text-slate-400">({prod.proporcionVenta.toFixed(1)}%)</div>
                         </td>
                         <td className="px-3 py-2 text-right text-sm text-orange-600">
                           S/ {prod.costoGAGO.toFixed(2)}
-                          <div className="text-xs text-gray-400">({prod.proporcionCosto.toFixed(1)}%)</div>
+                          <div className="text-xs text-slate-400">({prod.proporcionCosto.toFixed(1)}%)</div>
                         </td>
-                        <td className="px-3 py-2 text-right text-sm font-medium text-gray-900">
+                        <td className="px-3 py-2 text-right text-sm font-medium text-slate-900">
                           S/ {prod.costoTotal.toFixed(2)}
                         </td>
                         <td className={`px-3 py-2 text-right text-sm font-medium ${prod.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
@@ -760,8 +760,8 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             <div className="flex items-center">
               <Receipt className="h-5 w-5 text-purple-600 mr-2" />
               <div>
-                <h4 className="font-semibold text-gray-900">Gastos de Venta</h4>
-                <p className="text-xs text-gray-500">Registra comisiones, delivery y otros gastos directos</p>
+                <h4 className="font-semibold text-slate-900">Gastos de Venta</h4>
+                <p className="text-xs text-slate-500">Registra comisiones, delivery y otros gastos directos</p>
               </div>
             </div>
             <Button size="sm" variant="primary" onClick={onAgregarGastos}>
@@ -774,11 +774,11 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
       {/* Entregas - Solo para ventas asignadas o posteriores */}
       {(venta.estado === 'asignada' || venta.estado === 'en_entrega' || venta.estado === 'despachada' || venta.estado === 'entregada' || venta.estado === 'entrega_parcial') && (
-        <div className="bg-indigo-50 p-4 rounded-lg">
+        <div className="bg-teal-50 p-4 rounded-lg">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
-              <Truck className="h-5 w-5 text-indigo-600 mr-2" />
-              <h4 className="font-semibold text-gray-900">Entregas</h4>
+              <Truck className="h-5 w-5 text-teal-600 mr-2" />
+              <h4 className="font-semibold text-slate-900">Entregas</h4>
             </div>
             {onProgramarEntrega && venta.estado !== 'entregada' && (
               <Button size="sm" variant="primary" onClick={onProgramarEntrega}>
@@ -797,7 +797,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
               <CreditCard className="h-5 w-5 text-green-600 mr-2" />
-              <h4 className="font-semibold text-gray-900">Estado de Pago</h4>
+              <h4 className="font-semibold text-slate-900">Estado de Pago</h4>
             </div>
             {venta.estadoPago !== 'pagado' && onRegistrarPago && (
               <Button size="sm" variant="success" onClick={onRegistrarPago}>
@@ -809,15 +809,15 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="bg-white p-3 rounded-lg">
-              <div className="text-xs text-gray-500 mb-1">Total Venta</div>
-              <div className="text-lg font-bold text-gray-900">S/ {(venta.totalPEN || 0).toFixed(2)}</div>
+              <div className="text-xs text-slate-500 mb-1">Total Venta</div>
+              <div className="text-lg font-bold text-slate-900">S/ {(venta.totalPEN || 0).toFixed(2)}</div>
             </div>
             <div className="bg-white p-3 rounded-lg">
-              <div className="text-xs text-gray-500 mb-1">Cobrado</div>
+              <div className="text-xs text-slate-500 mb-1">Cobrado</div>
               <div className="text-lg font-bold text-success-600">S/ {(venta.montoPagado || 0).toFixed(2)}</div>
             </div>
             <div className="bg-white p-3 rounded-lg">
-              <div className="text-xs text-gray-500 mb-1">Pendiente</div>
+              <div className="text-xs text-slate-500 mb-1">Pendiente</div>
               <div className={`text-lg font-bold ${(venta.montoPendiente || 0) > 0 ? 'text-danger-600' : 'text-success-600'}`}>
                 S/ {(venta.montoPendiente || 0).toFixed(2)}
               </div>
@@ -827,30 +827,30 @@ export const VentaCard: React.FC<VentaCardProps> = ({
           {/* Historial de pagos */}
           {venta.pagos && venta.pagos.length > 0 && (
             <div>
-              <h5 className="text-sm font-medium text-gray-700 mb-2">Historial de Pagos</h5>
+              <h5 className="text-sm font-medium text-slate-700 mb-2">Historial de Pagos</h5>
               <div className="bg-white rounded-lg border border-green-200 overflow-hidden">
                 <table className="min-w-full divide-y divide-green-200">
                   <thead className="bg-green-100">
                     <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">Fecha</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">Método</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">Referencia</th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-600">Monto</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-slate-600">Fecha</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-slate-600">Método</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-slate-600">Referencia</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-slate-600">Monto</th>
                       {onEliminarPago && venta.estado !== 'entregada' && (
-                        <th className="px-3 py-2 text-center text-xs font-medium text-gray-600">Acción</th>
+                        <th className="px-3 py-2 text-center text-xs font-medium text-slate-600">Acción</th>
                       )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-green-100">
                     {venta.pagos.map((pago) => (
                       <tr key={pago.id}>
-                        <td className="px-3 py-2 text-sm text-gray-900">
+                        <td className="px-3 py-2 text-sm text-slate-900">
                           {formatDate(pago.fecha)}
                         </td>
-                        <td className="px-3 py-2 text-sm text-gray-900">
+                        <td className="px-3 py-2 text-sm text-slate-900">
                           {metodoPagoLabels[pago.metodoPago] || pago.metodoPago}
                         </td>
-                        <td className="px-3 py-2 text-sm text-gray-600">
+                        <td className="px-3 py-2 text-sm text-slate-600">
                           {pago.referencia || '-'}
                         </td>
                         <td className="px-3 py-2 text-sm font-semibold text-success-600 text-right">
@@ -886,24 +886,24 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
       {/* Productos */}
       <div>
-        <h4 className="font-semibold text-gray-900 mb-3">Productos ({venta.productos.length})</h4>
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <h4 className="font-semibold text-slate-900 mb-3">Productos ({venta.productos.length})</h4>
+        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Producto</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Cant.</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Precio</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Subtotal</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-slate-500">Producto</th>
+                <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">Cant.</th>
+                <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">Precio</th>
+                <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">Subtotal</th>
                 {venta.estado !== 'cotizacion' && venta.estado !== 'confirmada' && (
                   <>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Costo</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Margen</th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">Costo</th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">Margen</th>
                   </>
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-slate-200">
               {venta.productos.map((producto, index) => {
                 // Convertir costo si está en USD (datos legacy)
                 const costoCorregido = producto.costoTotalUnidades
@@ -917,17 +917,17 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                 return (
                   <tr key={index}>
                     <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-gray-900">{producto.marca} {producto.nombreComercial}</div>
-                      <div className="text-xs text-gray-500">{producto.sku}</div>
+                      <div className="text-sm font-medium text-slate-900">{producto.marca} {producto.nombreComercial}</div>
+                      <div className="text-xs text-slate-500">{producto.sku}</div>
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-900">{producto.cantidad}</td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-900">
+                    <td className="px-4 py-3 text-right text-sm text-slate-900">{producto.cantidad}</td>
+                    <td className="px-4 py-3 text-right text-sm text-slate-900">
                       S/ {(producto.precioUnitario || 0).toFixed(2)}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">S/ {(producto.subtotal || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">S/ {(producto.subtotal || 0).toFixed(2)}</td>
                     {venta.estado !== 'cotizacion' && venta.estado !== 'confirmada' && (
                       <>
-                        <td className="px-4 py-3 text-right text-sm text-gray-900">
+                        <td className="px-4 py-3 text-right text-sm text-slate-900">
                           {producto.costoTotalUnidades ? `S/ ${costoCorregido.toFixed(2)}` : '-'}
                         </td>
                         <td className="px-4 py-3 text-right text-sm font-medium">
@@ -979,9 +979,9 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
       {/* Observaciones */}
       {venta.observaciones && (
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-gray-900 mb-2">Observaciones</h4>
-          <p className="text-sm text-gray-700">{venta.observaciones}</p>
+        <div className="bg-slate-50 p-4 rounded-lg">
+          <h4 className="font-semibold text-slate-900 mb-2">Observaciones</h4>
+          <p className="text-sm text-slate-700">{venta.observaciones}</p>
         </div>
       )}
 

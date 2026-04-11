@@ -35,9 +35,9 @@ export const CostEvolutionChart: React.FC<CostEvolutionChartProps> = ({ historia
   });
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-5">
-      <h3 className="text-base font-semibold text-gray-900 mb-0.5">Costos vs Precio de Venta</h3>
-      <p className="text-xs text-gray-400 mb-4">
+    <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 sm:p-5">
+      <h3 className="text-base font-semibold text-slate-900 mb-0.5">Costos vs Precio de Venta</h3>
+      <p className="text-xs text-slate-400 mb-4">
         Area = capas de costo acumuladas{hasVentas ? ' · Linea = precio venta promedio' : ''}
       </p>
       {hasData ? (
@@ -125,10 +125,10 @@ export const CostEvolutionChart: React.FC<CostEvolutionChartProps> = ({ historia
           </ComposedChart>
         </ResponsiveContainer>
       ) : (
-        <div className="flex flex-col items-center justify-center h-[240px] text-gray-300">
+        <div className="flex flex-col items-center justify-center h-[240px] text-slate-300">
           <TrendingUp className="w-10 h-10 mb-2" />
-          <p className="text-sm text-gray-400">Datos insuficientes</p>
-          <p className="text-xs text-gray-400">Se necesitan al menos 2 meses</p>
+          <p className="text-sm text-slate-400">Datos insuficientes</p>
+          <p className="text-xs text-slate-400">Se necesitan al menos 2 meses</p>
         </div>
       )}
     </div>

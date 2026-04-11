@@ -251,9 +251,9 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
             {c.banco && <span className="text-[10px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">{c.banco}</span>}
-            <span className={`font-medium text-gray-800 truncate ${compacta ? 'text-xs' : 'text-sm'}`}>{c.nombre}</span>
+            <span className={`font-medium text-slate-800 truncate ${compacta ? 'text-xs' : 'text-sm'}`}>{c.nombre}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-gray-400 mt-0.5">
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
             {c.titular && <span>{c.titular}</span>}
             {c.numeroCuenta && <span>· #{c.numeroCuenta}</span>}
             {c.titularidad && <span>· {c.titularidad === 'empresa' ? 'Emp.' : 'Pers.'}</span>}
@@ -268,7 +268,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
             </div>
           )}
         </div>
-        <div className={`text-right flex-shrink-0 ${compacta ? 'text-xs' : 'text-sm'} font-bold ${saldo < 0 ? 'text-red-600' : 'text-gray-800'}`}>
+        <div className={`text-right flex-shrink-0 ${compacta ? 'text-xs' : 'text-sm'} font-bold ${saldo < 0 ? 'text-red-600' : 'text-slate-800'}`}>
           {sim} {saldo.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
         </div>
       </div>
@@ -280,14 +280,14 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
     if (items.length === 0) return null;
     return (
       <div key={label}>
-        <div className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 flex items-center gap-1.5">
+        <div className="px-3 py-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wide bg-slate-50 flex items-center gap-1.5">
           {icon} {label}
         </div>
         {items.map(c => (
           <button key={c.id} type="button"
             onClick={() => { setCuentaOrigenId(c.id); setSelectorAbierto(false); }}
-            className={`w-full text-left px-3 py-2.5 hover:bg-primary-50 transition-colors ${
-              c.id === cuentaOrigenId ? 'bg-primary-50/70' : ''
+            className={`w-full text-left px-3 py-2.5 hover:bg-teal-50 transition-colors ${
+              c.id === cuentaOrigenId ? 'bg-teal-50/70' : ''
             }`}>
             {renderCuentaTarjeta(c, true)}
           </button>
@@ -327,10 +327,10 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
                 {pagosAnteriores.map(p => (
                   <div key={p.id} className="flex items-center justify-between text-xs bg-white rounded-lg p-2 border border-blue-100">
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-400">
+                      <span className="text-slate-400">
                         {typeof p.fecha === 'string' ? p.fecha : p.fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 text-[10px]">
+                      <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px]">
                         {METODOS_PAGO_INFO[p.metodo as MetodoPagoUnificado]?.label ?? p.metodo}
                       </span>
                     </div>
@@ -350,13 +350,13 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         <div className="flex gap-2">
           <button type="button" onClick={() => setEsPagoCompleto(true)}
             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-all ${
-              esPagoCompleto ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-gray-50 border-gray-200 text-gray-500'
+              esPagoCompleto ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 text-slate-500'
             }`}>
             <Check className="w-4 h-4 inline mr-1" /> Completo
           </button>
           <button type="button" onClick={() => setEsPagoCompleto(false)}
             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-all ${
-              !esPagoCompleto ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-gray-50 border-gray-200 text-gray-500'
+              !esPagoCompleto ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 text-slate-500'
             }`}>
             <ArrowRightLeft className="w-4 h-4 inline mr-1" /> Parcial
           </button>
@@ -365,12 +365,12 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
 
       {/* MONEDA */}
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Moneda de pago</label>
+        <label className="block text-xs font-medium text-slate-600 mb-1">Moneda de pago</label>
         <div className="flex gap-2">
           {(['PEN', 'USD'] as const).map(m => (
             <button key={m} type="button" onClick={() => setMonedaPago(m)}
               className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
-                monedaPago === m ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-gray-50 border-gray-200 text-gray-500'
+                monedaPago === m ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 text-slate-500'
               }`}>
               {m === 'PEN' ? 'S/ Soles' : '$ Dólares'}
             </button>
@@ -380,28 +380,28 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
 
       {/* CUENTA — Selector custom agrupado */}
       <div ref={selectorRef} className="relative">
-        <label className="block text-xs font-medium text-gray-600 mb-1">
+        <label className="block text-xs font-medium text-slate-600 mb-1">
           {esIngreso ? 'Cuenta destino' : 'Cuenta origen'}
         </label>
         {loadingCuentas ? (
-          <div className="text-xs text-gray-400 py-2">Cargando cuentas...</div>
+          <div className="text-xs text-slate-400 py-2">Cargando cuentas...</div>
         ) : cuentasFiltradas.length === 0 ? (
           <div className="text-xs text-red-500 py-2">No hay cuentas activas en {monedaPago}</div>
         ) : (
           <>
             <button type="button" onClick={() => setSelectorAbierto(!selectorAbierto)}
               className={`w-full text-left p-3 rounded-lg border-2 transition-colors ${
-                selectorAbierto ? 'border-primary-400 ring-2 ring-primary-100' : 'border-gray-200 hover:border-gray-300'
+                selectorAbierto ? 'border-teal-400 ring-2 ring-teal-100' : 'border-slate-200 hover:border-slate-300'
               }`}>
               {cuentaSeleccionada
                 ? renderCuentaTarjeta(cuentaSeleccionada)
-                : <span className="text-sm text-gray-400">Seleccionar cuenta...</span>
+                : <span className="text-sm text-slate-400">Seleccionar cuenta...</span>
               }
-              <ChevronDown className={`absolute right-3 top-9 w-4 h-4 text-gray-400 transition-transform ${selectorAbierto ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`absolute right-3 top-9 w-4 h-4 text-slate-400 transition-transform ${selectorAbierto ? 'rotate-180' : ''}`} />
             </button>
 
             {selectorAbierto && (
-              <div className="absolute z-30 w-full mt-1 bg-white rounded-lg border border-gray-200 shadow-lg max-h-64 overflow-y-auto">
+              <div className="absolute z-30 w-full mt-1 bg-white rounded-lg border border-slate-200 shadow-lg max-h-64 overflow-y-auto">
                 {[...gruposCuentas.bancos.entries()].map(([banco, items]) =>
                   renderGrupo(banco, <Building2 className="w-3 h-3" />, items)
                 )}
@@ -460,9 +460,9 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
       {/* MÉTODO DE PAGO */}
       {metodosDisponibles.length > 0 && (
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Método de pago</label>
+          <label className="block text-xs font-medium text-slate-600 mb-1">Método de pago</label>
           {metodosDisponibles.length === 1 ? (
-            <div className="py-2 px-3 rounded-lg text-xs font-medium bg-primary-50 border border-primary-300 text-primary-700">
+            <div className="py-2 px-3 rounded-lg text-xs font-medium bg-teal-50 border border-teal-300 text-teal-700">
               {METODOS_PAGO_INFO[metodosDisponibles[0] as MetodoPagoUnificado]?.label || metodosDisponibles[0]}
             </div>
           ) : (
@@ -472,7 +472,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
                 return (
                   <button key={m} type="button" onClick={() => setMetodoPago(m)}
                     className={`py-2 px-3 rounded-lg text-xs font-medium border transition-all flex-shrink-0 ${
-                      metodoPago === m ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'
+                      metodoPago === m ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
                     }`}>
                     {info?.label || m}
                   </button>
@@ -505,28 +505,28 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
       {/* MONTO + TC */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <label className="text-xs font-medium text-gray-600">Monto ({sim})</label>
+          <label className="text-xs font-medium text-slate-600">Monto ({sim})</label>
           <button type="button" onClick={() => setShowTC(!showTC)}
-            className="text-[10px] text-gray-400 hover:text-gray-600">
+            className="text-[10px] text-slate-400 hover:text-slate-600">
             TC: {tipoCambio.toFixed(3)} {showTC ? '▲' : '▼'}
           </button>
         </div>
         <input type="text" inputMode="decimal"
           value={montoOriginal || ''} onChange={e => setMontoOriginal(parseFloat(e.target.value) || 0)}
           disabled={esPagoCompleto}
-          className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-primary-300 disabled:bg-gray-100" />
+          className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300 disabled:bg-slate-100" />
         {showTC && (
           <div className="mt-1.5">
             <input type="text" inputMode="decimal"
               value={tipoCambio || ''} onChange={e => setTipoCambio(parseFloat(e.target.value) || 0)}
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary-300" />
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300" />
           </div>
         )}
       </div>
 
       {/* Equivalencia */}
       {tipoCambio > 0 && montoOriginal > 0 && (
-        <div className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 flex justify-between">
+        <div className="text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2 flex justify-between">
           <span>Equivalente:</span>
           <span className="font-medium">
             {monedaPago === 'USD' ? `S/ ${montoPEN.toFixed(2)}` : `$ ${montoUSD.toFixed(2)}`}
@@ -537,28 +537,28 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
       {/* FECHA + REFERENCIA */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs font-medium text-slate-600 mb-1">
             <Calendar className="w-3 h-3 inline mr-1" /> Fecha
           </label>
           <input type="date" value={fechaPago} onChange={e => setFechaPago(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary-300" />
+            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs font-medium text-slate-600 mb-1">
             Referencia {metodoInfo?.requiereReferencia && <span className="text-red-400">*</span>}
           </label>
           <input type="text" value={referencia} onChange={e => setReferencia(e.target.value)}
             placeholder="Nro. operación"
-            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary-300" />
+            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300" />
         </div>
       </div>
 
       {/* NOTAS */}
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Notas (opcional)</label>
+        <label className="block text-xs font-medium text-slate-600 mb-1">Notas (opcional)</label>
         <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2}
           placeholder="Observaciones..."
-          className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary-300 resize-none" />
+          className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300 resize-none" />
       </div>
 
       {/* BOTONES */}

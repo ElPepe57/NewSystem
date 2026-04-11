@@ -252,7 +252,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                   <div className="flex gap-1 mt-2 pt-2 border-t">
                     <button
                       onClick={() => onVerDetalles(c)}
-                      className="flex-1 p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                      className="flex-1 p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors"
                       title="Ver detalles"
                     >
                       <Eye className="h-4 w-4 mx-auto" />
@@ -300,7 +300,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                   <div className="flex gap-1 mt-2 pt-2 border-t">
                     <button
                       onClick={() => onVerDetalles(c)}
-                      className="flex-1 p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                      className="flex-1 p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors"
                     >
                       <Eye className="h-4 w-4 mx-auto" />
                     </button>

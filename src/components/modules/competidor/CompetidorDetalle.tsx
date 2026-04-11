@@ -78,7 +78,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
       case 'alto': return 'bg-red-100 text-red-700 border-red-300';
       case 'medio': return 'bg-amber-100 text-amber-700 border-amber-300';
       case 'bajo': return 'bg-green-100 text-green-700 border-green-300';
-      default: return 'bg-gray-100 text-gray-700 border-gray-300';
+      default: return 'bg-slate-100 text-slate-700 border-slate-300';
     }
   };
 
@@ -138,15 +138,15 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-red-50 via-orange-50 to-white">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r from-red-50 via-orange-50 to-white">
           <div className="flex items-center space-x-4">
             <div className="h-14 w-14 bg-red-100 rounded-full flex items-center justify-center">
               <Target className="h-7 w-7 text-red-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{competidor.nombre}</h2>
+              <h2 className="text-2xl font-bold text-slate-900">{competidor.nombre}</h2>
               <div className="flex items-center space-x-2 mt-1">
-                <span className="text-sm text-gray-500">{competidor.codigo}</span>
+                <span className="text-sm text-slate-500">{competidor.codigo}</span>
                 <Badge variant={competidor.estado === 'activo' ? 'success' : competidor.estado === 'inactivo' ? 'warning' : 'danger'}>
                   {competidor.estado}
                 </Badge>
@@ -166,21 +166,21 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
             <Button variant="secondary" size="sm" onClick={onEdit}>
               Editar
             </Button>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
               <X className="h-6 w-6" />
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 px-6">
+        <div className="border-b border-slate-200 px-6">
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setTabActiva('resumen')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'resumen'
                   ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
               <Shield className="h-4 w-4 inline mr-2" />
@@ -191,13 +191,13 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'productos'
                   ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
               <Package className="h-4 w-4 inline mr-2" />
               Productos
               {competidor.cantidadProductos && (
-                <span className="ml-2 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">
+                <span className="ml-2 bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs">
                   {competidor.cantidadProductos}
                 </span>
               )}
@@ -207,7 +207,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'analytics'
                   ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
               <BarChart3 className="h-4 w-4 inline mr-2" />
@@ -218,7 +218,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'inteligencia'
                   ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
               <Lightbulb className="h-4 w-4 inline mr-2" />
@@ -287,12 +287,12 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
               {/* Score de competitividad */}
               <Card padding="md">
-                <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                <h4 className="font-semibold text-slate-900 mb-3 flex items-center">
                   <Activity className="h-5 w-5 mr-2 text-red-500" />
                   Score de Competitividad
                 </h4>
                 <div className="relative">
-                  <div className="h-6 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-6 bg-slate-200 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
                         competitividadScore >= 70 ? 'bg-red-500' :
@@ -302,7 +302,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                       style={{ width: `${competitividadScore}%` }}
                     />
                   </div>
-                  <div className="flex justify-between mt-2 text-sm text-gray-600">
+                  <div className="flex justify-between mt-2 text-sm text-slate-600">
                     <span>{competitividadScore}/100 puntos</span>
                     <span>
                       {competitividadScore >= 70 ? 'Competidor Fuerte' :
@@ -316,20 +316,20 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
               {/* Informacion del negocio */}
               <div className="grid grid-cols-2 gap-6">
                 <Card padding="md">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Store className="h-5 w-5 mr-2 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                    <Store className="h-5 w-5 mr-2 text-slate-400" />
                     Informacion de Tienda
                   </h3>
                   <div className="space-y-3 text-sm">
                     <div>
-                      <span className="text-gray-500 block mb-1">Plataforma Principal:</span>
+                      <span className="text-slate-500 block mb-1">Plataforma Principal:</span>
                       <Badge variant="info">{plataformaLabels[competidor.plataformaPrincipal || 'otra']}</Badge>
                     </div>
 
                     {/* Nuevo sistema: plataformasData */}
                     {competidor.plataformasData && competidor.plataformasData.length > 0 && (
                       <div>
-                        <span className="text-gray-500 block mb-1">Plataformas:</span>
+                        <span className="text-slate-500 block mb-1">Plataformas:</span>
                         <div className="flex flex-wrap gap-1">
                           {competidor.plataformasData.map((plat) => (
                             <Badge key={plat.id} variant={plat.esPrincipal ? 'info' : 'default'} size="sm">
@@ -343,7 +343,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                     {/* Fallback: legacy plataformas */}
                     {(!competidor.plataformasData || competidor.plataformasData.length === 0) && competidor.plataformas && competidor.plataformas.length > 1 && (
                       <div>
-                        <span className="text-gray-500 block mb-1">Otras Plataformas:</span>
+                        <span className="text-slate-500 block mb-1">Otras Plataformas:</span>
                         <div className="flex flex-wrap gap-1">
                           {competidor.plataformas
                             .filter(p => p !== competidor.plataformaPrincipal)
@@ -358,7 +358,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
                     {competidor.urlTienda && (
                       <div>
-                        <span className="text-gray-500 block mb-1">URL Tienda:</span>
+                        <span className="text-slate-500 block mb-1">URL Tienda:</span>
                         <a
                           href={competidor.urlTienda}
                           target="_blank"
@@ -373,7 +373,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
                     {competidor.urlMercadoLibre && (
                       <div>
-                        <span className="text-gray-500 block mb-1">Perfil MercadoLibre:</span>
+                        <span className="text-slate-500 block mb-1">Perfil MercadoLibre:</span>
                         <a
                           href={competidor.urlMercadoLibre}
                           target="_blank"
@@ -388,8 +388,8 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
                     {(competidor.ciudad || competidor.departamento) && (
                       <div className="pt-2 border-t">
-                        <MapPin className="h-4 w-4 text-gray-400 inline mr-2" />
-                        <span className="text-gray-900">
+                        <MapPin className="h-4 w-4 text-slate-400 inline mr-2" />
+                        <span className="text-slate-900">
                           {competidor.ciudad && competidor.ciudad}
                           {competidor.ciudad && competidor.departamento && ', '}
                           {competidor.departamento && competidor.departamento}
@@ -400,13 +400,13 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                 </Card>
 
                 <Card padding="md">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Award className="h-5 w-5 mr-2 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                    <Award className="h-5 w-5 mr-2 text-slate-400" />
                     Reputacion y Estrategia
                   </h3>
                   <div className="space-y-3 text-sm">
                     <div>
-                      <span className="text-gray-500 block mb-1">Reputacion:</span>
+                      <span className="text-slate-500 block mb-1">Reputacion:</span>
                       <div className="flex items-center gap-2">
                         <Badge variant={reputacionBadge.variant}>
                           <ReputacionIcon className="h-3 w-3 inline mr-1" />
@@ -417,7 +417,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
                     {competidor.estrategiaPrecio && (
                       <div>
-                        <span className="text-gray-500 block mb-1">Estrategia de Precio:</span>
+                        <span className="text-slate-500 block mb-1">Estrategia de Precio:</span>
                         <Badge
                           variant={
                             competidor.estrategiaPrecio === 'premium' ? 'info' :
@@ -433,7 +433,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
                     {competidor.esLiderCategoria && competidor.categoriasLider && competidor.categoriasLider.length > 0 && (
                       <div>
-                        <span className="text-gray-500 block mb-1">Lider en:</span>
+                        <span className="text-slate-500 block mb-1">Lider en:</span>
                         <div className="flex flex-wrap gap-1">
                           {competidor.categoriasLider.map((cat, idx) => (
                             <Badge key={idx} variant="warning" size="sm">
@@ -446,8 +446,8 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
                     {competidor.metricas?.productosAnalizados > 0 && (
                       <div className="pt-2 border-t">
-                        <Eye className="h-4 w-4 text-gray-400 inline mr-2" />
-                        <span className="text-gray-600">
+                        <Eye className="h-4 w-4 text-slate-400 inline mr-2" />
+                        <span className="text-slate-600">
                           {competidor.metricas.productosAnalizados} productos analizados
                         </span>
                       </div>
@@ -482,8 +482,8 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
               {/* Notas */}
               {competidor.notas && (
                 <Card padding="md">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Notas Internas</h3>
-                  <p className="text-gray-600 text-sm whitespace-pre-wrap">{competidor.notas}</p>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">Notas Internas</h3>
+                  <p className="text-slate-600 text-sm whitespace-pre-wrap">{competidor.notas}</p>
                 </Card>
               )}
             </div>
@@ -509,46 +509,46 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                 <Card padding="md">
                   <div className="text-center">
                     <Package className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-2xl font-bold text-slate-900">
                       {competidor.cantidadProductos || 0}
                     </div>
-                    <div className="text-xs text-gray-600">Total Productos</div>
+                    <div className="text-xs text-slate-600">Total Productos</div>
                   </div>
                 </Card>
 
                 <Card padding="md">
                   <div className="text-center">
                     <DollarSign className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-2xl font-bold text-slate-900">
                       S/ {competidor.metricas?.precioPromedio?.toFixed(0) || 0}
                     </div>
-                    <div className="text-xs text-gray-600">Precio Promedio</div>
+                    <div className="text-xs text-slate-600">Precio Promedio</div>
                   </div>
                 </Card>
 
                 <Card padding="md">
                   <div className="text-center">
                     <Eye className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-2xl font-bold text-slate-900">
                       {competidor.metricas?.productosAnalizados || 0}
                     </div>
-                    <div className="text-xs text-gray-600">Analizados</div>
+                    <div className="text-xs text-slate-600">Analizados</div>
                   </div>
                 </Card>
               </div>
 
               {/* Comparacion de precios */}
               <Card padding="md">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <BarChart3 className="h-5 w-5 mr-2 text-gray-400" />
+                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                  <BarChart3 className="h-5 w-5 mr-2 text-slate-400" />
                   Comparacion de Precios
                 </h3>
                 <div className="text-center py-8">
-                  <LineChart className="h-16 w-16 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">
+                  <LineChart className="h-16 w-16 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500 text-sm">
                     Los datos de productos monitoreados se mostraran aqui
                   </p>
-                  <p className="text-gray-400 text-xs mt-2">
+                  <p className="text-slate-400 text-xs mt-2">
                     Implementar integracion con modulo de Productos para comparacion automatica
                   </p>
                 </div>
@@ -583,24 +583,24 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
             <div className="space-y-6">
               {/* Market Share */}
               <Card padding="md">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <BarChart3 className="h-5 w-5 mr-2 text-gray-400" />
+                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                  <BarChart3 className="h-5 w-5 mr-2 text-slate-400" />
                   Market Share Estimado
                 </h3>
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="text-gray-600">Participacion de mercado</span>
-                      <span className="font-bold text-gray-900">{marketShareEstimado}%</span>
+                      <span className="text-slate-600">Participacion de mercado</span>
+                      <span className="font-bold text-slate-900">{marketShareEstimado}%</span>
                     </div>
-                    <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-4 bg-slate-200 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-blue-500 rounded-full transition-all"
                         style={{ width: `${marketShareEstimado}%` }}
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-500">
                     Basado en ventas mensuales estimadas de {competidor.ventasEstimadas || 0} unidades
                   </p>
                 </div>
@@ -608,16 +608,16 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
               {/* Tendencia de precios */}
               <Card padding="md">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <TrendingUp className="h-5 w-5 mr-2 text-gray-400" />
+                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2 text-slate-400" />
                   Tendencia de Precios
                 </h3>
                 <div className="text-center py-8">
-                  <LineChart className="h-16 w-16 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">
+                  <LineChart className="h-16 w-16 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500 text-sm">
                     Grafico de tendencia de precios en el tiempo
                   </p>
-                  <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg">
+                  <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg">
                     {competidor.estrategiaPrecio === 'bajo' ? (
                       <>
                         <TrendingDown className="h-5 w-5 text-green-600" />
@@ -641,19 +641,19 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
               {/* Comparacion de reputacion */}
               <div className="grid grid-cols-2 gap-6">
                 <Card padding="md">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Award className="h-5 w-5 mr-2 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                    <Award className="h-5 w-5 mr-2 text-slate-400" />
                     Analisis de Reputacion
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Nivel actual:</span>
+                      <span className="text-sm text-slate-600">Nivel actual:</span>
                       <Badge variant={reputacionBadge.variant}>
                         {reputacionLabels[competidor.reputacion]}
                       </Badge>
                     </div>
                     <div className="pt-3 border-t">
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-500">
                         {competidor.reputacion === 'excelente' ? 'Competidor con excelente reputacion. Alta confianza del mercado.' :
                          competidor.reputacion === 'buena' ? 'Competidor con buena reputacion. Confianza del mercado solida.' :
                          competidor.reputacion === 'regular' ? 'Competidor con reputacion regular. Oportunidad de diferenciacion.' :
@@ -665,17 +665,17 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                 </Card>
 
                 <Card padding="md">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Zap className="h-5 w-5 mr-2 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                    <Zap className="h-5 w-5 mr-2 text-slate-400" />
                     Velocidad de Ventas
                   </h3>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-blue-600">
                       {competidor.ventasEstimadas ? `${competidor.ventasEstimadas}/mes` : 'N/D'}
                     </div>
-                    <p className="text-sm text-gray-500 mt-2">Ventas mensuales estimadas</p>
+                    <p className="text-sm text-slate-500 mt-2">Ventas mensuales estimadas</p>
                     {competidor.ventasEstimadas && (
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-xs text-slate-400 mt-1">
                         ~{Math.round(competidor.ventasEstimadas / 30)} ventas/dia
                       </p>
                     )}
@@ -685,7 +685,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
               {/* Analisis FODA rapido */}
               <Card padding="md" className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                   <Target className="h-5 w-5 mr-2 text-blue-600" />
                   Analisis Competitivo
                 </h3>
@@ -695,7 +695,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                       <CheckCircle className="h-4 w-4 mr-1" />
                       Sus Fortalezas
                     </h4>
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-slate-700">
                       {competidor.fortalezas || 'No especificadas'}
                     </p>
                   </div>
@@ -704,7 +704,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                       <XCircle className="h-4 w-4 mr-1" />
                       Sus Debilidades
                     </h4>
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-slate-700">
                       {competidor.debilidades || 'No especificadas'}
                     </p>
                   </div>
@@ -718,7 +718,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
             <div className="space-y-6">
               {/* Alertas */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                   <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
                   Alertas Competitivas
                 </h3>
@@ -768,7 +768,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
                   {!competidor.esLiderCategoria && competidor.nivelAmenaza === 'bajo' && (
                     <Card padding="md" className="text-center py-6">
                       <CheckCircle className="h-12 w-12 text-green-300 mx-auto mb-3" />
-                      <p className="text-gray-500 text-sm">No hay alertas criticas para este competidor</p>
+                      <p className="text-slate-500 text-sm">No hay alertas criticas para este competidor</p>
                     </Card>
                   )}
                 </div>
@@ -776,7 +776,7 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
               {/* Oportunidades identificadas */}
               <Card padding="md">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                   <Lightbulb className="h-5 w-5 mr-2 text-yellow-500" />
                   Oportunidades Identificadas
                 </h3>
@@ -820,40 +820,40 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
               </Card>
 
               {/* Recomendaciones de accion */}
-              <Card padding="md" className="bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
-                <h3 className="text-lg font-semibold text-indigo-900 mb-4 flex items-center">
-                  <Target className="h-5 w-5 mr-2 text-indigo-600" />
+              <Card padding="md" className="bg-gradient-to-br from-teal-50 to-blue-50 border-teal-200">
+                <h3 className="text-lg font-semibold text-teal-900 mb-4 flex items-center">
+                  <Target className="h-5 w-5 mr-2 text-teal-600" />
                   Recomendaciones de Accion
                 </h3>
                 <div className="space-y-2">
                   {competidor.nivelAmenaza === 'alto' && (
                     <div className="flex items-start space-x-2 text-sm">
-                      <div className="h-1.5 w-1.5 bg-indigo-600 rounded-full mt-1.5"></div>
-                      <p className="text-indigo-900">Realizar monitoreo semanal de precios y nuevos productos</p>
+                      <div className="h-1.5 w-1.5 bg-teal-600 rounded-full mt-1.5"></div>
+                      <p className="text-teal-900">Realizar monitoreo semanal de precios y nuevos productos</p>
                     </div>
                   )}
 
                   <div className="flex items-start space-x-2 text-sm">
-                    <div className="h-1.5 w-1.5 bg-indigo-600 rounded-full mt-1.5"></div>
-                    <p className="text-indigo-900">Analizar productos mas vendidos para identificar oportunidades</p>
+                    <div className="h-1.5 w-1.5 bg-teal-600 rounded-full mt-1.5"></div>
+                    <p className="text-teal-900">Analizar productos mas vendidos para identificar oportunidades</p>
                   </div>
 
                   {competidor.fortalezas && (
                     <div className="flex items-start space-x-2 text-sm">
-                      <div className="h-1.5 w-1.5 bg-indigo-600 rounded-full mt-1.5"></div>
-                      <p className="text-indigo-900">Estudiar sus fortalezas para mejorar nuestro servicio</p>
+                      <div className="h-1.5 w-1.5 bg-teal-600 rounded-full mt-1.5"></div>
+                      <p className="text-teal-900">Estudiar sus fortalezas para mejorar nuestro servicio</p>
                     </div>
                   )}
 
                   <div className="flex items-start space-x-2 text-sm">
-                    <div className="h-1.5 w-1.5 bg-indigo-600 rounded-full mt-1.5"></div>
-                    <p className="text-indigo-900">Mantener actualizados los datos de reputacion y metricas</p>
+                    <div className="h-1.5 w-1.5 bg-teal-600 rounded-full mt-1.5"></div>
+                    <p className="text-teal-900">Mantener actualizados los datos de reputacion y metricas</p>
                   </div>
 
                   {competidor.estrategiaPrecio && (
                     <div className="flex items-start space-x-2 text-sm">
-                      <div className="h-1.5 w-1.5 bg-indigo-600 rounded-full mt-1.5"></div>
-                      <p className="text-indigo-900">
+                      <div className="h-1.5 w-1.5 bg-teal-600 rounded-full mt-1.5"></div>
+                      <p className="text-teal-900">
                         Ajustar estrategia comercial considerando su posicionamiento {competidor.estrategiaPrecio}
                       </p>
                     </div>
@@ -863,8 +863,8 @@ export const CompetidorDetalle: React.FC<CompetidorDetalleProps> = ({
 
               {/* Actualizacion */}
               {competidor.metricas?.ultimaActualizacion && (
-                <Card padding="md" className="bg-gray-50">
-                  <div className="text-sm text-gray-600 text-center">
+                <Card padding="md" className="bg-slate-50">
+                  <div className="text-sm text-slate-600 text-center">
                     <Activity className="h-4 w-4 inline mr-2" />
                     Ultima actualizacion: {competidor.metricas.ultimaActualizacion.toDate().toLocaleDateString('es-PE', {
                       day: '2-digit',

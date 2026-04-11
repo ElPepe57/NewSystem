@@ -151,9 +151,9 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           {loading ? (
-            <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+            <Loader2 className="h-5 w-5 text-slate-400 animate-spin" />
           ) : (
-            <Warehouse className="h-5 w-5 text-gray-400" />
+            <Warehouse className="h-5 w-5 text-slate-400" />
           )}
         </div>
 
@@ -168,9 +168,9 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
           required={required}
           className={`
             block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
-            focus:ring-primary-500 focus:border-primary-500
-            ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-            ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
+            focus:ring-teal-500 focus:border-teal-500
+            ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
+            ${value ? 'border-green-300 bg-green-50' : 'border-slate-300'}
           `}
         />
 
@@ -183,7 +183,7 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -193,7 +193,7 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-slate-400 hover:text-slate-600"
             >
               <X className="h-4 w-4" />
             </button>
@@ -203,7 +203,7 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
 
       {/* Dropdown de resultados */}
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 max-h-60 overflow-auto">
+        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-slate-200 max-h-60 overflow-auto">
           {filteredAlmacenes.length > 0 ? (
             filteredAlmacenes.map((almacen) => {
               const proximoViaje = almacen.esViajero ? formatProximoViaje(almacen.proximoViaje) : null;
@@ -213,12 +213,12 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
                   key={almacen.id}
                   type="button"
                   onClick={() => handleSelectAlmacen(almacen)}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                  className="w-full px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-0"
                 >
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900">{almacen.nombre}</span>
+                        <span className="font-medium text-slate-900">{almacen.nombre}</span>
                         {almacen.esViajero && (
                           <span className="px-1.5 py-0.5 text-xs rounded bg-purple-100 text-purple-800 flex items-center">
                             <Plane className="h-3 w-3 mr-1" />
@@ -226,7 +226,7 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center mt-1 text-xs text-gray-500">
+                      <div className="flex items-center mt-1 text-xs text-slate-500">
                         <MapPin className="h-3 w-3 mr-1" />
                         {almacen.ciudad}{almacen.estado && `, ${almacen.estado}`} - {almacen.pais}
                       </div>
@@ -242,7 +242,7 @@ export const AlmacenAutocomplete: React.FC<AlmacenAutocompleteProps> = ({
               );
             })
           ) : !loading ? (
-            <div className="px-4 py-3 text-sm text-gray-500">
+            <div className="px-4 py-3 text-sm text-slate-500">
               {inputValue.length >= 1
                 ? `No se encontraron almacenes con "${inputValue}"`
                 : 'Escribe para buscar almacenes...'}

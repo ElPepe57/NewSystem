@@ -75,7 +75,7 @@ export const TabClientes: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
+        <Loader2 className="h-10 w-10 animate-spin text-teal-600" />
       </div>
     );
   }

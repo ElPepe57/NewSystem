@@ -52,8 +52,8 @@ export const ProductoCreacionWizard: React.FC<ProductoCreacionWizardProps> = ({
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900">¿Cómo es este producto?</h3>
-        <p className="text-sm text-gray-500 mt-1">Selecciona el tipo de producto que quieres crear</p>
+        <h3 className="text-lg font-semibold text-slate-900">¿Cómo es este producto?</h3>
+        <p className="text-sm text-slate-500 mt-1">Selecciona el tipo de producto que quieres crear</p>
       </div>
 
       <div className="space-y-3">
@@ -67,23 +67,23 @@ export const ProductoCreacionWizard: React.FC<ProductoCreacionWizardProps> = ({
               onClick={() => setSelected(op.tipo)}
               className={`w-full flex items-center gap-4 p-4 rounded-lg border-2 transition-all text-left ${
                 isSelected
-                  ? 'border-primary-500 bg-primary-50 shadow-sm'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-teal-500 bg-teal-50 shadow-sm'
+                  : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
               <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                isSelected ? 'bg-primary-100' : 'bg-gray-100'
+                isSelected ? 'bg-teal-100' : 'bg-slate-100'
               }`}>
-                <Icon className={`h-6 w-6 ${isSelected ? 'text-primary-600' : 'text-gray-400'}`} />
+                <Icon className={`h-6 w-6 ${isSelected ? 'text-teal-600' : 'text-slate-400'}`} />
               </div>
               <div className="min-w-0">
-                <p className={`font-medium ${isSelected ? 'text-primary-900' : 'text-gray-900'}`}>
+                <p className={`font-medium ${isSelected ? 'text-teal-900' : 'text-slate-900'}`}>
                   {op.titulo}
                 </p>
-                <p className="text-sm text-gray-500">{op.descripcion}</p>
+                <p className="text-sm text-slate-500">{op.descripcion}</p>
               </div>
               <div className={`ml-auto w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
-                isSelected ? 'border-primary-500 bg-primary-500' : 'border-gray-300'
+                isSelected ? 'border-teal-500 bg-teal-500' : 'border-slate-300'
               }`}>
                 {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
               </div>

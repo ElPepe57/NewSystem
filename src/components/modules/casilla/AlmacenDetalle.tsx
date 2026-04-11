@@ -382,10 +382,10 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
   // Determinar color del header según tipo
   const headerGradient = almacen.esViajero
     ? 'from-green-50 via-teal-50 to-white'
-    : 'from-blue-50 via-indigo-50 to-white';
+    : 'from-blue-50 via-teal-50 to-white';
 
-  const iconColor = almacen.esViajero ? 'text-teal-600' : 'text-indigo-600';
-  const iconBg = almacen.esViajero ? 'bg-teal-100' : 'bg-indigo-100';
+  const iconColor = almacen.esViajero ? 'text-teal-600' : 'text-teal-600';
+  const iconBg = almacen.esViajero ? 'bg-teal-100' : 'bg-teal-100';
 
   // Determinar variante de capacidad
   const getCapacidadVariant = (): 'success' | 'warning' | 'danger' => {
@@ -406,7 +406,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className={`flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r ${headerGradient}`}>
+        <div className={`flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r ${headerGradient}`}>
           <div className="flex items-center space-x-4">
             <div className={`h-14 w-14 ${iconBg} rounded-full flex items-center justify-center`}>
               {almacen.esViajero ? (
@@ -416,9 +416,9 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
               )}
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{almacen.nombre}</h2>
+              <h2 className="text-2xl font-bold text-slate-900">{almacen.nombre}</h2>
               <div className="flex items-center space-x-2 mt-1">
-                <span className="text-sm text-gray-500">{almacen.codigo}</span>
+                <span className="text-sm text-slate-500">{almacen.codigo}</span>
                 <Badge variant={almacen.estadoAlmacen === 'activo' ? 'success' : 'default'}>
                   {almacen.estadoAlmacen}
                 </Badge>
@@ -433,14 +433,14 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
             <Button variant="secondary" size="sm" onClick={onEdit}>
               Editar
             </Button>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
               <X className="h-6 w-6" />
             </button>
           </div>
         </div>
 
         {/* Tabs Navigation */}
-        <div className="border-b border-gray-200 px-6 bg-white">
+        <div className="border-b border-slate-200 px-6 bg-white">
           <Tabs
             tabs={tabs}
             activeTab={activeTab}
@@ -490,16 +490,16 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                   <Card title="Ubicación" padding="md">
                     <div className="space-y-3">
                       <div className="flex items-start gap-3">
-                        <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
+                        <MapPin className="h-5 w-5 text-slate-400 mt-0.5" />
                         <div className="flex-1">
-                          <div className="text-sm font-medium text-gray-900">{almacen.direccion}</div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm font-medium text-slate-900">{almacen.direccion}</div>
+                          <div className="text-sm text-slate-600">
                             {almacen.ciudad}{almacen.estado ? `, ${almacen.estado}` : ''}
                           </div>
                           {almacen.codigoPostal && (
-                            <div className="text-sm text-gray-500">CP: {almacen.codigoPostal}</div>
+                            <div className="text-sm text-slate-500">CP: {almacen.codigoPostal}</div>
                           )}
-                          <div className="text-sm text-gray-500 mt-1">{almacen.pais}</div>
+                          <div className="text-sm text-slate-500 mt-1">{almacen.pais}</div>
                         </div>
                       </div>
                     </div>
@@ -510,28 +510,28 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                     <div className="space-y-2">
                       {almacen.telefono && (
                         <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">Teléfono:</span>
-                          <span className="text-sm font-medium text-gray-900">{almacen.telefono}</span>
+                          <Phone className="h-4 w-4 text-slate-400" />
+                          <span className="text-sm text-slate-600">Teléfono:</span>
+                          <span className="text-sm font-medium text-slate-900">{almacen.telefono}</span>
                         </div>
                       )}
                       {almacen.whatsapp && (
                         <div className="flex items-center gap-2">
                           <Phone className="h-4 w-4 text-green-500" />
-                          <span className="text-sm text-gray-600">WhatsApp:</span>
+                          <span className="text-sm text-slate-600">WhatsApp:</span>
                           <span className="text-sm font-medium text-green-600">{almacen.whatsapp}</span>
                         </div>
                       )}
                       {almacen.email && (
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-600">Email:</span>
-                          <span className="text-sm font-medium text-gray-900">{almacen.email}</span>
+                          <span className="text-sm text-slate-600">Email:</span>
+                          <span className="text-sm font-medium text-slate-900">{almacen.email}</span>
                         </div>
                       )}
                       {almacen.contacto && (
                         <div className="flex items-center gap-2 pt-2 border-t">
-                          <span className="text-sm text-gray-600">Responsable:</span>
-                          <span className="text-sm font-medium text-gray-900">{almacen.contacto}</span>
+                          <span className="text-sm text-slate-600">Responsable:</span>
+                          <span className="text-sm font-medium text-slate-900">{almacen.contacto}</span>
                         </div>
                       )}
                     </div>
@@ -543,24 +543,24 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                   <Card padding="md" className="bg-teal-50 border-teal-200">
                     <div className="flex items-center gap-3 mb-4">
                       <Plane className="h-5 w-5 text-teal-600" />
-                      <h3 className="font-semibold text-gray-900">Información de Viajero</h3>
+                      <h3 className="font-semibold text-slate-900">Información de Viajero</h3>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                       {almacen.frecuenciaViaje && (
                         <div>
-                          <div className="text-xs text-gray-600">Frecuencia</div>
-                          <div className="text-sm font-medium text-gray-900 capitalize">{almacen.frecuenciaViaje}</div>
+                          <div className="text-xs text-slate-600">Frecuencia</div>
+                          <div className="text-sm font-medium text-slate-900 capitalize">{almacen.frecuenciaViaje}</div>
                         </div>
                       )}
                       {almacen.proximoViaje && (
                         <div>
-                          <div className="text-xs text-gray-600">Próximo Viaje</div>
-                          <div className="text-sm font-medium text-gray-900">{formatDate(almacen.proximoViaje)}</div>
+                          <div className="text-xs text-slate-600">Próximo Viaje</div>
+                          <div className="text-sm font-medium text-slate-900">{formatDate(almacen.proximoViaje)}</div>
                         </div>
                       )}
                       {almacen.costoPromedioFlete !== undefined && (
                         <div>
-                          <div className="text-xs text-gray-600">Costo Flete Promedio</div>
+                          <div className="text-xs text-slate-600">Costo Flete Promedio</div>
                           <div className="text-sm font-medium text-green-600">${almacen.costoPromedioFlete.toFixed(2)}</div>
                         </div>
                       )}
@@ -571,7 +571,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                 {/* Notas */}
                 {almacen.notas && (
                   <Card title="Notas" padding="md">
-                    <p className="text-sm text-gray-600 whitespace-pre-wrap">{almacen.notas}</p>
+                    <p className="text-sm text-slate-600 whitespace-pre-wrap">{almacen.notas}</p>
                   </Card>
                 )}
               </div>
@@ -639,19 +639,19 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                   <Card title="Stock por Producto" padding="md">
                     <div className="space-y-3">
                       {metricasInventario.productosPorSKU.slice(0, 10).map((producto, index) => (
-                        <div key={producto.sku} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div key={producto.sku} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                           <div className="flex-1">
-                            <div className="font-medium text-gray-900">{producto.sku}</div>
-                            <div className="text-sm text-gray-500">{producto.nombre}</div>
+                            <div className="font-medium text-slate-900">{producto.sku}</div>
+                            <div className="text-sm text-slate-500">{producto.nombre}</div>
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="text-right">
-                              <div className="text-lg font-bold text-gray-900">{producto.cantidad}</div>
-                              <div className="text-xs text-gray-500">unidades</div>
+                              <div className="text-lg font-bold text-slate-900">{producto.cantidad}</div>
+                              <div className="text-xs text-slate-500">unidades</div>
                             </div>
                             <div className="text-right">
                               <div className="text-sm font-medium text-green-600">${producto.valorUSD.toFixed(2)}</div>
-                              <div className="text-xs text-gray-500">valor</div>
+                              <div className="text-xs text-slate-500">valor</div>
                             </div>
                           </div>
                         </div>
@@ -662,8 +662,8 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
 
                 {metricasInventario.productosPorSKU.length === 0 && !metricasInventario.loading && (
                   <Card padding="lg" className="text-center">
-                    <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">No hay unidades en stock actualmente</p>
+                    <Package className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-500">No hay unidades en stock actualmente</p>
                   </Card>
                 )}
               </div>
@@ -732,8 +732,8 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                               <TrendingUp className="h-5 w-5 text-green-600" />
                             )}
                             <div>
-                              <div className="font-medium text-gray-900">{transferencia.numero}</div>
-                              <div className="text-xs text-gray-500">
+                              <div className="font-medium text-slate-900">{transferencia.numero}</div>
+                              <div className="text-xs text-slate-500">
                                 {transferencia.fecha.toLocaleDateString('es-PE')}
                               </div>
                             </div>
@@ -742,7 +742,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                             <Badge variant={transferencia.tipo === 'entrada' ? 'info' : 'success'}>
                               {transferencia.tipo === 'entrada' ? 'Entrada' : 'Salida'}
                             </Badge>
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-sm font-medium text-slate-900">
                               {transferencia.unidades} unidades
                             </span>
                           </div>
@@ -754,8 +754,8 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
 
                 {metricasMovimientos.ultimasTransferencias.length === 0 && !metricasMovimientos.loading && (
                   <Card padding="lg" className="text-center">
-                    <ArrowUpDown className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">No hay transferencias registradas</p>
+                    <ArrowUpDown className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-500">No hay transferencias registradas</p>
                   </Card>
                 )}
               </div>
@@ -822,7 +822,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                       {
                         label: 'Disponible',
                         value: (almacen.capacidadUnidades || 0) - (almacen.unidadesActuales || 0),
-                        color: 'bg-gray-300'
+                        color: 'bg-slate-300'
                       }
                     ]}
                     total={almacen.capacidadUnidades}
@@ -833,21 +833,21 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                 {almacen.metricasOperativas && (
                   <Card title="Métricas Operativas" padding="md">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <div className="text-xs text-gray-600">Transferencias Recibidas</div>
-                        <div className="text-2xl font-bold text-gray-900">
+                      <div className="p-4 bg-slate-50 rounded-lg">
+                        <div className="text-xs text-slate-600">Transferencias Recibidas</div>
+                        <div className="text-2xl font-bold text-slate-900">
                           {almacen.metricasOperativas.transferenciasRecibidas || 0}
                         </div>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <div className="text-xs text-gray-600">Transferencias Enviadas</div>
-                        <div className="text-2xl font-bold text-gray-900">
+                      <div className="p-4 bg-slate-50 rounded-lg">
+                        <div className="text-xs text-slate-600">Transferencias Enviadas</div>
+                        <div className="text-2xl font-bold text-slate-900">
                           {almacen.metricasOperativas.transferenciasEnviadas || 0}
                         </div>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <div className="text-xs text-gray-600">Productos Almacenados</div>
-                        <div className="text-2xl font-bold text-gray-900">
+                      <div className="p-4 bg-slate-50 rounded-lg">
+                        <div className="text-xs text-slate-600">Productos Almacenados</div>
+                        <div className="text-2xl font-bold text-slate-900">
                           {almacen.metricasOperativas.productosAlmacenados || 0}
                         </div>
                       </div>

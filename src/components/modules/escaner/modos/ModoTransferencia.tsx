@@ -270,29 +270,29 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
   return (
     <div className="space-y-4">
       {/* Warehouse selectors */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-          <Warehouse className="h-4 w-4 text-gray-500" />
+      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-3">
+          <Warehouse className="h-4 w-4 text-slate-500" />
           Almacenes
         </label>
 
         {loading ? (
           <div className="flex items-center gap-2 py-2">
-            <div className="h-4 w-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-gray-500">Cargando almacenes...</span>
+            <div className="h-4 w-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm text-slate-500">Cargando almacenes...</span>
           </div>
         ) : (
           <div className="space-y-3">
             {/* Origin */}
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Origen</label>
+              <label className="text-xs text-slate-500 mb-1 block">Origen</label>
               <select
                 value={origenId}
                 onChange={(e) => {
                   setOrigenId(e.target.value);
                   if (e.target.value === destinoId) setDestinoId('');
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               >
                 <option value="">Selecciona almacen origen</option>
                 {almacenes.map(a => (
@@ -305,17 +305,17 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
 
             {/* Arrow */}
             <div className="flex justify-center">
-              <ArrowRightLeft className="h-5 w-5 text-gray-400 rotate-90" />
+              <ArrowRightLeft className="h-5 w-5 text-slate-400 rotate-90" />
             </div>
 
             {/* Destination */}
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Destino</label>
+              <label className="text-xs text-slate-500 mb-1 block">Destino</label>
               <select
                 value={destinoId}
                 onChange={(e) => setDestinoId(e.target.value)}
                 disabled={!origenId}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 disabled:opacity-50"
               >
                 <option value="">Selecciona almacen destino</option>
                 {almacenes
@@ -339,13 +339,13 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
                   {getLabelTipoTransferencia(tipoTransferencia, almacenes.find(a => a.id === origenId)?.pais)}
                 </span>
                 {loadingUnidades && (
-                  <span className="flex items-center gap-1 text-gray-500">
-                    <div className="h-3 w-3 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+                  <span className="flex items-center gap-1 text-slate-500">
+                    <div className="h-3 w-3 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
                     Cargando stock...
                   </span>
                 )}
                 {!loadingUnidades && origenId && (
-                  <span className="text-gray-500">
+                  <span className="text-slate-500">
                     {unidadesOrigen.length} unidades disponibles en {origenNombre}
                   </span>
                 )}
@@ -357,10 +357,10 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
 
       {/* Scanned products list */}
       {origenId && destinoId && (
-        <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
           <div className="flex items-center justify-between mb-3">
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Package className="h-4 w-4 text-gray-500" />
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <Package className="h-4 w-4 text-slate-500" />
               Productos a transferir ({productos.length})
             </label>
             {productos.length > 0 && (
@@ -376,8 +376,8 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
 
           {productos.length === 0 ? (
             <div className="text-center py-6">
-              <Package className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">Escanea productos para agregarlos a la transferencia</p>
+              <Package className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-500">Escanea productos para agregarlos a la transferencia</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -385,14 +385,14 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
                 <div
                   key={prod.productoId}
                   className={`border rounded-lg p-3 ${
-                    prod.reservadas > 0 ? 'border-amber-300 bg-amber-50/20' : 'border-gray-200'
+                    prod.reservadas > 0 ? 'border-amber-300 bg-amber-50/20' : 'border-slate-200'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{prod.nombre}</p>
+                      <p className="text-sm font-medium text-slate-900 truncate">{prod.nombre}</p>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-slate-500">
                           {prod.sku} · Disponible: {prod.disponible} uds
                         </p>
                         {prod.reservadas > 0 && (
@@ -408,28 +408,28 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
                       <button
                         type="button"
                         onClick={() => handleUpdateQuantity(prod.productoId, prod.cantidad - 1)}
-                        className="w-7 h-7 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600"
+                        className="w-7 h-7 flex items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600"
                       >
                         <Minus className="h-3.5 w-3.5" />
                       </button>
                       <div className="text-center min-w-[3rem]">
-                        <span className="text-sm font-bold tabular-nums text-gray-900">
+                        <span className="text-sm font-bold tabular-nums text-slate-900">
                           {prod.cantidad}
                         </span>
-                        <span className="text-xs text-gray-400">/{prod.disponible}</span>
+                        <span className="text-xs text-slate-400">/{prod.disponible}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleUpdateQuantity(prod.productoId, prod.cantidad + 1)}
                         disabled={prod.cantidad >= prod.disponible}
-                        className="w-7 h-7 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 disabled:opacity-30"
+                        className="w-7 h-7 flex items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-30"
                       >
                         <Plus className="h-3.5 w-3.5" />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleRemove(prod.productoId)}
-                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500 ml-1"
+                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-red-50 text-slate-400 hover:text-red-500 ml-1"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -459,11 +459,11 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
               {showEnvioFields && (
                 <div className="mt-3 space-y-3">
                   <div>
-                    <label className="text-xs text-gray-600 mb-1 block">Viajero / Transportista</label>
+                    <label className="text-xs text-slate-600 mb-1 block">Viajero / Transportista</label>
                     <select
                       value={viajeroId}
                       onChange={(e) => setViajeroId(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     >
                       <option value="">Seleccionar viajero...</option>
                       {viajeros.map(v => (
@@ -474,38 +474,38 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-600 mb-1 block">Numero de tracking</label>
+                    <label className="text-xs text-slate-600 mb-1 block">Numero de tracking</label>
                     <input
                       type="text"
                       value={numeroTracking}
                       onChange={(e) => setNumeroTracking(e.target.value)}
                       placeholder="Tracking number..."
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     />
                   </div>
-                  <p className="text-xs text-gray-400">Estos datos se pueden completar despues desde el modulo de Transferencias</p>
+                  <p className="text-xs text-slate-400">Estos datos se pueden completar despues desde el modulo de Transferencias</p>
                 </div>
               )}
             </div>
           )}
 
-          <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
-            <label className="text-xs font-medium text-gray-600 mb-1 block">Notas (opcional)</label>
+          <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Notas (opcional)</label>
             <textarea
               value={notas}
               onChange={(e) => setNotas(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               placeholder="Notas sobre la transferencia..."
             />
           </div>
 
-          <div className="sticky bottom-0 bg-gray-50/95 backdrop-blur-sm border-t border-gray-200 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3">
+          <div className="sticky bottom-0 bg-slate-50/95 backdrop-blur-sm border-t border-slate-200 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3">
             <div className="flex items-center justify-between mb-2 text-sm">
-              <span className="text-gray-600">
+              <span className="text-slate-600">
                 {origenNombre} → {destinoNombre}
               </span>
-              <span className="font-semibold text-gray-900">{totalUnidades} unidades</span>
+              <span className="font-semibold text-slate-900">{totalUnidades} unidades</span>
             </div>
             <button
               type="button"

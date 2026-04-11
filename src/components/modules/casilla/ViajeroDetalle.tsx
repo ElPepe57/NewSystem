@@ -244,15 +244,15 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-white">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r from-purple-50 to-white">
           <div className="flex items-center space-x-4">
             <div className="h-14 w-14 bg-purple-100 rounded-full flex items-center justify-center">
               <Users className="h-7 w-7 text-purple-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{viajero.nombre}</h2>
+              <h2 className="text-2xl font-bold text-slate-900">{viajero.nombre}</h2>
               <div className="flex items-center space-x-2 mt-1">
-                <span className="text-sm text-gray-500">{viajero.codigo}</span>
+                <span className="text-sm text-slate-500">{viajero.codigo}</span>
                 <Badge variant={viajero.estadoAlmacen === 'activo' ? 'success' : 'default'}>
                   {viajero.estadoAlmacen}
                 </Badge>
@@ -264,21 +264,21 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
             <Button variant="secondary" size="sm" onClick={onEdit}>
               Editar
             </Button>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
               <X className="h-6 w-6" />
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 px-6">
+        <div className="border-b border-slate-200 px-6">
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setTabActiva('info')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'info'
                   ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
               <Users className="h-4 w-4 inline mr-2" />
@@ -289,13 +289,13 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'transferencias'
                   ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
               <Plane className="h-4 w-4 inline mr-2" />
               Transferencias
               {historial && (
-                <span className="ml-2 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">
+                <span className="ml-2 bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs">
                   {historial.resumen.totalTransferencias}
                 </span>
               )}
@@ -305,7 +305,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'financiero'
                   ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
               <DollarSign className="h-4 w-4 inline mr-2" />
@@ -388,8 +388,8 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                         <div className="flex items-center space-x-3">
                           <Plane className={`h-6 w-6 ${diasParaViaje && diasParaViaje <= 7 ? 'text-amber-600' : 'text-blue-600'}`} />
                           <div>
-                            <div className="font-semibold text-gray-900">Proximo Viaje</div>
-                            <div className="text-sm text-gray-600">
+                            <div className="font-semibold text-slate-900">Proximo Viaje</div>
+                            <div className="text-sm text-slate-600">
                               {proximoViaje.toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                             </div>
                           </div>
@@ -408,49 +408,49 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                   {/* Datos de contacto */}
                   <div className="grid grid-cols-2 gap-6">
                     <Card padding="md">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <MapPin className="h-5 w-5 mr-2 text-gray-400" />
+                      <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                        <MapPin className="h-5 w-5 mr-2 text-slate-400" />
                         Ubicacion
                       </h3>
                       <div className="space-y-2 text-sm">
-                        <div className="text-gray-900">{viajero.direccion}</div>
-                        <div className="text-gray-600">{viajero.ciudad}, {viajero.estado}</div>
+                        <div className="text-slate-900">{viajero.direccion}</div>
+                        <div className="text-slate-600">{viajero.ciudad}, {viajero.estado}</div>
                         {viajero.codigoPostal && (
-                          <div className="text-gray-500">CP: {viajero.codigoPostal}</div>
+                          <div className="text-slate-500">CP: {viajero.codigoPostal}</div>
                         )}
-                        <div className="text-gray-500">{viajero.pais}</div>
+                        <div className="text-slate-500">{viajero.pais}</div>
                       </div>
                     </Card>
 
                     <Card padding="md">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <Phone className="h-5 w-5 mr-2 text-gray-400" />
+                      <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                        <Phone className="h-5 w-5 mr-2 text-slate-400" />
                         Contacto
                       </h3>
                       <div className="space-y-2 text-sm">
                         {viajero.telefono && (
                           <div className="flex items-center">
-                            <span className="text-gray-500 w-20">Telefono:</span>
-                            <span className="text-gray-900">{viajero.telefono}</span>
+                            <span className="text-slate-500 w-20">Telefono:</span>
+                            <span className="text-slate-900">{viajero.telefono}</span>
                           </div>
                         )}
                         {viajero.whatsapp && (
                           <div className="flex items-center">
-                            <span className="text-gray-500 w-20">WhatsApp:</span>
+                            <span className="text-slate-500 w-20">WhatsApp:</span>
                             <span className="text-green-600">{viajero.whatsapp}</span>
                           </div>
                         )}
                         {viajero.email && (
                           <div className="flex items-center">
-                            <span className="text-gray-500 w-20">Email:</span>
-                            <span className="text-gray-900">{viajero.email}</span>
+                            <span className="text-slate-500 w-20">Email:</span>
+                            <span className="text-slate-900">{viajero.email}</span>
                           </div>
                         )}
                         {viajero.frecuenciaViaje && (
                           <div className="flex items-center mt-4 pt-4 border-t">
-                            <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                            <span className="text-gray-600">Frecuencia: </span>
-                            <span className="ml-1 font-medium text-gray-900">{viajero.frecuenciaViaje}</span>
+                            <Calendar className="h-4 w-4 text-slate-400 mr-2" />
+                            <span className="text-slate-600">Frecuencia: </span>
+                            <span className="ml-1 font-medium text-slate-900">{viajero.frecuenciaViaje}</span>
                           </div>
                         )}
                       </div>
@@ -460,8 +460,8 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                   {/* Notas */}
                   {viajero.notas && (
                     <Card padding="md">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Notas</h3>
-                      <p className="text-gray-600 text-sm whitespace-pre-wrap">{viajero.notas}</p>
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">Notas</h3>
+                      <p className="text-slate-600 text-sm whitespace-pre-wrap">{viajero.notas}</p>
                     </Card>
                   )}
                 </div>
@@ -505,26 +505,26 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
 
                   {/* Lista de transferencias */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Historial de Transferencias</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Historial de Transferencias</h3>
                     {historial.transferencias.length === 0 ? (
                       <Card padding="lg" className="text-center">
-                        <Plane className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500">Este viajero no tiene transferencias registradas</p>
+                        <Plane className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                        <p className="text-slate-500">Este viajero no tiene transferencias registradas</p>
                       </Card>
                     ) : (
                       <div className="space-y-3">
                         {historial.transferencias.map((t) => {
                           const estadoBadge = getEstadoBadge(t.estado);
                           return (
-                            <Card key={t.id} padding="sm" className="hover:bg-gray-50">
+                            <Card key={t.id} padding="sm" className="hover:bg-slate-50">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
                                   <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
                                     <FileText className="h-5 w-5 text-purple-600" />
                                   </div>
                                   <div>
-                                    <div className="font-medium text-gray-900">{t.numeroTransferencia}</div>
-                                    <div className="text-sm text-gray-500">
+                                    <div className="font-medium text-slate-900">{t.numeroTransferencia}</div>
+                                    <div className="text-sm text-slate-500">
                                       {t.fechaCreacion.toDate().toLocaleDateString('es-PE')}
                                     </div>
                                   </div>
@@ -532,20 +532,20 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
 
                                 <div className="flex items-center space-x-6">
                                   <div className="text-center">
-                                    <div className="text-sm font-medium text-gray-900">{t.unidades.length}</div>
-                                    <div className="text-xs text-gray-500">Unidades</div>
+                                    <div className="text-sm font-medium text-slate-900">{t.unidades.length}</div>
+                                    <div className="text-xs text-slate-500">Unidades</div>
                                   </div>
 
                                   <div className="text-center">
                                     <div className="text-sm font-medium text-green-600">
                                       ${(t.costoFleteTotal || 0).toFixed(2)}
                                     </div>
-                                    <div className="text-xs text-gray-500">Flete</div>
+                                    <div className="text-xs text-slate-500">Flete</div>
                                   </div>
 
                                   <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
 
-                                  <ArrowRight className="h-5 w-5 text-gray-300" />
+                                  <ArrowRight className="h-5 w-5 text-slate-300" />
                                 </div>
                               </div>
                             </Card>
@@ -606,7 +606,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                   {/* Pagos pendientes */}
                   {historial.pendientes.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                         <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
                         Pagos Pendientes ({historial.pendientes.length})
                       </h3>
@@ -619,8 +619,8 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                             <Card key={t.id} padding="sm" className="border-l-4 border-l-amber-400 bg-amber-50">
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <div className="font-medium text-gray-900">{t.numeroTransferencia}</div>
-                                  <div className="text-sm text-gray-500">
+                                  <div className="font-medium text-slate-900">{t.numeroTransferencia}</div>
+                                  <div className="text-sm text-slate-500">
                                     {t.fechaLlegadaReal
                                       ? `Llegada: ${t.fechaLlegadaReal.toDate().toLocaleDateString('es-PE')}`
                                       : `Creada: ${t.fechaCreacion.toDate().toLocaleDateString('es-PE')}`
@@ -628,7 +628,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                                   </div>
                                   {t.estadoPagoViajero === 'parcial' && fleteTotal > 0 && (
                                     <div className="mt-1">
-                                      <div className="w-24 bg-gray-200 rounded-full h-1.5">
+                                      <div className="w-24 bg-slate-200 rounded-full h-1.5">
                                         <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: `${(montoPagado / fleteTotal * 100)}%` }} />
                                       </div>
                                       <div className="text-xs text-amber-600 mt-0.5">
@@ -642,7 +642,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                                     <div className="text-lg font-bold text-amber-700">
                                       ${(fleteTotal - montoPagado).toFixed(2)}
                                     </div>
-                                    <div className="text-xs text-gray-500">
+                                    <div className="text-xs text-slate-500">
                                       {t.unidades.length} unidades
                                     </div>
                                   </div>
@@ -659,7 +659,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                   {/* Pagos realizados */}
                   {historial.pagados.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                         <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
                         Pagos Realizados ({historial.pagados.length})
                       </h3>
@@ -673,15 +673,15 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                             <Card key={t.id} padding="sm" className="border-l-4 border-l-green-400 bg-green-50">
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <div className="font-medium text-gray-900">{t.numeroTransferencia}</div>
-                                  <div className="text-sm text-gray-500">
+                                  <div className="font-medium text-slate-900">{t.numeroTransferencia}</div>
+                                  <div className="text-sm text-slate-500">
                                     {ultimoPago?.fecha?.toDate
                                       ? `Pagado: ${ultimoPago.fecha.toDate().toLocaleDateString('es-PE')}`
                                       : t.fechaCreacion.toDate().toLocaleDateString('es-PE')
                                     }
                                   </div>
                                   {pagos.length > 1 && (
-                                    <div className="text-xs text-gray-400">{pagos.length} pagos parciales</div>
+                                    <div className="text-xs text-slate-400">{pagos.length} pagos parciales</div>
                                   )}
                                 </div>
                                 <div className="flex items-center space-x-4">
@@ -689,7 +689,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                                     <div className="text-lg font-bold text-green-700">
                                       ${(t.costoFleteTotal || 0).toFixed(2)}
                                     </div>
-                                    <div className="text-xs text-gray-500">
+                                    <div className="text-xs text-slate-500">
                                       {t.unidades.length} unidades
                                     </div>
                                   </div>
@@ -706,27 +706,27 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                   {/* Sin movimientos */}
                   {historial.pendientes.length === 0 && historial.pagados.length === 0 && (
                     <Card padding="lg" className="text-center">
-                      <DollarSign className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                      <p className="text-gray-500">No hay movimientos financieros registrados</p>
+                      <DollarSign className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                      <p className="text-slate-500">No hay movimientos financieros registrados</p>
                     </Card>
                   )}
 
                   {/* Fechas */}
                   {(historial.resumen.primeraTransferencia || historial.resumen.ultimaTransferencia) && (
-                    <Card padding="md" className="bg-gray-50">
+                    <Card padding="md" className="bg-slate-50">
                       <div className="flex items-center justify-between text-sm">
                         {historial.resumen.primeraTransferencia && (
                           <div>
-                            <span className="text-gray-500">Primera transferencia:</span>
-                            <span className="ml-2 font-medium text-gray-900">
+                            <span className="text-slate-500">Primera transferencia:</span>
+                            <span className="ml-2 font-medium text-slate-900">
                               {historial.resumen.primeraTransferencia.toLocaleDateString('es-PE')}
                             </span>
                           </div>
                         )}
                         {historial.resumen.ultimaTransferencia && (
                           <div>
-                            <span className="text-gray-500">Ultima transferencia:</span>
-                            <span className="ml-2 font-medium text-gray-900">
+                            <span className="text-slate-500">Ultima transferencia:</span>
+                            <span className="ml-2 font-medium text-slate-900">
                               {historial.resumen.ultimaTransferencia.toLocaleDateString('es-PE')}
                             </span>
                           </div>

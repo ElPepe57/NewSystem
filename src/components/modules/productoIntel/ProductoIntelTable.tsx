@@ -21,7 +21,7 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
 }) => {
   const getSortIcon = (campo: string) => {
     if (!sortConfig || sortConfig.campo !== campo) {
-      return <ArrowUpDown className="h-3 w-3 text-gray-400" />;
+      return <ArrowUpDown className="h-3 w-3 text-slate-400" />;
     }
     return sortConfig.ascendente
       ? <ArrowUp className="h-3 w-3 text-blue-600" />
@@ -36,9 +36,9 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
   }> = ({ campo, label, align = 'left', sortable = true }) => (
     <th
       className={`
-        px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider
+        px-3 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider
         ${align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'}
-        ${sortable ? 'cursor-pointer hover:bg-gray-100' : ''}
+        ${sortable ? 'cursor-pointer hover:bg-slate-100' : ''}
       `}
       onClick={() => sortable && onSort?.(campo)}
     >
@@ -51,17 +51,17 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
 
   if (productos.length === 0) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-        <p className="text-gray-500">No hay productos que mostrar</p>
+      <div className="bg-white border border-slate-200 rounded-lg p-8 text-center">
+        <p className="text-slate-500">No hay productos que mostrar</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
               <HeaderCell campo="nombre" label="Producto" />
               <HeaderCell campo="score" label="Liquidez" align="center" />
@@ -72,13 +72,13 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
               <HeaderCell campo="ventas30d" label="Ventas 30d" align="right" />
               <HeaderCell campo="tendencia" label="Tendencia" align="center" />
               <HeaderCell campo="valorInv" label="Valor Inv." align="right" />
-              <th className="px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+              <th className="px-3 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider text-center">
                 Alertas
               </th>
               <th className="px-3 py-3 w-10"></th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {productos.map(producto => {
               const { rotacion, rentabilidad, liquidez, alertas } = producto;
               const alertasCriticas = alertas.filter(a => a.severidad === 'danger').length;
@@ -88,7 +88,7 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
                 <tr
                   key={producto.productoId}
                   className={`
-                    hover:bg-gray-50 transition-colors
+                    hover:bg-slate-50 transition-colors
                     ${onProductoClick ? 'cursor-pointer' : ''}
                     ${liquidez.clasificacion === 'critica' ? 'bg-red-50/30' : ''}
                   `}
@@ -97,10 +97,10 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
                   {/* Producto */}
                   <td className="px-3 py-3">
                     <div className="min-w-0">
-                      <p className="font-medium text-gray-900 truncate max-w-[200px]" title={producto.nombreComercial}>
+                      <p className="font-medium text-slate-900 truncate max-w-[200px]" title={producto.nombreComercial}>
                         {producto.nombreComercial}
                       </p>
-                      <p className="text-xs text-gray-500">{producto.sku} - {producto.marca}</p>
+                      <p className="text-xs text-slate-500">{producto.sku} - {producto.marca}</p>
                     </div>
                   </td>
 
@@ -124,7 +124,7 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
                   {/* Stock */}
                   <td className="px-3 py-3 text-center">
                     <div>
-                      <p className="font-medium text-gray-900">{rotacion.stockTotal}</p>
+                      <p className="font-medium text-slate-900">{rotacion.stockTotal}</p>
                       <div className="flex items-center justify-center gap-1 mt-0.5">
                         {rotacion.stockReservado > 0 && (
                           <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px]" title="Stock reservado">
@@ -139,7 +139,7 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
                           </span>
                         )}
                         {rotacion.stockReservado === 0 && rotacion.stockTransito === 0 && (
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-slate-500">
                             {rotacion.diasParaQuiebre < 999 ? `${rotacion.diasParaQuiebre}d` : '-'}
                           </span>
                         )}
@@ -153,7 +153,7 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
                       <p className={`font-medium ${rentabilidad.margenBrutoPromedio >= 30 ? 'text-green-600' : rentabilidad.margenBrutoPromedio >= 20 ? 'text-yellow-600' : 'text-red-600'}`}>
                         {rentabilidad.margenBrutoPromedio.toFixed(0)}%
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-500">
                         ROI {rentabilidad.roiPromedio}%
                       </p>
                     </div>
@@ -163,23 +163,23 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
                   <td className="px-3 py-3 text-center">
                     {producto.pesoLibras ? (
                       <div>
-                        <p className="font-mono text-sm text-gray-700">{producto.pesoLibras.toFixed(2)} lb</p>
+                        <p className="font-mono text-sm text-slate-700">{producto.pesoLibras.toFixed(2)} lb</p>
                         {producto.margenPorLibra != null && producto.margenPorLibra > 0 && (
-                          <p className="text-xs text-indigo-600">{formatCurrency(producto.margenPorLibra)}/lb</p>
+                          <p className="text-xs text-teal-600">{formatCurrency(producto.margenPorLibra)}/lb</p>
                         )}
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-300">—</span>
+                      <span className="text-xs text-slate-300">—</span>
                     )}
                   </td>
 
                   {/* Ventas 30d */}
                   <td className="px-3 py-3 text-right">
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-slate-900">
                         {formatCurrency(rotacion.ventasPEN30d)}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-500">
                         {rotacion.unidadesVendidas30d} uds
                       </p>
                     </div>
@@ -196,7 +196,7 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
                   {/* Valor Inventario */}
                   <td className="px-3 py-3 text-right">
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-slate-900">
                         {formatCurrency(liquidez.valorInventarioPEN)}
                       </p>
                       <p className="text-xs text-green-600">
@@ -223,14 +223,14 @@ export const ProductoIntelTable: React.FC<ProductoIntelTableProps> = ({
                         )}
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-400">-</span>
+                      <span className="text-xs text-slate-400">-</span>
                     )}
                   </td>
 
                   {/* Accion */}
                   <td className="px-3 py-3">
                     <button
-                      className="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600"
+                      className="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         onProductoClick?.(producto.productoId);

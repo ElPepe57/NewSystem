@@ -109,7 +109,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       <div className={`relative ${styles.container} ${className}`}>
         {/* Icono de busqueda o personalizado */}
         <div
-          className={`absolute ${styles.iconLeft} top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none`}
+          className={`absolute ${styles.iconLeft} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`}
         >
           {isSearching ? (
             <Loader2 className={`${styles.icon} animate-spin`} />
@@ -131,11 +131,11 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           disabled={disabled || isSearching}
           className={`
             w-full h-full ${styles.input}
-            border border-gray-300 rounded-lg
+            border border-slate-300 rounded-lg
             bg-white
-            placeholder-gray-400
-            focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-            disabled:bg-gray-100 disabled:cursor-not-allowed
+            placeholder-slate-400
+            focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500
+            disabled:bg-slate-100 disabled:cursor-not-allowed
             transition-colors
           `}
           {...props}
@@ -149,7 +149,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             className={`
               absolute ${styles.clearBtn} top-1/2 -translate-y-1/2
               p-1 rounded-full
-              text-gray-400 hover:text-gray-600 hover:bg-gray-100
+              text-slate-400 hover:text-slate-600 hover:bg-slate-100
               transition-colors
             `}
             aria-label="Limpiar búsqueda"
@@ -190,8 +190,8 @@ export const SearchWithFilters: React.FC<SearchWithFiltersProps> = ({
       </div>
       {filters && <div className="flex items-center gap-2">{filters}</div>}
       {resultCount !== undefined && (
-        <div className="flex items-center text-sm text-gray-500">
-          <span className="font-medium text-gray-700">{resultCount}</span>
+        <div className="flex items-center text-sm text-slate-500">
+          <span className="font-medium text-slate-700">{resultCount}</span>
           <span className="ml-1">{resultLabel}</span>
         </div>
       )}

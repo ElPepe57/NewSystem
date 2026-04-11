@@ -91,14 +91,14 @@ export const InsumosEmpaque: React.FC = () => {
   };
 
   if (loading && insumos.length === 0) {
-    return <div className="text-center py-8 text-gray-500">Cargando insumos...</div>;
+    return <div className="text-center py-8 text-slate-500">Cargando insumos...</div>;
   }
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Insumos de Empaque</h3>
+        <h3 className="text-lg font-semibold text-slate-900">Insumos de Empaque</h3>
         <Button size="sm" onClick={() => setShowForm(true)}>
           <Plus className="h-4 w-4 mr-1" /> Nuevo Insumo
         </Button>
@@ -117,8 +117,8 @@ export const InsumosEmpaque: React.FC = () => {
 
       {/* Lista o empty state */}
       {insumos.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <Package className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+        <div className="text-center py-12 text-slate-500">
+          <Package className="h-12 w-12 mx-auto mb-3 text-slate-300" />
           <p className="font-medium">Sin insumos registrados</p>
           <p className="text-sm mt-1">Agrega insumos de empaque (cajas, bolsas, relleno, etc.)</p>
         </div>
@@ -128,8 +128,8 @@ export const InsumosEmpaque: React.FC = () => {
             <Card key={insumo.id} className="p-3 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => openEdit(insumo)}>
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="font-medium text-gray-900 text-sm">{insumo.nombre}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{insumo.codigo} &middot; {insumo.tipo}</div>
+                  <div className="font-medium text-slate-900 text-sm">{insumo.nombre}</div>
+                  <div className="text-xs text-slate-500 mt-0.5">{insumo.codigo} &middot; {insumo.tipo}</div>
                 </div>
                 <Badge
                   variant={insumo.stockActual < insumo.stockMinimo ? 'danger' : 'success'}
@@ -138,7 +138,7 @@ export const InsumosEmpaque: React.FC = () => {
                   {insumo.stockActual} {insumo.unidadMedida}
                 </Badge>
               </div>
-              <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
+              <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
                 <span>Min: {insumo.stockMinimo}</span>
                 <span>S/{insumo.costoUnitarioPEN.toFixed(2)}/{insumo.unidadMedida}</span>
               </div>

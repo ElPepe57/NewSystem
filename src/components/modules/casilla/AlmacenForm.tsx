@@ -174,8 +174,8 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Tipo de almacén */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="bg-slate-50 p-4 rounded-lg">
+        <label className="block text-sm font-medium text-slate-700 mb-2">
           Tipo
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -186,8 +186,8 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
               onClick={() => handleTipoChange(option.value as TipoAlmacen)}
               className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
                 formData.tipo === option.value
-                  ? 'border-primary-500 bg-primary-50 text-primary-700'
-                  : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                  ? 'border-teal-500 bg-teal-50 text-teal-700'
+                  : 'border-slate-200 hover:border-slate-300 text-slate-600'
               }`}
             >
               {option.value === 'viajero' && <span className="block text-lg mb-1">👤</span>}
@@ -203,11 +203,11 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
       {/* País */}
       {formData.tipo !== 'almacen_peru' && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">País</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">País</label>
           <select
             value={formData.pais}
             onChange={(e) => handleChange('pais', e.target.value as PaisAlmacen)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           >
             {/* Static options from PAISES_CONFIG */}
             {Object.entries(PAISES_CONFIG).filter(([, cfg]) => cfg.esOrigen).map(([code, cfg]) => (
@@ -227,19 +227,19 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
       {/* Información básica */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Código <span className="text-xs text-gray-400">(automático)</span>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Código <span className="text-xs text-slate-400">(automático)</span>
           </label>
           <div className="relative">
             <input
               type="text"
               value={loadingCodigo ? 'Generando...' : formData.codigo}
               readOnly
-              className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 font-mono cursor-not-allowed"
+              className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-700 font-mono cursor-not-allowed"
             />
             {loadingCodigo && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <div className="animate-spin h-4 w-4 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                <div className="animate-spin h-4 w-4 border-2 border-teal-500 border-t-transparent rounded-full"></div>
               </div>
             )}
           </div>
@@ -262,7 +262,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
 
       {/* Ubicación */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium text-gray-700 border-b pb-2">Ubicación</h3>
+        <h3 className="text-sm font-medium text-slate-700 border-b pb-2">Ubicación</h3>
         <Input
           label="Dirección"
           value={formData.direccion}
@@ -295,7 +295,7 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
 
       {/* Contacto */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium text-gray-700 border-b pb-2">Contacto</h3>
+        <h3 className="text-sm font-medium text-slate-700 border-b pb-2">Contacto</h3>
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="Nombre de Contacto"
@@ -369,12 +369,12 @@ export const AlmacenForm: React.FC<AlmacenFormProps> = ({
 
       {/* Notas */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Notas</label>
         <textarea
           value={formData.notas || ''}
           onChange={(e) => handleChange('notas', e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           placeholder="Notas adicionales..."
         />
       </div>

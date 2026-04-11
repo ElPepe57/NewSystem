@@ -384,7 +384,7 @@ export const Gastos: React.FC = () => {
                 {!isCurrentMonth && (
                   <button
                     onClick={goToCurrentMonth}
-                    className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium"
+                    className="text-xs sm:text-sm text-teal-600 hover:text-teal-700 font-medium"
                   >
                     Hoy
                   </button>
@@ -436,14 +436,14 @@ export const Gastos: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="min-w-0">
                 <div className="text-[11px] sm:text-sm text-slate-600 truncate"><span className="sm:hidden">Prorrateables</span><span className="hidden sm:inline">Gastos Prorrateables</span></div>
-                <div className="text-base sm:text-2xl font-bold text-primary-600 mt-0.5 sm:mt-1 truncate">
+                <div className="text-base sm:text-2xl font-bold text-teal-600 mt-0.5 sm:mt-1 truncate">
                   {formatCurrency(stats.gastosProrrateablesMesActual)}
                 </div>
                 <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">
                   Impactan CTRU
                 </div>
               </div>
-              <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-primary-400 flex-shrink-0" />
+              <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-teal-400 flex-shrink-0" />
             </div>
           </Card>
 
@@ -527,7 +527,7 @@ export const Gastos: React.FC = () => {
           <div className="space-y-3 sm:space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
               <div className="flex items-center gap-2">
-                <PieChart className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
+                <PieChart className="h-4 w-4 sm:h-5 sm:w-5 text-teal-500" />
                 <span className="text-sm sm:text-base font-medium text-slate-900">Distribución por Tipo</span>
               </div>
               <span className="text-xs sm:text-sm text-slate-500">
@@ -539,7 +539,7 @@ export const Gastos: React.FC = () => {
               {resumenPorTipo.items.map((item, index) => {
                 // Colores para las barras de progreso
                 const colores = [
-                  'bg-primary-500',
+                  'bg-teal-500',
                   'bg-success-500',
                   'bg-warning-500',
                   'bg-info-500',
@@ -553,7 +553,7 @@ export const Gastos: React.FC = () => {
                 return (
                   <div
                     key={item.tipo}
-                    className="bg-slate-50 rounded-lg p-2 sm:p-3 border border-slate-100 hover:border-primary-200 transition-colors cursor-pointer"
+                    className="bg-slate-50 rounded-lg p-2 sm:p-3 border border-slate-100 hover:border-teal-200 transition-colors cursor-pointer"
                     onClick={() => setFiltros({ ...filtros, tipo: item.tipo as TipoGasto })}
                   >
                     <div className="flex items-center justify-between mb-1 sm:mb-2">
@@ -749,7 +749,7 @@ export const Gastos: React.FC = () => {
                         </div>
                         <div className="w-full bg-slate-200 rounded-full h-1">
                           <div
-                            className="bg-primary-500 h-1 rounded-full transition-all"
+                            className="bg-teal-500 h-1 rounded-full transition-all"
                             style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
                           />
                         </div>
@@ -883,11 +883,11 @@ export const Gastos: React.FC = () => {
                             <div className="mt-1">
                               <div className="w-full bg-slate-200 rounded-full h-1.5">
                                 <div
-                                  className="bg-primary-500 h-1.5 rounded-full transition-all"
+                                  className="bg-teal-500 h-1.5 rounded-full transition-all"
                                   style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
                                 />
                               </div>
-                              <div className="text-xs text-primary-600 mt-0.5">
+                              <div className="text-xs text-teal-600 mt-0.5">
                                 {((gasto.montoPagado / gasto.montoPEN) * 100).toFixed(0)}% pagado
                               </div>
                             </div>

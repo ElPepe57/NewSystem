@@ -43,7 +43,7 @@ interface ProductIntelCardProps {
 const NIVEL_STYLES: Record<NivelPrecio, { bg: string; text: string; bar: string; label: string }> = {
   excelente: { bg: 'bg-green-50', text: 'text-green-700', bar: 'bg-green-500', label: 'Excelente' },
   bueno:     { bg: 'bg-blue-50',  text: 'text-blue-700',  bar: 'bg-blue-500',  label: 'Bueno' },
-  aceptable: { bg: 'bg-gray-50',  text: 'text-gray-700',  bar: 'bg-gray-500',  label: 'Aceptable' },
+  aceptable: { bg: 'bg-slate-50',  text: 'text-slate-700',  bar: 'bg-slate-500',  label: 'Aceptable' },
   alto:      { bg: 'bg-amber-50', text: 'text-amber-700', bar: 'bg-amber-500', label: 'Alto' },
   muy_alto:  { bg: 'bg-red-50',   text: 'text-red-700',   bar: 'bg-red-500',   label: 'Muy alto' },
 };
@@ -81,19 +81,19 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
   // ── Loading state ──────────────────────────
   if (loading) {
     return (
-      <div className="border border-gray-200 rounded-xl p-4 bg-white animate-pulse">
+      <div className="border border-slate-200 rounded-xl p-4 bg-white animate-pulse">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="h-4 w-40 bg-gray-200 rounded" />
-            <div className="h-4 w-20 bg-gray-100 rounded" />
+            <div className="h-4 w-40 bg-slate-200 rounded" />
+            <div className="h-4 w-20 bg-slate-100 rounded" />
           </div>
         </div>
         <div className="space-y-2">
-          <div className="h-3 w-full bg-gray-100 rounded" />
-          <div className="h-8 w-32 bg-gray-100 rounded" />
-          <div className="h-3 w-3/4 bg-gray-100 rounded" />
+          <div className="h-3 w-full bg-slate-100 rounded" />
+          <div className="h-8 w-32 bg-slate-100 rounded" />
+          <div className="h-3 w-3/4 bg-slate-100 rounded" />
         </div>
-        <div className="flex items-center gap-2 mt-3 text-sm text-gray-400">
+        <div className="flex items-center gap-2 mt-3 text-sm text-slate-400">
           <Loader2 className="h-4 w-4 animate-spin" />
           Analizando precio...
         </div>
@@ -104,30 +104,30 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
   // ── No analysis yet ────────────────────────
   if (!analysis) {
     return (
-      <div className="border border-gray-200 rounded-xl p-4 bg-white">
+      <div className="border border-slate-200 rounded-xl p-4 bg-white">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-900 text-sm truncate max-w-[260px]">
+            <span className="font-medium text-slate-900 text-sm truncate max-w-[260px]">
               {producto.nombreComercial || 'Producto sin seleccionar'}
             </span>
             {producto.sku && (
-              <span className="text-xs text-gray-400 font-mono">{producto.sku}</span>
+              <span className="text-xs text-slate-400 font-mono">{producto.sku}</span>
             )}
           </div>
         </div>
         <div className="flex items-center gap-3 mt-2">
-          <label className="text-xs text-gray-500 whitespace-nowrap">Precio USD:</label>
+          <label className="text-xs text-slate-500 whitespace-nowrap">Precio USD:</label>
           <input
             type="number"
             step="0.01"
             min={0}
             value={producto.costoUnitario || ''}
             onChange={(e) => onPriceChange(index, parseFloat(e.target.value) || 0)}
-            className="w-28 px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="w-28 px-2 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             placeholder="0.00"
           />
         </div>
-        <p className="text-xs text-gray-400 mt-3 flex items-center gap-1">
+        <p className="text-xs text-slate-400 mt-3 flex items-center gap-1">
           <Info className="h-3.5 w-3.5" />
           Ingresa un precio para ver el analisis
         </p>
@@ -140,18 +140,18 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
     <div className={`border rounded-xl overflow-hidden bg-white transition-shadow ${
       analysis.evaluacion.nivel === 'muy_alto' ? 'border-red-300 shadow-sm shadow-red-100' :
       analysis.evaluacion.nivel === 'alto' ? 'border-amber-300' :
-      'border-gray-200'
+      'border-slate-200'
     }`}>
       {/* ── Header ── */}
       <div
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+        className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span className="font-medium text-gray-900 text-sm truncate max-w-[260px]">
+          <span className="font-medium text-slate-900 text-sm truncate max-w-[260px]">
             {producto.nombreComercial}
           </span>
-          <span className="text-xs text-gray-400 font-mono flex-shrink-0">{producto.sku}</span>
+          <span className="text-xs text-slate-400 font-mono flex-shrink-0">{producto.sku}</span>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           {nivelStyle && (
@@ -159,7 +159,7 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
               {nivelStyle.label}
             </span>
           )}
-          {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+          {expanded ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
         </div>
       </div>
 
@@ -167,32 +167,32 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
         <div className="px-4 pb-4 space-y-3">
           {/* ── Price input row ── */}
           <div className="flex items-center gap-3">
-            <label className="text-xs text-gray-500 whitespace-nowrap">Precio actual:</label>
+            <label className="text-xs text-slate-500 whitespace-nowrap">Precio actual:</label>
             <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-400">$</span>
+              <span className="text-sm text-slate-400">$</span>
               <input
                 type="number"
                 step="0.01"
                 min={0}
                 value={producto.costoUnitario || ''}
                 onChange={(e) => onPriceChange(index, parseFloat(e.target.value) || 0)}
-                className="w-24 px-2 py-1.5 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-24 px-2 py-1.5 border border-slate-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
           </div>
 
           {/* ── Evaluacion section ── */}
-          <div className={`p-3 rounded-lg border ${nivelStyle?.bg || 'bg-gray-50'} border-gray-200`}>
+          <div className={`p-3 rounded-lg border ${nivelStyle?.bg || 'bg-slate-50'} border-slate-200`}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-gray-600">Evaluacion</span>
-              <span className={`text-xs font-semibold ${nivelStyle?.text || 'text-gray-600'}`}>
+              <span className="text-xs font-medium text-slate-600">Evaluacion</span>
+              <span className={`text-xs font-semibold ${nivelStyle?.text || 'text-slate-600'}`}>
                 {analysis.evaluacion.puntuacion}/100
               </span>
             </div>
             {/* Score bar */}
-            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden mb-2">
+            <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden mb-2">
               <div
-                className={`h-full rounded-full transition-all duration-500 ${nivelStyle?.bar || 'bg-gray-400'}`}
+                className={`h-full rounded-full transition-all duration-500 ${nivelStyle?.bar || 'bg-slate-400'}`}
                 style={{ width: `${Math.min(100, Math.max(0, analysis.evaluacion.puntuacion))}%` }}
               />
             </div>
@@ -221,28 +221,28 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
 
           {/* ── Margin projection ── */}
           {analysis.proyeccionRentabilidad && (
-            <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
               <div className="flex items-center gap-1.5 mb-2">
-                <TrendingUp className="h-3.5 w-3.5 text-gray-500" />
-                <span className="text-xs font-medium text-gray-600">Proyeccion de Margen</span>
+                <TrendingUp className="h-3.5 w-3.5 text-slate-500" />
+                <span className="text-xs font-medium text-slate-600">Proyeccion de Margen</span>
               </div>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">CTRU est:</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="text-slate-500">CTRU est:</span>
+                  <span className="font-medium text-slate-900">
                     S/ {analysis.proyeccionRentabilidad.ctruProyectado.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Precio min venta:</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="text-slate-500">Precio min venta:</span>
+                  <span className="font-medium text-slate-900">
                     S/ {analysis.proyeccionRentabilidad.precioVentaSugerido.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between col-span-2">
-                  <span className="text-gray-500">Margen estimado:</span>
+                  <span className="text-slate-500">Margen estimado:</span>
                   <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-16 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-16 bg-slate-200 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full ${
                           analysis.proyeccionRentabilidad.margenEstimado >= 30 ? 'bg-green-500' :
@@ -271,37 +271,37 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
           )}
 
           {/* ── Context section ── */}
-          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
+          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
             <div className="flex items-center gap-1.5 mb-2">
-              <Info className="h-3.5 w-3.5 text-gray-500" />
-              <span className="text-xs font-medium text-gray-600">Contexto</span>
+              <Info className="h-3.5 w-3.5 text-slate-500" />
+              <span className="text-xs font-medium text-slate-600">Contexto</span>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+            <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
               {/* Stock info from historico */}
               {analysis.tieneHistorico && (
                 <div className="flex items-center gap-1.5">
-                  <Package className="h-3.5 w-3.5 text-gray-400" />
+                  <Package className="h-3.5 w-3.5 text-slate-400" />
                   <span>{analysis.estadisticasHistorico.totalCompras} compras previas</span>
                 </div>
               )}
               {/* Trend */}
               {analysis.tieneHistorico && (
                 <div className="flex items-center gap-1.5">
-                  <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
+                  <TrendingUp className="h-3.5 w-3.5 text-slate-400" />
                   <span>Tendencia: <span className="font-medium capitalize">{analysis.estadisticasHistorico.tendencia}</span></span>
                 </div>
               )}
               {/* Providers */}
               {analysis.comparativaProveedores.length > 0 && (
                 <div className="flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5 text-gray-400" />
+                  <Users className="h-3.5 w-3.5 text-slate-400" />
                   <span>{analysis.comparativaProveedores.length} proveedores comparados</span>
                 </div>
               )}
               {/* Investigation status */}
               {analysis.tieneInvestigacion && (
                 <div className="flex items-center gap-1.5">
-                  <Lightbulb className="h-3.5 w-3.5 text-gray-400" />
+                  <Lightbulb className="h-3.5 w-3.5 text-slate-400" />
                   <span className={analysis.investigacionVigente ? 'text-green-600' : 'text-amber-600'}>
                     Inv. {analysis.investigacionVigente
                       ? `vigente (${analysis.diasDesdeInvestigacion}d)`
@@ -327,7 +327,7 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
                     <div>
                       <span className={`font-medium ${style.text}`}>{alerta.titulo}</span>
                       {alerta.mensaje && (
-                        <span className="text-gray-600 ml-1">{alerta.mensaje}</span>
+                        <span className="text-slate-600 ml-1">{alerta.mensaje}</span>
                       )}
                     </div>
                   </div>
@@ -342,7 +342,7 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
               type="button"
               onClick={() => onUsarSugerido(index, precioSugerido)}
               className="w-full flex items-center justify-center gap-2 py-2 px-3 text-sm font-medium rounded-lg
-                bg-primary-50 text-primary-700 border border-primary-200 hover:bg-primary-100 transition-colors"
+                bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition-colors"
             >
               <Zap className="h-4 w-4" />
               Usar precio sugerido: ${precioSugerido.toFixed(2)}

@@ -50,21 +50,21 @@ export const CollaborationPanel: React.FC = () => {
       <div
         ref={panelRef}
         className={`
-          fixed right-0 top-0 h-full z-50 w-80 bg-white shadow-2xl border-l border-gray-200
+          fixed right-0 top-0 h-full z-50 w-80 bg-white shadow-2xl border-l border-slate-200
           transform transition-transform duration-300 ease-in-out
           ${panelAbierto ? 'translate-x-0' : 'translate-x-full'}
         `}
       >
         {/* Header del panel */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50">
           <div className="flex items-center gap-1">
             {/* Tabs */}
             <button
               onClick={() => setTab('equipo')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 tabActivo === 'equipo'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-500 hover:bg-gray-100'
+                  ? 'bg-teal-100 text-teal-700'
+                  : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
               <Users className="h-4 w-4" />
@@ -74,8 +74,8 @@ export const CollaborationPanel: React.FC = () => {
               onClick={() => setTab('chat')}
               className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 tabActivo === 'chat'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-500 hover:bg-gray-100'
+                  ? 'bg-teal-100 text-teal-700'
+                  : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
               <MessageCircle className="h-4 w-4" />
@@ -88,7 +88,7 @@ export const CollaborationPanel: React.FC = () => {
 
           <button
             onClick={togglePanel}
-            className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -107,7 +107,7 @@ export const CollaborationPanel: React.FC = () => {
           {tabActivo === 'equipo' ? (
             <div className="h-full overflow-y-auto">
               <TeamPresence />
-              <div className="border-t border-gray-100" />
+              <div className="border-t border-slate-100" />
               <ActivityFeed />
             </div>
           ) : (

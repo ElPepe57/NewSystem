@@ -155,7 +155,7 @@ export function MapaCalorMapa() {
     return (
       <div className="flex items-center justify-center h-full bg-slate-100 rounded-lg">
         <div className="text-center text-slate-500">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-2" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-2" />
           <p className="text-sm">Cargando mapa...</p>
         </div>
       </div>

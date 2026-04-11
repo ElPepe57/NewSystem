@@ -77,11 +77,11 @@ export const MigracionModal: React.FC<MigracionModalProps> = ({
               </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-              <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+              <h4 className="font-medium text-slate-800 dark:text-slate-200 mb-2">
                 Datos que se importarán:
               </h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
                 <li>• Marca y nombre comercial</li>
                 <li>• Presentación (cápsulas, gomitas, líquido, etc.)</li>
                 <li>• Dosaje y contenido</li>
@@ -104,15 +104,15 @@ export const MigracionModal: React.FC<MigracionModalProps> = ({
 
         {estado === 'running' && (
           <div className="text-center py-8">
-            <Loader2 className="h-12 w-12 text-primary-500 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-400 mb-2">{mensaje}</p>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-4">
+            <Loader2 className="h-12 w-12 text-teal-500 animate-spin mx-auto mb-4" />
+            <p className="text-slate-600 dark:text-slate-400 mb-2">{mensaje}</p>
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 mt-4">
               <div
-                className="bg-primary-500 h-2.5 rounded-full transition-all duration-300"
+                className="bg-teal-500 h-2.5 rounded-full transition-all duration-300"
                 style={{ width: `${progreso}%` }}
               />
             </div>
-            <p className="text-sm text-gray-500 mt-2">{progreso}%</p>
+            <p className="text-sm text-slate-500 mt-2">{progreso}%</p>
           </div>
         )}
 
@@ -120,7 +120,7 @@ export const MigracionModal: React.FC<MigracionModalProps> = ({
           <>
             <div className="text-center py-4">
               <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
                 Migración Completada
               </h3>
             </div>
@@ -183,7 +183,7 @@ export const MigracionModal: React.FC<MigracionModalProps> = ({
           <>
             <div className="text-center py-8">
               <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
                 Error en la Migración
               </h3>
               <p className="text-red-600 dark:text-red-400 mt-2">{mensaje}</p>

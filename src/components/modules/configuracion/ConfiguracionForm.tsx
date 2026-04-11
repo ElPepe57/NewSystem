@@ -45,7 +45,7 @@ export const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Productos */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Productos</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Productos</h3>
         <div className="space-y-4">
           <label className="flex items-center">
             <input
@@ -53,9 +53,9 @@ export const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               name="skuAutomatico"
               checked={formData.skuAutomatico}
               onChange={handleChange}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
             />
-            <span className="ml-2 text-sm text-gray-700">Generar SKU automáticamente</span>
+            <span className="ml-2 text-sm text-slate-700">Generar SKU automáticamente</span>
           </label>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -84,16 +84,16 @@ export const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               name="alertaStockBajo"
               checked={formData.alertaStockBajo}
               onChange={handleChange}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
             />
-            <span className="ml-2 text-sm text-gray-700">Alertas de stock bajo</span>
+            <span className="ml-2 text-sm text-slate-700">Alertas de stock bajo</span>
           </label>
         </div>
       </div>
 
       {/* Inventario */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Inventario</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Inventario</h3>
         <div className="space-y-4">
           <label className="flex items-center">
             <input
@@ -101,9 +101,9 @@ export const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               name="alertaVencimiento"
               checked={formData.alertaVencimiento}
               onChange={handleChange}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
             />
-            <span className="ml-2 text-sm text-gray-700">Alertas de vencimiento</span>
+            <span className="ml-2 text-sm text-slate-700">Alertas de vencimiento</span>
           </label>
           
           <Input
@@ -121,7 +121,7 @@ export const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
 
       {/* Ventas */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Ventas</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Ventas</h3>
         <div className="space-y-4">
           <Input
             label="Descuento Máximo Permitido (%)"
@@ -139,16 +139,16 @@ export const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               name="permitirVentaSinStock"
               checked={formData.permitirVentaSinStock}
               onChange={handleChange}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
             />
-            <span className="ml-2 text-sm text-gray-700">Permitir ventas sin stock disponible</span>
+            <span className="ml-2 text-sm text-slate-700">Permitir ventas sin stock disponible</span>
           </label>
         </div>
       </div>
 
       {/* Tipo de Cambio */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Tipo de Cambio</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Tipo de Cambio</h3>
         <div className="space-y-4">
           <label className="flex items-center">
             <input
@@ -156,9 +156,9 @@ export const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               name="alertaVariacionTC"
               checked={formData.alertaVariacionTC}
               onChange={handleChange}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
             />
-            <span className="ml-2 text-sm text-gray-700">Alertas de variación de TC</span>
+            <span className="ml-2 text-sm text-slate-700">Alertas de variación de TC</span>
           </label>
           
           <Input

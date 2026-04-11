@@ -192,7 +192,7 @@ export const MiPerfil: React.FC = () => {
   if (!profile) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 animate-spin text-primary-600" />
+        <RefreshCw className="h-8 w-8 animate-spin text-teal-600" />
       </div>
     );
   }
@@ -226,7 +226,7 @@ export const MiPerfil: React.FC = () => {
       {/* Header con perfil */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         {/* Banner */}
-        <div className="h-24 bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700" />
+        <div className="h-24 bg-gradient-to-r from-teal-600 via-teal-500 to-teal-700" />
 
         <div className="px-6 pb-6">
           {/* Avatar + Info */}
@@ -251,7 +251,7 @@ export const MiPerfil: React.FC = () => {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingPhoto}
-                className="absolute -bottom-1 -right-1 p-1.5 bg-primary-600 text-white rounded-lg shadow-md hover:bg-primary-700 transition-colors disabled:opacity-50"
+                className="absolute -bottom-1 -right-1 p-1.5 bg-teal-600 text-white rounded-lg shadow-md hover:bg-teal-700 transition-colors disabled:opacity-50"
                 title="Cambiar foto"
               >
                 {uploadingPhoto ? (
@@ -278,7 +278,7 @@ export const MiPerfil: React.FC = () => {
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      className="px-3 py-1 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-lg font-bold"
+                      className="px-3 py-1 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-lg font-bold"
                       autoFocus
                     />
                     <button
@@ -300,7 +300,7 @@ export const MiPerfil: React.FC = () => {
                     <h1 className="text-xl font-bold text-slate-900">{displayName}</h1>
                     <button
                       onClick={handleStartEditName}
-                      className="p-1 text-slate-400 hover:text-primary-600 rounded"
+                      className="p-1 text-slate-400 hover:text-teal-600 rounded"
                       title="Editar nombre"
                     >
                       <Edit2 className="h-4 w-4" />
@@ -358,7 +358,7 @@ export const MiPerfil: React.FC = () => {
                   type={showPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 pr-10"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 pr-10"
                   placeholder="Mínimo 6 caracteres"
                 />
                 <button
@@ -378,7 +378,7 @@ export const MiPerfil: React.FC = () => {
                 type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 placeholder="Repite la contraseña"
               />
             </div>
@@ -391,7 +391,7 @@ export const MiPerfil: React.FC = () => {
               <button
                 onClick={handleChangePassword}
                 disabled={savingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 6}
-                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors"
               >
                 {savingPassword ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
                 Guardar

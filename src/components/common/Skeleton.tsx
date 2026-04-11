@@ -22,7 +22,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   height,
   animation = 'pulse'
 }) => {
-  const baseClasses = 'bg-gray-200';
+  const baseClasses = 'bg-slate-200';
 
   const variantClasses = {
     text: 'rounded h-4',
@@ -33,7 +33,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   const animationClasses = {
     pulse: 'animate-pulse',
-    wave: 'animate-shimmer bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%]',
+    wave: 'animate-shimmer bg-gradient-to-r from-slate-200 via-gray-100 to-slate-200 bg-[length:200%_100%]',
     none: ''
   };
 
@@ -59,7 +59,7 @@ export const TableRowSkeleton: React.FC<{
   return (
     <>
       {Array.from({ length: rows }).map((_, rowIndex) => (
-        <tr key={rowIndex} className="border-b border-gray-100">
+        <tr key={rowIndex} className="border-b border-slate-100">
           {Array.from({ length: columns }).map((_, colIndex) => (
             <td key={colIndex} className="px-4 py-3">
               <Skeleton variant="text" className="h-4" width={`${Math.random() * 40 + 60}%`} />
@@ -78,7 +78,7 @@ export const KPISkeleton: React.FC<{ count?: number }> = ({ count = 4 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {Array.from({ length: count }).map((_, index) => (
-        <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+        <div key={index} className="bg-white rounded-lg border border-slate-200 p-4">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Skeleton variant="text" width="60%" height={16} className="mb-2" />
@@ -102,7 +102,7 @@ export const ListSkeleton: React.FC<{
   return (
     <div className="space-y-3">
       {Array.from({ length: items }).map((_, index) => (
-        <div key={index} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-100">
+        <div key={index} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-100">
           {showAvatar && (
             <Skeleton variant="circular" width={40} height={40} />
           )}
@@ -124,7 +124,7 @@ export const ProductCardSkeleton: React.FC<{ count?: number }> = ({ count = 6 })
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {Array.from({ length: count }).map((_, index) => (
-        <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+        <div key={index} className="bg-white rounded-lg border border-slate-200 p-4">
           <div className="flex items-start gap-3">
             <Skeleton variant="rounded" width={64} height={64} />
             <div className="flex-1 space-y-2">
@@ -182,8 +182,8 @@ export const PageSkeleton: React.FC = () => {
       <KPISkeleton count={4} />
 
       {/* Tabla */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <div className="p-4 border-b border-slate-200">
           <div className="flex items-center justify-between">
             <Skeleton variant="rounded" width={250} height={36} />
             <div className="flex gap-2">
@@ -193,7 +193,7 @@ export const PageSkeleton: React.FC = () => {
           </div>
         </div>
         <table className="min-w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-slate-50">
             <tr>
               {Array.from({ length: 6 }).map((_, index) => (
                 <th key={index} className="px-4 py-3">
@@ -232,7 +232,7 @@ export const DashboardSkeleton: React.FC = () => {
       {/* KPIs principales - 4 columnas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="bg-white rounded-xl border border-gray-200 p-5">
+          <div key={index} className="bg-white rounded-xl border border-slate-200 p-5">
             <div className="flex items-center justify-between mb-3">
               <Skeleton variant="circular" width={44} height={44} />
               <Skeleton variant="rounded" width={60} height={24} />
@@ -246,7 +246,7 @@ export const DashboardSkeleton: React.FC = () => {
       {/* Sección 2 filas - KPIs secundarios */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+          <div key={index} className="bg-white rounded-lg border border-slate-200 p-4">
             <div className="flex items-center gap-3">
               <Skeleton variant="rounded" width={40} height={40} />
               <div className="flex-1">
@@ -261,7 +261,7 @@ export const DashboardSkeleton: React.FC = () => {
       {/* Gráficos y Widgets - 2 columnas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Gráfico izquierdo */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between mb-4">
             <Skeleton variant="text" width={180} height={20} />
             <Skeleton variant="rounded" width={100} height={32} />
@@ -270,7 +270,7 @@ export const DashboardSkeleton: React.FC = () => {
         </div>
 
         {/* Gráfico derecho */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
           <div className="flex items-center justify-between mb-4">
             <Skeleton variant="text" width={160} height={20} />
             <Skeleton variant="rounded" width={80} height={32} />
@@ -282,7 +282,7 @@ export const DashboardSkeleton: React.FC = () => {
       {/* Widgets inferiores - 3 columnas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="bg-white rounded-xl border border-gray-200 p-5">
+          <div key={index} className="bg-white rounded-xl border border-slate-200 p-5">
             <div className="flex items-center justify-between mb-4">
               <Skeleton variant="text" width={140} height={18} />
               <Skeleton variant="rounded" width={70} height={28} />
@@ -324,7 +324,7 @@ export const DetailSkeleton: React.FC = () => {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
+          <div key={index} className="text-center p-4 bg-slate-50 rounded-lg">
             <Skeleton variant="text" width="50%" height={32} className="mx-auto mb-2" />
             <Skeleton variant="text" width="70%" height={14} className="mx-auto" />
           </div>
@@ -332,7 +332,7 @@ export const DetailSkeleton: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-4 border-b border-gray-200 pb-2">
+      <div className="flex gap-4 border-b border-slate-200 pb-2">
         {Array.from({ length: 4 }).map((_, index) => (
           <Skeleton key={index} variant="text" width={80} height={20} />
         ))}
@@ -383,7 +383,7 @@ export const InventarioSkeleton: React.FC = () => {
       {/* 6 KPIs en grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {Array.from({ length: 6 }).map((_, index) => (
-          <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+          <div key={index} className="bg-white rounded-lg border border-slate-200 p-4">
             <div className="flex items-center justify-between mb-2">
               <Skeleton variant="circular" width={36} height={36} />
               <Skeleton variant="rounded" width={50} height={20} />
@@ -395,7 +395,7 @@ export const InventarioSkeleton: React.FC = () => {
       </div>
 
       {/* Filtros Card */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white rounded-lg border border-slate-200 p-4">
         <div className="flex flex-col md:flex-row gap-4">
           <Skeleton variant="rounded" width={280} height={40} className="flex-1" />
           <div className="flex gap-2">
@@ -407,9 +407,9 @@ export const InventarioSkeleton: React.FC = () => {
       </div>
 
       {/* Tabla Card */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
         <table className="min-w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-slate-50">
             <tr>
               {Array.from({ length: 7 }).map((_, index) => (
                 <th key={index} className="px-4 py-3">
@@ -446,7 +446,7 @@ export const GastosSkeleton: React.FC = () => {
       {/* 4 KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+          <div key={index} className="bg-white rounded-lg border border-slate-200 p-4">
             <div className="flex items-center justify-between mb-2">
               <Skeleton variant="circular" width={40} height={40} />
               <Skeleton variant="rounded" width={55} height={22} />
@@ -458,7 +458,7 @@ export const GastosSkeleton: React.FC = () => {
       </div>
 
       {/* Distribucion por Tipo - Grafico */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white rounded-lg border border-slate-200 p-4">
         <div className="flex items-center justify-between mb-4">
           <Skeleton variant="text" width={180} height={20} />
           <Skeleton variant="rounded" width={100} height={32} />
@@ -482,7 +482,7 @@ export const GastosSkeleton: React.FC = () => {
       </div>
 
       {/* Filtros */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white rounded-lg border border-slate-200 p-4">
         <div className="flex flex-col md:flex-row gap-4">
           <Skeleton variant="rounded" width={260} height={40} className="flex-1" />
           <div className="flex gap-2">
@@ -493,9 +493,9 @@ export const GastosSkeleton: React.FC = () => {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
         <table className="min-w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-slate-50">
             <tr>
               {Array.from({ length: 6 }).map((_, index) => (
                 <th key={index} className="px-4 py-3">

@@ -90,7 +90,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm text-slate-600">Cotización</p>
-              <p className="font-bold text-primary-600">{cotizacion.numeroCotizacion}</p>
+              <p className="font-bold text-teal-600">{cotizacion.numeroCotizacion}</p>
               <p className="text-sm text-slate-700 mt-1">{cotizacion.nombreCliente}</p>
             </div>
             <div className="text-right">

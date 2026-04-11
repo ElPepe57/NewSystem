@@ -46,7 +46,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           <div className="space-y-3 min-h-[200px]">
             {loading ? (
               <div className="flex justify-center items-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+                <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
               </div>
             ) : requerimientosPorEstado[column.id]?.length === 0 ? (
               <div className="text-center text-slate-400 text-sm py-8">

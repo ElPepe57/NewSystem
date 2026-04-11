@@ -127,7 +127,7 @@ export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
             {loading ? (
               <tr>
                 <td colSpan={8} className="px-6 py-8 text-center text-slate-500">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary-600 mx-auto" />
+                  <Loader2 className="h-6 w-6 animate-spin text-teal-600 mx-auto" />
                 </td>
               </tr>
             ) : requerimientos.length === 0 ? (
@@ -138,7 +138,7 @@ export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
               requerimientos.map((req) => (
                 <tr key={req.id} className="hover:bg-slate-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-medium text-primary-600">{req.numeroRequerimiento}</span>
+                    <span className="font-medium text-teal-600">{req.numeroRequerimiento}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                     {formatDate(req.fechaCreacion)}

@@ -70,7 +70,7 @@ const iconMap: Record<EmptyStateIcon, LucideIcon> = {
 };
 
 const variantStyles: Record<EmptyStateVariant, { iconBg: string; iconColor: string }> = {
-  'no-data': { iconBg: 'bg-gray-100', iconColor: 'text-gray-400' },
+  'no-data': { iconBg: 'bg-slate-100', iconColor: 'text-slate-400' },
   'no-results': { iconBg: 'bg-amber-50', iconColor: 'text-amber-400' },
   'error': { iconBg: 'bg-red-50', iconColor: 'text-red-400' },
   'success': { iconBg: 'bg-green-50', iconColor: 'text-green-400' },
@@ -155,11 +155,11 @@ export const EmptyStateAction: React.FC<EmptyStateActionProps> = ({
       </div>
 
       {/* Titulo */}
-      <h3 className={`font-semibold text-gray-900 ${sizeStyle.title}`}>{title}</h3>
+      <h3 className={`font-semibold text-slate-900 ${sizeStyle.title}`}>{title}</h3>
 
       {/* Descripcion */}
       {description && (
-        <p className={`mt-2 text-gray-500 max-w-md ${sizeStyle.description}`}>
+        <p className={`mt-2 text-slate-500 max-w-md ${sizeStyle.description}`}>
           {description}
         </p>
       )}
@@ -195,7 +195,7 @@ export const EmptyStateCompact: React.FC<{
   const IconComponent = iconMap[icon];
 
   return (
-    <div className={`flex items-center justify-center gap-2 py-4 text-gray-500 ${className}`}>
+    <div className={`flex items-center justify-center gap-2 py-4 text-slate-500 ${className}`}>
       <IconComponent className="h-4 w-4" />
       <span className="text-sm">{message}</span>
     </div>

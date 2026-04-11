@@ -921,7 +921,7 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
                   type="checkbox"
                   checked={competidorForm.esLiderCategoria || false}
                   onChange={(e) => onCompetidorFormChange({ ...competidorForm, esLiderCategoria: e.target.checked })}
-                  className="mr-2 h-4 w-4 text-primary-600 border-slate-300 rounded"
+                  className="mr-2 h-4 w-4 text-teal-600 border-slate-300 rounded"
                 />
                 <span className="text-sm font-medium text-slate-700 flex items-center">
                   <Crown className="h-4 w-4 mr-1 text-amber-500" />
@@ -939,7 +939,7 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
                 <button
                   type="button"
                   onClick={onAddPlataforma}
-                  className="text-sm text-primary-600 hover:text-primary-700 flex items-center"
+                  className="text-sm text-teal-600 hover:text-teal-700 flex items-center"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Agregar Plataforma
@@ -953,7 +953,7 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
                   <button
                     type="button"
                     onClick={onAddPlataforma}
-                    className="mt-2 text-sm text-primary-600 hover:text-primary-700"
+                    className="mt-2 text-sm text-teal-600 hover:text-teal-700"
                   >
                     Agregar primera plataforma
                   </button>
@@ -963,7 +963,7 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
                   {competidorForm.plataformasData.map((plataforma, index) => (
                     <div
                       key={plataforma.id}
-                      className={`p-3 rounded-lg border ${plataforma.esPrincipal ? 'border-primary-300 bg-primary-50' : 'border-slate-200 bg-slate-50'}`}
+                      className={`p-3 rounded-lg border ${plataforma.esPrincipal ? 'border-teal-300 bg-teal-50' : 'border-slate-200 bg-slate-50'}`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-1 grid grid-cols-2 gap-3">

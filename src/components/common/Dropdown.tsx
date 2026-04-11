@@ -146,14 +146,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
         <div
           className={`
             absolute z-50 ${positionStyles[position]} ${getWidth()}
-            bg-white rounded-lg shadow-lg border border-gray-200
+            bg-white rounded-lg shadow-lg border border-slate-200
             py-1 overflow-hidden
             animate-in fade-in-0 zoom-in-95 duration-150
           `}
         >
           {items.map((item, index) => {
             if (item.divider) {
-              return <div key={index} className="my-1 border-t border-gray-100" />;
+              return <div key={index} className="my-1 border-t border-slate-100" />;
             }
 
             return (
@@ -165,10 +165,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
                   w-full px-4 py-2 text-left text-sm
                   flex items-center gap-2
                   ${item.disabled
-                    ? 'text-gray-400 cursor-not-allowed'
+                    ? 'text-slate-400 cursor-not-allowed'
                     : item.danger
                     ? 'text-red-600 hover:bg-red-50'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    : 'text-slate-700 hover:bg-slate-50'
                   }
                   transition-colors
                 `}
@@ -247,21 +247,21 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
         className={`
           ${sizeStyles[size]}
           w-full flex items-center justify-between gap-2
-          border border-gray-300 rounded-lg bg-white
+          border border-slate-300 rounded-lg bg-white
           text-left
-          ${disabled ? 'bg-gray-100 cursor-not-allowed text-gray-400' : 'hover:border-gray-400'}
-          focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+          ${disabled ? 'bg-slate-100 cursor-not-allowed text-slate-400' : 'hover:border-slate-400'}
+          focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500
           transition-colors
         `}
       >
         <span className="flex items-center gap-2 truncate">
           {selectedOption?.icon}
-          <span className={selectedOption ? 'text-gray-900' : 'text-gray-500'}>
+          <span className={selectedOption ? 'text-slate-900' : 'text-slate-500'}>
             {selectedOption?.label || placeholder}
           </span>
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
@@ -270,7 +270,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
         <div
           className={`
             absolute z-50 top-full left-0 right-0 mt-1
-            bg-white rounded-lg shadow-lg border border-gray-200
+            bg-white rounded-lg shadow-lg border border-slate-200
             py-1 max-h-60 overflow-auto
             animate-in fade-in-0 zoom-in-95 duration-150
           `}
@@ -282,7 +282,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
               className={`
                 w-full px-4 py-2 text-left text-sm
                 flex items-center justify-between gap-2
-                ${option.value === value ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-gray-50'}
+                ${option.value === value ? 'bg-teal-50 text-teal-700' : 'text-slate-700 hover:bg-slate-50'}
                 transition-colors
               `}
             >
@@ -320,7 +320,7 @@ export const ActionsDropdown: React.FC<{
       trigger={
         <button
           type="button"
-          className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+          className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
         >
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />

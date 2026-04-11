@@ -97,7 +97,7 @@ export const VencimientosWidget: React.FC<VencimientosWidgetProps> = ({
       case 'proximo':
         return <Clock className="h-5 w-5 text-yellow-500" />;
       default:
-        return <Calendar className="h-5 w-5 text-gray-500" />;
+        return <Calendar className="h-5 w-5 text-slate-500" />;
     }
   };
 
@@ -110,7 +110,7 @@ export const VencimientosWidget: React.FC<VencimientosWidgetProps> = ({
       case 'proximo':
         return 'bg-yellow-50 border-l-4 border-yellow-500';
       default:
-        return 'bg-gray-50';
+        return 'bg-slate-50';
     }
   };
 
@@ -132,11 +132,11 @@ export const VencimientosWidget: React.FC<VencimientosWidgetProps> = ({
   return (
     <Card padding="md">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+        <h3 className="text-lg font-semibold text-slate-900 flex items-center">
           <Clock className="h-5 w-5 mr-2 text-warning-500" />
           Control de Vencimientos
         </h3>
-        <Link to="/inventario" className="text-sm text-primary-600 hover:text-primary-700">
+        <Link to="/inventario" className="text-sm text-teal-600 hover:text-teal-700">
           Ver inventario →
         </Link>
       </div>
@@ -144,23 +144,23 @@ export const VencimientosWidget: React.FC<VencimientosWidgetProps> = ({
       {/* Resumen de vencimientos */}
       {hayAlertas && (
         <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className={`p-2 rounded-lg text-center ${estadisticas.vencidos > 0 ? 'bg-red-100' : 'bg-gray-50'}`}>
-            <div className={`text-xl font-bold ${estadisticas.vencidos > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+          <div className={`p-2 rounded-lg text-center ${estadisticas.vencidos > 0 ? 'bg-red-100' : 'bg-slate-50'}`}>
+            <div className={`text-xl font-bold ${estadisticas.vencidos > 0 ? 'text-red-600' : 'text-slate-400'}`}>
               {estadisticas.vencidos}
             </div>
-            <div className="text-xs text-gray-500">Vencidos</div>
+            <div className="text-xs text-slate-500">Vencidos</div>
           </div>
-          <div className={`p-2 rounded-lg text-center ${estadisticas.criticos > 0 ? 'bg-orange-100' : 'bg-gray-50'}`}>
-            <div className={`text-xl font-bold ${estadisticas.criticos > 0 ? 'text-orange-600' : 'text-gray-400'}`}>
+          <div className={`p-2 rounded-lg text-center ${estadisticas.criticos > 0 ? 'bg-orange-100' : 'bg-slate-50'}`}>
+            <div className={`text-xl font-bold ${estadisticas.criticos > 0 ? 'text-orange-600' : 'text-slate-400'}`}>
               {estadisticas.criticos}
             </div>
-            <div className="text-xs text-gray-500">&lt;7 días</div>
+            <div className="text-xs text-slate-500">&lt;7 días</div>
           </div>
-          <div className={`p-2 rounded-lg text-center ${estadisticas.proximos > 0 ? 'bg-yellow-100' : 'bg-gray-50'}`}>
-            <div className={`text-xl font-bold ${estadisticas.proximos > 0 ? 'text-yellow-600' : 'text-gray-400'}`}>
+          <div className={`p-2 rounded-lg text-center ${estadisticas.proximos > 0 ? 'bg-yellow-100' : 'bg-slate-50'}`}>
+            <div className={`text-xl font-bold ${estadisticas.proximos > 0 ? 'text-yellow-600' : 'text-slate-400'}`}>
               {estadisticas.proximos}
             </div>
-            <div className="text-xs text-gray-500">&lt;30 días</div>
+            <div className="text-xs text-slate-500">&lt;30 días</div>
           </div>
         </div>
       )}
@@ -180,8 +180,8 @@ export const VencimientosWidget: React.FC<VencimientosWidgetProps> = ({
       )}
 
       {unidadesPorVencer.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <Package className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+        <div className="text-center py-8 text-slate-500">
+          <Package className="h-12 w-12 mx-auto mb-2 text-slate-300" />
           <p className="text-sm">No hay productos próximos a vencer</p>
           <p className="text-xs text-success-600 mt-1">Inventario en buen estado</p>
         </div>
@@ -197,10 +197,10 @@ export const VencimientosWidget: React.FC<VencimientosWidgetProps> = ({
                 <div className="flex items-center gap-3">
                   {getEstadoIcon(item.estado)}
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900 text-sm">
+                    <div className="font-medium text-slate-900 text-sm">
                       {item.marca} {item.nombreComercial}
                     </div>
-                    <div className="text-xs text-gray-600">
+                    <div className="text-xs text-slate-600">
                       {item.sku} • {item.almacenNombre} • {item.cantidad} uds
                     </div>
                   </div>
@@ -215,7 +215,7 @@ export const VencimientosWidget: React.FC<VencimientosWidgetProps> = ({
           {unidadesPorVencer.length > maxItems && (
             <Link
               to="/inventario"
-              className="block text-center text-sm text-primary-600 hover:text-primary-700 py-2"
+              className="block text-center text-sm text-teal-600 hover:text-teal-700 py-2"
             >
               Ver {unidadesPorVencer.length - maxItems} más →
             </Link>

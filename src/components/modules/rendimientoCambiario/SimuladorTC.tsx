@@ -101,7 +101,7 @@ const SliderTC: React.FC<SliderTCProps> = ({ value, onChange, tcpa, tcMercado })
     <div className="space-y-3">
       {/* Valor actual */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-700">Tipo de Cambio Simulado</span>
+        <span className="text-sm font-medium text-slate-700">Tipo de Cambio Simulado</span>
         <span className="text-2xl font-bold text-blue-600">{fmt(value, 4)}</span>
       </div>
 
@@ -114,7 +114,7 @@ const SliderTC: React.FC<SliderTCProps> = ({ value, onChange, tcpa, tcMercado })
           step={TC_STEP}
           value={value}
           onChange={(e) => onChange(parseFloat(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-600"
+          className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-blue-600"
           style={{
             background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${pctValue}%, #e5e7eb ${pctValue}%, #e5e7eb 100%)`,
           }}
@@ -159,7 +159,7 @@ const SliderTC: React.FC<SliderTCProps> = ({ value, onChange, tcpa, tcMercado })
         </button>
         <button
           onClick={() => onChange(3.70)}
-          className="px-2 py-1 rounded border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 transition-colors"
+          className="px-2 py-1 rounded border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition-colors"
         >
           Reset 3.70
         </button>
@@ -179,7 +179,7 @@ const TablaResultados: React.FC<{
 }> = ({ productos, tcSimulado, tcpaActual }) => {
   if (productos.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400">
+      <div className="text-center py-8 text-slate-400">
         <Calculator className="w-8 h-8 mx-auto mb-2 opacity-30" />
         <p className="text-sm">No hay productos para simular</p>
       </div>
@@ -190,17 +190,17 @@ const TablaResultados: React.FC<{
     <div className="overflow-x-auto">
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-100">
-            <th className="py-2 pr-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Producto</th>
-            <th className="py-2 px-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Línea</th>
-            <th className="py-2 px-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Precio PEN</th>
-            <th className="py-2 px-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Margen TCPA</th>
-            <th className="py-2 px-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Margen TC Sim.</th>
-            <th className="py-2 px-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Variación</th>
-            <th className="py-2 pl-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Punto Quiebre</th>
+          <tr className="border-b border-slate-100">
+            <th className="py-2 pr-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Producto</th>
+            <th className="py-2 px-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Línea</th>
+            <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Precio PEN</th>
+            <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Margen TCPA</th>
+            <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Margen TC Sim.</th>
+            <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Variación</th>
+            <th className="py-2 pl-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Punto Quiebre</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-50">
+        <tbody className="divide-y divide-slate-50">
           {productos.map((p) => {
             const margenTcpa = calcularMargen(p, tcpaActual);
             const margenSim = calcularMargen(p, tcSimulado);
@@ -212,22 +212,22 @@ const TablaResultados: React.FC<{
             return (
               <tr
                 key={p.productoId}
-                className={`hover:bg-gray-50 transition-colors ${enZonaQuiebre ? 'bg-red-50' : ''}`}
+                className={`hover:bg-slate-50 transition-colors ${enZonaQuiebre ? 'bg-red-50' : ''}`}
               >
                 <td className="py-2.5 pr-3">
-                  <span className={`font-medium ${enZonaQuiebre ? 'text-red-700' : 'text-gray-800'}`}>
+                  <span className={`font-medium ${enZonaQuiebre ? 'text-red-700' : 'text-slate-800'}`}>
                     {p.nombre}
                   </span>
                 </td>
                 <td className="py-2.5 px-2">
-                  <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                  <span className="text-xs px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded">
                     {p.lineaNegocio}
                   </span>
                 </td>
-                <td className="py-2.5 px-2 text-right font-mono text-gray-600">
+                <td className="py-2.5 px-2 text-right font-mono text-slate-600">
                   S/ {fmt(p.precioVentaPEN)}
                 </td>
-                <td className="py-2.5 px-2 text-right font-mono text-gray-600">
+                <td className="py-2.5 px-2 text-right font-mono text-slate-600">
                   {fmt(margenTcpa, 1)}%
                 </td>
                 <td className="py-2.5 px-2 text-right">
@@ -253,7 +253,7 @@ const TablaResultados: React.FC<{
                 <td className="py-2.5 pl-2 text-right">
                   {puntoQuiebre !== null ? (
                     <span className={`font-mono text-xs font-semibold ${
-                      tcSimulado >= puntoQuiebre ? 'text-red-600' : 'text-gray-500'
+                      tcSimulado >= puntoQuiebre ? 'text-red-600' : 'text-slate-500'
                     }`}>
                       {fmt(puntoQuiebre, 4)}
                       {tcSimulado >= puntoQuiebre && (
@@ -261,7 +261,7 @@ const TablaResultados: React.FC<{
                       )}
                     </span>
                   ) : (
-                    <span className="text-gray-300 text-xs">N/A</span>
+                    <span className="text-slate-300 text-xs">N/A</span>
                   )}
                 </td>
               </tr>
@@ -307,8 +307,8 @@ const GraficoCurvasMargen: React.FC<{
     <Card className="p-4">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h4 className="text-sm font-semibold text-gray-700">Curvas de Margen por TC</h4>
-          <p className="text-xs text-gray-500 mt-0.5">Evolución del margen al variar el tipo de cambio</p>
+          <h4 className="text-sm font-semibold text-slate-700">Curvas de Margen por TC</h4>
+          <p className="text-xs text-slate-500 mt-0.5">Evolución del margen al variar el tipo de cambio</p>
         </div>
       </div>
       <div className="h-56">
@@ -441,23 +441,23 @@ export const SimuladorTC: React.FC<SimuladorTCProps> = ({
       {/* KPIs de impacto */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-4 text-center">
-          <p className="text-xs text-gray-500 mb-1">Variación promedio margen</p>
+          <p className="text-xs text-slate-500 mb-1">Variación promedio margen</p>
           <p className={`text-2xl font-bold ${variacionPromedioMargen >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {variacionPromedioMargen >= 0 ? '+' : ''}{fmt(variacionPromedioMargen, 1)} pp
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">vs. TCPA actual</p>
+          <p className="text-xs text-slate-400 mt-0.5">vs. TCPA actual</p>
         </Card>
 
         <Card className={`p-4 text-center ${productosEnQuiebre.length > 0 ? 'border-2 border-red-300 bg-red-50' : ''}`}>
-          <p className="text-xs text-gray-500 mb-1">Productos en zona de pérdida</p>
+          <p className="text-xs text-slate-500 mb-1">Productos en zona de pérdida</p>
           <p className={`text-2xl font-bold ${productosEnQuiebre.length > 0 ? 'text-red-600' : 'text-green-600'}`}>
             {productosEnQuiebre.length}
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">de {productos.length} simulados</p>
+          <p className="text-xs text-slate-400 mt-0.5">de {productos.length} simulados</p>
         </Card>
 
         <Card className="p-4 text-center">
-          <p className="text-xs text-gray-500 mb-1">TC ingresado</p>
+          <p className="text-xs text-slate-500 mb-1">TC ingresado</p>
           <p className="text-2xl font-bold text-blue-600">{fmt(tcSimulado, 4)}</p>
           <p className={`text-xs mt-0.5 font-medium ${
             tcSimulado > tcpaActual ? 'text-red-500' : 'text-green-600'
@@ -490,7 +490,7 @@ export const SimuladorTC: React.FC<SimuladorTCProps> = ({
 
       {/* Tabla de resultados */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Detalle por Producto a TC {fmt(tcSimulado, 4)}</h3>
+        <h3 className="text-sm font-semibold text-slate-700 mb-3">Detalle por Producto a TC {fmt(tcSimulado, 4)}</h3>
         <TablaResultados
           productos={productos}
           tcSimulado={tcSimulado}

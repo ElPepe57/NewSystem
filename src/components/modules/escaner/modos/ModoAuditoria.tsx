@@ -226,15 +226,15 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
   return (
     <div className="space-y-4">
       {/* Almacen selector */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-          <Warehouse className="h-4 w-4 text-gray-500" />
+      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+          <Warehouse className="h-4 w-4 text-slate-500" />
           Almacen a auditar
         </label>
         <select
           value={selectedAlmacenId}
           onChange={handleAlmacenChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
         >
           <option value="">Selecciona un almacen</option>
           {almacenes.map(a => (
@@ -249,9 +249,9 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
       {/* Resumen KPIs */}
       {accumulator.totalItems > 0 && (
         <div className="grid grid-cols-4 gap-2">
-          <div className="bg-white border border-gray-200 rounded-lg p-2.5 text-center">
-            <p className="text-lg font-bold text-gray-900 tabular-nums">{resumen.totalProductos}</p>
-            <p className="text-[10px] sm:text-xs text-gray-500">Productos</p>
+          <div className="bg-white border border-slate-200 rounded-lg p-2.5 text-center">
+            <p className="text-lg font-bold text-slate-900 tabular-nums">{resumen.totalProductos}</p>
+            <p className="text-[10px] sm:text-xs text-slate-500">Productos</p>
           </div>
           <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 text-center">
             <p className="text-lg font-bold text-green-700 tabular-nums">{resumen.coincidencias}</p>
@@ -269,17 +269,17 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
       )}
 
       {/* Accumulated items list */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <ClipboardCheck className="h-4 w-4 text-primary-600" />
+          <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+            <ClipboardCheck className="h-4 w-4 text-teal-600" />
             Conteo ({accumulator.totalItems} productos, {accumulator.totalQuantity} unidades)
           </h3>
           {accumulator.totalItems > 0 && (
             <button
               type="button"
               onClick={handleNuevaAuditoria}
-              className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+              className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1"
             >
               <RotateCcw className="h-3 w-3" />
               Reiniciar
@@ -306,8 +306,8 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
             const disc = item.cantidad - item.modeData.stockSistema;
             return (
               <div className="flex items-center gap-3 text-xs">
-                <span className="text-gray-500">
-                  Sistema: <span className="font-medium text-gray-700">{item.modeData.stockSistema}</span>
+                <span className="text-slate-500">
+                  Sistema: <span className="font-medium text-slate-700">{item.modeData.stockSistema}</span>
                 </span>
                 {disc === 0 ? (
                   <span className="inline-flex items-center gap-0.5 text-green-600">
@@ -330,12 +330,12 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
 
       {/* Action buttons - sticky bottom */}
       {accumulator.totalItems > 0 && (
-        <div className="sticky bottom-0 bg-gray-50/95 backdrop-blur-sm border-t border-gray-200 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 flex gap-2">
+        <div className="sticky bottom-0 bg-slate-50/95 backdrop-blur-sm border-t border-slate-200 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 flex gap-2">
           <button
             type="button"
             onClick={handleGuardar}
             disabled={isSaving}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors"
           >
             <Save className="h-4 w-4" />
             {isSaving ? 'Guardando...' : 'Guardar Auditoria'}
@@ -343,7 +343,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
           <button
             type="button"
             onClick={handleExportCSV}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">CSV</span>
@@ -352,12 +352,12 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
       )}
 
       {/* Historial de auditorias */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
-        <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-3">
-          <History className="h-4 w-4 text-gray-500" />
+      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
+        <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3">
+          <History className="h-4 w-4 text-slate-500" />
           Auditorias Anteriores
           {historial.length > 0 && (
-            <span className="text-xs font-normal text-gray-400">({historial.length})</span>
+            <span className="text-xs font-normal text-slate-400">({historial.length})</span>
           )}
         </h3>
 
@@ -367,7 +367,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
             <select
               value={filtroAlmacenHistorial}
               onChange={(e) => setFiltroAlmacenHistorial(e.target.value)}
-              className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-primary-500"
+              className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-500"
             >
               <option value="">Todos los almacenes</option>
               {[...new Set(historial.map(h => h.almacenNombre))].map(nombre => (
@@ -378,11 +378,11 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
         )}
 
         {loadingHistorial ? (
-          <div className="flex items-center gap-2 py-4 justify-center text-sm text-gray-500">
+          <div className="flex items-center gap-2 py-4 justify-center text-sm text-slate-500">
             <Loader2 className="h-4 w-4 animate-spin" /> Cargando historial...
           </div>
         ) : historial.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-4">No hay auditorias guardadas</p>
+          <p className="text-sm text-slate-400 text-center py-4">No hay auditorias guardadas</p>
         ) : (
           <div className="space-y-2">
             {historialFiltrado.map(session => {
@@ -399,12 +399,12 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
               const r = session.resumen;
 
               return (
-                <div key={session.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                <div key={session.id} className="border border-slate-200 rounded-lg overflow-hidden">
                   {/* Session header — clickable */}
                   <button
                     type="button"
                     onClick={() => setExpandedSessionId(isExpanded ? null : session.id!)}
-                    className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center gap-3 p-3 text-left hover:bg-slate-50 transition-colors"
                   >
                     {/* Indicador de estado */}
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
@@ -423,11 +423,11 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-gray-900">{session.almacenNombre}</span>
-                        <span className="text-xs text-gray-400">{fechaStr} {horaStr}</span>
+                        <span className="text-sm font-medium text-slate-900">{session.almacenNombre}</span>
+                        <span className="text-xs text-slate-400">{fechaStr} {horaStr}</span>
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs">
-                        <span className="text-gray-500">{r.totalProductos} prod.</span>
+                        <span className="text-slate-500">{r.totalProductos} prod.</span>
                         {r.coincidencias > 0 && (
                           <span className="text-green-600">{r.coincidencias} OK</span>
                         )}
@@ -440,19 +440,19 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                       </div>
                     </div>
                     {isExpanded
-                      ? <ChevronUp className="h-4 w-4 text-gray-400 shrink-0" />
-                      : <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" />
+                      ? <ChevronUp className="h-4 w-4 text-slate-400 shrink-0" />
+                      : <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
                     }
                   </button>
 
                   {/* Expanded detail */}
                   {isExpanded && (
-                    <div className="border-t border-gray-100 bg-gray-50/50">
+                    <div className="border-t border-slate-100 bg-slate-50/50">
                       {/* Resumen KPIs */}
                       <div className="grid grid-cols-4 gap-1.5 p-3 pb-2">
-                        <div className="bg-white rounded p-1.5 text-center border border-gray-100">
-                          <p className="text-sm font-bold text-gray-900 tabular-nums">{r.totalProductos}</p>
-                          <p className="text-[9px] text-gray-500">Total</p>
+                        <div className="bg-white rounded p-1.5 text-center border border-slate-100">
+                          <p className="text-sm font-bold text-slate-900 tabular-nums">{r.totalProductos}</p>
+                          <p className="text-[9px] text-slate-500">Total</p>
                         </div>
                         <div className="bg-green-50 rounded p-1.5 text-center border border-green-100">
                           <p className="text-sm font-bold text-green-700 tabular-nums">{r.coincidencias}</p>
@@ -477,20 +477,20 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                               key={`${item.productoId}-${idx}`}
                               className={`flex items-center gap-2 px-2.5 py-1.5 rounded text-xs ${
                                 disc === 0
-                                  ? 'bg-white border border-gray-100'
+                                  ? 'bg-white border border-slate-100'
                                   : disc > 0
                                     ? 'bg-amber-50 border border-amber-100'
                                     : 'bg-red-50 border border-red-100'
                               }`}
                             >
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-800 truncate">{item.nombre}</p>
-                                <p className="text-gray-400">{item.sku}</p>
+                                <p className="font-medium text-slate-800 truncate">{item.nombre}</p>
+                                <p className="text-slate-400">{item.sku}</p>
                               </div>
                               <div className="text-right shrink-0 space-y-0.5">
-                                <p className="text-gray-600">
+                                <p className="text-slate-600">
                                   <span className="font-medium">{item.cantidadFisica}</span>
-                                  <span className="text-gray-400"> / {item.stockSistema}</span>
+                                  <span className="text-slate-400"> / {item.stockSistema}</span>
                                 </p>
                                 {disc === 0 ? (
                                   <span className="text-green-600 flex items-center gap-0.5 justify-end">
@@ -512,7 +512,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); handleExportHistorialCSV(session); }}
-                          className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
                         >
                           <Download className="h-3.5 w-3.5" />
                           Exportar CSV

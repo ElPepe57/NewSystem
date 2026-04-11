@@ -96,13 +96,13 @@ export const Register: React.FC = () => {
 
   return (
     <AuthPageWrapper>
-      <Card className="w-full max-w-md relative z-10 shadow-xl shadow-primary-900/10 border border-primary-100">
+      <Card className="w-full max-w-md relative z-10 shadow-xl shadow-teal-900/10 border border-teal-100">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <VitaSkinLogo className="h-16 w-16 drop-shadow-lg" />
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-700 to-teal-500 bg-clip-text text-transparent">
             Crear Cuenta
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
@@ -192,7 +192,7 @@ export const Register: React.FC = () => {
           className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {googleLoading ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-primary-600" />
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-teal-600" />
           ) : (
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -217,7 +217,7 @@ export const Register: React.FC = () => {
         <div className="mt-4 text-center">
           <p className="text-sm text-slate-500">
             ¿Ya tienes cuenta?{' '}
-            <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold transition-colors">
+            <Link to="/login" className="text-teal-600 hover:text-teal-700 font-semibold transition-colors">
               Iniciar Sesión
             </Link>
           </p>

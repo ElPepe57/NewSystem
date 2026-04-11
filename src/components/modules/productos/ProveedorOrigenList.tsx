@@ -103,18 +103,18 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
         <div className="flex items-center gap-2">
           <DollarSign className="h-5 w-5 text-blue-600" />
-          <h4 className="font-medium text-gray-900">{labelProveedor}</h4>
-          <span className="text-sm text-gray-500">({proveedores.length})</span>
+          <h4 className="font-medium text-slate-900">{labelProveedor}</h4>
+          <span className="text-sm text-slate-500">({proveedores.length})</span>
         </div>
         {proveedores.length > 0 && (
           <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-            <span className="text-gray-500">
+            <span className="text-slate-500">
               Min: <span className="font-medium text-green-600">${min.toFixed(2)}</span>
             </span>
-            <span className="text-gray-500">
+            <span className="text-slate-500">
               Max: <span className="font-medium text-red-600">${max.toFixed(2)}</span>
             </span>
-            <span className="text-gray-500">
+            <span className="text-slate-500">
               Prom: <span className="font-medium text-blue-600">${promedio.toFixed(2)}</span>
             </span>
           </div>
@@ -127,7 +127,7 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
           <div
             key={proveedor.id}
             className={`border rounded-lg transition-all ${
-              expandedId === proveedor.id ? 'border-blue-300 bg-blue-50/50' : 'border-gray-200 bg-white'
+              expandedId === proveedor.id ? 'border-blue-300 bg-blue-50/50' : 'border-slate-200 bg-white'
             }`}
           >
             {/* Fila compacta */}
@@ -135,21 +135,21 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
               className="p-2 sm:p-3 flex items-center gap-2 sm:gap-3 cursor-pointer"
               onClick={() => setExpandedId(expandedId === proveedor.id ? null : proveedor.id)}
             >
-              <span className="text-sm font-medium text-gray-400 w-6">#{index + 1}</span>
+              <span className="text-sm font-medium text-slate-400 w-6">#{index + 1}</span>
 
               <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-3">
                 <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4 text-gray-400" />
-                  <span className={proveedor.nombre ? 'font-medium' : 'text-gray-400 italic'}>
+                  <Package className="h-4 w-4 text-slate-400" />
+                  <span className={proveedor.nombre ? 'font-medium' : 'text-slate-400 italic'}>
                     {proveedor.nombre || 'Sin nombre'}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-gray-400" />
+                  <DollarSign className="h-4 w-4 text-slate-400" />
                   <span className={`font-medium ${
                     proveedor.precio === min && min > 0 ? 'text-green-600' :
-                    proveedor.precio === max && max > 0 ? 'text-red-600' : 'text-gray-700'
+                    proveedor.precio === max && max > 0 ? 'text-red-600' : 'text-slate-700'
                   }`}>
                     ${(proveedor.precio || 0).toFixed(2)}
                   </span>
@@ -160,8 +160,8 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
 
                 {proveedor.impuesto !== undefined && proveedor.impuesto > 0 && (
                   <div className="flex items-center gap-2">
-                    <Percent className="h-4 w-4 text-gray-400" />
-                    <span className="text-gray-600 text-sm">
+                    <Percent className="h-4 w-4 text-slate-400" />
+                    <span className="text-slate-600 text-sm">
                       {proveedor.impuesto}% tax
                     </span>
                   </div>
@@ -183,7 +183,7 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
                     proveedor.disponibilidad === 'en_stock' ? 'bg-green-100 text-green-700' :
                     proveedor.disponibilidad === 'bajo_stock' ? 'bg-yellow-100 text-yellow-700' :
                     proveedor.disponibilidad === 'sin_stock' ? 'bg-red-100 text-red-700' :
-                    'bg-gray-100 text-gray-600'
+                    'bg-slate-100 text-slate-600'
                   }`}>
                     {proveedor.disponibilidad === 'en_stock' ? 'En stock' :
                      proveedor.disponibilidad === 'bajo_stock' ? 'Bajo stock' :
@@ -199,7 +199,7 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
                     e.stopPropagation();
                     handleRemoveProveedor(proveedor.id);
                   }}
-                  className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                  className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -248,7 +248,7 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
       )}
 
       {proveedores.length === 0 && (
-        <p className="text-sm text-gray-500 text-center py-4">
+        <p className="text-sm text-slate-500 text-center py-4">
           No hay proveedores registrados. Agrega al menos uno para calcular precios.
         </p>
       )}
@@ -361,25 +361,25 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
       fabricante: 'bg-purple-100 text-purple-800',
       distribuidor: 'bg-blue-100 text-blue-800',
       mayorista: 'bg-green-100 text-green-800',
-      minorista: 'bg-gray-100 text-gray-800'
+      minorista: 'bg-slate-100 text-slate-800'
     };
     return colores[tipo] || colores.distribuidor;
   };
 
   return (
-    <div className="px-3 pb-3 pt-0 border-t border-gray-100">
+    <div className="px-3 pb-3 pt-0 border-t border-slate-100">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
         {/* Autocomplete de Proveedor conectado al Gestor Maestro */}
         <div ref={containerRef} className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Nombre del proveedor
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               {loadingProveedores ? (
-                <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
+                <Loader2 className="h-4 w-4 text-slate-400 animate-spin" />
               ) : (
-                <Building2 className="h-4 w-4 text-gray-400" />
+                <Building2 className="h-4 w-4 text-slate-400" />
               )}
             </div>
             <input
@@ -392,9 +392,9 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
               disabled={disabled}
               className={`
                 block w-full pl-9 pr-8 py-2 border rounded-lg text-sm
-                focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-                ${proveedor.nombre ? 'border-green-300 bg-green-50' : 'border-gray-300'}
+                focus:ring-2 focus:ring-teal-500 focus:border-teal-500
+                ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
+                ${proveedor.nombre ? 'border-green-300 bg-green-50' : 'border-slate-300'}
               `}
             />
             {proveedor.nombre && (
@@ -406,7 +406,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
 
           {/* Dropdown de proveedores del Gestor Maestro */}
           {isDropdownOpen && !showCreateForm && (
-            <div className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-auto">
+            <div className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-slate-200 max-h-48 overflow-auto">
               {proveedoresFiltrados.length > 0 ? (
                 <>
                   {proveedoresFiltrados.slice(0, 10).map((prov) => (
@@ -414,27 +414,27 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                       key={prov.id}
                       type="button"
                       onClick={() => handleSelectProveedor(prov)}
-                      className="w-full px-3 py-2 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                      className="w-full px-3 py-2 text-left hover:bg-slate-50 border-b border-slate-100 last:border-0"
                     >
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center space-x-2">
                             {prov.codigo && (
-                              <span className="text-xs text-gray-400 font-mono">{prov.codigo}</span>
+                              <span className="text-xs text-slate-400 font-mono">{prov.codigo}</span>
                             )}
-                            <span className="font-medium text-gray-900 text-sm">{prov.nombre}</span>
+                            <span className="font-medium text-slate-900 text-sm">{prov.nombre}</span>
                             <span className={`px-1.5 py-0.5 text-xs rounded ${getColorByTipo(prov.tipo)}`}>
                               {prov.tipo}
                             </span>
                           </div>
                           {prov.contacto && (
-                            <div className="text-xs text-gray-500 mt-0.5">
+                            <div className="text-xs text-slate-500 mt-0.5">
                               {prov.contacto}
                             </div>
                           )}
                         </div>
                         {(prov.metricas?.ordenesCompra ?? 0) > 0 && (
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-slate-400">
                             {prov.metricas?.ordenesCompra} órdenes
                           </span>
                         )}
@@ -447,7 +447,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                     <button
                       type="button"
                       onClick={handleShowCreate}
-                      className="w-full px-3 py-2 text-left hover:bg-blue-50 text-primary-600 flex items-center border-t border-gray-200"
+                      className="w-full px-3 py-2 text-left hover:bg-blue-50 text-teal-600 flex items-center border-t border-slate-200"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Crear proveedor "{inputValue}"
@@ -456,20 +456,20 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                 </>
               ) : inputValue.length >= 1 ? (
                 <div className="px-3 py-2">
-                  <div className="text-sm text-gray-500 mb-2">
+                  <div className="text-sm text-slate-500 mb-2">
                     No se encontraron proveedores
                   </div>
                   <button
                     type="button"
                     onClick={handleShowCreate}
-                    className="w-full px-3 py-1.5 bg-primary-50 text-primary-600 rounded text-sm flex items-center justify-center hover:bg-primary-100"
+                    className="w-full px-3 py-1.5 bg-teal-50 text-teal-600 rounded text-sm flex items-center justify-center hover:bg-teal-100"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Crear "{inputValue}"
                   </button>
                 </div>
               ) : (
-                <div className="px-3 py-2 text-sm text-gray-500">
+                <div className="px-3 py-2 text-sm text-slate-500">
                   {loadingProveedores ? 'Cargando proveedores...' : 'Escribe para buscar...'}
                 </div>
               )}
@@ -478,13 +478,13 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
 
           {/* Formulario de creación rápida */}
           {showCreateForm && (
-            <div className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 p-3">
+            <div className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-slate-200 p-3">
               <div className="flex items-center justify-between mb-2">
-                <h5 className="font-medium text-gray-900 text-sm">{labelNuevo}</h5>
+                <h5 className="font-medium text-slate-900 text-sm">{labelNuevo}</h5>
                 <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -495,7 +495,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                   type="text"
                   value={nuevoProveedor.nombre || ''}
                   onChange={(e) => setNuevoProveedor({ ...nuevoProveedor, nombre: e.target.value })}
-                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm"
+                  className="w-full px-2 py-1.5 border border-slate-300 rounded text-sm"
                   placeholder="Nombre del proveedor"
                   autoFocus
                 />
@@ -504,7 +504,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                   type="url"
                   value={nuevoProveedor.url || ''}
                   onChange={(e) => setNuevoProveedor({ ...nuevoProveedor, url: e.target.value })}
-                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm"
+                  className="w-full px-2 py-1.5 border border-slate-300 rounded text-sm"
                   placeholder="URL del sitio web (opcional)"
                 />
 
@@ -512,7 +512,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                   <select
                     value={nuevoProveedor.tipo}
                     onChange={(e) => setNuevoProveedor({ ...nuevoProveedor, tipo: e.target.value as TipoProveedor })}
-                    className="px-2 py-1.5 border border-gray-300 rounded text-sm"
+                    className="px-2 py-1.5 border border-slate-300 rounded text-sm"
                   >
                     <option value="distribuidor">Distribuidor</option>
                     <option value="fabricante">Fabricante</option>
@@ -524,7 +524,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                     type="email"
                     value={nuevoProveedor.email || ''}
                     onChange={(e) => setNuevoProveedor({ ...nuevoProveedor, email: e.target.value })}
-                    className="px-2 py-1.5 border border-gray-300 rounded text-sm"
+                    className="px-2 py-1.5 border border-slate-300 rounded text-sm"
                     placeholder="Email (opcional)"
                   />
                 </div>
@@ -533,7 +533,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowCreateForm(false)}
-                    className="px-2 py-1 text-xs text-gray-600 hover:text-gray-800"
+                    className="px-2 py-1 text-xs text-slate-600 hover:text-slate-800"
                   >
                     Cancelar
                   </button>
@@ -541,7 +541,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                     type="button"
                     onClick={handleCreateAndSelect}
                     disabled={!nuevoProveedor.nombre || creando}
-                    className="px-2 py-1 bg-primary-600 text-white text-xs rounded hover:bg-primary-700 disabled:opacity-50"
+                    className="px-2 py-1 bg-teal-600 text-white text-xs rounded hover:bg-teal-700 disabled:opacity-50"
                   >
                     {creando ? 'Creando...' : 'Crear'}
                   </button>
@@ -581,7 +581,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
             disabled={disabled}
           />
           <div className="pb-2">
-            <Percent className="h-5 w-5 text-gray-400" />
+            <Percent className="h-5 w-5 text-slate-400" />
           </div>
         </div>
 
@@ -596,7 +596,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Disponibilidad
           </label>
           <select
@@ -605,7 +605,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
               disponibilidad: e.target.value as ProveedorUSAFormData['disponibilidad']
             })}
             disabled={disabled}
-            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="desconocido">Desconocido</option>
             <option value="en_stock">En stock</option>
@@ -615,7 +615,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Notas
           </label>
           <textarea
@@ -624,7 +624,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
             placeholder="Observaciones sobre este proveedor..."
             rows={2}
             disabled={disabled}
-            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
         </div>
 

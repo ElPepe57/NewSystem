@@ -214,7 +214,7 @@ export const NotasIA: React.FC = () => {
   if (cargando) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 text-primary-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-teal-500 animate-spin" />
       </div>
     );
   }
@@ -277,7 +277,7 @@ export const NotasIA: React.FC = () => {
             placeholder="Buscar..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="pl-9 pr-4 py-2 w-full sm:w-64 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="pl-9 pr-4 py-2 w-full sm:w-64 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
         </div>
 
@@ -287,7 +287,7 @@ export const NotasIA: React.FC = () => {
             <select
               value={filtroTareas}
               onChange={(e) => setFiltroTareas(e.target.value as FiltroTareas)}
-              className="pl-9 pr-8 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none bg-white"
+              className="pl-9 pr-8 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 appearance-none bg-white"
             >
               <option value="mis_tareas">Mis Tareas</option>
               <option value="pendiente">Pendientes</option>
@@ -341,7 +341,7 @@ const KPICard: React.FC<{
   color: string;
 }> = ({ label, value, icon: Icon, color }) => {
   const colorMap: Record<string, string> = {
-    primary: 'bg-primary-50 text-primary-600',
+    primary: 'bg-teal-50 text-teal-600',
     amber: 'bg-amber-50 text-amber-600',
     green: 'bg-green-50 text-green-600',
     red: 'bg-red-50 text-red-600',
@@ -404,8 +404,8 @@ const LlamadasList: React.FC<{
               className="w-full text-left px-5 py-4 hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-start gap-4">
-                <div className="p-2.5 bg-primary-50 rounded-xl shrink-0">
-                  <FileText className="h-5 w-5 text-primary-600" />
+                <div className="p-2.5 bg-teal-50 rounded-xl shrink-0">
+                  <FileText className="h-5 w-5 text-teal-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -447,7 +447,7 @@ const LlamadasList: React.FC<{
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={(e) => { e.stopPropagation(); onVerNotas(intel.id); }}
-                    className="px-3 py-1.5 bg-primary-50 text-primary-600 text-xs font-medium rounded-lg hover:bg-primary-100 transition-colors"
+                    className="px-3 py-1.5 bg-teal-50 text-teal-600 text-xs font-medium rounded-lg hover:bg-teal-100 transition-colors"
                   >
                     Ver completo
                   </button>
@@ -472,7 +472,7 @@ const LlamadasList: React.FC<{
                   <ul className="space-y-1">
                     {intel.analisis.resumenEjecutivo.map((punto, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-primary-500 mt-0.5 shrink-0">•</span>
+                        <span className="text-teal-500 mt-0.5 shrink-0">•</span>
                         {punto}
                       </li>
                     ))}

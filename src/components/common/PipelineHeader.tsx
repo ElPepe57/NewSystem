@@ -19,10 +19,10 @@ export interface PipelineHeaderProps {
 
 const colorStyles: Record<PipelineStage['color'], { bg: string; bgActive: string; text: string; border: string }> = {
   gray: {
-    bg: 'bg-gray-50',
-    bgActive: 'bg-gray-100 ring-2 ring-gray-400',
-    text: 'text-gray-700',
-    border: 'border-gray-200'
+    bg: 'bg-slate-50',
+    bgActive: 'bg-slate-100 ring-2 ring-slate-400',
+    text: 'text-slate-700',
+    border: 'border-slate-200'
   },
   blue: {
     bg: 'bg-blue-50',
@@ -82,14 +82,14 @@ export const PipelineHeader: React.FC<PipelineHeaderProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 p-3 sm:p-4 ${className}`}>
+    <div className={`bg-white rounded-lg border border-slate-200 p-3 sm:p-4 ${className}`}>
       {title && (
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-gray-700">{title}</h3>
+          <h3 className="text-sm font-medium text-slate-700">{title}</h3>
           {activeStage && (
             <button
               onClick={() => onStageClick?.(null)}
-              className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+              className="text-xs text-teal-600 hover:text-teal-700 font-medium"
             >
               Mostrar todos ({total})
             </button>
@@ -107,7 +107,7 @@ export const PipelineHeader: React.FC<PipelineHeaderProps> = ({
             <React.Fragment key={stage.id}>
               {index > 0 && (
                 <ChevronRight
-                  className="h-4 w-4 text-gray-300 flex-shrink-0 hidden sm:block"
+                  className="h-4 w-4 text-slate-300 flex-shrink-0 hidden sm:block"
                   aria-hidden="true"
                 />
               )}
@@ -120,7 +120,7 @@ export const PipelineHeader: React.FC<PipelineHeaderProps> = ({
                   ${isActive ? colors.bgActive : colors.bg}
                   ${colors.border}
                   ${isClickable ? 'cursor-pointer hover:shadow-sm' : 'cursor-default'}
-                  ${isClickable && !isActive ? 'hover:ring-1 hover:ring-gray-300' : ''}
+                  ${isClickable && !isActive ? 'hover:ring-1 hover:ring-slate-300' : ''}
                   flex-shrink-0
                 `}
                 aria-pressed={isActive}
@@ -150,13 +150,13 @@ export const PipelineHeader: React.FC<PipelineHeaderProps> = ({
 
       {/* Barra de progreso visual */}
       {total > 0 && (
-        <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden flex">
+        <div className="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden flex">
           {stages.map((stage) => {
             const percentage = (stage.count / total) * 100;
             if (percentage === 0) return null;
 
             const barColors: Record<PipelineStage['color'], string> = {
-              gray: 'bg-gray-400',
+              gray: 'bg-slate-400',
               blue: 'bg-blue-500',
               yellow: 'bg-yellow-500',
               green: 'bg-green-500',

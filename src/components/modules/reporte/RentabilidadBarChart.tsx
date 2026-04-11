@@ -21,23 +21,23 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-white px-2.5 py-2 rounded-lg shadow-lg border border-gray-200">
-        <p className="font-semibold text-gray-900 text-xs mb-1.5">{data.nombreCompleto}</p>
+      <div className="bg-white px-2.5 py-2 rounded-lg shadow-lg border border-slate-200">
+        <p className="font-semibold text-slate-900 text-xs mb-1.5">{data.nombreCompleto}</p>
         <div className="space-y-0.5 text-[11px]">
           <div className="flex justify-between gap-3">
-            <span className="text-gray-600">Ventas:</span>
+            <span className="text-slate-600">Ventas:</span>
             <span className="font-medium">S/ {data.ventasTotalPEN.toLocaleString()}</span>
           </div>
           <div className="flex justify-between gap-3">
-            <span className="text-gray-600">Utilidad:</span>
+            <span className="text-slate-600">Utilidad:</span>
             <span className="font-medium text-green-600">S/ {data.utilidadPEN.toLocaleString()}</span>
           </div>
           <div className="flex justify-between gap-3">
-            <span className="text-gray-600">Margen:</span>
+            <span className="text-slate-600">Margen:</span>
             <span className="font-medium text-blue-600">{data.margenPromedio.toFixed(1)}%</span>
           </div>
           <div className="flex justify-between gap-3">
-            <span className="text-gray-600">Uds:</span>
+            <span className="text-slate-600">Uds:</span>
             <span className="font-medium">{data.unidadesVendidas}</span>
           </div>
         </div>
@@ -91,7 +91,7 @@ export const RentabilidadBarChart: React.FC<RentabilidadBarChartProps> = ({
 
   if (data.length === 0) {
     return (
-      <div className="h-64 sm:h-80 flex items-center justify-center text-gray-500 text-sm">
+      <div className="h-64 sm:h-80 flex items-center justify-center text-slate-500 text-sm">
         No hay datos de rentabilidad disponibles
       </div>
     );

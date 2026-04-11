@@ -74,7 +74,7 @@ export const SimpleLineChart: React.FC<SimpleLineChartProps> = ({
   title
 }) => (
   <div className="w-full">
-    {title && <h4 className="text-sm font-medium text-gray-700 mb-2">{title}</h4>}
+    {title && <h4 className="text-sm font-medium text-slate-700 mb-2">{title}</h4>}
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
@@ -120,7 +120,7 @@ export const MultiLineChart: React.FC<MultiLineChartProps> = ({
   title
 }) => (
   <div className="w-full">
-    {title && <h4 className="text-sm font-medium text-gray-700 mb-2">{title}</h4>}
+    {title && <h4 className="text-sm font-medium text-slate-700 mb-2">{title}</h4>}
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
@@ -172,7 +172,7 @@ export const SimpleAreaChart: React.FC<AreaChartProps> = ({
   title
 }) => (
   <div className="w-full">
-    {title && <h4 className="text-sm font-medium text-gray-700 mb-2">{title}</h4>}
+    {title && <h4 className="text-sm font-medium text-slate-700 mb-2">{title}</h4>}
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
         <defs>
@@ -233,7 +233,7 @@ export const SimpleBarChart: React.FC<SimpleBarChartProps> = ({
   showValues = false
 }) => (
   <div className="w-full">
-    {title && <h4 className="text-sm font-medium text-gray-700 mb-2">{title}</h4>}
+    {title && <h4 className="text-sm font-medium text-slate-700 mb-2">{title}</h4>}
     <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={data}
@@ -288,7 +288,7 @@ export const MultiBarChart: React.FC<MultiBarChartProps> = ({
   stacked = false
 }) => (
   <div className="w-full">
-    {title && <h4 className="text-sm font-medium text-gray-700 mb-2">{title}</h4>}
+    {title && <h4 className="text-sm font-medium text-slate-700 mb-2">{title}</h4>}
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -373,7 +373,7 @@ export const SimplePieChart: React.FC<SimplePieChartProps> = ({
 
   return (
     <div className="w-full">
-      {title && <h4 className="text-sm font-medium text-gray-700 mb-2">{title}</h4>}
+      {title && <h4 className="text-sm font-medium text-slate-700 mb-2">{title}</h4>}
       <ResponsiveContainer width="100%" height={height}>
         <PieChart>
           <Pie
@@ -444,7 +444,7 @@ export const SimpleComposedChart: React.FC<ComposedChartProps> = ({
   title
 }) => (
   <div className="w-full">
-    {title && <h4 className="text-sm font-medium text-gray-700 mb-2">{title}</h4>}
+    {title && <h4 className="text-sm font-medium text-slate-700 mb-2">{title}</h4>}
     <ResponsiveContainer width="100%" height={height}>
       <ComposedChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />

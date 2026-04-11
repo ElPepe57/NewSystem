@@ -56,7 +56,7 @@ export const SugerenciasReposicionCard: React.FC<SugerenciasReposicionCardProps>
   const sugerenciasCriticas = sugerencias.filter(s => s.urgencia === 'critica').length;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
+    <div className="bg-white border border-slate-200 rounded-lg p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -64,8 +64,8 @@ export const SugerenciasReposicionCard: React.FC<SugerenciasReposicionCardProps>
             <ShoppingCart className="h-5 w-5 text-purple-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Sugerencias de Reposicion</h3>
-            <p className="text-xs text-gray-500">Productos a comprar ordenados por prioridad</p>
+            <h3 className="font-semibold text-slate-900">Sugerencias de Reposicion</h3>
+            <p className="text-xs text-slate-500">Productos a comprar ordenados por prioridad</p>
           </div>
         </div>
         {sugerenciasCriticas > 0 && (
@@ -77,17 +77,17 @@ export const SugerenciasReposicionCard: React.FC<SugerenciasReposicionCardProps>
       </div>
 
       {/* Resumen rapido */}
-      <div className="grid grid-cols-3 gap-3 mb-4 pb-4 border-b border-gray-100">
+      <div className="grid grid-cols-3 gap-3 mb-4 pb-4 border-b border-slate-100">
         <div className="text-center">
-          <p className="text-xs text-gray-500">Productos</p>
-          <p className="text-lg font-bold text-gray-900">{sugerencias.length}</p>
+          <p className="text-xs text-slate-500">Productos</p>
+          <p className="text-lg font-bold text-slate-900">{sugerencias.length}</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-500">Inversion Est.</p>
-          <p className="text-lg font-bold text-gray-900">{formatCurrency(totalInversion, 'USD')}</p>
+          <p className="text-xs text-slate-500">Inversion Est.</p>
+          <p className="text-lg font-bold text-slate-900">{formatCurrency(totalInversion, 'USD')}</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-500">Utilidad Proy.</p>
+          <p className="text-xs text-slate-500">Utilidad Proy.</p>
           <p className="text-lg font-bold text-green-600">{formatCurrency(totalUtilidad)}</p>
         </div>
       </div>
@@ -95,9 +95,9 @@ export const SugerenciasReposicionCard: React.FC<SugerenciasReposicionCardProps>
       {/* Lista de sugerencias */}
       {sugerencias.length === 0 ? (
         <div className="text-center py-6">
-          <ShoppingCart className="h-10 w-10 text-gray-300 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">No hay sugerencias de reposicion</p>
-          <p className="text-xs text-gray-400">Todos los productos tienen stock suficiente</p>
+          <ShoppingCart className="h-10 w-10 text-slate-300 mx-auto mb-2" />
+          <p className="text-sm text-slate-500">No hay sugerencias de reposicion</p>
+          <p className="text-xs text-slate-400">Todos los productos tienen stock suficiente</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -116,45 +116,45 @@ export const SugerenciasReposicionCard: React.FC<SugerenciasReposicionCardProps>
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-gray-400">#{index + 1}</span>
+                      <span className="text-xs font-medium text-slate-400">#{index + 1}</span>
                       <span className={`text-xs px-1.5 py-0.5 rounded ${config.bg} ${config.text}`}>
                         {config.label}
                       </span>
                     </div>
-                    <p className="font-medium text-gray-900 truncate mt-1" title={sugerencia.nombreComercial}>
+                    <p className="font-medium text-slate-900 truncate mt-1" title={sugerencia.nombreComercial}>
                       {sugerencia.nombreComercial}
                     </p>
-                    <p className="text-xs text-gray-500">{sugerencia.sku} - {sugerencia.marca}</p>
+                    <p className="text-xs text-slate-500">{sugerencia.sku} - {sugerencia.marca}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-lg font-bold text-purple-600">
                       +{sugerencia.cantidadSugerida}
                     </p>
-                    <p className="text-xs text-gray-500">unidades</p>
+                    <p className="text-xs text-slate-500">unidades</p>
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-600 mb-2">{sugerencia.razon}</p>
+                <p className="text-xs text-slate-600 mb-2">{sugerencia.razon}</p>
 
                 <div className="grid grid-cols-4 gap-2 text-center">
                   <div>
-                    <p className="text-xs text-gray-400">Stock</p>
-                    <p className="text-sm font-medium text-gray-700">{sugerencia.stockActual}</p>
+                    <p className="text-xs text-slate-400">Stock</p>
+                    <p className="text-sm font-medium text-slate-700">{sugerencia.stockActual}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400">Quiebre</p>
-                    <p className="text-sm font-medium text-gray-700">
+                    <p className="text-xs text-slate-400">Quiebre</p>
+                    <p className="text-sm font-medium text-slate-700">
                       {sugerencia.diasParaQuiebre < 999 ? `${sugerencia.diasParaQuiebre}d` : '-'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400">Inversion</p>
-                    <p className="text-sm font-medium text-gray-700">
+                    <p className="text-xs text-slate-400">Inversion</p>
+                    <p className="text-sm font-medium text-slate-700">
                       {formatCurrency(sugerencia.inversionEstimadaUSD, 'USD')}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400">Utilidad</p>
+                    <p className="text-xs text-slate-400">Utilidad</p>
                     <p className="text-sm font-medium text-green-600">
                       {formatCurrency(sugerencia.utilidadProyectadaPEN)}
                     </p>
@@ -162,7 +162,7 @@ export const SugerenciasReposicionCard: React.FC<SugerenciasReposicionCardProps>
                 </div>
 
                 {sugerencia.tiempoRecuperacionDias < 999 && (
-                  <div className="mt-2 pt-2 border-t border-gray-100 flex items-center gap-1 text-xs text-gray-500">
+                  <div className="mt-2 pt-2 border-t border-slate-100 flex items-center gap-1 text-xs text-slate-500">
                     <Clock className="h-3 w-3" />
                     <span>Recuperacion estimada: {sugerencia.tiempoRecuperacionDias} dias</span>
                   </div>
@@ -174,7 +174,7 @@ export const SugerenciasReposicionCard: React.FC<SugerenciasReposicionCardProps>
           {hasMore && (
             <button
               onClick={onVerTodas}
-              className="w-full text-center text-sm text-purple-600 hover:text-purple-800 py-2 border border-dashed border-gray-200 rounded-lg hover:border-purple-300 transition-colors"
+              className="w-full text-center text-sm text-purple-600 hover:text-purple-800 py-2 border border-dashed border-slate-200 rounded-lg hover:border-purple-300 transition-colors"
             >
               Ver {sugerencias.length - maxItems} sugerencias mas...
             </button>

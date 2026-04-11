@@ -412,7 +412,7 @@ export const OCFormWizard: React.FC<OCFormWizardProps> = ({
   return (
     <div className="space-y-4">
       {/* ── Stepper Header ── */}
-      <div className="bg-white border border-gray-200 rounded-lg px-4 py-2.5">
+      <div className="bg-white border border-slate-200 rounded-lg px-4 py-2.5">
         <div className="flex items-center justify-between gap-2">
           {/* Stepper */}
           <div className="flex-1 min-w-0">
@@ -435,7 +435,7 @@ export const OCFormWizard: React.FC<OCFormWizardProps> = ({
               </span>
             )}
             {totalUSD > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-full font-medium whitespace-nowrap">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-teal-50 text-teal-700 rounded-full font-medium whitespace-nowrap">
                 <DollarSign className="h-3 w-3" />
                 ${totalUSD.toFixed(2)}
               </span>

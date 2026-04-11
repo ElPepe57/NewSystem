@@ -42,12 +42,12 @@ export const EntityAvatar: React.FC<EntityAvatarProps> = ({
     viajero: 'bg-gradient-to-br from-purple-500 to-purple-700 text-white',
     'almacen-usa': 'bg-gradient-to-br from-blue-500 to-blue-700 text-white',
     'almacen-peru': 'bg-gradient-to-br from-red-500 to-red-700 text-white',
-    default: 'bg-gradient-to-br from-gray-400 to-gray-600 text-white'
+    default: 'bg-gradient-to-br from-slate-400 to-slate-600 text-white'
   };
 
   const statusColors = {
     active: 'bg-green-500 ring-2 ring-white',
-    inactive: 'bg-gray-400 ring-2 ring-white',
+    inactive: 'bg-slate-400 ring-2 ring-white',
     warning: 'bg-amber-500 ring-2 ring-white'
   };
 
@@ -106,8 +106,8 @@ export const GradientHeader: React.FC<GradientHeaderProps> = ({
   variant = 'dark'
 }) => {
   const gradients = {
-    purple: 'from-purple-600 via-purple-700 to-indigo-800',
-    blue: 'from-blue-600 via-blue-700 to-indigo-800',
+    purple: 'from-purple-600 via-purple-700 to-teal-800',
+    blue: 'from-blue-600 via-blue-700 to-teal-800',
     green: 'from-emerald-600 via-teal-700 to-cyan-800',
     red: 'from-red-600 via-rose-700 to-pink-800',
     dark: 'from-slate-700 via-slate-800 to-slate-900'
@@ -232,11 +232,11 @@ export const StatCard: React.FC<StatCardProps> = ({
       hover: 'hover:bg-amber-100'
     },
     default: {
-      bg: 'bg-gray-50',
-      icon: 'bg-gray-100 text-gray-600',
-      value: 'text-gray-700',
-      ring: 'ring-gray-400',
-      hover: 'hover:bg-gray-100'
+      bg: 'bg-slate-50',
+      icon: 'bg-slate-100 text-slate-600',
+      value: 'text-slate-700',
+      ring: 'ring-slate-400',
+      hover: 'hover:bg-slate-100'
     }
   };
 
@@ -254,15 +254,15 @@ export const StatCard: React.FC<StatCardProps> = ({
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600">{label}</p>
+          <p className="text-sm font-medium text-slate-600">{label}</p>
           <p className={`mt-2 text-3xl font-bold ${style.value}`}>{value}</p>
           {subtitle && (
-            <p className="mt-1 text-xs text-gray-500">{subtitle}</p>
+            <p className="mt-1 text-xs text-slate-500">{subtitle}</p>
           )}
           {trend && trendValue && (
             <div className={`mt-2 flex items-center text-xs font-medium ${
               trend === 'up' ? 'text-green-600' :
-              trend === 'down' ? 'text-red-600' : 'text-gray-500'
+              trend === 'down' ? 'text-red-600' : 'text-slate-500'
             }`}>
               {trend === 'up' && <TrendingUp className="h-3 w-3 mr-1" />}
               {trend === 'down' && <TrendingDown className="h-3 w-3 mr-1" />}
@@ -342,14 +342,14 @@ export const EntityCard: React.FC<EntityCardProps> = ({
     success: 'bg-green-100 text-green-800',
     warning: 'bg-amber-100 text-amber-800',
     info: 'bg-blue-100 text-blue-800',
-    default: 'bg-gray-100 text-gray-800'
+    default: 'bg-slate-100 text-slate-800'
   };
 
   return (
     <div
       onClick={onClick}
       className={`
-        bg-white rounded-xl shadow-sm border border-gray-200 border-l-4 ${config.accent}
+        bg-white rounded-xl shadow-sm border border-slate-200 border-l-4 ${config.accent}
         transition-all duration-300 overflow-hidden
         ${onClick ? 'cursor-pointer hover:shadow-lg hover:-translate-y-1' : ''}
       `}
@@ -365,9 +365,9 @@ export const EntityCard: React.FC<EntityCardProps> = ({
               size="lg"
             />
             <div>
-              <h3 className="text-lg font-bold text-gray-900">{name}</h3>
+              <h3 className="text-lg font-bold text-slate-900">{name}</h3>
               {code && (
-                <p className="text-sm text-gray-500 font-mono">{code}</p>
+                <p className="text-sm text-slate-500 font-mono">{code}</p>
               )}
               {tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
@@ -389,7 +389,7 @@ export const EntityCard: React.FC<EntityCardProps> = ({
         <div className="mt-5 grid grid-cols-2 gap-3">
           {stats.slice(0, 4).map((stat, idx) => (
             <div key={idx} className={`${config.statBg} rounded-lg p-3`}>
-              <div className="flex items-center text-gray-500 text-xs mb-1">
+              <div className="flex items-center text-slate-500 text-xs mb-1">
                 {stat.icon && <stat.icon className="h-3 w-3 mr-1" />}
                 {stat.label}
               </div>
@@ -410,16 +410,16 @@ export const EntityCard: React.FC<EntityCardProps> = ({
 
       {/* Details Footer */}
       {details.length > 0 && (
-        <div className="bg-gray-50 px-5 py-3 border-t border-gray-100">
+        <div className="bg-slate-50 px-5 py-3 border-t border-slate-100">
           <div className="space-y-1.5">
             {details.map((detail, idx) => (
               <div
                 key={idx}
                 className={`flex items-center text-sm ${
-                  detail.highlight ? 'text-purple-600 font-medium' : 'text-gray-600'
+                  detail.highlight ? 'text-purple-600 font-medium' : 'text-slate-600'
                 }`}
               >
-                <detail.icon className={`h-4 w-4 mr-2 ${detail.highlight ? 'text-purple-500' : 'text-gray-400'}`} />
+                <detail.icon className={`h-4 w-4 mr-2 ${detail.highlight ? 'text-purple-500' : 'text-slate-400'}`} />
                 {detail.text}
               </div>
             ))}
@@ -475,7 +475,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
       <div className="relative">
         <div
           ref={scrollRef}
-          className="flex gap-1 sm:space-x-2 bg-gray-100 p-1 rounded-xl overflow-x-auto scrollbar-hide"
+          className="flex gap-1 sm:space-x-2 bg-slate-100 p-1 rounded-xl overflow-x-auto scrollbar-hide"
         >
           {tabs.map(tab => (
             <button
@@ -486,8 +486,8 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
                 flex items-center gap-1.5 sm:space-x-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm
                 transition-all duration-200 whitespace-nowrap flex-shrink-0
                 ${activeTab === tab.id
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
                 }
               `}
             >
@@ -504,7 +504,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
               {tab.count !== undefined && (
                 <span className={`
                   ml-1 px-1.5 sm:px-2 py-0.5 text-xs font-medium rounded-full
-                  ${activeTab === tab.id ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-700'}
+                  ${activeTab === tab.id ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-700'}
                 `}>
                   {tab.count}
                 </span>
@@ -517,7 +517,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
   }
 
   return (
-    <div className="border-b border-gray-200 relative">
+    <div className="border-b border-slate-200 relative">
       <nav ref={scrollRef} className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide">
         {tabs.map(tab => (
           <button
@@ -529,7 +529,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
               transition-all duration-200 whitespace-nowrap flex-shrink-0
               ${activeTab === tab.id
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }
             `}
           >
@@ -546,7 +546,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
             {tab.count !== undefined && (
               <span className={`
                 ml-1 px-1.5 sm:px-2 py-0.5 text-xs font-medium rounded-full
-                ${activeTab === tab.id ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}
+                ${activeTab === tab.id ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}
               `}>
                 {tab.count}
               </span>
@@ -573,17 +573,17 @@ interface SectionHeaderProps {
 export const SectionHeader: React.FC<SectionHeaderProps> = ({
   title,
   icon: Icon,
-  iconColor = 'text-gray-600',
+  iconColor = 'text-slate-600',
   action,
   count
 }) => {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h2 className="text-xl font-bold text-gray-900 flex items-center">
+      <h2 className="text-xl font-bold text-slate-900 flex items-center">
         {Icon && <Icon className={`h-5 w-5 mr-2 ${iconColor}`} />}
         {title}
         {count !== undefined && (
-          <span className="ml-2 text-sm font-normal text-gray-500">({count})</span>
+          <span className="ml-2 text-sm font-normal text-slate-500">({count})</span>
         )}
       </h2>
       {action}
@@ -608,14 +608,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   action
 }) => {
   return (
-    <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-12">
+    <div className="bg-white rounded-xl border-2 border-dashed border-slate-200 p-12">
       <div className="text-center">
-        <div className="mx-auto h-16 w-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-          <Icon className="h-8 w-8 text-gray-400" />
+        <div className="mx-auto h-16 w-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
+          <Icon className="h-8 w-8 text-slate-400" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">{title}</h3>
         {description && (
-          <p className="text-gray-500 max-w-sm mx-auto mb-6">{description}</p>
+          <p className="text-slate-500 max-w-sm mx-auto mb-6">{description}</p>
         )}
         {action}
       </div>
@@ -645,21 +645,21 @@ export const HighlightBox: React.FC<HighlightBoxProps> = ({
     info: 'bg-blue-50 border-blue-200',
     warning: 'bg-amber-50 border-amber-200',
     success: 'bg-green-50 border-green-200',
-    default: 'bg-gray-50 border-gray-200'
+    default: 'bg-slate-50 border-slate-200'
   };
 
   const iconColors = {
     info: 'text-blue-600',
     warning: 'text-amber-600',
     success: 'text-green-600',
-    default: 'text-gray-600'
+    default: 'text-slate-600'
   };
 
   const textColors = {
     info: 'text-blue-700',
     warning: 'text-amber-700',
     success: 'text-green-700',
-    default: 'text-gray-700'
+    default: 'text-slate-700'
   };
 
   return (
@@ -791,7 +791,7 @@ export const MasterCard: React.FC<MasterCardProps> = ({
     warning: 'bg-amber-100 text-amber-800',
     info: 'bg-blue-100 text-blue-800',
     danger: 'bg-red-100 text-red-800',
-    default: 'bg-gray-100 text-gray-800',
+    default: 'bg-slate-100 text-slate-800',
     purple: 'bg-purple-100 text-purple-800'
   };
 
@@ -808,7 +808,7 @@ export const MasterCard: React.FC<MasterCardProps> = ({
 
   const statusColors = {
     active: 'bg-green-500 ring-2 ring-white',
-    inactive: 'bg-gray-400 ring-2 ring-white',
+    inactive: 'bg-slate-400 ring-2 ring-white',
     warning: 'bg-amber-500 ring-2 ring-white'
   };
 
@@ -816,7 +816,7 @@ export const MasterCard: React.FC<MasterCardProps> = ({
     <div
       onClick={onClick}
       className={`
-        bg-white rounded-xl shadow-sm border border-gray-200 border-l-4 ${config.accent}
+        bg-white rounded-xl shadow-sm border border-slate-200 border-l-4 ${config.accent}
         transition-all duration-300 overflow-hidden
         ${onClick ? 'cursor-pointer hover:shadow-lg hover:-translate-y-1' : ''}
       `}
@@ -845,12 +845,12 @@ export const MasterCard: React.FC<MasterCardProps> = ({
             </div>
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-bold text-gray-900 truncate">{name}</h3>
+              <h3 className="text-lg font-bold text-slate-900 truncate">{name}</h3>
               {code && (
-                <p className="text-sm text-gray-500 font-mono">{code}</p>
+                <p className="text-sm text-slate-500 font-mono">{code}</p>
               )}
               {subtitle && (
-                <p className="text-sm text-gray-500 truncate">{subtitle}</p>
+                <p className="text-sm text-slate-500 truncate">{subtitle}</p>
               )}
               {badges.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
@@ -879,7 +879,7 @@ export const MasterCard: React.FC<MasterCardProps> = ({
           <div className={`mt-4 grid grid-cols-${Math.min(stats.length, 3)} gap-2`}>
             {stats.slice(0, 3).map((stat, idx) => (
               <div key={idx} className={`${config.statBg} rounded-lg p-2.5`}>
-                <div className="flex items-center text-gray-500 text-xs mb-0.5">
+                <div className="flex items-center text-slate-500 text-xs mb-0.5">
                   {stat.icon && <stat.icon className="h-3 w-3 mr-1" />}
                   {stat.label}
                 </div>
@@ -901,16 +901,16 @@ export const MasterCard: React.FC<MasterCardProps> = ({
 
       {/* Details Footer */}
       {details.length > 0 && (
-        <div className="bg-gray-50 px-5 py-3 border-t border-gray-100">
+        <div className="bg-slate-50 px-5 py-3 border-t border-slate-100">
           <div className="space-y-1.5">
             {details.slice(0, 3).map((detail, idx) => (
               <div
                 key={idx}
                 className={`flex items-center text-sm ${
-                  detail.highlight ? `${config.statText} font-medium` : 'text-gray-600'
+                  detail.highlight ? `${config.statText} font-medium` : 'text-slate-600'
                 }`}
               >
-                <detail.icon className={`h-4 w-4 mr-2 flex-shrink-0 ${detail.highlight ? config.iconText : 'text-gray-400'}`} />
+                <detail.icon className={`h-4 w-4 mr-2 flex-shrink-0 ${detail.highlight ? config.iconText : 'text-slate-400'}`} />
                 <span className="truncate">{detail.text}</span>
               </div>
             ))}
@@ -935,7 +935,7 @@ interface QuickStatRowProps {
 
 export const QuickStatRow: React.FC<QuickStatRowProps> = ({ items }) => {
   const variantColors = {
-    default: 'text-gray-900',
+    default: 'text-slate-900',
     success: 'text-green-600',
     warning: 'text-amber-600',
     danger: 'text-red-600',
@@ -943,10 +943,10 @@ export const QuickStatRow: React.FC<QuickStatRowProps> = ({ items }) => {
   };
 
   return (
-    <div className="flex items-center divide-x divide-gray-200 bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="flex items-center divide-x divide-slate-200 bg-white rounded-lg border border-slate-200 overflow-hidden">
       {items.map((item, idx) => (
         <div key={idx} className="flex-1 px-4 py-3 text-center">
-          <div className="text-xs text-gray-500 flex items-center justify-center">
+          <div className="text-xs text-slate-500 flex items-center justify-center">
             {item.icon && <item.icon className="h-3 w-3 mr-1" />}
             {item.label}
           </div>

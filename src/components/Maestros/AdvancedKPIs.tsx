@@ -65,7 +65,7 @@ export const HealthScore: React.FC<HealthScoreProps> = ({
             stroke="currentColor"
             strokeWidth={sizeConfig.strokeWidth}
             fill="transparent"
-            className="text-gray-200"
+            className="text-slate-200"
           />
           <circle
             cx="22"
@@ -84,7 +84,7 @@ export const HealthScore: React.FC<HealthScoreProps> = ({
         </div>
       </div>
       {showLabel && (
-        <span className="text-xs text-gray-500 mt-1 text-center">{label}</span>
+        <span className="text-xs text-slate-500 mt-1 text-center">{label}</span>
       )}
     </div>
   );
@@ -116,7 +116,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const percentage = max > 0 ? Math.min((value / max) * 100, 100) : 0;
 
   const variantColors = {
-    default: 'bg-gray-500',
+    default: 'bg-slate-500',
     success: 'bg-green-500',
     warning: 'bg-yellow-500',
     danger: 'bg-red-500',
@@ -138,15 +138,15 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
     <div className="w-full">
       {(label || showValues) && (
         <div className="flex items-center justify-between mb-1">
-          {label && <span className="text-xs text-gray-600">{label}</span>}
+          {label && <span className="text-xs text-slate-600">{label}</span>}
           {showValues && (
-            <span className="text-xs font-medium text-gray-700">
+            <span className="text-xs font-medium text-slate-700">
               {format(value)} / {format(max)} ({percentage.toFixed(0)}%)
             </span>
           )}
         </div>
       )}
-      <div className={`w-full bg-gray-200 rounded-full ${barHeight}`}>
+      <div className={`w-full bg-slate-200 rounded-full ${barHeight}`}>
         <div
           className={`${barColor} ${barHeight} rounded-full transition-all duration-300`}
           style={{ width: `${percentage}%` }}
@@ -256,12 +256,12 @@ export const InsightCard: React.FC<InsightCardProps> = ({
         <Icon className={`h-4 w-4 ${iconColor} mt-0.5 flex-shrink-0`} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-gray-900">{title}</p>
+            <p className="text-sm font-medium text-slate-900">{title}</p>
             {metric && (
               <span className={`text-sm font-bold ${metricColor}`}>{metric}</span>
             )}
           </div>
-          <p className="text-xs text-gray-600 mt-0.5">{description}</p>
+          <p className="text-xs text-slate-600 mt-0.5">{description}</p>
           {action && onAction && (
             <button
               onClick={onAction}
@@ -313,7 +313,7 @@ export const MetricComparison: React.FC<MetricComparisonProps> = ({
   };
 
   const getColor = () => {
-    if (diff === 0) return 'text-gray-500';
+    if (diff === 0) return 'text-slate-500';
     if (invertColors) {
       return isPositive ? 'text-red-600' : 'text-green-600';
     }
@@ -322,9 +322,9 @@ export const MetricComparison: React.FC<MetricComparisonProps> = ({
 
   return (
     <div className="flex items-center justify-between py-2">
-      <span className="text-sm text-gray-600">{title}</span>
+      <span className="text-sm text-slate-600">{title}</span>
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-gray-900">{formatValue(current)}</span>
+        <span className="text-sm font-semibold text-slate-900">{formatValue(current)}</span>
         {previous > 0 && (
           <span className={`flex items-center text-xs font-medium ${getColor()}`}>
             {isPositive && <ArrowUpRight className="h-3 w-3" />}
@@ -361,7 +361,7 @@ export const StatTile: React.FC<StatTileProps> = ({
   onClick
 }) => {
   const variantStyles = {
-    default: 'bg-gray-50 border-gray-200',
+    default: 'bg-slate-50 border-slate-200',
     primary: 'bg-blue-50 border-blue-200',
     success: 'bg-green-50 border-green-200',
     warning: 'bg-yellow-50 border-yellow-200',
@@ -369,7 +369,7 @@ export const StatTile: React.FC<StatTileProps> = ({
   };
 
   const iconColors = {
-    default: 'text-gray-500',
+    default: 'text-slate-500',
     primary: 'text-blue-500',
     success: 'text-green-500',
     warning: 'text-yellow-500',
@@ -383,15 +383,15 @@ export const StatTile: React.FC<StatTileProps> = ({
     >
       <div className="flex items-center gap-2 mb-1">
         {Icon && <Icon className={`h-4 w-4 ${iconColors[variant]}`} />}
-        <span className="text-xs text-gray-500">{label}</span>
+        <span className="text-xs text-slate-500">{label}</span>
       </div>
       <div className="flex items-end justify-between">
-        <span className="text-lg font-bold text-gray-900">{value}</span>
+        <span className="text-lg font-bold text-slate-900">{value}</span>
         {trend !== undefined && (
           <div className={`flex items-center text-xs ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {trend >= 0 ? <TrendingUp className="h-3 w-3 mr-0.5" /> : <TrendingDown className="h-3 w-3 mr-0.5" />}
             {Math.abs(trend).toFixed(1)}%
-            {trendLabel && <span className="text-gray-400 ml-1">{trendLabel}</span>}
+            {trendLabel && <span className="text-slate-400 ml-1">{trendLabel}</span>}
           </div>
         )}
       </div>
@@ -415,7 +415,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   title,
   subtitle,
   icon: Icon,
-  iconColor = 'text-gray-500',
+  iconColor = 'text-slate-500',
   action
 }) => {
   return (
@@ -423,8 +423,8 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       <div className="flex items-center gap-2">
         {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
         <div>
-          <h4 className="font-semibold text-gray-900">{title}</h4>
-          {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+          <h4 className="font-semibold text-slate-900">{title}</h4>
+          {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
         </div>
       </div>
       {action}
@@ -452,7 +452,7 @@ export const DataTableMini: React.FC<DataTableMiniProps> = ({
 }) => {
   if (rows.length === 0) {
     return (
-      <div className="text-center py-4 text-sm text-gray-500">
+      <div className="text-center py-4 text-sm text-slate-500">
         {emptyMessage}
       </div>
     );
@@ -460,28 +460,28 @@ export const DataTableMini: React.FC<DataTableMiniProps> = ({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
+      <table className="min-w-full divide-y divide-slate-200">
         <thead>
           <tr>
             {headers.map((header, idx) => (
               <th
                 key={idx}
-                className="px-2 py-1.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-2 py-1.5 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
               >
                 {header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-slate-100">
           {rows.map((row, rowIdx) => (
             <tr
               key={rowIdx}
-              className={row.onClick ? 'hover:bg-gray-50 cursor-pointer' : ''}
+              className={row.onClick ? 'hover:bg-slate-50 cursor-pointer' : ''}
               onClick={row.onClick}
             >
               {row.cells.map((cell, cellIdx) => (
-                <td key={cellIdx} className="px-2 py-2 text-sm text-gray-700 whitespace-nowrap">
+                <td key={cellIdx} className="px-2 py-2 text-sm text-slate-700 whitespace-nowrap">
                   {cell}
                 </td>
               ))}
@@ -511,7 +511,7 @@ export const QuickInsightBadge: React.FC<QuickInsightBadgeProps> = ({
   variant = 'default'
 }) => {
   const variants = {
-    default: 'bg-gray-100 text-gray-700',
+    default: 'bg-slate-100 text-slate-700',
     success: 'bg-green-100 text-green-700',
     warning: 'bg-yellow-100 text-yellow-700',
     danger: 'bg-red-100 text-red-700',

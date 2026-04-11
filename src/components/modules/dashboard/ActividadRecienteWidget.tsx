@@ -44,7 +44,7 @@ export const ActividadRecienteWidget: React.FC<ActividadRecienteWidgetProps> = (
   const getIcon = (tipo: TipoActividad) => {
     switch (tipo) {
       case 'venta_nueva':
-        return <ShoppingCart className="h-4 w-4 text-primary-500" />;
+        return <ShoppingCart className="h-4 w-4 text-teal-500" />;
       case 'venta_entregada':
         return <CheckCircle className="h-4 w-4 text-success-500" />;
       case 'orden_creada':
@@ -58,7 +58,7 @@ export const ActividadRecienteWidget: React.FC<ActividadRecienteWidgetProps> = (
       case 'stock_critico':
         return <AlertCircle className="h-4 w-4 text-danger-500" />;
       default:
-        return <Activity className="h-4 w-4 text-gray-500" />;
+        return <Activity className="h-4 w-4 text-slate-500" />;
     }
   };
 
@@ -124,29 +124,29 @@ export const ActividadRecienteWidget: React.FC<ActividadRecienteWidgetProps> = (
   return (
     <Card padding="md">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Activity className="h-5 w-5 mr-2 text-primary-500" />
+        <h3 className="text-lg font-semibold text-slate-900 flex items-center">
+          <Activity className="h-5 w-5 mr-2 text-teal-500" />
           Actividad Reciente
         </h3>
         <Badge variant="default">{actividades.length} eventos</Badge>
       </div>
 
       {actividades.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <Clock className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+        <div className="text-center py-8 text-slate-500">
+          <Clock className="h-12 w-12 mx-auto mb-2 text-slate-300" />
           <p className="text-sm">Sin actividad reciente</p>
-          <p className="text-xs text-gray-400 mt-1">Las acciones del sistema aparecerán aquí</p>
+          <p className="text-xs text-slate-400 mt-1">Las acciones del sistema aparecerán aquí</p>
         </div>
       ) : (
         <div className="space-y-4">
           {Object.entries(actividadesAgrupadas).map(([fecha, items]) => (
             <div key={fecha}>
-              <div className="text-xs font-medium text-gray-500 uppercase mb-2">
+              <div className="text-xs font-medium text-slate-500 uppercase mb-2">
                 {fecha}
               </div>
               <div className="relative">
                 {/* Línea de timeline */}
-                <div className="absolute left-[9px] top-0 bottom-0 w-0.5 bg-gray-200" />
+                <div className="absolute left-[9px] top-0 bottom-0 w-0.5 bg-slate-200" />
 
                 <div className="space-y-3">
                   {items.map((actividad) => {
@@ -154,21 +154,21 @@ export const ActividadRecienteWidget: React.FC<ActividadRecienteWidgetProps> = (
                     const content = (
                       <div className="flex items-start gap-3 relative">
                         {/* Icono con fondo */}
-                        <div className="relative z-10 flex items-center justify-center w-5 h-5 rounded-full bg-white border-2 border-gray-200">
+                        <div className="relative z-10 flex items-center justify-center w-5 h-5 rounded-full bg-white border-2 border-slate-200">
                           {getIcon(actividad.tipo)}
                         </div>
 
                         {/* Contenido */}
                         <div className="flex-1 min-w-0 pb-3">
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-medium text-gray-900 truncate">
+                            <p className="text-sm font-medium text-slate-900 truncate">
                               {actividad.titulo}
                             </p>
-                            <span className="text-xs text-gray-400 flex-shrink-0">
+                            <span className="text-xs text-slate-400 flex-shrink-0">
                               {formatFecha(actividad.fecha)}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-600 mt-0.5 line-clamp-1">
+                          <p className="text-xs text-slate-600 mt-0.5 line-clamp-1">
                             {actividad.descripcion}
                           </p>
                           <div className="mt-1">
@@ -183,7 +183,7 @@ export const ActividadRecienteWidget: React.FC<ActividadRecienteWidgetProps> = (
                         <Link
                           key={actividad.id}
                           to={link}
-                          className="block hover:bg-gray-50 rounded-lg -ml-1 pl-1 transition-colors"
+                          className="block hover:bg-slate-50 rounded-lg -ml-1 pl-1 transition-colors"
                         >
                           {content}
                         </Link>

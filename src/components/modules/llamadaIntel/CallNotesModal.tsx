@@ -24,7 +24,7 @@ interface CallNotesModalProps {
 
 const SENTIMIENTO_CONFIG = {
   positivo: { label: 'Positivo', color: 'text-green-600 bg-green-50', icon: '😊' },
-  neutral: { label: 'Neutral', color: 'text-gray-600 bg-gray-50', icon: '😐' },
+  neutral: { label: 'Neutral', color: 'text-slate-600 bg-slate-50', icon: '😐' },
   tenso: { label: 'Tenso', color: 'text-orange-600 bg-orange-50', icon: '😰' },
   urgente: { label: 'Urgente', color: 'text-red-600 bg-red-50', icon: '🚨' },
 };
@@ -66,18 +66,18 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
     return (
       <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 text-center">
-          <Loader2 className="h-12 w-12 text-primary-600 animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <Loader2 className="h-12 w-12 text-teal-600 animate-spin mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">
             Procesando llamada...
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             {intel?.estado === 'subiendo'
               ? 'Subiendo audio...'
               : 'Transcribiendo y analizando con IA. Esto puede tomar 1-2 minutos.'}
           </p>
           <button
             onClick={onClose}
-            className="mt-6 px-4 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="mt-6 px-4 py-2 text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
           >
             Cerrar (se procesará en segundo plano)
           </button>
@@ -92,13 +92,13 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
       <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 text-center">
           <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">
             Error al procesar
           </h3>
-          <p className="text-sm text-gray-500 mb-2">{intel.error || 'Error desconocido'}</p>
+          <p className="text-sm text-slate-500 mb-2">{intel.error || 'Error desconocido'}</p>
           <button
             onClick={onClose}
-            className="mt-4 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            className="mt-4 px-4 py-2 text-sm bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
           >
             Cerrar
           </button>
@@ -117,13 +117,13 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary-600" />
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-teal-600" />
               Notas de Llamada
             </h2>
-            <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
               <span className="flex items-center gap-1">
                 <Users className="h-3 w-3" />
                 {intel.participantes.join(', ')}
@@ -139,20 +139,20 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex px-6 pt-3 gap-1 border-b border-gray-100">
+        <div className="flex px-6 pt-3 gap-1 border-b border-slate-100">
           <button
             onClick={() => setTabActivo('resumen')}
             className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
               tabActivo === 'resumen'
-                ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-teal-50 text-teal-700 border-b-2 border-teal-600'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             Resumen IA
@@ -161,8 +161,8 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
             onClick={() => setTabActivo('transcripcion')}
             className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
               tabActivo === 'transcripcion'
-                ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-teal-50 text-teal-700 border-b-2 border-teal-600'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             Transcripción
@@ -175,14 +175,14 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
             <>
               {/* Resumen Ejecutivo */}
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                  <MessageSquare className="h-4 w-4 text-primary-500" />
+                <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                  <MessageSquare className="h-4 w-4 text-teal-500" />
                   Resumen Ejecutivo
                 </h3>
                 <ul className="space-y-1.5">
                   {analisis.resumenEjecutivo.map((punto, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                      <span className="text-primary-500 mt-0.5 shrink-0">•</span>
+                    <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                      <span className="text-teal-500 mt-0.5 shrink-0">•</span>
                       {punto}
                     </li>
                   ))}
@@ -195,7 +195,7 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
                   {analisis.temasDiscutidos.map((tema, i) => (
                     <span
                       key={i}
-                      className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
+                      className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs rounded-full"
                     >
                       {tema}
                     </span>
@@ -220,8 +220,8 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
                       >
                         <CheckCircle2 className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-800">{tarea.descripcion}</p>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                          <p className="text-sm text-slate-800">{tarea.descripcion}</p>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                             <span className="font-medium text-blue-600">
                               {tarea.responsable}
                             </span>
@@ -236,7 +236,7 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
                                 ? 'bg-red-100 text-red-700'
                                 : tarea.prioridad === 'media'
                                 ? 'bg-yellow-100 text-yellow-700'
-                                : 'bg-gray-100 text-gray-600'
+                                : 'bg-slate-100 text-slate-600'
                             }`}>
                               {tarea.prioridad}
                             </span>
@@ -260,8 +260,8 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
                   <div className="space-y-2">
                     {analisis.decisiones.map((dec, i) => (
                       <div key={i} className="p-3 bg-amber-50/50 rounded-lg border border-amber-100">
-                        <p className="text-sm font-medium text-gray-800">{dec.decision}</p>
-                        <p className="text-xs text-gray-500 mt-1">{dec.contexto}</p>
+                        <p className="text-sm font-medium text-slate-800">{dec.decision}</p>
+                        <p className="text-xs text-slate-500 mt-1">{dec.contexto}</p>
                         <div className="flex gap-1.5 mt-1.5">
                           {dec.involucrados.map((p, j) => (
                             <span key={j} className="text-xs text-amber-600 font-medium">
@@ -292,7 +292,7 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
                       >
                         <ArrowRight className="h-3.5 w-3.5 text-green-500 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-sm text-gray-800">{seg.accion}</p>
+                          <p className="text-sm text-slate-800">{seg.accion}</p>
                           <span className="text-xs text-green-600 font-medium">
                             {seg.responsable}
                             {seg.plazo ? ` — ${seg.plazo}` : ''}
@@ -320,7 +320,7 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
                         className="flex items-start gap-2 p-2.5 bg-red-50/50 rounded-lg border border-red-100"
                       >
                         <AlertTriangle className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
-                        <p className="text-sm text-gray-800">{alerta}</p>
+                        <p className="text-sm text-slate-800">{alerta}</p>
                       </div>
                     ))}
                   </div>
@@ -333,19 +333,19 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
               {intel.transcripcion.length > 0 ? (
                 intel.transcripcion.map((seg, i) => (
                   <div key={i} className="flex gap-3">
-                    <span className="text-xs text-gray-400 font-mono w-16 shrink-0 pt-0.5">
+                    <span className="text-xs text-slate-400 font-mono w-16 shrink-0 pt-0.5">
                       {seg.timestamp}
                     </span>
                     <div className="flex-1">
-                      <span className="text-xs font-semibold text-primary-600">
+                      <span className="text-xs font-semibold text-teal-600">
                         {seg.hablante}
                       </span>
-                      <p className="text-sm text-gray-700 mt-0.5">{seg.texto}</p>
+                      <p className="text-sm text-slate-700 mt-0.5">{seg.texto}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500 text-center py-8">
+                <p className="text-sm text-slate-500 text-center py-8">
                   {intel.transcripcionTexto || 'Sin transcripción disponible'}
                 </p>
               )}
@@ -382,15 +382,15 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
       className="flex items-center gap-1.5 w-full text-left group"
     >
       {icon}
-      <span className="text-sm font-semibold text-gray-700">{titulo}</span>
-      <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
+      <span className="text-sm font-semibold text-slate-700">{titulo}</span>
+      <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">
         {count}
       </span>
       <div className="flex-1" />
       {abierta ? (
-        <ChevronUp className="h-4 w-4 text-gray-400" />
+        <ChevronUp className="h-4 w-4 text-slate-400" />
       ) : (
-        <ChevronDown className="h-4 w-4 text-gray-400" />
+        <ChevronDown className="h-4 w-4 text-slate-400" />
       )}
     </button>
     {abierta && <div className="mt-2">{children}</div>}

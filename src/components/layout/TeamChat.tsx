@@ -25,7 +25,7 @@ const ROLE_COLORS: Record<string, string> = {
   admin: 'from-red-500 to-orange-500',
   vendedor: 'from-blue-500 to-cyan-500',
   almacenero: 'from-green-500 to-emerald-500',
-  invitado: 'from-gray-400 to-gray-500',
+  invitado: 'from-slate-400 to-slate-500',
 };
 
 export const TeamChat: React.FC = () => {
@@ -105,12 +105,12 @@ export const TeamChat: React.FC = () => {
   return (
     <div className="flex flex-col h-full">
       {/* Header del canal */}
-      <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-white">
+      <div className="px-3 py-2 border-b border-slate-100 flex items-center gap-2 bg-white">
         {isDM ? (
           <>
             <button
               onClick={volverAGeneral}
-              className="p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+              className="p-1 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
               title="Volver al chat general"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -122,14 +122,14 @@ export const TeamChat: React.FC = () => {
                 {canalUsuario.displayName?.charAt(0).toUpperCase() || '?'}
               </div>
             )}
-            <span className="text-sm font-medium text-gray-900 truncate flex-1">{canalUsuario.displayName}</span>
+            <span className="text-sm font-medium text-slate-900 truncate flex-1">{canalUsuario.displayName}</span>
             <button
               onClick={() => handleIniciarLlamada(canalUsuario)}
               disabled={llamadaActiva}
               className={`p-1.5 rounded-lg transition-colors ${
                 llamadaActiva
                   ? 'text-green-500 cursor-not-allowed'
-                  : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+                  : 'text-slate-400 hover:text-green-600 hover:bg-green-50'
               }`}
               title={llamadaActiva ? 'Llamada en curso' : `Llamar a ${canalUsuario.displayName}`}
             >
@@ -138,8 +138,8 @@ export const TeamChat: React.FC = () => {
           </>
         ) : (
           <>
-            <Users className="h-4 w-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-600">Chat General</span>
+            <Users className="h-4 w-4 text-slate-400" />
+            <span className="text-sm font-medium text-slate-600">Chat General</span>
           </>
         )}
       </div>
@@ -148,7 +148,7 @@ export const TeamChat: React.FC = () => {
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-1">
         {mensajes.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-sm text-gray-400 italic text-center">
+            <p className="text-sm text-slate-400 italic text-center">
               {isDM
                 ? `Inicia una conversación con ${canalUsuario?.displayName}`
                 : 'Sin mensajes aún.\n¡Sé el primero en escribir!'}
@@ -165,7 +165,7 @@ export const TeamChat: React.FC = () => {
               <React.Fragment key={msg.id}>
                 {showDate && (
                   <div className="flex items-center justify-center py-2">
-                    <span className="text-[10px] font-medium text-gray-400 bg-gray-100 px-3 py-0.5 rounded-full">
+                    <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-3 py-0.5 rounded-full">
                       {dateStr}
                     </span>
                   </div>
@@ -178,7 +178,7 @@ export const TeamChat: React.FC = () => {
       </div>
 
       {/* Input + Llamada */}
-      <div className="border-t border-gray-200 p-3">
+      <div className="border-t border-slate-200 p-3">
         <div className="flex items-center gap-2">
           {/* Botón de llamada (solo en general) */}
           {!isDM && (
@@ -188,7 +188,7 @@ export const TeamChat: React.FC = () => {
               className={`p-2 rounded-lg transition-colors ${
                 llamadaActiva
                   ? 'bg-green-100 text-green-600 cursor-not-allowed'
-                  : 'hover:bg-green-50 text-gray-500 hover:text-green-600'
+                  : 'hover:bg-green-50 text-slate-500 hover:text-green-600'
               }`}
               title={llamadaActiva ? 'Llamada en curso' : 'Iniciar llamada de equipo'}
             >
@@ -203,13 +203,13 @@ export const TeamChat: React.FC = () => {
             onChange={(e) => setTexto(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={isDM ? `Mensaje a ${canalUsuario?.displayName}...` : 'Escribe un mensaje...'}
-            className="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="flex-1 text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             disabled={enviando}
           />
           <button
             onClick={handleEnviar}
             disabled={!texto.trim() || enviando}
-            className="p-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="p-2 rounded-lg bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <Send className="h-4 w-4" />
           </button>
@@ -236,16 +236,16 @@ const MessageBubble: React.FC<{ mensaje: ChatMensaje; isOwn: boolean; hideName?:
       {/* Burbuja */}
       <div className={`max-w-[80%] rounded-2xl px-3 py-1.5 ${
         isOwn
-          ? 'bg-primary-600 text-white rounded-br-md'
-          : 'bg-gray-100 text-gray-900 rounded-bl-md'
+          ? 'bg-teal-600 text-white rounded-br-md'
+          : 'bg-slate-100 text-slate-900 rounded-bl-md'
       }`}>
         {!isOwn && !hideName && (
-          <p className="text-[10px] font-semibold text-primary-600 mb-0.5">
+          <p className="text-[10px] font-semibold text-teal-600 mb-0.5">
             {mensaje.displayName}
           </p>
         )}
         <p className="text-sm whitespace-pre-wrap break-words">{mensaje.texto}</p>
-        <p className={`text-[10px] mt-0.5 text-right ${isOwn ? 'text-primary-200' : 'text-gray-400'}`}>
+        <p className={`text-[10px] mt-0.5 text-right ${isOwn ? 'text-teal-200' : 'text-slate-400'}`}>
           {formatChatTime(mensaje.timestamp)}
         </p>
       </div>

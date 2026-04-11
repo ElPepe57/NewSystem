@@ -302,19 +302,19 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
           /* ─── PASO 1: Seleccionar lote ─── */
           <>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
                 placeholder="Buscar lote..."
                 value={busquedaLote}
                 onChange={(e) => setBusquedaLote(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
 
-            <div className="max-h-[400px] overflow-y-auto space-y-1 border border-gray-200 rounded-lg p-2">
+            <div className="max-h-[400px] overflow-y-auto space-y-1 border border-slate-200 rounded-lg p-2">
               {lotesFiltrados.length === 0 ? (
-                <div className="text-center py-8 text-sm text-gray-500">
+                <div className="text-center py-8 text-sm text-slate-500">
                   No hay lotes disponibles
                 </div>
               ) : (
@@ -322,15 +322,15 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                   <button
                     key={l.lote}
                     onClick={() => handleSeleccionarLote(l.lote)}
-                    className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-primary-50 border border-transparent hover:border-primary-200 transition-colors"
+                    className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-teal-50 border border-transparent hover:border-teal-200 transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-sm font-medium text-gray-900">
+                      <span className="font-mono text-sm font-medium text-slate-900">
                         {l.lote}
                       </span>
                       <Badge variant="info">{l.count} unid.</Badge>
                     </div>
-                    <div className="text-xs text-gray-500 mt-0.5 truncate">
+                    <div className="text-xs text-slate-500 mt-0.5 truncate">
                       {l.productos}
                       {l.totalProductos > 3 && ` (+${l.totalProductos - 3} mas)`}
                     </div>
@@ -346,20 +346,20 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
             <div className="flex items-center gap-3">
               <button
                 onClick={() => { setLoteSeleccionado(''); setGrupos([]); }}
-                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500"
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500"
               >
                 <ArrowLeft className="h-4 w-4" />
               </button>
               <div className="flex-1 min-w-0">
-                <div className="font-mono text-sm font-semibold text-gray-900">{loteSeleccionado}</div>
-                <div className="text-xs text-gray-500">
+                <div className="font-mono text-sm font-semibold text-slate-900">{loteSeleccionado}</div>
+                <div className="text-xs text-slate-500">
                   {grupos.length} productos &middot; {totalUnidades} unidades
                 </div>
               </div>
             </div>
 
             {/* Instruccion */}
-            <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
+            <p className="text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2">
               Selecciona unidades, pon una fecha y aplica. Repite para cada grupo con fecha distinta.
             </p>
 
@@ -374,25 +374,25 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                 return (
                   <div
                     key={grupo.productoId}
-                    className="border border-gray-200 rounded-lg overflow-hidden"
+                    className="border border-slate-200 rounded-lg overflow-hidden"
                   >
                     {/* Cabecera producto */}
                     <button
-                      className="w-full flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                      className="w-full flex items-center gap-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
                       onClick={() => toggleExpand(grupo.productoId)}
                     >
                       {grupo.expandido ? (
-                        <ChevronDown className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                        <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                       ) : (
-                        <ChevronRight className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">{grupo.productoNombre}</div>
-                        <div className="text-[10px] text-gray-500 flex items-center gap-1">
+                        <div className="text-sm font-medium text-slate-900 truncate">{grupo.productoNombre}</div>
+                        <div className="text-[10px] text-slate-500 flex items-center gap-1">
                           <span className="font-mono">{grupo.productoSKU}</span>
                           {grupo.descripcion && (
                             <>
-                              <span className="text-gray-300">&middot;</span>
+                              <span className="text-slate-300">&middot;</span>
                               <span className="truncate">{grupo.descripcion}</span>
                             </>
                           )}
@@ -416,23 +416,23 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                       <div className="px-3 py-2 space-y-2">
                         {/* Barra de acción: seleccionar + fecha + aplicar */}
                         {sinFecha.length > 0 && (
-                          <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                          <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
                             {/* Seleccionar todas sin fecha */}
                             <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
                               <input
                                 type="checkbox"
                                 checked={todasSinFechaSeleccionadas}
                                 onChange={() => toggleSeleccionTodas(grupo.productoId)}
-                                className="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                                className="h-3.5 w-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
                               />
-                              <span className="text-[10px] text-gray-500">Todas</span>
+                              <span className="text-[10px] text-slate-500">Todas</span>
                             </label>
 
                             <input
                               type="date"
                               value={grupo.fechaBatch}
                               onChange={(e) => setFechaBatch(grupo.productoId, e.target.value)}
-                              className="flex-1 min-w-0 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                              className="flex-1 min-w-0 px-2 py-1 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
                             />
 
                             <button
@@ -440,8 +440,8 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                               disabled={!grupo.fechaBatch || seleccionadas.length === 0}
                               className={`text-[10px] font-medium whitespace-nowrap px-2 py-1 rounded transition-colors ${
                                 grupo.fechaBatch && seleccionadas.length > 0
-                                  ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
-                                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  ? 'bg-teal-100 text-teal-700 hover:bg-teal-200'
+                                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                               }`}
                             >
                               Aplicar ({seleccionadas.length})
@@ -451,7 +451,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                             {grupo.fechaBatch && grupos.length > 1 && (
                               <button
                                 onClick={() => aplicarATodas(grupo.fechaBatch)}
-                                className="text-[10px] text-primary-600 hover:text-primary-800 whitespace-nowrap font-medium"
+                                className="text-[10px] text-teal-600 hover:text-teal-800 whitespace-nowrap font-medium"
                                 title="Aplicar esta fecha a todas las unidades de todos los productos"
                               >
                                 Todo
@@ -468,7 +468,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                               unidad.nuevaFecha
                                 ? 'bg-green-50'
                                 : unidad.seleccionada
-                                  ? 'bg-primary-50/50'
+                                  ? 'bg-teal-50/50'
                                   : ''
                             }`}
                           >
@@ -480,17 +480,17 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                                 type="checkbox"
                                 checked={unidad.seleccionada}
                                 onChange={() => toggleSeleccion(grupo.productoId, unidad.unidadId)}
-                                className="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                                className="h-3.5 w-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
                               />
                             )}
 
                             {/* Número */}
-                            <span className="text-[10px] text-gray-400 w-4 text-right shrink-0 font-mono">
+                            <span className="text-[10px] text-slate-400 w-4 text-right shrink-0 font-mono">
                               {idx + 1}
                             </span>
 
                             {/* Fecha actual */}
-                            <span className="text-xs text-gray-500 shrink-0">
+                            <span className="text-xs text-slate-500 shrink-0">
                               {unidad.fechaActualStr}
                             </span>
 
@@ -503,14 +503,14 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                                 </span>
                                 <button
                                   onClick={() => quitarFecha(grupo.productoId, unidad.unidadId)}
-                                  className="ml-auto text-[10px] text-gray-400 hover:text-red-500 shrink-0"
+                                  className="ml-auto text-[10px] text-slate-400 hover:text-red-500 shrink-0"
                                   title="Quitar fecha"
                                 >
                                   &times;
                                 </button>
                               </>
                             ) : (
-                              <span className="text-[10px] text-gray-300 italic">sin asignar</span>
+                              <span className="text-[10px] text-slate-300 italic">sin asignar</span>
                             )}
                           </div>
                         ))}
@@ -522,8 +522,8 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-              <div className="text-sm text-gray-500">
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+              <div className="text-sm text-slate-500">
                 {unidadesConFecha.length > 0
                   ? `${unidadesConFecha.length} de ${totalUnidades} unidades listas`
                   : 'Selecciona, pon fecha y aplica'

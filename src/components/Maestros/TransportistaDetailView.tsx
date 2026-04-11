@@ -70,7 +70,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       case 'empeorando':
         return <TrendingDown className="w-4 h-4 text-red-500" />;
       default:
-        return <span className="text-gray-400">-</span>;
+        return <span className="text-slate-400">-</span>;
     }
   };
 
@@ -88,7 +88,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       case 'fallida': return 'text-red-600 bg-red-100';
       case 'reprogramada': return 'text-yellow-600 bg-yellow-100';
       case 'en_proceso': return 'text-blue-600 bg-blue-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-slate-600 bg-slate-100';
     }
   };
 
@@ -122,7 +122,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold text-gray-900">{transportista.nombre}</h2>
+              <h2 className="text-2xl font-bold text-slate-900">{transportista.nombre}</h2>
               {analytics && (
                 <span className={`px-2 py-1 text-sm font-bold rounded-full ${
                   analytics.rendimiento.tasaExitoGlobal >= 90 ? 'bg-green-100 text-green-800' :
@@ -134,23 +134,23 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                 </span>
               )}
             </div>
-            <p className="text-gray-500">{transportista.codigo}</p>
+            <p className="text-slate-500">{transportista.codigo}</p>
 
             <div className="flex flex-wrap gap-4 mt-3">
               {transportista.telefono && (
-                <div className="flex items-center gap-1 text-sm text-gray-600">
+                <div className="flex items-center gap-1 text-sm text-slate-600">
                   <Phone className="w-4 h-4" />
                   {transportista.telefono}
                 </div>
               )}
               {transportista.email && (
-                <div className="flex items-center gap-1 text-sm text-gray-600">
+                <div className="flex items-center gap-1 text-sm text-slate-600">
                   <Mail className="w-4 h-4" />
                   {transportista.email}
                 </div>
               )}
               {transportista.dni && (
-                <div className="flex items-center gap-1 text-sm text-gray-600">
+                <div className="flex items-center gap-1 text-sm text-slate-600">
                   <Users className="w-4 h-4" />
                   DNI: {transportista.dni}
                 </div>
@@ -169,7 +169,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                 {transportista.tipo}
               </span>
               {transportista.courierExterno && (
-                <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
+                <span className="px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-800">
                   {transportista.courierExterno}
                 </span>
               )}
@@ -180,7 +180,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
+                className="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-200 rounded-lg"
               >
                 Editar
               </button>
@@ -193,20 +193,20 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {analytics && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-slate-500">
               <Package className="w-4 h-4" />
               Entregas Totales
             </div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-slate-900">
               {analytics.rendimiento.entregasTotales}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-slate-500">
               {analytics.entregasUltimos30Dias} últimos 30 días
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-slate-500">
               <CheckCircle className="w-4 h-4" />
               Tasa de Éxito
             </div>
@@ -218,32 +218,32 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
             </div>
             <div className="flex items-center gap-1 text-xs">
               {getTendenciaIcon(analytics.tendenciaRendimiento)}
-              <span className="text-gray-500">{analytics.tendenciaRendimiento}</span>
+              <span className="text-slate-500">{analytics.tendenciaRendimiento}</span>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-slate-500">
               <Timer className="w-4 h-4" />
               Tiempo Promedio
             </div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-slate-900">
               {analytics.rendimiento.tiempoPromedioEntrega.toFixed(1)}h
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-slate-500">
               Puntualidad: {formatPercent(analytics.rendimiento.puntualidad)}
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-slate-500">
               <Star className="w-4 h-4" />
               Calificación
             </div>
             <div className={`text-2xl font-bold ${getCalificacionColor(analytics.calificacionPromedio)}`}>
               {analytics.calificacionPromedio.toFixed(1)}/5
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-slate-500">
               {analytics.totalCalificaciones} calificaciones
             </div>
           </div>
@@ -253,25 +253,25 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Métricas de costos */}
       {analytics && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <DollarSign className="w-5 h-5" />
             Métricas de Costos
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <div className="text-sm text-gray-500">Costo Total</div>
+              <div className="text-sm text-slate-500">Costo Total</div>
               <div className="text-xl font-bold">{formatCurrency(analytics.metricasCosto.costoTotalPeriodo)}</div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">Costo por Entrega</div>
+              <div className="text-sm text-slate-500">Costo por Entrega</div>
               <div className="text-xl font-bold">{formatCurrency(analytics.metricasCosto.costoPromedioEntrega)}</div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">Costo por Unidad</div>
+              <div className="text-sm text-slate-500">Costo por Unidad</div>
               <div className="text-xl font-bold">{formatCurrency(analytics.metricasCosto.costoPromedioUnidad)}</div>
             </div>
             <div>
-              <div className="text-sm text-gray-500">ROI</div>
+              <div className="text-sm text-slate-500">ROI</div>
               <div className={`text-xl font-bold ${
                 analytics.roi.retornoInversion > 0 ? 'text-green-600' : 'text-red-600'
               }`}>
@@ -285,7 +285,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Alertas */}
       {analytics && analytics.alertas.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <AlertTriangle className="w-5 h-5" />
             Alertas ({analytics.alertas.length})
           </h3>
@@ -302,9 +302,9 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                 <div className="flex items-start gap-2">
                   {getAlertaIcon(alerta.severidad)}
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900">{alerta.mensaje}</div>
+                    <div className="font-medium text-slate-900">{alerta.mensaje}</div>
                     {alerta.detalle && (
-                      <div className="text-sm text-gray-600 mt-1">{alerta.detalle}</div>
+                      <div className="text-sm text-slate-600 mt-1">{alerta.detalle}</div>
                     )}
                     {alerta.accionRecomendada && (
                       <div className="text-sm text-blue-600 mt-1">
@@ -328,23 +328,23 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {analytics && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">Totales</div>
+            <div className="text-sm text-slate-500">Totales</div>
             <div className="text-2xl font-bold">{analytics.rendimiento.entregasTotales}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">Exitosas</div>
+            <div className="text-sm text-slate-500">Exitosas</div>
             <div className="text-2xl font-bold text-green-600">{analytics.rendimiento.entregasExitosas}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">Fallidas</div>
+            <div className="text-sm text-slate-500">Fallidas</div>
             <div className="text-2xl font-bold text-red-600">{analytics.rendimiento.entregasFallidas}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">Reprogramadas</div>
+            <div className="text-sm text-slate-500">Reprogramadas</div>
             <div className="text-2xl font-bold text-yellow-600">{analytics.rendimiento.entregasReprogramadas}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">En Proceso</div>
+            <div className="text-sm text-slate-500">En Proceso</div>
             <div className="text-2xl font-bold text-blue-600">{analytics.rendimiento.entregasEnProceso}</div>
           </div>
         </div>
@@ -353,7 +353,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Historial de entregas */}
       {analytics && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">
             Historial de Entregas ({analytics.entregasHistorial.length})
           </h3>
           <div className="overflow-x-auto">
@@ -373,11 +373,11 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               </thead>
               <tbody>
                 {analytics.entregasHistorial.slice(0, 20).map((entrega, idx) => (
-                  <tr key={idx} className="border-b hover:bg-gray-50">
+                  <tr key={idx} className="border-b hover:bg-slate-50">
                     <td className="py-2 px-2 text-xs">{formatDate(entrega.fecha)}</td>
                     <td className="py-2 px-2 font-mono text-xs">{entrega.numeroVenta || '-'}</td>
                     <td className="py-2 px-2">{entrega.clienteNombre || '-'}</td>
-                    <td className="py-2 px-2 text-gray-500">{entrega.zona}</td>
+                    <td className="py-2 px-2 text-slate-500">{entrega.zona}</td>
                     <td className="py-2 px-2 text-right font-medium">{entrega.unidades}</td>
                     <td className="py-2 px-2 text-right">{entrega.tiempoEntrega > 0 ? `${entrega.tiempoEntrega}h` : '-'}</td>
                     <td className="py-2 px-2 text-right">{formatCurrency(entrega.costoEntrega)}</td>
@@ -414,7 +414,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               <div key={idx} className={`p-3 rounded-lg border ${
                 incidencia.severidad === 'grave' ? 'bg-red-50 border-red-200' :
                 incidencia.severidad === 'moderada' ? 'bg-yellow-50 border-yellow-200' :
-                'bg-gray-50 border-gray-200'
+                'bg-slate-50 border-slate-200'
               }`}>
                 <div className="flex items-start justify-between">
                   <div>
@@ -422,19 +422,19 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                       <span className={`px-2 py-0.5 text-xs rounded-full ${
                         incidencia.severidad === 'grave' ? 'bg-red-100 text-red-700' :
                         incidencia.severidad === 'moderada' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-gray-100 text-gray-700'
+                        'bg-slate-100 text-slate-700'
                       }`}>
                         {incidencia.severidad}
                       </span>
                       <span className="text-sm font-medium">{incidencia.tipo.replace('_', ' ')}</span>
                     </div>
-                    <div className="text-sm text-gray-600 mt-1">{incidencia.descripcion}</div>
+                    <div className="text-sm text-slate-600 mt-1">{incidencia.descripcion}</div>
                     {incidencia.clienteAfectado && (
-                      <div className="text-xs text-gray-500 mt-1">Cliente: {incidencia.clienteAfectado}</div>
+                      <div className="text-xs text-slate-500 mt-1">Cliente: {incidencia.clienteAfectado}</div>
                     )}
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-gray-500">{formatDate(incidencia.fecha)}</div>
+                    <div className="text-xs text-slate-500">{formatDate(incidencia.fecha)}</div>
                     {incidencia.resuelta ? (
                       <span className="text-xs text-green-600">Resuelta</span>
                     ) : (
@@ -457,19 +457,19 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {analytics && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">Zonas Atendidas</div>
+            <div className="text-sm text-slate-500">Zonas Atendidas</div>
             <div className="text-2xl font-bold">{analytics.coberturadistribucionZonas}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">Mejor Rendimiento</div>
+            <div className="text-sm text-slate-500">Mejor Rendimiento</div>
             <div className="text-2xl font-bold text-green-600">{analytics.zonasConMejorRendimiento.length}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">Problemáticas</div>
+            <div className="text-sm text-slate-500">Problemáticas</div>
             <div className="text-2xl font-bold text-red-600">{analytics.zonasProblematicas.length}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">Día Más Productivo</div>
+            <div className="text-sm text-slate-500">Día Más Productivo</div>
             <div className="text-xl font-bold capitalize">{analytics.diaMasProductivo}</div>
           </div>
         </div>
@@ -478,7 +478,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Métricas por zona */}
       {analytics && analytics.metricasPorZona.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <MapPin className="w-5 h-5" />
             Rendimiento por Zona
           </h3>
@@ -498,7 +498,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               </thead>
               <tbody>
                 {analytics.metricasPorZona.map((zona, idx) => (
-                  <tr key={idx} className={`border-b hover:bg-gray-50 ${zona.esZonaProblematica ? 'bg-red-50' : ''}`}>
+                  <tr key={idx} className={`border-b hover:bg-slate-50 ${zona.esZonaProblematica ? 'bg-red-50' : ''}`}>
                     <td className="py-2 px-2 font-medium">{zona.zona}</td>
                     <td className="py-2 px-2 text-right">{zona.totalEntregas}</td>
                     <td className="py-2 px-2 text-right text-green-600">{zona.entregasExitosas}</td>
@@ -521,7 +521,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                       ) : zona.tasaExito >= 90 ? (
                         <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">Excelente</span>
                       ) : (
-                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">Normal</span>
+                        <span className="px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded-full">Normal</span>
                       )}
                     </td>
                   </tr>
@@ -535,7 +535,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Distribución por día */}
       {analytics && analytics.distribucionPorDia.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Calendar className="w-5 h-5" />
             Distribución por Día de la Semana
           </h3>
@@ -544,7 +544,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               <div key={idx} className="flex items-center gap-3">
                 <div className="w-24 text-sm font-medium capitalize">{dia.dia}</div>
                 <div className="flex-1">
-                  <div className="h-6 bg-gray-100 rounded-full overflow-hidden relative">
+                  <div className="h-6 bg-slate-100 rounded-full overflow-hidden relative">
                     <div
                       className="h-full bg-blue-500 rounded-full"
                       style={{ width: `${(dia.entregas / Math.max(...analytics.distribucionPorDia.map(d => d.entregas))) * 100}%` }}
@@ -568,7 +568,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Zonas recomendadas */}
       {analytics && analytics.predicciones.zonasRecomendadas.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Route className="w-5 h-5" />
             Zonas Recomendadas
           </h3>
@@ -579,7 +579,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               </span>
             ))}
           </div>
-          <p className="text-sm text-gray-500 mt-3">
+          <p className="text-sm text-slate-500 mt-3">
             Estas zonas tienen la mejor tasa de éxito para este transportista.
           </p>
         </div>
@@ -593,38 +593,38 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Métricas de rendimiento detalladas */}
       {analytics && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Análisis de Rendimiento</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Análisis de Rendimiento</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="p-3 bg-green-50 rounded-lg text-center">
               <div className="text-2xl font-bold text-green-600">{analytics.rendimiento.entregasExitosas}</div>
-              <div className="text-sm text-gray-600">Exitosas</div>
+              <div className="text-sm text-slate-600">Exitosas</div>
             </div>
             <div className="p-3 bg-red-50 rounded-lg text-center">
               <div className="text-2xl font-bold text-red-600">{analytics.rendimiento.entregasFallidas}</div>
-              <div className="text-sm text-gray-600">Fallidas</div>
+              <div className="text-sm text-slate-600">Fallidas</div>
             </div>
             <div className="p-3 bg-yellow-50 rounded-lg text-center">
               <div className="text-2xl font-bold text-yellow-600">{analytics.rendimiento.entregasReprogramadas}</div>
-              <div className="text-sm text-gray-600">Reprogramadas</div>
+              <div className="text-sm text-slate-600">Reprogramadas</div>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg text-center">
               <div className="text-2xl font-bold text-blue-600">{formatPercent(analytics.rendimiento.puntualidad)}</div>
-              <div className="text-sm text-gray-600">Puntualidad</div>
+              <div className="text-sm text-slate-600">Puntualidad</div>
             </div>
           </div>
 
           {/* Tiempos */}
           <div className="grid grid-cols-3 gap-4">
             <div className="p-3 border rounded-lg">
-              <div className="text-sm text-gray-500">Tiempo Mínimo</div>
+              <div className="text-sm text-slate-500">Tiempo Mínimo</div>
               <div className="text-xl font-bold">{analytics.rendimiento.tiempoMinimoEntrega.toFixed(1)}h</div>
             </div>
             <div className="p-3 border rounded-lg">
-              <div className="text-sm text-gray-500">Tiempo Promedio</div>
+              <div className="text-sm text-slate-500">Tiempo Promedio</div>
               <div className="text-xl font-bold">{analytics.rendimiento.tiempoPromedioEntrega.toFixed(1)}h</div>
             </div>
             <div className="p-3 border rounded-lg">
-              <div className="text-sm text-gray-500">Tiempo Máximo</div>
+              <div className="text-sm text-slate-500">Tiempo Máximo</div>
               <div className="text-xl font-bold">{analytics.rendimiento.tiempoMaximoEntrega.toFixed(1)}h</div>
             </div>
           </div>
@@ -634,7 +634,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Distribución de calificaciones */}
       {analytics && analytics.totalCalificaciones > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Star className="w-5 h-5" />
             Distribución de Calificaciones
           </h3>
@@ -646,11 +646,11 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               {[1, 2, 3, 4, 5].map(star => (
                 <Star
                   key={star}
-                  className={`w-6 h-6 ${star <= Math.round(analytics.calificacionPromedio) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                  className={`w-6 h-6 ${star <= Math.round(analytics.calificacionPromedio) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300'}`}
                 />
               ))}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-slate-500">
               ({analytics.totalCalificaciones} calificaciones)
             </div>
           </div>
@@ -663,7 +663,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               return (
                 <div key={star} className="flex items-center gap-2">
                   <div className="w-8 text-sm">{star} ★</div>
-                  <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full ${
                         star >= 4 ? 'bg-green-500' : star >= 3 ? 'bg-yellow-500' : 'bg-red-500'
@@ -671,7 +671,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <div className="w-16 text-right text-sm text-gray-500">{count} ({formatPercent(percent)})</div>
+                  <div className="w-16 text-right text-sm text-slate-500">{count} ({formatPercent(percent)})</div>
                 </div>
               );
             })}
@@ -682,27 +682,27 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* ROI detallado */}
       {analytics && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Zap className="w-5 h-5" />
             Análisis ROI
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Valor Entregas</div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <div className="text-sm text-slate-500">Valor Entregas</div>
               <div className="text-xl font-bold">{formatCurrency(analytics.roi.valorEntregasCompletadas)}</div>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Costo Total</div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <div className="text-sm text-slate-500">Costo Total</div>
               <div className="text-xl font-bold">{formatCurrency(analytics.roi.costoTotal)}</div>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Margen Neto</div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <div className="text-sm text-slate-500">Margen Neto</div>
               <div className={`text-xl font-bold ${analytics.roi.margenNeto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {formatCurrency(analytics.roi.margenNeto)}
               </div>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Costo Oportunidad</div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <div className="text-sm text-slate-500">Costo Oportunidad</div>
               <div className="text-xl font-bold text-red-600">{formatCurrency(analytics.roi.costoOportunidadFallos)}</div>
             </div>
           </div>
@@ -712,25 +712,25 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Predicciones */}
       {analytics && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Target className="w-5 h-5" />
             Predicciones (próximos 30 días)
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Entregas Estimadas</div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <div className="text-sm text-slate-500">Entregas Estimadas</div>
               <div className="text-xl font-bold">{analytics.predicciones.entregasEstimadas30Dias}</div>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Costo Estimado</div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <div className="text-sm text-slate-500">Costo Estimado</div>
               <div className="text-xl font-bold">{formatCurrency(analytics.predicciones.costoEstimado30Dias)}</div>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Tasa Éxito Proyectada</div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <div className="text-sm text-slate-500">Tasa Éxito Proyectada</div>
               <div className="text-xl font-bold">{formatPercent(analytics.predicciones.tasaExitoProyectada)}</div>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Riesgo Rotación</div>
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <div className="text-sm text-slate-500">Riesgo Rotación</div>
               <div className={`text-xl font-bold ${
                 analytics.predicciones.riesgoRotacion > 20 ? 'text-red-600' :
                 analytics.predicciones.riesgoRotacion > 10 ? 'text-yellow-600' :
@@ -746,7 +746,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Comentarios recientes */}
       {analytics && analytics.comentariosRecientes.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Comentarios de Clientes</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Comentarios de Clientes</h3>
           <div className="space-y-3">
             {analytics.comentariosRecientes.map((comentario, idx) => (
               <div key={idx} className={`p-3 rounded-lg border ${
@@ -760,14 +760,14 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                         {[1, 2, 3, 4, 5].map(star => (
                           <Star
                             key={star}
-                            className={`w-4 h-4 ${star <= comentario.calificacion ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                            className={`w-4 h-4 ${star <= comentario.calificacion ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300'}`}
                           />
                         ))}
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">{comentario.comentario}</p>
+                    <p className="text-sm text-slate-600 mt-1">{comentario.comentario}</p>
                   </div>
-                  <div className="text-xs text-gray-500">{formatDate(comentario.fecha)}</div>
+                  <div className="text-xs text-slate-500">{formatDate(comentario.fecha)}</div>
                 </div>
               </div>
             ))}
@@ -783,20 +783,20 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Ranking */}
       {analytics && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Ranking de Transportistas</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Ranking de Transportistas</h3>
           <div className="flex items-center gap-4 mb-6">
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600">#{analytics.rankingGeneral}</div>
-              <div className="text-sm text-gray-500">de {analytics.totalTransportistas}</div>
+              <div className="text-sm text-slate-500">de {analytics.totalTransportistas}</div>
             </div>
             <div className="flex-1">
-              <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-blue-500 rounded-full"
                   style={{ width: `${analytics.percentilRendimiento}%` }}
                 />
               </div>
-              <div className="text-sm text-gray-500 mt-1">
+              <div className="text-sm text-slate-500 mt-1">
                 Percentil {analytics.percentilRendimiento}% de rendimiento
               </div>
             </div>
@@ -807,7 +807,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {/* Comparativa detallada */}
       {analytics && analytics.comparativaTransportistas.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Comparativa con Otros Transportistas</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Comparativa con Otros Transportistas</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
@@ -827,13 +827,13 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                 {analytics.comparativaTransportistas.slice(0, 10).map((comp, idx) => (
                   <tr
                     key={idx}
-                    className={`border-b ${comp.transportistaId === transportista.id ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                    className={`border-b ${comp.transportistaId === transportista.id ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
                   >
                     <td className="py-2 px-2 font-bold">
                       {comp.ranking <= 3 ? (
                         <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${
                           comp.ranking === 1 ? 'bg-yellow-100 text-yellow-700' :
-                          comp.ranking === 2 ? 'bg-gray-100 text-gray-700' :
+                          comp.ranking === 2 ? 'bg-slate-100 text-slate-700' :
                           'bg-orange-100 text-orange-700'
                         }`}>
                           {comp.ranking}
@@ -842,7 +842,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                     </td>
                     <td className="py-2 px-2">
                       <div className="font-medium">{comp.nombre}</div>
-                      <div className="text-xs text-gray-500">{comp.codigo}</div>
+                      <div className="text-xs text-slate-500">{comp.codigo}</div>
                     </td>
                     <td className="py-2 px-2">
                       <span className={`px-2 py-1 text-xs rounded-full ${
@@ -873,7 +873,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                       {comp.esRecomendado ? (
                         <Award className="w-5 h-5 text-green-500 mx-auto" />
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-slate-400">-</span>
                       )}
                     </td>
                   </tr>
@@ -896,20 +896,20 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-100 rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-slate-100 rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Truck className={`w-6 h-6 ${transportista.tipo === 'interno' ? 'text-blue-600' : 'text-purple-600'}`} />
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{transportista.nombre}</h2>
-              <p className="text-sm text-gray-500">
+              <h2 className="text-xl font-bold text-slate-900">{transportista.nombre}</h2>
+              <p className="text-sm text-slate-500">
                 {transportista.codigo} - {transportista.tipo}
                 {transportista.courierExterno && ` (${transportista.courierExterno})`}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -924,7 +924,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -938,7 +938,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
         <div className="flex-1 overflow-y-auto p-6">
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
+              <RefreshCw className="w-8 h-8 animate-spin text-slate-400" />
             </div>
           ) : (
             <>

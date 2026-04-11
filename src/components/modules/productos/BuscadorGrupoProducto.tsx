@@ -56,18 +56,18 @@ export const BuscadorGrupoProducto: React.FC<BuscadorGrupoProductoProps> = ({
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900">Agregar variante a grupo existente</h3>
-        <p className="text-sm text-gray-500 mt-1">Paso 1 de 2 — Busca el producto</p>
+        <h3 className="text-lg font-semibold text-slate-900">Agregar variante a grupo existente</h3>
+        <p className="text-sm text-slate-500 mt-1">Paso 1 de 2 — Busca el producto</p>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por marca, nombre o SKU..."
-          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+          className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"
           autoFocus
         />
       </div>
@@ -79,17 +79,17 @@ export const BuscadorGrupoProducto: React.FC<BuscadorGrupoProductoProps> = ({
               key={producto.id}
               type="button"
               onClick={() => onSelect(producto)}
-              className="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+              className="w-full text-left p-3 border border-slate-200 rounded-lg hover:border-teal-300 hover:bg-teal-50 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <Package className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                    <span className="font-medium text-gray-900 text-sm truncate">
+                    <Package className="h-4 w-4 text-slate-400 flex-shrink-0" />
+                    <span className="font-medium text-slate-900 text-sm truncate">
                       {producto.marca} — {producto.nombreComercial}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
                     <span>{producto.sku}</span>
                     {getDescripcionProducto(producto) && <span>· {getDescripcionProducto(producto)}</span>}
                   </div>
@@ -104,21 +104,21 @@ export const BuscadorGrupoProducto: React.FC<BuscadorGrupoProductoProps> = ({
                     <p className="text-xs text-amber-500 mt-1.5">Sin variantes (se creará grupo al agregar)</p>
                   )}
                 </div>
-                <ChevronRight className="h-4 w-4 text-gray-300 flex-shrink-0" />
+                <ChevronRight className="h-4 w-4 text-slate-300 flex-shrink-0" />
               </div>
             </button>
           )) : (
-            <p className="text-center text-sm text-gray-400 py-6">No se encontraron productos</p>
+            <p className="text-center text-sm text-slate-400 py-6">No se encontraron productos</p>
           )}
         </div>
       )}
 
       {search.length < 2 && (
-        <p className="text-center text-sm text-gray-400 py-6">Escribe al menos 2 caracteres para buscar</p>
+        <p className="text-center text-sm text-slate-400 py-6">Escribe al menos 2 caracteres para buscar</p>
       )}
 
       <div className="flex justify-start pt-2">
-        <button type="button" onClick={onCancel} className="text-sm text-gray-500 hover:text-gray-700">
+        <button type="button" onClick={onCancel} className="text-sm text-slate-500 hover:text-slate-700">
           Cancelar
         </button>
       </div>

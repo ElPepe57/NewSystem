@@ -34,14 +34,14 @@ export const CallProcessingToast: React.FC<CallProcessingToastProps> = ({ intelI
             ? 'bg-green-50 border-green-200'
             : isError
             ? 'bg-red-50 border-red-200'
-            : 'bg-white border-gray-200'
+            : 'bg-white border-slate-200'
         }`}>
           {isProcessing && (
             <>
-              <Loader2 className="h-5 w-5 text-primary-500 animate-spin shrink-0" />
+              <Loader2 className="h-5 w-5 text-teal-500 animate-spin shrink-0" />
               <div>
-                <p className="text-sm font-medium text-gray-800">Procesando llamada...</p>
-                <p className="text-xs text-gray-500">Transcribiendo con IA</p>
+                <p className="text-sm font-medium text-slate-800">Procesando llamada...</p>
+                <p className="text-xs text-slate-500">Transcribiendo con IA</p>
               </div>
             </>
           )}
@@ -77,7 +77,7 @@ export const CallProcessingToast: React.FC<CallProcessingToastProps> = ({ intelI
 
           <button
             onClick={onDismiss}
-            className="p-1 rounded hover:bg-black/5 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
+            className="p-1 rounded hover:bg-black/5 text-slate-400 hover:text-slate-600 transition-colors shrink-0"
           >
             <X className="h-3.5 w-3.5" />
           </button>

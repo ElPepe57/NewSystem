@@ -60,16 +60,16 @@ const InlineAutocomplete: React.FC<{
         onFocus={() => { setFocused(true); setOpen(true); }}
         onBlur={() => setFocused(false)}
         placeholder={placeholder}
-        className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+        className="w-full px-1.5 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
       />
       {open && focused && filtered.length > 0 && (
-        <div className="absolute z-50 top-full left-0 right-0 mt-0.5 bg-white border border-gray-200 rounded-md shadow-lg max-h-32 overflow-y-auto">
+        <div className="absolute z-50 top-full left-0 right-0 mt-0.5 bg-white border border-slate-200 rounded-md shadow-lg max-h-32 overflow-y-auto">
           {filtered.slice(0, 8).map(s => (
             <button
               key={s}
               type="button"
               onMouseDown={(e) => { e.preventDefault(); onChange(s); setOpen(false); }}
-              className="w-full text-left px-2 py-1.5 text-xs text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+              className="w-full text-left px-2 py-1.5 text-xs text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
             >
               {s}
             </button>
@@ -132,8 +132,8 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-medium text-gray-900">Variantes del producto</h4>
-          <p className="text-xs text-gray-500">Cada variante tendrá su propio SKU automático</p>
+          <h4 className="text-sm font-medium text-slate-900">Variantes del producto</h4>
+          <p className="text-xs text-slate-500">Cada variante tendrá su propio SKU automático</p>
         </div>
         <Button variant="secondary" size="sm" onClick={addVariante}>
           <Plus className="h-3.5 w-3.5 mr-1" />
@@ -141,10 +141,10 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
         </Button>
       </div>
 
-      <div className="border border-gray-200 rounded-lg overflow-x-auto">
+      <div className="border border-slate-200 rounded-lg overflow-x-auto">
         <div className="min-w-[700px]">
         {/* Header */}
-        <div className="grid grid-cols-[40px_100px_90px_80px_80px_60px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 bg-gray-50 border-b text-[10px] font-medium text-gray-500 uppercase">
+        <div className="grid grid-cols-[40px_100px_90px_80px_80px_60px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 bg-slate-50 border-b text-[10px] font-medium text-slate-500 uppercase">
           <div className="text-center">Ppal</div>
           <div>Presentación</div>
           <div>Contenido *</div>
@@ -159,14 +159,14 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
 
         {/* Rows */}
         {variantes.map((v) => (
-          <div key={v.id} className={`grid grid-cols-[40px_100px_90px_80px_80px_60px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 items-center border-b last:border-0 ${v.esPrincipal ? 'bg-primary-50/50' : ''}`}>
+          <div key={v.id} className={`grid grid-cols-[40px_100px_90px_80px_80px_60px_100px_60px_1fr_32px] gap-1.5 px-3 py-2 items-center border-b last:border-0 ${v.esPrincipal ? 'bg-teal-50/50' : ''}`}>
             <div className="text-center">
               <input
                 type="radio"
                 name="principal"
                 checked={v.esPrincipal}
                 onChange={() => updateVariante(v.id, 'esPrincipal', true)}
-                className="text-primary-600"
+                className="text-teal-600"
               />
             </div>
             <InlineAutocomplete
@@ -201,7 +201,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 placeholder="lb"
                 step="0.01"
                 min="0"
-                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+                className="w-full px-1.5 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-teal-500"
               />
             </div>
             <div>
@@ -210,7 +210,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 value={v.codigoUPC}
                 onChange={(e) => updateVariante(v.id, 'codigoUPC', e.target.value)}
                 placeholder={ph.upc}
-                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+                className="w-full px-1.5 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-teal-500"
               />
             </div>
             <div>
@@ -220,18 +220,18 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
                 onChange={(e) => updateVariante(v.id, 'servingsPerDay', parseInt(e.target.value) || 0)}
                 placeholder="2"
                 min={0}
-                className="w-full px-1.5 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-primary-500"
+                className="w-full px-1.5 py-1.5 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-teal-500"
               />
             </div>
             <div>
-              <span className="text-xs text-gray-500 truncate block">{v.varianteLabel || '—'}</span>
+              <span className="text-xs text-slate-500 truncate block">{v.varianteLabel || '—'}</span>
             </div>
             <div className="col-span-1 text-center">
               {variantes.length > 2 && (
                 <button
                   type="button"
                   onClick={() => removeVariante(v.id)}
-                  className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  className="p-1 text-slate-400 hover:text-red-500 transition-colors"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -246,7 +246,7 @@ export const VariantesTable: React.FC<VariantesTableProps> = ({
         <p className="text-xs text-red-500">Mínimo 2 variantes para crear un grupo.</p>
       )}
 
-      <div className="text-xs text-gray-400">
+      <div className="text-xs text-slate-400">
         {variantes.length} variante{variantes.length !== 1 ? 's' : ''} · SKUs se generarán como {skuPrefix}-XXXX al guardar
       </div>
     </div>

@@ -177,12 +177,12 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
 
         {/* Selector de viajero */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             <Users className="inline h-4 w-4 mr-1" />
             Viajero/Responsable
           </label>
           {loading ? (
-            <div className="text-gray-500 text-sm">Cargando viajeros...</div>
+            <div className="text-slate-500 text-sm">Cargando viajeros...</div>
           ) : viajeros.length === 0 ? (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800">
               <AlertCircle className="inline h-4 w-4 mr-2" />
@@ -192,7 +192,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
             <select
               value={selectedViajeroId}
               onChange={(e) => setSelectedViajeroId(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-0"
+              className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-0"
             >
               <option value="">Seleccionar viajero...</option>
               {viajeros.map(v => (
@@ -207,15 +207,15 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
 
         {/* Info del viajero seleccionado */}
         {viajeroSeleccionado && (
-          <div className="bg-gray-50 rounded-lg p-4 border">
+          <div className="bg-slate-50 rounded-lg p-4 border">
             <div className="flex items-start justify-between">
               <div>
-                <div className="font-semibold text-gray-900">{viajeroSeleccionado.nombre}</div>
-                <div className="text-sm text-gray-500">
+                <div className="font-semibold text-slate-900">{viajeroSeleccionado.nombre}</div>
+                <div className="text-sm text-slate-500">
                   {viajeroSeleccionado.ciudad}, {viajeroSeleccionado.estado || 'USA'}
                 </div>
                 {viajeroSeleccionado.frecuenciaViaje && (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-slate-500">
                     Frecuencia: {viajeroSeleccionado.frecuenciaViaje}
                   </div>
                 )}
@@ -223,8 +223,8 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
               <div className="text-right">
                 {viajeroSeleccionado.costoPromedioFlete && (
                   <div className="text-sm">
-                    <span className="text-gray-500">Flete promedio:</span>
-                    <span className="font-medium text-gray-900 ml-1">
+                    <span className="text-slate-500">Flete promedio:</span>
+                    <span className="font-medium text-slate-900 ml-1">
                       ${viajeroSeleccionado.costoPromedioFlete}/ud
                     </span>
                   </div>
@@ -242,7 +242,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
         {/* Productos a asignar */}
         {selectedViajeroId && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               <Package className="inline h-4 w-4 mr-1" />
               Productos a asignar
             </label>
@@ -252,23 +252,23 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
                 return (
                   <div key={prod.productoId} className="p-4 flex items-center justify-between">
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-slate-900">
                         {prod.sku} - {prod.marca} {prod.nombreComercial}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-slate-500">
                         Pendiente: {prod.cantidadPendiente} de {prod.cantidadSolicitada}
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <label className="text-xs text-gray-500">Asignar</label>
+                        <label className="text-xs text-slate-500">Asignar</label>
                         <input
                           type="number"
                           min="0"
                           max={prod.cantidadPendiente}
                           value={asignado?.cantidad || 0}
                           onChange={(e) => handleCantidadChange(prod.productoId, parseInt(e.target.value) || 0)}
-                          className="w-20 px-3 py-2 rounded border border-gray-300 text-center"
+                          className="w-20 px-3 py-2 rounded border border-slate-300 text-center"
                         />
                       </div>
                       <Button
@@ -285,8 +285,8 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
               })}
             </div>
             <div className="mt-2 text-right text-sm">
-              <span className="text-gray-500">Total a asignar:</span>
-              <span className="font-bold text-primary-600 ml-2">{totalUnidadesAsignadas} unidades</span>
+              <span className="text-slate-500">Total a asignar:</span>
+              <span className="font-bold text-teal-600 ml-2">{totalUnidadesAsignadas} unidades</span>
             </div>
           </div>
         )}
@@ -295,7 +295,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
         {selectedViajeroId && (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 <Calendar className="inline h-4 w-4 mr-1" />
                 Fecha estimada de llegada
               </label>
@@ -303,11 +303,11 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
                 type="date"
                 value={fechaEstimadaLlegada}
                 onChange={(e) => setFechaEstimadaLlegada(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-primary-500"
+                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-teal-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 <DollarSign className="inline h-4 w-4 mr-1" />
                 Costo estimado (USD)
               </label>
@@ -317,7 +317,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
                 value={costoEstimadoUSD || ''}
                 onChange={(e) => setCostoEstimadoUSD(parseFloat(e.target.value) || undefined)}
                 placeholder="0.00"
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-primary-500"
+                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-teal-500"
               />
             </div>
           </div>
@@ -326,7 +326,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
         {/* Notas */}
         {selectedViajeroId && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Notas (opcional)
             </label>
             <textarea
@@ -334,7 +334,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
               onChange={(e) => setNotas(e.target.value)}
               rows={2}
               placeholder="Instrucciones especiales, ubicación de recojo, etc."
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-primary-500 resize-none"
+              className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-teal-500 resize-none"
             />
           </div>
         )}

@@ -131,8 +131,8 @@ export function TipoProductoSelector({
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       {/* Label */}
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        <FlaskConical className="inline-block w-4 h-4 mr-1 text-gray-400" />
+      <label className="block text-sm font-medium text-slate-700 mb-1">
+        <FlaskConical className="inline-block w-4 h-4 mr-1 text-slate-400" />
         Tipo de Producto
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -144,14 +144,14 @@ export function TipoProductoSelector({
           <div
             className={`
               flex items-center justify-between px-3 py-2 border rounded-lg bg-white
-              ${disabled ? 'bg-gray-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary-400'}
-              ${error ? 'border-red-300' : 'border-gray-300'}
+              ${disabled ? 'bg-slate-50 cursor-not-allowed' : 'cursor-pointer hover:border-teal-400'}
+              ${error ? 'border-red-300' : 'border-slate-300'}
             `}
             onClick={() => !disabled && setIsOpen(!isOpen)}
           >
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 font-mono">{tipoSeleccionado.codigo}</span>
-              <span className="font-medium text-gray-900">{tipoSeleccionado.nombre}</span>
+              <span className="text-xs text-slate-400 font-mono">{tipoSeleccionado.codigo}</span>
+              <span className="font-medium text-slate-900">{tipoSeleccionado.nombre}</span>
             </div>
             {!disabled && (
               <button
@@ -160,16 +160,16 @@ export function TipoProductoSelector({
                   e.stopPropagation();
                   handleClear();
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-slate-100 rounded"
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="w-4 h-4 text-slate-400" />
               </button>
             )}
           </div>
         ) : (
           // Input de busqueda
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               ref={inputRef}
               type="text"
@@ -183,9 +183,9 @@ export function TipoProductoSelector({
               disabled={disabled}
               className={`
                 w-full pl-10 pr-4 py-2 border rounded-lg
-                focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                ${disabled ? 'bg-gray-50 cursor-not-allowed' : ''}
-                ${error ? 'border-red-300' : 'border-gray-300'}
+                focus:ring-2 focus:ring-teal-500 focus:border-teal-500
+                ${disabled ? 'bg-slate-50 cursor-not-allowed' : ''}
+                ${error ? 'border-red-300' : 'border-slate-300'}
               `}
             />
           </div>
@@ -199,9 +199,9 @@ export function TipoProductoSelector({
 
       {/* Dropdown */}
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-64 overflow-auto">
           {loading ? (
-            <div className="px-4 py-3 text-center text-gray-500">
+            <div className="px-4 py-3 text-center text-slate-500">
               Cargando...
             </div>
           ) : (
@@ -212,7 +212,7 @@ export function TipoProductoSelector({
                   type="button"
                   onClick={handleCreateNew}
                   disabled={creating}
-                  className="w-full px-4 py-3 flex items-center gap-2 text-left hover:bg-primary-50 border-b border-gray-100 text-primary-600"
+                  className="w-full px-4 py-3 flex items-center gap-2 text-left hover:bg-teal-50 border-b border-slate-100 text-teal-600"
                 >
                   <Plus className="w-4 h-4" />
                   <span>
@@ -230,22 +230,22 @@ export function TipoProductoSelector({
                     onClick={() => handleSelect(tipo)}
                     className={`
                       w-full px-4 py-2 flex items-center justify-between text-left
-                      hover:bg-gray-50 transition-colors
-                      ${tipo.id === value ? 'bg-primary-50' : ''}
+                      hover:bg-slate-50 transition-colors
+                      ${tipo.id === value ? 'bg-teal-50' : ''}
                     `}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400 font-mono">{tipo.codigo}</span>
-                      <span className="text-gray-900">{tipo.nombre}</span>
+                      <span className="text-xs text-slate-400 font-mono">{tipo.codigo}</span>
+                      <span className="text-slate-900">{tipo.nombre}</span>
                     </div>
                     {tipo.id === value && (
-                      <Check className="w-4 h-4 text-primary-600" />
+                      <Check className="w-4 h-4 text-teal-600" />
                     )}
                   </button>
                 ))
               ) : (
                 !showCreateOption && (
-                  <div className="px-4 py-3 text-center text-gray-500">
+                  <div className="px-4 py-3 text-center text-slate-500">
                     No se encontraron tipos
                   </div>
                 )
@@ -253,15 +253,15 @@ export function TipoProductoSelector({
 
               {/* Sugerencias rapidas si no hay busqueda */}
               {!searchTerm && tiposActivos.length > 0 && (
-                <div className="px-3 py-2 border-t border-gray-100">
-                  <span className="text-xs text-gray-400 uppercase">Tipos frecuentes</span>
+                <div className="px-3 py-2 border-t border-slate-100">
+                  <span className="text-xs text-slate-400 uppercase">Tipos frecuentes</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {tiposActivos.slice(0, 6).map((tipo) => (
                       <button
                         key={tipo.id}
                         type="button"
                         onClick={() => handleSelect(tipo)}
-                        className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700"
+                        className="px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded-full text-slate-700"
                       >
                         {tipo.nombre}
                       </button>
@@ -272,11 +272,11 @@ export function TipoProductoSelector({
 
               {/* Hint para crear nuevo tipo */}
               {!showCreateOption && !creating && (
-                <div className="border-t border-gray-100">
+                <div className="border-t border-slate-100">
                   <button
                     type="button"
                     onClick={() => inputRef.current?.focus()}
-                    className="w-full px-4 py-2.5 flex items-center gap-2 text-left text-sm text-gray-500 hover:bg-gray-50"
+                    className="w-full px-4 py-2.5 flex items-center gap-2 text-left text-sm text-slate-500 hover:bg-slate-50"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Escribe un nombre para crear nuevo tipo</span>
@@ -289,7 +289,7 @@ export function TipoProductoSelector({
       )}
 
       {/* Hint */}
-      <p className="mt-1 text-xs text-gray-500">
+      <p className="mt-1 text-xs text-slate-500">
         El tipo agrupa productos similares de diferentes marcas (ej: Omega 3, Colageno)
       </p>
     </div>

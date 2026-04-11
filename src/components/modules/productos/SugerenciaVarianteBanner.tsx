@@ -58,12 +58,12 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
                   <span className="px-1.5 py-0.5 text-[10px] rounded" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>Grupo</span>
                 )}
               </div>
-              <p className="font-medium text-gray-900 text-sm mt-0.5">
+              <p className="font-medium text-slate-900 text-sm mt-0.5">
                 {principal.producto.marca} — {principal.producto.nombreComercial}
               </p>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {getDescripcionProducto(principal.producto) && (
-                  <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(principal.producto)}</span>
+                  <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(principal.producto)}</span>
                 )}
               </div>
               {principal.camposDiferentes.length > 0 && (
@@ -91,11 +91,11 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
         {showAll && tieneMultiples && (
           <div className="space-y-2">
             {candidatos.slice(1).map((c) => (
-              <div key={c.producto.id} className="bg-white rounded-lg border border-gray-100 p-2.5 flex items-center justify-between">
+              <div key={c.producto.id} className="bg-white rounded-lg border border-slate-100 p-2.5 flex items-center justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-mono text-xs text-gray-500">{c.producto.sku}</span>
-                    <span className="text-xs text-gray-700 truncate">{c.producto.contenido} {c.producto.sabor}</span>
+                    <span className="font-mono text-xs text-slate-500">{c.producto.sku}</span>
+                    <span className="text-xs text-slate-700 truncate">{c.producto.contenido} {c.producto.sabor}</span>
                   </div>
                 </div>
                 <Button

@@ -358,19 +358,19 @@ export const DailyCallModal: React.FC = () => {
         className={`fixed z-[61] ${transitionClass} ${containerClass}`}
         style={containerStyle}
       >
-        <div className={`h-full flex flex-col bg-gray-900 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 ${
+        <div className={`h-full flex flex-col bg-slate-900 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 ${
           modo !== 'maximizado' ? 'ring-2 ring-green-500/30' : ''
         }`}>
 
           {/* ─── Header (arrastrable) ─── */}
           <div
-            className={`flex items-center gap-1.5 shrink-0 select-none bg-gray-800/95 ${
+            className={`flex items-center gap-1.5 shrink-0 select-none bg-slate-800/95 ${
               modo === 'mini' ? 'px-2.5 py-1.5' : 'px-3 py-2'
             } ${modo !== 'maximizado' ? 'cursor-move' : ''}`}
             onMouseDown={handleMouseDown}
           >
             {modo !== 'maximizado' && (
-              <GripHorizontal className="h-3.5 w-3.5 text-gray-600 shrink-0" />
+              <GripHorizontal className="h-3.5 w-3.5 text-slate-600 shrink-0" />
             )}
 
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shrink-0" />
@@ -385,7 +385,7 @@ export const DailyCallModal: React.FC = () => {
             </span>
 
             {duracion > 0 && (
-              <span className="flex items-center gap-1 text-gray-400 text-xs tabular-nums shrink-0">
+              <span className="flex items-center gap-1 text-slate-400 text-xs tabular-nums shrink-0">
                 <Clock className="h-3 w-3" />
                 {minutos}:{segundos}
               </span>
@@ -404,7 +404,7 @@ export const DailyCallModal: React.FC = () => {
               {modo === 'mini' && (
                 <button
                   onClick={() => { setPosicion({ x: 0, y: 0 }); setModo('flotante'); }}
-                  className="p-1.5 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
                   title="Expandir video"
                 >
                   <Maximize2 className="h-3.5 w-3.5" />
@@ -414,14 +414,14 @@ export const DailyCallModal: React.FC = () => {
                 <>
                   <button
                     onClick={() => { setPosicion({ x: 0, y: 0 }); setModo('mini'); }}
-                    className="p-1.5 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
                     title="Minimizar"
                   >
                     <Minus className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => { setPosicion({ x: 0, y: 0 }); setModo('maximizado'); }}
-                    className="p-1.5 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
                     title="Pantalla completa"
                   >
                     <Maximize2 className="h-3.5 w-3.5" />
@@ -431,7 +431,7 @@ export const DailyCallModal: React.FC = () => {
               {modo === 'maximizado' && (
                 <button
                   onClick={() => { setPosicion({ x: 0, y: 0 }); setModo('flotante'); }}
-                  className="p-1.5 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
                   title="Ventana flotante"
                 >
                   <Minimize2 className="h-3.5 w-3.5" />
@@ -453,7 +453,7 @@ export const DailyCallModal: React.FC = () => {
                   className={`p-1.5 rounded-lg transition-colors ${
                     grabando
                       ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 ring-1 ring-red-500/50'
-                      : 'hover:bg-white/10 text-gray-300 hover:text-white'
+                      : 'hover:bg-white/10 text-slate-300 hover:text-white'
                   }`}
                   title={grabando ? 'Detener grabación' : 'Grabar llamada (IA)'}
                 >
@@ -480,14 +480,14 @@ export const DailyCallModal: React.FC = () => {
             {cargando && modo !== 'mini' && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#1a1a2e] z-10 gap-3">
                 <div className="w-10 h-10 border-3 border-green-500 border-t-transparent rounded-full animate-spin mb-1" />
-                <p className="text-gray-400 text-sm">
+                <p className="text-slate-400 text-sm">
                   {llamadaUsuario
                     ? `Conectando con ${llamadaUsuario.displayName}...`
                     : 'Conectando a la llamada...'}
                 </p>
                 <button
                   onClick={handleReintentar}
-                  className="flex items-center gap-1.5 mt-3 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                  className="flex items-center gap-1.5 mt-3 px-3 py-1.5 text-xs text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
                 >
                   <RefreshCw className="h-3 w-3" />
                   Reintentar

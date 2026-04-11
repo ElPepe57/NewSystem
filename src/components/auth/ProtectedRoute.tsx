@@ -29,7 +29,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -44,8 +44,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando perfil...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Cargando perfil...</p>
         </div>
       </div>
     );
@@ -54,16 +54,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Si el usuario está desactivado
   if (!isActive) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
         <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
           <div className="text-red-500 text-5xl mb-4">⛔</div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Cuenta Desactivada</h2>
-          <p className="text-gray-600 mb-4">
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Cuenta Desactivada</h2>
+          <p className="text-slate-600 mb-4">
             Tu cuenta ha sido desactivada. Contacta al administrador para más información.
           </p>
           <button
             onClick={() => { useAuthStore.getState().logout(); }}
-            className="bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700"
+            className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"
           >
             Cerrar Sesión
           </button>
@@ -103,16 +103,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 // Componente de acceso denegado
 const AccessDenied: React.FC<{ fallbackPath: string }> = ({ fallbackPath }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-slate-100">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
         <div className="text-yellow-500 text-5xl mb-4">🔒</div>
-        <h2 className="text-xl font-bold text-gray-800 mb-2">Acceso Denegado</h2>
-        <p className="text-gray-600 mb-4">
+        <h2 className="text-xl font-bold text-slate-800 mb-2">Acceso Denegado</h2>
+        <p className="text-slate-600 mb-4">
           No tienes permisos para acceder a esta sección.
         </p>
         <a
           href={fallbackPath}
-          className="inline-block bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700"
+          className="inline-block bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"
         >
           Volver al Dashboard
         </a>

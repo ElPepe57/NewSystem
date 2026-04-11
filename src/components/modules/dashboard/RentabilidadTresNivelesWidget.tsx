@@ -124,11 +124,11 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
   if (loading) {
     return (
       <Card className="p-4 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/3 mb-4" />
+        <div className="h-4 bg-slate-200 rounded w-1/3 mb-4" />
         <div className="space-y-3">
-          <div className="h-16 bg-gray-200 rounded" />
-          <div className="h-16 bg-gray-200 rounded" />
-          <div className="h-16 bg-gray-200 rounded" />
+          <div className="h-16 bg-slate-200 rounded" />
+          <div className="h-16 bg-slate-200 rounded" />
+          <div className="h-16 bg-slate-200 rounded" />
         </div>
       </Card>
     );
@@ -138,10 +138,10 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
     return (
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-2">
-          <BarChart3 className="h-5 w-5 text-gray-400" />
-          <h3 className="font-semibold text-gray-700">Rentabilidad 3 Niveles</h3>
+          <BarChart3 className="h-5 w-5 text-slate-400" />
+          <h3 className="font-semibold text-slate-700">Rentabilidad 3 Niveles</h3>
         </div>
-        <p className="text-sm text-gray-500">Sin ventas en el mes actual para calcular.</p>
+        <p className="text-sm text-slate-500">Sin ventas en el mes actual para calcular.</p>
       </Card>
     );
   }
@@ -152,22 +152,22 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
     <Card className="p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-gray-600" />
-          <h3 className="font-semibold text-gray-900">Rentabilidad 3 Niveles</h3>
+          <BarChart3 className="h-5 w-5 text-slate-600" />
+          <h3 className="font-semibold text-slate-900">Rentabilidad 3 Niveles</h3>
         </div>
-        <span className="text-xs text-gray-400">{data.ventasCount} ventas del mes</span>
+        <span className="text-xs text-slate-400">{data.ventasCount} ventas del mes</span>
       </div>
 
       {/* Waterfall visual */}
       <div className="space-y-2">
         {/* Venta total */}
-        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
-          <span className="text-sm font-medium text-gray-700">Ventas</span>
-          <span className="text-sm font-bold text-gray-900">{formatCurrency(data.totalVentas)}</span>
+        <div className="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-lg border border-slate-200">
+          <span className="text-sm font-medium text-slate-700">Ventas</span>
+          <span className="text-sm font-bold text-slate-900">{formatCurrency(data.totalVentas)}</span>
         </div>
 
         {/* Cascada de costos */}
-        <div className="flex items-center justify-between px-3 py-1 text-xs text-gray-500">
+        <div className="flex items-center justify-between px-3 py-1 text-xs text-slate-500">
           <span>(-) CTRU productos</span>
           <span className="text-red-600">-{formatCurrency(data.costoProductos)}</span>
         </div>
@@ -177,16 +177,16 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
             <div className={`flex items-center justify-between px-3 py-2.5 rounded-lg border ${nivel.bgColor}`}>
               <div>
                 <div className={`text-sm font-semibold ${nivel.color}`}>{nivel.nombre}</div>
-                <div className="text-xs text-gray-500">{nivel.descripcion}</div>
+                <div className="text-xs text-slate-500">{nivel.descripcion}</div>
               </div>
               <div className="text-right">
                 <div className={`text-lg font-bold ${nivel.color}`}>
                   {nivel.valor < 0 ? '-' : ''}{formatCurrency(nivel.valor)}
                 </div>
-                <div className="text-xs text-gray-500 flex items-center gap-1 justify-end">
+                <div className="text-xs text-slate-500 flex items-center gap-1 justify-end">
                   {nivel.margen > 0 ? <TrendingUp className="h-3 w-3 text-green-500" /> :
                    nivel.margen < 0 ? <TrendingDown className="h-3 w-3 text-red-500" /> :
-                   <Minus className="h-3 w-3 text-gray-400" />}
+                   <Minus className="h-3 w-3 text-slate-400" />}
                   {nivel.margen.toFixed(1)}%
                 </div>
               </div>
@@ -194,13 +194,13 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
 
             {/* Deduccion entre niveles */}
             {i === 0 && data.costosVenta > 0 && (
-              <div className="flex items-center justify-between px-3 py-1 text-xs text-gray-500">
+              <div className="flex items-center justify-between px-3 py-1 text-xs text-slate-500">
                 <span>(-) Costos por venta</span>
                 <span className="text-red-600">-{formatCurrency(data.costosVenta)}</span>
               </div>
             )}
             {i === 1 && data.gastosFijos > 0 && (
-              <div className="flex items-center justify-between px-3 py-1 text-xs text-gray-500">
+              <div className="flex items-center justify-between px-3 py-1 text-xs text-slate-500">
                 <span>(-) Gastos fijos del mes</span>
                 <span className="text-red-600">-{formatCurrency(data.gastosFijos)}</span>
               </div>

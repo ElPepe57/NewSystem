@@ -119,7 +119,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           {!loading && (
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
               aria-label="Cerrar"
             >
               <X className="h-5 w-5" />
@@ -138,11 +138,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               <div className="flex-1 min-w-0">
                 <h3
                   id="confirm-dialog-title"
-                  className="text-lg font-semibold text-gray-900"
+                  className="text-lg font-semibold text-slate-900"
                 >
                   {title}
                 </h3>
-                <div className="mt-2 text-sm text-gray-600">
+                <div className="mt-2 text-sm text-slate-600">
                   {typeof message === 'string' ? <p>{message}</p> : message}
                 </div>
               </div>
@@ -150,7 +150,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </div>
 
           {/* Actions */}
-          <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
+          <div className="px-6 py-4 bg-slate-50 rounded-b-xl flex justify-end gap-3">
             <Button
               variant="secondary"
               onClick={onClose}

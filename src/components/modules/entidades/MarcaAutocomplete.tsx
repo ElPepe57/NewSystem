@@ -161,7 +161,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
       skincare: 'bg-rose-100 text-rose-800',
       cosmetica: 'bg-pink-100 text-pink-800',
       tecnologia: 'bg-purple-100 text-purple-800',
-      otro: 'bg-gray-100 text-gray-800'
+      otro: 'bg-slate-100 text-slate-800'
     };
     return colores[tipo] || colores.otro;
   };
@@ -172,9 +172,9 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           {buscando ? (
-            <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+            <Loader2 className="h-5 w-5 text-slate-400 animate-spin" />
           ) : (
-            <Tag className="h-5 w-5 text-gray-400" />
+            <Tag className="h-5 w-5 text-slate-400" />
           )}
         </div>
 
@@ -189,9 +189,9 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
           required={required}
           className={`
             block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
-            focus:ring-primary-500 focus:border-primary-500
-            ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-            ${value ? 'border-green-300 bg-green-50' : 'border-gray-300'}
+            focus:ring-teal-500 focus:border-teal-500
+            ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
+            ${value ? 'border-green-300 bg-green-50' : 'border-slate-300'}
           `}
         />
 
@@ -204,7 +204,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-600"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -214,7 +214,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-slate-400 hover:text-slate-600"
             >
               <X className="h-4 w-4" />
             </button>
@@ -224,7 +224,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
 
       {/* Dropdown de resultados */}
       {isOpen && !showCreateForm && (inputValue.length >= 2 || resultadosBusqueda.length > 0) && (
-        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 max-h-60 overflow-auto">
+        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-slate-200 max-h-60 overflow-auto">
           {resultadosBusqueda.length > 0 ? (
             <>
               {resultadosBusqueda.map((marca) => (
@@ -232,25 +232,25 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
                   key={marca.id}
                   type="button"
                   onClick={() => handleSelectMarca(marca)}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                  className="w-full px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-0"
                 >
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900">{marca.nombre}</span>
+                        <span className="font-medium text-slate-900">{marca.nombre}</span>
                         <span className={`px-1.5 py-0.5 text-xs rounded ${getColorByTipo(marca.tipoMarca)}`}>
                           {marca.tipoMarca}
                         </span>
                       </div>
                       {marca.paisOrigen && (
-                        <div className="flex items-center mt-1 text-xs text-gray-500">
+                        <div className="flex items-center mt-1 text-xs text-slate-500">
                           <Globe className="h-3 w-3 mr-1" />
                           {marca.paisOrigen}
                         </div>
                       )}
                     </div>
                     {marca.metricas.productosActivos > 0 && (
-                      <div className="flex items-center text-xs text-gray-400">
+                      <div className="flex items-center text-xs text-slate-400">
                         <Package className="h-3 w-3 mr-1" />
                         {marca.metricas.productosActivos}
                       </div>
@@ -264,7 +264,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
                 <button
                   type="button"
                   onClick={handleShowCreate}
-                  className="w-full px-4 py-3 text-left hover:bg-blue-50 text-primary-600 flex items-center"
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 text-teal-600 flex items-center"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Crear nueva marca "{inputValue}"
@@ -273,14 +273,14 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
             </>
           ) : !buscando && inputValue.length >= 2 ? (
             <div className="px-4 py-3">
-              <div className="text-sm text-gray-500 mb-2">
+              <div className="text-sm text-slate-500 mb-2">
                 No se encontraron marcas con "{inputValue}"
               </div>
               {allowCreate && (
                 <button
                   type="button"
                   onClick={handleShowCreate}
-                  className="w-full px-3 py-2 bg-primary-50 text-primary-600 rounded-md flex items-center justify-center hover:bg-primary-100"
+                  className="w-full px-3 py-2 bg-teal-50 text-teal-600 rounded-md flex items-center justify-center hover:bg-teal-100"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Crear nueva marca
@@ -293,13 +293,13 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
 
       {/* Formulario de creación rápida */}
       {showCreateForm && (
-        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 p-4">
+        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-slate-200 p-4">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-gray-900">Nueva Marca</h4>
+            <h4 className="font-medium text-slate-900">Nueva Marca</h4>
             <button
               type="button"
               onClick={() => setShowCreateForm(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-slate-400 hover:text-slate-600"
             >
               <X className="h-5 w-5" />
             </button>
@@ -329,27 +329,27 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Nombre de la Marca *
               </label>
               <input
                 type="text"
                 value={nuevaMarca.nombre || ''}
                 onChange={(e) => setNuevaMarca({ ...nuevaMarca, nombre: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
                 autoFocus
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   Tipo de Marca
                 </label>
                 <select
                   value={nuevaMarca.tipoMarca}
                   onChange={(e) => setNuevaMarca({ ...nuevaMarca, tipoMarca: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
                 >
                   <option value="suplementos">Suplementos</option>
                   <option value="skincare">Skincare</option>
@@ -361,28 +361,28 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   País de Origen
                 </label>
                 <input
                   type="text"
                   value={nuevaMarca.paisOrigen || ''}
                   onChange={(e) => setNuevaMarca({ ...nuevaMarca, paisOrigen: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
                   placeholder="USA, Alemania..."
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Descripción (opcional)
               </label>
               <input
                 type="text"
                 value={nuevaMarca.descripcion || ''}
                 onChange={(e) => setNuevaMarca({ ...nuevaMarca, descripcion: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
                 placeholder="Breve descripción de la marca"
               />
             </div>
@@ -391,7 +391,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
               <button
                 type="button"
                 onClick={() => setShowCreateForm(false)}
-                className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800"
+                className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800"
               >
                 Cancelar
               </button>
@@ -399,7 +399,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
                 type="button"
                 onClick={handleCreateMarca}
                 disabled={!nuevaMarca.nombre || creando}
-                className="px-3 py-1.5 bg-primary-600 text-white text-sm rounded-md hover:bg-primary-700 disabled:opacity-50"
+                className="px-3 py-1.5 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700 disabled:opacity-50"
               >
                 {creando ? 'Creando...' : 'Crear y Seleccionar'}
               </button>

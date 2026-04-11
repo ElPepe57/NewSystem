@@ -99,7 +99,7 @@ export const FiltroFechas: React.FC<FiltroFechasProps> = ({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
+    <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
         {/* Botones de periodo */}
         <div className="flex flex-wrap gap-1.5">
@@ -109,8 +109,8 @@ export const FiltroFechas: React.FC<FiltroFechasProps> = ({
               onClick={() => handlePeriodoClick(key)}
               className={`px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-lg transition-colors font-medium ${
                 periodoActivo === key
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-teal-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {label}
@@ -119,30 +119,30 @@ export const FiltroFechas: React.FC<FiltroFechasProps> = ({
         </div>
 
         {/* Rango activo */}
-        <div className="sm:ml-auto text-xs sm:text-sm text-gray-400">
+        <div className="sm:ml-auto text-xs sm:text-sm text-slate-400">
           {formatRango()}
         </div>
       </div>
 
       {/* Selector personalizado */}
       {mostrarCustom && (
-        <div className="mt-3 pt-3 border-t border-gray-200 flex flex-wrap items-end gap-2 sm:gap-4">
+        <div className="mt-3 pt-3 border-t border-slate-200 flex flex-wrap items-end gap-2 sm:gap-4">
           <div className="flex-1 min-w-[120px]">
-            <label className="block text-[10px] sm:text-xs text-gray-500 mb-1">Desde</label>
+            <label className="block text-[10px] sm:text-xs text-slate-500 mb-1">Desde</label>
             <input
               type="date"
               value={fechaInicio}
               onChange={(e) => setFechaInicio(e.target.value)}
-              className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
           <div className="flex-1 min-w-[120px]">
-            <label className="block text-[10px] sm:text-xs text-gray-500 mb-1">Hasta</label>
+            <label className="block text-[10px] sm:text-xs text-slate-500 mb-1">Hasta</label>
             <input
               type="date"
               value={fechaFin}
               onChange={(e) => setFechaFin(e.target.value)}
-              className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
           <div className="flex gap-1.5">

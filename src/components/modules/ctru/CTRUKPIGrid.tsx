@@ -81,18 +81,18 @@ export const CTRUKPIGrid: React.FC<CTRUKPIGridProps> = ({ resumen, productosDeta
       {kpis.map((kpi) => (
         <div
           key={kpi.label}
-          className={`bg-white rounded-xl border border-gray-100 shadow-sm ${kpi.borderColor} border-l-4 p-3 sm:p-4`}
+          className={`bg-white rounded-xl border border-slate-100 shadow-sm ${kpi.borderColor} border-l-4 p-3 sm:p-4`}
         >
-          <div className="text-[11px] uppercase tracking-wide text-gray-400 font-medium mb-1">
+          <div className="text-[11px] uppercase tracking-wide text-slate-400 font-medium mb-1">
             {kpi.label}
           </div>
           <div className={`text-xl sm:text-2xl font-bold ${kpi.valueColor} leading-tight`}>
             {kpi.value}
             {kpi.valueSuffix && (
-              <span className="text-sm font-medium text-gray-500">{kpi.valueSuffix}</span>
+              <span className="text-sm font-medium text-slate-500">{kpi.valueSuffix}</span>
             )}
           </div>
-          <div className="text-[11px] text-gray-400 mt-1.5 leading-snug">
+          <div className="text-[11px] text-slate-400 mt-1.5 leading-snug">
             {kpi.detail}
           </div>
         </div>

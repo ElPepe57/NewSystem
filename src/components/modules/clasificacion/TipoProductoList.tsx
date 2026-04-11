@@ -76,9 +76,9 @@ export function TipoProductoList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FlaskConical className="h-5 w-5 text-primary-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Tipos de Producto</h3>
-          <span className="text-sm text-gray-500">({tiposActivos.length})</span>
+          <FlaskConical className="h-5 w-5 text-teal-600" />
+          <h3 className="text-lg font-semibold text-slate-900">Tipos de Producto</h3>
+          <span className="text-sm text-slate-500">({tiposActivos.length})</span>
         </div>
         <Button onClick={() => setShowForm(true)} size="sm">
           <Plus className="h-4 w-4 mr-1" />
@@ -89,20 +89,20 @@ export function TipoProductoList() {
       {/* Busqueda y filtro */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Buscar tipo..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           />
         </div>
         {lineasActivas.length > 0 && (
           <select
             value={filtroLinea}
             onChange={(e) => setFiltroLinea(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           >
             <option value="">Todas las lineas</option>
             {lineasActivas.map(l => (
@@ -114,9 +114,9 @@ export function TipoProductoList() {
 
       {/* Lista */}
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Cargando...</div>
+        <div className="text-center py-8 text-slate-500">Cargando...</div>
       ) : tiposFiltrados.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-slate-500">
           {searchTerm ? 'No se encontraron tipos' : 'No hay tipos de producto creados'}
         </div>
       ) : (
@@ -124,25 +124,25 @@ export function TipoProductoList() {
           {tiposFiltrados.map(tipo => (
             <div
               key={tipo.id}
-              className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-primary-200 transition-colors cursor-pointer"
+              className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-teal-200 transition-colors cursor-pointer"
               onClick={() => setViewingTipo(tipo)}
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-gray-400">{tipo.codigo}</span>
-                  <span className="font-medium text-gray-900">{tipo.nombre}</span>
+                  <span className="text-xs font-mono text-slate-400">{tipo.codigo}</span>
+                  <span className="font-medium text-slate-900">{tipo.nombre}</span>
                 </div>
                 {tipo.alias && tipo.alias.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1">
                     {tipo.alias.map(alias => (
-                      <span key={alias} className="text-xs px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">
+                      <span key={alias} className="text-xs px-1.5 py-0.5 bg-slate-100 rounded text-slate-600">
                         {alias}
                       </span>
                     ))}
                   </div>
                 )}
                 {tipo.principioActivo && (
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-slate-500 mt-1">
                     Principio activo: {tipo.principioActivo}
                   </div>
                 )}
@@ -160,7 +160,7 @@ export function TipoProductoList() {
                       </span>
                     ))
                   ) : (
-                    <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                    <span className="text-xs px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">
                       Todas
                     </span>
                   )}
@@ -169,7 +169,7 @@ export function TipoProductoList() {
 
               <div className="flex items-center gap-4">
                 {/* Metricas */}
-                <div className="flex items-center gap-1 text-sm text-gray-500">
+                <div className="flex items-center gap-1 text-sm text-slate-500">
                   <Package className="h-4 w-4" />
                   <span>{tipo.metricas?.productosActivos || 0}</span>
                 </div>
@@ -178,21 +178,21 @@ export function TipoProductoList() {
                 <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => setViewingTipo(tipo)}
-                    className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
                     title="Ver Analytics"
                   >
                     <BarChart3 className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleEdit(tipo)}
-                    className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
+                    className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
                     title="Editar"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setDeletingTipo(tipo)}
-                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
                     title="Eliminar"
                   >
                     <Trash2 className="h-4 w-4" />

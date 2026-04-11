@@ -75,7 +75,7 @@ export const TipoCambioForm: React.FC<TipoCambioFormProps> = ({
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Obtener TC Paralelo (cuantoestaeldolar.pe)
               </Button>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Obtiene el tipo de cambio del mercado paralelo + SUNAT automáticamente
               </p>
             </div>
@@ -92,7 +92,7 @@ export const TipoCambioForm: React.FC<TipoCambioFormProps> = ({
                 <Download className="h-4 w-4 mr-2" />
                 Obtener TC de SUNAT
               </Button>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Obtiene el tipo de cambio oficial de SUNAT para la fecha seleccionada
               </p>
             </div>
@@ -124,14 +124,14 @@ export const TipoCambioForm: React.FC<TipoCambioFormProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Fuente
           </label>
           <select
             name="fuente"
             value={formData.fuente}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="manual">Manual</option>
             <option value="sunat">SUNAT</option>

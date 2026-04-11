@@ -123,14 +123,14 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
     >
       <div className="space-y-6">
         {/* Info del Producto */}
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-slate-50 rounded-lg p-4">
           <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-              <Megaphone className="h-6 w-6 text-primary-600" />
+            <div className="h-12 w-12 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
+              <Megaphone className="h-6 w-6 text-teal-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="font-mono text-lg font-bold text-gray-900">{producto.sku}</h4>
-              <p className="text-sm text-gray-600">{producto.marca} · {producto.nombreComercial}</p>
+              <h4 className="font-mono text-lg font-bold text-slate-900">{producto.sku}</h4>
+              <p className="text-sm text-slate-600">{producto.marca} · {producto.nombreComercial}</p>
               <div className="flex items-center gap-3 mt-2">
                 <Badge variant="default" size="sm">
                   {unidadesAfectadas.length} unidades
@@ -148,7 +148,7 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
 
         {/* Selector de Descuento */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Porcentaje de Descuento
           </label>
 
@@ -160,8 +160,8 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
                 onClick={() => setPorcentajeDescuento(d)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   porcentajeDescuento === d
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-teal-600 text-white'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 {d}%
@@ -177,20 +177,20 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
               max="70"
               value={porcentajeDescuento}
               onChange={(e) => setPorcentajeDescuento(Number(e.target.value))}
-              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
+              className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
             />
-            <div className="flex items-center gap-1 bg-primary-100 rounded-lg px-3 py-2">
-              <Percent className="h-4 w-4 text-primary-600" />
-              <span className="text-xl font-bold text-primary-700">{porcentajeDescuento}</span>
+            <div className="flex items-center gap-1 bg-teal-100 rounded-lg px-3 py-2">
+              <Percent className="h-4 w-4 text-teal-600" />
+              <span className="text-xl font-bold text-teal-700">{porcentajeDescuento}</span>
             </div>
           </div>
         </div>
 
         {/* Cálculo de Valores */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
-            <div className="text-sm text-gray-500 mb-1">Valor Original</div>
-            <div className="text-lg font-bold text-gray-900 line-through decoration-red-400">
+          <div className="bg-slate-50 rounded-lg p-4 text-center">
+            <div className="text-sm text-slate-500 mb-1">Valor Original</div>
+            <div className="text-lg font-bold text-slate-900 line-through decoration-red-400">
               {formatCurrency(valorOriginal)}
             </div>
           </div>
@@ -212,18 +212,18 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
         {/* Fechas y Motivo */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Fecha Inicio
             </label>
             <input
               type="date"
               value={fechaInicio}
               onChange={(e) => setFechaInicio(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Fecha Fin
             </label>
             <input
@@ -231,17 +231,17 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
               value={fechaFin}
               onChange={(e) => setFechaFin(e.target.value)}
               min={fechaInicio}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Motivo
             </label>
             <select
               value={motivo}
               onChange={(e) => setMotivo(e.target.value as any)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             >
               <option value="vencimiento">Próximo a vencer</option>
               <option value="liquidacion">Liquidación de stock</option>
@@ -253,7 +253,7 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
 
         {/* Notas */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Notas (opcional)
           </label>
           <textarea
@@ -261,7 +261,7 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
             onChange={(e) => setNotas(e.target.value)}
             placeholder="Ej: Publicar en redes sociales, ofrecer a clientes frecuentes..."
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
         </div>
 

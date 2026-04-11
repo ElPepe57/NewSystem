@@ -102,7 +102,7 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
             {sugerenciasStock.length > 5 && (
               <button
                 onClick={onVerTodasSugerencias}
-                className="w-full p-3 text-center text-sm text-primary-600 hover:bg-primary-50 font-medium"
+                className="w-full p-3 text-center text-sm text-teal-600 hover:bg-teal-50 font-medium"
               >
                 Ver todas ({sugerenciasStock.length})
               </button>
@@ -169,7 +169,7 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
             {cotizacionesConfirmadas.length > 5 && (
               <button
                 onClick={onVerTodasCotizaciones}
-                className="w-full p-3 text-center text-sm text-primary-600 hover:bg-primary-50 font-medium"
+                className="w-full p-3 text-center text-sm text-teal-600 hover:bg-teal-50 font-medium"
               >
                 Ver todas ({cotizacionesConfirmadas.length})
               </button>

@@ -173,10 +173,10 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center space-x-3">
-            <Package className="h-8 w-8 text-primary-600" />
+            <Package className="h-8 w-8 text-teal-600" />
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{orden.numeroOrden}</h2>
-              <p className="text-sm text-gray-600">{orden.nombreProveedor}</p>
+              <h2 className="text-2xl font-bold text-slate-900">{orden.numeroOrden}</h2>
+              <p className="text-sm text-slate-600">{orden.nombreProveedor}</p>
             </div>
           </div>
         </div>
@@ -191,7 +191,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       </div>
 
       {/* Timeline de Estado */}
-      <div className="bg-gray-50 p-4 rounded-lg">
+      <div className="bg-slate-50 p-4 rounded-lg">
         <StatusTimeline
           steps={timelineSteps}
           nextAction={nextAction}
@@ -203,51 +203,51 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
       {/* Información General */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-slate-50 p-4 rounded-lg">
           <div className="flex items-center mb-2">
-            <Calendar className="h-5 w-5 text-gray-600 mr-2" />
-            <h4 className="font-semibold text-gray-900">Fechas</h4>
+            <Calendar className="h-5 w-5 text-slate-600 mr-2" />
+            <h4 className="font-semibold text-slate-900">Fechas</h4>
           </div>
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Creación:</span>
-              <span className="text-gray-900">{formatDate(orden.fechaCreacion)}</span>
+              <span className="text-slate-600">Creación:</span>
+              <span className="text-slate-900">{formatDate(orden.fechaCreacion)}</span>
             </div>
             {orden.fechaEnviada && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Enviada:</span>
-                <span className="text-gray-900">{formatDate(orden.fechaEnviada)}</span>
+                <span className="text-slate-600">Enviada:</span>
+                <span className="text-slate-900">{formatDate(orden.fechaEnviada)}</span>
               </div>
             )}
             {orden.fechaPago && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Pagada:</span>
-                <span className="text-gray-900">{formatDate(orden.fechaPago)}</span>
+                <span className="text-slate-600">Pagada:</span>
+                <span className="text-slate-900">{formatDate(orden.fechaPago)}</span>
               </div>
             )}
             {orden.fechaPrimeraRecepcion && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Primera recepción:</span>
-                <span className="text-gray-900">{formatDate(orden.fechaPrimeraRecepcion)}</span>
+                <span className="text-slate-600">Primera recepción:</span>
+                <span className="text-slate-900">{formatDate(orden.fechaPrimeraRecepcion)}</span>
               </div>
             )}
             {orden.fechaRecibida && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Recibida completa:</span>
-                <span className="text-gray-900">{formatDate(orden.fechaRecibida)}</span>
+                <span className="text-slate-600">Recibida completa:</span>
+                <span className="text-slate-900">{formatDate(orden.fechaRecibida)}</span>
               </div>
             )}
           </div>
         </div>
 
-        <div className="bg-primary-50 p-4 rounded-lg">
+        <div className="bg-teal-50 p-4 rounded-lg">
           <div className="flex items-center mb-2">
-            <DollarSign className="h-5 w-5 text-primary-600 mr-2" />
-            <h4 className="font-semibold text-gray-900">Totales</h4>
+            <DollarSign className="h-5 w-5 text-teal-600 mr-2" />
+            <h4 className="font-semibold text-slate-900">Totales</h4>
           </div>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal Productos:</span>
+              <span className="text-slate-600">Subtotal Productos:</span>
               <span className="font-semibold">${orden.subtotalUSD.toFixed(2)}</span>
             </div>
             {(orden.impuestoCompraUSD ?? orden.impuestoUSD) && (orden.impuestoCompraUSD ?? orden.impuestoUSD)! > 0 && (
@@ -258,13 +258,13 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             )}
             {(orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD) && (orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD)! > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Gastos de Envío:</span>
+                <span className="text-slate-600">Gastos de Envío:</span>
                 <span>${(orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD)!.toFixed(2)}</span>
               </div>
             )}
             {(orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD) && (orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD)! > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Otros Gastos:</span>
+                <span className="text-slate-600">Otros Gastos:</span>
                 <span>${(orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD)!.toFixed(2)}</span>
               </div>
             )}
@@ -274,22 +274,22 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 <span className="font-medium">-${orden.descuentoUSD.toFixed(2)}</span>
               </div>
             )}
-            <div className="border-t border-primary-200 pt-2">
+            <div className="border-t border-teal-200 pt-2">
               <div className="flex justify-between">
-                <span className="font-semibold text-gray-900">Total USD:</span>
-                <span className="text-xl font-bold text-primary-600">${orden.totalUSD.toFixed(2)}</span>
+                <span className="font-semibold text-slate-900">Total USD:</span>
+                <span className="text-xl font-bold text-teal-600">${orden.totalUSD.toFixed(2)}</span>
               </div>
             </div>
             {orden.totalPEN && (
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Total PEN (TC {orden.tcPago?.toFixed(3)}):</span>
-                <span className="text-lg font-semibold text-gray-900">S/ {orden.totalPEN.toFixed(2)}</span>
+                <span className="text-sm text-slate-600">Total PEN (TC {orden.tcPago?.toFixed(3)}):</span>
+                <span className="text-lg font-semibold text-slate-900">S/ {orden.totalPEN.toFixed(2)}</span>
               </div>
             )}
             {/* Indicador FX: tcReferencial vs tcPago */}
             {orden.tcReferencial && orden.tcPago && orden.tcReferencial !== orden.tcPago && (
-              <div className="flex justify-between items-center text-xs bg-gray-50 rounded px-2 py-1">
-                <span className="text-gray-500">TC Ref: {orden.tcReferencial.toFixed(3)} → Pago: {orden.tcPago.toFixed(3)}</span>
+              <div className="flex justify-between items-center text-xs bg-slate-50 rounded px-2 py-1">
+                <span className="text-slate-500">TC Ref: {orden.tcReferencial.toFixed(3)} → Pago: {orden.tcPago.toFixed(3)}</span>
                 <span className={`font-medium ${orden.tcPago > orden.tcReferencial ? 'text-red-600' : 'text-green-600'}`}>
                   {orden.tcPago > orden.tcReferencial ? '+' : ''}{((orden.tcPago - orden.tcReferencial) / orden.tcReferencial * 100).toFixed(2)}% FX
                 </span>
@@ -297,7 +297,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             )}
             {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-600">Diferencia Cambiaria:</span>
+                <span className="text-slate-600">Diferencia Cambiaria:</span>
                 <span className={`font-semibold flex items-center ${
                   orden.diferenciaCambiaria > 0 ? 'text-danger-600' : 'text-success-600'
                 }`}>
@@ -312,7 +312,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
       {/* Productos con Costo Real */}
       <div>
-        <h4 className="font-semibold text-gray-900 mb-3">Productos ({orden.productos.length})</h4>
+        <h4 className="font-semibold text-slate-900 mb-3">Productos ({orden.productos.length})</h4>
 
         {/* Calcular desglose de costos por producto */}
         {(() => {
@@ -337,19 +337,19 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           const hasDescuento = descuentoTotal > 0;
 
           return (
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+            <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Producto</th>
-                    <th className="px-2 py-2 text-center text-xs font-medium text-gray-500">Cant.</th>
-                    <th className="px-2 py-2 text-right text-xs font-medium text-gray-500">
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Producto</th>
+                    <th className="px-2 py-2 text-center text-xs font-medium text-slate-500">Cant.</th>
+                    <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">
                       <div>Precio Base</div>
-                      <div className="text-[10px] font-normal text-gray-400">unitario</div>
+                      <div className="text-[10px] font-normal text-slate-400">unitario</div>
                     </th>
-                    <th className="px-2 py-2 text-right text-xs font-medium text-gray-500">
+                    <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">
                       <div>Desglose</div>
-                      <div className="text-[10px] font-normal text-gray-400">por unidad</div>
+                      <div className="text-[10px] font-normal text-slate-400">por unidad</div>
                     </th>
                     <th className="px-3 py-2 text-right text-xs font-medium text-emerald-700 bg-emerald-50">
                       <div>Costo Real</div>
@@ -357,7 +357,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200">
                   {orden.productos.map((producto, index) => {
                     // Proporcional al costo base de este producto
                     const proporcion = costoBaseTotal > 0 ? producto.costoUnitario / costoBaseTotal : 0;
@@ -369,25 +369,25 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     const costoRealUnitarioPEN = costoRealUnitario * tc;
 
                     return (
-                      <tr key={index} className="hover:bg-gray-50">
+                      <tr key={index} className="hover:bg-slate-50">
                         <td className="px-3 py-3">
-                          <div className="text-sm font-medium text-gray-900">{producto.marca} {producto.nombreComercial}</div>
-                          <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-gray-500 mt-0.5">
-                            <span className="font-mono text-gray-400">{producto.sku}</span>
+                          <div className="text-sm font-medium text-slate-900">{producto.marca} {producto.nombreComercial}</div>
+                          <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-slate-500 mt-0.5">
+                            <span className="font-mono text-slate-400">{producto.sku}</span>
                             {getDescripcionProducto(producto) && (
                               <>
-                                <span className="text-gray-300">·</span>
+                                <span className="text-slate-300">·</span>
                                 <span>{getDescripcionProducto(producto)}</span>
                               </>
                             )}
                           </div>
                         </td>
                         <td className="px-2 py-3 text-center">
-                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-sm font-semibold text-gray-700">
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-sm font-semibold text-slate-700">
                             {producto.cantidad}
                           </span>
                         </td>
-                        <td className="px-2 py-3 text-right text-sm text-gray-600">
+                        <td className="px-2 py-3 text-right text-sm text-slate-600">
                           ${producto.costoUnitario.toFixed(2)}
                         </td>
                         <td className="px-2 py-3 text-right">
@@ -399,13 +399,13 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                               <div className="text-blue-600">+${envioPorUd.toFixed(2)} <span className="text-[9px] text-blue-400">envío</span></div>
                             )}
                             {hasOtros && (
-                              <div className="text-gray-500">+${otrosPorUd.toFixed(2)} <span className="text-[9px] text-gray-400">otros</span></div>
+                              <div className="text-slate-500">+${otrosPorUd.toFixed(2)} <span className="text-[9px] text-slate-400">otros</span></div>
                             )}
                             {hasDescuento && (
                               <div className="text-emerald-600">-${descuentoPorUd.toFixed(2)} <span className="text-[9px] text-emerald-500">desc.</span></div>
                             )}
                             {!hasImpuesto && !hasEnvio && !hasOtros && !hasDescuento && (
-                              <div className="text-gray-400">-</div>
+                              <div className="text-slate-400">-</div>
                             )}
                           </div>
                         </td>
@@ -417,16 +417,16 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     );
                   })}
                 </tbody>
-                <tfoot className="bg-gray-50 border-t-2 border-gray-300">
+                <tfoot className="bg-slate-50 border-t-2 border-slate-300">
                   <tr>
-                    <td className="px-3 py-2 text-sm font-medium text-gray-700">Total</td>
-                    <td className="px-2 py-2 text-center text-sm font-semibold text-gray-700">{totalUnidades}</td>
-                    <td className="px-2 py-2 text-right text-sm font-medium text-gray-700">${orden.subtotalUSD.toFixed(2)}</td>
+                    <td className="px-3 py-2 text-sm font-medium text-slate-700">Total</td>
+                    <td className="px-2 py-2 text-center text-sm font-semibold text-slate-700">{totalUnidades}</td>
+                    <td className="px-2 py-2 text-right text-sm font-medium text-slate-700">${orden.subtotalUSD.toFixed(2)}</td>
                     <td className="px-2 py-2 text-right">
                       <div className="space-y-0.5 text-[11px]">
                         {hasImpuesto && <div className="text-amber-700 font-medium">+${impuestoTotal.toFixed(2)} <span className="text-[9px]">tax</span></div>}
                         {hasEnvio && <div className="text-blue-700 font-medium">+${envioTotal.toFixed(2)} <span className="text-[9px]">envío</span></div>}
-                        {hasOtros && <div className="text-gray-600 font-medium">+${otrosTotal.toFixed(2)} <span className="text-[9px]">otros</span></div>}
+                        {hasOtros && <div className="text-slate-600 font-medium">+${otrosTotal.toFixed(2)} <span className="text-[9px]">otros</span></div>}
                         {hasDescuento && <div className="text-emerald-700 font-medium">-${descuentoTotal.toFixed(2)} <span className="text-[9px]">desc.</span></div>}
                       </div>
                     </td>
@@ -456,20 +456,20 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
       {/* Tracking */}
       {orden.numeroTracking && (
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-slate-50 p-4 rounded-lg">
           <div className="flex items-center mb-2">
-            <Truck className="h-5 w-5 text-gray-600 mr-2" />
-            <h4 className="font-semibold text-gray-900">Información de Envío</h4>
+            <Truck className="h-5 w-5 text-slate-600 mr-2" />
+            <h4 className="font-semibold text-slate-900">Información de Envío</h4>
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-gray-600">Tracking:</span>
-              <span className="ml-2 font-mono text-gray-900">{orden.numeroTracking}</span>
+              <span className="text-slate-600">Tracking:</span>
+              <span className="ml-2 font-mono text-slate-900">{orden.numeroTracking}</span>
             </div>
             {orden.courier && (
               <div>
-                <span className="text-gray-600">Courier:</span>
-                <span className="ml-2 text-gray-900">{orden.courier}</span>
+                <span className="text-slate-600">Courier:</span>
+                <span className="ml-2 text-slate-900">{orden.courier}</span>
               </div>
             )}
           </div>
@@ -480,21 +480,21 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       {(orden.almacenDestino || orden.observaciones) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {orden.almacenDestino && (
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="bg-slate-50 p-4 rounded-lg">
               <div className="flex items-center mb-2">
-                <MapPin className="h-5 w-5 text-gray-600 mr-2" />
-                <h4 className="font-semibold text-gray-900">Almacén Destino</h4>
+                <MapPin className="h-5 w-5 text-slate-600 mr-2" />
+                <h4 className="font-semibold text-slate-900">Almacén Destino</h4>
               </div>
-              <p className="text-gray-900">
+              <p className="text-slate-900">
                 {orden.nombreAlmacenDestino || orden.almacenDestino}
               </p>
             </div>
           )}
           
           {orden.observaciones && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-gray-900 mb-2">Observaciones</h4>
-              <p className="text-sm text-gray-700">{orden.observaciones}</p>
+            <div className="bg-slate-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-slate-900 mb-2">Observaciones</h4>
+              <p className="text-sm text-slate-700">{orden.observaciones}</p>
             </div>
           )}
         </div>
@@ -504,12 +504,12 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       {(orden.estado === 'recibida_parcial' || tieneRecepcionesParciales) && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="font-semibold text-gray-900">Progreso de Recepción</h4>
-            <span className="text-sm font-medium text-gray-600">
+            <h4 className="font-semibold text-slate-900">Progreso de Recepción</h4>
+            <span className="text-sm font-medium text-slate-600">
               {totalRecibido}/{totalOrdenado} unidades ({totalOrdenado > 0 ? ((totalRecibido / totalOrdenado) * 100).toFixed(0) : 0}%)
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-slate-200 rounded-full h-2">
             <div
               className={`h-2 rounded-full transition-all ${totalRecibido >= totalOrdenado ? 'bg-green-500' : 'bg-amber-500'}`}
               style={{ width: `${totalOrdenado > 0 ? (totalRecibido / totalOrdenado) * 100 : 0}%` }}
@@ -521,14 +521,14 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               const pct = p.cantidad > 0 ? (recibido / p.cantidad) * 100 : 0;
               return (
                 <div key={p.productoId} className="flex items-center gap-3 text-sm">
-                  <div className="w-40 truncate text-gray-700" title={p.nombreComercial}>{p.nombreComercial}</div>
-                  <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                  <div className="w-40 truncate text-slate-700" title={p.nombreComercial}>{p.nombreComercial}</div>
+                  <div className="flex-1 bg-slate-200 rounded-full h-1.5">
                     <div
                       className={`h-1.5 rounded-full ${pct >= 100 ? 'bg-green-500' : 'bg-amber-500'}`}
                       style={{ width: `${Math.min(pct, 100)}%` }}
                     />
                   </div>
-                  <div className="w-24 text-right text-gray-600">
+                  <div className="w-24 text-right text-slate-600">
                     <span className={recibido >= p.cantidad ? 'text-green-600 font-medium' : ''}>
                       {recibido}/{p.cantidad}
                     </span>
@@ -543,10 +543,10 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             <div className="border rounded-lg">
               <button
                 onClick={() => setShowHistory(!showHistory)}
-                className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gray-500" />
+                  <Clock className="h-4 w-4 text-slate-500" />
                   <span>Historial de recepciones ({orden.recepcionesParciales.length})</span>
                 </div>
                 {showHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -556,17 +556,17 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                   {orden.recepcionesParciales.map(rec => (
                     <div key={rec.id} className="px-4 py-3 text-sm">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-gray-900">Recepción #{rec.numero}</span>
-                        <span className="text-xs text-gray-500">{formatDate(rec.fecha)}</span>
+                        <span className="font-medium text-slate-900">Recepción #{rec.numero}</span>
+                        <span className="text-xs text-slate-500">{formatDate(rec.fecha)}</span>
                       </div>
-                      <div className="text-gray-600">
+                      <div className="text-slate-600">
                         {rec.totalUnidadesRecepcion} unidades: {rec.productosRecibidos.map(pr => {
                           const prod = orden.productos.find(p => p.productoId === pr.productoId);
                           return `${prod?.nombreComercial || pr.productoId} (${pr.cantidadRecibida})`;
                         }).join(', ')}
                       </div>
                       {rec.observaciones && (
-                        <div className="text-xs text-gray-500 mt-1">{rec.observaciones}</div>
+                        <div className="text-xs text-slate-500 mt-1">{rec.observaciones}</div>
                       )}
                     </div>
                   ))}

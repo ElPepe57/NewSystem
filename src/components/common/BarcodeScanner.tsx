@@ -195,15 +195,15 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
     <div className={`${compact ? 'space-y-2' : 'space-y-3'}`}>
       {/* Mode tabs - touch friendly min height */}
       {showModeTabs && (
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
           <button
             type="button"
             onClick={() => setActiveMode('camera')}
             disabled={disabled}
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-1.5 rounded-md text-sm font-medium transition-all ${
               activeMode === 'camera'
-                ? 'bg-white text-primary-700 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white text-teal-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             <Camera className="h-4 w-4" />
@@ -215,8 +215,8 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
             disabled={disabled}
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-1.5 rounded-md text-sm font-medium transition-all ${
               activeMode === 'manual'
-                ? 'bg-white text-primary-700 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white text-teal-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             <Keyboard className="h-4 w-4" />
@@ -230,14 +230,14 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
       {activeMode === 'camera' && (
         <div className="relative">
           {cameraError ? (
-            <div className={`flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg ${compact ? 'p-4' : 'p-5 sm:p-8'}`}>
+            <div className={`flex flex-col items-center justify-center bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg ${compact ? 'p-4' : 'p-5 sm:p-8'}`}>
               <AlertCircle className="h-7 w-7 sm:h-8 sm:w-8 text-amber-500 mb-2" />
-              <p className="text-xs sm:text-sm text-gray-600 text-center mb-3 px-2">{cameraError}</p>
+              <p className="text-xs sm:text-sm text-slate-600 text-center mb-3 px-2">{cameraError}</p>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => { setCameraError(''); startCamera(); }}
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-3 sm:py-1.5 text-sm font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-3 sm:py-1.5 text-sm font-medium text-teal-700 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors"
                 >
                   <RefreshCw className="h-4 w-4" />
                   Reintentar
@@ -246,7 +246,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
                   <button
                     type="button"
                     onClick={() => setActiveMode('manual')}
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-3 sm:py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-3 sm:py-1.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
                   >
                     <Keyboard className="h-4 w-4" />
                     Modo Manual
@@ -280,7 +280,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
           <div className="flex gap-2">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <ScanLine className="h-4 w-4 text-gray-400" />
+                <ScanLine className="h-4 w-4 text-slate-400" />
               </div>
               <input
                 ref={manualInputRef}
@@ -293,10 +293,10 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
                 disabled={disabled}
                 autoFocus={autoFocus}
                 className={`
-                  block w-full pl-9 pr-3 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base sm:text-sm
-                  focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                  placeholder:text-gray-400
-                  ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+                  block w-full pl-9 pr-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm
+                  focus:ring-2 focus:ring-teal-500 focus:border-teal-500
+                  placeholder:text-slate-400
+                  ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
                 `}
               />
             </div>
@@ -304,12 +304,12 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
               type="button"
               onClick={handleManualSubmit}
               disabled={disabled || manualValue.trim().length < MIN_BARCODE_LENGTH}
-              className="px-4 py-3 sm:py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-3 sm:py-2.5 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Buscar
             </button>
           </div>
-          <p className="mt-1.5 text-xs text-gray-400">
+          <p className="mt-1.5 text-xs text-slate-400">
             <span className="hidden sm:inline">Conecta un lector USB/Bluetooth o escribe el codigo manualmente y presiona Enter</span>
             <span className="sm:hidden">Escribe el codigo y presiona Buscar</span>
           </p>

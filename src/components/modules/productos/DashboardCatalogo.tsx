@@ -29,21 +29,21 @@ function buildDistribucion(items: string[]): Distribucion[] {
 }
 
 function DistribucionChart({ data, color, emptyMessage }: { data: Distribucion[]; color: string; emptyMessage: string }) {
-  if (data.length === 0) return <p className="text-xs text-gray-400 italic">{emptyMessage}</p>;
+  if (data.length === 0) return <p className="text-xs text-slate-400 italic">{emptyMessage}</p>;
   const max = Math.max(...data.map(d => d.count));
   return (
     <div className="space-y-1.5">
       {data.slice(0, 10).map(d => (
         <div key={d.label} className="flex items-center gap-2">
-          <span className="text-xs text-gray-600 w-28 truncate text-right">{d.label}</span>
-          <div className="flex-1 bg-gray-100 rounded-full h-4 overflow-hidden">
+          <span className="text-xs text-slate-600 w-28 truncate text-right">{d.label}</span>
+          <div className="flex-1 bg-slate-100 rounded-full h-4 overflow-hidden">
             <div
               className={`h-full rounded-full ${color}`}
               style={{ width: `${(d.count / max) * 100}%` }}
             />
           </div>
-          <span className="text-xs font-medium text-gray-700 w-8 text-right">{d.count}</span>
-          <span className="text-[10px] text-gray-400 w-10 text-right">{d.porcentaje}%</span>
+          <span className="text-xs font-medium text-slate-700 w-8 text-right">{d.count}</span>
+          <span className="text-[10px] text-slate-400 w-10 text-right">{d.porcentaje}%</span>
         </div>
       ))}
     </div>
@@ -128,12 +128,12 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
     <Modal isOpen={isOpen} onClose={onClose} title="Inteligencia de Catálogo" size="lg">
       <div className="space-y-4">
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-gray-200 pb-2">
+        <div className="flex gap-2 border-b border-slate-200 pb-2">
           <button
             type="button"
             onClick={() => setTab('SUP')}
             className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-              tab === 'SUP' ? 'bg-blue-100 text-blue-800 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
+              tab === 'SUP' ? 'bg-blue-100 text-blue-800 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             Suplementos ({productosSUP.length})
@@ -142,7 +142,7 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
             type="button"
             onClick={() => setTab('SKC')}
             className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-              tab === 'SKC' ? 'bg-pink-100 text-pink-800 border-b-2 border-pink-600' : 'text-gray-500 hover:text-gray-700'
+              tab === 'SKC' ? 'bg-pink-100 text-pink-800 border-b-2 border-pink-600' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             Skincare ({productosSKC.length})
@@ -184,19 +184,19 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
           {tab === 'SUP' ? (
             <>
               <div>
-                <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Presentación
                 </h4>
                 <DistribucionChart data={supPorPresentacion} color="bg-blue-500" emptyMessage="Sin datos" />
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Marca
                 </h4>
                 <DistribucionChart data={supPorMarca} color="bg-purple-500" emptyMessage="Sin datos" />
               </div>
               <div className="sm:col-span-2">
-                <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Categoría
                 </h4>
                 <DistribucionChart data={supPorCategoria} color="bg-green-500" emptyMessage="Sin categorías asignadas" />
@@ -205,25 +205,25 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
           ) : (
             <>
               <div>
-                <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Tipo
                 </h4>
                 <DistribucionChart data={skcPorTipo} color="bg-pink-500" emptyMessage="Sin productos SKC" />
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Ingrediente
                 </h4>
                 <DistribucionChart data={skcPorIngrediente} color="bg-green-500" emptyMessage="Sin ingredientes" />
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Marca
                 </h4>
                 <DistribucionChart data={skcPorMarca} color="bg-purple-500" emptyMessage="Sin datos" />
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Línea Producto
                 </h4>
                 <DistribucionChart data={skcPorLineaProducto} color="bg-blue-500" emptyMessage="Sin líneas asignadas" />

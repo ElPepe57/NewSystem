@@ -88,7 +88,7 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
 
   if (alertas.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-6">
+      <div className="text-center text-slate-500 py-6">
         <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
         <p>Sin alertas</p>
         <p className="text-xs mt-1">Las alertas se generan automáticamente al guardar</p>
@@ -116,7 +116,7 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
           );
         })}
         {alertasNoLeidas.length > 3 && (
-          <span className="text-xs text-gray-500">+{alertasNoLeidas.length - 3}</span>
+          <span className="text-xs text-slate-500">+{alertasNoLeidas.length - 3}</span>
         )}
       </div>
     );
@@ -129,7 +129,7 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-slate-700">
               {alertasNoLeidas.length} alerta{alertasNoLeidas.length > 1 ? 's' : ''} activa{alertasNoLeidas.length > 1 ? 's' : ''}
             </span>
           </div>
@@ -171,7 +171,7 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
                     <span className={`text-xs font-medium px-2 py-0.5 rounded ${styles.badge}`}>
                       {getTipoLabel(alerta.tipo)}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-slate-500">
                       {formatFecha(alerta.fecha)}
                     </span>
                   </div>
@@ -184,7 +184,7 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
                   <button
                     type="button"
                     onClick={() => onMarcarLeida(alerta.id)}
-                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
                     title="Marcar como leída"
                   >
                     <X className="h-4 w-4" />
@@ -199,7 +199,7 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
       {/* Alertas leídas (colapsadas) */}
       {alertasLeidas.length > 0 && (
         <details className="group">
-          <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
+          <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-700">
             {alertasLeidas.length} alerta{alertasLeidas.length > 1 ? 's' : ''} anterior{alertasLeidas.length > 1 ? 'es' : ''}
           </summary>
           <div className="mt-2 space-y-2 opacity-60">
@@ -209,16 +209,16 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
               return (
                 <div
                   key={alerta.id}
-                  className="rounded-lg border border-gray-200 bg-gray-50 p-2"
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-2"
                 >
                   <div className="flex items-center gap-2">
                     <span className={`${styles.icon}`}>
                       {getAlertaIcon(alerta.tipo)}
                     </span>
-                    <span className="text-xs text-gray-600 flex-1 truncate">
+                    <span className="text-xs text-slate-600 flex-1 truncate">
                       {alerta.mensaje}
                     </span>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-slate-400">
                       {formatFecha(alerta.fecha)}
                     </span>
                   </div>

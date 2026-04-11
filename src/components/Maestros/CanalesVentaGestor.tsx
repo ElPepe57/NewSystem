@@ -174,7 +174,7 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
   if (loading && canales.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -254,11 +254,11 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
       {/* Lista de canales */}
       {canalesVisibles.length === 0 ? (
         <Card className="p-8 text-center">
-          <Tag className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <Tag className="h-12 w-12 mx-auto text-slate-300 mb-4" />
+          <h3 className="text-lg font-medium text-slate-900 mb-2">
             {busqueda ? 'Sin resultados' : 'No hay canales de venta'}
           </h3>
-          <p className="text-gray-500 mb-4">
+          <p className="text-slate-500 mb-4">
             {busqueda
               ? 'No se encontraron canales con ese criterio de búsqueda'
               : 'Crea tu primer canal de venta para comenzar'
@@ -290,8 +290,8 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
                     {renderIcon(canal.icono, canal.color)}
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">{canal.nombre}</h4>
-                    <p className="text-xs text-gray-500">{canal.codigo}</p>
+                    <h4 className="font-medium text-slate-900">{canal.nombre}</h4>
+                    <p className="text-xs text-slate-500">{canal.codigo}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -308,12 +308,12 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
               </div>
 
               {canal.descripcion && (
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                <p className="text-sm text-slate-600 mb-3 line-clamp-2">
                   {canal.descripcion}
                 </p>
               )}
 
-              <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+              <div className="flex items-center gap-4 text-sm text-slate-500 mb-3">
                 {(canal.comisionPorcentaje || 0) > 0 && (
                   <div className="flex items-center gap-1">
                     <Percent className="h-4 w-4" />

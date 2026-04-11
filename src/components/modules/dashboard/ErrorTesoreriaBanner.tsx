@@ -121,9 +121,9 @@ export const ErrorTesoreriaBanner: React.FC = () => {
                 <span className="text-xs font-medium text-red-700 bg-red-100 px-1.5 py-0.5 rounded">
                   {tipoLabel[err.tipo]}
                 </span>
-                <span className="text-sm font-medium text-gray-800">{err.numero}</span>
+                <span className="text-sm font-medium text-slate-800">{err.numero}</span>
               </div>
-              <span className="text-xs text-gray-500 max-w-[300px] truncate">{err.mensaje}</span>
+              <span className="text-xs text-slate-500 max-w-[300px] truncate">{err.mensaje}</span>
             </div>
           ))}
         </div>

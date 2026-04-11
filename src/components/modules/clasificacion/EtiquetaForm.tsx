@@ -215,13 +215,13 @@ export function EtiquetaForm({
         </div>
 
         {/* Descripcion del tipo seleccionado */}
-        <div className="p-2 bg-gray-50 rounded text-sm text-gray-600">
+        <div className="p-2 bg-slate-50 rounded text-sm text-slate-600">
           {TIPO_OPTIONS.find(t => t.value === tipoActual)?.descripcion}
         </div>
 
         {/* Selector de icono */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Icono (opcional)
           </label>
           <div className="flex flex-wrap gap-2">
@@ -232,8 +232,8 @@ export function EtiquetaForm({
                 onClick={() => handleIconSelect(icono)}
                 className={`w-10 h-10 text-xl rounded-lg border-2 transition-all ${
                   formData.icono === icono
-                    ? 'border-primary-500 bg-primary-50 scale-110'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-teal-500 bg-teal-50 scale-110'
+                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 {icono}
@@ -245,7 +245,7 @@ export function EtiquetaForm({
               value={formData.icono || ''}
               onChange={handleChange}
               placeholder="..."
-              className="w-10 h-10 text-center text-xl border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500"
+              className="w-10 h-10 text-center text-xl border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500"
               maxLength={2}
             />
           </div>
@@ -253,7 +253,7 @@ export function EtiquetaForm({
 
         {/* Selector de colores */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Esquema de color
           </label>
           <div className="flex gap-3">
@@ -264,7 +264,7 @@ export function EtiquetaForm({
                 onClick={() => handleColorPreset(preset)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   formData.colorFondo === preset.fondo
-                    ? 'ring-2 ring-offset-2 ring-primary-500 scale-105'
+                    ? 'ring-2 ring-offset-2 ring-teal-500 scale-105'
                     : 'hover:scale-105'
                 }`}
                 style={{
@@ -280,8 +280,8 @@ export function EtiquetaForm({
         </div>
 
         {/* Vista previa */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="p-4 bg-slate-50 rounded-lg">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Vista previa
           </label>
           <div className="flex items-center gap-4">
@@ -296,7 +296,7 @@ export function EtiquetaForm({
               {formData.icono && <span>{formData.icono}</span>}
               <span>{formData.nombre || 'Etiqueta'}</span>
             </span>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-slate-500">
               Asi se vera en los productos
             </span>
           </div>
@@ -304,10 +304,10 @@ export function EtiquetaForm({
 
         {/* Lineas de Negocio */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Lineas de negocio
           </label>
-          <p className="text-xs text-gray-500 mb-2">
+          <p className="text-xs text-slate-500 mb-2">
             Dejar vacio para disponible en todas las lineas
           </p>
           <div className="flex flex-wrap gap-2">
@@ -321,7 +321,7 @@ export function EtiquetaForm({
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-colors ${
                     isSelected
                       ? 'border-transparent text-white'
-                      : 'border-gray-300 text-gray-600 hover:border-gray-400'
+                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
                   }`}
                   style={isSelected ? { backgroundColor: linea.color } : undefined}
                 >

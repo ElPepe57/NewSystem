@@ -39,7 +39,7 @@ const NIVEL_ORDER: NivelPrecio[] = ['excelente', 'bueno', 'aceptable', 'alto', '
 const NIVEL_SUMMARY: Record<NivelPrecio, { icon: React.FC<any>; color: string; label: string }> = {
   excelente: { icon: CheckCircle, color: 'text-green-600', label: 'excelentes' },
   bueno:     { icon: CheckCircle, color: 'text-blue-600',  label: 'buenos' },
-  aceptable: { icon: TrendingUp,  color: 'text-gray-600',  label: 'aceptables' },
+  aceptable: { icon: TrendingUp,  color: 'text-slate-600',  label: 'aceptables' },
   alto:      { icon: AlertTriangle, color: 'text-amber-600', label: 'altos' },
   muy_alto:  { icon: XCircle,     color: 'text-red-600',    label: 'muy altos' },
 };
@@ -187,22 +187,22 @@ export const OCFormStep2: React.FC<OCFormStep2Props> = ({ state, dispatch, produ
   return (
     <div className="space-y-4">
       {/* ── Summary bar ── */}
-      <div className="p-4 rounded-xl bg-gradient-to-r from-gray-50 to-white border border-gray-200">
+      <div className="p-4 rounded-xl bg-gradient-to-r from-slate-50 to-white border border-slate-200">
         <div className="flex items-center gap-2 mb-2">
-          <BarChart3 className="h-4 w-4 text-primary-600" />
-          <h3 className="text-sm font-semibold text-gray-800">Resumen OC</h3>
+          <BarChart3 className="h-4 w-4 text-teal-600" />
+          <h3 className="text-sm font-semibold text-slate-800">Resumen OC</h3>
         </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-600">
           <span>
-            <span className="font-medium text-gray-900">{validProducts.length}</span> productos
+            <span className="font-medium text-slate-900">{validProducts.length}</span> productos
           </span>
-          <span className="text-gray-300">|</span>
+          <span className="text-slate-300">|</span>
           <span>
-            <span className="font-medium text-gray-900">${summary.totalUSD.toFixed(2)}</span> USD
+            <span className="font-medium text-slate-900">${summary.totalUSD.toFixed(2)}</span> USD
           </span>
           {summary.avgMargen > 0 && (
             <>
-              <span className="text-gray-300">|</span>
+              <span className="text-slate-300">|</span>
               <span>
                 Margen prom: <span className={`font-medium ${
                   summary.avgMargen >= 30 ? 'text-green-700' :
@@ -241,7 +241,7 @@ export const OCFormStep2: React.FC<OCFormStep2Props> = ({ state, dispatch, produ
 
       {/* ── No products message ── */}
       {validProducts.length === 0 && (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-slate-400">
           <Zap className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p className="text-sm">No hay productos seleccionados</p>
           <p className="text-xs mt-1">Regresa al paso anterior para agregar productos</p>

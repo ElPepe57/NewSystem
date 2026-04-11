@@ -113,7 +113,7 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
   const tienePreventas = resumen.preventasVirtuales && resumen.preventasVirtuales.cantidad > 0;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-5">
+    <div className="bg-white border border-slate-200 rounded-lg p-3 sm:p-5">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2 min-w-0">
@@ -121,15 +121,15 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
             <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Distribución de Caja</h3>
-            <p className="text-[10px] sm:text-xs text-gray-500">Capital invertido en inventario</p>
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900 truncate">Distribución de Caja</h3>
+            <p className="text-[10px] sm:text-xs text-slate-500">Capital invertido en inventario</p>
           </div>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="text-lg sm:text-xl font-bold text-gray-900">
+          <p className="text-lg sm:text-xl font-bold text-slate-900">
             {formatCurrency(resumen.totalInventarioPEN)}
           </p>
-          <p className="text-[10px] sm:text-xs text-gray-500">
+          <p className="text-[10px] sm:text-xs text-slate-500">
             {resumen.cajaActiva.unidades + resumen.cajaComprometida.unidades +
              resumen.cajaTransito.unidades + resumen.cajaCongelada.unidades} unidades
           </p>
@@ -137,7 +137,7 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
       </div>
 
       {/* Barra de distribución con 4 colores */}
-      <div className="h-3 flex rounded-full overflow-hidden bg-gray-100 mb-4">
+      <div className="h-3 flex rounded-full overflow-hidden bg-slate-100 mb-4">
         {categorias.map(cat => (
           cat.porcentaje > 0 && (
             <div
@@ -174,7 +174,7 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
                   </div>
                   <div className="min-w-0">
                     <p className={`text-xs sm:text-sm font-medium ${colors.text} truncate`}>{cat.label}</p>
-                    <p className="text-[9px] sm:text-[10px] text-gray-500 truncate">{cat.sublabel}</p>
+                    <p className="text-[9px] sm:text-[10px] text-slate-500 truncate">{cat.sublabel}</p>
                   </div>
                 </div>
                 <span className={`text-[10px] sm:text-xs font-bold ${colors.text} flex-shrink-0`}>{cat.porcentaje}%</span>
@@ -183,18 +183,18 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
               {/* Values */}
               <div className="space-y-0.5 sm:space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] sm:text-xs text-gray-600">Valor</span>
-                  <span className="font-semibold text-gray-900 text-xs sm:text-sm">
+                  <span className="text-[10px] sm:text-xs text-slate-600">Valor</span>
+                  <span className="font-semibold text-slate-900 text-xs sm:text-sm">
                     {formatCurrency(cat.data.valorInventarioPEN)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] sm:text-xs text-gray-600">Uds</span>
-                  <span className="text-xs sm:text-sm text-gray-700">{cat.data.unidades}</span>
+                  <span className="text-[10px] sm:text-xs text-slate-600">Uds</span>
+                  <span className="text-xs sm:text-sm text-slate-700">{cat.data.unidades}</span>
                 </div>
                 {cat.extraInfo && (
-                  <div className="flex items-center pt-0.5 sm:pt-1 border-t border-gray-200/50">
-                    <span className="text-[9px] sm:text-[10px] text-gray-500 flex items-center gap-0.5 sm:gap-1 truncate">
+                  <div className="flex items-center pt-0.5 sm:pt-1 border-t border-slate-200/50">
+                    <span className="text-[9px] sm:text-[10px] text-slate-500 flex items-center gap-0.5 sm:gap-1 truncate">
                       <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0" />
                       {cat.extraInfo}
                     </span>
@@ -208,10 +208,10 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
 
       {/* Preventas Virtuales (si existen) */}
       {tienePreventas && (
-        <div className="mt-4 pt-3 border-t border-gray-200">
+        <div className="mt-4 pt-3 border-t border-slate-200">
           <button
             onClick={() => setShowPreventas(!showPreventas)}
-            className="w-full flex items-center justify-between text-left hover:bg-gray-50 rounded-lg p-2 -m-2"
+            className="w-full flex items-center justify-between text-left hover:bg-slate-50 rounded-lg p-2 -m-2"
           >
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-orange-100 rounded">
@@ -221,24 +221,24 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
                 <p className="text-sm font-medium text-orange-700">
                   Preventas Virtuales
                 </p>
-                <p className="text-[10px] text-gray-500">
+                <p className="text-[10px] text-slate-500">
                   Sin stock físico aún
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="text-right">
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm font-semibold text-slate-900">
                   {formatCurrency(resumen.preventasVirtuales.valorTotalPEN)}
                 </p>
-                <p className="text-[10px] text-gray-500">
+                <p className="text-[10px] text-slate-500">
                   {resumen.preventasVirtuales.cantidad} ventas
                 </p>
               </div>
               {showPreventas ? (
-                <ChevronUp className="h-4 w-4 text-gray-400" />
+                <ChevronUp className="h-4 w-4 text-slate-400" />
               ) : (
-                <ChevronDown className="h-4 w-4 text-gray-400" />
+                <ChevronDown className="h-4 w-4 text-slate-400" />
               )}
             </div>
           </button>
@@ -252,13 +252,13 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-slate-900">
                         {preventa.numeroVenta}
                       </p>
-                      <p className="text-xs text-gray-500">{preventa.clienteNombre}</p>
+                      <p className="text-xs text-slate-500">{preventa.clienteNombre}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-slate-900">
                         {formatCurrency(preventa.totalVenta)}
                       </p>
                       <p className="text-[10px] text-green-600">
@@ -270,7 +270,7 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
                     {preventa.productos.slice(0, 3).map((p, idx) => (
                       <span
                         key={idx}
-                        className="text-[10px] bg-white text-gray-600 px-1.5 py-0.5 rounded"
+                        className="text-[10px] bg-white text-slate-600 px-1.5 py-0.5 rounded"
                       >
                         {p.sku} ({p.cantidadFaltante} faltantes)
                       </span>
@@ -279,7 +279,7 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
                 </div>
               ))}
               {resumen.preventasVirtuales.detalles.length > 5 && (
-                <p className="text-xs text-gray-500 text-center">
+                <p className="text-xs text-slate-500 text-center">
                   +{resumen.preventasVirtuales.detalles.length - 5} más...
                 </p>
               )}
@@ -289,13 +289,13 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
           {/* Resumen de adelantos */}
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="bg-green-50 rounded-lg p-2">
-              <p className="text-[10px] text-gray-500">Adelantos recibidos</p>
+              <p className="text-[10px] text-slate-500">Adelantos recibidos</p>
               <p className="text-sm font-bold text-green-600">
                 {formatCurrency(resumen.preventasVirtuales.adelantosRecibidosPEN)}
               </p>
             </div>
             <div className="bg-yellow-50 rounded-lg p-2">
-              <p className="text-[10px] text-gray-500">Por cobrar</p>
+              <p className="text-[10px] text-slate-500">Por cobrar</p>
               <p className="text-sm font-bold text-yellow-600">
                 {formatCurrency(resumen.preventasVirtuales.valorTotalPEN - resumen.preventasVirtuales.adelantosRecibidosPEN)}
               </p>
@@ -305,15 +305,15 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
       )}
 
       {/* Resumen de potencial */}
-      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200 grid grid-cols-2 gap-2 sm:gap-4">
+      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 grid grid-cols-2 gap-2 sm:gap-4">
         <div>
-          <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">Potencial de Venta</p>
-          <p className="text-base sm:text-lg font-bold text-gray-900">
+          <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">Potencial de Venta</p>
+          <p className="text-base sm:text-lg font-bold text-slate-900">
             {formatCurrency(resumen.totalPotencialVentaPEN)}
           </p>
         </div>
         <div>
-          <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">Utilidad Potencial</p>
+          <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">Utilidad Potencial</p>
           <p className="text-base sm:text-lg font-bold text-green-600">
             {formatCurrency(resumen.totalPotencialUtilidadPEN)}
           </p>

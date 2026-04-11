@@ -187,7 +187,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   return (
     <div className={`relative w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
           {label}
           {required && <span className="text-danger-500 ml-1">*</span>}
         </label>
@@ -206,10 +206,10 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           disabled={disabled}
           className={`
             block w-full rounded-lg border pr-16
-            ${error ? 'border-danger-300' : 'border-gray-300'}
-            pl-3 py-2 text-gray-900 placeholder-gray-400
-            focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-            disabled:bg-gray-100 disabled:cursor-not-allowed
+            ${error ? 'border-danger-300' : 'border-slate-300'}
+            pl-3 py-2 text-slate-900 placeholder-slate-400
+            focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
+            disabled:bg-slate-100 disabled:cursor-not-allowed
           `}
         />
 
@@ -218,7 +218,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 text-gray-400 hover:text-gray-600 rounded"
+              className="p-1 text-slate-400 hover:text-slate-600 rounded"
               tabIndex={-1}
             >
               <X className="h-4 w-4" />
@@ -227,7 +227,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           <button
             type="button"
             onClick={() => !disabled && setIsOpen(!isOpen)}
-            className="p-1 text-gray-400 hover:text-gray-600 rounded"
+            className="p-1 text-slate-400 hover:text-slate-600 rounded"
             tabIndex={-1}
             disabled={disabled}
           >
@@ -240,7 +240,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       {isOpen && !disabled && (filteredSuggestions.length > 0 || showCreateOption) && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto"
+          className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-slate-200 max-h-60 overflow-auto"
         >
           {filteredSuggestions.map((suggestion, index) => (
             <button
@@ -250,7 +250,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
               onClick={() => handleSelect(suggestion)}
               className={`
                 w-full text-left px-3 py-2 text-sm
-                ${highlightedIndex === index ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-gray-50'}
+                ${highlightedIndex === index ? 'bg-teal-50 text-teal-700' : 'text-slate-700 hover:bg-slate-50'}
                 ${index === 0 ? 'rounded-t-lg' : ''}
                 ${index === filteredSuggestions.length - 1 && !showCreateOption ? 'rounded-b-lg' : ''}
               `}
@@ -266,8 +266,8 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
               onClick={handleCreateNew}
               className={`
                 w-full text-left px-3 py-2 text-sm flex items-center gap-2
-                border-t border-gray-100
-                ${highlightedIndex === filteredSuggestions.length ? 'bg-primary-50 text-primary-700' : 'text-primary-600 hover:bg-gray-50'}
+                border-t border-slate-100
+                ${highlightedIndex === filteredSuggestions.length ? 'bg-teal-50 text-teal-700' : 'text-teal-600 hover:bg-slate-50'}
                 rounded-b-lg
               `}
             >
@@ -282,9 +282,9 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       {isOpen && !disabled && filteredSuggestions.length === 0 && !showCreateOption && inputValue.trim() && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 p-3"
+          className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-slate-200 p-3"
         >
-          <p className="text-sm text-gray-500 text-center">No se encontraron coincidencias</p>
+          <p className="text-sm text-slate-500 text-center">No se encontraron coincidencias</p>
         </div>
       )}
 
@@ -293,7 +293,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       )}
 
       {!error && helperText && (
-        <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+        <p className="mt-1 text-sm text-slate-500">{helperText}</p>
       )}
     </div>
   );
@@ -311,7 +311,7 @@ const highlightMatch = (text: string, query: string): React.ReactNode => {
   return (
     <>
       {text.slice(0, index)}
-      <span className="font-semibold text-primary-600">
+      <span className="font-semibold text-teal-600">
         {text.slice(index, index + searchTerm.length)}
       </span>
       {text.slice(index + searchTerm.length)}

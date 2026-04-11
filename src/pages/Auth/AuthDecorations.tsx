@@ -39,29 +39,29 @@ export const VitaSkinLogo: React.FC<{ className?: string }> = ({ className = 'h-
 export const LeafDecoration: React.FC = () => (
   <>
     {/* Hoja superior izquierda */}
-    <svg className="absolute top-10 left-10 h-20 w-20 text-primary-300/30 animate-pulse" viewBox="0 0 80 80" fill="currentColor">
+    <svg className="absolute top-10 left-10 h-20 w-20 text-teal-300/30 animate-pulse" viewBox="0 0 80 80" fill="currentColor">
       <path d="M40 5C40 5 15 25 10 50C10 50 25 40 40 45C55 40 70 50 70 50C65 25 40 5 40 5Z" />
     </svg>
     {/* Hoja inferior derecha */}
-    <svg className="absolute bottom-10 right-10 h-24 w-24 text-primary-200/25 rotate-45" viewBox="0 0 80 80" fill="currentColor">
+    <svg className="absolute bottom-10 right-10 h-24 w-24 text-teal-200/25 rotate-45" viewBox="0 0 80 80" fill="currentColor">
       <path d="M40 5C40 5 15 25 10 50C10 50 25 40 40 45C55 40 70 50 70 50C65 25 40 5 40 5Z" />
     </svg>
     {/* Gotitas decorativas */}
-    <svg className="absolute top-1/4 right-20 h-8 w-8 text-primary-400/20" viewBox="0 0 24 24" fill="currentColor">
+    <svg className="absolute top-1/4 right-20 h-8 w-8 text-teal-400/20" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2C12 2 4 12 4 16C4 20.4183 7.58172 24 12 24C16.4183 24 20 20.4183 20 16C20 12 12 2 12 2Z" />
     </svg>
-    <svg className="absolute bottom-1/3 left-16 h-6 w-6 text-primary-300/15" viewBox="0 0 24 24" fill="currentColor">
+    <svg className="absolute bottom-1/3 left-16 h-6 w-6 text-teal-300/15" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2C12 2 4 12 4 16C4 20.4183 7.58172 24 12 24C16.4183 24 20 20.4183 20 16C20 12 12 2 12 2Z" />
     </svg>
     {/* Círculos orgánicos sutiles */}
-    <div className="absolute top-20 right-1/3 h-32 w-32 rounded-full bg-primary-200/10 blur-2xl" />
+    <div className="absolute top-20 right-1/3 h-32 w-32 rounded-full bg-teal-200/10 blur-2xl" />
     <div className="absolute bottom-20 left-1/4 h-40 w-40 rounded-full bg-emerald-200/10 blur-3xl" />
   </>
 );
 
 // Wrapper de página de auth con fondo gradiente y decoraciones
 export const AuthPageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="min-h-screen bg-gradient-to-br from-primary-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4 relative overflow-hidden">
+  <div className="min-h-screen bg-gradient-to-br from-teal-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4 relative overflow-hidden">
     <LeafDecoration />
     {children}
   </div>
@@ -70,10 +70,10 @@ export const AuthPageWrapper: React.FC<{ children: React.ReactNode }> = ({ child
 // Separador con gota decorativa
 export const DropletDivider: React.FC = () => (
   <div className="flex items-center justify-center gap-1.5 mt-2">
-    <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary-300" />
-    <svg className="h-3 w-3 text-primary-400" viewBox="0 0 24 24" fill="currentColor">
+    <div className="h-px w-8 bg-gradient-to-r from-transparent to-teal-300" />
+    <svg className="h-3 w-3 text-teal-400" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2C12 2 4 12 4 16C4 20.4183 7.58172 24 12 24C16.4183 24 20 20.4183 20 16C20 12 12 2 12 2Z" />
     </svg>
-    <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary-300" />
+    <div className="h-px w-8 bg-gradient-to-l from-transparent to-teal-300" />
   </div>
 );

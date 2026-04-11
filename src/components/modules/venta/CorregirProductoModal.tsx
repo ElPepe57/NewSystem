@@ -51,14 +51,14 @@ export const CorregirProductoModal: React.FC<CorregirProductoModalProps> = ({
       size="lg"
       footer={
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-slate-500">
             {selectedProduct && !esMismoProducto ? (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                 <Package className="h-3 w-3" />
                 Producto seleccionado
               </span>
             ) : (
-              <span className="text-gray-400 text-xs">Selecciona el producto correcto</span>
+              <span className="text-slate-400 text-xs">Selecciona el producto correcto</span>
             )}
           </div>
           <div className="flex items-center gap-3">
@@ -80,7 +80,7 @@ export const CorregirProductoModal: React.FC<CorregirProductoModalProps> = ({
       <div className="space-y-5">
         {/* Producto actual */}
         <div>
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
             <Package className="h-4 w-4 text-danger-500" />
             Producto Actual (incorrecto)
           </h3>
@@ -97,16 +97,16 @@ export const CorregirProductoModal: React.FC<CorregirProductoModalProps> = ({
 
         {/* Flecha */}
         <div className="flex justify-center">
-          <div className="flex items-center gap-2 text-gray-400">
-            <div className="h-px w-8 bg-gray-300" />
+          <div className="flex items-center gap-2 text-slate-400">
+            <div className="h-px w-8 bg-slate-300" />
             <ArrowRight className="h-4 w-4" />
-            <div className="h-px w-8 bg-gray-300" />
+            <div className="h-px w-8 bg-slate-300" />
           </div>
         </div>
 
         {/* Buscador de nuevo producto */}
         <div>
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
             <Package className="h-4 w-4 text-success-500" />
             Nuevo Producto (correcto)
           </h3>

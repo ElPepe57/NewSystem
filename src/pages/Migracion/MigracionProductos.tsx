@@ -111,8 +111,8 @@ export const MigracionProductos: React.FC = () => {
 
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
-            <Upload className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+          <div className="p-3 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
+            <Upload className="h-6 w-6 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
@@ -212,11 +212,11 @@ export const MigracionProductos: React.FC = () => {
 
         {estado === 'running' && (
           <div className="text-center py-12">
-            <Loader2 className="h-16 w-16 text-primary-500 animate-spin mx-auto mb-6" />
+            <Loader2 className="h-16 w-16 text-teal-500 animate-spin mx-auto mb-6" />
             <p className="text-lg text-slate-600 dark:text-slate-400 mb-2">{mensaje}</p>
             <div className="w-full max-w-md mx-auto bg-slate-200 dark:bg-slate-700 rounded-full h-3 mt-4">
               <div
-                className="bg-primary-500 h-3 rounded-full transition-all duration-300"
+                className="bg-teal-500 h-3 rounded-full transition-all duration-300"
                 style={{ width: `${progreso}%` }}
               />
             </div>

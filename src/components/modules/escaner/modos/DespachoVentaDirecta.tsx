@@ -161,17 +161,17 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
   return (
     <div className="space-y-4">
       {/* Client section */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-          <User className="h-4 w-4 text-gray-500" />
+      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+          <User className="h-4 w-4 text-slate-500" />
           Cliente
         </label>
 
         {selectedCliente ? (
           <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2.5">
             <div>
-              <p className="text-sm font-medium text-gray-900">{selectedCliente.nombre}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-medium text-slate-900">{selectedCliente.nombre}</p>
+              <p className="text-xs text-slate-500">
                 {selectedCliente.telefono || selectedCliente.email || selectedCliente.dniRuc || ''}
               </p>
             </div>
@@ -187,31 +187,31 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
           <div className="space-y-2">
             {/* Search existing */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
                 value={clienteSearch}
                 onChange={(e) => handleClienteSearch(e.target.value)}
                 placeholder="Buscar cliente existente..."
-                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
               {isSearching && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
               )}
             </div>
 
             {/* Search results */}
             {clienteResults.length > 0 && (
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className="border border-slate-200 rounded-lg overflow-hidden">
                 {clienteResults.map(c => (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => handleSelectCliente(c)}
-                    className="w-full text-left px-3 py-2 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                    className="w-full text-left px-3 py-2 hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
                   >
-                    <p className="text-sm font-medium text-gray-900">{c.nombre}</p>
-                    <p className="text-xs text-gray-500">{c.telefono || c.email || ''}</p>
+                    <p className="text-sm font-medium text-slate-900">{c.nombre}</p>
+                    <p className="text-xs text-slate-500">{c.telefono || c.email || ''}</p>
                   </button>
                 ))}
               </div>
@@ -219,13 +219,13 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
 
             {/* Manual name */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400">o</span>
+              <span className="text-xs text-slate-400">o</span>
               <input
                 type="text"
                 value={nombreManual}
                 onChange={(e) => setNombreManual(e.target.value)}
                 placeholder="Nombre del cliente nuevo"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
           </div>
@@ -233,10 +233,10 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
       </div>
 
       {/* Cart */}
-      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
         <div className="flex items-center justify-between mb-3">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <ShoppingCart className="h-4 w-4 text-gray-500" />
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <ShoppingCart className="h-4 w-4 text-slate-500" />
             Carrito ({accumulator.totalItems} productos)
           </label>
           {accumulator.totalItems > 0 && (
@@ -252,8 +252,8 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
 
         {accumulator.itemsArray.length === 0 ? (
           <div className="text-center py-6">
-            <ShoppingCart className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Escanea productos para agregarlos al carrito</p>
+            <ShoppingCart className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm text-slate-500">Escanea productos para agregarlos al carrito</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -264,21 +264,21 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
                   key={item.productoId}
                   className={`border rounded-lg p-3 transition-all ${
                     item.productoId === accumulator.lastScannedId
-                      ? 'border-primary-400 ring-1 ring-primary-200 bg-primary-50/30'
-                      : 'border-gray-200'
+                      ? 'border-teal-400 ring-1 ring-teal-200 bg-teal-50/30'
+                      : 'border-slate-200'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-slate-900 truncate">
                         {p.marca} {p.nombreComercial}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-slate-500 truncate">
                         {p.sku} · {p.presentacion}
                       </p>
                       {/* Price input */}
                       <div className="mt-1.5 flex items-center gap-2">
-                        <span className="text-xs text-gray-500">S/</span>
+                        <span className="text-xs text-slate-500">S/</span>
                         <input
                           type="number"
                           step="0.01"
@@ -288,10 +288,10 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
                           className={`w-20 px-2 py-1 border rounded text-xs text-right focus:ring-1 tabular-nums ${
                             !item.modeData.precioUnitario || item.modeData.precioUnitario <= 0
                               ? 'border-red-400 bg-red-50 focus:ring-red-500'
-                              : 'border-gray-200 focus:ring-primary-500'
+                              : 'border-slate-200 focus:ring-teal-500'
                           }`}
                         />
-                        <span className="text-xs text-gray-400">× {item.cantidad} = S/ {(item.modeData.precioUnitario * item.cantidad).toFixed(2)}</span>
+                        <span className="text-xs text-slate-400">× {item.cantidad} = S/ {(item.modeData.precioUnitario * item.cantidad).toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -300,24 +300,24 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
                       <button
                         type="button"
                         onClick={() => handleUpdateQuantity(item.productoId, item.cantidad - 1)}
-                        className="w-7 h-7 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600"
+                        className="w-7 h-7 flex items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600"
                       >
                         <Minus className="h-3.5 w-3.5" />
                       </button>
-                      <span className="w-8 text-center text-sm font-semibold text-gray-900 tabular-nums">
+                      <span className="w-8 text-center text-sm font-semibold text-slate-900 tabular-nums">
                         {item.cantidad}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleUpdateQuantity(item.productoId, item.cantidad + 1)}
-                        className="w-7 h-7 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600"
+                        className="w-7 h-7 flex items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600"
                       >
                         <Plus className="h-3.5 w-3.5" />
                       </button>
                       <button
                         type="button"
                         onClick={() => accumulator.removeItem(item.productoId)}
-                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500 ml-1"
+                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-red-50 text-slate-400 hover:text-red-500 ml-1"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -332,16 +332,16 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
 
       {/* Total + action */}
       {accumulator.totalItems > 0 && (
-        <div className="sticky bottom-0 bg-gray-50/95 backdrop-blur-sm border-t border-gray-200 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3">
+        <div className="sticky bottom-0 bg-slate-50/95 backdrop-blur-sm border-t border-slate-200 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Total</span>
-            <span className="text-lg font-bold text-gray-900 tabular-nums">S/ {total.toFixed(2)}</span>
+            <span className="text-sm font-medium text-slate-700">Total</span>
+            <span className="text-lg font-bold text-slate-900 tabular-nums">S/ {total.toFixed(2)}</span>
           </div>
           <button
             type="button"
             onClick={handleCrearVenta}
             disabled={isSubmitting || (!selectedCliente && !nombreManual.trim())}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors"
           >
             <CheckCircle2 className="h-4 w-4" />
             {isSubmitting ? 'Creando venta...' : 'Crear Venta Directa'}

@@ -360,7 +360,7 @@ export const Usuarios: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
       </div>
     );
   }
@@ -390,7 +390,7 @@ export const Usuarios: React.FC = () => {
             </button>
             <button
               onClick={() => setModalType('create')}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+              className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
             >
               <Plus className="h-4 w-4" />
               Nuevo Usuario
@@ -449,8 +449,8 @@ export const Usuarios: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary-100 rounded-lg">
-              <Users className="h-5 w-5 text-primary-600" />
+            <div className="p-2 bg-teal-100 rounded-lg">
+              <Users className="h-5 w-5 text-teal-600" />
             </div>
             <div>
               <p className="text-sm text-slate-600">Total Usuarios</p>
@@ -513,7 +513,7 @@ export const Usuarios: React.FC = () => {
               placeholder="Buscar por nombre o email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
 
@@ -523,7 +523,7 @@ export const Usuarios: React.FC = () => {
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value as UserRole | 'all')}
-              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             >
               <option value="all">Todos los roles</option>
               <option value="admin">Administradores</option>
@@ -542,7 +542,7 @@ export const Usuarios: React.FC = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')}
-              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             >
               <option value="all">Todos los estados</option>
               <option value="active">Activos</option>
@@ -608,7 +608,7 @@ export const Usuarios: React.FC = () => {
             ) : filteredUsuarios.map((usuario) => (
               <tr
                 key={usuario.uid}
-                className={usuario.uid === currentUser?.uid ? 'bg-primary-50' : 'hover:bg-slate-50'}
+                className={usuario.uid === currentUser?.uid ? 'bg-teal-50' : 'hover:bg-slate-50'}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
@@ -629,7 +629,7 @@ export const Usuarios: React.FC = () => {
                       <div className="text-sm font-medium text-slate-900">
                         {usuario.displayName}
                         {usuario.uid === currentUser?.uid && (
-                          <span className="ml-2 text-xs text-primary-600">(Tú)</span>
+                          <span className="ml-2 text-xs text-teal-600">(Tú)</span>
                         )}
                       </div>
                       {usuario.cargo && (
@@ -692,7 +692,7 @@ export const Usuarios: React.FC = () => {
                     )}
                     <button
                       onClick={() => handleOpenEditPermisos(usuario)}
-                      className="p-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg"
+                      className="p-2 text-teal-600 hover:text-teal-900 hover:bg-teal-50 rounded-lg"
                       title="Editar permisos"
                     >
                       <Edit2 className="h-4 w-4" />
@@ -747,7 +747,7 @@ export const Usuarios: React.FC = () => {
                     type="text"
                     value={newUser.displayName}
                     onChange={(e) => setNewUser({ ...newUser, displayName: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                     required
                   />
                 </div>
@@ -761,7 +761,7 @@ export const Usuarios: React.FC = () => {
                     type="text"
                     value={newUser.cargo}
                     onChange={(e) => setNewUser({ ...newUser, cargo: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                     placeholder="Ej: Socio fundador, Gerente comercial, Asistente"
                   />
                 </div>
@@ -775,7 +775,7 @@ export const Usuarios: React.FC = () => {
                     type="email"
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                     required
                   />
                 </div>
@@ -790,7 +790,7 @@ export const Usuarios: React.FC = () => {
                       type={showPassword ? 'text' : 'password'}
                       value={newUser.password}
                       onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 pr-10"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 pr-10"
                       required
                       minLength={6}
                     />
@@ -814,7 +814,7 @@ export const Usuarios: React.FC = () => {
                     id="usuario-rol"
                     value={newUser.role}
                     onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRole })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                   >
                     {(Object.entries(ROLE_LABELS) as [UserRole, string][]).map(([role, label]) => (
                       <option key={role} value={role}>{label}</option>
@@ -841,7 +841,7 @@ export const Usuarios: React.FC = () => {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50"
                   >
                     {saving ? (
                       <RefreshCw className="h-4 w-4 animate-spin" />
@@ -869,7 +869,7 @@ export const Usuarios: React.FC = () => {
                 </label>
                 {selectedUser?.uid === currentUser?.uid ? (
                   <div>
-                    <span className={`inline-block px-3 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white`}>
+                    <span className={`inline-block px-3 py-2 rounded-lg text-sm font-medium bg-teal-600 text-white`}>
                       {ROLE_LABELS[editRole]}
                     </span>
                     <p className="text-xs text-amber-600 mt-2">
@@ -886,7 +886,7 @@ export const Usuarios: React.FC = () => {
                           onClick={() => handleRoleChange(role)}
                           className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                             editRole === role
-                              ? 'bg-primary-600 text-white shadow-sm'
+                              ? 'bg-teal-600 text-white shadow-sm'
                               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                           }`}
                         >
@@ -923,7 +923,7 @@ export const Usuarios: React.FC = () => {
                             type="checkbox"
                             checked={editPermisos.includes(permiso)}
                             onChange={() => handleTogglePermiso(permiso)}
-                            className="mt-1 h-4 w-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
+                            className="mt-1 h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500"
                           />
                           <div>
                             <p className="font-medium text-slate-700">{info.label}</p>
@@ -947,7 +947,7 @@ export const Usuarios: React.FC = () => {
                 <button
                   onClick={handleSavePermisos}
                   disabled={saving}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50"
                 >
                   {saving ? (
                     <RefreshCw className="h-4 w-4 animate-spin" />
@@ -1031,7 +1031,7 @@ export const Usuarios: React.FC = () => {
                       type={showPassword ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 pr-10"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 pr-10"
                       placeholder="Mínimo 6 caracteres"
                     />
                     <button
@@ -1054,7 +1054,7 @@ export const Usuarios: React.FC = () => {
                     type={showPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                     placeholder="Repite la contraseña"
                   />
                 </div>
@@ -1237,7 +1237,7 @@ export const Usuarios: React.FC = () => {
                         onClick={() => setApproveRole(role)}
                         className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                           approveRole === role
-                            ? 'bg-primary-600 text-white shadow-md ring-2 ring-primary-300'
+                            ? 'bg-teal-600 text-white shadow-md ring-2 ring-teal-300'
                             : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                         }`}
                       >

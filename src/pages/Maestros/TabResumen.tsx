@@ -301,7 +301,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
               onOpenClienteModal();
             }}
           >
-            <Users className="h-6 w-6 text-primary-600" />
+            <Users className="h-6 w-6 text-teal-600" />
             <span className="text-xs">Nuevo Cliente</span>
           </Button>
           <Button

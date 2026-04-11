@@ -147,8 +147,8 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 <select
                   value={filtroTitular}
                   onChange={e => setFiltroTitular(e.target.value)}
-                  className={`rounded-md border-slate-300 text-xs py-1 pl-2 pr-6 focus:border-primary-500 focus:ring-primary-500 ${
-                    filtroTitular ? 'bg-primary-50 border-primary-300 text-primary-700 font-medium' : ''
+                  className={`rounded-md border-slate-300 text-xs py-1 pl-2 pr-6 focus:border-teal-500 focus:ring-teal-500 ${
+                    filtroTitular ? 'bg-teal-50 border-teal-300 text-teal-700 font-medium' : ''
                   }`}
                 >
                   <option value="">Todos los titulares</option>
@@ -174,11 +174,11 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
 
         {/* Resumen del titular seleccionado */}
         {filtroTitular && cuentasTitular.length > 0 && (
-          <div className="px-4 sm:px-6 py-3 bg-primary-50/50 border-b border-primary-100">
+          <div className="px-4 sm:px-6 py-3 bg-teal-50/50 border-b border-teal-100">
             <div className="flex items-center gap-2 mb-2">
-              <User className="h-4 w-4 text-primary-600" />
-              <span className="text-sm font-semibold text-primary-800">{filtroTitular}</span>
-              <span className="text-xs text-primary-500">{cuentasTitular.length} cuenta{cuentasTitular.length > 1 ? 's' : ''}</span>
+              <User className="h-4 w-4 text-teal-600" />
+              <span className="text-sm font-semibold text-teal-800">{filtroTitular}</span>
+              <span className="text-xs text-teal-500">{cuentasTitular.length} cuenta{cuentasTitular.length > 1 ? 's' : ''}</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {cuentasTitular.map(c => {
@@ -192,7 +192,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                   c.productoFinanciero === 'billetera_digital' ? 'Digital' :
                   c.productoFinanciero === 'caja' ? 'Caja' : '';
                 return (
-                  <div key={c.id} className="text-xs px-3 py-2 rounded-lg bg-white border border-primary-200 space-y-0.5">
+                  <div key={c.id} className="text-xs px-3 py-2 rounded-lg bg-white border border-teal-200 space-y-0.5">
                     <div className="flex items-center gap-1.5">
                       <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${c.moneda === 'USD' ? 'bg-blue-400' : 'bg-green-400'}`} />
                       <span className="font-medium text-slate-800">{c.nombre}</span>
@@ -379,7 +379,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                   )}
                   {mov.estado !== 'anulado' && isAdmin && (
                     <div className="flex gap-1 pt-1">
-                      <button onClick={() => handleEditarMovimiento(mov)} className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full"><Edit2 className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => handleEditarMovimiento(mov)} className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-full"><Edit2 className="h-3.5 w-3.5" /></button>
                       <button onClick={() => handleAnularMovimiento(mov)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full"><Trash2 className="h-3.5 w-3.5" /></button>
                     </div>
                   )}
@@ -525,7 +525,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                           <div className="flex justify-center gap-1">
                             <button
                               onClick={() => handleEditarMovimiento(mov)}
-                              className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
+                              className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-full transition-colors"
                               title="Editar movimiento"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -574,7 +574,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 <select
                   value={movimientoForm.tipo}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, tipo: e.target.value as TipoMovimientoTesoreria })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm"
                 >
                   <optgroup label="Ingresos">
                     <option value="ingreso_venta">Ingreso por Venta</option>
@@ -612,7 +612,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                       setMovimientoForm({ ...movimientoForm, fecha: nuevaFecha });
                     }
                   }}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm"
                 />
               </div>
             </div>
@@ -630,7 +630,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 <select
                   value={movimientoForm.moneda}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, moneda: e.target.value as MonedaTesoreria })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm"
                 >
                   <option value="PEN">PEN (Soles)</option>
                   <option value="USD">USD (Dolares)</option>
@@ -647,7 +647,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                     step="0.01"
                     value={movimientoForm.monto || ''}
                     onChange={(e) => setMovimientoForm({ ...movimientoForm, monto: parseFloat(e.target.value) })}
-                    className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm pl-8"
+                    className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm pl-8"
                     placeholder="0.00"
                   />
                 </div>
@@ -659,7 +659,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                   step="0.001"
                   value={movimientoForm.tipoCambio || ''}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, tipoCambio: parseFloat(e.target.value) })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm"
                   placeholder="3.700"
                 />
               </div>
@@ -698,7 +698,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                       setMovimientoForm({ ...movimientoForm, cuentaOrigen: value });
                     }
                   }}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm"
                 >
                   <option value="">Seleccionar cuenta...</option>
                   {cuentas
@@ -720,7 +720,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 <select
                   value={movimientoForm.metodo || 'efectivo'}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, metodo: e.target.value as any })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm"
                 >
                   <option value="efectivo">Efectivo</option>
                   <option value="transferencia_bancaria">Transferencia Bancaria</option>
@@ -754,7 +754,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 type="text"
                 value={movimientoForm.concepto || ''}
                 onChange={(e) => setMovimientoForm({ ...movimientoForm, concepto: e.target.value })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm"
                 placeholder="Descripcion del movimiento"
               />
             </div>
@@ -765,7 +765,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                   type="text"
                   value={movimientoForm.referencia || ''}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, referencia: e.target.value })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm"
                   placeholder="N° de documento, factura, etc."
                 />
               </div>
@@ -775,7 +775,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                   type="text"
                   value={movimientoForm.notas || ''}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, notas: e.target.value })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm"
                   placeholder="Notas adicionales"
                 />
               </div>

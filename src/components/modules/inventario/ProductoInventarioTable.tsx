@@ -154,7 +154,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
 
     return (
       <th
-        className={`px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors select-none ${className}`}
+        className={`px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none ${className}`}
         onClick={() => handleSort(sortKey)}
       >
         <div className="flex items-center justify-center gap-1">
@@ -162,12 +162,12 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
           <span className="w-4 h-4 flex items-center justify-center">
             {isActive ? (
               direction === 'asc' ? (
-                <ChevronUp className="h-3.5 w-3.5 text-primary-600" />
+                <ChevronUp className="h-3.5 w-3.5 text-teal-600" />
               ) : (
-                <ChevronDown className="h-3.5 w-3.5 text-primary-600" />
+                <ChevronDown className="h-3.5 w-3.5 text-teal-600" />
               )
             ) : (
-              <ArrowUpDown className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100" />
+              <ArrowUpDown className="h-3 w-3 text-slate-400 opacity-0 group-hover:opacity-100" />
             )}
           </span>
         </div>
@@ -224,7 +224,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -232,9 +232,9 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
   if (productos.length === 0) {
     return (
       <div className="text-center py-12">
-        <Package className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No hay productos en inventario</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <Package className="mx-auto h-12 w-12 text-slate-400" />
+        <h3 className="mt-2 text-sm font-medium text-slate-900">No hay productos en inventario</h3>
+        <p className="mt-1 text-sm text-slate-500">
           Las unidades se crean automáticamente al recibir órdenes de compra
         </p>
       </div>
@@ -246,25 +246,25 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
       {/* Barra de búsqueda y acciones */}
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
             placeholder="Buscar por SKU, nombre, marca o grupo..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={expandAll}
-            className="text-xs text-primary-600 hover:text-primary-700 font-medium px-3 py-1.5 rounded hover:bg-primary-50"
+            className="text-xs text-teal-600 hover:text-teal-700 font-medium px-3 py-1.5 rounded hover:bg-teal-50"
           >
             Expandir todos
           </button>
           <button
             onClick={collapseAll}
-            className="text-xs text-gray-600 hover:text-gray-700 font-medium px-3 py-1.5 rounded hover:bg-gray-100"
+            className="text-xs text-slate-600 hover:text-slate-700 font-medium px-3 py-1.5 rounded hover:bg-slate-100"
           >
             Colapsar todos
           </button>
@@ -272,22 +272,22 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
       </div>
 
       {/* Contador de resultados */}
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-slate-600">
         Mostrando <span className="font-medium">{productosFiltrados.length}</span> productos
         {busqueda && ` que coinciden con "${busqueda}"`}
       </div>
 
       {/* Indicador de ordenamiento activo */}
       {sortConfig && (
-        <div className="flex items-center gap-2 text-sm text-gray-600 bg-primary-50 px-3 py-2 rounded-lg">
-          <ArrowUpDown className="h-4 w-4 text-primary-600" />
+        <div className="flex items-center gap-2 text-sm text-slate-600 bg-teal-50 px-3 py-2 rounded-lg">
+          <ArrowUpDown className="h-4 w-4 text-teal-600" />
           <span>
             Ordenado por <strong>{sortConfig.key === 'sku' ? 'SKU' : sortConfig.key === 'nombre' ? 'Nombre' : sortConfig.key === 'origen' ? 'Origen' : sortConfig.key === 'transito' ? 'Tránsito' : sortConfig.key === 'peru' ? 'Perú' : sortConfig.key === 'resOrigen' ? 'Res. Origen' : sortConfig.key === 'resPeru' ? 'Res. Perú' : sortConfig.key === 'vendidas' ? 'Vendidas' : sortConfig.key === 'total' ? 'Total' : sortConfig.key === 'valor' ? 'Valor' : 'Por Vencer'}</strong>
             {' '}({sortConfig.direction === 'asc' ? 'ascendente' : 'descendente'})
           </span>
           <button
             onClick={() => setSortConfig(null)}
-            className="ml-2 text-primary-600 hover:text-primary-700 font-medium"
+            className="ml-2 text-teal-600 hover:text-teal-700 font-medium"
           >
             Quitar orden
           </button>
@@ -295,25 +295,25 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
       )}
 
       {/* Tabla */}
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="border border-slate-200 rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr className="group">
               <th className="w-10 px-4 py-3"></th>
               <th
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
                 onClick={() => handleSort('sku')}
               >
                 <div className="flex items-center gap-1">
                   <span>Producto</span>
                   {sortConfig?.key === 'sku' ? (
                     sortConfig.direction === 'asc' ? (
-                      <ChevronUp className="h-3.5 w-3.5 text-primary-600" />
+                      <ChevronUp className="h-3.5 w-3.5 text-teal-600" />
                     ) : (
-                      <ChevronDown className="h-3.5 w-3.5 text-primary-600" />
+                      <ChevronDown className="h-3.5 w-3.5 text-teal-600" />
                     )
                   ) : (
-                    <ArrowUpDown className="h-3 w-3 text-gray-400" />
+                    <ArrowUpDown className="h-3 w-3 text-slate-400" />
                   )}
                 </div>
               </th>
@@ -325,26 +325,26 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
               <SortableHeader sortKey="vendidas">Vendidas</SortableHeader>
               <SortableHeader sortKey="total">Total</SortableHeader>
               <th
-                className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
                 onClick={() => handleSort('valor')}
               >
                 <div className="flex items-center justify-end gap-1">
                   <span>Valor USD</span>
                   {sortConfig?.key === 'valor' ? (
                     sortConfig.direction === 'asc' ? (
-                      <ChevronUp className="h-3.5 w-3.5 text-primary-600" />
+                      <ChevronUp className="h-3.5 w-3.5 text-teal-600" />
                     ) : (
-                      <ChevronDown className="h-3.5 w-3.5 text-primary-600" />
+                      <ChevronDown className="h-3.5 w-3.5 text-teal-600" />
                     )
                   ) : (
-                    <ArrowUpDown className="h-3 w-3 text-gray-400" />
+                    <ArrowUpDown className="h-3 w-3 text-slate-400" />
                   )}
                 </div>
               </th>
               <SortableHeader sortKey="vencer">Estado</SortableHeader>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {productosFiltrados.map((producto) => {
               const isExpanded = expandedRows.has(producto.productoId);
               const unidadesFiltradas = getUnidadesFiltradas(producto);
@@ -353,24 +353,24 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
                 <React.Fragment key={producto.productoId}>
                   {/* Fila principal del producto */}
                   <tr
-                    className={`hover:bg-gray-50 cursor-pointer transition-colors ${
-                      isExpanded ? 'bg-primary-50' : ''
+                    className={`hover:bg-slate-50 cursor-pointer transition-colors ${
+                      isExpanded ? 'bg-teal-50' : ''
                     }`}
                     onClick={() => toggleRow(producto.productoId)}
                   >
                     {/* Toggle */}
                     <td className="px-4 py-4">
                       <button
-                        className="p-1 rounded hover:bg-gray-200 transition-colors"
+                        className="p-1 rounded hover:bg-slate-200 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleRow(producto.productoId);
                         }}
                       >
                         {isExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-gray-500" />
+                          <ChevronDown className="h-4 w-4 text-slate-500" />
                         ) : (
-                          <ChevronRight className="h-4 w-4 text-gray-500" />
+                          <ChevronRight className="h-4 w-4 text-slate-500" />
                         )}
                       </button>
                     </td>
@@ -378,17 +378,17 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
                     {/* Producto Info */}
                     <td className="px-4 py-4">
                       <div className="flex items-start gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                          <Package className="h-5 w-5 text-gray-400" />
+                        <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                          <Package className="h-5 w-5 text-slate-400" />
                         </div>
                         <div className="min-w-0">
-                          <div className="font-medium text-gray-900 truncate">
+                          <div className="font-medium text-slate-900 truncate">
                             {producto.sku}
                           </div>
-                          <div className="text-sm text-gray-500 truncate">
+                          <div className="text-sm text-slate-500 truncate">
                             {producto.marca} · {producto.nombre}
                           </div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-slate-400">
                             {getDescripcionProducto(producto) || producto.grupo}
                           </div>
                           <LineaNegocioBadge lineaNegocioId={producto.lineaNegocioId} />
@@ -440,17 +440,17 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
 
                     {/* Total */}
                     <td className="px-4 py-4 text-center">
-                      <div className="text-sm font-bold text-gray-900">
+                      <div className="text-sm font-bold text-slate-900">
                         {producto.totalUnidades}
                       </div>
                     </td>
 
                     {/* Valor */}
                     <td className="px-4 py-4 text-right">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-slate-900">
                         {formatCurrency(producto.valorTotalUSD)}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-slate-500">
                         Prom: {formatCurrency(producto.costoPromedioUSD)}
                       </div>
                     </td>
@@ -486,7 +486,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
                   {isExpanded && (
                     <tr>
                       <td colSpan={12} className="px-0 py-0">
-                        <div className="bg-gray-50 border-t border-b border-gray-200">
+                        <div className="bg-slate-50 border-t border-b border-slate-200">
                           <UnidadesDesglose
                             unidades={unidadesFiltradas}
                             productoNombre={producto.nombre}

@@ -17,8 +17,8 @@ export const Badge: React.FC<BadgeProps> = ({
     success: 'bg-success-100 text-success-800 ring-success-600/20',
     warning: 'bg-warning-100 text-warning-800 ring-warning-600/20',
     danger: 'bg-danger-100 text-danger-800 ring-danger-600/20',
-    info: 'bg-primary-100 text-primary-800 ring-primary-600/20',
-    default: 'bg-gray-100 text-gray-800 ring-gray-600/20'
+    info: 'bg-teal-100 text-teal-800 ring-teal-600/20',
+    default: 'bg-slate-100 text-slate-800 ring-slate-600/20'
   };
   
   const sizeStyles = {

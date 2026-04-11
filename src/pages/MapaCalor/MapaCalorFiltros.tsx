@@ -54,7 +54,7 @@ export function MapaCalorFiltros() {
               onClick={() => setCapa(c.id)}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                 capaActiva === c.id
-                  ? 'bg-primary-600 text-white'
+                  ? 'bg-teal-600 text-white'
                   : 'text-slate-500 hover:bg-slate-100'
               }`}
             >

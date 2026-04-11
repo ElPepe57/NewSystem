@@ -147,8 +147,8 @@ const CardRatioCobertura: React.FC<{ cobertura: DatosCobertura }> = ({ cobertura
     <Card className={`p-4 border-2 ${estilos.border} ${estilos.bg}`}>
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold text-gray-700">Ratio de Cobertura</h3>
-          <p className="text-xs text-gray-500 mt-0.5">Pool USD vs. Necesidad de compras</p>
+          <h3 className="text-sm font-semibold text-slate-700">Ratio de Cobertura</h3>
+          <p className="text-xs text-slate-500 mt-0.5">Pool USD vs. Necesidad de compras</p>
         </div>
         {semaforo === 'verde' && <CheckCircle className={`w-6 h-6 ${estilos.icono}`} />}
         {semaforo === 'amarillo' && <AlertTriangle className={`w-6 h-6 ${estilos.icono}`} />}
@@ -165,11 +165,11 @@ const CardRatioCobertura: React.FC<{ cobertura: DatosCobertura }> = ({ cobertura
 
       {/* Barra de progreso */}
       <div className="mb-3">
-        <div className="flex justify-between text-xs text-gray-500 mb-1">
+        <div className="flex justify-between text-xs text-slate-500 mb-1">
           <span>Pool actual: $ {fmt(cobertura.poolUSD)}</span>
           <span>Necesidad: $ {fmt(cobertura.necesidadUSD)}</span>
         </div>
-        <div className="w-full bg-white/70 rounded-full h-3 border border-gray-200">
+        <div className="w-full bg-white/70 rounded-full h-3 border border-slate-200">
           <div
             className={`h-3 rounded-full transition-all duration-500 ${
               semaforo === 'verde' ? 'bg-green-500' :
@@ -182,13 +182,13 @@ const CardRatioCobertura: React.FC<{ cobertura: DatosCobertura }> = ({ cobertura
       </div>
 
       {/* TCPA vs TC Mercado */}
-      <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-gray-200/70">
+      <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-200/70">
         <div className="text-center">
-          <p className="text-xs text-gray-500">TCPA Pool</p>
-          <p className="text-base font-bold text-gray-800">{fmt(cobertura.tcpa, 4)}</p>
+          <p className="text-xs text-slate-500">TCPA Pool</p>
+          <p className="text-base font-bold text-slate-800">{fmt(cobertura.tcpa, 4)}</p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-500">TC Mercado</p>
+          <p className="text-xs text-slate-500">TC Mercado</p>
           <p className={`text-base font-bold ${cobertura.tcMercado > cobertura.tcpa ? 'text-green-600' : 'text-red-600'}`}>
             {fmt(cobertura.tcMercado, 4)}
           </p>
@@ -213,8 +213,8 @@ const CardNecesidadVentas: React.FC<{ datos: NecesidadVentas }> = ({ datos }) =>
     <Card className="p-4">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold text-gray-700">Necesidad de Ventas PEN</h3>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h3 className="text-sm font-semibold text-slate-700">Necesidad de Ventas PEN</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
             {datos.descripcionMeta ?? 'Para auto-financiar compras en USD del próximo ciclo'}
           </p>
         </div>
@@ -241,22 +241,22 @@ const CardNecesidadVentas: React.FC<{ datos: NecesidadVentas }> = ({ datos }) =>
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-sm font-bold text-gray-800">{Math.round(progresoPct)}%</span>
+            <span className="text-sm font-bold text-slate-800">{Math.round(progresoPct)}%</span>
           </div>
         </div>
 
         <div className="flex-1 space-y-1">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Ventas actuales</span>
-            <span className="font-semibold text-gray-800">S/ {fmt(datos.ventasActualesPEN, 0)}</span>
+            <span className="text-slate-600">Ventas actuales</span>
+            <span className="font-semibold text-slate-800">S/ {fmt(datos.ventasActualesPEN, 0)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Meta del ciclo</span>
+            <span className="text-slate-600">Meta del ciclo</span>
             <span className="font-semibold text-blue-600">S/ {fmt(datos.metaPEN, 0)}</span>
           </div>
           {!cumplida && (
-            <div className="flex justify-between text-sm pt-1 border-t border-gray-100">
-              <span className="text-gray-500">Faltan</span>
+            <div className="flex justify-between text-sm pt-1 border-t border-slate-100">
+              <span className="text-slate-500">Faltan</span>
               <span className="font-semibold text-amber-600">S/ {fmt(faltaPEN, 0)}</span>
             </div>
           )}
@@ -279,7 +279,7 @@ const CardNecesidadVentas: React.FC<{ datos: NecesidadVentas }> = ({ datos }) =>
 const TablaMargenesLinea: React.FC<{ datos: MargenLineaNegocio[] }> = ({ datos }) => {
   if (datos.length === 0) {
     return (
-      <Card className="p-6 text-center text-gray-400">
+      <Card className="p-6 text-center text-slate-400">
         <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-30" />
         <p className="text-sm">Sin datos de margen por línea</p>
       </Card>
@@ -289,8 +289,8 @@ const TablaMargenesLinea: React.FC<{ datos: MargenLineaNegocio[] }> = ({ datos }
   return (
     <Card className="p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-700">Margen Real vs Nominal — Por Línea de Negocio</h3>
-        <div className="flex items-center gap-1 text-xs text-gray-400">
+        <h3 className="text-sm font-semibold text-slate-700">Margen Real vs Nominal — Por Línea de Negocio</h3>
+        <div className="flex items-center gap-1 text-xs text-slate-400">
           <Info className="w-3.5 h-3.5" />
           <span>Real = Nominal ajustado por diferencial TCPA / TC cobro</span>
         </div>
@@ -299,15 +299,15 @@ const TablaMargenesLinea: React.FC<{ datos: MargenLineaNegocio[] }> = ({ datos }
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100">
-              <th className="py-2 pr-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Línea</th>
-              <th className="py-2 px-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Nominal %</th>
-              <th className="py-2 px-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Real %</th>
-              <th className="py-2 px-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Gap</th>
-              <th className="py-2 pl-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wide">Unidades</th>
+            <tr className="border-b border-slate-100">
+              <th className="py-2 pr-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Línea</th>
+              <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Nominal %</th>
+              <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Real %</th>
+              <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Gap</th>
+              <th className="py-2 pl-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Unidades</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-slate-50">
             {datos.map((row) => {
               const gap = row.margenReal - row.margenNominal;
               const gapPositivo = gap >= 0;
@@ -315,11 +315,11 @@ const TablaMargenesLinea: React.FC<{ datos: MargenLineaNegocio[] }> = ({ datos }
               const margenRealBajo = row.margenReal >= 5 && row.margenReal < 15;
 
               return (
-                <tr key={row.linea} className="hover:bg-gray-50 transition-colors">
+                <tr key={row.linea} className="hover:bg-slate-50 transition-colors">
                   <td className="py-2.5 pr-4">
-                    <span className="font-medium text-gray-800">{row.linea}</span>
+                    <span className="font-medium text-slate-800">{row.linea}</span>
                   </td>
-                  <td className="py-2.5 px-2 text-right font-mono text-gray-600">
+                  <td className="py-2.5 px-2 text-right font-mono text-slate-600">
                     {fmt(row.margenNominal, 1)}%
                   </td>
                   <td className="py-2.5 px-2 text-right">
@@ -344,7 +344,7 @@ const TablaMargenesLinea: React.FC<{ datos: MargenLineaNegocio[] }> = ({ datos }
                       {fmtPct(gap)}
                     </span>
                   </td>
-                  <td className="py-2.5 pl-2 text-right font-mono text-gray-600">
+                  <td className="py-2.5 pl-2 text-right font-mono text-slate-600">
                     {row.unidades.toLocaleString('es-PE')}
                   </td>
                 </tr>
@@ -364,7 +364,7 @@ const TablaMargenesLinea: React.FC<{ datos: MargenLineaNegocio[] }> = ({ datos }
 const GraficoErosionMensual: React.FC<{ datos: ErosionMensual[] }> = ({ datos }) => {
   if (datos.length === 0) {
     return (
-      <Card className="p-6 text-center text-gray-400">
+      <Card className="p-6 text-center text-slate-400">
         <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-30" />
         <p className="text-sm">Sin historial de erosión cambiaria</p>
       </Card>
@@ -375,8 +375,8 @@ const GraficoErosionMensual: React.FC<{ datos: ErosionMensual[] }> = ({ datos })
     <Card className="p-4">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold text-gray-700">Erosión Cambiaria Mensual</h3>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h3 className="text-sm font-semibold text-slate-700">Erosión Cambiaria Mensual</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
             Puntos de margen perdidos por diferencial TCPA vs. TC de cobro
           </p>
         </div>
@@ -419,7 +419,7 @@ const GraficoErosionMensual: React.FC<{ datos: ErosionMensual[] }> = ({ datos })
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex items-center gap-4 mt-2 justify-center text-xs text-gray-400">
+      <div className="flex items-center gap-4 mt-2 justify-center text-xs text-slate-400">
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-500 inline-block" /> Neutro / Favorable</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-500 inline-block" /> Leve (0-2pp)</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500 inline-block" /> Severo (&gt;2pp)</span>

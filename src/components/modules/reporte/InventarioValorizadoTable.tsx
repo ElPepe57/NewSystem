@@ -21,7 +21,7 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
 
   if (inventario.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-slate-500">
         No hay inventario disponible
       </div>
     );
@@ -32,15 +32,15 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
       {/* Mobile: Card layout */}
       <div className="sm:hidden space-y-2">
         {inventarioPaginado.map((item) => (
-          <div key={item.productoId} className="border border-gray-100 rounded-lg p-2.5">
+          <div key={item.productoId} className="border border-slate-100 rounded-lg p-2.5">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900 truncate">
+                <div className="text-xs font-medium text-slate-900 truncate">
                   {item.marca} {item.nombreComercial}
                 </div>
-                <div className="text-[10px] text-gray-400">{item.sku}</div>
+                <div className="text-[10px] text-slate-400">{item.sku}</div>
               </div>
-              <div className="text-xs font-bold text-primary-600 shrink-0">
+              <div className="text-xs font-bold text-teal-600 shrink-0">
                 S/ {item.valorTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </div>
             </div>
@@ -48,16 +48,16 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
               {/* Unidades */}
               <div className="grid grid-cols-3 gap-1.5 flex-1 text-[10px]">
                 <div>
-                  <span className="text-gray-400">Disp.</span>
+                  <span className="text-slate-400">Disp.</span>
                   <div className="font-semibold text-success-600">{item.unidadesDisponibles}</div>
                 </div>
                 <div>
-                  <span className="text-gray-400">Asig.</span>
+                  <span className="text-slate-400">Asig.</span>
                   <div className="font-semibold text-warning-600">{item.unidadesAsignadas}</div>
                 </div>
                 <div>
-                  <span className="text-gray-400">Total</span>
-                  <div className="font-semibold text-gray-900">{item.unidadesTotal}</div>
+                  <span className="text-slate-400">Total</span>
+                  <div className="font-semibold text-slate-900">{item.unidadesTotal}</div>
                 </div>
               </div>
               {/* Ubicación badges - genérico por país */}
@@ -92,40 +92,40 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
 
       {/* Desktop: Table layout */}
       <div className="hidden sm:block overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
                 Producto
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Disponibles
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Asignadas
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Total
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Costo Prom.
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Valor Total
               </th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">
                 Ubicación
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {inventarioPaginado.map((item) => (
-              <tr key={item.productoId} className="hover:bg-gray-50">
+              <tr key={item.productoId} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-slate-900">
                     {item.marca} {item.nombreComercial}
                   </div>
-                  <div className="text-xs text-gray-500">{item.sku}</div>
+                  <div className="text-xs text-slate-500">{item.sku}</div>
                 </td>
                 <td className="px-4 py-3 text-right text-sm font-semibold text-success-600">
                   {item.unidadesDisponibles}
@@ -133,13 +133,13 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
                 <td className="px-4 py-3 text-right text-sm text-warning-600">
                   {item.unidadesAsignadas}
                 </td>
-                <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
                   {item.unidadesTotal}
                 </td>
-                <td className="px-4 py-3 text-right text-sm text-gray-600">
+                <td className="px-4 py-3 text-right text-sm text-slate-600">
                   S/ {item.costoPromedioUnidad.toFixed(2)}
                 </td>
-                <td className="px-4 py-3 text-right text-sm font-bold text-primary-600">
+                <td className="px-4 py-3 text-right text-sm font-bold text-teal-600">
                   S/ {item.valorTotalPEN.toFixed(2)}
                 </td>
                 <td className="px-4 py-3">

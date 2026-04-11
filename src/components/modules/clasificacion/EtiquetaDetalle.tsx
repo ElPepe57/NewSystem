@@ -102,7 +102,7 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-gray-400">{etiqueta.codigo}</span>
+                <span className="text-xs font-mono text-slate-400">{etiqueta.codigo}</span>
                 <Badge variant={etiqueta.estado === 'activa' ? 'success' : 'default'}>
                   {etiqueta.estado}
                 </Badge>
@@ -110,20 +110,20 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
                   {tipoInfo.label}
                 </span>
               </div>
-              <h2 className="text-xl font-bold text-gray-900">{etiqueta.nombre}</h2>
+              <h2 className="text-xl font-bold text-slate-900">{etiqueta.nombre}</h2>
               {etiqueta.grupo && (
-                <p className="text-sm text-gray-500">Grupo: {etiqueta.grupo}</p>
+                <p className="text-sm text-slate-500">Grupo: {etiqueta.grupo}</p>
               )}
             </div>
           </div>
 
           {/* Selector de periodo */}
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-400" />
+            <Calendar className="h-4 w-4 text-slate-400" />
             <select
               value={periodo}
               onChange={(e) => setPeriodo(e.target.value as PeriodoFiltro)}
-              className="text-sm border border-gray-300 rounded-lg px-2 py-1"
+              className="text-sm border border-slate-300 rounded-lg px-2 py-1"
             >
               <option value="1m">Ultimo mes</option>
               <option value="3m">Ultimos 3 meses</option>
@@ -138,7 +138,7 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
           </div>
         ) : analytics && m ? (
           <>
@@ -149,8 +149,8 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
                   <Package className="h-4 w-4" />
                   <span className="text-xs font-medium">Productos</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{m.totalProductos}</p>
-                <p className="text-xs text-gray-500">{m.productosActivos} activos</p>
+                <p className="text-2xl font-bold text-slate-900">{m.totalProductos}</p>
+                <p className="text-xs text-slate-500">{m.productosActivos} activos</p>
               </div>
 
               <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 p-4 rounded-lg">
@@ -158,8 +158,8 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
                   <DollarSign className="h-4 w-4" />
                   <span className="text-xs font-medium">Ventas</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">S/ {m.ventasTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-                <p className="text-xs text-gray-500">{m.numeroVentas} transacciones</p>
+                <p className="text-2xl font-bold text-slate-900">S/ {m.ventasTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                <p className="text-xs text-slate-500">{m.numeroVentas} transacciones</p>
               </div>
 
               <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-4 rounded-lg">
@@ -170,7 +170,7 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
                 <p className={`text-2xl font-bold ${m.margenPromedio >= 30 ? 'text-green-600' : m.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
                   {m.margenPromedio.toFixed(1)}%
                 </p>
-                <p className="text-xs text-gray-500">Utilidad: S/ {m.utilidadBruta.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                <p className="text-xs text-slate-500">Utilidad: S/ {m.utilidadBruta.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
               </div>
 
               <div className="bg-gradient-to-br from-lime-50 to-lime-100 p-4 rounded-lg">
@@ -178,26 +178,26 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
                   <ShoppingCart className="h-4 w-4" />
                   <span className="text-xs font-medium">Unidades</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{m.unidadesVendidas}</p>
-                <p className="text-xs text-gray-500">Ticket: S/ {m.ticketPromedio.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-slate-900">{m.unidadesVendidas}</p>
+                <p className="text-xs text-slate-500">Ticket: S/ {m.ticketPromedio.toFixed(2)}</p>
               </div>
             </div>
 
             {/* Participacion y Stock */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Participacion */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <div className="bg-white border border-slate-200 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
                   Participacion en el Negocio
                 </h3>
                 <div className="space-y-3">
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">% de Ventas Totales</span>
+                      <span className="text-slate-600">% de Ventas Totales</span>
                       <span className="font-medium">{m.participacionVentas.toFixed(1)}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-slate-200 rounded-full h-2">
                       <div
                         className="h-2 rounded-full"
                         style={{
@@ -209,10 +209,10 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">% de Unidades Vendidas</span>
+                      <span className="text-slate-600">% de Unidades Vendidas</span>
                       <span className="font-medium">{m.participacionUnidades.toFixed(1)}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-slate-200 rounded-full h-2">
                       <div
                         className="h-2 rounded-full opacity-70"
                         style={{
@@ -226,27 +226,27 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
               </div>
 
               {/* Stock */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <div className="bg-white border border-slate-200 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <Package className="h-4 w-4" />
                   Inventario
                 </h3>
                 <div className="grid grid-cols-3 gap-3 mb-3">
-                  <div className="text-center p-2 bg-gray-50 rounded">
-                    <p className="text-xs text-gray-500">Peru</p>
-                    <p className="text-lg font-bold text-gray-900">{m.stockPeru}</p>
+                  <div className="text-center p-2 bg-slate-50 rounded">
+                    <p className="text-xs text-slate-500">Peru</p>
+                    <p className="text-lg font-bold text-slate-900">{m.stockPeru}</p>
                   </div>
-                  <div className="text-center p-2 bg-gray-50 rounded">
-                    <p className="text-xs text-gray-500">USA</p>
-                    <p className="text-lg font-bold text-gray-900">{m.stockUSA}</p>
+                  <div className="text-center p-2 bg-slate-50 rounded">
+                    <p className="text-xs text-slate-500">USA</p>
+                    <p className="text-lg font-bold text-slate-900">{m.stockUSA}</p>
                   </div>
-                  <div className="text-center p-2 bg-gray-50 rounded">
-                    <p className="text-xs text-gray-500">Transito</p>
+                  <div className="text-center p-2 bg-slate-50 rounded">
+                    <p className="text-xs text-slate-500">Transito</p>
                     <p className="text-lg font-bold text-blue-600">{m.stockTransito}</p>
                   </div>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Valor del inventario:</span>
+                  <span className="text-slate-600">Valor del inventario:</span>
                   <span className="font-medium">S/ {m.valorInventario.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                 </div>
                 {(m.productosStockCritico > 0 || m.productosAgotados > 0) && (
@@ -267,56 +267,56 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
               {m.productoMasVendido && m.productoMasVendido.unidades > 0 && (
                 <div className="bg-teal-50 border border-teal-200 rounded-lg p-3">
                   <p className="text-xs text-teal-600 font-medium mb-1">Mas Vendido</p>
-                  <p className="text-sm font-semibold text-gray-900 truncate">{m.productoMasVendido.nombre}</p>
-                  <p className="text-xs text-gray-500">{m.productoMasVendido.unidades} unidades</p>
+                  <p className="text-sm font-semibold text-slate-900 truncate">{m.productoMasVendido.nombre}</p>
+                  <p className="text-xs text-slate-500">{m.productoMasVendido.unidades} unidades</p>
                 </div>
               )}
               {m.productoMasRentable && (
                 <div className="bg-pink-50 border border-pink-200 rounded-lg p-3">
                   <p className="text-xs text-pink-600 font-medium mb-1">Mas Rentable</p>
-                  <p className="text-sm font-semibold text-gray-900 truncate">{m.productoMasRentable.nombre}</p>
-                  <p className="text-xs text-gray-500">{m.productoMasRentable.margen.toFixed(1)}% margen</p>
+                  <p className="text-sm font-semibold text-slate-900 truncate">{m.productoMasRentable.nombre}</p>
+                  <p className="text-xs text-slate-500">{m.productoMasRentable.margen.toFixed(1)}% margen</p>
                 </div>
               )}
               {m.productoMenosStock && (
                 <div className="bg-lime-50 border border-lime-200 rounded-lg p-3">
                   <p className="text-xs text-lime-600 font-medium mb-1">Menor Stock</p>
-                  <p className="text-sm font-semibold text-gray-900 truncate">{m.productoMenosStock.nombre}</p>
-                  <p className="text-xs text-gray-500">{m.productoMenosStock.stock} unidades</p>
+                  <p className="text-sm font-semibold text-slate-900 truncate">{m.productoMenosStock.nombre}</p>
+                  <p className="text-xs text-slate-500">{m.productoMenosStock.stock} unidades</p>
                 </div>
               )}
             </div>
 
             {/* Tabla de productos */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <div className="bg-gray-50 px-4 py-2 border-b">
-                <h3 className="text-sm font-semibold text-gray-700">
+            <div className="border border-slate-200 rounded-lg overflow-hidden">
+              <div className="bg-slate-50 px-4 py-2 border-b">
+                <h3 className="text-sm font-semibold text-slate-700">
                   Productos con esta etiqueta ({analytics.productos.length})
                 </h3>
               </div>
               <div className="max-h-64 overflow-y-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 sticky top-0">
+                  <thead className="bg-slate-50 sticky top-0">
                     <tr>
-                      <th className="text-left px-4 py-2 font-medium text-gray-600">Producto</th>
-                      <th className="text-right px-4 py-2 font-medium text-gray-600">Stock</th>
-                      <th className="text-right px-4 py-2 font-medium text-gray-600">Vendidos</th>
-                      <th className="text-right px-4 py-2 font-medium text-gray-600">Ventas</th>
-                      <th className="text-right px-4 py-2 font-medium text-gray-600">Margen</th>
+                      <th className="text-left px-4 py-2 font-medium text-slate-600">Producto</th>
+                      <th className="text-right px-4 py-2 font-medium text-slate-600">Stock</th>
+                      <th className="text-right px-4 py-2 font-medium text-slate-600">Vendidos</th>
+                      <th className="text-right px-4 py-2 font-medium text-slate-600">Ventas</th>
+                      <th className="text-right px-4 py-2 font-medium text-slate-600">Margen</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-slate-100">
                     {analytics.productos.map(prod => (
-                      <tr key={prod.id} className="hover:bg-gray-50">
+                      <tr key={prod.id} className="hover:bg-slate-50">
                         <td className="px-4 py-2">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-gray-900">{prod.marca}</span>
-                            <span className="text-gray-500">{prod.nombreComercial}</span>
+                            <span className="font-medium text-slate-900">{prod.marca}</span>
+                            <span className="text-slate-500">{prod.nombreComercial}</span>
                             {prod.estado !== 'activo' && (
                               <Badge variant="default" className="text-xs">{prod.estado}</Badge>
                             )}
                           </div>
-                          <div className="text-xs text-gray-400">{prod.sku}</div>
+                          <div className="text-xs text-slate-400">{prod.sku}</div>
                         </td>
                         <td className="text-right px-4 py-2">
                           <span className={prod.stockPeru <= 0 ? 'text-red-600 font-medium' : ''}>
@@ -339,8 +339,8 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
 
             {/* Tendencia */}
             {analytics.tendenciaVentas.length > 0 && (
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <div className="border border-slate-200 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
                   Tendencia de Ventas (por semana)
                 </h3>
@@ -358,14 +358,14 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
                         }}
                         title={`${semana.fecha}: S/ ${semana.ventas.toFixed(0)} (${semana.unidades} uds)`}
                       >
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
                           S/ {semana.ventas.toFixed(0)}
                         </div>
                       </div>
                     );
                   })}
                 </div>
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <div className="flex justify-between text-xs text-slate-400 mt-1">
                   <span>{analytics.tendenciaVentas[Math.max(0, analytics.tendenciaVentas.length - 12)]?.fecha}</span>
                   <span>{analytics.tendenciaVentas[analytics.tendenciaVentas.length - 1]?.fecha}</span>
                 </div>
@@ -373,7 +373,7 @@ export function EtiquetaDetalle({ isOpen, onClose, etiqueta }: EtiquetaDetallePr
             )}
           </>
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-slate-500">
             No hay datos disponibles para esta etiqueta
           </div>
         )}

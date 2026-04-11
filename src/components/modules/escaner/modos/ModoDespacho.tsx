@@ -41,7 +41,7 @@ export const ModoDespacho = forwardRef<ModoDespachoHandle>((_props, ref) => {
   return (
     <div className="space-y-4">
       {/* Sub-tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+      <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
         {SUB_TABS.map(tab => (
           <button
             key={tab.id}
@@ -49,8 +49,8 @@ export const ModoDespacho = forwardRef<ModoDespachoHandle>((_props, ref) => {
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
               activeTab === tab.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             {tab.icon}

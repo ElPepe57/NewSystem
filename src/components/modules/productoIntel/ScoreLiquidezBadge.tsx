@@ -103,8 +103,8 @@ const tendenciaConfig = {
     label: 'Creciendo'
   },
   estable: {
-    bg: 'bg-gray-50',
-    text: 'text-gray-700',
+    bg: 'bg-slate-50',
+    text: 'text-slate-700',
     icon: Minus,
     label: 'Estable'
   },
@@ -121,8 +121,8 @@ const tendenciaConfig = {
     label: 'Nuevo'
   },
   sin_datos: {
-    bg: 'bg-gray-50',
-    text: 'text-gray-500',
+    bg: 'bg-slate-50',
+    text: 'text-slate-500',
     icon: Minus,
     label: 'Sin datos'
   }
@@ -167,7 +167,7 @@ const rotacionConfig: Record<string, { bg: string; text: string; label: string }
   media: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Media' },
   baja: { bg: 'bg-orange-50', text: 'text-orange-700', label: 'Baja' },
   muy_baja: { bg: 'bg-red-50', text: 'text-red-700', label: 'Muy baja' },
-  sin_movimiento: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Sin mov.' }
+  sin_movimiento: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Sin mov.' }
 };
 
 export const RotacionBadge: React.FC<RotacionBadgeProps> = ({

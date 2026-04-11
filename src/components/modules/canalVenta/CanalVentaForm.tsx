@@ -120,8 +120,8 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Información Básica */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
-          <Tag className="h-5 w-5 text-primary-600" />
+        <h3 className="text-lg font-medium text-slate-900 flex items-center gap-2">
+          <Tag className="h-5 w-5 text-teal-600" />
           Información del Canal
         </h3>
 
@@ -137,7 +137,7 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
 
         {/* Descripción */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Descripción
           </label>
           <textarea
@@ -145,7 +145,7 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
             onChange={(e) => handleChange('descripcion', e.target.value)}
             placeholder="Descripción opcional del canal de venta"
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             disabled={loading}
           />
         </div>
@@ -153,15 +153,15 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
 
       {/* Configuración Comercial */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
-          <Percent className="h-5 w-5 text-primary-600" />
+        <h3 className="text-lg font-medium text-slate-900 flex items-center gap-2">
+          <Percent className="h-5 w-5 text-teal-600" />
           Configuración Comercial
         </h3>
 
         <div className="grid grid-cols-2 gap-4">
           {/* Comisión */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Comisión (%)
             </label>
             <div className="relative">
@@ -173,28 +173,28 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
                 value={formData.comisionPorcentaje || ''}
                 onChange={(e) => handleChange('comisionPorcentaje', e.target.value ? parseFloat(e.target.value) : 0)}
                 placeholder="0"
-                className={`w-full px-3 py-2 pr-8 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                  errors.comisionPorcentaje ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-3 py-2 pr-8 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                  errors.comisionPorcentaje ? 'border-red-500' : 'border-slate-300'
                 }`}
                 disabled={loading}
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">%</span>
             </div>
             {errors.comisionPorcentaje && (
               <p className="text-sm text-red-600 mt-1">{errors.comisionPorcentaje}</p>
             )}
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Ej: Mercado Libre cobra ~13%
             </p>
           </div>
 
           {/* Tiempo de procesamiento */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Tiempo procesamiento (días)
             </label>
             <div className="relative">
-              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="number"
                 min="0"
@@ -202,11 +202,11 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
                 value={formData.tiempoProcesamientoDias || ''}
                 onChange={(e) => handleChange('tiempoProcesamientoDias', e.target.value ? parseInt(e.target.value) : undefined)}
                 placeholder="0"
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 disabled={loading}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Días adicionales para procesar pedidos
             </p>
           </div>
@@ -219,11 +219,11 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
             id="requiereEnvio"
             checked={formData.requiereEnvio}
             onChange={(e) => handleChange('requiereEnvio', e.target.checked)}
-            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+            className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-slate-300 rounded"
             disabled={loading}
           />
-          <label htmlFor="requiereEnvio" className="flex items-center gap-2 text-sm text-gray-700">
-            <Truck className="h-4 w-4 text-gray-400" />
+          <label htmlFor="requiereEnvio" className="flex items-center gap-2 text-sm text-slate-700">
+            <Truck className="h-4 w-4 text-slate-400" />
             Este canal típicamente requiere envío
           </label>
         </div>
@@ -231,15 +231,15 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
 
       {/* Visualización */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
-          <Palette className="h-5 w-5 text-primary-600" />
+        <h3 className="text-lg font-medium text-slate-900 flex items-center gap-2">
+          <Palette className="h-5 w-5 text-teal-600" />
           Visualización
         </h3>
 
         <div className="grid grid-cols-2 gap-4">
           {/* Color */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Color
             </label>
             <div className="flex flex-wrap gap-2">
@@ -250,7 +250,7 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
                   onClick={() => handleChange('color', color.value)}
                   className={`w-8 h-8 rounded-full border-2 transition-transform ${
                     formData.color === color.value
-                      ? 'border-gray-800 scale-110'
+                      ? 'border-slate-800 scale-110'
                       : 'border-transparent hover:scale-105'
                   }`}
                   style={{ backgroundColor: color.value }}
@@ -263,13 +263,13 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
 
           {/* Icono */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Icono
             </label>
             <select
               value={formData.icono}
               onChange={(e) => handleChange('icono', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
               disabled={loading}
             >
               {iconOptions.map((icon) => (
@@ -283,7 +283,7 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
 
         {/* Preview del badge */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Vista previa
           </label>
           <div className="flex items-center gap-2">
@@ -307,7 +307,7 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
       {/* Estado */}
       {isEditing && !esSistema && (
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-slate-700">
             Estado
           </label>
           <div className="flex gap-4">
@@ -318,10 +318,10 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
                 value="activo"
                 checked={formData.estado === 'activo'}
                 onChange={() => handleChange('estado', 'activo')}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500"
+                className="h-4 w-4 text-teal-600 focus:ring-teal-500"
                 disabled={loading}
               />
-              <span className="text-sm text-gray-700">Activo</span>
+              <span className="text-sm text-slate-700">Activo</span>
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -330,10 +330,10 @@ export const CanalVentaForm: React.FC<CanalVentaFormProps> = ({
                 value="inactivo"
                 checked={formData.estado === 'inactivo'}
                 onChange={() => handleChange('estado', 'inactivo')}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500"
+                className="h-4 w-4 text-teal-600 focus:ring-teal-500"
                 disabled={loading}
               />
-              <span className="text-sm text-gray-700">Inactivo</span>
+              <span className="text-sm text-slate-700">Inactivo</span>
             </label>
           </div>
         </div>

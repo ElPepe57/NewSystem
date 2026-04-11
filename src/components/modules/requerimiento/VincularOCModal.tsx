@@ -210,17 +210,17 @@ export const VincularOCModal: React.FC<VincularOCModalProps> = ({
         {!resultado?.success && (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 <Search className="h-4 w-4 inline mr-1" />
                 Seleccionar Orden de Compra recibida
               </label>
               {loadingOrdenes ? (
-                <div className="text-sm text-gray-500 py-2">Cargando órdenes...</div>
+                <div className="text-sm text-slate-500 py-2">Cargando órdenes...</div>
               ) : (
                 <select
                   value={selectedOCId}
                   onChange={(e) => setSelectedOCId(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 >
                   <option value="">-- Seleccionar OC --</option>
                   {ordenesRecibidas.map(oc => (
@@ -235,26 +235,26 @@ export const VincularOCModal: React.FC<VincularOCModalProps> = ({
             {/* Preview de vinculación */}
             {selectedOC && (
               <div className="border rounded-lg overflow-hidden">
-                <div className="bg-gray-50 px-4 py-2 border-b">
-                  <span className="text-sm font-medium text-gray-700">
+                <div className="bg-slate-50 px-4 py-2 border-b">
+                  <span className="text-sm font-medium text-slate-700">
                     Preview de vinculación con {selectedOC.numeroOrden}
                   </span>
                 </div>
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-4 py-2 text-left text-gray-600">Producto</th>
-                      <th className="px-4 py-2 text-center text-gray-600">Necesita</th>
-                      <th className="px-4 py-2 text-center text-gray-600">En OC</th>
-                      <th className="px-4 py-2 text-center text-gray-600">Estado</th>
+                      <th className="px-4 py-2 text-left text-slate-600">Producto</th>
+                      <th className="px-4 py-2 text-center text-slate-600">Necesita</th>
+                      <th className="px-4 py-2 text-center text-slate-600">En OC</th>
+                      <th className="px-4 py-2 text-center text-slate-600">Estado</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {preview.map(p => (
                       <tr key={p.productoId}>
                         <td className="px-4 py-2">
-                          <div className="font-medium text-gray-900">{p.nombre}</div>
-                          <div className="text-xs text-gray-500">{p.marca}</div>
+                          <div className="font-medium text-slate-900">{p.nombre}</div>
+                          <div className="text-xs text-slate-500">{p.marca}</div>
                         </td>
                         <td className="px-4 py-2 text-center">{p.cantidadNecesaria}</td>
                         <td className="px-4 py-2 text-center">{p.cantidadEnOC}</td>

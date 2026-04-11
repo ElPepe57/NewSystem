@@ -15,8 +15,8 @@ export function LineaFilterInline() {
         onClick={() => setLineaFiltroGlobal(null)}
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
           lineaFiltroGlobal === null
-            ? 'bg-gray-800 text-white'
-            : 'bg-white text-gray-500 border border-gray-300 hover:bg-gray-50'
+            ? 'bg-slate-800 text-white'
+            : 'bg-white text-slate-500 border border-slate-300 hover:bg-slate-50'
         }`}
       >
         Todas
@@ -33,7 +33,7 @@ export function LineaFilterInline() {
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
               isActive
                 ? 'text-white shadow-sm'
-                : 'bg-white border border-gray-300 hover:bg-gray-50'
+                : 'bg-white border border-slate-300 hover:bg-slate-50'
             }`}
             style={isActive ? { backgroundColor: linea.color } : { color: linea.color }}
           >

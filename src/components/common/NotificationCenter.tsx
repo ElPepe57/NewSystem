@@ -16,7 +16,7 @@ const iconosPorTipo: Record<string, string> = {
 
 // Colores según prioridad
 const coloresPorPrioridad: Record<string, string> = {
-  baja: 'bg-gray-100 border-gray-300',
+  baja: 'bg-slate-100 border-slate-300',
   media: 'bg-blue-50 border-blue-300',
   alta: 'bg-yellow-50 border-yellow-400',
   urgente: 'bg-red-50 border-red-400'
@@ -54,14 +54,14 @@ function NotificationItem({
         <div className="flex items-start gap-2 flex-1">
           <span className="text-xl">{icono}</span>
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-gray-800 truncate">
+            <h4 className="text-sm font-semibold text-slate-800 truncate">
               {notificacion.titulo}
             </h4>
-            <p className="text-sm text-gray-600">{notificacion.mensaje}</p>
+            <p className="text-sm text-slate-600">{notificacion.mensaje}</p>
             {notificacion.detalles && (
-              <p className="text-xs text-gray-500 mt-1">{notificacion.detalles}</p>
+              <p className="text-xs text-slate-500 mt-1">{notificacion.detalles}</p>
             )}
-            <p className="text-xs text-gray-400 mt-1">{tiempoRelativo}</p>
+            <p className="text-xs text-slate-400 mt-1">{tiempoRelativo}</p>
           </div>
         </div>
 
@@ -69,7 +69,7 @@ function NotificationItem({
           {!notificacion.leida && (
             <button
               onClick={onMarcarLeida}
-              className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+              className="p-1 text-slate-400 hover:text-blue-500 transition-colors"
               title="Marcar como leída"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@ function NotificationItem({
           )}
           <button
             onClick={onEliminar}
-            className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+            className="p-1 text-slate-400 hover:text-red-500 transition-colors"
             title="Eliminar"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@ function NotificationItem({
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
                   : accion.tipo === 'danger'
                   ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
               }`}
             >
               {accion.label}
@@ -207,7 +207,7 @@ export function NotificationCenter() {
       {/* Botón de notificaciones */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+        className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors"
         title="Notificaciones"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,13 +234,13 @@ export function NotificationCenter() {
 
       {/* Panel de notificaciones */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 max-h-[500px] bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-96 max-h-[500px] bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-            <h3 className="font-semibold text-gray-800">
+          <div className="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+            <h3 className="font-semibold text-slate-800">
               Notificaciones
               {contadores.noLeidas > 0 && (
-                <span className="ml-2 text-sm font-normal text-gray-500">
+                <span className="ml-2 text-sm font-normal text-slate-500">
                   ({contadores.noLeidas} sin leer)
                 </span>
               )}
@@ -258,9 +258,9 @@ export function NotificationCenter() {
           {/* Lista de notificaciones */}
           <div className="overflow-y-auto max-h-[400px] p-3">
             {notificaciones.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-slate-500">
                 <svg
-                  className="w-12 h-12 mx-auto mb-3 text-gray-300"
+                  className="w-12 h-12 mx-auto mb-3 text-slate-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -289,7 +289,7 @@ export function NotificationCenter() {
 
           {/* Footer */}
           {notificaciones.length > 0 && (
-            <div className="px-4 py-2 border-t border-gray-200 bg-gray-50">
+            <div className="px-4 py-2 border-t border-slate-200 bg-slate-50">
               <button
                 onClick={() => {
                   navigate('/notificaciones');

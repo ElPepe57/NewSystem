@@ -30,7 +30,7 @@ const CompetidorCard: React.FC<{
   getReputacionLabel: (r: ReputacionCompetidor) => string;
   getEstadoColor: (e: string) => string;
 }> = ({ competidor, onView, onEdit, onDelete, getPlataformaLabel, getPlataformaColor, getAmenazaColor, getReputacionLabel, getEstadoColor }) => (
-  <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+  <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
     <div className="flex items-start justify-between">
       <div className="flex items-center gap-3">
         <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 ${
@@ -40,11 +40,11 @@ const CompetidorCard: React.FC<{
           {competidor.nombre.charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
-          <div className="font-medium text-gray-900 flex items-center gap-1 flex-wrap">
+          <div className="font-medium text-slate-900 flex items-center gap-1 flex-wrap">
             <span className="truncate">{competidor.nombre}</span>
             {competidor.esLiderCategoria && <span className="text-yellow-500">⭐</span>}
           </div>
-          <div className="text-sm text-gray-500">{competidor.codigo}</div>
+          <div className="text-sm text-slate-500">{competidor.codigo}</div>
         </div>
       </div>
       <span className={`px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ${getEstadoColor(competidor.estado)}`}>
@@ -62,24 +62,24 @@ const CompetidorCard: React.FC<{
     </div>
 
     <div className="flex items-center justify-between text-sm">
-      <div className="text-gray-600">
-        <span className="text-gray-500">Reputación:</span> {getReputacionLabel(competidor.reputacion)}
+      <div className="text-slate-600">
+        <span className="text-slate-500">Reputación:</span> {getReputacionLabel(competidor.reputacion)}
       </div>
-      <div className="text-gray-600">
-        <span className="text-gray-500">Productos:</span> {competidor.metricas?.productosAnalizados || 0}
+      <div className="text-slate-600">
+        <span className="text-slate-500">Productos:</span> {competidor.metricas?.productosAnalizados || 0}
       </div>
     </div>
 
-    <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+    <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
       <button onClick={onView} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Ver detalle">
         <Eye className="w-4 h-4" />
       </button>
       {competidor.urlTienda && (
-        <a href={competidor.urlTienda} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg" title="Visitar tienda">
+        <a href={competidor.urlTienda} target="_blank" rel="noopener noreferrer" className="p-2 text-slate-600 hover:bg-slate-50 rounded-lg" title="Visitar tienda">
           <ExternalLink className="w-4 h-4" />
         </a>
       )}
-      <button onClick={onEdit} className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg" title="Editar">
+      <button onClick={onEdit} className="p-2 text-slate-600 hover:bg-slate-50 rounded-lg" title="Editar">
         <Edit2 className="w-4 h-4" />
       </button>
       <button onClick={onDelete} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar">
@@ -240,9 +240,9 @@ export function CompetidoresIntel({
       mifarma: 'bg-purple-100 text-purple-800',
       amazon: 'bg-orange-100 text-orange-800',
       falabella: 'bg-lime-100 text-lime-800',
-      otra: 'bg-gray-100 text-gray-800'
+      otra: 'bg-slate-100 text-slate-800'
     };
-    return colors[plataforma] || 'bg-gray-100 text-gray-800';
+    return colors[plataforma] || 'bg-slate-100 text-slate-800';
   };
 
   const getAmenazaColor = (nivel: string) => {
@@ -251,7 +251,7 @@ export function CompetidoresIntel({
       medio: 'bg-yellow-100 text-yellow-800',
       alto: 'bg-red-100 text-red-800'
     };
-    return colors[nivel] || 'bg-gray-100 text-gray-800';
+    return colors[nivel] || 'bg-slate-100 text-slate-800';
   };
 
   const getReputacionLabel = (rep: ReputacionCompetidor) => {
@@ -271,7 +271,7 @@ export function CompetidoresIntel({
       inactivo: 'bg-yellow-100 text-yellow-800',
       cerrado: 'bg-red-100 text-red-800'
     };
-    return colors[estado] || 'bg-gray-100 text-gray-800';
+    return colors[estado] || 'bg-slate-100 text-slate-800';
   };
 
   // Render de la lista
@@ -294,7 +294,7 @@ export function CompetidoresIntel({
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`px-4 py-2 border rounded-lg flex items-center gap-2 lg:hidden ${
-                showFilters ? 'bg-blue-50 border-blue-500 text-blue-600' : 'hover:bg-gray-50'
+                showFilters ? 'bg-blue-50 border-blue-500 text-blue-600' : 'hover:bg-slate-50'
               }`}
             >
               <Filter className="w-4 h-4" />
@@ -365,7 +365,7 @@ export function CompetidoresIntel({
                 setFiltroLinea('todos');
                 setFiltroEstado('todos');
               }}
-              className="w-full lg:w-auto px-4 py-2 text-gray-600 hover:text-gray-800 flex items-center justify-center gap-1"
+              className="w-full lg:w-auto px-4 py-2 text-slate-600 hover:text-slate-800 flex items-center justify-center gap-1"
             >
               <X className="w-4 h-4" />
               Limpiar filtros
@@ -375,7 +375,7 @@ export function CompetidoresIntel({
       </div>
 
       {/* Contador */}
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-slate-500">
         Mostrando {competidoresFiltrados.length} de {competidores.length} competidores
       </div>
 
@@ -396,7 +396,7 @@ export function CompetidoresIntel({
           />
         ))}
         {competidoresFiltrados.length === 0 && (
-          <div className="text-center py-12 text-gray-500 bg-white rounded-lg">
+          <div className="text-center py-12 text-slate-500 bg-white rounded-lg">
             No se encontraron competidores con los filtros aplicados
           </div>
         )}
@@ -413,38 +413,38 @@ export function CompetidoresIntel({
 
       {/* Vista desktop - Tabla */}
       <div className="hidden lg:block overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Competidor
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Plataforma
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Línea
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Amenaza
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Reputación
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Productos
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Estado
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {competidoresPaginados.map(competidor => (
-              <tr key={competidor.id} className="hover:bg-gray-50">
+              <tr key={competidor.id} className="hover:bg-slate-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold ${
@@ -454,13 +454,13 @@ export function CompetidoresIntel({
                       {competidor.nombre.charAt(0).toUpperCase()}
                     </div>
                     <div className="ml-3">
-                      <div className="font-medium text-gray-900 flex items-center gap-2">
+                      <div className="font-medium text-slate-900 flex items-center gap-2">
                         {competidor.nombre}
                         {competidor.esLiderCategoria && (
                           <span className="text-yellow-500" title="Líder de categoría">⭐</span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-500">{competidor.codigo}</div>
+                      <div className="text-sm text-slate-500">{competidor.codigo}</div>
                     </div>
                   </div>
                 </td>
@@ -480,7 +480,7 @@ export function CompetidoresIntel({
                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
                   {getReputacionLabel(competidor.reputacion)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-900">
                   {competidor.metricas?.productosAnalizados || 0}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -502,7 +502,7 @@ export function CompetidoresIntel({
                         href={competidor.urlTienda}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-600 hover:text-gray-800"
+                        className="text-slate-600 hover:text-slate-800"
                         title="Visitar tienda"
                       >
                         <ExternalLink className="w-5 h-5" />
@@ -510,7 +510,7 @@ export function CompetidoresIntel({
                     )}
                     <button
                       onClick={() => onEditCompetidor ? onEditCompetidor(competidor) : onOpenCompetidorModal(competidor)}
-                      className="text-gray-600 hover:text-gray-800"
+                      className="text-slate-600 hover:text-slate-800"
                       title="Editar"
                     >
                       <Edit2 className="w-5 h-5" />
@@ -530,7 +530,7 @@ export function CompetidoresIntel({
         </table>
 
         {competidoresFiltrados.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-slate-500">
             No se encontraron competidores con los filtros aplicados
           </div>
         )}
@@ -555,33 +555,33 @@ export function CompetidoresIntel({
       {/* KPIs principales */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 mb-1">Total Competidores</div>
-          <div className="text-3xl font-bold text-gray-900">{stats?.total || 0}</div>
+          <div className="text-sm text-slate-500 mb-1">Total Competidores</div>
+          <div className="text-3xl font-bold text-slate-900">{stats?.total || 0}</div>
           <div className="text-sm text-green-600 mt-1">
             {stats?.activos || 0} activos
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 mb-1">Amenaza Alta</div>
+          <div className="text-sm text-slate-500 mb-1">Amenaza Alta</div>
           <div className="text-3xl font-bold text-red-600">{stats?.porNivelAmenaza?.alto || 0}</div>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-slate-500 mt-1">
             Requieren monitoreo constante
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 mb-1">Líderes de Categoría</div>
+          <div className="text-sm text-slate-500 mb-1">Líderes de Categoría</div>
           <div className="text-3xl font-bold text-yellow-600">{stats?.lideresCategoria || 0}</div>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-slate-500 mt-1">
             Dominan su segmento
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 mb-1">Productos Analizados</div>
+          <div className="text-sm text-slate-500 mb-1">Productos Analizados</div>
           <div className="text-3xl font-bold text-blue-600">{stats?.totalProductosAnalizados || 0}</div>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-slate-500 mt-1">
             Precio promedio: {formatCurrency(stats?.precioPromedioGeneral || 0)}
           </div>
         </div>
@@ -591,7 +591,7 @@ export function CompetidoresIntel({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Por plataforma */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Por Plataforma</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Por Plataforma</h3>
           <div className="space-y-3">
             {stats?.porPlataforma && Object.entries(stats.porPlataforma)
               .filter(([, cantidad]) => cantidad > 0)
@@ -603,13 +603,13 @@ export function CompetidoresIntel({
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPlataformaColor(plataforma as PlataformaCompetidor)}`}>
                       {getPlataformaLabel(plataforma as PlataformaCompetidor)}
                     </span>
-                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                    <div className="flex-1 bg-slate-200 rounded-full h-2">
                       <div
                         className="bg-blue-600 h-2 rounded-full"
                         style={{ width: `${porcentaje}%` }}
                       />
                     </div>
-                    <span className="text-sm text-gray-600 w-12 text-right">
+                    <span className="text-sm text-slate-600 w-12 text-right">
                       {cantidad}
                     </span>
                   </div>
@@ -620,26 +620,26 @@ export function CompetidoresIntel({
 
         {/* Por nivel de amenaza */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Nivel de Amenaza</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Nivel de Amenaza</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                <span className="text-sm text-gray-700">Alta</span>
+                <span className="text-sm text-slate-700">Alta</span>
               </div>
               <span className="text-lg font-semibold text-red-600">{stats?.porNivelAmenaza?.alto || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                <span className="text-sm text-gray-700">Media</span>
+                <span className="text-sm text-slate-700">Media</span>
               </div>
               <span className="text-lg font-semibold text-yellow-600">{stats?.porNivelAmenaza?.medio || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                <span className="text-sm text-gray-700">Baja</span>
+                <span className="text-sm text-slate-700">Baja</span>
               </div>
               <span className="text-lg font-semibold text-green-600">{stats?.porNivelAmenaza?.bajo || 0}</span>
             </div>
@@ -673,29 +673,29 @@ export function CompetidoresIntel({
 
         {/* Por reputación */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Reputación</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Reputación</h3>
           <div className="space-y-3">
             {stats?.porReputacion && Object.entries(stats.porReputacion)
               .filter(([, cantidad]) => cantidad > 0)
               .sort((a, b) => b[1] - a[1])
               .map(([rep, cantidad]) => (
                 <div key={rep} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-slate-700">
                     {getReputacionLabel(rep as ReputacionCompetidor)}
                   </span>
                   <div className="flex items-center gap-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
+                    <div className="w-24 bg-slate-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full ${
                           rep === 'excelente' ? 'bg-green-500' :
                           rep === 'buena' ? 'bg-blue-500' :
                           rep === 'regular' ? 'bg-yellow-500' :
-                          rep === 'mala' ? 'bg-red-500' : 'bg-gray-400'
+                          rep === 'mala' ? 'bg-red-500' : 'bg-slate-400'
                         }`}
                         style={{ width: `${(cantidad / (stats?.activos || 1)) * 100}%` }}
                       />
                     </div>
-                    <span className="text-sm text-gray-600 w-8 text-right">{cantidad}</span>
+                    <span className="text-sm text-slate-600 w-8 text-right">{cantidad}</span>
                   </div>
                 </div>
               ))}
@@ -706,23 +706,23 @@ export function CompetidoresIntel({
       {/* Top competidores */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top por Análisis de Productos</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Top por Análisis de Productos</h3>
           <div className="space-y-3">
             {stats?.topCompetidoresPorAnalisis?.map((comp, idx) => (
               <div key={comp.id} className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${
-                  idx === 0 ? 'bg-yellow-500' : idx === 1 ? 'bg-gray-400' : idx === 2 ? 'bg-amber-600' : 'bg-blue-500'
+                  idx === 0 ? 'bg-yellow-500' : idx === 1 ? 'bg-slate-400' : idx === 2 ? 'bg-amber-600' : 'bg-blue-500'
                 }`}>
                   {idx + 1}
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">{comp.nombre}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="font-medium text-slate-900">{comp.nombre}</div>
+                  <div className="text-sm text-slate-500">
                     Precio promedio: {formatCurrency(comp.precioPromedio)}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold text-gray-900">{comp.productosAnalizados}</div>
+                  <div className="font-semibold text-slate-900">{comp.productosAnalizados}</div>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${getAmenazaColor(comp.nivelAmenaza)}`}>
                     {comp.nivelAmenaza}
                   </span>
@@ -730,7 +730,7 @@ export function CompetidoresIntel({
               </div>
             ))}
             {(!stats?.topCompetidoresPorAnalisis || stats.topCompetidoresPorAnalisis.length === 0) && (
-              <div className="text-center text-gray-500 py-4">
+              <div className="text-center text-slate-500 py-4">
                 No hay análisis de productos aún
               </div>
             )}
@@ -738,7 +738,7 @@ export function CompetidoresIntel({
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Competidores de Alta Amenaza</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Competidores de Alta Amenaza</h3>
           <div className="space-y-3">
             {stats?.competidoresAmenazaAlta?.map(comp => (
               <div key={comp.id} className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
@@ -773,7 +773,7 @@ export function CompetidoresIntel({
       {/* Resumen de alertas */}
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Resumen de Alertas</h3>
+          <h3 className="text-lg font-semibold text-slate-900">Resumen de Alertas</h3>
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
             (alertas?.totalAlertas || 0) > 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
           }`}>
@@ -834,8 +834,8 @@ export function CompetidoresIntel({
                   {comp.nombre.charAt(0)}
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">{comp.nombre}</div>
-                  <div className="text-sm text-gray-500 flex items-center gap-2">
+                  <div className="font-medium text-slate-900">{comp.nombre}</div>
+                  <div className="text-sm text-slate-500 flex items-center gap-2">
                     <span className={`px-2 py-0.5 rounded-full text-xs ${getPlataformaColor(comp.plataformaPrincipal || 'otra')}`}>
                       {getPlataformaLabel(comp.plataformaPrincipal || 'otra')}
                     </span>
@@ -878,8 +878,8 @@ export function CompetidoresIntel({
                   {comp.nombre.charAt(0)}
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">{comp.nombre}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="font-medium text-slate-900">{comp.nombre}</div>
+                  <div className="text-sm text-slate-500">
                     {comp.metricas?.productosAnalizados || 0} productos analizados
                   </div>
                 </div>
@@ -912,7 +912,7 @@ export function CompetidoresIntel({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Líderes de categoría */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <span className="text-yellow-500">⭐</span>
             Líderes de Categoría
           </h3>
@@ -923,8 +923,8 @@ export function CompetidoresIntel({
                   {comp.nombre.charAt(0)}
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">{comp.nombre}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="font-medium text-slate-900">{comp.nombre}</div>
+                  <div className="text-sm text-slate-500">
                     {comp.categoriasLider?.join(', ') || 'Sin categorías específicas'}
                   </div>
                 </div>
@@ -934,7 +934,7 @@ export function CompetidoresIntel({
               </div>
             ))}
             {(!alertas?.lideres || alertas.lideres.length === 0) && (
-              <div className="text-center py-4 text-gray-500">
+              <div className="text-center py-4 text-slate-500">
                 No hay líderes de categoría identificados
               </div>
             )}
@@ -956,7 +956,7 @@ export function CompetidoresIntel({
                   {comp.nombre.charAt(0)}
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">{comp.nombre}</div>
+                  <div className="font-medium text-slate-900">{comp.nombre}</div>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${getPlataformaColor(comp.plataformaPrincipal || 'otra')}`}>
                     {getPlataformaLabel(comp.plataformaPrincipal || 'otra')}
                   </span>
@@ -967,7 +967,7 @@ export function CompetidoresIntel({
               </div>
             ))}
             {(!alertas?.nuevos || alertas.nuevos.length === 0) && (
-              <div className="text-center py-4 text-gray-500">
+              <div className="text-center py-4 text-slate-500">
                 No hay nuevos competidores este mes
               </div>
             )}
@@ -977,7 +977,7 @@ export function CompetidoresIntel({
 
       {/* Recomendaciones */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recomendaciones de Inteligencia Competitiva</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Recomendaciones de Inteligencia Competitiva</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <div className="p-4 bg-red-50 rounded-lg">
             <h4 className="font-medium text-red-800 mb-2">Monitoreo Prioritario</h4>
@@ -1010,7 +1010,7 @@ export function CompetidoresIntel({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Cargando competidores...</span>
+        <span className="ml-3 text-slate-600">Cargando competidores...</span>
       </div>
     );
   }
@@ -1018,14 +1018,14 @@ export function CompetidoresIntel({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Sub-tabs de navegación - scroll horizontal en móvil */}
-      <div className="border-b border-gray-200 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="border-b border-slate-200 -mx-4 px-4 sm:mx-0 sm:px-0">
         <nav className="-mb-px flex gap-4 overflow-x-auto scrollbar-hide">
           <button
             onClick={() => setSubTab('lista')}
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
               subTab === 'lista'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
             Lista
@@ -1035,7 +1035,7 @@ export function CompetidoresIntel({
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
               subTab === 'dashboard'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
             Dashboard
@@ -1045,7 +1045,7 @@ export function CompetidoresIntel({
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${
               subTab === 'alertas'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
             Alertas

@@ -422,15 +422,15 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
       </div>
     );
   }
 
   if (entregas.length === 0) {
     return (
-      <div className="text-center py-6 text-gray-500">
-        <Truck className="h-10 w-10 mx-auto mb-2 text-gray-400" />
+      <div className="text-center py-6 text-slate-500">
+        <Truck className="h-10 w-10 mx-auto mb-2 text-slate-400" />
         <p>No hay entregas programadas para esta venta</p>
       </div>
     );
@@ -444,7 +444,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Package className="h-5 w-5 text-blue-600 mr-2" />
-              <span className="font-medium text-gray-900">Resumen de Entregas</span>
+              <span className="font-medium text-slate-900">Resumen de Entregas</span>
             </div>
             <Badge variant={resumenVenta.entregaCompleta ? 'success' : 'warning'}>
               {resumenVenta.entregaCompleta ? 'Entrega Completa' : 'Entrega Parcial'}
@@ -452,17 +452,17 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-3 text-sm">
             <div>
-              <span className="text-gray-500 text-xs sm:text-sm">Productos</span>
-              <p className="font-semibold text-gray-900">
+              <span className="text-slate-500 text-xs sm:text-sm">Productos</span>
+              <p className="font-semibold text-slate-900">
                 {resumenVenta.productosEntregados} / {resumenVenta.totalProductos}
               </p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs sm:text-sm">Entregas</span>
-              <p className="font-semibold text-gray-900">{resumenVenta.entregas.length}</p>
+              <span className="text-slate-500 text-xs sm:text-sm">Entregas</span>
+              <p className="font-semibold text-slate-900">{resumenVenta.entregas.length}</p>
             </div>
             <div className="col-span-2 sm:col-span-1">
-              <span className="text-gray-500 text-xs sm:text-sm">Costo Distribucion</span>
+              <span className="text-slate-500 text-xs sm:text-sm">Costo Distribucion</span>
               <p className="font-semibold text-amber-600">
                 S/ {resumenVenta.costoTotalDistribucion.toFixed(2)}
               </p>
@@ -479,7 +479,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
           return (
             <div
               key={entrega.id}
-              className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="bg-white border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -491,8 +491,8 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     }`} />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">{entrega.codigo}</div>
-                    <div className="text-sm text-gray-500">
+                    <div className="font-semibold text-slate-900">{entrega.codigo}</div>
+                    <div className="text-sm text-slate-500">
                       Entrega {entrega.numeroEntrega}{entrega.totalEntregas ? ` de ${entrega.totalEntregas}` : ''}
                     </div>
                   </div>
@@ -509,41 +509,41 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm mb-3">
                 <div>
-                  <div className="flex items-center text-gray-500 mb-1">
+                  <div className="flex items-center text-slate-500 mb-1">
                     <Truck className="h-4 w-4 mr-1 flex-shrink-0" />
                     <span className="text-xs sm:text-sm">Transportista</span>
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-900">
                     {entrega.nombreTransportista}
                     {entrega.courierExterno && (
-                      <span className="text-gray-500 ml-1">
+                      <span className="text-slate-500 ml-1">
                         ({courierLabels[entrega.courierExterno]})
                       </span>
                     )}
                   </div>
                   {entrega.telefonoTransportista && (
-                    <a href={`tel:${entrega.telefonoTransportista}`} className="text-gray-500 flex items-center mt-1 hover:text-blue-600">
+                    <a href={`tel:${entrega.telefonoTransportista}`} className="text-slate-500 flex items-center mt-1 hover:text-blue-600">
                       <Phone className="h-3 w-3 mr-1" />
                       {entrega.telefonoTransportista}
                     </a>
                   )}
                 </div>
                 <div>
-                  <div className="flex items-center text-gray-500 mb-1">
+                  <div className="flex items-center text-slate-500 mb-1">
                     <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
                     <span className="text-xs sm:text-sm">Programada</span>
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-900">
                     {formatDate(entrega.fechaProgramada)}
                   </div>
                   {entrega.horaProgramada && (
-                    <div className="text-gray-500">{entrega.horaProgramada}</div>
+                    <div className="text-slate-500">{entrega.horaProgramada}</div>
                   )}
                 </div>
               </div>
 
-              <div className="flex items-start text-sm text-gray-600 mb-3">
-                <MapPin className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0 text-gray-400" />
+              <div className="flex items-start text-sm text-slate-600 mb-3">
+                <MapPin className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0 text-slate-400" />
                 <span>
                   {entrega.direccionEntrega}
                   {entrega.distrito && ` - ${entrega.distrito}`}
@@ -552,7 +552,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
-                  <span className="text-gray-500">
+                  <span className="text-slate-500">
                     <Package className="h-4 w-4 inline mr-1" />
                     {entrega.cantidadItems} items
                   </span>
@@ -610,13 +610,13 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                     {menuAbierto === entrega.id && (
-                      <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20 min-w-[160px]">
+                      <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20 min-w-[160px]">
                         {estadosEditables.includes(entrega.estado) && (
                           <button
-                            className="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            className="w-full flex items-center px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
                             onClick={() => { handleEditarEntrega(entrega); setMenuAbierto(null); }}
                           >
-                            <Pencil className="h-4 w-4 mr-2 text-gray-400" />
+                            <Pencil className="h-4 w-4 mr-2 text-slate-400" />
                             Editar
                           </button>
                         )}
@@ -691,15 +691,15 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     </span>
                   </div>
                   {entrega.descripcionFallo && (
-                    <p className="text-xs text-gray-500 mt-1 ml-5">{entrega.descripcionFallo}</p>
+                    <p className="text-xs text-slate-500 mt-1 ml-5">{entrega.descripcionFallo}</p>
                   )}
                 </div>
               )}
 
               {entrega.numeroTracking && (
                 <div className="mt-2 pt-2 border-t text-sm">
-                  <span className="text-gray-500">Tracking:</span>
-                  <span className="font-mono ml-2 text-gray-900">{entrega.numeroTracking}</span>
+                  <span className="text-slate-500">Tracking:</span>
+                  <span className="font-mono ml-2 text-slate-900">{entrega.numeroTracking}</span>
                 </div>
               )}
             </div>
@@ -728,7 +728,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Motivo del fallo *
               </label>
               <div className="space-y-2">
@@ -738,7 +738,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
                       motivoFalloSeleccionado === opt.value
                         ? 'border-red-400 bg-red-50'
-                        : 'border-gray-200 hover:bg-gray-50'
+                        : 'border-slate-200 hover:bg-slate-50'
                     }`}
                   >
                     <input
@@ -751,7 +751,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     />
                     <span className="mr-2">{opt.icon}</span>
                     <span className={`text-sm ${
-                      motivoFalloSeleccionado === opt.value ? 'font-medium text-red-800' : 'text-gray-700'
+                      motivoFalloSeleccionado === opt.value ? 'font-medium text-red-800' : 'text-slate-700'
                     }`}>
                       {opt.label}
                     </span>
@@ -761,7 +761,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Descripcion adicional {motivoFalloSeleccionado === 'otro' ? '*' : '(opcional)'}
               </label>
               <textarea
@@ -769,7 +769,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                 onChange={(e) => setDescripcionFallo(e.target.value)}
                 rows={3}
                 placeholder="Detalle del motivo..."
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none text-sm"
+                className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none text-sm"
               />
             </div>
 
@@ -812,7 +812,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
 
             {/* Fecha real de entrega */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 <Calendar className="h-4 w-4 inline mr-1" />
                 Fecha de Entrega
               </label>
@@ -820,7 +820,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                 type="datetime-local"
                 value={fechaEntregaReal}
                 onChange={(e) => setFechaEntregaReal(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               />
               {fechaEntregaReal && (() => {
                 const now = new Date();
@@ -850,7 +850,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
               </div>
 
               <div className="flex items-center justify-between mb-3 p-2 bg-white rounded-lg">
-                <span className="text-sm text-gray-700 font-medium">Se realizo el cobro?</span>
+                <span className="text-sm text-slate-700 font-medium">Se realizo el cobro?</span>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -858,7 +858,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     onChange={(e) => setCobroRealizado(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                 </label>
               </div>
 
@@ -871,10 +871,10 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     onChange={(e) => setMontoRecaudado(parseFloat(e.target.value) || 0)}
                     min={0}
                     step={0.01}
-                    icon={<DollarSign className="h-5 w-5 text-gray-400" />}
+                    icon={<DollarSign className="h-5 w-5 text-slate-400" />}
                   />
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Metodo de Pago
                     </label>
                     <select
@@ -885,7 +885,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                         // Re-seleccionar cuenta default para el nuevo método
                         cargarCuentasYDefault(nuevoMetodo);
                       }}
-                      className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                      className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
                     >
                       {metodoPagoOptions.map(opt => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -895,12 +895,12 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
 
                   {/* Selector de cuenta destino */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       <Wallet className="h-4 w-4 inline mr-1" />
                       Cuenta Destino
                     </label>
                     {loadingCuentas ? (
-                      <div className="text-sm text-gray-500 py-2">Cargando cuentas...</div>
+                      <div className="text-sm text-slate-500 py-2">Cargando cuentas...</div>
                     ) : cuentasDisponibles.length === 0 ? (
                       <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded-lg border border-amber-200">
                         <AlertTriangle className="inline h-3 w-3 mr-1" />
@@ -911,7 +911,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                         <select
                           value={cuentaDestinoId}
                           onChange={(e) => setCuentaDestinoId(e.target.value)}
-                          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                          className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
                         >
                           <option value="">Seleccionar cuenta...</option>
                           {cuentasDisponibles.map((cuenta) => {
@@ -941,8 +941,8 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
               )}
             </div>
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-600">
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <p className="text-sm text-slate-600">
                   Sin cobro pendiente en esta entrega.
                 </p>
               </div>
@@ -999,7 +999,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
               min={0}
               step={0.01}
               placeholder="0.00"
-              icon={<DollarSign className="h-5 w-5 text-gray-400" />}
+              icon={<DollarSign className="h-5 w-5 text-slate-400" />}
             />
 
             <Input
@@ -1056,14 +1056,14 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
 
             {/* Transportista */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 <Truck className="h-4 w-4 inline mr-2" />
                 Transportista
               </label>
               <select
                 value={editTransportistaId}
                 onChange={(e) => setEditTransportistaId(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
               >
                 <option value="">Seleccionar transportista...</option>
                 <optgroup label="Internos (Lima)">
@@ -1097,7 +1097,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
               onChange={(e) => setEditCostoTransportista(parseFloat(e.target.value) || 0)}
               min={0}
               step={0.01}
-              icon={<DollarSign className="h-5 w-5 text-gray-400" />}
+              icon={<DollarSign className="h-5 w-5 text-slate-400" />}
             />
 
             <div className="flex justify-end gap-3 pt-4 border-t">

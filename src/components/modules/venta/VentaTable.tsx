@@ -63,109 +63,109 @@ interface DesgloseVentaProps {
 
 const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, datosGlobales }) => {
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-gray-100 p-5 border-t border-gray-200">
+    <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-5 border-t border-slate-200">
       {/* Header del desglose */}
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-semibold text-gray-800 flex items-center">
+        <h4 className="text-sm font-semibold text-slate-800 flex items-center">
           <Calculator className="h-4 w-4 mr-2 text-purple-600" />
           Desglose de Rentabilidad - {venta.numeroVenta}
         </h4>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-slate-500">
           Proporción GA/GO: {datosGlobales ? ((rentabilidad.costoBase / datosGlobales.baseCostoTotal) * 100).toFixed(2) : 0}%
         </div>
       </div>
 
       {/* Resumen de la venta - 6 tarjetas */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-5">
-        <div className="bg-white rounded-lg p-3 border border-gray-200">
-          <div className="text-xs text-gray-500 flex items-center">
+        <div className="bg-white rounded-lg p-3 border border-slate-200">
+          <div className="text-xs text-slate-500 flex items-center">
             <DollarSign className="h-3 w-3 mr-1" />
             Total Venta
           </div>
-          <div className="text-lg font-bold text-gray-900">S/ {venta.totalPEN.toFixed(2)}</div>
+          <div className="text-lg font-bold text-slate-900">S/ {venta.totalPEN.toFixed(2)}</div>
         </div>
         <div className="bg-white rounded-lg p-3 border border-blue-200 bg-blue-50">
-          <div className="text-xs text-gray-500 flex items-center">
+          <div className="text-xs text-slate-500 flex items-center">
             <Package className="h-3 w-3 mr-1" />
             Costo Base
           </div>
           <div className="text-lg font-bold text-blue-600">S/ {rentabilidad.costoBase.toFixed(2)}</div>
-          <div className="text-xs text-gray-400">Compra + Flete</div>
+          <div className="text-xs text-slate-400">Compra + Flete</div>
         </div>
         <div className="bg-white rounded-lg p-3 border border-purple-200 bg-purple-50">
-          <div className="text-xs text-gray-500 flex items-center">
+          <div className="text-xs text-slate-500 flex items-center">
             <DollarSign className="h-3 w-3 mr-1" />
             GV
           </div>
           <div className="text-lg font-bold text-purple-600">S/ {rentabilidad.gastosGV.toFixed(2)}</div>
-          <div className="text-xs text-gray-400">Comisiones, pasarelas</div>
+          <div className="text-xs text-slate-400">Comisiones, pasarelas</div>
         </div>
         <div className="bg-white rounded-lg p-3 border border-sky-200 bg-sky-50">
-          <div className="text-xs text-gray-500 flex items-center">
+          <div className="text-xs text-slate-500 flex items-center">
             <Truck className="h-3 w-3 mr-1" />
             GD
           </div>
           <div className="text-lg font-bold text-sky-600">S/ {rentabilidad.gastosGD.toFixed(2)}</div>
-          <div className="text-xs text-gray-400">Delivery</div>
+          <div className="text-xs text-slate-400">Delivery</div>
         </div>
         <div className="bg-white rounded-lg p-3 border border-orange-200 bg-orange-50">
-          <div className="text-xs text-gray-500 flex items-center">
+          <div className="text-xs text-slate-500 flex items-center">
             <PieChart className="h-3 w-3 mr-1" />
             GA/GO
           </div>
           <div className="text-lg font-bold text-orange-600">S/ {rentabilidad.costoGAGO.toFixed(2)}</div>
-          <div className="text-xs text-gray-400">Admin/Operativo</div>
+          <div className="text-xs text-slate-400">Admin/Operativo</div>
         </div>
         <div className={`rounded-lg p-3 border ${rentabilidad.utilidadNeta >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-          <div className="text-xs text-gray-500 flex items-center">
+          <div className="text-xs text-slate-500 flex items-center">
             <Percent className="h-3 w-3 mr-1" />
             Utilidad Neta
           </div>
           <div className={`text-lg font-bold ${rentabilidad.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             S/ {rentabilidad.utilidadNeta.toFixed(2)}
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-slate-400">
             Margen: {rentabilidad.margenNeto.toFixed(1)}%
           </div>
         </div>
       </div>
 
       {/* Fórmula de cálculo - Actualizada con GV y GD separados */}
-      <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
-        <div className="text-xs font-medium text-gray-600 mb-3 flex items-center">
+      <div className="bg-white rounded-lg p-4 border border-slate-200 mb-4">
+        <div className="text-xs font-medium text-slate-600 mb-3 flex items-center">
           <Info className="h-3 w-3 mr-1 text-blue-500" />
           Cálculo paso a paso:
         </div>
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between items-center py-1 border-b border-dashed border-gray-200">
-            <span className="text-gray-600">1. Venta total:</span>
+          <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200">
+            <span className="text-slate-600">1. Venta total:</span>
             <span className="font-mono font-medium">S/ {venta.totalPEN.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-1 border-b border-dashed border-gray-200">
-            <span className="text-gray-600">2. (-) Costo base (compra + flete):</span>
+          <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200">
+            <span className="text-slate-600">2. (-) Costo base (compra + flete):</span>
             <span className="font-mono font-medium text-blue-600">- S/ {rentabilidad.costoBase.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-1 border-b border-dashed border-gray-200">
-            <span className="text-gray-600">3. (-) GV (comisiones, pasarelas):</span>
+          <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200">
+            <span className="text-slate-600">3. (-) GV (comisiones, pasarelas):</span>
             <span className="font-mono font-medium text-purple-600">- S/ {rentabilidad.gastosGV.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-1 border-b border-dashed border-gray-200">
-            <span className="text-gray-600">4. (-) GD (delivery - Transportistas):</span>
+          <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200">
+            <span className="text-slate-600">4. (-) GD (delivery - Transportistas):</span>
             <span className="font-mono font-medium text-sky-600">- S/ {rentabilidad.gastosGD.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-1 border-b border-dashed border-gray-200 bg-yellow-50 -mx-2 px-2">
-            <span className="text-gray-700 font-medium">(=) Utilidad Bruta:</span>
+          <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200 bg-yellow-50 -mx-2 px-2">
+            <span className="text-slate-700 font-medium">(=) Utilidad Bruta:</span>
             <span className={`font-mono font-semibold ${rentabilidad.utilidadBruta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               S/ {rentabilidad.utilidadBruta.toFixed(2)}
-              <span className="text-xs text-gray-500 ml-1">({rentabilidad.margenBruto.toFixed(1)}%)</span>
+              <span className="text-xs text-slate-500 ml-1">({rentabilidad.margenBruto.toFixed(1)}%)</span>
             </span>
           </div>
-          <div className="flex justify-between items-center py-1 border-b border-dashed border-gray-200">
-            <span className="text-gray-600">5. (-) GA/GO prorrateado:</span>
+          <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200">
+            <span className="text-slate-600">5. (-) GA/GO prorrateado:</span>
             <span className="font-mono font-medium text-orange-600">- S/ {rentabilidad.costoGAGO.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-2 bg-gray-100 rounded px-2 mt-2">
-            <span className="font-semibold text-gray-800">(=) Utilidad Neta:</span>
+          <div className="flex justify-between items-center py-2 bg-slate-100 rounded px-2 mt-2">
+            <span className="font-semibold text-slate-800">(=) Utilidad Neta:</span>
             <span className={`font-mono font-bold text-lg ${rentabilidad.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               S/ {rentabilidad.utilidadNeta.toFixed(2)}
               <span className="text-xs font-normal ml-1">({rentabilidad.margenNeto.toFixed(1)}%)</span>
@@ -176,46 +176,46 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
 
       {/* Desglose por producto - Actualizado con GV/GD y GA/GO separados */}
       {rentabilidad.desgloseProductos && rentabilidad.desgloseProductos.length > 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-            <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+          <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+            <h5 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
               Desglose por Producto ({rentabilidad.desgloseProductos.length})
             </h5>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs">
-              <thead className="bg-gray-50">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">Producto</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Cant.</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Precio Venta</th>
+                  <th className="px-3 py-2 text-left font-medium text-slate-500">Producto</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">Cant.</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">Precio Venta</th>
                   <th className="px-3 py-2 text-right font-medium text-blue-600">Costo Base</th>
-                  <th className="px-3 py-2 text-right font-medium text-indigo-600" title="GV + GD prorrateado por % subtotal">GV+GD</th>
+                  <th className="px-3 py-2 text-right font-medium text-teal-600" title="GV + GD prorrateado por % subtotal">GV+GD</th>
                   <th className="px-3 py-2 text-right font-medium text-orange-600" title="Prorrateado por % costo">GA/GO</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Costo Total</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Util. Neta</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Margen</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">Costo Total</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">Util. Neta</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">Margen</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100">
                 {rentabilidad.desgloseProductos.map((prod, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
+                  <tr key={idx} className="hover:bg-slate-50">
                     <td className="px-3 py-2">
-                      <div className="font-medium text-gray-900 truncate max-w-[180px]" title={prod.nombre}>
+                      <div className="font-medium text-slate-900 truncate max-w-[180px]" title={prod.nombre}>
                         {prod.nombre}
                       </div>
-                      <div className="text-gray-400 font-mono">{prod.sku}</div>
+                      <div className="text-slate-400 font-mono">{prod.sku}</div>
                     </td>
                     <td className="px-3 py-2 text-right font-medium">{prod.cantidad}</td>
                     <td className="px-3 py-2 text-right font-mono">
                       S/ {prod.precioVenta.toFixed(2)}
-                      <div className="text-gray-400 text-[10px]">{prod.proporcionVenta.toFixed(1)}% venta</div>
+                      <div className="text-slate-400 text-[10px]">{prod.proporcionVenta.toFixed(1)}% venta</div>
                     </td>
                     <td className="px-3 py-2 text-right font-mono text-blue-600">
                       S/ {prod.costoBase.toFixed(2)}
-                      <div className="text-gray-400 text-[10px]">{prod.proporcionCosto.toFixed(1)}% costo</div>
+                      <div className="text-slate-400 text-[10px]">{prod.proporcionCosto.toFixed(1)}% costo</div>
                     </td>
-                    <td className="px-3 py-2 text-right font-mono text-indigo-600">
+                    <td className="px-3 py-2 text-right font-mono text-teal-600">
                       S/ {prod.costoGVGD.toFixed(2)}
                     </td>
                     <td className="px-3 py-2 text-right font-mono text-orange-600">
@@ -246,7 +246,7 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
       )}
 
       {/* Nota explicativa */}
-      <div className="mt-4 text-xs text-gray-500 bg-blue-50 rounded-lg p-3 border border-blue-100">
+      <div className="mt-4 text-xs text-slate-500 bg-blue-50 rounded-lg p-3 border border-blue-100">
         <div className="flex items-start">
           <Info className="h-4 w-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
           <div className="space-y-1">
@@ -283,15 +283,15 @@ const VentaCard: React.FC<{
 
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 space-y-2" onClick={() => onView(venta)}>
+    <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-2" onClick={() => onView(venta)}>
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-xs text-primary-600 font-semibold">{venta.numeroVenta}</span>
+            <span className="font-mono text-xs text-teal-600 font-semibold">{venta.numeroVenta}</span>
             <Badge variant={estadoInfo.variant} size="sm">{estadoInfo.label}</Badge>
             <LineaNegocioBadge lineaNegocioId={venta.lineaNegocioId} />
           </div>
-          <div className="font-medium text-gray-900 text-sm truncate mt-1 flex items-center gap-1.5">
+          <div className="font-medium text-slate-900 text-sm truncate mt-1 flex items-center gap-1.5">
             {venta.nombreCliente}
             {venta.esVentaSocio && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700 flex-shrink-0">
@@ -299,7 +299,7 @@ const VentaCard: React.FC<{
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span>{formatDate(venta.fechaCreacion)} - {getCanalLabel(venta)}</span>
             {venta.metodoEnvio === 'flex' && (
               <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700">
@@ -314,7 +314,7 @@ const VentaCard: React.FC<{
           </div>
         </div>
         <div className="text-right">
-          <div className="font-bold text-gray-900">S/ {venta.totalPEN.toFixed(2)}</div>
+          <div className="font-bold text-slate-900">S/ {venta.totalPEN.toFixed(2)}</div>
           {venta.margenPromedio !== undefined && (
             <div className={`text-xs flex items-center justify-end ${venta.margenPromedio > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {venta.margenPromedio > 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
@@ -330,26 +330,26 @@ const VentaCard: React.FC<{
 
           return (
             <div key={idx} className="text-xs leading-tight">
-              <div className="font-medium text-gray-700 truncate">{p.marca} {p.nombreComercial}</div>
-              <div className="flex items-center flex-wrap gap-x-1 gap-y-0.5 text-[10px] text-gray-500 mt-0.5">
-                <span className="font-mono text-gray-400">{p.sku}</span>
+              <div className="font-medium text-slate-700 truncate">{p.marca} {p.nombreComercial}</div>
+              <div className="flex items-center flex-wrap gap-x-1 gap-y-0.5 text-[10px] text-slate-500 mt-0.5">
+                <span className="font-mono text-slate-400">{p.sku}</span>
                 {desc && (
                   <>
-                    <span className="text-gray-300">·</span>
+                    <span className="text-slate-300">·</span>
                     <span>{desc}</span>
                   </>
                 )}
-                <span className="text-gray-300">·</span>
-                <span className="font-medium text-gray-600">{p.cantidad}u × S/{p.precioUnitario.toFixed(2)}</span>
+                <span className="text-slate-300">·</span>
+                <span className="font-medium text-slate-600">{p.cantidad}u × S/{p.precioUnitario.toFixed(2)}</span>
               </div>
             </div>
           );
         })}
         {venta.productos.length > 2 && (
-          <div className="text-[10px] text-gray-400">+{venta.productos.length - 2} más</div>
+          <div className="text-[10px] text-slate-400">+{venta.productos.length - 2} más</div>
         )}
       </div>
-      <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+      <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
         <span>{venta.productos.length} producto{venta.productos.length !== 1 ? 's' : ''}</span>
         <div className="flex items-center gap-2">
           {venta.estado === 'en_entrega' && onDespachar && (
@@ -371,7 +371,7 @@ const VentaCard: React.FC<{
               Devolver
             </button>
           )}
-          <button onClick={(e) => { e.stopPropagation(); onView(venta); }} className="p-1.5 text-primary-600 hover:bg-primary-50 rounded">
+          <button onClick={(e) => { e.stopPropagation(); onView(venta); }} className="p-1.5 text-teal-600 hover:bg-teal-50 rounded">
             <Eye className="h-4 w-4" />
           </button>
           {venta.estado === 'cotizacion' && onDelete && (
@@ -438,7 +438,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -446,9 +446,9 @@ export const VentaTable: React.FC<VentaTableProps> = ({
   if (ventas.length === 0) {
     return (
       <div className="text-center py-12">
-        <ShoppingCart className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No hay ventas</h3>
-        <p className="mt-1 text-sm text-gray-500">Comienza creando tu primera venta o cotización</p>
+        <ShoppingCart className="mx-auto h-12 w-12 text-slate-400" />
+        <h3 className="mt-2 text-sm font-medium text-slate-900">No hay ventas</h3>
+        <p className="mt-1 text-sm text-slate-500">Comienza creando tu primera venta o cotización</p>
       </div>
     );
   }
@@ -481,48 +481,48 @@ export const VentaTable: React.FC<VentaTableProps> = ({
 
       {/* Vista desktop - Tabla */}
       <div className="hidden lg:block overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-slate-200">
+        <thead className="bg-slate-50">
           <tr>
-            <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+            <th className="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider w-12">
               <Calculator className="h-4 w-4 mx-auto text-purple-500" aria-label="Ver desglose" />
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               Número
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               Cliente
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               Canal
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               Productos
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               Total
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               Margen Bruto
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               <div className="flex items-center" title="Margen Neto con distribución proporcional de GA/GO">
                 <PieChart className="h-3 w-3 mr-1 text-orange-500" />
                 Margen Neto
               </div>
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               Estado
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               Fecha
             </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
               Acciones
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-slate-200">
           {ventasPaginadas.map((venta) => {
             const estadoInfo = estadoLabels[venta.estado];
             // Obtener rentabilidad con distribución proporcional
@@ -534,7 +534,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
 
             return (
               <React.Fragment key={venta.id}>
-              <tr className={`hover:bg-gray-50 ${isExpanded ? 'bg-purple-50' : ''}`}>
+              <tr className={`hover:bg-slate-50 ${isExpanded ? 'bg-purple-50' : ''}`}>
                 {/* Botón de expandir/colapsar desglose */}
                 <td className="px-3 py-4 whitespace-nowrap text-center">
                   <button
@@ -542,7 +542,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                     className={`p-1.5 rounded-lg transition-all duration-200 ${
                       isExpanded
                         ? 'bg-purple-600 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-500 hover:bg-purple-100 hover:text-purple-600'
+                        : 'bg-slate-100 text-slate-500 hover:bg-purple-100 hover:text-purple-600'
                     }`}
                     title={isExpanded ? 'Ocultar desglose' : 'Ver desglose de rentabilidad'}
                     disabled={!tieneRentabilidad && !loadingRentabilidad}
@@ -556,8 +556,8 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <ShoppingCart className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm font-mono font-medium text-gray-900">
+                    <ShoppingCart className="h-4 w-4 text-slate-400 mr-2" />
+                    <span className="text-sm font-mono font-medium text-slate-900">
                       {venta.numeroVenta}
                     </span>
                   </div>
@@ -565,7 +565,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 </td>
                 
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 flex items-center gap-1.5">
+                  <div className="text-sm text-slate-900 flex items-center gap-1.5">
                     {venta.nombreCliente}
                     {venta.esVentaSocio && (
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">
@@ -574,7 +574,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                     )}
                   </div>
                   {venta.dniRuc && (
-                    <div className="text-xs text-gray-500">{venta.dniRuc}</div>
+                    <div className="text-xs text-slate-500">{venta.dniRuc}</div>
                   )}
                 </td>
                 
@@ -605,25 +605,25 @@ export const VentaTable: React.FC<VentaTableProps> = ({
 
                       return (
                         <div key={idx} className="text-xs leading-tight">
-                          <div className="font-semibold text-gray-900 truncate" title={`${p.marca} ${p.nombreComercial}`}>
+                          <div className="font-semibold text-slate-900 truncate" title={`${p.marca} ${p.nombreComercial}`}>
                             {p.marca} {p.nombreComercial}
                           </div>
-                          <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-[10px] text-gray-500 mt-0.5">
-                            <span className="font-mono text-gray-400">{p.sku}</span>
+                          <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-[10px] text-slate-500 mt-0.5">
+                            <span className="font-mono text-slate-400">{p.sku}</span>
                             {desc && (
                               <>
-                                <span className="text-gray-300">·</span>
+                                <span className="text-slate-300">·</span>
                                 <span>{desc}</span>
                               </>
                             )}
-                            <span className="text-gray-300">·</span>
-                            <span className="font-medium text-gray-600">{p.cantidad}u × S/{p.precioUnitario.toFixed(2)}</span>
+                            <span className="text-slate-300">·</span>
+                            <span className="font-medium text-slate-600">{p.cantidad}u × S/{p.precioUnitario.toFixed(2)}</span>
                           </div>
                         </div>
                       );
                     })}
                     {venta.productos.length > 3 && (
-                      <div className="text-[10px] text-gray-400">
+                      <div className="text-[10px] text-slate-400">
                         +{venta.productos.length - 3} producto{venta.productos.length - 3 > 1 ? 's' : ''} más
                       </div>
                     )}
@@ -631,7 +631,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 </td>
                 
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-slate-900">
                     S/ {venta.totalPEN.toFixed(2)}
                   </div>
                   {venta.utilidadBrutaPEN !== undefined && (
@@ -661,7 +661,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                       </div>
                     </div>
                   ) : loadingRentabilidad ? (
-                    <span className="text-sm text-gray-400">...</span>
+                    <span className="text-sm text-slate-400">...</span>
                   ) : venta.margenPromedio !== undefined ? (
                     <div className="flex items-center">
                       {margenBrutoPositivo ? (
@@ -676,7 +676,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                       </span>
                     </div>
                   ) : (
-                    <span className="text-sm text-gray-400">-</span>
+                    <span className="text-sm text-slate-400">-</span>
                   )}
                 </td>
 
@@ -701,9 +701,9 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                       </div>
                     </div>
                   ) : loadingRentabilidad ? (
-                    <span className="text-sm text-gray-400">...</span>
+                    <span className="text-sm text-slate-400">...</span>
                   ) : (
-                    <span className="text-sm text-gray-400" title="Sin datos de rentabilidad">-</span>
+                    <span className="text-sm text-slate-400" title="Sin datos de rentabilidad">-</span>
                   )}
                 </td>
 
@@ -732,7 +732,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                 </td>
                 
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
+                  <div className="text-sm text-slate-900">
                     {formatDate(venta.fechaCreacion)}
                   </div>
                 </td>
@@ -741,7 +741,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                   <div className="flex items-center justify-end space-x-2">
                     <button
                       onClick={() => onView(venta)}
-                      className="text-primary-600 hover:text-primary-900"
+                      className="text-teal-600 hover:text-teal-900"
                       title="Ver detalles"
                     >
                       <Eye className="h-4 w-4" />

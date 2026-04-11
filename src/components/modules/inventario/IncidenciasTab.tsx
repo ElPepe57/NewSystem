@@ -92,8 +92,8 @@ export const IncidenciasTab: React.FC<IncidenciasTabProps> = ({
     return (
       <Card padding="lg">
         <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
-          <span className="ml-2 text-gray-500">Cargando incidencias...</span>
+          <RefreshCw className="h-6 w-6 animate-spin text-slate-400" />
+          <span className="ml-2 text-slate-500">Cargando incidencias...</span>
         </div>
       </Card>
     );
@@ -104,8 +104,8 @@ export const IncidenciasTab: React.FC<IncidenciasTabProps> = ({
       <Card padding="lg">
         <div className="text-center py-12">
           <Package className="h-12 w-12 mx-auto text-green-300 mb-3" />
-          <h3 className="text-lg font-medium text-gray-700">Sin incidencias pendientes</h3>
-          <p className="text-sm text-gray-500 mt-1">No hay unidades dañadas ni vencidas por gestionar.</p>
+          <h3 className="text-lg font-medium text-slate-700">Sin incidencias pendientes</h3>
+          <p className="text-sm text-slate-500 mt-1">No hay unidades dañadas ni vencidas por gestionar.</p>
         </div>
       </Card>
     );
@@ -118,32 +118,32 @@ export const IncidenciasTab: React.FC<IncidenciasTabProps> = ({
         <Card padding="sm">
           <div className="text-center">
             <p className="text-2xl font-bold text-red-600">{totalIncidencias}</p>
-            <p className="text-xs text-gray-500">Total pendientes</p>
+            <p className="text-xs text-slate-500">Total pendientes</p>
           </div>
         </Card>
         <Card padding="sm">
           <div className="text-center">
             <p className="text-2xl font-bold text-red-500">{totalVencidas}</p>
-            <p className="text-xs text-gray-500">Vencidas</p>
+            <p className="text-xs text-slate-500">Vencidas</p>
           </div>
         </Card>
         <Card padding="sm">
           <div className="text-center">
             <p className="text-2xl font-bold text-amber-500">{totalDanadas}</p>
-            <p className="text-xs text-gray-500">Dañadas</p>
+            <p className="text-xs text-slate-500">Dañadas</p>
           </div>
         </Card>
         <Card padding="sm">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-700">{formatCurrency(costoTotalRiesgo, 'USD')}</p>
-            <p className="text-xs text-gray-500">Valor en riesgo</p>
+            <p className="text-2xl font-bold text-slate-700">{formatCurrency(costoTotalRiesgo, 'USD')}</p>
+            <p className="text-xs text-slate-500">Valor en riesgo</p>
           </div>
         </Card>
       </div>
 
       {/* Filtro rápido */}
       <div className="flex items-center gap-2">
-        <Filter className="h-4 w-4 text-gray-400" />
+        <Filter className="h-4 w-4 text-slate-400" />
         {(['todas', 'vencidas', 'danadas'] as FiltroIncidencia[]).map(f => (
           <button
             key={f}
@@ -153,8 +153,8 @@ export const IncidenciasTab: React.FC<IncidenciasTabProps> = ({
               filtro === f
                 ? f === 'vencidas' ? 'bg-red-100 text-red-700 ring-1 ring-red-300'
                 : f === 'danadas' ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-300'
-                : 'bg-gray-800 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-slate-800 text-white'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             {f === 'todas' ? `Todas (${totalIncidencias})` :
@@ -166,7 +166,7 @@ export const IncidenciasTab: React.FC<IncidenciasTabProps> = ({
         <button
           type="button"
           onClick={() => { loadIncidencias(); onRefresh(); }}
-          className="ml-auto p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+          className="ml-auto p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
           title="Refrescar"
         >
           <RefreshCw className="h-4 w-4" />
@@ -197,7 +197,7 @@ export const IncidenciasTab: React.FC<IncidenciasTabProps> = ({
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-slate-900">
                       {prod?.marca || 'Sin marca'} — {prod?.nombre || 'Sin nombre'}
                     </span>
                     <Badge
@@ -207,7 +207,7 @@ export const IncidenciasTab: React.FC<IncidenciasTabProps> = ({
                       {item.tipo === 'vencida' ? 'Vencida' : 'Dañada'}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                     <span>SKU: {prod?.sku || item.productoSKU || '—'}</span>
                     {item.tipo === 'vencida' && diasVencido !== null && (
                       <span className="text-red-500">

@@ -53,7 +53,7 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
 
   if (datos.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-8">
+      <div className="text-center text-slate-500 py-8">
         <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
         <p>Sin historial de precios aún</p>
         <p className="text-xs mt-1">El historial se genera al actualizar la investigación</p>
@@ -69,14 +69,14 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
     if (!stats) return null;
     if (stats.tendencia === 'subiendo') return <TrendingUp className="h-4 w-4 text-green-500" />;
     if (stats.tendencia === 'bajando') return <TrendingDown className="h-4 w-4 text-red-500" />;
-    return <Minus className="h-4 w-4 text-gray-500" />;
+    return <Minus className="h-4 w-4 text-slate-500" />;
   };
 
   const getTendenciaColor = () => {
-    if (!stats) return 'text-gray-600';
+    if (!stats) return 'text-slate-600';
     if (stats.tendencia === 'subiendo') return 'text-green-600';
     if (stats.tendencia === 'bajando') return 'text-red-600';
-    return 'text-gray-600';
+    return 'text-slate-600';
   };
 
   return (
@@ -115,7 +115,7 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
 
         <div className={`rounded-lg p-3 ${
           stats?.tendencia === 'subiendo' ? 'bg-green-50' :
-          stats?.tendencia === 'bajando' ? 'bg-red-50' : 'bg-gray-50'
+          stats?.tendencia === 'bajando' ? 'bg-red-50' : 'bg-slate-50'
         }`}>
           <div className={`flex items-center gap-1 text-xs mb-1 ${getTendenciaColor()}`}>
             {getTendenciaIcon()}
@@ -132,8 +132,8 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
       </div>
 
       {/* Gráfico de barras comparativo */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h5 className="text-sm font-medium text-gray-700 mb-3">Evolución de Precios</h5>
+      <div className="bg-slate-50 rounded-lg p-4">
+        <h5 className="text-sm font-medium text-slate-700 mb-3">Evolución de Precios</h5>
 
         <div className="space-y-3">
           {datos.slice(-6).map((registro, index) => {
@@ -143,9 +143,9 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
 
             return (
               <div key={index} className="space-y-1">
-                <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center justify-between text-xs text-slate-500">
                   <span>{formatFecha(registro.fechaDate)}</span>
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-slate-700">
                     Margen: {registro.margenEstimado.toFixed(1)}%
                   </span>
                 </div>
@@ -153,13 +153,13 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
                 {/* Barra USA */}
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-blue-600 w-16">USA</span>
-                  <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div className="flex-1 bg-slate-200 rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-blue-500 h-full rounded-full transition-all"
                       style={{ width: `${widthUSA}%` }}
                     />
                   </div>
-                  <span className="text-xs text-gray-600 w-20 text-right">
+                  <span className="text-xs text-slate-600 w-20 text-right">
                     S/{precioUSAPEN.toFixed(2)}
                   </span>
                 </div>
@@ -167,13 +167,13 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
                 {/* Barra Perú */}
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-orange-600 w-16">Perú</span>
-                  <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div className="flex-1 bg-slate-200 rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-orange-500 h-full rounded-full transition-all"
                       style={{ width: `${widthPeru}%` }}
                     />
                   </div>
-                  <span className="text-xs text-gray-600 w-20 text-right">
+                  <span className="text-xs text-slate-600 w-20 text-right">
                     S/{registro.precioPERUPromedio.toFixed(2)}
                   </span>
                 </div>
@@ -183,22 +183,22 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
         </div>
 
         {datos.length > 6 && (
-          <p className="text-xs text-gray-400 mt-3 text-center">
+          <p className="text-xs text-slate-400 mt-3 text-center">
             Mostrando últimas 6 actualizaciones de {datos.length} totales
           </p>
         )}
       </div>
 
       {/* Resumen de rango */}
-      <div className="flex items-center justify-between text-sm bg-gray-100 rounded-lg p-3">
+      <div className="flex items-center justify-between text-sm bg-slate-100 rounded-lg p-3">
         <div>
-          <span className="text-gray-500">Margen histórico:</span>
+          <span className="text-slate-500">Margen histórico:</span>
           <span className="ml-2 font-medium">
             {stats?.minMargen?.toFixed(1)}% - {stats?.maxMargen?.toFixed(1)}%
           </span>
         </div>
         <div>
-          <span className="text-gray-500">Promedio:</span>
+          <span className="text-slate-500">Promedio:</span>
           <span className="ml-2 font-medium text-green-600">
             {stats?.promedioMargen?.toFixed(1)}%
           </span>

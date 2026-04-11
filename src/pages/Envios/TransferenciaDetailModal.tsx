@@ -121,8 +121,8 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
               <div className="text-sm text-slate-500">{transferencia.almacenOrigenCodigo}</div>
             </div>
             <div className="flex-shrink-0">
-              <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
-                <ChevronRight className="h-5 w-5 text-primary-600" />
+              <div className="h-8 w-8 rounded-full bg-teal-100 flex items-center justify-center">
+                <ChevronRight className="h-5 w-5 text-teal-600" />
               </div>
             </div>
             <div className="flex-1 text-right">

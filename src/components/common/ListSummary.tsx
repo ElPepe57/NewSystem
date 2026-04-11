@@ -32,7 +32,7 @@ const iconMap: Record<SummaryIcon, React.ReactNode> = {
 };
 
 const variantStyles: Record<string, string> = {
-  default: 'text-gray-600',
+  default: 'text-slate-600',
   success: 'text-green-600',
   warning: 'text-amber-600',
   danger: 'text-red-600',
@@ -63,18 +63,18 @@ export const ListSummary: React.FC<ListSummaryProps> = ({
   const isFiltered = filteredCount !== totalCount;
 
   return (
-    <div className={`flex flex-wrap items-center gap-4 py-2 px-4 bg-gray-50 border border-gray-200 rounded-lg text-sm ${className}`}>
+    <div className={`flex flex-wrap items-center gap-4 py-2 px-4 bg-slate-50 border border-slate-200 rounded-lg text-sm ${className}`}>
       {/* Contador principal */}
-      <div className="flex items-center gap-2 text-gray-600">
+      <div className="flex items-center gap-2 text-slate-600">
         <List className="h-4 w-4" />
         <span>
           {isFiltered ? (
             <>
-              Mostrando <span className="font-semibold text-gray-900">{filteredCount}</span> de {totalCount} {itemLabel}
+              Mostrando <span className="font-semibold text-slate-900">{filteredCount}</span> de {totalCount} {itemLabel}
             </>
           ) : (
             <>
-              <span className="font-semibold text-gray-900">{totalCount}</span> {itemLabel}
+              <span className="font-semibold text-slate-900">{totalCount}</span> {itemLabel}
             </>
           )}
         </span>
@@ -82,7 +82,7 @@ export const ListSummary: React.FC<ListSummaryProps> = ({
 
       {/* Separador si hay items adicionales */}
       {summaryItems.length > 0 && (
-        <div className="hidden sm:block w-px h-4 bg-gray-300" />
+        <div className="hidden sm:block w-px h-4 bg-slate-300" />
       )}
 
       {/* Items de resumen adicionales */}
@@ -92,7 +92,7 @@ export const ListSummary: React.FC<ListSummaryProps> = ({
           className={`flex items-center gap-1.5 ${variantStyles[item.variant || 'default']}`}
         >
           {item.icon && iconMap[item.icon]}
-          <span className="text-gray-500">{item.label}:</span>
+          <span className="text-slate-500">{item.label}:</span>
           <span className="font-semibold">{item.value}</span>
         </div>
       ))}
@@ -108,7 +108,7 @@ export const ListSummaryCompact: React.FC<{
   label?: string;
   className?: string;
 }> = ({ count, label = 'resultados', className = '' }) => (
-  <span className={`text-sm text-gray-500 ${className}`}>
-    <span className="font-medium text-gray-700">{count}</span> {label}
+  <span className={`text-sm text-slate-500 ${className}`}>
+    <span className="font-medium text-slate-700">{count}</span> {label}
   </span>
 );

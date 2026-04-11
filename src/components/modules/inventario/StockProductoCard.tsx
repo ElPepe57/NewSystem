@@ -37,17 +37,17 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
       }`}
     >
       {/* Header */}
-      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+      <div className="bg-slate-50 px-4 py-3 border-b border-slate-200">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-              <Package className="h-5 w-5 text-gray-400" />
+            <div className="h-10 w-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center">
+              <Package className="h-5 w-5 text-slate-400" />
             </div>
             <div>
-              <div className="font-mono text-sm font-bold text-gray-900">
+              <div className="font-mono text-sm font-bold text-slate-900">
                 {producto.sku}
               </div>
-              <div className="text-xs text-gray-500 truncate max-w-[150px]">
+              <div className="text-xs text-slate-500 truncate max-w-[150px]">
                 {producto.marca}
               </div>
               <LineaNegocioBadge lineaNegocioId={producto.lineaNegocioId} />
@@ -70,11 +70,11 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
             </div>
           )}
         </div>
-        <div className="text-sm text-gray-600 mt-1 truncate">
+        <div className="text-sm text-slate-600 mt-1 truncate">
           {producto.nombre}
         </div>
         {getDescripcionProducto(producto) && (
-          <div className="text-[10px] text-gray-400 mt-0.5 truncate">
+          <div className="text-[10px] text-slate-400 mt-0.5 truncate">
             {getDescripcionProducto(producto)}
           </div>
         )}
@@ -83,7 +83,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
 
       {/* Distribución de Stock */}
       <div className="p-4">
-        <div className="text-xs font-medium text-gray-500 uppercase mb-2">
+        <div className="text-xs font-medium text-slate-500 uppercase mb-2">
           Distribución
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -145,15 +145,15 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
 
       {/* Valor y Total */}
       <div className="px-4 pb-4">
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
           <div>
-            <div className="text-xs text-gray-500">Total Unidades</div>
-            <div className="text-xl font-bold text-gray-900">
+            <div className="text-xs text-slate-500">Total Unidades</div>
+            <div className="text-xl font-bold text-slate-900">
               {producto.totalUnidades}
             </div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-gray-500">Valor Total</div>
+            <div className="text-xs text-slate-500">Valor Total</div>
             <div className="text-lg font-bold text-green-600">
               {formatCurrency(producto.valorTotalUSD)}
             </div>
@@ -163,7 +163,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
 
       {/* Footer con costo promedio */}
       <div className="px-4 pb-4 flex items-center justify-between">
-        <div className="flex items-center gap-1 text-xs text-gray-500">
+        <div className="flex items-center gap-1 text-xs text-slate-500">
           <DollarSign className="h-3 w-3" />
           Prom: {formatCurrency(producto.costoPromedioUSD)}
         </div>

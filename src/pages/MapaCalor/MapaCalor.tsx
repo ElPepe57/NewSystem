@@ -68,7 +68,7 @@ export function MapaCalor() {
           {loading && ventasGeo.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <RefreshCw className="h-8 w-8 text-primary-500 animate-spin mx-auto mb-2" />
+                <RefreshCw className="h-8 w-8 text-teal-500 animate-spin mx-auto mb-2" />
                 <p className="text-slate-500">Cargando datos geográficos...</p>
               </div>
             </div>

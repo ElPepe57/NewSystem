@@ -92,16 +92,16 @@ export function CategoriaList() {
   const renderCategoria = (categoria: Categoria, isChild = false) => (
     <div
       key={categoria.id}
-      className={`flex items-center justify-between p-2 ${isChild ? 'pl-10' : ''} hover:bg-gray-50 rounded-lg cursor-pointer`}
+      className={`flex items-center justify-between p-2 ${isChild ? 'pl-10' : ''} hover:bg-slate-50 rounded-lg cursor-pointer`}
       onClick={() => setViewingCategoria(categoria)}
     >
       <div className="flex items-center gap-2 flex-1">
-        <span className="text-xs font-mono text-gray-400">{categoria.codigo}</span>
+        <span className="text-xs font-mono text-slate-400">{categoria.codigo}</span>
         <span
           className="w-3 h-3 rounded-full"
           style={{ backgroundColor: categoria.color || '#3B82F6' }}
         />
-        <span className={`${isChild ? 'text-sm' : 'font-medium'} text-gray-900`}>
+        <span className={`${isChild ? 'text-sm' : 'font-medium'} text-slate-900`}>
           {categoria.nombre}
         </span>
         {categoria.mostrarEnWeb && (
@@ -119,14 +119,14 @@ export function CategoriaList() {
             </span>
           ))
         ) : (
-          <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+          <span className="text-xs px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">
             Todas
           </span>
         )}
       </div>
 
       <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-1 text-sm text-gray-500">
+        <div className="flex items-center gap-1 text-sm text-slate-500">
           <Package className="h-4 w-4" />
           <span>{categoria.metricas?.productosActivos || 0}</span>
         </div>
@@ -134,7 +134,7 @@ export function CategoriaList() {
         <div className="flex items-center gap-1">
           <button
             onClick={() => setViewingCategoria(categoria)}
-            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
             title="Ver Analytics"
           >
             <BarChart3 className="h-4 w-4" />
@@ -142,7 +142,7 @@ export function CategoriaList() {
           {!isChild && (
             <button
               onClick={() => handleAddSubcategoria(categoria.id)}
-              className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded"
+              className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded"
               title="Agregar subcategoria"
             >
               <Plus className="h-4 w-4" />
@@ -150,14 +150,14 @@ export function CategoriaList() {
           )}
           <button
             onClick={() => handleEdit(categoria)}
-            className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
+            className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
             title="Editar"
           >
             <Pencil className="h-4 w-4" />
           </button>
           <button
             onClick={() => setDeletingCategoria(categoria)}
-            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
             title="Eliminar"
           >
             <Trash2 className="h-4 w-4" />
@@ -173,15 +173,15 @@ export function CategoriaList() {
     const tieneHijos = padre.hijos.length > 0;
 
     return (
-      <div key={padre.id} className="border border-gray-200 rounded-lg overflow-hidden">
+      <div key={padre.id} className="border border-slate-200 rounded-lg overflow-hidden">
         <div className="flex items-center bg-white">
           {tieneHijos && (
             <button
               onClick={() => toggleExpand(padre.id)}
-              className="p-2 hover:bg-gray-100"
+              className="p-2 hover:bg-slate-100"
             >
               <ChevronRight
-                className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                className={`h-4 w-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
               />
             </button>
           )}
@@ -191,7 +191,7 @@ export function CategoriaList() {
         </div>
 
         {isExpanded && tieneHijos && (
-          <div className="border-t border-gray-100 bg-gray-50">
+          <div className="border-t border-slate-100 bg-slate-50">
             {padre.hijos.map(hijo => renderCategoria(hijo, true))}
           </div>
         )}
@@ -204,9 +204,9 @@ export function CategoriaList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FolderTree className="h-5 w-5 text-primary-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Categorias</h3>
-          <span className="text-sm text-gray-500">({arbol.length})</span>
+          <FolderTree className="h-5 w-5 text-teal-600" />
+          <h3 className="text-lg font-semibold text-slate-900">Categorias</h3>
+          <span className="text-sm text-slate-500">({arbol.length})</span>
         </div>
         <Button onClick={() => { setCategoriaPadreId(undefined); setShowForm(true); }} size="sm">
           <Plus className="h-4 w-4 mr-1" />
@@ -217,20 +217,20 @@ export function CategoriaList() {
       {/* Busqueda y filtro */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Buscar categoria..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           />
         </div>
         {lineasActivas.length > 0 && (
           <select
             value={filtroLinea}
             onChange={(e) => setFiltroLinea(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           >
             <option value="">Todas las lineas</option>
             {lineasActivas.map(l => (
@@ -242,9 +242,9 @@ export function CategoriaList() {
 
       {/* Lista */}
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Cargando...</div>
+        <div className="text-center py-8 text-slate-500">Cargando...</div>
       ) : arbolFiltrado.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-slate-500">
           {searchTerm ? 'No se encontraron categorias' : 'No hay categorias creadas'}
         </div>
       ) : (

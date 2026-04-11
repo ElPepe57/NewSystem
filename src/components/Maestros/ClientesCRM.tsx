@@ -185,17 +185,17 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
       case 'A': return 'bg-green-100 text-green-700 border-green-300';
       case 'B': return 'bg-blue-100 text-blue-700 border-blue-300';
       case 'C': return 'bg-amber-100 text-amber-700 border-amber-300';
-      default: return 'bg-gray-100 text-gray-700 border-gray-300';
+      default: return 'bg-slate-100 text-slate-700 border-slate-300';
     }
   };
 
   const getSegmentoConfig = (segmento?: SegmentoCliente) => {
     const configs: Record<SegmentoCliente, { color: string; icon: React.ReactNode; label: string }> = {
       vip: { color: 'bg-purple-100 text-purple-700', icon: <Crown className="h-3 w-3" />, label: 'VIP' },
-      premium: { color: 'bg-indigo-100 text-indigo-700', icon: <Star className="h-3 w-3" />, label: 'Premium' },
+      premium: { color: 'bg-teal-100 text-teal-700', icon: <Star className="h-3 w-3" />, label: 'Premium' },
       frecuente: { color: 'bg-blue-100 text-blue-700', icon: <TrendingUp className="h-3 w-3" />, label: 'Frecuente' },
       regular: { color: 'bg-cyan-100 text-cyan-700', icon: <UserCheck className="h-3 w-3" />, label: 'Regular' },
-      ocasional: { color: 'bg-gray-100 text-gray-700', icon: <Clock className="h-3 w-3" />, label: 'Ocasional' },
+      ocasional: { color: 'bg-slate-100 text-slate-700', icon: <Clock className="h-3 w-3" />, label: 'Ocasional' },
       nuevo: { color: 'bg-emerald-100 text-emerald-700', icon: <Plus className="h-3 w-3" />, label: 'Nuevo' },
       inactivo: { color: 'bg-amber-100 text-amber-700', icon: <UserMinus className="h-3 w-3" />, label: 'Inactivo' },
       en_riesgo: { color: 'bg-orange-100 text-orange-700', icon: <AlertTriangle className="h-3 w-3" />, label: 'En Riesgo' },
@@ -318,8 +318,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Clasificación ABC */}
             <Card padding="lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-indigo-600" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <PieChart className="h-5 w-5 text-teal-600" />
                 Clasificación ABC (Pareto)
               </h3>
               <div className="space-y-4">
@@ -333,15 +333,15 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                           <span className={`px-2.5 py-1 text-sm font-bold rounded ${getClasificacionColor(item.clase)}`}>
                             Clase {item.clase}
                           </span>
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-slate-600">
                             {item.cantidad} clientes ({item.porcentaje.toFixed(0)}%)
                           </span>
                         </div>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium text-slate-900">
                           S/ {item.valorTotal.toLocaleString()}
                         </span>
                       </div>
-                      <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all ${
                             item.clase === 'A' ? 'bg-green-500' :
@@ -350,7 +350,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                           style={{ width: `${porcentajeValor}%` }}
                         />
                       </div>
-                      <p className="text-xs text-gray-500 text-right">
+                      <p className="text-xs text-slate-500 text-right">
                         {porcentajeValor.toFixed(1)}% del valor total
                       </p>
                     </div>
@@ -360,7 +360,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 {statsCRM.distribucionABC.find(d => d.clase === 'nuevo')?.cantidad ? (
                   <div className="pt-3 border-t">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Sin clasificar (nuevos)</span>
+                      <span className="text-slate-500">Sin clasificar (nuevos)</span>
                       <span className="font-medium">
                         {statsCRM.distribucionABC.find(d => d.clase === 'nuevo')?.cantidad || 0}
                       </span>
@@ -372,8 +372,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
 
             {/* Distribución por Segmentos */}
             <Card padding="lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Users className="h-5 w-5 text-indigo-600" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <Users className="h-5 w-5 text-teal-600" />
                 Segmentación de Clientes
               </h3>
               <div className="space-y-3">
@@ -388,13 +388,13 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                         </span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-indigo-500 rounded-full"
+                            className="h-full bg-teal-500 rounded-full"
                             style={{ width: `${item.porcentaje}%` }}
                           />
                         </div>
-                        <span className="text-sm font-medium text-gray-700 w-16 text-right">
+                        <span className="text-sm font-medium text-slate-700 w-16 text-right">
                           {item.cantidad} ({item.porcentaje.toFixed(0)}%)
                         </span>
                       </div>
@@ -512,7 +512,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
           {/* ====== ALERTAS DE RECOMPRA ====== */}
           <Card padding="lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                 <RotateCcw className="h-5 w-5 text-purple-500" />
                 Alertas de Recompra
                 {(alertasRecompra?.totalAlertas || 0) > 0 && (
@@ -532,13 +532,13 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
             {loadingRecompra ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
-                <span className="ml-2 text-gray-500">Analizando historial de compras...</span>
+                <span className="ml-2 text-slate-500">Analizando historial de compras...</span>
               </div>
             ) : !alertasRecompra || alertasRecompra.totalAlertas === 0 ? (
               <div className="text-center py-8">
-                <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No hay alertas de recompra</p>
-                <p className="text-sm text-gray-400 mt-1">
+                <Package className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500">No hay alertas de recompra</p>
+                <p className="text-sm text-slate-400 mt-1">
                   Configura el "Ciclo de Recompra" en tus productos para activar estas alertas
                 </p>
               </div>
@@ -562,8 +562,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                               <Package className="h-5 w-5 text-red-600" />
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900">{alerta.clienteNombre}</p>
-                              <p className="text-sm text-gray-600">{alerta.productoNombre}</p>
+                              <p className="font-medium text-slate-900">{alerta.clienteNombre}</p>
+                              <p className="text-sm text-slate-600">{alerta.productoNombre}</p>
                               <p className="text-xs text-red-600">
                                 Compró hace {alerta.diasDesdeCompra} días (ciclo: {alerta.cicloRecompraDias}d)
                               </p>
@@ -618,8 +618,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                               <Package className="h-5 w-5 text-amber-600" />
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900">{alerta.clienteNombre}</p>
-                              <p className="text-sm text-gray-600">{alerta.productoNombre}</p>
+                              <p className="font-medium text-slate-900">{alerta.clienteNombre}</p>
+                              <p className="text-sm text-slate-600">{alerta.productoNombre}</p>
                               <p className="text-xs text-amber-600">
                                 Recompra estimada en {alerta.diasRestantes} días
                               </p>
@@ -674,8 +674,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                               <Package className="h-5 w-5 text-blue-600" />
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900">{alerta.clienteNombre}</p>
-                              <p className="text-sm text-gray-600">{alerta.productoNombre}</p>
+                              <p className="font-medium text-slate-900">{alerta.clienteNombre}</p>
+                              <p className="text-sm text-slate-600">{alerta.productoNombre}</p>
                               <p className="text-xs text-blue-600">
                                 Recompra estimada en {alerta.diasRestantes} días
                               </p>
@@ -698,7 +698,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 )}
 
                 {/* Resumen */}
-                <div className="pt-3 border-t text-sm text-gray-500 flex items-center justify-between">
+                <div className="pt-3 border-t text-sm text-slate-500 flex items-center justify-between">
                   <span>
                     {alertasRecompra.clientesAfectados} clientes · {alertasRecompra.productosAfectados} productos
                   </span>
@@ -714,7 +714,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Clientes en riesgo */}
             <Card padding="lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-orange-500" />
                 Clientes en Riesgo
                 {statsCRM.clientesEnRiesgo.length > 0 && (
@@ -722,7 +722,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 )}
               </h3>
               {statsCRM.clientesEnRiesgo.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">Sin clientes en riesgo</p>
+                <p className="text-slate-500 text-center py-8">Sin clientes en riesgo</p>
               ) : (
                 <div className="space-y-3">
                   {statsCRM.clientesEnRiesgo.map(cliente => {
@@ -738,8 +738,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                             <User className="h-5 w-5 text-orange-600" />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{cliente.nombre}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="font-medium text-slate-900">{cliente.nombre}</p>
+                            <p className="text-sm text-slate-500">
                               {dias !== null ? `${dias} días sin comprar` : 'Sin compras'}
                             </p>
                           </div>
@@ -748,7 +748,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                           <p className="font-medium text-orange-700">
                             S/ {cliente.metricas.montoTotalPEN.toLocaleString()}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-slate-500">
                             {cliente.metricas.totalCompras} compras
                           </p>
                         </div>
@@ -761,7 +761,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
 
             {/* Clientes perdidos */}
             <Card padding="lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                 <UserX className="h-5 w-5 text-red-500" />
                 Clientes Perdidos (a recuperar)
                 {statsCRM.clientesPerdidos.length > 0 && (
@@ -769,7 +769,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 )}
               </h3>
               {statsCRM.clientesPerdidos.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">Sin clientes perdidos</p>
+                <p className="text-slate-500 text-center py-8">Sin clientes perdidos</p>
               ) : (
                 <div className="space-y-3">
                   {statsCRM.clientesPerdidos.map(cliente => {
@@ -785,8 +785,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                             <User className="h-5 w-5 text-red-600" />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{cliente.nombre}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="font-medium text-slate-900">{cliente.nombre}</p>
+                            <p className="text-sm text-slate-500">
                               {dias !== null ? `${dias} días sin comprar` : 'Sin compras'}
                             </p>
                           </div>
@@ -795,7 +795,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                           <p className="font-medium text-red-700">
                             S/ {cliente.metricas.montoTotalPEN.toLocaleString()}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-slate-500">
                             {cliente.metricas.totalCompras} compras
                           </p>
                         </div>
@@ -808,7 +808,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
 
             {/* VIPs inactivos */}
             <Card padding="lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                 <Crown className="h-5 w-5 text-amber-500" />
                 VIPs Inactivos
                 {statsCRM.clientesVIPInactivos.length > 0 && (
@@ -816,7 +816,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 )}
               </h3>
               {statsCRM.clientesVIPInactivos.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">Todos los VIPs están activos</p>
+                <p className="text-slate-500 text-center py-8">Todos los VIPs están activos</p>
               ) : (
                 <div className="space-y-3">
                   {statsCRM.clientesVIPInactivos.map(cliente => {
@@ -832,8 +832,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                             <Crown className="h-5 w-5 text-amber-600" />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{cliente.nombre}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="font-medium text-slate-900">{cliente.nombre}</p>
+                            <p className="text-sm text-slate-500">
                               Clase A - {dias} días sin comprar
                             </p>
                           </div>
@@ -852,7 +852,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
 
             {/* Sin contacto */}
             <Card padding="lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                 <Phone className="h-5 w-5 text-blue-500" />
                 Sin Contacto (30+ días)
                 {statsCRM.clientesSinContacto30Dias.length > 0 && (
@@ -860,7 +860,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 )}
               </h3>
               {statsCRM.clientesSinContacto30Dias.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">Todos contactados recientemente</p>
+                <p className="text-slate-500 text-center py-8">Todos contactados recientemente</p>
               ) : (
                 <div className="space-y-3">
                   {statsCRM.clientesSinContacto30Dias.map(cliente => {
@@ -876,8 +876,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                             <User className="h-5 w-5 text-blue-600" />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{cliente.nombre}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="font-medium text-slate-900">{cliente.nombre}</p>
+                            <p className="text-sm text-slate-500">
                               {dias} días - {cliente.telefono || 'Sin teléfono'}
                             </p>
                           </div>
@@ -947,23 +947,23 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
             <div className="flex flex-wrap items-center gap-4">
               {/* Búsqueda */}
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar por nombre, teléfono, DNI..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               {/* Filtro por clasificación */}
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-gray-400" />
+                <Filter className="h-4 w-4 text-slate-400" />
                 <select
                   value={filtroClasificacion}
                   onChange={(e) => setFiltroClasificacion(e.target.value as ClasificacionABC | 'todos')}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="todos">Todas las clases</option>
                   <option value="A">Clase A (VIP)</option>
@@ -977,7 +977,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
               <select
                 value={filtroSegmento}
                 onChange={(e) => setFiltroSegmento(e.target.value as SegmentoCliente | 'todos')}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
               >
                 <option value="todos">Todos los segmentos</option>
                 <option value="vip">VIP</option>
@@ -995,7 +995,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
               <select
                 value={filtroEstado}
                 onChange={(e) => setFiltroEstado(e.target.value as 'activo' | 'inactivo' | 'potencial' | 'todos')}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
               >
                 <option value="todos">Todos los estados</option>
                 <option value="activo">Activo</option>
@@ -1006,7 +1006,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
               {/* Filtro por línea de negocio — visual, no funcional aquí ya que useLineaFilterMulti opera con el sidebar */}
 
               {/* Contador de resultados */}
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-slate-500">
                 {clientesFiltrados.length} de {clientes.length}
               </span>
             </div>
@@ -1014,16 +1014,16 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
 
           {/* Lista de clientes */}
           <Card padding="none">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-slate-900">
                 Clientes ({clientesFiltrados.length})
               </h3>
             </div>
 
             {clientesFiltrados.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No hay clientes que coincidan con los filtros</p>
+                <Users className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                <p className="text-slate-600">No hay clientes que coincidan con los filtros</p>
                 <Button
                   variant="primary"
                   onClick={() => onOpenClienteModal()}
@@ -1034,7 +1034,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 </Button>
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-slate-200">
                 {clientesPaginados.map((cliente) => {
                   const segmentoConfig = getSegmentoConfig(cliente.segmento);
                   const dias = diasDesdeUltimaCompra(cliente);
@@ -1042,7 +1042,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                   return (
                     <div
                       key={cliente.id}
-                      className="px-6 py-4 hover:bg-gray-50 flex items-center justify-between"
+                      className="px-6 py-4 hover:bg-slate-50 flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-4">
                         <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center relative">
@@ -1060,10 +1060,10 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
+                            <span className="text-xs text-slate-500 font-mono bg-slate-100 px-1.5 py-0.5 rounded">
                               {cliente.codigo}
                             </span>
-                            <span className="font-medium text-gray-900">{cliente.nombre}</span>
+                            <span className="font-medium text-slate-900">{cliente.nombre}</span>
                             <Badge variant={getEstadoColor(cliente.estado)}>
                               {cliente.estado}
                             </Badge>
@@ -1073,7 +1073,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                               {segmentoConfig.label}
                             </span>
                           </div>
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
+                          <div className="flex items-center space-x-4 mt-1 text-sm text-slate-500">
                             <LineaNegocioBadges lineaIds={cliente.lineaNegocioIds} />
                             {cliente.telefono && (
                               <span className="flex items-center">
@@ -1099,7 +1099,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
 
                       <div className="flex items-center space-x-4">
                         <div className="text-right">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-slate-900">
                             {cliente.metricas.totalCompras} compras
                           </div>
                           <div className="text-sm text-green-600 font-medium">
@@ -1110,28 +1110,28 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                         <div className="flex space-x-1">
                           <button
                             onClick={() => setClienteDetalle(cliente)}
-                            className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded"
+                            className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded"
                             title="Ver analytics detallado"
                           >
                             <BarChart3 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onViewCliente(cliente)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
                             title="Ver detalle"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onEditCliente(cliente)}
-                            className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                            className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
                             title="Editar"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onDeleteCliente(cliente.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
                             title="Eliminar"
                           >
                             <Trash2 className="h-4 w-4" />

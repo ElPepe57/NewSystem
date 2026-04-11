@@ -78,12 +78,12 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
         <div className="bg-white rounded-t-2xl shadow-2xl max-h-[80vh] flex flex-col">
           {/* Handle */}
           <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 bg-gray-300 rounded-full" />
+            <div className="w-10 h-1 bg-slate-300 rounded-full" />
           </div>
 
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
               <Filter className="h-5 w-5" />
               Filtros
             </h3>
@@ -96,7 +96,7 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
                 Limpiar
               </button>
               <button type="button" onClick={onClose}>
-                <X className="h-5 w-5 text-gray-400" />
+                <X className="h-5 w-5 text-slate-400" />
               </button>
             </div>
           </div>
@@ -105,7 +105,7 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
           <div className="overflow-y-auto flex-1 px-4 py-4 space-y-5">
             {/* Estado — Pills */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Estado</label>
               <div className="flex flex-wrap gap-2">
                 {[
                   { value: '', label: 'Todos' },
@@ -119,8 +119,8 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
                     onClick={() => setLocalFilters(prev => ({ ...prev, estado: opt.value as any }))}
                     className={`px-3 py-2 text-sm rounded-lg font-medium min-h-[44px] transition-colors ${
                       localFilters.estado === opt.value
-                        ? 'bg-primary-100 text-primary-700 ring-1 ring-primary-300'
-                        : 'bg-gray-100 text-gray-600'
+                        ? 'bg-teal-100 text-teal-700 ring-1 ring-teal-300'
+                        : 'bg-slate-100 text-slate-600'
                     }`}
                   >
                     {opt.label}
@@ -131,7 +131,7 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
 
             {/* Stock — Pills */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Stock</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Stock</label>
               <div className="flex flex-wrap gap-2">
                 {[
                   { value: '', label: 'Todos' },
@@ -145,7 +145,7 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
                     className={`px-3 py-2 text-sm rounded-lg font-medium min-h-[44px] transition-colors ${
                       localFilters.stockStatus === opt.value
                         ? 'bg-red-100 text-red-700 ring-1 ring-red-300'
-                        : 'bg-gray-100 text-gray-600'
+                        : 'bg-slate-100 text-slate-600'
                     }`}
                   >
                     {opt.label}
@@ -156,20 +156,20 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
 
             {/* Marca — Search + checkboxes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Marca</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Marca</label>
               <input
                 type="text"
                 value={marcaSearch}
                 onChange={(e) => setMarcaSearch(e.target.value)}
                 placeholder="Buscar marca..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mb-2 min-h-[44px]"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm mb-2 min-h-[44px]"
               />
               <div className="max-h-32 overflow-y-auto space-y-1">
                 <button
                   type="button"
                   onClick={() => setLocalFilters(prev => ({ ...prev, marca: '' }))}
                   className={`w-full text-left px-3 py-2 text-sm rounded-lg min-h-[44px] ${
-                    !localFilters.marca ? 'bg-primary-50 text-primary-700 font-medium' : 'hover:bg-gray-50'
+                    !localFilters.marca ? 'bg-teal-50 text-teal-700 font-medium' : 'hover:bg-slate-50'
                   }`}
                 >
                   Todas las marcas
@@ -180,7 +180,7 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
                     type="button"
                     onClick={() => setLocalFilters(prev => ({ ...prev, marca }))}
                     className={`w-full text-left px-3 py-2 text-sm rounded-lg min-h-[44px] ${
-                      localFilters.marca === marca ? 'bg-primary-50 text-primary-700 font-medium' : 'hover:bg-gray-50'
+                      localFilters.marca === marca ? 'bg-teal-50 text-teal-700 font-medium' : 'hover:bg-slate-50'
                     }`}
                   >
                     {marca}
@@ -191,11 +191,11 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
 
             {/* Tipo de Producto — Select */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Producto</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Tipo de Producto</label>
               <select
                 value={localFilters.tipoProductoId}
                 onChange={(e) => setLocalFilters(prev => ({ ...prev, tipoProductoId: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm min-h-[44px]"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm min-h-[44px]"
               >
                 <option value="">Todos los tipos</option>
                 {tiposProducto.map(t => (
@@ -206,11 +206,11 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
 
             {/* Categoría — Select */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Categoría</label>
               <select
                 value={localFilters.categoriaId}
                 onChange={(e) => setLocalFilters(prev => ({ ...prev, categoriaId: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm min-h-[44px]"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm min-h-[44px]"
               >
                 <option value="">Todas las categorías</option>
                 {categorias.map(c => (
@@ -221,11 +221,11 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
 
             {/* Etiqueta — Select */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Etiqueta</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Etiqueta</label>
               <select
                 value={localFilters.etiquetaId}
                 onChange={(e) => setLocalFilters(prev => ({ ...prev, etiquetaId: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm min-h-[44px]"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm min-h-[44px]"
               >
                 <option value="">Todas las etiquetas</option>
                 {etiquetas.map(e => (
@@ -236,7 +236,7 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
 
             {/* Investigación — Pills */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Investigación</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Investigación</label>
               <div className="flex flex-wrap gap-2">
                 {[
                   { value: '', label: 'Todas' },
@@ -251,7 +251,7 @@ export const FiltrosDrawerMobile: React.FC<FiltrosDrawerMobileProps> = ({
                     className={`px-3 py-2 text-sm rounded-lg font-medium min-h-[44px] transition-colors ${
                       localFilters.investigacion === opt.value
                         ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-300'
-                        : 'bg-gray-100 text-gray-600'
+                        : 'bg-slate-100 text-slate-600'
                     }`}
                   >
                     {opt.label}

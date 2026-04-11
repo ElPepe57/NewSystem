@@ -762,7 +762,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               variant="ghost"
               size="sm"
               onClick={() => setShowProductoModal(true)}
-              className="text-primary-600"
+              className="text-teal-600"
             >
               <PlusCircle className="h-4 w-4 mr-1" />
               Crear Producto
@@ -1013,7 +1013,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                 id="incluyeEnvio"
                 checked={formData.incluyeEnvio}
                 onChange={(e) => setFormData({ ...formData, incluyeEnvio: e.target.checked })}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-slate-300 rounded"
+                className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-slate-300 rounded"
               />
               <label htmlFor="incluyeEnvio" className="text-sm text-slate-700">
                 Envío incluido (gratis)
@@ -1039,7 +1039,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                 value={formData.observaciones}
                 onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
                 placeholder="Notas adicionales..."
               />
             </div>
@@ -1148,7 +1148,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between">
                   <span className="font-semibold text-slate-900">Total:</span>
-                  <span className="text-xl font-bold text-primary-600">
+                  <span className="text-xl font-bold text-teal-600">
                     {formatCurrency(totales.total)}
                   </span>
                 </div>
@@ -1222,7 +1222,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               <p className="text-slate-600">
                 Cotización creada exitosamente para <strong>{cotizacionCreada.nombreCliente}</strong>
               </p>
-              <p className="text-2xl font-bold text-primary-600 mt-3">
+              <p className="text-2xl font-bold text-teal-600 mt-3">
                 {formatCurrency(cotizacionCreada.totalPEN)}
               </p>
             </div>

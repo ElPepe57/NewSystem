@@ -153,7 +153,7 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-48">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
       </div>
     );
   }
@@ -181,10 +181,10 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
               </div>
             )}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-slate-900">
                 Cierre Contable - {MESES[mes - 1]} {anio}
               </h3>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-slate-500">
                 {periodoCerrado
                   ? `Cerrado el ${cierreActual?.fechaCierre instanceof Date ? cierreActual.fechaCierre.toLocaleDateString('es-PE') : '-'}`
                   : cierreActual?.estado === 'reabierto'
@@ -248,7 +248,7 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
             </Button>
           )}
           {!isAdmin && periodoCerrado && (
-            <span className="text-sm text-gray-500">Solo administradores pueden reabrir periodos</span>
+            <span className="text-sm text-slate-500">Solo administradores pueden reabrir periodos</span>
           )}
         </div>
       </div>
@@ -256,31 +256,31 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
       {/* Snapshot del cierre (si esta cerrado) */}
       {periodoCerrado && cierreActual?.snapshot && (
         <div className="bg-white rounded-lg border p-6">
-          <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Eye className="w-5 h-5 text-indigo-600" />
+          <h4 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+            <Eye className="w-5 h-5 text-teal-600" />
             Snapshot del Cierre
           </h4>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-xs text-gray-500">Ventas Netas</div>
-              <div className="text-lg font-bold text-gray-900">
+            <div className="bg-slate-50 rounded-lg p-3">
+              <div className="text-xs text-slate-500">Ventas Netas</div>
+              <div className="text-lg font-bold text-slate-900">
                 {formatCurrencyPEN(cierreActual.snapshot.totalVentas)}
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-xs text-gray-500">Compras</div>
+            <div className="bg-slate-50 rounded-lg p-3">
+              <div className="text-xs text-slate-500">Compras</div>
               <div className="text-lg font-bold text-orange-600">
                 {formatCurrencyPEN(cierreActual.snapshot.totalCompras)}
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-xs text-gray-500">Gastos Operativos</div>
-              <div className="text-lg font-bold text-gray-600">
+            <div className="bg-slate-50 rounded-lg p-3">
+              <div className="text-xs text-slate-500">Gastos Operativos</div>
+              <div className="text-lg font-bold text-slate-600">
                 {formatCurrencyPEN(cierreActual.snapshot.totalGastos)}
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-xs text-gray-500">Utilidad Neta</div>
+            <div className="bg-slate-50 rounded-lg p-3">
+              <div className="text-xs text-slate-500">Utilidad Neta</div>
               <div className={`text-lg font-bold ${
                 cierreActual.snapshot.estadoResultados.utilidadNeta >= 0
                   ? 'text-green-600'
@@ -291,26 +291,26 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
             </div>
           </div>
           <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-xs text-gray-500">Unidades Vendidas</div>
-              <div className="text-lg font-bold text-gray-900">
+            <div className="bg-slate-50 rounded-lg p-3">
+              <div className="text-xs text-slate-500">Unidades Vendidas</div>
+              <div className="text-lg font-bold text-slate-900">
                 {cierreActual.snapshot.unidadesVendidas}
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-xs text-gray-500">Margen Neto</div>
-              <div className="text-lg font-bold text-indigo-600">
+            <div className="bg-slate-50 rounded-lg p-3">
+              <div className="text-xs text-slate-500">Margen Neto</div>
+              <div className="text-lg font-bold text-teal-600">
                 {formatPercent(cierreActual.snapshot.estadoResultados.utilidadNetaPorcentaje)}
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-xs text-gray-500">TC al Cierre</div>
-              <div className="text-lg font-bold text-gray-900">
+            <div className="bg-slate-50 rounded-lg p-3">
+              <div className="text-xs text-slate-500">TC al Cierre</div>
+              <div className="text-lg font-bold text-slate-900">
                 {cierreActual.snapshot.tipoCambioAlCierre.toFixed(4)}
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-xs text-gray-500">Total Activos</div>
+            <div className="bg-slate-50 rounded-lg p-3">
+              <div className="text-xs text-slate-500">Total Activos</div>
               <div className="text-lg font-bold text-blue-600">
                 {formatCurrencyPEN(cierreActual.snapshot.balanceGeneral.activos.totalActivos)}
               </div>
@@ -323,8 +323,8 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
       {validacionResult && (
         <div className="bg-white rounded-lg border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-indigo-600" />
+            <h4 className="font-semibold text-slate-900 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-teal-600" />
               Validaciones Pre-Cierre
             </h4>
             <div className="flex gap-2">
@@ -350,7 +350,7 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
                   {getValidacionIcon(v)}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-gray-900">{v.nombre}</span>
+                      <span className="font-medium text-sm text-slate-900">{v.nombre}</span>
                       <span className={`text-xs px-1.5 py-0.5 rounded ${
                         v.severidad === 'critica'
                           ? 'bg-red-100 text-red-700'
@@ -359,7 +359,7 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
                         {v.severidad}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-600 mt-0.5">{v.detalle}</p>
+                    <p className="text-xs text-slate-600 mt-0.5">{v.detalle}</p>
                   </div>
                 </div>
               </div>
@@ -370,32 +370,32 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
 
       {/* Historial de cierres */}
       <div className="bg-white rounded-lg border overflow-hidden">
-        <div className="px-6 py-4 border-b bg-gray-50">
-          <h4 className="font-semibold text-gray-800 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-gray-600" />
+        <div className="px-6 py-4 border-b bg-slate-50">
+          <h4 className="font-semibold text-slate-800 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-slate-600" />
             Historial de Cierres
           </h4>
         </div>
 
         {historial.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 text-sm">
+          <div className="p-8 text-center text-slate-500 text-sm">
             No se han realizado cierres contables aun
           </div>
         ) : (
           <>
             {/* Mobile: Cards */}
-            <div className="md:hidden divide-y divide-gray-100">
+            <div className="md:hidden divide-y divide-slate-100">
               {historial.map((c) => (
                 <div key={c.id} className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-slate-900">
                       {MESES[c.mes - 1]} {c.anio}
                     </span>
                     <Badge variant={c.estado === 'cerrado' ? 'success' : 'warning'}>
                       {c.estado === 'cerrado' ? 'Cerrado' : 'Reabierto'}
                     </Badge>
                   </div>
-                  <div className="text-xs text-gray-500 space-y-1">
+                  <div className="text-xs text-slate-500 space-y-1">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       {c.fechaCierre instanceof Date ? c.fechaCierre.toLocaleDateString('es-PE') : '-'}
@@ -407,7 +407,7 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
                       onClick={() =>
                         setDetalleExpandido(detalleExpandido === c.id ? null : c.id ?? null)
                       }
-                      className="mt-2 text-xs text-indigo-600 flex items-center gap-1"
+                      className="mt-2 text-xs text-teal-600 flex items-center gap-1"
                     >
                       {detalleExpandido === c.id ? (
                         <>
@@ -423,11 +423,11 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
                   {detalleExpandido === c.id && c.snapshot && (
                     <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
                       <div>
-                        <span className="text-gray-500">Ventas:</span>{' '}
+                        <span className="text-slate-500">Ventas:</span>{' '}
                         {formatCurrencyPEN(c.snapshot.totalVentas)}
                       </div>
                       <div>
-                        <span className="text-gray-500">U. Neta:</span>{' '}
+                        <span className="text-slate-500">U. Neta:</span>{' '}
                         <span className={c.snapshot.estadoResultados.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}>
                           {formatCurrencyPEN(c.snapshot.estadoResultados.utilidadNeta)}
                         </span>
@@ -441,20 +441,20 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
             {/* Desktop: Tabla */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Periodo</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha Cierre</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cerrado por</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ventas</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Utilidad Neta</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Periodo</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Estado</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha Cierre</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Cerrado por</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ventas</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Utilidad Neta</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200">
                   {historial.map((c) => (
-                    <tr key={c.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-900">
+                    <tr key={c.id} className="hover:bg-slate-50">
+                      <td className="px-4 py-3 font-medium text-slate-900">
                         {MESES[c.mes - 1]} {c.anio}
                       </td>
                       <td className="px-4 py-3">
@@ -462,11 +462,11 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
                           {c.estado === 'cerrado' ? 'Cerrado' : 'Reabierto'}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-slate-600">
                         {c.fechaCierre instanceof Date ? c.fechaCierre.toLocaleDateString('es-PE') : '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{c.cerradoPor}</td>
-                      <td className="px-4 py-3 text-right text-sm text-gray-700">
+                      <td className="px-4 py-3 text-sm text-slate-600">{c.cerradoPor}</td>
+                      <td className="px-4 py-3 text-right text-sm text-slate-700">
                         {c.snapshot ? formatCurrencyPEN(c.snapshot.totalVentas) : '-'}
                       </td>
                       <td className={`px-4 py-3 text-right text-sm font-medium ${
@@ -496,7 +496,7 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
             <p>
               Se cerrara el periodo <strong>{MESES[mes - 1]} {anio}</strong>.
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-500">
               Se generara un snapshot de los estados financieros. No se podran registrar
               movimientos en este periodo hasta que se reabra.
             </p>
@@ -528,14 +528,14 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
               Se reabrira el periodo <strong>{MESES[mes - 1]} {anio}</strong>.
             </p>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Motivo de reapertura (obligatorio)
               </label>
               <textarea
                 value={motivoReapertura}
                 onChange={(e) => setMotivoReapertura(e.target.value)}
                 placeholder="Describa el motivo por el cual se reabre este periodo..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 rows={3}
               />
             </div>

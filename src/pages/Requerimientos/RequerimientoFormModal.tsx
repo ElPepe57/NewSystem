@@ -89,7 +89,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
         <div className="flex items-start justify-between border-b pb-4">
           <div>
             <h2 className="text-xl font-bold text-slate-900 flex items-center">
-              <ClipboardList className="h-6 w-6 mr-2 text-primary-600" />
+              <ClipboardList className="h-6 w-6 mr-2 text-teal-600" />
               Nuevo Requerimiento de Compra
             </h2>
             <p className="text-sm text-slate-500 mt-1">
@@ -186,19 +186,19 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
         <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-5 border">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-semibold text-slate-900 flex items-center">
-              <Package className="h-5 w-5 mr-2 text-primary-600" />
+              <Package className="h-5 w-5 mr-2 text-teal-600" />
               Agregar Productos
             </h4>
             <div className="flex items-center gap-2">
               {formData.productos && formData.productos.length > 0 && (
-                <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
+                <span className="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-medium">
                   {formData.productos.length} agregado(s)
                 </span>
               )}
               <button
                 type="button"
                 onClick={onAbrirCrearProducto}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-teal-600 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors"
               >
                 <PlusCircle className="h-4 w-4" />
                 Crear Producto
@@ -218,15 +218,15 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
 
           {/* Producto seleccionado - Vista expandida */}
           {productoTemp.productoId && (
-            <div className="bg-white rounded-xl border-2 border-primary-200 overflow-hidden">
+            <div className="bg-white rounded-xl border-2 border-teal-200 overflow-hidden">
               {/* Info del producto */}
               {(() => {
                 const selectedProd = productos.find(p => p.id === productoTemp.productoId);
                 return selectedProd ? (
-                  <div className="p-4 bg-primary-50 border-b border-primary-100">
+                  <div className="p-4 bg-teal-50 border-b border-teal-100">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="text-xs font-medium text-primary-600 bg-primary-100 px-2 py-0.5 rounded">
+                        <span className="text-xs font-medium text-teal-600 bg-teal-100 px-2 py-0.5 rounded">
                           {selectedProd.sku}
                         </span>
                         <h5 className="font-semibold text-slate-900 mt-1">
@@ -249,7 +249,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
 
               {/* Investigacion de mercado */}
               {loadingInvestigacion ? (
-                <div className="p-4 flex items-center justify-center text-primary-600">
+                <div className="p-4 flex items-center justify-center text-teal-600">
                   <RefreshCw className="h-5 w-5 animate-spin mr-2" />
                   Analizando historial de precios...
                 </div>
@@ -263,7 +263,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                     <button
                       type="button"
                       onClick={() => onShowHistorialChange(showHistorial ? null : productoTemp.productoId)}
-                      className="text-xs text-primary-600 hover:underline"
+                      className="text-xs text-teal-600 hover:underline"
                     >
                       {showHistorial ? 'Ocultar detalle' : 'Ver historial'}
                     </button>
@@ -346,7 +346,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                       min="1"
                       value={productoTemp.cantidadSolicitada}
                       onChange={(e) => onProductoTempChange({ ...productoTemp, cantidadSolicitada: parseInt(e.target.value) || 1 })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-0 text-center font-semibold"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-0 text-center font-semibold"
                     />
                   </div>
                   <div>
@@ -363,7 +363,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                         step="0.01"
                         value={productoTemp.precioEstimadoUSD || ''}
                         onChange={(e) => onProductoTempChange({ ...productoTemp, precioEstimadoUSD: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-7 pr-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-0"
+                        className="w-full pl-7 pr-3 py-2 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-0"
                         placeholder="0.00"
                       />
                     </div>
@@ -374,7 +374,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                       type="text"
                       value={productoTemp.proveedorSugerido}
                       onChange={(e) => onProductoTempChange({ ...productoTemp, proveedorSugerido: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-0"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-0"
                       placeholder="Amazon, iHerb..."
                     />
                   </div>
@@ -398,7 +398,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                     type="text"
                     value={productoTemp.urlReferencia}
                     onChange={(e) => onProductoTempChange({ ...productoTemp, urlReferencia: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-0 text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-0 text-sm"
                     placeholder="https://www.amazon.com/..."
                   />
                 </div>
@@ -433,7 +433,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                 return (
                   <div key={index} className="flex items-center justify-between bg-white rounded-xl border p-4 hover:shadow-sm transition-shadow">
                     <div className="flex items-center space-x-4">
-                      <div className="bg-primary-100 text-primary-700 w-10 h-10 rounded-lg flex items-center justify-center font-bold">
+                      <div className="bg-teal-100 text-teal-700 w-10 h-10 rounded-lg flex items-center justify-center font-bold">
                         {prod.cantidadSolicitada}
                       </div>
                       <div>
@@ -480,7 +480,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
             value={formData.justificacion || ''}
             onChange={(e) => onFormDataChange({ ...formData, justificacion: e.target.value })}
             rows={2}
-            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-primary-500 focus:ring-0 resize-none"
+            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 focus:ring-0 resize-none"
             placeholder="Ej: Reponer stock agotado, cliente urgente, precio especial encontrado..."
           />
         </div>

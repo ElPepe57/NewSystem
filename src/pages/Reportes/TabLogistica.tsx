@@ -47,7 +47,7 @@ export const TabLogistica: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -158,8 +158,8 @@ const ViajeroRow: React.FC<{ viajero: RendimientoViajero; isExpanded: boolean; o
     <div>
       <button type="button" onClick={onToggle} className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-50 text-left">
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="h-9 w-9 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
-            <Truck className="h-4 w-4 text-primary-600" />
+          <div className="h-9 w-9 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
+            <Truck className="h-4 w-4 text-teal-600" />
           </div>
           <div className="min-w-0">
             <p className="font-medium text-slate-900 truncate">{v.viajeroNombre}</p>

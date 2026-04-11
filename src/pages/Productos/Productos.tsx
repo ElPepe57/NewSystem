@@ -827,7 +827,7 @@ export const Productos: React.FC = () => {
                 <h3 className="font-semibold text-slate-900">Filtros</h3>
                 <button
                   onClick={handleClearFilters}
-                  className="text-sm text-primary-600 hover:text-primary-800 flex items-center"
+                  className="text-sm text-teal-600 hover:text-teal-800 flex items-center"
                 >
                   <X className="h-4 w-4 mr-1" />
                   Limpiar filtros
@@ -850,7 +850,7 @@ export const Productos: React.FC = () => {
                       const necesitaInactivos = nuevoEstado === '' || nuevoEstado === 'inactivo' || nuevoEstado === 'descontinuado';
                       fetchProductos(necesitaInactivos);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Todos</option>
                     <option value="activo">Activo</option>
@@ -870,7 +870,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, grupo: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Todos</option>
                     {uniqueGrupos.map(grupo => (
@@ -890,7 +890,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, marca: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Todas</option>
                     {uniqueMarcas.map(marca => (
@@ -910,7 +910,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, stockStatus: e.target.value as any });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Todos</option>
                     <option value="critico">Stock Crítico</option>
@@ -930,7 +930,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, investigacion: e.target.value as any });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Todas</option>
                     <option value="sin_investigar">Sin investigar</option>
@@ -955,7 +955,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, tipoProductoId: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Todos los tipos</option>
                     {tiposActivos.map(tipo => (
@@ -975,7 +975,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, categoriaId: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Todas las categorías</option>
                     {categoriasActivas.map(cat => (
@@ -998,7 +998,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, etiquetaId: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Todas las etiquetas</option>
                     {etiquetasActivas.map(etq => (
@@ -1021,7 +1021,7 @@ export const Productos: React.FC = () => {
       <Card padding="md">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
           </div>
         ) : paginatedProductos.length === 0 ? (
           <div className="text-center py-12">
@@ -1086,7 +1086,7 @@ export const Productos: React.FC = () => {
                           onClick={() => handlePageChange(pageNumber)}
                           className={`px-3 py-1 rounded text-sm ${
                             currentPage === pageNumber
-                              ? 'bg-primary-600 text-white'
+                              ? 'bg-teal-600 text-white'
                               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                           }`}
                         >

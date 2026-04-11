@@ -735,7 +735,7 @@ export const Ventas: React.FC = () => {
             onClick={() => setTabActiva('ventas')}
             className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
               tabActiva === 'ventas'
-                ? 'border-primary-600 text-primary-600'
+                ? 'border-teal-600 text-teal-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
@@ -745,7 +745,7 @@ export const Ventas: React.FC = () => {
             onClick={() => { setTabActiva('devoluciones'); fetchDevoluciones(); }}
             className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
               tabActiva === 'devoluciones'
-                ? 'border-primary-600 text-primary-600'
+                ? 'border-teal-600 text-teal-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >

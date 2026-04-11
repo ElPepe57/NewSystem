@@ -133,7 +133,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
     if (tendencia === 'bajando' || tendencia === 'decreciente' || tendencia === 'empeorando') {
       return <ArrowDownRight className="h-4 w-4 text-red-500" />;
     }
-    return <Minus className="h-4 w-4 text-gray-400" />;
+    return <Minus className="h-4 w-4 text-slate-400" />;
   };
 
   const tabs = [
@@ -150,8 +150,8 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl p-8 flex items-center gap-4">
-          <RefreshCw className="h-6 w-6 animate-spin text-indigo-600" />
-          <span className="text-gray-700">Cargando analytics...</span>
+          <RefreshCw className="h-6 w-6 animate-spin text-teal-600" />
+          <span className="text-slate-700">Cargando analytics...</span>
         </div>
       </div>
     );
@@ -161,23 +161,23 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-purple-50">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-teal-50 to-purple-50">
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 bg-indigo-100 rounded-xl flex items-center justify-center">
-              <Truck className="h-7 w-7 text-indigo-600" />
+            <div className="h-14 w-14 bg-teal-100 rounded-xl flex items-center justify-center">
+              <Truck className="h-7 w-7 text-teal-600" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-gray-500 bg-white px-2 py-0.5 rounded">
+                <span className="text-xs font-mono text-slate-500 bg-white px-2 py-0.5 rounded">
                   {proveedor.codigo}
                 </span>
-                <h2 className="text-xl font-bold text-gray-900">{proveedor.nombre}</h2>
+                <h2 className="text-xl font-bold text-slate-900">{proveedor.nombre}</h2>
                 <span className={`flex items-center gap-1 px-2.5 py-1 text-sm font-medium rounded-full ${clasificacionConfig.bg} ${clasificacionConfig.color}`}>
                   {clasificacionConfig.icon}
                   {clasificacionConfig.label}
                 </span>
               </div>
-              <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+              <div className="flex items-center gap-4 mt-1 text-sm text-slate-500">
                 <span className="flex items-center gap-1">
                   <Globe className="h-3.5 w-3.5" />
                   {proveedor.pais}
@@ -188,7 +188,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                     href={proveedor.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-indigo-600 hover:underline"
+                    className="flex items-center gap-1 text-teal-600 hover:underline"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
                     Sitio web
@@ -206,15 +206,15 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
             )}
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
             >
-              <X className="h-5 w-5 text-gray-500" />
+              <X className="h-5 w-5 text-slate-500" />
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="px-6 border-b border-gray-200">
+        <div className="px-6 border-b border-slate-200">
           <nav className="flex gap-1">
             {tabs.map(tab => (
               <button
@@ -222,8 +222,8 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                 onClick={() => setActiveTab(tab.id as TabType)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-teal-600 text-teal-600'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -334,34 +334,34 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                 {/* Producto mas comprado */}
                 {analytics.productoMasComprado && (
                   <Card padding="lg">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Package className="h-5 w-5 text-indigo-600" />
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                      <Package className="h-5 w-5 text-teal-600" />
                       Producto Mas Comprado
                     </h3>
-                    <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-teal-50 rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900">{analytics.productoMasComprado.nombre}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-slate-900">{analytics.productoMasComprado.nombre}</p>
+                        <p className="text-sm text-slate-500">
                           {analytics.productoMasComprado.unidades} unidades compradas
                         </p>
                       </div>
-                      <Package className="h-8 w-8 text-indigo-400" />
+                      <Package className="h-8 w-8 text-teal-400" />
                     </div>
                   </Card>
                 )}
 
                 {/* Evaluacion detallada */}
                 <Card padding="lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-indigo-600" />
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-teal-600" />
                     Evaluacion SRM
                   </h3>
                   {proveedor.evaluacion ? (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Calidad Productos</span>
+                        <span className="text-slate-600">Calidad Productos</span>
                         <div className="flex items-center gap-2">
-                          <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-green-500 rounded-full"
                               style={{ width: `${(proveedor.evaluacion.factores.calidadProductos / 25) * 100}%` }}
@@ -371,9 +371,9 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Puntualidad</span>
+                        <span className="text-slate-600">Puntualidad</span>
                         <div className="flex items-center gap-2">
-                          <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-blue-500 rounded-full"
                               style={{ width: `${(proveedor.evaluacion.factores.puntualidadEntrega / 25) * 100}%` }}
@@ -383,9 +383,9 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Competitividad</span>
+                        <span className="text-slate-600">Competitividad</span>
                         <div className="flex items-center gap-2">
-                          <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-purple-500 rounded-full"
                               style={{ width: `${(proveedor.evaluacion.factores.competitividadPrecios / 25) * 100}%` }}
@@ -395,9 +395,9 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Comunicacion</span>
+                        <span className="text-slate-600">Comunicacion</span>
                         <div className="flex items-center gap-2">
-                          <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-amber-500 rounded-full"
                               style={{ width: `${(proveedor.evaluacion.factores.comunicacion / 25) * 100}%` }}
@@ -407,25 +407,25 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                         </div>
                       </div>
                       <div className="pt-3 border-t mt-3 flex items-center justify-between">
-                        <span className="font-medium text-gray-900">Total</span>
+                        <span className="font-medium text-slate-900">Total</span>
                         <div className="flex items-center gap-2">
                           {getTendenciaIcon(analytics.tendenciaEvaluacion)}
-                          <span className="text-lg font-bold text-indigo-600">
+                          <span className="text-lg font-bold text-teal-600">
                             {proveedor.evaluacion.puntuacion.toFixed(0)}/100
                           </span>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-center py-4">Sin evaluacion registrada</p>
+                    <p className="text-slate-500 text-center py-4">Sin evaluacion registrada</p>
                   )}
                 </Card>
               </div>
 
               {/* Compras por periodo */}
               <Card padding="lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <ChartLine className="h-5 w-5 text-indigo-600" />
+                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                  <ChartLine className="h-5 w-5 text-teal-600" />
                   Compras por Periodo
                 </h3>
                 <div className="grid grid-cols-3 gap-4">
@@ -433,22 +433,22 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                     <p className="text-2xl font-bold text-blue-600">
                       {formatCurrency(analytics.montoUltimos30DiasUSD)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Ultimos 30 dias</p>
-                    <p className="text-xs text-gray-500">{analytics.ordenesUltimos30Dias} ordenes</p>
+                    <p className="text-sm text-slate-600 mt-1">Ultimos 30 dias</p>
+                    <p className="text-xs text-slate-500">{analytics.ordenesUltimos30Dias} ordenes</p>
                   </div>
-                  <div className="text-center p-4 bg-indigo-50 rounded-lg">
-                    <p className="text-2xl font-bold text-indigo-600">
+                  <div className="text-center p-4 bg-teal-50 rounded-lg">
+                    <p className="text-2xl font-bold text-teal-600">
                       {formatCurrency(analytics.montoUltimos90DiasUSD)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Ultimos 90 dias</p>
-                    <p className="text-xs text-gray-500">{analytics.ordenesUltimos90Dias} ordenes</p>
+                    <p className="text-sm text-slate-600 mt-1">Ultimos 90 dias</p>
+                    <p className="text-xs text-slate-500">{analytics.ordenesUltimos90Dias} ordenes</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
                     <p className="text-2xl font-bold text-purple-600">
                       {formatCurrency(analytics.montoUltimos365DiasUSD)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Ultimo ano</p>
-                    <p className="text-xs text-gray-500">{analytics.ordenesUltimos365Dias} ordenes</p>
+                    <p className="text-sm text-slate-600 mt-1">Ultimo ano</p>
+                    <p className="text-xs text-slate-500">{analytics.ordenesUltimos365Dias} ordenes</p>
                   </div>
                 </div>
               </Card>
@@ -459,15 +459,15 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
           {activeTab === 'historial' && analytics && (
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-slate-900">
                   Historial de Ordenes de Compra ({analytics.historialOrdenes.length})
                 </h3>
               </div>
 
               {analytics.historialOrdenes.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No hay ordenes de compra registradas</p>
+                <div className="text-center py-12 bg-slate-50 rounded-lg">
+                  <ShoppingCart className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                  <p className="text-slate-600">No hay ordenes de compra registradas</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -475,12 +475,12 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                     <Card key={orden.ordenId} padding="lg" className="hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                            <FileText className="h-6 w-6 text-indigo-600" />
+                          <div className="h-12 w-12 bg-teal-100 rounded-lg flex items-center justify-center">
+                            <FileText className="h-6 w-6 text-teal-600" />
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-mono font-medium text-indigo-600">
+                              <span className="font-mono font-medium text-teal-600">
                                 {orden.numeroOrden}
                               </span>
                               <Badge
@@ -501,17 +501,17 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                                 {orden.estadoPago}
                               </Badge>
                             </div>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-sm text-slate-500 mt-1">
                               {formatDate(orden.fecha)} - {orden.productos.length} productos
                             </p>
                             <div className="flex flex-wrap gap-2 mt-2">
                               {orden.productos.slice(0, 3).map((p, idx) => (
-                                <span key={idx} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                <span key={idx} className="text-xs bg-slate-100 px-2 py-1 rounded">
                                   {p.nombre.substring(0, 30)}... x{p.cantidad}
                                 </span>
                               ))}
                               {orden.productos.length > 3 && (
-                                <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                <span className="text-xs bg-slate-100 px-2 py-1 rounded">
                                   +{orden.productos.length - 3} mas
                                 </span>
                               )}
@@ -519,11 +519,11 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-gray-900">
+                          <p className="text-lg font-bold text-slate-900">
                             {formatCurrency(orden.totalUSD)}
                           </p>
                           {orden.diasEntrega !== undefined && (
-                            <p className="text-sm text-gray-500 flex items-center gap-1 justify-end mt-1">
+                            <p className="text-sm text-slate-500 flex items-center gap-1 justify-end mt-1">
                               <Truck className="h-3.5 w-3.5" />
                               {orden.diasEntrega} dias entrega
                             </p>
@@ -541,51 +541,51 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
           {activeTab === 'productos' && analytics && (
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-slate-900">
                   Productos Comprados ({analytics.productosComprados.length})
                 </h3>
               </div>
 
               {analytics.productosComprados.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No hay productos registrados</p>
+                <div className="text-center py-12 bg-slate-50 rounded-lg">
+                  <Package className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                  <p className="text-slate-600">No hay productos registrados</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Unidades</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ordenes</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Costo Prom.</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ultimo Costo</th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Tendencia</th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Mejor Precio?</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Producto</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Unidades</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ordenes</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Costo Prom.</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ultimo Costo</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Tendencia</th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Mejor Precio?</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-slate-200">
                       {analytics.productosComprados.map((producto) => (
-                        <tr key={producto.productoId} className="hover:bg-gray-50">
+                        <tr key={producto.productoId} className="hover:bg-slate-50">
                           <td className="px-4 py-4">
                             <div>
-                              <p className="font-medium text-gray-900">
+                              <p className="font-medium text-slate-900">
                                 {producto.marca} {producto.nombreComercial}
                               </p>
-                              <p className="text-xs text-gray-500">{producto.sku} - {producto.presentacion}</p>
+                              <p className="text-xs text-slate-500">{producto.sku} - {producto.presentacion}</p>
                             </div>
                           </td>
                           <td className="px-4 py-4 text-right font-medium">
                             {producto.unidadesCompradas}
                           </td>
-                          <td className="px-4 py-4 text-right text-gray-600">
+                          <td className="px-4 py-4 text-right text-slate-600">
                             {producto.ordenesCompra}
                           </td>
                           <td className="px-4 py-4 text-right">
                             <span className="font-medium">{formatCurrency(producto.costoPromedioUSD)}</span>
                             {producto.costoMinimoUSD !== producto.costoMaximoUSD && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-slate-500">
                                 {formatCurrency(producto.costoMinimoUSD)} - {formatCurrency(producto.costoMaximoUSD)}
                               </p>
                             )}
@@ -609,7 +609,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                             ) : producto.costosOtrosProveedores && producto.costosOtrosProveedores.length > 0 ? (
                               <XCircle className="h-5 w-5 text-amber-500 mx-auto" />
                             ) : (
-                              <Minus className="h-5 w-5 text-gray-300 mx-auto" />
+                              <Minus className="h-5 w-5 text-slate-300 mx-auto" />
                             )}
                           </td>
                         </tr>
@@ -625,16 +625,16 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
           {activeTab === 'comparativo' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-slate-900">
                   Comparativo de Precios con Otros Proveedores
                 </h3>
               </div>
 
               {comparativoPrecios.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <Scale className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No hay productos compartidos con otros proveedores para comparar</p>
-                  <p className="text-sm text-gray-500 mt-2">
+                <div className="text-center py-12 bg-slate-50 rounded-lg">
+                  <Scale className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                  <p className="text-slate-600">No hay productos compartidos con otros proveedores para comparar</p>
+                  <p className="text-sm text-slate-500 mt-2">
                     Los comparativos aparecen cuando un producto se compra a multiples proveedores
                   </p>
                 </div>
@@ -648,12 +648,12 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                       <Card key={comparativo.productoId} padding="lg">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <h4 className="font-medium text-gray-900">{comparativo.nombreProducto}</h4>
-                            <p className="text-sm text-gray-500">{comparativo.sku}</p>
+                            <h4 className="font-medium text-slate-900">{comparativo.nombreProducto}</h4>
+                            <p className="text-sm text-slate-500">{comparativo.sku}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm text-gray-500">Precio promedio mercado</p>
-                            <p className="text-lg font-bold text-gray-900">{formatCurrency(comparativo.precioPromedio)}</p>
+                            <p className="text-sm text-slate-500">Precio promedio mercado</p>
+                            <p className="text-lg font-bold text-slate-900">{formatCurrency(comparativo.precioPromedio)}</p>
                           </div>
                         </div>
 
@@ -667,21 +667,21 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                               <div
                                 key={prov.proveedorId}
                                 className={`flex items-center justify-between p-3 rounded-lg ${
-                                  esActual ? 'bg-indigo-50 border border-indigo-200' : 'bg-gray-50'
+                                  esActual ? 'bg-teal-50 border border-teal-200' : 'bg-slate-50'
                                 }`}
                               >
                                 <div className="flex items-center gap-3">
                                   <span className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                    esMejor ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'
+                                    esMejor ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'
                                   }`}>
                                     {idx + 1}
                                   </span>
                                   <div>
-                                    <p className={`font-medium ${esActual ? 'text-indigo-700' : 'text-gray-900'}`}>
+                                    <p className={`font-medium ${esActual ? 'text-teal-700' : 'text-slate-900'}`}>
                                       {prov.proveedorNombre}
                                       {esActual && <span className="text-xs ml-2">(actual)</span>}
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-slate-500">
                                       {prov.ordenesCompra} ordenes - Ultimo: {formatDate(prov.fechaUltimaCompra)}
                                     </p>
                                   </div>
@@ -703,7 +703,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                         </div>
 
                         <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm">
-                          <span className="text-gray-500">
+                          <span className="text-slate-500">
                             Diferencia max: <span className="font-medium text-red-600">{comparativo.diferenciaMaxima.toFixed(1)}%</span>
                           </span>
                           {proveedorActual && posicion > 1 && (
@@ -725,28 +725,28 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
             <div className="space-y-6">
               {/* Prediccion de proxima compra */}
               <Card padding="lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Target className="h-5 w-5 text-indigo-600" />
+                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                  <Target className="h-5 w-5 text-teal-600" />
                   Prediccion de Proxima Compra
                 </h3>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-indigo-50 rounded-lg">
-                    <p className="text-3xl font-bold text-indigo-600">
+                  <div className="text-center p-4 bg-teal-50 rounded-lg">
+                    <p className="text-3xl font-bold text-teal-600">
                       {analytics.predicciones.diasEstimadosProximaCompra}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Dias estimados</p>
+                    <p className="text-sm text-slate-600 mt-1">Dias estimados</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
                     <p className="text-lg font-bold text-purple-600">
                       {formatDate(analytics.predicciones.fechaEstimadaProximaCompra)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Fecha estimada</p>
+                    <p className="text-sm text-slate-600 mt-1">Fecha estimada</p>
                   </div>
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <p className="text-xl font-bold text-green-600">
                       {formatCurrency(analytics.predicciones.montoEstimadoProximaCompra)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">Monto estimado</p>
+                    <p className="text-sm text-slate-600 mt-1">Monto estimado</p>
                   </div>
                 </div>
               </Card>
@@ -754,27 +754,27 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
               {/* Tendencias */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card padding="lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <ChartLine className="h-5 w-5 text-indigo-600" />
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <ChartLine className="h-5 w-5 text-teal-600" />
                     Tendencias
                   </h3>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="text-gray-700">Volumen de compras</span>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-slate-700">Volumen de compras</span>
                       <div className="flex items-center gap-2">
                         {getTendenciaIcon(analytics.predicciones.tendenciaVolumen)}
                         <span className="font-medium capitalize">{analytics.predicciones.tendenciaVolumen}</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="text-gray-700">Precios</span>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-slate-700">Precios</span>
                       <div className="flex items-center gap-2">
                         {getTendenciaIcon(analytics.predicciones.tendenciaPrecios)}
                         <span className="font-medium capitalize">{analytics.predicciones.tendenciaPrecios}</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="text-gray-700">Evaluacion</span>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-slate-700">Evaluacion</span>
                       <div className="flex items-center gap-2">
                         {getTendenciaIcon(analytics.tendenciaEvaluacion)}
                         <span className="font-medium capitalize">{analytics.tendenciaEvaluacion}</span>
@@ -784,17 +784,17 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                 </Card>
 
                 <Card padding="lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-amber-600" />
                     Indicadores de Riesgo
                   </h3>
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-gray-700">Riesgo de incidencia</span>
+                        <span className="text-slate-700">Riesgo de incidencia</span>
                         <span className="font-medium">{analytics.predicciones.riesgoIncidencia}%</span>
                       </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
                             analytics.predicciones.riesgoIncidencia < 30 ? 'bg-green-500' :
@@ -806,10 +806,10 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-gray-700">Riesgo de inactividad</span>
+                        <span className="text-slate-700">Riesgo de inactividad</span>
                         <span className="font-medium">{analytics.predicciones.riesgoInactividad}%</span>
                       </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
                             analytics.predicciones.riesgoInactividad < 30 ? 'bg-green-500' :
@@ -825,7 +825,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
 
               {/* Valor */}
               <Card padding="lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                   <DollarSign className="h-5 w-5 text-green-600" />
                   Valor del Proveedor
                 </h3>
@@ -834,13 +834,13 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                     <p className="text-3xl font-bold text-green-600">
                       {formatCurrency(analytics.predicciones.valorAnualEstimado)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-2">Valor anual estimado</p>
+                    <p className="text-sm text-slate-600 mt-2">Valor anual estimado</p>
                   </div>
-                  <div className="text-center p-6 bg-indigo-50 rounded-lg">
-                    <p className="text-3xl font-bold text-indigo-600">
+                  <div className="text-center p-6 bg-teal-50 rounded-lg">
+                    <p className="text-3xl font-bold text-teal-600">
                       {formatCurrency(analytics.predicciones.valorTotalHistorico)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-2">Valor total historico</p>
+                    <p className="text-sm text-slate-600 mt-2">Valor total historico</p>
                   </div>
                 </div>
               </Card>

@@ -140,7 +140,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
       GA: 'bg-amber-100 text-amber-700 border-amber-200',
       GO: 'bg-green-100 text-green-700 border-green-200'
     };
-    return colors[cat] || 'bg-gray-100 text-gray-700';
+    return colors[cat] || 'bg-slate-100 text-slate-700';
   };
 
   // Quitar gasto de la lista de nuevos
@@ -158,14 +158,14 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Header con resumen de venta */}
-      <div className="bg-gray-50 rounded-lg p-4 border">
+      <div className="bg-slate-50 rounded-lg p-4 border">
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="font-medium text-gray-900">Venta {venta.numeroVenta}</h4>
-            <p className="text-sm text-gray-500">{venta.nombreCliente}</p>
+            <h4 className="font-medium text-slate-900">Venta {venta.numeroVenta}</h4>
+            <p className="text-sm text-slate-500">{venta.nombreCliente}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-500">Total Venta</p>
+            <p className="text-sm text-slate-500">Total Venta</p>
             <p className="text-lg font-semibold">S/ {venta.totalPEN.toFixed(2)}</p>
           </div>
         </div>
@@ -173,9 +173,9 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
 
       {/* Gastos ya registrados */}
       {loadingGastos ? (
-        <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg border">
-          <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
-          <span className="text-sm text-gray-600">Cargando gastos registrados...</span>
+        <div className="flex items-center gap-2 p-4 bg-slate-50 rounded-lg border">
+          <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
+          <span className="text-sm text-slate-600">Cargando gastos registrados...</span>
         </div>
       ) : errorGastos ? (
         <div className="flex items-center gap-2 p-4 bg-red-50 rounded-lg border border-red-200">
@@ -199,10 +199,10 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
                     {gasto.numeroGasto}
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-slate-900">
                       {TIPOS_GASTO_LABELS[gasto.tipo as TipoGasto] || gasto.tipo}
                     </p>
-                    <p className="text-xs text-gray-500">{gasto.descripcion}</p>
+                    <p className="text-xs text-slate-500">{gasto.descripcion}</p>
                   </div>
                 </div>
                 <span className="font-medium text-purple-700">
@@ -217,14 +217,14 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
           </div>
         </div>
       ) : (
-        <div className="bg-gray-50 rounded-lg p-4 border text-center">
-          <p className="text-sm text-gray-500">No hay gastos registrados para esta venta</p>
+        <div className="bg-slate-50 rounded-lg p-4 border text-center">
+          <p className="text-sm text-slate-500">No hay gastos registrados para esta venta</p>
         </div>
       )}
 
       {/* Formulario para agregar nuevo gasto */}
-      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+        <h4 className="font-medium text-slate-900 mb-3 flex items-center gap-2">
           <Plus className="h-5 w-5" />
           Agregar nuevo gasto
         </h4>
@@ -239,7 +239,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
               className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                 nuevaCategoria === cat
                   ? getCategoriaColor(cat)
-                  : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                  : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
               }`}
             >
               {cat === 'GV' ? 'Gasto de Venta (GV)' : 'Distribución (GD)'}
@@ -284,7 +284,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Monto (S/)
             </label>
             <input
@@ -294,12 +294,12 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
               value={nuevoMonto}
               onChange={(e) => setNuevoMonto(e.target.value)}
               placeholder="0.00"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
 
           <div className="md:col-span-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Descripción (opcional)
             </label>
             <input
@@ -307,7 +307,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
               value={nuevaDescripcion}
               onChange={(e) => setNuevaDescripcion(e.target.value)}
               placeholder="Detalle del gasto..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
 
@@ -344,10 +344,10 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
                     {gasto.categoria}
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-slate-900">
                       {TIPOS_GASTO_LABELS[gasto.tipo as TipoGasto] || gasto.tipo}
                     </p>
-                    <p className="text-xs text-gray-500">{gasto.descripcion}</p>
+                    <p className="text-xs text-slate-500">{gasto.descripcion}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -373,12 +373,12 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
       )}
 
       {/* Resumen de impacto */}
-      <div className="bg-gradient-to-r from-primary-50 to-success-50 rounded-lg p-4 border border-primary-200">
-        <h4 className="font-medium text-gray-900 mb-3">Impacto en Rentabilidad</h4>
+      <div className="bg-gradient-to-r from-teal-50 to-success-50 rounded-lg p-4 border border-teal-200">
+        <h4 className="font-medium text-slate-900 mb-3">Impacto en Rentabilidad</h4>
 
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-600">Utilidad Bruta:</span>
+            <span className="text-slate-600">Utilidad Bruta:</span>
             <span className="font-medium">S/ {utilidadBruta.toFixed(2)}</span>
           </div>
           {totalGastosExistentes > 0 && (
@@ -394,13 +394,13 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
             </div>
           )}
           <div className="border-t pt-2 flex justify-between">
-            <span className="font-medium text-gray-900">Utilidad Neta Proyectada:</span>
+            <span className="font-medium text-slate-900">Utilidad Neta Proyectada:</span>
             <span className={`font-bold ${utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
               S/ {utilidadNeta.toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Margen Neto:</span>
+            <span className="text-slate-600">Margen Neto:</span>
             <span className={`font-medium ${margenNeto >= 20 ? 'text-success-600' : margenNeto >= 10 ? 'text-warning-600' : 'text-danger-600'}`}>
               {margenNeto.toFixed(1)}%
             </span>

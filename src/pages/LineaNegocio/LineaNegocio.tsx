@@ -141,7 +141,7 @@ export const LineaNegocio: React.FC = () => {
       {/* Table / Cards */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin h-8 w-8 border-4 border-primary-500 border-t-transparent rounded-full" />
+          <div className="animate-spin h-8 w-8 border-4 border-teal-500 border-t-transparent rounded-full" />
         </div>
       ) : lineas.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
@@ -238,7 +238,7 @@ export const LineaNegocio: React.FC = () => {
                         </button>
                         <button
                           onClick={() => handleEdit(linea)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-teal-600 hover:bg-teal-50 transition-colors"
                           title="Editar"
                         >
                           <Pencil className="h-4 w-4" />
@@ -298,7 +298,7 @@ export const LineaNegocio: React.FC = () => {
                   </button>
                   <button
                     onClick={() => handleEdit(linea)}
-                    className="p-2 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50"
+                    className="p-2 rounded-lg text-slate-500 hover:text-teal-600 hover:bg-teal-50"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>

@@ -637,14 +637,14 @@ export const VentaForm: React.FC<VentaFormProps> = ({
         {/* PASO 1: PRODUCTOS */}
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-            <h4 className="text-base sm:text-lg font-semibold text-gray-900">Selecciona los productos</h4>
+            <h4 className="text-base sm:text-lg font-semibold text-slate-900">Selecciona los productos</h4>
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowProductoModal(true)}
-                className="text-primary-600 flex-1 sm:flex-none"
+                className="text-teal-600 flex-1 sm:flex-none"
               >
                 <PlusCircle className="h-4 w-4 mr-1" />
                 <span className="hidden sm:inline">Crear Producto</span>
@@ -690,12 +690,12 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                 : null;
 
               return (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                <div key={index} className="p-4 bg-slate-50 rounded-lg">
                   <div className="flex items-start space-x-3">
                     <div className="flex-1 space-y-3">
                       {/* Buscador inteligente de productos */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
                           Producto
                         </label>
                         <ProductoSearchVentas
@@ -745,7 +745,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                               margenActual >= 20 ? 'bg-green-100' :
                               margenActual >= 10 ? 'bg-yellow-100' : 'bg-red-100'
                             }`}>
-                              <div className="text-xs text-gray-600">Margen</div>
+                              <div className="text-xs text-slate-600">Margen</div>
                               <div className={`text-lg font-bold ${
                                 margenActual >= 20 ? 'text-green-600' :
                                 margenActual >= 10 ? 'text-yellow-600' : 'text-red-600'
@@ -754,9 +754,9 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                               </div>
                             </div>
                           ) : item.snapshot && (
-                            <div className="px-3 py-2 rounded-lg bg-gray-100">
-                              <div className="text-xs text-gray-500">Margen</div>
-                              <div className="text-sm text-gray-400">-</div>
+                            <div className="px-3 py-2 rounded-lg bg-slate-100">
+                              <div className="text-xs text-slate-500">Margen</div>
+                              <div className="text-sm text-slate-400">-</div>
                             </div>
                           )}
                         </div>
@@ -764,8 +764,8 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                         {/* Subtotal y eliminar */}
                         <div className="flex items-center justify-between">
                           <div className="text-right flex-1">
-                            <div className="text-xs text-gray-600 mb-1">Subtotal</div>
-                            <div className="text-lg font-semibold text-gray-900">
+                            <div className="text-xs text-slate-600 mb-1">Subtotal</div>
+                            <div className="text-lg font-semibold text-slate-900">
                               S/ {(item.cantidad * item.precioUnitario).toFixed(2)}
                             </div>
                           </div>
@@ -797,8 +797,8 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
                       {/* Precios rápidos de investigación si está disponible */}
                       {tieneInvestigacion && item.productoId && (
-                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200">
-                          <span className="text-xs text-gray-500 w-full sm:w-auto">Aplicar precio:</span>
+                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200">
+                          <span className="text-xs text-slate-500 w-full sm:w-auto">Aplicar precio:</span>
                           <button
                             type="button"
                             onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioEntrada.toFixed(2))}
@@ -864,8 +864,8 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
           {/* Tipo de envío */}
           {costoEnvio > 0 && (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 bg-gray-50 p-3 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">Tipo de envío:</span>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 bg-slate-50 p-3 rounded-lg">
+              <span className="text-sm font-medium text-slate-700">Tipo de envío:</span>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                 <label className="flex items-center cursor-pointer">
                   <input
@@ -875,7 +875,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                     onChange={() => setIncluyeEnvio(true)}
                     className="mr-2"
                   />
-                  <span className="text-sm text-gray-600">Envío gratis</span>
+                  <span className="text-sm text-slate-600">Envío gratis</span>
                 </label>
                 <label className="flex items-center cursor-pointer">
                   <input
@@ -885,28 +885,28 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                     onChange={() => setIncluyeEnvio(false)}
                     className="mr-2"
                   />
-                  <span className="text-sm text-gray-600">Cliente paga</span>
+                  <span className="text-sm text-slate-600">Cliente paga</span>
                 </label>
               </div>
             </div>
           )}
 
           {/* Subtotal del paso */}
-          <div className="bg-gray-100 p-4 rounded-lg">
+          <div className="bg-slate-100 p-4 rounded-lg">
             <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-700">Subtotal de productos:</span>
-              <span className="text-xl font-bold text-primary-600">S/ {subtotalPEN.toFixed(2)}</span>
+              <span className="font-medium text-slate-700">Subtotal de productos:</span>
+              <span className="text-xl font-bold text-teal-600">S/ {subtotalPEN.toFixed(2)}</span>
             </div>
           </div>
         </div>
 
         {/* PASO 2: CLIENTE */}
         <div className="space-y-6">
-          <h4 className="text-lg font-semibold text-gray-900">Datos del Cliente</h4>
+          <h4 className="text-lg font-semibold text-slate-900">Datos del Cliente</h4>
 
           {/* Autocomplete de Cliente */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Buscar o crear cliente
             </label>
             <ClienteAutocomplete
@@ -921,7 +921,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
           {/* Historial del Cliente (si está seleccionado y tiene historial) */}
           {clienteSeleccionado && historialCliente && historialCliente.totalCompras > 0 && (
-            <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+            <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg">
               <div className="flex items-center gap-2 mb-3">
                 <History className="h-5 w-5 text-blue-600" />
                 <span className="font-medium text-blue-800">Historial del Cliente</span>
@@ -938,32 +938,32 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                     <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
                     {historialCliente.totalCompras}
                   </div>
-                  <p className="text-xs text-gray-600">Compras</p>
+                  <p className="text-xs text-slate-600">Compras</p>
                 </div>
                 <div className="text-center">
                   <div className="text-lg sm:text-2xl font-bold text-green-600">
                     S/{historialCliente.montoTotal.toFixed(0)}
                   </div>
-                  <p className="text-xs text-gray-600">Total</p>
+                  <p className="text-xs text-slate-600">Total</p>
                 </div>
                 <div className="text-center">
                   <div className="text-lg sm:text-2xl font-bold text-purple-600">
                     S/{(historialCliente.montoTotal / historialCliente.totalCompras).toFixed(0)}
                   </div>
-                  <p className="text-xs text-gray-600">Promedio</p>
+                  <p className="text-xs text-slate-600">Promedio</p>
                 </div>
               </div>
               {historialCliente.ultimaCompra && (
-                <p className="mt-2 text-xs text-gray-500 text-center">
+                <p className="mt-2 text-xs text-slate-500 text-center">
                   Última compra: {historialCliente.ultimaCompra.toLocaleDateString('es-PE')}
                 </p>
               )}
               {historialCliente.productosFavoritos.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-blue-200">
-                  <p className="text-xs text-gray-600 mb-1">Productos frecuentes:</p>
+                  <p className="text-xs text-slate-600 mb-1">Productos frecuentes:</p>
                   <div className="flex flex-wrap gap-1">
                     {historialCliente.productosFavoritos.slice(0, 3).map((prod, idx) => (
-                      <span key={idx} className="px-2 py-0.5 bg-white text-xs text-gray-700 rounded border">
+                      <span key={idx} className="px-2 py-0.5 bg-white text-xs text-slate-700 rounded border">
                         {prod}
                       </span>
                     ))}
@@ -1042,12 +1042,12 @@ export const VentaForm: React.FC<VentaFormProps> = ({
           {/* Toggle manual para admin/gerente cuando no hay auto-detección */}
           {esAdminOGerente && !esVentaSocio && !empleadoDetectado && (
             <div className="mb-4">
-              <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-500 hover:text-gray-700">
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-500 hover:text-slate-700">
                 <input
                   type="checkbox"
                   checked={false}
                   onChange={() => setEsVentaSocio(true)}
-                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  className="w-4 h-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500"
                 />
                 Marcar como venta a socio/empleado
               </label>
@@ -1055,7 +1055,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
           )}
 
           {loadingHistorial && (
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg text-center text-sm text-gray-500">
+            <div className="mb-4 p-3 bg-slate-50 rounded-lg text-center text-sm text-slate-500">
               Cargando historial del cliente...
             </div>
           )}
@@ -1092,11 +1092,11 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
           {/* Dirección de Entrega con Google Maps */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               <MapPin className="inline h-4 w-4 mr-1" />
               Dirección de Entrega
             </label>
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="bg-white border border-slate-200 rounded-lg p-4">
               <GoogleMapsAddressInput
                 value={addressData}
                 onChange={setAddressData}
@@ -1130,24 +1130,24 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
         {/* PASO 3: PAGO (Unificado) */}
         <div className="space-y-6">
-          <h4 className="text-lg font-semibold text-gray-900">Método de Pago</h4>
+          <h4 className="text-lg font-semibold text-slate-900">Método de Pago</h4>
 
           {/* Toggle de Adelanto */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="border border-slate-200 rounded-lg overflow-hidden">
             <div
               className={`p-4 cursor-pointer transition-colors ${
-                registrarAdelanto ? 'bg-success-50 border-b border-success-200' : 'bg-gray-50 hover:bg-gray-100'
+                registrarAdelanto ? 'bg-success-50 border-b border-success-200' : 'bg-slate-50 hover:bg-slate-100'
               }`}
               onClick={() => setRegistrarAdelanto(!registrarAdelanto)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${registrarAdelanto ? 'bg-success-100' : 'bg-gray-200'}`}>
-                    <CreditCard className={`h-5 w-5 ${registrarAdelanto ? 'text-success-600' : 'text-gray-500'}`} />
+                  <div className={`p-2 rounded-lg ${registrarAdelanto ? 'bg-success-100' : 'bg-slate-200'}`}>
+                    <CreditCard className={`h-5 w-5 ${registrarAdelanto ? 'text-success-600' : 'text-slate-500'}`} />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">Registrar Adelanto</h4>
-                    <p className="text-sm text-gray-500">
+                    <h4 className="font-semibold text-slate-900">Registrar Adelanto</h4>
+                    <p className="text-sm text-slate-500">
                       {registrarAdelanto
                         ? 'El cliente realizará un pago anticipado'
                         : 'Haz clic para registrar un adelanto del cliente'}
@@ -1155,7 +1155,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                   </div>
                 </div>
                 <div className={`w-12 h-6 rounded-full transition-colors ${
-                  registrarAdelanto ? 'bg-success-500' : 'bg-gray-300'
+                  registrarAdelanto ? 'bg-success-500' : 'bg-slate-300'
                 }`}>
                   <div className={`w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform mt-0.5 ${
                     registrarAdelanto ? 'translate-x-6' : 'translate-x-0.5'
@@ -1189,14 +1189,14 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
           {/* Observaciones */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Observaciones
             </label>
             <textarea
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
               rows={3}
-              className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="Notas sobre la venta..."
             />
           </div>
@@ -1204,20 +1204,20 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
         {/* PASO 4: CONFIRMACIÓN */}
         <div className="space-y-6">
-          <h4 className="text-lg font-semibold text-gray-900">Revisa y confirma tu venta</h4>
+          <h4 className="text-lg font-semibold text-slate-900">Revisa y confirma tu venta</h4>
 
           {/* Resumen de productos */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+          <div className="bg-slate-50 p-4 rounded-lg">
+            <h5 className="font-medium text-slate-900 mb-3 flex items-center gap-2">
               <Package className="h-4 w-4" />
               Productos ({productos.filter(p => p.productoId).length})
             </h5>
             <div className="space-y-2">
               {productos.filter(p => p.productoId).map((item, index) => (
-                <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-0">
+                <div key={index} className="flex justify-between items-center py-2 border-b border-slate-200 last:border-0">
                   <div>
                     <span className="font-medium">{getProductoNombre(item.productoId)}</span>
-                    <span className="text-gray-500 text-sm ml-2">x{item.cantidad}</span>
+                    <span className="text-slate-500 text-sm ml-2">x{item.cantidad}</span>
                   </div>
                   <span className="font-semibold">S/ {(item.cantidad * item.precioUnitario).toFixed(2)}</span>
                 </div>
@@ -1226,77 +1226,77 @@ export const VentaForm: React.FC<VentaFormProps> = ({
           </div>
 
           {/* Resumen del cliente */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+          <div className="bg-slate-50 p-4 rounded-lg">
+            <h5 className="font-medium text-slate-900 mb-3 flex items-center gap-2">
               <User className="h-4 w-4" />
               Cliente
             </h5>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <span className="text-gray-500">Nombre:</span>
+                <span className="text-slate-500">Nombre:</span>
                 <span className="ml-2 font-medium">{nombreCliente || '-'}</span>
               </div>
               <div>
-                <span className="text-gray-500">DNI/RUC:</span>
+                <span className="text-slate-500">DNI/RUC:</span>
                 <span className="ml-2 font-medium">{dniRuc || '-'}</span>
               </div>
               <div>
-                <span className="text-gray-500">Email:</span>
+                <span className="text-slate-500">Email:</span>
                 <span className="ml-2 font-medium">{emailCliente || '-'}</span>
               </div>
               <div>
-                <span className="text-gray-500">Teléfono:</span>
+                <span className="text-slate-500">Teléfono:</span>
                 <span className="ml-2 font-medium">{telefonoCliente || '-'}</span>
               </div>
               {addressData.direccion && (
                 <div className="col-span-2">
-                  <span className="text-gray-500">Dirección:</span>
+                  <span className="text-slate-500">Dirección:</span>
                   <span className="ml-2 font-medium">{addressData.direccion}</span>
                 </div>
               )}
               <div>
-                <span className="text-gray-500">Canal:</span>
+                <span className="text-slate-500">Canal:</span>
                 <span className="ml-2 font-medium">{canalNombre || canal || '-'}</span>
               </div>
             </div>
           </div>
 
           {/* Totales */}
-          <div className="bg-primary-50 p-6 rounded-lg">
-            <h5 className="font-medium text-gray-900 mb-4">Resumen de la Venta</h5>
+          <div className="bg-teal-50 p-6 rounded-lg">
+            <h5 className="font-medium text-slate-900 mb-4">Resumen de la Venta</h5>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal:</span>
+                <span className="text-slate-600">Subtotal:</span>
                 <span className="font-semibold">S/ {subtotalPEN.toFixed(2)}</span>
               </div>
 
               {descuento > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Descuento:</span>
+                  <span className="text-slate-600">Descuento:</span>
                   <span className="font-semibold text-danger-600">- S/ {descuento.toFixed(2)}</span>
                 </div>
               )}
 
               {costoEnvio > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">
+                  <span className="text-slate-600">
                     Envío {incluyeEnvio ? '(gratis)' : '(cobrado al cliente)'}:
                   </span>
-                  <span className={`font-semibold ${incluyeEnvio ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                  <span className={`font-semibold ${incluyeEnvio ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
                     {incluyeEnvio ? '' : '+ '}S/ {costoEnvio.toFixed(2)}
                   </span>
                 </div>
               )}
 
-              <div className="border-t border-primary-200 pt-2 mt-2">
+              <div className="border-t border-teal-200 pt-2 mt-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold text-gray-900">Total:</span>
-                  <span className="text-2xl font-bold text-primary-600">S/ {totalPEN.toFixed(2)}</span>
+                  <span className="text-lg font-semibold text-slate-900">Total:</span>
+                  <span className="text-2xl font-bold text-teal-600">S/ {totalPEN.toFixed(2)}</span>
                 </div>
               </div>
 
               {registrarAdelanto && montoAdelanto > 0 && (
-                <div className="border-t border-primary-200 pt-2 mt-2">
+                <div className="border-t border-teal-200 pt-2 mt-2">
                   <div className="flex justify-between text-success-600">
                     <span className="font-medium">Adelanto a registrar:</span>
                     <span className="font-semibold">- S/ {montoAdelanto.toFixed(2)}</span>
@@ -1311,9 +1311,9 @@ export const VentaForm: React.FC<VentaFormProps> = ({
           </div>
 
           {observaciones && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h5 className="font-medium text-gray-900 mb-2">Observaciones</h5>
-              <p className="text-sm text-gray-600">{observaciones}</p>
+            <div className="bg-slate-50 p-4 rounded-lg">
+              <h5 className="font-medium text-slate-900 mb-2">Observaciones</h5>
+              <p className="text-sm text-slate-600">{observaciones}</p>
             </div>
           )}
 

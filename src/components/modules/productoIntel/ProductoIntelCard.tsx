@@ -25,17 +25,17 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
     return (
       <div
         className={`
-          bg-white border border-gray-200 rounded-lg p-3
-          ${onClick ? 'cursor-pointer hover:shadow-md hover:border-gray-300 transition-all' : ''}
+          bg-white border border-slate-200 rounded-lg p-3
+          ${onClick ? 'cursor-pointer hover:shadow-md hover:border-slate-300 transition-all' : ''}
         `}
         onClick={onClick}
       >
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-gray-900 truncate" title={producto.nombreComercial}>
+            <p className="font-medium text-slate-900 truncate" title={producto.nombreComercial}>
               {producto.nombreComercial}
             </p>
-            <p className="text-xs text-gray-500">{producto.sku} - {producto.marca}</p>
+            <p className="text-xs text-slate-500">{producto.sku} - {producto.marca}</p>
           </div>
           <ScoreLiquidezBadge
             score={liquidez.score}
@@ -49,7 +49,7 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
             rotacionDias={rotacion.rotacionDias}
             clasificacion={rotacion.clasificacionRotacion}
           />
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-slate-500">
             Stock: {rotacion.stockTotal}
           </span>
           {/* Badges de estado especial */}
@@ -80,23 +80,23 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
   return (
     <div
       className={`
-        bg-white border border-gray-200 rounded-lg p-4
-        ${onClick ? 'cursor-pointer hover:shadow-lg hover:border-gray-300 transition-all' : ''}
+        bg-white border border-slate-200 rounded-lg p-4
+        ${onClick ? 'cursor-pointer hover:shadow-lg hover:border-slate-300 transition-all' : ''}
       `}
       onClick={onClick}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-start gap-3 min-w-0 flex-1">
-          <div className="p-2 bg-gray-100 rounded-lg flex-shrink-0">
-            <Package className="h-5 w-5 text-gray-600" />
+          <div className="p-2 bg-slate-100 rounded-lg flex-shrink-0">
+            <Package className="h-5 w-5 text-slate-600" />
           </div>
           <div className="min-w-0">
-            <p className="font-semibold text-gray-900 truncate" title={producto.nombreComercial}>
+            <p className="font-semibold text-slate-900 truncate" title={producto.nombreComercial}>
               {producto.nombreComercial}
             </p>
-            <p className="text-sm text-gray-500">{producto.sku}</p>
-            <p className="text-xs text-gray-400">{producto.marca}</p>
+            <p className="text-sm text-slate-500">{producto.sku}</p>
+            <p className="text-xs text-slate-400">{producto.marca}</p>
           </div>
         </div>
         <ScoreLiquidezBadge
@@ -109,41 +109,41 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
       {/* Metricas principales */}
       <div className="grid grid-cols-3 gap-3 mb-3">
         {/* Rotacion */}
-        <div className="bg-gray-50 rounded-lg p-2">
+        <div className="bg-slate-50 rounded-lg p-2">
           <div className="flex items-center gap-1 mb-1">
-            <Clock className="h-3 w-3 text-gray-400" />
-            <span className="text-xs text-gray-500">Rotacion</span>
+            <Clock className="h-3 w-3 text-slate-400" />
+            <span className="text-xs text-slate-500">Rotacion</span>
           </div>
-          <p className="font-semibold text-gray-900">
+          <p className="font-semibold text-slate-900">
             {rotacion.rotacionDias < 999 ? `${rotacion.rotacionDias}d` : '-'}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-slate-500">
             {rotacion.ventasPorSemana.toFixed(1)}/sem
           </p>
         </div>
 
         {/* Margen */}
-        <div className="bg-gray-50 rounded-lg p-2">
+        <div className="bg-slate-50 rounded-lg p-2">
           <div className="flex items-center gap-1 mb-1">
-            <DollarSign className="h-3 w-3 text-gray-400" />
-            <span className="text-xs text-gray-500">Margen</span>
+            <DollarSign className="h-3 w-3 text-slate-400" />
+            <span className="text-xs text-slate-500">Margen</span>
           </div>
-          <p className="font-semibold text-gray-900">
+          <p className="font-semibold text-slate-900">
             {rentabilidad.margenBrutoPromedio.toFixed(0)}%
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-slate-500">
             ROI: {rentabilidad.roiPromedio}%
           </p>
         </div>
 
         {/* Stock */}
-        <div className="bg-gray-50 rounded-lg p-2">
+        <div className="bg-slate-50 rounded-lg p-2">
           <div className="flex items-center gap-1 mb-1">
-            <BarChart3 className="h-3 w-3 text-gray-400" />
-            <span className="text-xs text-gray-500">Stock</span>
+            <BarChart3 className="h-3 w-3 text-slate-400" />
+            <span className="text-xs text-slate-500">Stock</span>
           </div>
-          <p className="font-semibold text-gray-900">{rotacion.stockTotal}</p>
-          <p className="text-xs text-gray-500">
+          <p className="font-semibold text-slate-900">{rotacion.stockTotal}</p>
+          <p className="text-xs text-slate-500">
             {rotacion.diasParaQuiebre < 999 ? `${rotacion.diasParaQuiebre}d` : '-'} quiebre
           </p>
         </div>
@@ -165,7 +165,7 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
             </span>
           )}
           {rotacion.stockDisponible > 0 && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-slate-500">
               {rotacion.stockDisponible} disponibles
             </span>
           )}
@@ -173,31 +173,31 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
       )}
 
       {/* Tendencia y ventas */}
-      <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+      <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
           <TendenciaBadge
             tendencia={rotacion.tendencia}
             variacion={rotacion.variacionVentas}
           />
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-slate-500">
             {rotacion.unidadesVendidas30d} vendidas (30d)
           </span>
         </div>
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-sm font-medium text-slate-700">
           {formatCurrency(rotacion.ventasPEN30d)}
         </span>
       </div>
 
       {/* Valor en inventario */}
       <div className="flex items-center justify-between text-sm mb-3">
-        <span className="text-gray-500">Valor inventario</span>
-        <span className="font-medium text-gray-900">
+        <span className="text-slate-500">Valor inventario</span>
+        <span className="font-medium text-slate-900">
           {formatCurrency(liquidez.valorInventarioPEN)}
         </span>
       </div>
 
       <div className="flex items-center justify-between text-sm mb-3">
-        <span className="text-gray-500">Potencial utilidad</span>
+        <span className="text-slate-500">Potencial utilidad</span>
         <span className="font-medium text-green-600">
           {formatCurrency(liquidez.potencialUtilidadPEN)}
         </span>
@@ -205,7 +205,7 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
 
       {/* Alertas */}
       {(alertasCriticas.length > 0 || alertasWarning.length > 0) && (
-        <div className="mt-3 pt-3 border-t border-gray-100 space-y-1">
+        <div className="mt-3 pt-3 border-t border-slate-100 space-y-1">
           {alertasCriticas.map((alerta, idx) => (
             <div key={idx} className="flex items-start gap-1.5 text-red-600">
               <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
@@ -222,8 +222,8 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
       )}
 
       {/* Recomendacion */}
-      <div className="mt-3 pt-3 border-t border-gray-100">
-        <p className="text-xs text-gray-500">{liquidez.descripcion}</p>
+      <div className="mt-3 pt-3 border-t border-slate-100">
+        <p className="text-xs text-slate-500">{liquidez.descripcion}</p>
         <p className="text-xs font-medium text-blue-600 mt-1">{liquidez.recomendacion}</p>
       </div>
     </div>

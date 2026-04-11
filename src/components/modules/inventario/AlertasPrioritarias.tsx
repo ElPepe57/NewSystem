@@ -43,9 +43,9 @@ const alertaConfig = {
   },
   sin_movimiento: {
     icon: Package,
-    color: 'text-gray-600',
-    bgColor: 'bg-gray-50',
-    borderColor: 'border-gray-200',
+    color: 'text-slate-600',
+    bgColor: 'bg-slate-50',
+    borderColor: 'border-slate-200',
     badgeVariant: 'default' as const
   }
 };
@@ -53,7 +53,7 @@ const alertaConfig = {
 const prioridadConfig = {
   alta: { color: 'text-red-600', bgColor: 'bg-red-100' },
   media: { color: 'text-amber-600', bgColor: 'bg-amber-100' },
-  baja: { color: 'text-gray-600', bgColor: 'bg-gray-100' }
+  baja: { color: 'text-slate-600', bgColor: 'bg-slate-100' }
 };
 
 export const AlertasPrioritarias: React.FC<AlertasPrioritariasProps> = ({
@@ -80,14 +80,14 @@ export const AlertasPrioritarias: React.FC<AlertasPrioritariasProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+    <div className="bg-white rounded-lg border border-slate-200">
+      <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-amber-500" />
-          <h3 className="font-semibold text-gray-900">Alertas Prioritarias</h3>
+          <h3 className="font-semibold text-slate-900">Alertas Prioritarias</h3>
           <Badge variant="warning" size="sm">{alertas.length}</Badge>
         </div>
-        <span className="text-xs text-gray-500">Requieren acción</span>
+        <span className="text-xs text-slate-500">Requieren acción</span>
       </div>
 
       <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -120,18 +120,18 @@ export const AlertasPrioritarias: React.FC<AlertasPrioritariasProps> = ({
 
               {/* Producto Info */}
               <div className="mb-3">
-                <div className="font-mono text-sm font-semibold text-gray-900">
+                <div className="font-mono text-sm font-semibold text-slate-900">
                   {alerta.producto.sku}
                 </div>
-                <div className="text-sm text-gray-600 truncate">
+                <div className="text-sm text-slate-600 truncate">
                   {alerta.producto.marca} · {alerta.producto.nombre}
                 </div>
               </div>
 
               {/* Detalle de alerta */}
               <div className="mb-4 p-2 bg-white/50 rounded">
-                <div className="text-sm text-gray-700">{alerta.mensaje}</div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-sm text-slate-700">{alerta.mensaje}</div>
+                <div className="text-xs text-slate-500 mt-1">
                   {alerta.unidadesAfectadas} unidad{alerta.unidadesAfectadas !== 1 ? 'es' : ''} afectada{alerta.unidadesAfectadas !== 1 ? 's' : ''}
                 </div>
               </div>
@@ -165,8 +165,8 @@ export const AlertasPrioritarias: React.FC<AlertasPrioritariasProps> = ({
       </div>
 
       {alertasOcultas > 0 && (
-        <div className="px-4 py-3 border-t border-gray-200 text-center">
-          <span className="text-sm text-gray-500">
+        <div className="px-4 py-3 border-t border-slate-200 text-center">
+          <span className="text-sm text-slate-500">
             +{alertasOcultas} alerta{alertasOcultas !== 1 ? 's' : ''} adicional{alertasOcultas !== 1 ? 'es' : ''}
           </span>
         </div>

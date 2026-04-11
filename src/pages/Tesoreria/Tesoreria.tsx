@@ -804,7 +804,7 @@ export const Tesoreria: React.FC = () => {
               onClick={() => setTabActiva(key)}
               className={`flex-1 sm:flex-none py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center justify-center sm:justify-start gap-1 sm:gap-2 ${
                 tabActiva === key
-                  ? 'border-primary-500 text-primary-600'
+                  ? 'border-teal-500 text-teal-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >

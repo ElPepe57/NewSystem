@@ -39,33 +39,33 @@ const CostWaterfall: React.FC<{ ctru: CTRUProductoDetalle }> = ({ ctru }) => {
 
   return (
     <div className="space-y-2">
-      <h4 className="text-xs font-medium text-gray-500 uppercase">Cascada de Costos (Prom.)</h4>
+      <h4 className="text-xs font-medium text-slate-500 uppercase">Cascada de Costos (Prom.)</h4>
       <div className="space-y-1.5">
         {layers.map((l) => (
           <div key={l.label} className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${l.color} shrink-0`} />
-            <span className="text-xs text-gray-600 w-20 shrink-0">{l.label}</span>
-            <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+            <span className="text-xs text-slate-600 w-20 shrink-0">{l.label}</span>
+            <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
               <div className={`h-full ${l.color} rounded-full`} style={{ width: `${Math.min(l.pct, 100)}%` }} />
             </div>
-            <span className="text-xs font-medium text-gray-700 w-20 text-right">{fmtPEN(l.value)}</span>
-            <span className="text-[10px] text-gray-400 w-10 text-right">{l.pct.toFixed(0)}%</span>
+            <span className="text-xs font-medium text-slate-700 w-20 text-right">{fmtPEN(l.value)}</span>
+            <span className="text-[10px] text-slate-400 w-10 text-right">{l.pct.toFixed(0)}%</span>
           </div>
         ))}
       </div>
 
       {/* Totales */}
-      <div className="border-t border-gray-200 pt-2 space-y-1">
+      <div className="border-t border-slate-200 pt-2 space-y-1">
         <div className="flex justify-between text-xs">
-          <span className="text-gray-500">Costo Inventario (1-5)</span>
+          <span className="text-slate-500">Costo Inventario (1-5)</span>
           <span className="font-medium">{fmtPEN(ctru.costoInventarioProm)}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-gray-500">CTRU (1-6)</span>
+          <span className="text-slate-500">CTRU (1-6)</span>
           <span className="font-medium">{fmtPEN(ctru.ctruPromedio)}</span>
         </div>
         <div className="flex justify-between text-xs font-semibold">
-          <span className="text-gray-700">Costo Total Real (1-7)</span>
+          <span className="text-slate-700">Costo Total Real (1-7)</span>
           <span>{fmtPEN(ctru.costoTotalRealProm)}</span>
         </div>
       </div>
@@ -123,18 +123,18 @@ const MarginSimulator: React.FC<{
 
   return (
     <div className="space-y-3">
-      <h4 className="text-xs font-medium text-gray-500 uppercase">Simulador de Precio</h4>
+      <h4 className="text-xs font-medium text-slate-500 uppercase">Simulador de Precio</h4>
 
       {/* Input de precio */}
       <div>
-        <label className="text-xs text-gray-500 block mb-1">Precio simulado</label>
+        <label className="text-xs text-slate-500 block mb-1">Precio simulado</label>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-400">S/</span>
+          <span className="text-sm text-slate-400">S/</span>
           <input
             type="number"
             value={simPrice}
             onChange={(e) => { setSimPrice(e.target.value); setSaved(false); }}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-amber-500 focus:border-amber-500"
+            className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-amber-500 focus:border-amber-500"
             step="0.01"
             min="0.01"
           />
@@ -145,14 +145,14 @@ const MarginSimulator: React.FC<{
       {costoRef != null && (
         <div className={`rounded-lg p-3 ${getMarginBg(simMargen)}`}>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-gray-600">Margen estimado</span>
+            <span className="text-xs text-slate-600">Margen estimado</span>
             <span className={`text-lg font-bold ${getMarginColor(simMargen)}`}>
               {fmtPct(simMargen)}
             </span>
           </div>
           <div className="flex justify-between items-center mt-1">
-            <span className="text-xs text-gray-600">Ganancia por unidad</span>
-            <span className={`text-sm font-medium ${simGanancia != null && simGanancia < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+            <span className="text-xs text-slate-600">Ganancia por unidad</span>
+            <span className={`text-sm font-medium ${simGanancia != null && simGanancia < 0 ? 'text-red-600' : 'text-slate-900'}`}>
               {simGanancia != null ? fmtPEN(simGanancia) : '—'}
             </span>
           </div>
@@ -162,16 +162,16 @@ const MarginSimulator: React.FC<{
       {/* Precios sugeridos */}
       {suggestedPrices.length > 0 && (
         <div>
-          <label className="text-xs text-gray-500 block mb-1.5">Precios sugeridos por margen</label>
+          <label className="text-xs text-slate-500 block mb-1.5">Precios sugeridos por margen</label>
           <div className="flex gap-2">
             {suggestedPrices.map((sp) => (
               <button
                 key={sp.label}
                 onClick={() => setSimPrice(sp.price.toFixed(2))}
-                className="flex-1 text-center px-2 py-2 border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-amber-300 transition-colors"
+                className="flex-1 text-center px-2 py-2 border border-slate-200 rounded-lg hover:bg-amber-50 hover:border-amber-300 transition-colors"
               >
-                <p className="text-[10px] text-gray-400">Margen {sp.label}</p>
-                <p className="text-sm font-semibold text-gray-900">{fmtPEN(sp.price)}</p>
+                <p className="text-[10px] text-slate-400">Margen {sp.label}</p>
+                <p className="text-sm font-semibold text-slate-900">{fmtPEN(sp.price)}</p>
               </button>
             ))}
           </div>
@@ -219,7 +219,7 @@ const BuyBoxAnalysis: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
   if (!row.hasCatalogo) {
     return (
       <div className="text-center py-4">
-        <p className="text-sm text-gray-400">Buy Box solo disponible para publicaciones de catálogo</p>
+        <p className="text-sm text-slate-400">Buy Box solo disponible para publicaciones de catálogo</p>
       </div>
     );
   }
@@ -227,7 +227,7 @@ const BuyBoxAnalysis: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
   if (!row.buyBoxStatus) {
     return (
       <div className="text-center py-4">
-        <p className="text-sm text-gray-400">Sin datos de Buy Box. Sincroniza primero.</p>
+        <p className="text-sm text-slate-400">Sin datos de Buy Box. Sincroniza primero.</p>
       </div>
     );
   }
@@ -243,7 +243,7 @@ const BuyBoxAnalysis: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
     winning: 'text-green-700 bg-green-50 border-green-200',
     competing: 'text-red-700 bg-red-50 border-red-200',
     sharing_first_place: 'text-yellow-700 bg-yellow-50 border-yellow-200',
-    listed: 'text-gray-500 bg-gray-50 border-gray-200',
+    listed: 'text-slate-500 bg-slate-50 border-slate-200',
   };
 
   const visitShareLabel: Record<string, string> = {
@@ -254,7 +254,7 @@ const BuyBoxAnalysis: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
 
   return (
     <div className="space-y-3">
-      <h4 className="text-xs font-medium text-gray-500 uppercase">Análisis Buy Box</h4>
+      <h4 className="text-xs font-medium text-slate-500 uppercase">Análisis Buy Box</h4>
 
       {/* Status card */}
       <div className={`rounded-lg border p-3 ${statusColor[row.buyBoxStatus] || statusColor.listed}`}>
@@ -262,12 +262,12 @@ const BuyBoxAnalysis: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-[10px] text-gray-400 uppercase">Tu precio</p>
+        <div className="bg-slate-50 rounded-lg p-3">
+          <p className="text-[10px] text-slate-400 uppercase">Tu precio</p>
           <p className="text-sm font-semibold">{fmtPEN(row.mlPrice)}</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-[10px] text-gray-400 uppercase">Precio ganador</p>
+        <div className="bg-slate-50 rounded-lg p-3">
+          <p className="text-[10px] text-slate-400 uppercase">Precio ganador</p>
           <p className="text-sm font-semibold">{fmtPEN(row.buyBoxWinnerPrice)}</p>
         </div>
         {row.buyBoxPriceToWin != null && (
@@ -277,8 +277,8 @@ const BuyBoxAnalysis: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
           </div>
         )}
         {row.buyBoxVisitShare && (
-          <div className="bg-gray-50 rounded-lg p-3">
-            <p className="text-[10px] text-gray-400 uppercase">Tráfico</p>
+          <div className="bg-slate-50 rounded-lg p-3">
+            <p className="text-[10px] text-slate-400 uppercase">Tráfico</p>
             <p className="text-sm font-semibold">{visitShareLabel[row.buyBoxVisitShare] || row.buyBoxVisitShare}</p>
           </div>
         )}
@@ -290,7 +290,7 @@ const BuyBoxAnalysis: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
           <div className="flex items-center gap-2">
             {row.margenAtBuyBoxPrice < 0 && <AlertTriangle className="w-4 h-4 text-red-500" />}
             <div>
-              <p className="text-xs text-gray-500">Margen si igualo Buy Box</p>
+              <p className="text-xs text-slate-500">Margen si igualo Buy Box</p>
               <p className={`text-lg font-bold ${getMarginColor(row.margenAtBuyBoxPrice)}`}>
                 {fmtPct(row.margenAtBuyBoxPrice)}
               </p>
@@ -325,20 +325,20 @@ export const PricingDetailModal: React.FC<PricingDetailModalProps> = ({ isOpen, 
         {/* Product header */}
         <div className="flex items-center gap-3">
           {row.mlThumbnail && (
-            <img src={row.mlThumbnail} alt="" className="w-16 h-16 rounded-lg object-cover bg-gray-100" />
+            <img src={row.mlThumbnail} alt="" className="w-16 h-16 rounded-lg object-cover bg-slate-100" />
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-gray-900 line-clamp-2">{row.mlTitle}</p>
+            <p className="text-sm font-medium text-slate-900 line-clamp-2">{row.mlTitle}</p>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               {row.hasCatalogo && (
                 <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">Catálogo</span>
               )}
               {row.hasClasica && (
-                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">Clásica</span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">Clásica</span>
               )}
-              <span className="text-xs text-gray-400">{row.productoSku || row.mlSku}</span>
+              <span className="text-xs text-slate-400">{row.productoSku || row.mlSku}</span>
               {row.listings.length > 1 && (
-                <span className="text-xs text-gray-400">· {row.listings.length} publicaciones</span>
+                <span className="text-xs text-slate-400">· {row.listings.length} publicaciones</span>
               )}
               <a
                 href={row.mlPermalink}
@@ -354,20 +354,20 @@ export const PricingDetailModal: React.FC<PricingDetailModalProps> = ({ isOpen, 
 
         {/* Current state summary */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-gray-50 rounded-lg p-3 text-center">
-            <p className="text-[10px] text-gray-400 uppercase">Precio ML</p>
-            <p className="text-base font-bold text-gray-900">{fmtPEN(row.mlPrice)}</p>
+          <div className="bg-slate-50 rounded-lg p-3 text-center">
+            <p className="text-[10px] text-slate-400 uppercase">Precio ML</p>
+            <p className="text-base font-bold text-slate-900">{fmtPEN(row.mlPrice)}</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3 text-center">
-            <p className="text-[10px] text-gray-400 uppercase">Costo Total</p>
-            <p className="text-base font-bold text-gray-600">{row.costoTotal != null ? fmtPEN(row.costoTotal) : '—'}</p>
+          <div className="bg-slate-50 rounded-lg p-3 text-center">
+            <p className="text-[10px] text-slate-400 uppercase">Costo Total</p>
+            <p className="text-base font-bold text-slate-600">{row.costoTotal != null ? fmtPEN(row.costoTotal) : '—'}</p>
           </div>
           <div className={`rounded-lg p-3 text-center ${getMarginBg(row.margenNeto)}`}>
-            <p className="text-[10px] text-gray-400 uppercase">Margen Neto</p>
+            <p className="text-[10px] text-slate-400 uppercase">Margen Neto</p>
             <p className={`text-base font-bold ${getMarginColor(row.margenNeto)}`}>{fmtPct(row.margenNeto)}</p>
           </div>
           <div className={`rounded-lg p-3 text-center ${getMarginBg(row.margenBruto)}`}>
-            <p className="text-[10px] text-gray-400 uppercase">Margen Bruto</p>
+            <p className="text-[10px] text-slate-400 uppercase">Margen Bruto</p>
             <p className={`text-base font-bold ${getMarginColor(row.margenBruto)}`}>{fmtPct(row.margenBruto)}</p>
           </div>
         </div>
@@ -379,9 +379,9 @@ export const PricingDetailModal: React.FC<PricingDetailModalProps> = ({ isOpen, 
             {ctru ? (
               <CostWaterfall ctru={ctru} />
             ) : (
-              <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <TrendingUp className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">
+              <div className="text-center py-8 bg-slate-50 rounded-lg">
+                <TrendingUp className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-400">
                   {row.vinculado ? 'Sin datos CTRU disponibles' : 'Producto no vinculado al ERP'}
                 </p>
               </div>

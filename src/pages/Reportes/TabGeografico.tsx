@@ -60,7 +60,7 @@ export function TabGeografico({ fechaInicio, fechaFin }: TabGeograficoProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <RefreshCw className="h-6 w-6 text-primary-500 animate-spin mr-2" />
+        <RefreshCw className="h-6 w-6 text-teal-500 animate-spin mr-2" />
         <span className="text-slate-500">Cargando datos geográficos...</span>
       </div>
     );

@@ -86,7 +86,7 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
     >
       <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         {/* Header: Estado y Total */}
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-teal-50 to-teal-100 rounded-lg">
           <div className="flex items-center gap-4">
             <Badge
               variant={
@@ -112,7 +112,7 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
           </div>
           <div className="text-right">
             <p className="text-sm text-slate-500">Total</p>
-            <p className="text-2xl font-bold text-primary-600">{formatCurrency(cotizacion.totalPEN)}</p>
+            <p className="text-2xl font-bold text-teal-600">{formatCurrency(cotizacion.totalPEN)}</p>
           </div>
         </div>
 
@@ -235,7 +235,7 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
               )}
               <div className="flex justify-between w-48 pt-2 border-t mt-1">
                 <span className="font-semibold">TOTAL:</span>
-                <span className="font-bold text-lg text-primary-600">{formatCurrency(cotizacion.totalPEN)}</span>
+                <span className="font-bold text-lg text-teal-600">{formatCurrency(cotizacion.totalPEN)}</span>
               </div>
             </div>
           </div>

@@ -90,13 +90,13 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
       case 'alto': return 'text-red-600 bg-red-100';
       case 'medio': return 'text-yellow-600 bg-yellow-100';
       case 'bajo': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-slate-600 bg-slate-100';
     }
   };
 
   return (
     <div className="relative">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label className="block text-sm font-medium text-slate-700 mb-1">
         Competidor
       </label>
       <button
@@ -104,8 +104,8 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`w-full flex items-center justify-between px-3 py-2 border rounded-lg text-left ${
-          disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-orange-400'
-        } ${isOpen ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-300'}`}
+          disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white hover:border-orange-400'
+        } ${isOpen ? 'border-orange-500 ring-2 ring-orange-200' : 'border-slate-300'}`}
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {selectedCompetidor ? (
@@ -115,21 +115,21 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
                 selectedCompetidor.nivelAmenaza === 'medio' ? 'text-yellow-500' : 'text-green-500'
               }`} />
               <span className="font-medium truncate">{selectedCompetidor.nombre}</span>
-              <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-mono">
+              <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-mono">
                 {selectedCompetidor.codigo}
               </span>
             </>
           ) : value ? (
-            <span className="text-gray-700">{value}</span>
+            <span className="text-slate-700">{value}</span>
           ) : (
-            <span className="text-gray-400">Seleccionar competidor...</span>
+            <span className="text-slate-400">Seleccionar competidor...</span>
           )}
         </div>
-        <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-72 overflow-hidden">
+        <div className="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-72 overflow-hidden">
           {/* Buscador */}
           <div className="p-2 border-b">
             <input
@@ -137,7 +137,7 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar o crear competidor..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               autoFocus
             />
           </div>
@@ -145,11 +145,11 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
           {/* Lista de competidores */}
           <div className="max-h-48 overflow-y-auto">
             {filteredCompetidores.length === 0 && !searchTerm ? (
-              <div className="p-4 text-center text-gray-500 text-sm">
+              <div className="p-4 text-center text-slate-500 text-sm">
                 No hay competidores en el Gestor Maestro
               </div>
             ) : filteredCompetidores.length === 0 && searchTerm ? (
-              <div className="p-4 text-center text-gray-500 text-sm">
+              <div className="p-4 text-center text-slate-500 text-sm">
                 No se encontró "{searchTerm}"
               </div>
             ) : (
@@ -170,19 +170,19 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
                     <div className="flex items-center gap-2">
                       <span className="font-medium truncate">{competidor.nombre}</span>
                       {competidor.codigo && (
-                        <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-mono">
+                        <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-mono">
                           {competidor.codigo}
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
+                    <div className="flex items-center gap-2 text-xs text-slate-500 flex-wrap">
                       <span className={`px-1.5 py-0.5 rounded ${getNivelAmenazaColor(competidor.nivelAmenaza)}`}>
                         {competidor.nivelAmenaza}
                       </span>
                       {/* Mostrar plataformasData si existen (nuevo sistema) */}
                       {competidor.plataformasData && competidor.plataformasData.length > 0 ? (
                         competidor.plataformasData.slice(0, 2).map((p, idx) => (
-                          <span key={p.id} className={`${p.esPrincipal ? 'font-medium text-primary-600' : ''}`}>
+                          <span key={p.id} className={`${p.esPrincipal ? 'font-medium text-teal-600' : ''}`}>
                             {p.nombre}{idx < Math.min(competidor.plataformasData!.length, 2) - 1 ? ',' : ''}
                           </span>
                         ))
@@ -190,7 +190,7 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
                         <span>{getPlataformaLabel(competidor.plataformaPrincipal || 'otra')}</span>
                       )}
                       {competidor.plataformasData && competidor.plataformasData.length > 2 && (
-                        <span className="text-gray-400">+{competidor.plataformasData.length - 2}</span>
+                        <span className="text-slate-400">+{competidor.plataformasData.length - 2}</span>
                       )}
                       {competidor.esLiderCategoria && (
                         <span className="flex items-center gap-0.5 text-amber-600">
@@ -209,7 +209,7 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
 
           {/* Opción para crear nuevo */}
           {searchTerm && (
-            <div className="p-2 border-t bg-gray-50">
+            <div className="p-2 border-t bg-slate-50">
               <button
                 type="button"
                 onClick={handleCreateNew}
@@ -327,7 +327,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
     switch (reputacion) {
       case 'excelente': return <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />;
       case 'buena': return <Star className="h-4 w-4 text-yellow-500" />;
-      case 'regular': return <Star className="h-4 w-4 text-gray-400" />;
+      case 'regular': return <Star className="h-4 w-4 text-slate-400" />;
       case 'mala': return <Star className="h-4 w-4 text-red-400" />;
       default: return null;
     }
@@ -343,8 +343,8 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
         <div className="flex items-center gap-2">
           <Store className="h-5 w-5 text-orange-600" />
-          <h4 className="font-medium text-gray-900">Competencia Perú</h4>
-          <span className="text-sm text-gray-500">({competidores.length})</span>
+          <h4 className="font-medium text-slate-900">Competencia Perú</h4>
+          <span className="text-sm text-slate-500">({competidores.length})</span>
           {competidoresML > 0 && (
             <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">
               {competidoresML} en ML
@@ -353,13 +353,13 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
         </div>
         {competidores.length > 0 && (
           <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-            <span className="text-gray-500">
+            <span className="text-slate-500">
               Min: <span className="font-medium text-green-600">S/{min.toFixed(2)}</span>
             </span>
-            <span className="text-gray-500">
+            <span className="text-slate-500">
               Max: <span className="font-medium text-red-600">S/{max.toFixed(2)}</span>
             </span>
-            <span className="text-gray-500">
+            <span className="text-slate-500">
               Prom: <span className="font-medium text-orange-600">S/{promedio.toFixed(2)}</span>
             </span>
           </div>
@@ -372,7 +372,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
           <div
             key={competidor.id}
             className={`border rounded-lg transition-all ${
-              expandedId === competidor.id ? 'border-orange-300 bg-orange-50/50' : 'border-gray-200 bg-white'
+              expandedId === competidor.id ? 'border-orange-300 bg-orange-50/50' : 'border-slate-200 bg-white'
             }`}
           >
             {/* Fila compacta */}
@@ -380,14 +380,14 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
               className="p-2 sm:p-3 flex items-center gap-2 sm:gap-3 cursor-pointer"
               onClick={() => setExpandedId(expandedId === competidor.id ? null : competidor.id)}
             >
-              <span className="text-sm font-medium text-gray-400 w-6">#{index + 1}</span>
+              <span className="text-sm font-medium text-slate-400 w-6">#{index + 1}</span>
 
               <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-3">
                 <div className="flex items-center gap-2">
                   {competidor.esLiderCategoria && (
                     <Crown className="h-4 w-4 text-yellow-500" />
                   )}
-                  <span className={competidor.nombre ? 'font-medium' : 'text-gray-400 italic'}>
+                  <span className={competidor.nombre ? 'font-medium' : 'text-slate-400 italic'}>
                     {competidor.nombre || 'Sin nombre'}
                   </span>
                 </div>
@@ -397,7 +397,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                     competidor.plataforma === 'mercado_libre' ? 'bg-yellow-100 text-yellow-700' :
                     competidor.plataforma === 'inkafarma' ? 'bg-green-100 text-green-700' :
                     competidor.plataforma === 'mifarma' ? 'bg-blue-100 text-blue-700' :
-                    'bg-gray-100 text-gray-600'
+                    'bg-slate-100 text-slate-600'
                   }`}>
                     {getPlataformaLabel(competidor.plataforma)}
                   </span>
@@ -406,7 +406,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                 <div className="flex items-center gap-2">
                   <span className={`font-medium ${
                     competidor.precio === min && min > 0 ? 'text-green-600' :
-                    competidor.precio === max && max > 0 ? 'text-red-600' : 'text-gray-700'
+                    competidor.precio === max && max > 0 ? 'text-red-600' : 'text-slate-700'
                   }`}>
                     S/{(competidor.precio || 0).toFixed(2)}
                   </span>
@@ -418,7 +418,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                 <div className="flex items-center gap-2">
                   {getReputacionIcon(competidor.reputacion)}
                   {competidor.ventas && competidor.ventas > 0 && (
-                    <span className="flex items-center gap-1 text-xs text-gray-500">
+                    <span className="flex items-center gap-1 text-xs text-slate-500">
                       <TrendingUp className="h-3 w-3" />
                       {competidor.ventas}/mes
                     </span>
@@ -444,7 +444,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                     e.stopPropagation();
                     handleRemoveCompetidor(competidor.id);
                   }}
-                  className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                  className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -453,7 +453,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
 
             {/* Detalles expandidos */}
             {expandedId === competidor.id && (
-              <div className="px-3 pb-3 pt-0 border-t border-gray-100">
+              <div className="px-3 pb-3 pt-0 border-t border-slate-100">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                   <CompetidorAutocomplete
                     value={competidor.nombre}
@@ -465,7 +465,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                   />
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Plataforma
                     </label>
                     {(() => {
@@ -483,7 +483,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                             plataforma: e.target.value as CompetidorPeruFormData['plataforma']
                           })}
                           disabled={disabled}
-                          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
                         >
                           {tieneNuevasPlataformas ? (
                             // Mostrar plataformas del competidor vinculado
@@ -505,7 +505,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                       );
                     })()}
                     {competidor.competidorId && (
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-slate-500 mt-1">
                         Plataformas del competidor vinculado
                       </p>
                     )}
@@ -534,7 +534,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                   />
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Notas
                     </label>
                     <textarea
@@ -543,7 +543,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                       placeholder="Observaciones sobre este competidor..."
                       rows={2}
                       disabled={disabled}
-                      className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
 
@@ -581,7 +581,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
       )}
 
       {competidores.length === 0 && (
-        <p className="text-sm text-gray-500 text-center py-4">
+        <p className="text-sm text-slate-500 text-center py-4">
           No hay competidores registrados. Agrega al menos uno para analizar el mercado.
         </p>
       )}

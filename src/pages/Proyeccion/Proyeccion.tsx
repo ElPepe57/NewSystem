@@ -56,7 +56,7 @@ export const Proyeccion: React.FC = () => {
         <Toolbar />
         <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="w-8 h-8 text-primary-500 animate-spin" />
+          <RefreshCw className="w-8 h-8 text-teal-500 animate-spin" />
           <span className="ml-3 text-slate-500">Cargando datos del sistema...</span>
         </div>
       </PageShell>
@@ -118,7 +118,7 @@ export const Proyeccion: React.FC = () => {
           <button key={t.id} onClick={() => setTabActiva(t.id)}
             className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-lg whitespace-nowrap transition-colors ${
               tabActiva === t.id
-                ? 'bg-white text-primary-700 border border-b-white -mb-px'
+                ? 'bg-white text-teal-700 border border-b-white -mb-px'
                 : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
             }`}>
             {t.icon} {t.label}
@@ -158,7 +158,7 @@ const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
     {/* TIMELINE: Ingresos vs Costos vs Utilidad */}
     <Card className="p-4">
       <h3 className="font-semibold text-sm text-slate-900 mb-3 flex items-center gap-2">
-        <Layers className="w-4 h-4 text-primary-600" /> Evolución y Proyección del Negocio
+        <Layers className="w-4 h-4 text-teal-600" /> Evolución y Proyección del Negocio
       </h3>
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">

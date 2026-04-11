@@ -128,7 +128,7 @@ export const PricingIntelPanel: React.FC<PricingIntelPanelProps> = ({ productMap
 
   if (ctruLoading && productosDetalle.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12 gap-2 text-gray-400">
+      <div className="flex items-center justify-center py-12 gap-2 text-slate-400">
         <Loader2 className="w-5 h-5 animate-spin" />
         <span className="text-sm">Cargando datos de costos...</span>
       </div>
@@ -181,26 +181,26 @@ export const PricingIntelPanel: React.FC<PricingIntelPanelProps> = ({ productMap
         <div className="flex items-center gap-2 flex-wrap">
           {/* Search */}
           <div className="relative flex-1 sm:flex-none">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Buscar..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full sm:w-48 pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-amber-500 focus:border-amber-500"
+              className="w-full sm:w-48 pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-amber-500 focus:border-amber-500"
             />
           </div>
 
           {/* Margin filter */}
-          <div className="flex bg-gray-100 rounded-lg p-0.5 shrink-0">
+          <div className="flex bg-slate-100 rounded-lg p-0.5 shrink-0">
             {MARGIN_FILTERS.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setMarginFilter(f.id)}
                 className={`px-2 py-1.5 text-[10px] sm:text-xs font-medium rounded-md transition-colors ${
                   marginFilter === f.id
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <span className="sm:hidden">{f.shortLabel}</span>
@@ -212,15 +212,15 @@ export const PricingIntelPanel: React.FC<PricingIntelPanelProps> = ({ productMap
 
         {/* Buy Box filter + Vinculado filter */}
         <div className="flex items-center gap-2">
-          <div className="flex bg-gray-100 rounded-lg p-0.5 shrink-0">
+          <div className="flex bg-slate-100 rounded-lg p-0.5 shrink-0">
             {BUYBOX_FILTERS.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setBuyBoxFilter(f.id)}
                 className={`px-2 py-1.5 text-[10px] sm:text-xs font-medium rounded-md transition-colors ${
                   buyBoxFilter === f.id
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <span className="sm:hidden">{f.shortLabel}</span>
@@ -232,7 +232,7 @@ export const PricingIntelPanel: React.FC<PricingIntelPanelProps> = ({ productMap
           <select
             value={vinculadoFilter}
             onChange={(e) => setVinculadoFilter(e.target.value as VinculadoFilter)}
-            className="text-xs border border-gray-300 rounded-lg px-2 py-2 focus:ring-amber-500 focus:border-amber-500"
+            className="text-xs border border-slate-300 rounded-lg px-2 py-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="todos">Todos</option>
             <option value="vinculados">Vinculados</option>
@@ -242,7 +242,7 @@ export const PricingIntelPanel: React.FC<PricingIntelPanelProps> = ({ productMap
       </div>
 
       {/* Results count */}
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-slate-400">
         {displayRows.length} producto{displayRows.length !== 1 ? 's' : ''}
         {selectedIds.size > 0 && ` · ${selectedIds.size} seleccionado${selectedIds.size !== 1 ? 's' : ''}`}
       </p>
@@ -273,7 +273,7 @@ export const PricingIntelPanel: React.FC<PricingIntelPanelProps> = ({ productMap
           />
         ))}
         {displayRows.length === 0 && (
-          <p className="text-center text-gray-400 text-sm py-8">No se encontraron productos</p>
+          <p className="text-center text-slate-400 text-sm py-8">No se encontraron productos</p>
         )}
       </div>
 

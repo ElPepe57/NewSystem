@@ -110,7 +110,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
           className={`
             absolute z-50 ${positionStyles[position]}
             px-3 py-2 rounded-lg
-            bg-gray-900 text-white text-sm
+            bg-slate-900 text-white text-sm
             shadow-lg
             animate-in fade-in-0 zoom-in-95 duration-150
             ${className}
@@ -161,7 +161,7 @@ export const TooltipInfo: React.FC<{
       content={
         <div>
           <div className="font-medium">{title}</div>
-          {description && <div className="text-gray-300 text-xs mt-1">{description}</div>}
+          {description && <div className="text-slate-300 text-xs mt-1">{description}</div>}
         </div>
       }
       position={position}
@@ -184,7 +184,7 @@ export const HelpTooltip: React.FC<{
     <Tooltip content={text} position={position}>
       <button
         type="button"
-        className="inline-flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+        className="inline-flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
         aria-label="Ayuda"
       >
         <svg

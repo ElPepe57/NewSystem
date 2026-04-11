@@ -157,7 +157,7 @@ export const Auditoria: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -212,7 +212,7 @@ export const Auditoria: React.FC = () => {
           </Card>
           <Card padding="sm">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary-600">{stats.porUsuario.length}</div>
+              <div className="text-2xl font-bold text-teal-600">{stats.porUsuario.length}</div>
               <div className="text-xs text-slate-500">Usuarios activos</div>
             </div>
           </Card>
@@ -231,7 +231,7 @@ export const Auditoria: React.FC = () => {
                 placeholder="Buscar por descripción, usuario, entidad..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
           </div>
@@ -242,7 +242,7 @@ export const Auditoria: React.FC = () => {
             <select
               value={filterModulo}
               onChange={(e) => setFilterModulo(e.target.value as ModuloAuditoria | '')}
-              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
             >
               <option value="">Todos los módulos</option>
               <option value="auth">Autenticación</option>
@@ -261,7 +261,7 @@ export const Auditoria: React.FC = () => {
           <select
             value={filterNivel}
             onChange={(e) => setFilterNivel(e.target.value as NivelAuditoria | '')}
-            className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
           >
             <option value="">Todos los niveles</option>
             <option value="info">Info</option>
@@ -274,7 +274,7 @@ export const Auditoria: React.FC = () => {
           <select
             value={filterFecha}
             onChange={(e) => setFilterFecha(e.target.value as any)}
-            className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
           >
             <option value="hoy">Hoy</option>
             <option value="semana">Última semana</option>

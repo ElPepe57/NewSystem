@@ -90,10 +90,10 @@ export const OCFormStepSubOrdenes: React.FC<Props> = ({ state, dispatch }) => {
 
   if (productosValidos.length <= 1) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <Package className="h-10 w-10 mx-auto mb-2 text-gray-300" />
+      <div className="text-center py-8 text-slate-500">
+        <Package className="h-10 w-10 mx-auto mb-2 text-slate-300" />
         <p className="text-sm">Las sub-\u00f3rdenes requieren al menos 2 productos.</p>
-        <p className="text-xs text-gray-400 mt-1">Agrega m\u00e1s productos en el paso anterior.</p>
+        <p className="text-xs text-slate-400 mt-1">Agrega m\u00e1s productos en el paso anterior.</p>
       </div>
     );
   }
@@ -123,7 +123,7 @@ export const OCFormStepSubOrdenes: React.FC<Props> = ({ state, dispatch }) => {
       </div>
 
       {!tieneSubOrdenes && (
-        <div className="text-center py-4 text-gray-500 text-sm">
+        <div className="text-center py-4 text-slate-500 text-sm">
           Toda la OC se procesar\u00e1 como una sola orden con un solo env\u00edo.
         </div>
       )}
@@ -140,7 +140,7 @@ export const OCFormStepSubOrdenes: React.FC<Props> = ({ state, dispatch }) => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <Badge variant="info" className="text-xs">Sub-{subIdx + 1}</Badge>
-                    <span className="text-xs text-gray-500">{productosEnSub.length} productos &middot; ${totalSub.toFixed(2)}</span>
+                    <span className="text-xs text-slate-500">{productosEnSub.length} productos &middot; ${totalSub.toFixed(2)}</span>
                   </div>
                   {state.subOrdenes.length > 1 && (
                     <button
@@ -167,15 +167,15 @@ export const OCFormStepSubOrdenes: React.FC<Props> = ({ state, dispatch }) => {
                 {/* Productos asignados */}
                 <div className="space-y-1">
                   {productosEnSub.length === 0 ? (
-                    <p className="text-xs text-gray-400 text-center py-2 border border-dashed rounded">
+                    <p className="text-xs text-slate-400 text-center py-2 border border-dashed rounded">
                       Arrastra productos aqu\u00ed
                     </p>
                   ) : (
                     productosEnSub.map(p => (
-                      <div key={p.productoId} className="flex items-center justify-between text-xs bg-gray-50 rounded px-2 py-1.5">
-                        <span className="text-gray-700">{p.sku} {p.nombreComercial}</span>
+                      <div key={p.productoId} className="flex items-center justify-between text-xs bg-slate-50 rounded px-2 py-1.5">
+                        <span className="text-slate-700">{p.sku} {p.nombreComercial}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-500">{p.cantidad}x ${p.costoUnitario.toFixed(2)}</span>
+                          <span className="text-slate-500">{p.cantidad}x ${p.costoUnitario.toFixed(2)}</span>
                           {/* Mover a otra sub-orden */}
                           {state.subOrdenes.length > 1 && (
                             <select

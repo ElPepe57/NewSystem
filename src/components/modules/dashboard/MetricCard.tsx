@@ -24,11 +24,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   value,
   subtitle,
   icon: Icon,
-  iconColor = 'text-primary-400',
+  iconColor = 'text-teal-400',
   trend,
   link,
   gradient,
-  valueColor = 'text-gray-900'
+  valueColor = 'text-slate-900'
 }) => {
   const content = (
     <Card
@@ -37,12 +37,12 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     >
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-sm text-gray-600">{title}</div>
+          <div className="text-sm text-slate-600">{title}</div>
           <div className={`text-3xl font-bold mt-1 ${valueColor}`}>
             {value}
           </div>
           {subtitle && (
-            <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+            <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
               {trend && (
                 <span className={trend.isPositive ? 'text-success-500' : 'text-danger-500'}>
                   {trend.isPositive ? '↑' : '↓'} {trend.value}%

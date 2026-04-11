@@ -319,7 +319,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
         </div>
 
         {/* Tabs Navigation */}
-        <div className="border-b border-gray-200 bg-gray-50 px-6">
+        <div className="border-b border-slate-200 bg-slate-50 px-6">
           <Tabs
             tabs={tabs}
             activeTab={tabActiva}
@@ -337,7 +337,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
               <div className="space-y-6">
                 {/* KPIs Principales */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Métricas Principales</h3>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Métricas Principales</h3>
                   <KPIGrid columns={4}>
                     <KPICard
                       title="Total Entregas"
@@ -374,28 +374,28 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Información del Transportista */}
                   <Card className="p-4">
-                    <h4 className="font-medium text-gray-900 mb-4">Información del Transportista</h4>
+                    <h4 className="font-medium text-slate-900 mb-4">Información del Transportista</h4>
                     <div className="space-y-3">
                       {transportista.tipo === 'interno' && (
                         <>
                           {transportista.dni && (
                             <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">DNI:</span>
-                              <span className="font-medium text-gray-900">{transportista.dni}</span>
+                              <span className="text-slate-500">DNI:</span>
+                              <span className="font-medium text-slate-900">{transportista.dni}</span>
                             </div>
                           )}
                           {transportista.licencia && (
                             <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">Licencia:</span>
-                              <span className="font-medium text-gray-900">{transportista.licencia}</span>
+                              <span className="text-slate-500">Licencia:</span>
+                              <span className="font-medium text-slate-900">{transportista.licencia}</span>
                             </div>
                           )}
                         </>
                       )}
                       {transportista.comisionPorcentaje !== undefined && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Comisión:</span>
-                          <span className="font-medium text-gray-900 flex items-center gap-1">
+                          <span className="text-slate-500">Comisión:</span>
+                          <span className="font-medium text-slate-900 flex items-center gap-1">
                             {transportista.comisionPorcentaje}%
                             <Percent className="h-3 w-3" />
                           </span>
@@ -403,16 +403,16 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                       )}
                       {transportista.costoFijo !== undefined && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Costo Fijo:</span>
-                          <span className="font-medium text-gray-900">
+                          <span className="text-slate-500">Costo Fijo:</span>
+                          <span className="font-medium text-slate-900">
                             {formatCurrency(transportista.costoFijo)}
                           </span>
                         </div>
                       )}
                       {transportista.calificacionPromedio !== undefined && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Calificación:</span>
-                          <span className="font-medium text-gray-900 flex items-center gap-1">
+                          <span className="text-slate-500">Calificación:</span>
+                          <span className="font-medium text-slate-900 flex items-center gap-1">
                             <Award className="h-3 w-3 text-yellow-500" />
                             {transportista.calificacionPromedio.toFixed(1)} / 5.0
                           </span>
@@ -420,17 +420,17 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                       )}
                       {transportista.fechaUltimaEntrega && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Última Entrega:</span>
-                          <span className="font-medium text-gray-900">
+                          <span className="text-slate-500">Última Entrega:</span>
+                          <span className="font-medium text-slate-900">
                             {new Date(transportista.fechaUltimaEntrega.toMillis()).toLocaleDateString('es-PE')}
                           </span>
                         </div>
                       )}
                     </div>
                     {transportista.observaciones && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <p className="text-xs text-gray-500 mb-1">Observaciones:</p>
-                        <p className="text-sm text-gray-700">{transportista.observaciones}</p>
+                      <div className="mt-4 pt-4 border-t border-slate-200">
+                        <p className="text-xs text-slate-500 mb-1">Observaciones:</p>
+                        <p className="text-sm text-slate-700">{transportista.observaciones}</p>
                       </div>
                     )}
                   </Card>
@@ -457,8 +457,8 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 {/* Zonas Atendidas */}
                 {transportista.zonasAtendidas && transportista.zonasAtendidas.length > 0 && (
                   <Card className="p-4">
-                    <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-gray-500" />
+                    <h4 className="font-medium text-slate-900 mb-3 flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-slate-500" />
                       Zonas Atendidas
                     </h4>
                     <div className="flex flex-wrap gap-2">
@@ -477,14 +477,14 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
             <TabPanel tabId="historial">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-slate-900">
                     Historial de Entregas ({entregasFiltradas.length})
                   </h3>
                   <div className="flex items-center gap-2">
                     <select
                       value={filtroEstado}
                       onChange={(e) => setFiltroEstado(e.target.value as any)}
-                      className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
                       <option value="todas">Todas</option>
                       <option value="exitosa">Exitosas</option>
@@ -498,8 +498,8 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 <div className="space-y-2">
                   {entregasFiltradas.length === 0 ? (
                     <Card className="p-8 text-center">
-                      <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                      <p className="text-gray-500">No hay entregas para mostrar</p>
+                      <Package className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                      <p className="text-slate-500">No hay entregas para mostrar</p>
                     </Card>
                   ) : (
                     entregasFiltradas.map((entrega) => (
@@ -518,7 +518,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                             </div>
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <p className="font-medium text-gray-900">{entrega.codigo}</p>
+                                <p className="font-medium text-slate-900">{entrega.codigo}</p>
                                 <Badge
                                   variant={
                                     entrega.estado === 'exitosa' ? 'success' :
@@ -530,7 +530,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                                    entrega.estado === 'fallida' ? 'Fallida' : 'Pendiente'}
                                 </Badge>
                               </div>
-                              <div className="flex items-center gap-4 text-sm text-gray-500">
+                              <div className="flex items-center gap-4 text-sm text-slate-500">
                                 <span className="flex items-center gap-1">
                                   <MapPin className="h-3 w-3" />
                                   {entrega.distrito}
@@ -549,7 +549,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium text-slate-900">
                               {formatCurrency(entrega.monto)}
                             </p>
                           </div>
@@ -564,7 +564,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
             {/* TAB: ANALYTICS */}
             <TabPanel tabId="analytics">
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">Analytics y Tendencias</h3>
+                <h3 className="text-lg font-semibold text-slate-900">Analytics y Tendencias</h3>
 
                 {/* Rendimiento Mensual */}
                 <Card className="p-4">
@@ -605,54 +605,54 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
 
                   {/* Comparación con promedio */}
                   <Card className="p-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-4">
+                    <h4 className="text-sm font-medium text-slate-700 mb-4">
                       Comparación con Promedio
                     </h4>
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="text-gray-600">Tasa de Éxito</span>
-                          <span className="font-medium text-gray-900">{tasaExito.toFixed(1)}%</span>
+                          <span className="text-slate-600">Tasa de Éxito</span>
+                          <span className="font-medium text-slate-900">{tasaExito.toFixed(1)}%</span>
                         </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className={`h-full ${tasaExito >= 90 ? 'bg-green-500' : tasaExito >= 80 ? 'bg-yellow-500' : 'bg-red-500'}`}
                             style={{ width: `${tasaExito}%` }}
                           />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-slate-500 mt-1">
                           Promedio: 92% {tasaExito >= 92 ? '(Superior)' : '(Por debajo)'}
                         </p>
                       </div>
 
                       <div>
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="text-gray-600">Tiempo de Entrega</span>
-                          <span className="font-medium text-gray-900">{tiempoPromedio.toFixed(1)}h</span>
+                          <span className="text-slate-600">Tiempo de Entrega</span>
+                          <span className="font-medium text-slate-900">{tiempoPromedio.toFixed(1)}h</span>
                         </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className={`h-full ${tiempoPromedio <= 4 ? 'bg-green-500' : tiempoPromedio <= 6 ? 'bg-yellow-500' : 'bg-red-500'}`}
                             style={{ width: `${Math.min(100, (tiempoPromedio / 12) * 100)}%` }}
                           />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-slate-500 mt-1">
                           Promedio: 4.5h {tiempoPromedio <= 4.5 ? '(Superior)' : '(Por debajo)'}
                         </p>
                       </div>
 
                       <div>
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="text-gray-600">Total Entregas</span>
-                          <span className="font-medium text-gray-900">{totalEntregas}</span>
+                          <span className="text-slate-600">Total Entregas</span>
+                          <span className="font-medium text-slate-900">{totalEntregas}</span>
                         </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-blue-500"
                             style={{ width: `${Math.min(100, (totalEntregas / 200) * 100)}%` }}
                           />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-slate-500 mt-1">
                           Promedio: 120 entregas/mes
                         </p>
                       </div>
@@ -665,7 +665,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
             {/* TAB: PREDICCIONES */}
             <TabPanel tabId="predicciones">
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">Predicciones e Insights</h3>
+                <h3 className="text-lg font-semibold text-slate-900">Predicciones e Insights</h3>
 
                 {/* Métricas predictivas */}
                 <KPIGrid columns={3}>
@@ -702,7 +702,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
 
                 {/* Insights */}
                 <Card className="p-6">
-                  <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <h4 className="font-medium text-slate-900 mb-4 flex items-center gap-2">
                     <Activity className="h-5 w-5 text-blue-500" />
                     Insights Inteligentes
                   </h4>
@@ -771,27 +771,27 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
 
                 {/* Recomendaciones */}
                 <Card className="p-6">
-                  <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <h4 className="font-medium text-slate-900 mb-4 flex items-center gap-2">
                     <Target className="h-5 w-5 text-green-500" />
                     Recomendaciones
                   </h4>
                   <div className="space-y-2">
                     <div className="flex items-start gap-2 text-sm">
                       <div className="h-1.5 w-1.5 rounded-full bg-green-500 mt-1.5" />
-                      <p className="text-gray-700">
+                      <p className="text-slate-700">
                         Asignar entregas en zonas donde ha demostrado mejor rendimiento: {distribucionZona[0]?.name || 'N/A'}
                       </p>
                     </div>
                     <div className="flex items-start gap-2 text-sm">
                       <div className="h-1.5 w-1.5 rounded-full bg-green-500 mt-1.5" />
-                      <p className="text-gray-700">
+                      <p className="text-slate-700">
                         Capacidad óptima estimada: {Math.round(totalEntregas / 30 * 1.1)} entregas por día
                       </p>
                     </div>
                     {tiempoPromedio > 6 && (
                       <div className="flex items-start gap-2 text-sm">
                         <div className="h-1.5 w-1.5 rounded-full bg-yellow-500 mt-1.5" />
-                        <p className="text-gray-700">
+                        <p className="text-slate-700">
                           Optimizar rutas podría reducir tiempo promedio en un 15-20%
                         </p>
                       </div>
@@ -799,7 +799,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     {tasaExito >= 95 && (
                       <div className="flex items-start gap-2 text-sm">
                         <div className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5" />
-                        <p className="text-gray-700">
+                        <p className="text-slate-700">
                           Candidato ideal para entregas de alto valor o clientes VIP
                         </p>
                       </div>

@@ -89,9 +89,9 @@ function getColorPrioridad(prioridad: PrioridadTarea): {
     case 'baja':
     default:
       return {
-        borde: 'border-l-4 border-gray-300',
-        fondo: 'bg-gray-50 hover:bg-gray-100',
-        icono: 'text-gray-400',
+        borde: 'border-l-4 border-slate-300',
+        fondo: 'bg-slate-50 hover:bg-slate-100',
+        icono: 'text-slate-400',
         badge: 'default',
         etiqueta: 'Baja',
       };
@@ -128,11 +128,11 @@ const TareaRow: React.FC<TareaRowProps> = ({ tarea, onNavegar }) => {
 
       {/* Texto principal */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 truncate">{tarea.titulo}</p>
-        <p className="text-xs text-gray-500 truncate">
+        <p className="text-sm font-medium text-slate-900 truncate">{tarea.titulo}</p>
+        <p className="text-xs text-slate-500 truncate">
           {tarea.subtitulo}
           {tarea.monto !== undefined && (
-            <span className="ml-1 font-medium text-gray-700">
+            <span className="ml-1 font-medium text-slate-700">
               {' '}· {formatCurrency(tarea.monto, tarea.moneda === 'USD' ? 'USD' : 'PEN')}
             </span>
           )}
@@ -145,7 +145,7 @@ const TareaRow: React.FC<TareaRowProps> = ({ tarea, onNavegar }) => {
       </div>
 
       {/* Flecha de accion */}
-      <span className="text-gray-400 text-xs flex-shrink-0">Ir</span>
+      <span className="text-slate-400 text-xs flex-shrink-0">Ir</span>
     </div>
   );
 };
@@ -214,19 +214,19 @@ export const TareasDelDia: React.FC = () => {
       {/* Header del widget */}
       <div className="flex items-center justify-between mb-3">
         <button
-          className="flex items-center gap-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+          className="flex items-center gap-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded"
           onClick={() => setExpandido(prev => !prev)}
           aria-expanded={expandido}
           aria-controls="tareas-dia-contenido"
         >
-          <ClipboardList className="h-5 w-5 text-primary-500 flex-shrink-0" />
-          <h3 className="text-base font-semibold text-gray-900">
+          <ClipboardList className="h-5 w-5 text-teal-500 flex-shrink-0" />
+          <h3 className="text-base font-semibold text-slate-900">
             Tareas del Dia
           </h3>
           {expandido ? (
-            <ChevronUp className="h-4 w-4 text-gray-400" />
+            <ChevronUp className="h-4 w-4 text-slate-400" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+            <ChevronDown className="h-4 w-4 text-slate-400" />
           )}
         </button>
 
@@ -249,10 +249,10 @@ export const TareasDelDia: React.FC = () => {
         <div id="tareas-dia-contenido">
           {tareas.length === 0 ? (
             /* Estado vacio */
-            <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+            <div className="flex flex-col items-center justify-center py-8 text-slate-400">
               <CheckCircle2 className="h-10 w-10 mb-2 text-green-300" />
-              <p className="text-sm font-medium text-gray-500">Todo al dia</p>
-              <p className="text-xs text-gray-400 mt-1">No hay tareas urgentes pendientes</p>
+              <p className="text-sm font-medium text-slate-500">Todo al dia</p>
+              <p className="text-xs text-slate-400 mt-1">No hay tareas urgentes pendientes</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -267,7 +267,7 @@ export const TareasDelDia: React.FC = () => {
               {/* Ver mas / Ver menos */}
               {hayMas && (
                 <button
-                  className="w-full text-center text-sm text-primary-600 hover:text-primary-700 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                  className="w-full text-center text-sm text-teal-600 hover:text-teal-700 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded"
                   onClick={() => setMostrarTodo(prev => !prev)}
                 >
                   {mostrarTodo

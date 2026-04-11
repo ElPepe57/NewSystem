@@ -100,7 +100,7 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Tipo de Transportista */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-slate-700 mb-2">
           Tipo de Transportista *
         </label>
         <div className="grid grid-cols-2 gap-4">
@@ -109,19 +109,19 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
             onClick={() => handleChange('tipo', 'interno')}
             className={`p-4 border-2 rounded-lg flex flex-col items-center transition-all ${
               formData.tipo === 'interno'
-                ? 'border-primary-500 bg-primary-50'
-                : 'border-gray-200 hover:border-gray-300'
+                ? 'border-teal-500 bg-teal-50'
+                : 'border-slate-200 hover:border-slate-300'
             }`}
           >
             <User className={`h-8 w-8 mb-2 ${
-              formData.tipo === 'interno' ? 'text-primary-600' : 'text-gray-400'
+              formData.tipo === 'interno' ? 'text-teal-600' : 'text-slate-400'
             }`} />
             <span className={`font-medium ${
-              formData.tipo === 'interno' ? 'text-primary-700' : 'text-gray-600'
+              formData.tipo === 'interno' ? 'text-teal-700' : 'text-slate-600'
             }`}>
               Interno (Socio)
             </span>
-            <span className="text-xs text-gray-500 mt-1">
+            <span className="text-xs text-slate-500 mt-1">
               Repartidor propio en Lima
             </span>
           </button>
@@ -131,19 +131,19 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
             onClick={() => handleChange('tipo', 'externo')}
             className={`p-4 border-2 rounded-lg flex flex-col items-center transition-all ${
               formData.tipo === 'externo'
-                ? 'border-primary-500 bg-primary-50'
-                : 'border-gray-200 hover:border-gray-300'
+                ? 'border-teal-500 bg-teal-50'
+                : 'border-slate-200 hover:border-slate-300'
             }`}
           >
             <Truck className={`h-8 w-8 mb-2 ${
-              formData.tipo === 'externo' ? 'text-primary-600' : 'text-gray-400'
+              formData.tipo === 'externo' ? 'text-teal-600' : 'text-slate-400'
             }`} />
             <span className={`font-medium ${
-              formData.tipo === 'externo' ? 'text-primary-700' : 'text-gray-600'
+              formData.tipo === 'externo' ? 'text-teal-700' : 'text-slate-600'
             }`}>
               Externo (Courier)
             </span>
-            <span className="text-xs text-gray-500 mt-1">
+            <span className="text-xs text-slate-500 mt-1">
               Olva, Mercado Envíos, etc.
             </span>
           </button>
@@ -153,15 +153,15 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
       {/* Courier Externo */}
       {formData.tipo === 'externo' && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Courier *
           </label>
           <select
             value={formData.courierExterno || ''}
             onChange={(e) => handleChange('courierExterno', e.target.value as CourierExterno)}
             className={`block w-full rounded-lg border ${
-              errors.courierExterno ? 'border-danger-300' : 'border-gray-300'
-            } px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500`}
+              errors.courierExterno ? 'border-danger-300' : 'border-slate-300'
+            } px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500`}
           >
             <option value="">Seleccionar courier...</option>
             {courierOptions.map(option => (
@@ -184,7 +184,7 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
         placeholder={formData.tipo === 'interno' ? 'Ej: Carlos Mendoza' : 'Ej: Olva Courier'}
         required
         error={errors.nombre}
-        icon={<User className="h-5 w-5 text-gray-400" />}
+        icon={<User className="h-5 w-5 text-slate-400" />}
       />
 
       {/* Contacto */}
@@ -195,7 +195,7 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
           value={formData.telefono || ''}
           onChange={(e) => handleChange('telefono', e.target.value)}
           placeholder="+51 999 123 456"
-          icon={<Phone className="h-5 w-5 text-gray-400" />}
+          icon={<Phone className="h-5 w-5 text-slate-400" />}
         />
 
         <Input
@@ -204,13 +204,13 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
           value={formData.email || ''}
           onChange={(e) => handleChange('email', e.target.value)}
           placeholder="email@ejemplo.com"
-          icon={<Mail className="h-5 w-5 text-gray-400" />}
+          icon={<Mail className="h-5 w-5 text-slate-400" />}
         />
       </div>
 
       {/* Costos */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+      <div className="bg-slate-50 p-4 rounded-lg">
+        <h4 className="font-medium text-slate-900 mb-3 flex items-center">
           <DollarSign className="h-5 w-5 mr-2 text-green-600" />
           Costos y Comisiones
         </h4>
@@ -225,7 +225,7 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
             max={100}
             step={0.5}
             helperText="Porcentaje sobre el valor de la venta"
-            icon={<Percent className="h-5 w-5 text-gray-400" />}
+            icon={<Percent className="h-5 w-5 text-slate-400" />}
           />
 
           <Input
@@ -237,7 +237,7 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
             min={0}
             step={0.50}
             helperText="Costo fijo por entrega"
-            icon={<DollarSign className="h-5 w-5 text-gray-400" />}
+            icon={<DollarSign className="h-5 w-5 text-slate-400" />}
           />
         </div>
       </div>
@@ -245,7 +245,7 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
       {/* Documentos (solo para internos) */}
       {formData.tipo === 'interno' && (
         <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+          <h4 className="font-medium text-slate-900 mb-3 flex items-center">
             <FileText className="h-5 w-5 mr-2 text-blue-600" />
             Documentos
           </h4>
@@ -270,14 +270,14 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
 
       {/* Observaciones */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
           Observaciones
         </label>
         <textarea
           value={formData.observaciones || ''}
           onChange={(e) => handleChange('observaciones', e.target.value)}
           rows={3}
-          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+          className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
           placeholder="Notas adicionales sobre el transportista..."
         />
       </div>

@@ -168,12 +168,12 @@ export const TipoCambio: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-slate-600">Total Registros</div>
-              <div className="text-2xl font-bold text-primary-600 mt-1">
+              <div className="text-2xl font-bold text-teal-600 mt-1">
                 {tiposCambio.length}
               </div>
             </div>
-            <div className="h-12 w-12 bg-primary-100 rounded-full flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-primary-600" />
+            <div className="h-12 w-12 bg-teal-100 rounded-full flex items-center justify-center">
+              <Calendar className="h-6 w-6 text-teal-600" />
             </div>
           </div>
         </Card>
@@ -185,7 +185,7 @@ export const TipoCambio: React.FC = () => {
         <h2 className="text-xl font-semibold text-slate-900 mb-4">Historial de Tipos de Cambio</h2>
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
           </div>
         ) : (
           <TipoCambioTable tiposCambio={tiposCambio} />
