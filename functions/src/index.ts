@@ -108,6 +108,18 @@ export const onOrdenCompraRecibida = functions.firestore
     ) {
       const ordenId = context.params.ordenId;
 
+      // R3 FIX: Verificar que no existan unidades ya creadas (evitar doble creacion)
+      const unidadesExistentes = await db.collection(COLLECTIONS.UNIDADES)
+        .where("ordenCompraId", "==", ordenId)
+        .limit(1)
+        .get();
+      if (!unidadesExistentes.empty) {
+        functions.logger.info(`R3: Unidades ya existen para OC ${ordenId}, skipping CF creation`);
+        // Marcar inventarioGenerado para evitar re-trigger
+        await db.collection(COLLECTIONS.ORDENES_COMPRA).doc(ordenId).update({ inventarioGenerado: true });
+        return null;
+      }
+
       functions.logger.info(`Generando unidades para OC ${after.numeroOrden}`, {
         ordenId,
       });

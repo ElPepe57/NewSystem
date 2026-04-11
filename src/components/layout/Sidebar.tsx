@@ -216,7 +216,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const currentRole = roleConfig[role || 'invitado'];
 
   return (
-    <div className="w-64 h-full bg-gradient-to-b from-slate-900 via-gray-900 to-slate-950 flex flex-col border-r border-slate-800/50 overflow-hidden">
+    <div className="w-64 h-full bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 flex flex-col border-r border-slate-800/50 overflow-hidden">
       {/* Logo Vita Skin Peru */}
       <div className="p-5 border-b border-slate-800/50">
         <div className="flex items-center justify-between">
@@ -292,7 +292,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       </div>
 
       {/* Grupos de Menú */}
-      <nav className="flex-1 min-h-0 px-3 py-2 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+      <nav className="flex-1 min-h-0 px-3 py-2 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
         {visibleGroups.map((group) => {
           const GroupIcon = group.icon;
           const isExpanded = expandedGroups.has(group.id);
