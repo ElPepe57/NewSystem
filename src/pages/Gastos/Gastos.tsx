@@ -4,7 +4,7 @@ import { formatCurrencyPEN } from '../../utils/format';
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2, Receipt } from 'lucide-react';
 import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton, GastoLineaBadge } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
@@ -588,22 +588,14 @@ export const Gastos: React.FC = () => {
       {/* Filtro de línea de negocio */}
       <LineaFilterInline />
 
-      {/* Búsqueda + Filtros */}
+      {/* Toolbar + Filtros */}
+      <Toolbar
+        search={{ value: searchTerm, onChange: setSearchTerm, placeholder: 'Buscar por descripcion, numero, proveedor...' }}
+        resultCount={gastosVisibles.length}
+      />
+
       <Card padding="md">
         <div className="space-y-4">
-          {/* Búsqueda */}
-          <SearchInput
-            value={searchTerm}
-            onChange={setSearchTerm}
-            placeholder="Buscar por descripción, número, proveedor..."
-            size="md"
-          />
-
-          {/* Filtros */}
-          <div className="flex items-center gap-2">
-            <Filter className="h-5 w-5 text-gray-400" />
-            <span className="font-medium text-gray-700">Filtros</span>
-          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
             <Select

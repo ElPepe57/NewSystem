@@ -701,19 +701,16 @@ export const OrdenesCompra: React.FC = () => {
         title="Pipeline de Compras"
       />
 
-      {/* Filtro de línea de negocio */}
+      {/* Filtro de linea de negocio */}
       <LineaFilterInline />
 
-      {/* Tabla de Órdenes */}
+      {/* Toolbar */}
+      <Toolbar
+        resultCount={ordenesFiltradas.length}
+      />
+
+      {/* Tabla de Ordenes */}
       <Card padding="none">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {filtroEstado
-              ? `${pipelineStages.find(s => s.id === filtroEstado)?.label || 'Órdenes'} (${ordenesFiltradas.length})`
-              : `Órdenes de Compra (${ordenesLN.length})`
-            }
-          </h3>
-        </div>
         <OrdenCompraTable
           ordenes={ordenesFiltradas}
           onView={handleViewDetails}
