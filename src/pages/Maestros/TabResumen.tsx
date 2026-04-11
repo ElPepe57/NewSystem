@@ -85,7 +85,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
       {/* KPIs Globales del Negocio */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-indigo-600" />
+          <BarChart3 className="h-5 w-5 text-teal-600" />
           Metricas Globales del Negocio
         </h3>
         <KPIGrid columns={5}>

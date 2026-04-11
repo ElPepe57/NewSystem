@@ -19,7 +19,7 @@ export const HistorialLotes: React.FC = () => {
   if (loadingHistorial) {
     return (
       <div className="flex items-center justify-center py-12 text-slate-500">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-3" />
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mr-3" />
         Cargando historial...
       </div>
     );

@@ -58,13 +58,13 @@ export const LoteDetalleModal: React.FC = () => {
             <div className="text-xl font-bold text-red-700">{lote.itemsConError}</div>
             <div className="text-xs text-red-600">Errores</div>
           </div>
-          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 text-center">
-            <div className="text-sm font-bold text-indigo-700 font-mono">
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 text-center">
+            <div className="text-sm font-bold text-teal-700 font-mono">
               {lote.montoTotalPEN > 0 && formatCurrency(lote.montoTotalPEN, 'PEN')}
               {lote.montoTotalPEN > 0 && lote.montoTotalUSD > 0 && <br />}
               {lote.montoTotalUSD > 0 && formatCurrency(lote.montoTotalUSD, 'USD')}
             </div>
-            <div className="text-xs text-indigo-600">Total pagado</div>
+            <div className="text-xs text-teal-600">Total pagado</div>
           </div>
         </div>
 

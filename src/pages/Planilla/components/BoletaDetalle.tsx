@@ -138,9 +138,9 @@ export const BoletaDetalle: React.FC<BoletaDetalleProps> = ({ boleta, open, onCl
         )}
 
         {/* Neto */}
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex justify-between items-center">
-          <span className="text-lg font-semibold text-indigo-800">Neto a pagar</span>
-          <span className="text-2xl font-bold text-indigo-700 font-mono">{formatCurrency(boleta.totalNeto, 'PEN')}</span>
+        <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 flex justify-between items-center">
+          <span className="text-lg font-semibold text-teal-800">Neto a pagar</span>
+          <span className="text-2xl font-bold text-teal-700 font-mono">{formatCurrency(boleta.totalNeto, 'PEN')}</span>
         </div>
 
         {/* Detalle comisiones */}

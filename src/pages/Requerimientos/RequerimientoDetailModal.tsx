@@ -38,7 +38,7 @@ const getEstadoBadge = (estado: EstadoRequerimiento) => {
     borrador: { color: 'bg-slate-100 text-slate-800', icon: <Clock className="h-3 w-3" /> },
     pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
     aprobado: { color: 'bg-blue-100 text-blue-800', icon: <Check className="h-3 w-3" /> },
-    parcial: { color: 'bg-indigo-100 text-indigo-800', icon: <Link2 className="h-3 w-3" /> },
+    parcial: { color: 'bg-teal-100 text-teal-800', icon: <Link2 className="h-3 w-3" /> },
     en_proceso: { color: 'bg-purple-100 text-purple-800', icon: <Link2 className="h-3 w-3" /> },
     completado: { color: 'bg-green-100 text-green-800', icon: <Check className="h-3 w-3" /> },
     cancelado: { color: 'bg-red-100 text-red-800', icon: <XCircle className="h-3 w-3" /> }

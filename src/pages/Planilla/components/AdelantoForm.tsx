@@ -76,7 +76,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
           <select
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
           >
             <option value="">Seleccionar empleado...</option>
             {empleadosConPerfil.map(e => (
@@ -91,7 +91,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value as TipoAdelanto)}
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
           >
             {(Object.entries(TIPO_ADELANTO_LABELS) as [TipoAdelanto, string][]).map(([k, v]) => (
               <option key={k} value={k}>{v}</option>
@@ -107,7 +107,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
             placeholder="Detalle del adelanto..."
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
           />
         </div>
 
@@ -119,7 +119,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
               type="number"
               value={monto}
               onChange={(e) => setMonto(parseFloat(e.target.value) || 0)}
-              className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500"
+              className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
               step="0.01"
               min="0"
             />
@@ -129,7 +129,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
             <select
               value={moneda}
               onChange={(e) => setMoneda(e.target.value as 'PEN' | 'USD')}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
             >
               <option value="PEN">S/ Soles</option>
               <option value="USD">$ Dolares</option>
@@ -144,7 +144,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
               type="number"
               value={tipoCambio}
               onChange={(e) => setTipoCambio(parseFloat(e.target.value) || 0)}
-              className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500"
+              className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
               step="0.01"
             />
           </div>

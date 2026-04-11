@@ -12,7 +12,7 @@ import type { EstadoItemLote } from '../../../types/pagoMasivo.types';
 
 const ESTADO_ICONO: Record<EstadoItemLote, React.ReactNode> = {
   pendiente:   <Clock size={14} className="text-slate-400" />,
-  procesando:  <Loader2 size={14} className="text-indigo-600 animate-spin" />,
+  procesando:  <Loader2 size={14} className="text-teal-600 animate-spin" />,
   exitoso:     <CheckCircle size={14} className="text-green-600" />,
   error:       <XCircle size={14} className="text-red-600" />,
 };
@@ -82,22 +82,22 @@ export const ProgresoEjecucion: React.FC<ProgresoEjecucionProps> = ({ open, onCl
 
         {/* Montos del lote */}
         {terminado && loteResultado && (
-          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 text-sm">
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-indigo-700">Monto total pagado:</span>
-              <span className="font-semibold text-indigo-800 font-mono">
+              <span className="text-teal-700">Monto total pagado:</span>
+              <span className="font-semibold text-teal-800 font-mono">
                 {loteResultado.montoTotalPEN > 0 && formatCurrency(loteResultado.montoTotalPEN, 'PEN')}
                 {loteResultado.montoTotalPEN > 0 && loteResultado.montoTotalUSD > 0 && ' + '}
                 {loteResultado.montoTotalUSD > 0 && formatCurrency(loteResultado.montoTotalUSD, 'USD')}
               </span>
             </div>
             <div className="flex justify-between mt-1">
-              <span className="text-indigo-700">Lote:</span>
-              <span className="font-mono text-indigo-800">{loteResultado.id}</span>
+              <span className="text-teal-700">Lote:</span>
+              <span className="font-mono text-teal-800">{loteResultado.id}</span>
             </div>
             <div className="flex justify-between mt-1">
-              <span className="text-indigo-700">Duracion:</span>
-              <span className="text-indigo-800">{(loteResultado.duracionMs / 1000).toFixed(1)}s</span>
+              <span className="text-teal-700">Duracion:</span>
+              <span className="text-teal-800">{(loteResultado.duracionMs / 1000).toFixed(1)}s</span>
             </div>
           </div>
         )}
@@ -129,7 +129,7 @@ export const ProgresoEjecucion: React.FC<ProgresoEjecucionProps> = ({ open, onCl
                     ) : (
                       <span className={`text-xs capitalize ${
                         item.estado === 'exitoso' ? 'text-green-600' :
-                        item.estado === 'procesando' ? 'text-indigo-600' : 'text-slate-500'
+                        item.estado === 'procesando' ? 'text-teal-600' : 'text-slate-500'
                       }`}>
                         {item.estado}
                       </span>

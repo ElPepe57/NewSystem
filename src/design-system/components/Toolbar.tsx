@@ -37,7 +37,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           value={search.value}
           onChange={e => search.onChange(e.target.value)}
           placeholder={search.placeholder || 'Buscar...'}
-          className={cn('w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border-0', radius.sm, 'focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none', transition.fast)}
+          className={cn('w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border-0', radius.sm, 'focus:bg-white focus:ring-2 focus:ring-teal-500 focus:outline-none', transition.fast)}
         />
       </div>
     )}
@@ -56,13 +56,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           onClick={onFilterToggle}
           className={cn(
             'inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium', radius.sm, transition.fast,
-            filterCount ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50'
+            filterCount ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-50'
           )}
         >
           <SlidersHorizontal className="w-4 h-4" />
           <span className="hidden sm:inline">Filtros</span>
           {!!filterCount && (
-            <span className="ml-1 w-5 h-5 bg-indigo-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+            <span className="ml-1 w-5 h-5 bg-teal-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
               {filterCount}
             </span>
           )}

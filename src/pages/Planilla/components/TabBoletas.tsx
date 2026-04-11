@@ -148,7 +148,7 @@ export const TabBoletas: React.FC = () => {
       {/* Loading */}
       {loadingBoletas ? (
         <div className="flex items-center justify-center py-12 text-slate-500">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-3" />
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mr-3" />
           Cargando boletas...
         </div>
       ) : boletas.length === 0 ? (
@@ -215,7 +215,7 @@ export const TabBoletas: React.FC = () => {
                       )}
                       {b.estado === 'aprobada' && (
                         <Button variant="ghost" size="sm" onClick={() => setBoletaDetalle(b)} title="Pagar">
-                          <CreditCard size={14} className="text-indigo-600" />
+                          <CreditCard size={14} className="text-teal-600" />
                         </Button>
                       )}
                       {(b.estado === 'borrador' || b.estado === 'aprobada') && (

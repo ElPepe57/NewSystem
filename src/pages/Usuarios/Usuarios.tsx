@@ -327,7 +327,7 @@ export const Usuarios: React.FC = () => {
     comprador: 'bg-amber-100 text-amber-800',
     almacenero: 'bg-green-100 text-green-800',
     finanzas: 'bg-teal-100 text-teal-800',
-    supervisor: 'bg-indigo-100 text-indigo-800',
+    supervisor: 'bg-teal-100 text-teal-800',
     invitado: 'bg-slate-100 text-slate-800'
   };
 

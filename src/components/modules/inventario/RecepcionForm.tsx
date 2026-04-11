@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Select } from '../../common';
-import { almacenService } from '../../../services/almacen.service';
+import { almacenService } from '../../../services/casilla.service';
 
 // Tipos locales para este formulario
 interface RecepcionFormData {

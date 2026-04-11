@@ -4,11 +4,11 @@ import { TipoProductoList, CategoriaList, EtiquetaList } from '../../components/
 export const TabClasificacion: React.FC = () => {
   return (
     <div className="space-y-8">
-      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-indigo-900 mb-2">
+      <div className="bg-gradient-to-r from-teal-50 to-purple-50 border border-teal-200 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-teal-900 mb-2">
           Sistema de Clasificacion de Productos
         </h3>
-        <p className="text-sm text-indigo-700">
+        <p className="text-sm text-teal-700">
           Gestiona los tipos de producto, categorias y etiquetas para organizar tu catalogo de manera flexible.
           Los productos pueden tener multiples categorias y etiquetas para mejor filtrado y SEO.
         </p>

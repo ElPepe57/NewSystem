@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../../common/Button';
 import { validateStep1, formatProductSubtitle } from './ocBuilderUtils';
-import { almacenService } from '../../../../services/almacen.service';
+import { almacenService } from '../../../../services/casilla.service';
 import type { Almacen } from '../../../../types/almacen.types';
 import type { OCBuilderState, OCBuilderAction, PoolProducto, OCDraftGroup, GroupColor } from './ocBuilderTypes';
 

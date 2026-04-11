@@ -63,7 +63,7 @@ export const TabLogistica: React.FC = () => {
         <KPICard icon={<CheckCircle className="h-5 w-5 text-green-600" />} label="Cumplimiento" value={`${data.tasaCumplimientoGlobal.toFixed(0)}%`} sub="entregas a tiempo" bg="bg-green-50" />
         <KPICard icon={<DollarSign className="h-5 w-5 text-amber-600" />} label="Flete prom." value={`$${data.tarifaPromedioGlobal.toFixed(2)}`} sub="por unidad" bg="bg-amber-50" />
         <KPICard icon={<Package className="h-5 w-5 text-teal-600" />} label="Peso total" value={`${data.pesoTotalTransportadoLb.toFixed(1)}`} sub="libras transportadas" bg="bg-teal-50" />
-        <KPICard icon={<Scale className="h-5 w-5 text-indigo-600" />} label="Costo/lb" value={data.costoPromedioPorLibraGlobal > 0 ? `$${data.costoPromedioPorLibraGlobal.toFixed(2)}` : '—'} sub="USD por libra" bg="bg-indigo-50" />
+        <KPICard icon={<Scale className="h-5 w-5 text-teal-600" />} label="Costo/lb" value={data.costoPromedioPorLibraGlobal > 0 ? `$${data.costoPromedioPorLibraGlobal.toFixed(2)}` : '—'} sub="USD por libra" bg="bg-teal-50" />
       </div>
 
       {/* Tabla de viajeros */}
@@ -122,7 +122,7 @@ export const TabLogistica: React.FC = () => {
                     </td>
                     <td className="py-1.5 px-3 text-right font-mono">{formatCurrency(p.ctru, 'PEN')}</td>
                     <td className="py-1.5 px-3 text-right font-mono">{formatCurrency(p.margen, 'PEN')}</td>
-                    <td className="py-1.5 px-3 text-right font-mono font-semibold text-indigo-600">{formatCurrency(p.margenPorLibra, 'PEN')}/lb</td>
+                    <td className="py-1.5 px-3 text-right font-mono font-semibold text-teal-600">{formatCurrency(p.margenPorLibra, 'PEN')}/lb</td>
                   </tr>
                 ))}
               </tbody>
@@ -189,7 +189,7 @@ const ViajeroRow: React.FC<{ viajero: RendimientoViajero; isExpanded: boolean; o
             <MiniStat label="Flete total" value={`$${v.costoFleteTotal.toFixed(0)}`} />
             <MiniStat label="Danadas/Faltantes" value={`${v.unidadesDanadas}/${v.unidadesFaltantes}`} className={v.unidadesDanadas + v.unidadesFaltantes > 0 ? 'text-red-600' : 'text-green-600'} />
             <MiniStat label="Peso total" value={v.pesoTotalTransportadoLb > 0 ? `${v.pesoTotalTransportadoLb.toFixed(1)} lb` : '—'} />
-            <MiniStat label="Costo/lb" value={v.costoPromedioPorLibra > 0 ? `$${v.costoPromedioPorLibra.toFixed(2)}` : '—'} className={v.costoPromedioPorLibra > 0 ? 'text-indigo-600' : 'text-slate-400'} />
+            <MiniStat label="Costo/lb" value={v.costoPromedioPorLibra > 0 ? `$${v.costoPromedioPorLibra.toFixed(2)}` : '—'} className={v.costoPromedioPorLibra > 0 ? 'text-teal-600' : 'text-slate-400'} />
           </div>
 
           {/* Historial de envíos */}
@@ -221,7 +221,7 @@ const ViajeroRow: React.FC<{ viajero: RendimientoViajero; isExpanded: boolean; o
                     </td>
                     <td className="py-1.5 px-2 text-right">${t.costoFlete.toFixed(0)}</td>
                     <td className="py-1.5 px-2 text-right">${t.tarifaPorUnidad.toFixed(2)}</td>
-                    <td className="py-1.5 text-right text-indigo-600">{t.costoFletePorLibra ? `$${t.costoFletePorLibra.toFixed(2)}` : '-'}</td>
+                    <td className="py-1.5 text-right text-teal-600">{t.costoFletePorLibra ? `$${t.costoFletePorLibra.toFixed(2)}` : '-'}</td>
                   </tr>
                 ))}
               </tbody>

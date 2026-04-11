@@ -97,7 +97,7 @@ export const DocumentosPendientesTable: React.FC = () => {
   if (loadingPendientes) {
     return (
       <div className="flex items-center justify-center py-12 text-slate-500">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-3" />
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mr-3" />
         Cargando documentos pendientes...
       </div>
     );
@@ -114,13 +114,13 @@ export const DocumentosPendientesTable: React.FC = () => {
             placeholder="Buscar por documento o contraparte..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
           />
         </div>
         <select
           value={filtroTipo}
           onChange={(e) => setFiltroTipo(e.target.value)}
-          className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+          className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
         >
           <option value="todos">Todos los tipos</option>
           {tiposDisponibles.map((t) => (
@@ -131,11 +131,11 @@ export const DocumentosPendientesTable: React.FC = () => {
 
       {/* Resumen selección */}
       {seleccionados.size > 0 && (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2 flex items-center justify-between text-sm">
-          <span className="font-medium text-indigo-700">
+        <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-2 flex items-center justify-between text-sm">
+          <span className="font-medium text-teal-700">
             {seleccionados.size} documento{seleccionados.size !== 1 ? 's' : ''} seleccionado{seleccionados.size !== 1 ? 's' : ''}
           </span>
-          <div className="flex gap-4 text-indigo-600">
+          <div className="flex gap-4 text-teal-600">
             {totalSeleccionado.pen > 0 && <span>{formatCurrency(totalSeleccionado.pen, 'PEN')}</span>}
             {totalSeleccionado.usd > 0 && <span>{formatCurrency(totalSeleccionado.usd, 'USD')}</span>}
           </div>
@@ -185,7 +185,7 @@ export const DocumentosPendientesTable: React.FC = () => {
                 return (
                   <tr
                     key={p.documentoId}
-                    className={`hover:bg-slate-50 ${isSelected ? 'bg-indigo-50/50' : ''}`}
+                    className={`hover:bg-slate-50 ${isSelected ? 'bg-teal-50/50' : ''}`}
                   >
                     <td className="px-3 py-2">
                       <input
@@ -218,7 +218,7 @@ export const DocumentosPendientesTable: React.FC = () => {
                               actualizarMontoPagar(p.documentoId, val);
                             }
                           }}
-                          className="w-24 text-right border rounded px-2 py-1 text-sm font-mono focus:ring-2 focus:ring-indigo-500"
+                          className="w-24 text-right border rounded px-2 py-1 text-sm font-mono focus:ring-2 focus:ring-teal-500"
                           step="0.01"
                           min="0.01"
                           max={p.montoPendiente}

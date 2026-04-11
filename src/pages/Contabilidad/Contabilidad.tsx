@@ -414,28 +414,28 @@ export function Contabilidad() {
 
           {/* Acumulado del Año */}
           {tendencia.length > 0 && (
-            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200 p-6">
-              <h4 className="font-semibold text-indigo-800 mb-4 flex items-center gap-2">
+            <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg border border-teal-200 p-6">
+              <h4 className="font-semibold text-teal-800 mb-4 flex items-center gap-2">
                 <CircleDollarSign className="w-5 h-5" />
                 Acumulado {anio}
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <div>
-                  <div className="text-xs sm:text-sm text-indigo-600">Ventas Acumuladas</div>
-                  <div className="text-lg sm:text-2xl font-bold text-indigo-900">{formatCurrency(acumuladoVentas)}</div>
+                  <div className="text-xs sm:text-sm text-teal-600">Ventas Acumuladas</div>
+                  <div className="text-lg sm:text-2xl font-bold text-teal-900">{formatCurrency(acumuladoVentas)}</div>
                 </div>
                 <div>
-                  <div className="text-xs sm:text-sm text-indigo-600">Compras Acumuladas</div>
-                  <div className="text-lg sm:text-2xl font-bold text-indigo-900">{formatCurrency(acumuladoCompras)}</div>
+                  <div className="text-xs sm:text-sm text-teal-600">Compras Acumuladas</div>
+                  <div className="text-lg sm:text-2xl font-bold text-teal-900">{formatCurrency(acumuladoCompras)}</div>
                 </div>
                 <div>
-                  <div className="text-xs sm:text-sm text-indigo-600">Utilidad Acumulada</div>
+                  <div className="text-xs sm:text-sm text-teal-600">Utilidad Acumulada</div>
                   <div className={`text-lg sm:text-2xl font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {formatCurrency(acumuladoUtilidadNeta)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs sm:text-sm text-indigo-600">Promedio Mensual</div>
+                  <div className="text-xs sm:text-sm text-teal-600">Promedio Mensual</div>
                   <div className={`text-lg sm:text-2xl font-bold ${promedioMensual >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {formatCurrency(promedioMensual)}
                   </div>

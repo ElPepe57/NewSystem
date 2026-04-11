@@ -40,7 +40,7 @@ export const Planilla: React.FC = () => {
               onClick={() => setTabActiva(key)}
               className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 transition-colors ${
                 tabActiva === key
-                  ? 'border-indigo-500 text-indigo-600'
+                  ? 'border-teal-500 text-teal-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >

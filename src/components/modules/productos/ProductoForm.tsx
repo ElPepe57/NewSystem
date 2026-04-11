@@ -1208,19 +1208,15 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Textura</label>
-                        <select
-                          value={formData.atributosSkincare?.textura || ''}
-                          onChange={(e) => updateSKC({ textura: (e.target.value || undefined) as TexturaSKC | undefined })}
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
-                        >
-                          <option value="">Seleccionar...</option>
-                          {Object.entries(TEXTURA_LABELS).map(([key, label]) => (
-                            <option key={key} value={key}>{label}</option>
-                          ))}
-                        </select>
-                      </div>
+                      <AutocompleteInput
+                        label="Textura"
+                        value={formData.atributosSkincare?.textura || ''}
+                        onChange={(v) => updateSKC({ textura: (v || undefined) as TexturaSKC | undefined })}
+                        suggestions={Object.values(TEXTURA_LABELS)}
+                        placeholder="ej: Gel, Crema, Aceite..."
+                        allowCreate
+                        createLabel="Usar"
+                      />
                       <Input
                         label="SPF"
                         name="spf"

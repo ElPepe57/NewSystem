@@ -185,7 +185,7 @@ export const MiPerfil: React.FC = () => {
     comprador: 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white',
     almacenero: 'bg-gradient-to-r from-green-500 to-emerald-500 text-white',
     finanzas: 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white',
-    supervisor: 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white',
+    supervisor: 'bg-gradient-to-r from-teal-500 to-blue-600 text-white',
     invitado: 'bg-slate-500 text-white',
   };
 

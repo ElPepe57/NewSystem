@@ -20,7 +20,7 @@ export function MapaCalorKPIs({ kpis }: Props) {
 
       <div className="bg-white rounded-lg border border-slate-200 p-3">
         <div className="flex items-center gap-1.5 mb-1">
-          <Globe className="h-3.5 w-3.5 text-indigo-500" />
+          <Globe className="h-3.5 w-3.5 text-teal-500" />
           <span className="text-[10px] sm:text-xs text-slate-500">Provincias</span>
         </div>
         <p className="text-lg sm:text-xl font-bold text-slate-900">{kpis.provinciasActivas}</p>

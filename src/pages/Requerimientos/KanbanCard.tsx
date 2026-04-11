@@ -192,10 +192,10 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       {/* parcial */}
       {req.estado === 'parcial' && req.ocCoverage && (
         <div className="mt-3 pt-2 border-t border-slate-100 space-y-2">
-          <div className="flex items-center gap-2 text-xs text-indigo-600">
+          <div className="flex items-center gap-2 text-xs text-teal-600">
             <div className="flex-1 bg-slate-200 rounded-full h-1.5">
               <div
-                className="bg-indigo-500 rounded-full h-1.5 transition-all"
+                className="bg-teal-500 rounded-full h-1.5 transition-all"
                 style={{ width: `${req.ocCoverage.porcentaje}%` }}
               />
             </div>
@@ -204,7 +204,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
           <div className="flex items-center gap-1 text-xs text-slate-500">
             <span>{req.ocCoverage.productosPendientes} pendiente(s)</span>
             {req.ordenCompraNumeros && req.ordenCompraNumeros.length > 0 && (
-              <span className="ml-auto text-indigo-600 font-medium">
+              <span className="ml-auto text-teal-600 font-medium">
                 {req.ordenCompraNumeros.join(', ')}
               </span>
             )}

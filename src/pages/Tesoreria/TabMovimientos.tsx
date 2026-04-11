@@ -365,7 +365,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                     {mov.ordenCompraNumero && <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-medium">{mov.ordenCompraNumero}</span>}
                     {mov.ventaNumero && <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-medium">{mov.ventaNumero}</span>}
                     {mov.cotizacionNumero && <span className="px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800 text-[10px] font-medium">{mov.cotizacionNumero}</span>}
-                    {mov.transferenciaNumero && <span className="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[10px] font-medium">{mov.transferenciaNumero}</span>}
+                    {mov.transferenciaNumero && <span className="px-1.5 py-0.5 rounded bg-teal-100 text-teal-800 text-[10px] font-medium">{mov.transferenciaNumero}</span>}
                     {mov.gastoNumero && <span className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-medium">{mov.gastoNumero}</span>}
                     {mov.conversionId && <span className="px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 text-[10px] font-medium">Conversion</span>}
                     {(() => {
@@ -455,7 +455,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                         ) : mov.cotizacionNumero ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded bg-cyan-100 text-cyan-800 text-xs font-medium">{mov.cotizacionNumero}</span>
                         ) : mov.transferenciaNumero ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-xs font-medium">{mov.transferenciaNumero}</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-teal-100 text-teal-800 text-xs font-medium">{mov.transferenciaNumero}</span>
                         ) : mov.gastoNumero ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded bg-orange-100 text-orange-800 text-xs font-medium">{mov.gastoNumero}</span>
                         ) : mov.conversionId ? (

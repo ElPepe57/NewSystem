@@ -555,7 +555,7 @@ const TabFlujoCaja: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
 function fc(n: number): string { return formatCurrency(n); }
 
 const Hero: React.FC<{ horizonte: Horizonte360; setHorizonte: (h: Horizonte360) => void }> = ({ horizonte, setHorizonte }) => (
-  <div className="bg-gradient-to-r from-violet-600 to-indigo-700 rounded-xl p-6 text-white mb-2">
+  <div className="bg-gradient-to-r from-violet-600 to-teal-700 rounded-xl p-6 text-white mb-2">
     <div className="flex items-center justify-between">
       <div>
         <div className="flex items-center gap-3 mb-1">

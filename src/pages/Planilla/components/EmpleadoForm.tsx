@@ -97,7 +97,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                 onClick={() => setTipo(key)}
                 className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${
                   tipo === key
-                    ? 'bg-indigo-600 text-white border-indigo-600'
+                    ? 'bg-teal-600 text-white border-teal-600'
                     : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                 }`}
               >
@@ -116,7 +116,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                 type="number"
                 value={salarioBase}
                 onChange={(e) => setSalarioBase(parseFloat(e.target.value) || 0)}
-                className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500"
+                className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
                 step="0.01"
                 min="0"
               />
@@ -126,7 +126,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
               <select
                 value={monedaSalario}
                 onChange={(e) => setMonedaSalario(e.target.value as 'PEN' | 'USD')}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
               >
                 <option value="PEN">S/ Soles</option>
                 <option value="USD">$ Dolares</option>
@@ -155,7 +155,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                   onClick={() => setTipoComision('porcentaje_venta')}
                   className={`px-3 py-1.5 text-sm rounded-lg border ${
                     tipoComision === 'porcentaje_venta'
-                      ? 'bg-indigo-100 border-indigo-300 text-indigo-700'
+                      ? 'bg-teal-100 border-teal-300 text-teal-700'
                       : 'bg-white border-slate-300'
                   }`}
                 >
@@ -166,7 +166,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                   onClick={() => setTipoComision('monto_fijo')}
                   className={`px-3 py-1.5 text-sm rounded-lg border ${
                     tipoComision === 'monto_fijo'
-                      ? 'bg-indigo-100 border-indigo-300 text-indigo-700'
+                      ? 'bg-teal-100 border-teal-300 text-teal-700'
                       : 'bg-white border-slate-300'
                   }`}
                 >
@@ -182,7 +182,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                       type="number"
                       value={porcentaje}
                       onChange={(e) => setPorcentaje(parseFloat(e.target.value) || 0)}
-                      className="w-24 border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500"
+                      className="w-24 border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
                       step="0.5"
                       min="0"
                       max="100"
@@ -197,7 +197,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                     type="number"
                     value={montoFijo}
                     onChange={(e) => setMontoFijo(parseFloat(e.target.value) || 0)}
-                    className="w-32 border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500"
+                    className="w-32 border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
                     step="1"
                     min="0"
                   />
@@ -218,7 +218,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                 value={banco}
                 onChange={(e) => setBanco(e.target.value)}
                 placeholder="BCP, IBK..."
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
               />
             </div>
             <div>
@@ -227,7 +227,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                 type="text"
                 value={numeroCuenta}
                 onChange={(e) => setNumeroCuenta(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
               />
             </div>
             <div>
@@ -236,7 +236,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                 type="text"
                 value={cci}
                 onChange={(e) => setCci(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
               />
             </div>
           </div>

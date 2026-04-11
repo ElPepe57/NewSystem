@@ -650,7 +650,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
 
           {/* Historial del Cliente (si tiene compras) */}
           {clienteSeleccionado && historialCliente && historialCliente.totalCompras > 0 && (
-            <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+            <div className="p-3 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <History className="h-4 w-4 text-blue-600" />
                 <span className="text-sm font-medium text-blue-800">Historial del Cliente</span>

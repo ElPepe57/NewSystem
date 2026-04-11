@@ -33,7 +33,7 @@ export const TabEmpleados: React.FC = () => {
   if (loadingEmpleados) {
     return (
       <div className="flex items-center justify-center py-12 text-slate-500">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-3" />
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mr-3" />
         Cargando usuarios...
       </div>
     );
@@ -47,9 +47,9 @@ export const TabEmpleados: React.FC = () => {
           <div className="text-xs text-slate-500">Total usuarios</div>
           <div className="text-2xl font-bold">{empleados.length}</div>
         </div>
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
-          <div className="text-xs text-indigo-600">Con perfil laboral</div>
-          <div className="text-2xl font-bold text-indigo-700">{conPerfil}</div>
+        <div className="bg-teal-50 border border-teal-200 rounded-lg p-3">
+          <div className="text-xs text-teal-600">Con perfil laboral</div>
+          <div className="text-2xl font-bold text-teal-700">{conPerfil}</div>
         </div>
         <div className="bg-slate-50 border rounded-lg p-3">
           <div className="text-xs text-slate-500">Sin perfil</div>
@@ -66,13 +66,13 @@ export const TabEmpleados: React.FC = () => {
             placeholder="Buscar por nombre o email..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           />
         </div>
         <select
           value={filtro}
           onChange={(e) => setFiltro(e.target.value as any)}
-          className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+          className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
         >
           <option value="todos">Todos</option>
           <option value="con_perfil">Con perfil laboral</option>
@@ -88,12 +88,12 @@ export const TabEmpleados: React.FC = () => {
             <div
               key={emp.uid}
               className={`border rounded-lg p-4 flex items-center justify-between hover:bg-slate-50 transition-colors ${
-                p ? 'border-indigo-200 bg-indigo-50/30' : ''
+                p ? 'border-teal-200 bg-teal-50/30' : ''
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${p ? 'bg-indigo-100' : 'bg-slate-100'}`}>
-                  <User size={20} className={p ? 'text-indigo-600' : 'text-slate-400'} />
+                <div className={`p-2 rounded-full ${p ? 'bg-teal-100' : 'bg-slate-100'}`}>
+                  <User size={20} className={p ? 'text-teal-600' : 'text-slate-400'} />
                 </div>
                 <div>
                   <div className="font-medium text-slate-900">{emp.displayName}</div>

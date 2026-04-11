@@ -490,7 +490,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                     disabled={consolidatingPacks || procesando}
                     className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
-                    <Package className="w-3.5 h-3.5 text-indigo-500" />
+                    <Package className="w-3.5 h-3.5 text-teal-500" />
                     Diagnosticar Packs Duplicados
                   </button>
                   <button
@@ -656,19 +656,19 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
 
       {/* Pack consolidation result banner */}
       {packResult && (
-        <div className="px-3 py-2 text-xs rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700">
+        <div className="px-3 py-2 text-xs rounded-lg bg-teal-50 border border-teal-200 text-teal-700">
           <div className="flex items-center gap-2">
             <Package className="w-4 h-4 flex-shrink-0" />
             <span className="font-medium">
               {packMode === 'dry' ? 'Diagnóstico' : 'Corrección'}: {packResult.duplicatesFound} pack{packResult.duplicatesFound !== 1 ? 's' : ''} duplicado{packResult.duplicatesFound !== 1 ? 's' : ''} encontrado{packResult.duplicatesFound !== 1 ? 's' : ''}
               {packMode === 'fix' && `, ${packResult.fixed} corregido${packResult.fixed !== 1 ? 's' : ''}`}
             </span>
-            <button onClick={() => setPackResult(null)} className="ml-auto text-indigo-400 hover:text-indigo-600">
+            <button onClick={() => setPackResult(null)} className="ml-auto text-teal-400 hover:text-teal-600">
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
           {packResult.log.length > 0 && (
-            <ul className="mt-1 ml-6 space-y-0.5 text-[11px] text-indigo-600 max-h-40 overflow-y-auto">
+            <ul className="mt-1 ml-6 space-y-0.5 text-[11px] text-teal-600 max-h-40 overflow-y-auto">
               {packResult.log.map((line, i) => (
                 <li key={i}>{line}</li>
               ))}

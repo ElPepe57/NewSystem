@@ -113,8 +113,8 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
 
       {/* Flujo de Caja Proyectado */}
       {dashboardPendientes.flujoCajaProyectado && (
-        <Card padding="md" className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200">
-          <h3 className="font-semibold text-indigo-800 mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
+        <Card padding="md" className="bg-gradient-to-r from-teal-50 to-purple-50 border border-teal-200">
+          <h3 className="font-semibold text-teal-800 mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             <span className="sm:hidden">Flujo Proyectado</span>
             <span className="hidden sm:inline">Flujo de Caja Proyectado Completo</span>
@@ -170,13 +170,13 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
           {(dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.cotizacionesPendientes > 0 ||
             dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.expectativasActivas > 0 ||
             dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.inventarioDisponibleValor > 0) && (
-            <div className="mt-4 pt-4 border-t border-indigo-200">
-              <div className="text-xs text-indigo-600 font-medium mb-2"><span className="sm:hidden">Ingresos Futuros</span><span className="hidden sm:inline">Proyeccion de Ingresos Futuros (potencial)</span></div>
+            <div className="mt-4 pt-4 border-t border-teal-200">
+              <div className="text-xs text-teal-600 font-medium mb-2"><span className="sm:hidden">Ingresos Futuros</span><span className="hidden sm:inline">Proyeccion de Ingresos Futuros (potencial)</span></div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-sm">
                 <div className="bg-white/50 rounded px-3 py-2">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-600">Cotizaciones pendientes</span>
-                    <span className="text-xs text-indigo-500 font-medium">40%</span>
+                    <span className="text-xs text-teal-500 font-medium">40%</span>
                   </div>
                   <div className="font-bold text-slate-900 mt-1">
                     S/ {dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.cotizacionesPendientes.toLocaleString('es-PE', { minimumFractionDigits: 0 })}
@@ -185,7 +185,7 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
                 <div className="bg-white/50 rounded px-3 py-2">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-600">Requerimientos activos</span>
-                    <span className="text-xs text-indigo-500 font-medium">30%</span>
+                    <span className="text-xs text-teal-500 font-medium">30%</span>
                   </div>
                   <div className="font-bold text-slate-900 mt-1">
                     S/ {dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.expectativasActivas.toLocaleString('es-PE', { minimumFractionDigits: 0 })}

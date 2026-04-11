@@ -136,7 +136,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
           type="date"
           value={fechaPago}
           onChange={(e) => setFechaPago(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
         />
       </div>
 
@@ -151,7 +151,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
               onClick={() => setMonedaPago(m)}
               className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${
                 monedaPago === m
-                  ? 'bg-indigo-600 text-white border-indigo-600'
+                  ? 'bg-teal-600 text-white border-teal-600'
                   : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
               }`}
             >
@@ -170,7 +170,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
           onChange={(e) => setTipoCambio(parseFloat(e.target.value) || 0)}
           step="0.01"
           min="0.01"
-          className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500"
+          className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
         />
       </div>
 
@@ -180,7 +180,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
         <select
           value={cuentaId}
           onChange={(e) => setCuentaId(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
         >
           <option value="">Seleccionar cuenta...</option>
           {cuentasFiltradas.map((c) => (
@@ -203,7 +203,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
         <select
           value={metodoPago}
           onChange={(e) => setMetodoPago(e.target.value as MetodoPagoUnificado)}
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
         >
           {metodosDisponibles.map((m) => (
             <option key={m} value={m}>{METODOS_PAGO_INFO[m]?.label || m}</option>
@@ -220,7 +220,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
             value={referencia}
             onChange={(e) => setReferencia(e.target.value)}
             placeholder="Ej: OP-123456"
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
           />
         </div>
       )}
@@ -233,7 +233,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
           onChange={(e) => setNotas(e.target.value)}
           rows={2}
           placeholder="Notas del lote..."
-          className="w-full border rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full border rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-teal-500"
         />
       </div>
 

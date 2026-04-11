@@ -642,7 +642,7 @@ export const Requerimientos: React.FC = () => {
               className="hidden sm:flex"
               title="Ver productos pendientes de compra"
             >
-              <AlertCircle className="h-4 w-4 mr-1 text-indigo-500" />
+              <AlertCircle className="h-4 w-4 mr-1 text-teal-500" />
               Pendientes
             </Button>
 
