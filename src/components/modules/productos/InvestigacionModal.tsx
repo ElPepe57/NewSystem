@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { Button, Badge, Tabs, TabsProvider, TabPanel, useTabs } from '../../common';
 import type { Tab } from '../../common';
-import { ProveedorUSAList } from './ProveedorUSAList';
+import { ProveedorOrigenList } from './ProveedorOrigenList';
 import { CompetidorPeruList } from './CompetidorPeruList';
 import { HistorialPreciosChart } from './HistorialPreciosChart';
 import { AlertasInvestigacion } from './AlertasInvestigacion';
@@ -437,7 +437,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
           <div className="space-y-4">
             {/* Sección de Proveedores USA */}
             <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
-              <ProveedorUSAList
+              <ProveedorOrigenList
                 proveedores={proveedoresUSA}
                 onChange={setProveedoresUSA}
                 disabled={loading}

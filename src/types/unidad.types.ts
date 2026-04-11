@@ -61,6 +61,41 @@ export const ESTADOS_PIPELINE: EstadoUnidad[] = [
 ];
 
 /**
+ * Estados de excepcion (pueden ocurrir en cualquier punto del flujo)
+ */
+export const ESTADOS_EXCEPCION: EstadoUnidad[] = [
+  'danada',
+  'perdida',
+  'retenida_aduana',
+];
+
+/**
+ * Todos los estados finales (la unidad ya no se mueve)
+ */
+export const ESTADOS_FINALES: EstadoUnidad[] = [
+  'vendida',
+  'danada',
+  'perdida',
+];
+
+/**
+ * Mapeo de estados legacy a estados nuevos (para migracion en Fase 2)
+ */
+export const MAPEO_ESTADOS_LEGACY: Record<string, EstadoUnidad> = {
+  'recibida_origen': 'disponible',
+  'recibida_usa': 'disponible',
+  'en_transito_origen': 'en_transito',
+  'en_transito_usa': 'en_transito',
+  'en_transito_peru': 'en_transito',
+  'disponible_peru': 'disponible',
+  'asignada_pedido': 'asignada_venta',
+  'vencida': 'danada',
+  'en_reclamo': 'danada',
+  'baja': 'perdida',
+  'donada': 'perdida',
+};
+
+/**
  * @deprecated Legacy — usar ESTADOS_ACTIVOS en su lugar
  */
 export const ESTADOS_EN_ORIGEN: EstadoUnidad[] = ['recibida_origen', 'recibida_usa'];
