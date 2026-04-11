@@ -29,6 +29,7 @@ import type {
 } from '../../types/llamadaIntel.types';
 import type { UserProfile } from '../../types/auth.types';
 import { llamadaIntelService } from '../../services/llamadaIntel.service';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { CallNotesModal } from '../../components/modules/llamadaIntel/CallNotesModal';
 import { useAuthStore } from '../../store/authStore';
 import { db } from '../../lib/firebase';
@@ -219,14 +220,13 @@ export const NotasIA: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Notas de Llamadas IA</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Resúmenes, tareas y decisiones extraídas automáticamente de tus llamadas de equipo
-        </p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Notas IA"
+        subtitle="Resumenes, tareas y decisiones extraidas automaticamente de tus llamadas de equipo"
+        icon={MessageSquare}
+      />
+      <Toolbar />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -329,7 +329,7 @@ export const NotasIA: React.FC = () => {
           onClose={() => setSelectedIntelId(null)}
         />
       )}
-    </div>
+    </PageShell>
   );
 };
 

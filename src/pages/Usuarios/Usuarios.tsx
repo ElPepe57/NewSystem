@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle, LogOut, Wifi, WifiOff, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import { Modal } from '../../components/common/Modal';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { userService, PERMISOS_INFO } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
@@ -365,38 +366,39 @@ export const Usuarios: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
-          <p className="text-gray-600">Administra roles y permisos de los usuarios del sistema</p>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => setModalType('disconnect-all-confirm')}
-            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
-            title="Desconectar todas las sesiones"
-          >
-            <WifiOff className="h-4 w-4" />
-            <span className="hidden sm:inline">Desconectar Todos</span>
-          </button>
-          <button
-            onClick={fetchUsuarios}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
-          >
-            <RefreshCw className="h-4 w-4" />
-            <span className="hidden sm:inline">Actualizar</span>
-          </button>
-          <button
-            onClick={() => setModalType('create')}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-          >
-            <Plus className="h-4 w-4" />
-            Nuevo Usuario
-          </button>
-        </div>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Usuarios"
+        subtitle="Administra roles y permisos de los usuarios del sistema"
+        icon={Users}
+        actions={
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => setModalType('disconnect-all-confirm')}
+              className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+              title="Desconectar todas las sesiones"
+            >
+              <WifiOff className="h-4 w-4" />
+              <span className="hidden sm:inline">Desconectar Todos</span>
+            </button>
+            <button
+              onClick={fetchUsuarios}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span className="hidden sm:inline">Actualizar</span>
+            </button>
+            <button
+              onClick={() => setModalType('create')}
+              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+            >
+              <Plus className="h-4 w-4" />
+              Nuevo Usuario
+            </button>
+          </div>
+        }
+      />
+      <Toolbar />
 
       {/* Mensajes */}
       {error && (
@@ -1295,6 +1297,6 @@ export const Usuarios: React.FC = () => {
           ))}
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };

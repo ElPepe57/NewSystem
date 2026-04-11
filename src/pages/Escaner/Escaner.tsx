@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ScanLine, Search, ClipboardCheck, Truck, PackageCheck, ArrowRightLeft, ArrowLeft } from 'lucide-react';
 import { GradientHeader } from '../../components/common';
 import { PageShell, PageHeader } from '../../design-system';
+// Toolbar available for future use
 import { BarcodeScanner } from '../../components/common/BarcodeScanner';
 import { Tabs } from '../../components/common/Tabs';
 import { ModoConsulta } from '../../components/modules/escaner/modos/ModoConsulta';

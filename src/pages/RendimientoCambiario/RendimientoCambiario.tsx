@@ -19,6 +19,7 @@ import {
   Calculator,
 } from 'lucide-react';
 import { Button, Card, Modal } from '../../components/common';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { usePoolUSDStore } from '../../store/poolUSDStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -221,54 +222,53 @@ export const RendimientoCambiario: React.FC = () => {
   // ============================================================
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Rendimiento Cambiario</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Pool USD con TCPA — Análisis de impacto cambiario en toda la operación
-          </p>
-        </div>
-        <div className="flex gap-2">
-          {movimientos.length === 0 && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSaldoInicial(true)}
-              >
-                <Plus className="w-4 h-4 mr-1" />
-                Saldo Inicial
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowRetroactiva(true)}
-              >
-                <Calendar className="w-4 h-4 mr-1" />
-                Cargar Histórico
-              </Button>
-            </>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => { fetchMovimientos(); fetchResumen(); fetchSnapshots(); }}
-          >
-            <RefreshCw className="w-4 h-4 mr-1" />
-            Actualizar
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setShowNuevoMovimiento(true)}
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Nuevo Movimiento
-          </Button>
-        </div>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Rendimiento Cambiario"
+        subtitle="Pool USD con TCPA — Analisis de impacto cambiario en toda la operacion"
+        icon={DollarSign}
+        actions={
+          <div className="flex gap-2">
+            {movimientos.length === 0 && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSaldoInicial(true)}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Saldo Inicial
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowRetroactiva(true)}
+                >
+                  <Calendar className="w-4 h-4 mr-1" />
+                  Cargar Historico
+                </Button>
+              </>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { fetchMovimientos(); fetchResumen(); fetchSnapshots(); }}
+            >
+              <RefreshCw className="w-4 h-4 mr-1" />
+              Actualizar
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setShowNuevoMovimiento(true)}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Nuevo Movimiento
+            </Button>
+          </div>
+        }
+      />
+      <Toolbar />
 
       {/* Error */}
       {error && (
@@ -547,7 +547,7 @@ export const RendimientoCambiario: React.FC = () => {
           </div>
         </Modal>
       )}
-    </div>
+    </PageShell>
   );
 };
 

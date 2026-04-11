@@ -4,6 +4,7 @@ import {
   XCircle, RefreshCw, Activity, Clock, Edit2, X
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { usePermissions } from '../../hooks/usePermissions';
 import { userService, PERMISOS_INFO } from '../../services/user.service';
 import { ROLE_LABELS, ROLE_DESCRIPTIONS } from '../../types/auth.types';
@@ -197,7 +198,13 @@ export const MiPerfil: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <PageShell>
+      <PageHeader
+        title="Mi Perfil"
+        subtitle="Gestiona tu cuenta y preferencias"
+        icon={User}
+      />
+      <Toolbar />
       {/* Mensajes */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex justify-between items-center">
@@ -502,6 +509,6 @@ export const MiPerfil: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 };

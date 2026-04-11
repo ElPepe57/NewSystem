@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { Card } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { useCTRUStore } from '../../store/ctruStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
@@ -50,24 +51,28 @@ export const Proyeccion: React.FC = () => {
 
   if (ctruLoading) {
     return (
-      <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <PageShell>
+        <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp} />
+        <Toolbar />
         <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="w-8 h-8 text-primary-500 animate-spin" />
           <span className="ml-3 text-gray-500">Cargando datos del sistema...</span>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   if (!proy) {
     return (
-      <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <PageShell>
+        <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp} />
+        <Toolbar />
         <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
         <Card className="p-8 text-center text-gray-500">
           No hay datos suficientes. Necesitas al menos 1 producto con historial.
         </Card>
-      </div>
+      </PageShell>
     );
   }
 
@@ -81,11 +86,13 @@ export const Proyeccion: React.FC = () => {
   ];
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4">
-      <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
+    <PageShell>
+      <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp} />
 
       {/* Filtro de línea de negocio */}
       <LineaFilterInline />
+      <Toolbar />
+      <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
 
       {/* KPIs EJECUTIVOS — siempre visibles */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -138,7 +145,7 @@ export const Proyeccion: React.FC = () => {
         Horizonte: {proy.horizonte} días |
         {proy.fechaGeneracion.toLocaleTimeString('es-PE')}
       </div>
-    </div>
+    </PageShell>
   );
 };
 

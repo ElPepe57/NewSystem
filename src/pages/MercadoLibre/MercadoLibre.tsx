@@ -11,6 +11,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { useSearchParams } from 'react-router-dom';
 import {
   ShoppingBag,
@@ -173,7 +174,37 @@ export const MercadoLibre: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <PageShell>
+      <PageHeader
+        title="Mercado Libre"
+        subtitle={config?.connected ? (config.nickname || 'VitaSkin') : 'No conectado'}
+        icon={ShoppingCart}
+        actions={
+          config?.connected ? (
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 text-sm font-medium"
+            >
+              <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Sincronizando...' : 'Sincronizar'}
+            </button>
+          ) : (
+            <button
+              onClick={handleConnect}
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm font-medium"
+            >
+              <Link2 className="w-4 h-4" />
+              Conectar Mercado Libre
+            </button>
+          )
+        }
+      />
+
+      {/* Filtro de línea de negocio */}
+      <LineaFilterInline />
+      <Toolbar />
+
       {/* OAuth callback message */}
       {oauthMessage && (
         <div className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
@@ -192,54 +223,6 @@ export const MercadoLibre: React.FC = () => {
           </button>
         </div>
       )}
-
-      {/* Filtro de línea de negocio */}
-      <LineaFilterInline />
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <ShoppingBag className="w-6 h-6 text-yellow-600" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">Mercado Libre</h1>
-              {config?.connected && (
-                <span className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full flex-shrink-0">
-                  <Wifi className="w-3 h-3" />
-                  <span className="hidden sm:inline">Conectado</span>
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-gray-500 truncate">
-              {config?.connected
-                ? `${config.nickname || 'VitaSkin'}`
-                : 'No conectado'}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {config?.connected ? (
-            <button
-              onClick={handleSync}
-              disabled={syncing}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 text-sm font-medium w-full sm:w-auto justify-center"
-            >
-              <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-              {syncing ? 'Sincronizando...' : 'Sincronizar'}
-            </button>
-          ) : (
-            <button
-              onClick={handleConnect}
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm font-medium w-full sm:w-auto justify-center"
-            >
-              <Link2 className="w-4 h-4" />
-              Conectar Mercado Libre
-            </button>
-          )}
-        </div>
-      </div>
 
       {/* Error banner */}
       {error && (
@@ -334,6 +317,6 @@ export const MercadoLibre: React.FC = () => {
           {activeTab === 'config' && <TabConfiguracion config={config} onConnect={handleConnect} />}
         </>
       )}
-    </div>
+    </PageShell>
   );
 };

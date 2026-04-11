@@ -5,7 +5,8 @@
  * Permite seleccionar N documentos pendientes y pagarlos/cobrarlos en lote.
  */
 import React, { useEffect, useState } from 'react';
-import { Layers, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { Layers, ArrowDownCircle, ArrowUpCircle, CreditCard } from 'lucide-react';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
@@ -90,19 +91,13 @@ export const PagosMasivos: React.FC = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-[1400px] mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-100 rounded-lg">
-            <Layers size={24} className="text-indigo-600" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Pagos Masivos</h1>
-            <p className="text-sm text-gray-500">Procesa multiples pagos en un solo lote</p>
-          </div>
-        </div>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Pagos Masivos"
+        subtitle="Procesa multiples pagos en un solo lote"
+        icon={CreditCard}
+      />
+      <Toolbar />
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 w-fit">
@@ -173,6 +168,6 @@ export const PagosMasivos: React.FC = () => {
 
       {/* ConfirmDialog */}
       <ConfirmDialog {...confirm.props} />
-    </div>
+    </PageShell>
   );
 };

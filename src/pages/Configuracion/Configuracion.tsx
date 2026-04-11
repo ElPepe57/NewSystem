@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Building2, Settings, User, RefreshCw, Database, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { EmpresaForm } from '../../components/modules/configuracion/EmpresaForm';
 import { ConfiguracionForm } from '../../components/modules/configuracion/ConfiguracionForm';
 import { useConfiguracionStore } from '../../store/configuracionStore';
@@ -152,12 +153,13 @@ export const Configuracion: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Configuración</h1>
-        <p className="text-gray-600 mt-1">Administra la configuración del sistema</p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Configuracion"
+        subtitle="Administra la configuracion del sistema"
+        icon={Settings}
+      />
+      <Toolbar />
 
       {/* Tabs */}
       <div className="border-b border-gray-200">
@@ -443,6 +445,6 @@ export const Configuracion: React.FC = () => {
         )}
       </div>
 
-    </div>
+    </PageShell>
   );
 };

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { MapPin, RefreshCw } from 'lucide-react';
 import { GradientHeader, Button } from '../../components/common';
 import { PageShell, PageHeader } from '../../design-system';
+// Toolbar available for future use
 import { useMapaCalorStore } from '../../store/mapaCalorStore';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { MapaCalorMapa } from './MapaCalorMapa';

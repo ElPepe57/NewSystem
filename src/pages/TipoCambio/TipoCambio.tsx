@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Plus, TrendingUp, Calendar } from "lucide-react";
 import { Button, Card, Modal } from "../../components/common";
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { TipoCambioForm } from "../../components/modules/tipoCambio/TipoCambioForm";
 import { TipoCambioTable } from "../../components/modules/tipoCambio/TipoCambioTable";
 import { TipoCambioChart } from "../../components/modules/tipoCambio/TipoCambioChart";
@@ -120,17 +121,19 @@ export const TipoCambio: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Tipo de Cambio</h1>
-          <p className="text-gray-600 mt-1">Gestiona los tipos de cambio USD/PEN</p>
-        </div>
-        <Button variant="primary" onClick={handleCreate}>
-          <Plus className="h-5 w-5 mr-2" />
-          Registrar Tipo de Cambio
-        </Button>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Tipo de Cambio"
+        subtitle="Gestiona los tipos de cambio USD/PEN"
+        icon={DollarSign}
+        actions={
+          <Button variant="primary" onClick={handleCreate}>
+            <Plus className="h-5 w-5 mr-2" />
+            Registrar Tipo de Cambio
+          </Button>
+        }
+      />
+      <Toolbar />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         <Card padding="md">
@@ -203,6 +206,6 @@ export const TipoCambio: React.FC = () => {
           loading={isSubmitting}
         />
       </Modal>
-    </div>
+    </PageShell>
   );
 };

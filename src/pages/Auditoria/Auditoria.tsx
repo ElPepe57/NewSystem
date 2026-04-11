@@ -23,6 +23,7 @@ import {
   Truck
 } from 'lucide-react';
 import { Card, Badge, Button } from '../../components/common';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { auditoriaService } from '../../services/auditoria.service';
 import type { AuditLog, AuditLogFiltros, AuditLogStats, ModuloAuditoria, NivelAuditoria } from '../../types/auditoria.types';
 
@@ -162,23 +163,19 @@ export const Auditoria: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Activity className="h-8 w-8 text-primary-600" />
-            Auditoría del Sistema
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Registro de actividades y cambios en el sistema
-          </p>
-        </div>
-        <Button onClick={loadData} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Actualizar
-        </Button>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Auditoria"
+        subtitle="Registro de actividades y cambios en el sistema"
+        icon={Activity}
+        actions={
+          <Button onClick={loadData} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualizar
+          </Button>
+        }
+      />
+      <Toolbar />
 
       {/* Estadísticas */}
       {stats && (
@@ -418,6 +415,6 @@ export const Auditoria: React.FC = () => {
           )}
         </div>
       </Card>
-    </div>
+    </PageShell>
   );
 };
